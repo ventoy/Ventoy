@@ -1,0 +1,162 @@
+			ACKNOWLEDGEMENTS
+
+Thanks to everyone who have downloaded Squashfs.  I appreciate people
+using it, and any feedback you have.
+
+The following have provided useful feedback, which has guided
+some of the extra features in squashfs.  This is a randomly ordered
+(roughly in chronological order) list, which is updated when
+I remember...
+
+Acknowledgements for Squashfs 4.3
+---------------------------------
+
+Thanks to Bruno Wolff III and Andy Lutomirski for useful feedback
+during the long development process of Squashfs 4.3.
+
+Acknowledgements for Squashfs 4.2
+---------------------------------
+
+Thanks to Lasse Collin (http://tukaani.org/xz/) for mainlining XZ
+decompression support.
+
+Acknowledgements for Squashfs 4.1
+---------------------------------
+
+Thanks to Chan Jeong <chan.jeong@lge.com> and LG for the patches to support LZO
+compression.
+
+Acknowledgements for Squashfs 4.0
+---------------------------------
+
+Thanks to Tim Bird and CELF (Consumer Electronics Linux Forum) for helping
+fund mainstreaming of Squashfs into the 2.6.29 kernel and the 
+changes to the Squashfs tools to support the new 4.0 file system layout.
+
+Acknowledgements for Squashfs-3.3
+------------------------------------
+
+Peter Korsgaard and others sent patches updating Squashfs to changes in the
+VFS interface for 2.6.22/2.6.23/2.6.24-rc1.  Peter also sent some small patches
+for the Squashfs kernel code.
+
+Vito Di Leo sent a patch extending Mksquashfs to support regex filters.
+While his patched worked, it unfortunately made it easy to make Mksquashfs
+perform unpredictably with poorly choosen regex expressions.  It, however,
+encouraged myself to add support for wildcard pattern matching and regex
+filters in a different way.
+
+Acknowledgements for Squashfs-3.2-r2
+------------------------------------
+
+Junjiro Okajima discovered a couple of SMP issues, thanks.
+
+Junjiro Okajima and Tomas Matejicek have produced some good LZMA patches
+for Squashfs.
+
+Acknowledgements for Squashfs-3.2
+---------------------------------
+
+Peter Korsgaard sent a patch updating Squashfs to changes in the VFS interface
+in Linux 2.6.20.
+
+Acknowledgements for Squashfs-3.1
+---------------------------------
+
+Kenneth Duda and Ed Swierk of Arastra Inc. identified numerous bugs with
+Squashfs, and provided patches which were the basis for some of the
+fixes.  In particular they identified the fragment rounding bug, the
+NFS bug, the initrd bug, and helped identify the 4K stack overflow bug.
+
+Scott James Remnant (Ubuntu) also identified the fragment rounding bug,
+and he also provided a patch.
+
+Ming Zhang identified the Lseek bug in Mksquashfs.  His tests on the
+performance of Mksquashfs on SMP systems encouraged the rewrite of
+Mksquashfs.
+
+Peter Korsgaard, Daniel Olivera and Zilvinas Valinskas noticed
+Squashfs 3.0 didn't compile on Linux-2.6.18-rc[1-4] due to changes
+in the Linux VFS interfaces, and provided patches.
+
+Tomas Matejicek (SLAX) suggested the -force option on Unsquashfs, and noticed
+Unsquashfs didn't return the correct exit status.
+
+Yann Le Doare reported a kernel oops and provided a Qemu image that led
+to the identification of the simultaneously accessing multiply mounted Squashfs
+filesystems bug.
+
+
+Older acknowledgements
+----------------------
+
+Mark Robson - pointed out early on that initrds didn't work
+
+Adam Warner - pointed out that greater than 2GB filesystems didn't work.
+
+John Sutton - raised the problem when archiving the entire filesystem
+(/) there was no way to prevent /proc being archived.  This prompted
+exclude files.
+
+Martin Mueller (LinuxTV) - noticed that the filesystem length in the
+superblock doesn't match the output filesystem length.  This is due to
+padding to a 4K boundary.  This prompted the addition of the -nopad option.
+He also reported a problem where 32K block filesystems hung when used as
+initrds.
+
+Arkadiusz Patyk (Polish Linux Distribution - PLD) reported a problem where 32K
+block filesystems hung when used as a root filesystem mounted as a loopback
+device.
+
+David Fox (Lindows) noticed that the exit codes returned by Mksquashfs were
+wrong.  He also noticed that a lot of time was spent in the duplicate scan
+routine.
+
+Cameron Rich complained that Squashfs did not support FIFOs or sockets.
+
+Steve Chadsey and Thomas Weissmuller noticed that files larger than the
+available memory could not be compressed by Mksquashfs.
+
+"Ptwahyu" and "Hoan" (I have no full names and I don't like giving people's
+email addresses), noticed that Mksquashfs 1.3 SEGV'd occasionally.  Even though
+I had already noticed this bug, it is useful to be informed by other people.
+
+Don Elwell, Murray Jensen and Cameron Rich, have all sent in patches.  Thanks,
+I have not had time to do anything about them yet...
+
+Drew Scott Daniels has been a good advocate for Squashfs.
+
+Erik Andersen has made some nice suggestions, unfortunately, I have
+not had time to implement anything.
+
+Artemiy I. Pavlov has written a useful LDP mini-howto for Squashfs
+(http://linuxdoc.artemio.net/squashfs).
+
+Yves Combe reported the Apple G5 bug, when using Squashfs for
+his PPC Knoppix-mib livecd project.
+
+Jaco Greeff (mklivecd project, and maintainer of the Mandrake
+squashfs-tools package) suggested the new mksquashfs -ef option, and the
+standalone build for mksquashfs.
+
+Mike Schaudies made a donation.
+
+Arkadiusz Patyk from the Polish Linux Distribution reported that Squashfs
+didn't work on amd64 machines. He gave me an account on a PLD amd64 machine
+which allowed myself to track down these bugs.
+
+Miles Roper, Peter Kjellerstedt and Willy Tarreau reported that release 2.1 did
+not compile with gcc < 3.x.
+
+Marcel J.E. Mol reported lack of kernel memory issues when using Squashfs
+on small memory embedded systems.  This prompted the addition of the embedded
+system kernel configuration options.
+
+Era Scarecrow noticed that Mksquashfs had not been updated to reflect that
+smaller than 4K blocks are no longer supported.
+
+Kenichi Shima reported the Kconfig file had not been updated to 2.2.
+
+Aaron Ten Clay made a donation!
+
+Tomas Matejicek (SLAX) made a donation!

@@ -1,0 +1,3 @@
+liblzma follows LGPL license (see lgpl.txt)
+
+Ventoy does not modify its source code, only its library is used.

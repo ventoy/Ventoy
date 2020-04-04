@@ -1,0 +1,15 @@
+GitHub
+
+This is now the main development repository for Squashfs-Tools.
+
+There are older repositories on Sourceforge and kernel.org.  These
+are currently out of date, but should be updated in the near future.
+
+The kernel directories are obsolete, all kernel code is now in
+mainline at www.kernel.org.
+
+kernel-2.4: If you still need Squashfs support in the 2.4 kernel
+then use the squashfs 3.2-r2 release.  This is the last release
+that has a Mksquashfs which generates filesystems mountable with
+Squashfs patched 2.4 kernels.  This release has patches for 2.4
+kernels (but they have not been updated since the 3.1 release).

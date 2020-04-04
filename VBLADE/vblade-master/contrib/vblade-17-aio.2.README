@@ -1,0 +1,31 @@
+This proof-of-concept patch modifies vblade to access the underlying block
+device using POSIX asynchronous IO (AIO) rather than using normal blocking
+read() and write(). AIO allows vblade to receive and queue several several ATA
+read/write commands at once, returning the response to the client
+asynchronously as each IO operation completes. It should be most beneficial
+for devices which experience very non-sequential IO. An AIO-enabled vblade is
+also a good starting point if you want to generalise vblade to export multiple
+devices without the complexity and overhead of a multithreaded approach.
+
+The patch implements AIO support for both Linux and FreeBSD, but I have not
+tested the FreeBSD support and would therefore be especially interested to
+hear success/failure reports for compiling and running AIO vblade on FreeBSD.
+A SIGIO handler which writes a single byte to a pipe is used to notify the
+main poll() loop that AIO operations have completed and are ready to return to
+the client. Running oprofile on a box with a heavily loaded loopback
+vblade-aio suggests that it spends an inordinate amount of time in the signal
+handler. Some method of poll()ing directly on the AIO events at the same time
+as the socket fd could cut this overhead out completely.
+
+More generally, experimenting on Linux with standard O_DIRECT vblade and
+O_DIRECT vblade-aio on a loopback interface with MTU 9000 suggests that the
+performance difference on a single RAID1-backed block device is fairly small:
+swamped by the performance of the network and the underlying block device.
+However, the POSIX AIO in glibc librt is emulated in userspace threads rather
+than using the kernel AIO api. A kernel-backed POSIX AIO implementation should
+perform better, especially for multiple access to a single block device.
+
+I would be delighted to hear any feedback and experiences from people running
+vblade together with this patch.
+
+Chris Webb <chris@arachsys.com>, 2008-04-21.

@@ -1,0 +1,40 @@
+Media Access API
+-=-=-=-=-=-=-=-=-
+
+int media_read(uint32 sector, uint8 *buffer, uint32 sector_count)
+
+Params:
+	Sector: 32-bit sector number
+	Buffer: Target buffer to read n sectors of data into.
+	Sector_count: Number of sectors to read.
+
+Return: 
+	int, 1 = success, 0 = failure.
+
+Description:
+   Application/target specific disk/media read function.
+   Sector number (sectors are usually 512 byte pages) to read.
+
+Media Write API
+
+int media_write(uint32 sector, uint8 *buffer, uint32 sector_count)
+
+Params:
+	Sector: 32-bit sector number
+	Buffer: Target buffer to write n sectors of data from.
+	Sector_count: Number of sectors to write.
+
+Return: 
+	int, 1 = success, 0 = failure.
+
+Description:
+   Application/target specific disk/media write function.
+   Sector number (sectors are usually 512 byte pages) to write to.
+
+File IO Library Linkage
+   Use the following API to attach the media IO functions to the File IO library.
+
+   int fl_attach_media(fn_diskio_read rd, fn_diskio_write wr)
+
+
+

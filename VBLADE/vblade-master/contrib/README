@@ -1,0 +1,12 @@
+
+The patches in the contrib directory enable features
+that either don't work completely, aren't well tested, or
+are of limited general use.  They can be applied by 
+using patch in the vblade source directory as follows:
+
+forfeit:~/vblade-12 # patch -p1 <contrib/jumbo.diff
+patching file aoe.c
+patching file fns.h
+patching file freebsd.c
+patching file linux.c
+forfeit:~/vblade-12 # 

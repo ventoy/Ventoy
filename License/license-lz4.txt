@@ -1,0 +1,5 @@
+
+Ventoy does not modify its source code, only its library is used.
+
+The library source of lz4 follows the BSD 2-Clause License.
+

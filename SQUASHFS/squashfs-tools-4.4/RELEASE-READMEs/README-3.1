@@ -1,0 +1,158 @@
+	SQUASHFS 3.1 - A squashed read-only filesystem for Linux
+
+	Copyright 2002-2006 Phillip Lougher <phillip@lougher.org.uk>
+
+	Released under the GPL licence (version 2 or later).
+
+Welcome to Squashfs version 3.1-r2.  Squashfs 3.1 has major improvements to
+the Squashfs tools (Mksquashfs and Unsquashfs), some major bug fixes, new
+kernel patches, and various other smaller improvements and bug fixes.
+Please see the CHANGES file for a detailed list.
+
+1. MKSQUASHFS
+-------------
+
+Mksquashfs has been rewritten and it is now multi-threaded.  It offers
+the following improvements:
+
+1. Parallel compression.  By default as many compression and fragment
+compression threads are created as there are available processors.
+This significantly speeds up performance on SMP systems.
+
+2. File input and filesystem output is peformed in parallel on separate
+threads to maximise I/O performance.  Even on single processor systems
+this speeds up performance by at least 10%.
+
+3. Appending has been significantly improved, and files within the
+filesystem being appended to are no longer scanned and checksummed.  This
+significantly improves append time for large filesystems.
+
+4. File duplicate checking has been optimised, and split into two separate
+phases.  Only files which are considered possible duplicates after the
+first phase are checksummed and cached in memory.
+
+5. The use of swap memory was found to significantly impact performance. The
+amount of memory used to cache the file is now a command line option, by default
+this is 512 Mbytes.
+
+1.1 NEW COMMAND LINE OPTIONS
+----------------------------
+
+The new Mksquashfs program has a couple of extra command line options
+which can be used to control the new features:
+
+-processors <processors>
+
+This specifies the number of processors used by Mksquashfs.
+By default this is the number of available processors.
+
+-read_queue <size in Mbytes>
+
+This specifies the size of the file input queue used by the reader thread.
+This defaults to 64 Mbytes.
+
+-write_queue <size in Mbytes>
+
+This specifies the size of the filesystem output queue used by the
+writer thread.  It also specifies the maximum cache used in file
+duplicate detection (the output queue is shared between these tasks).
+This defaults to 512 Mbytes.
+
+1.2 PERFORMANCE RESULTS
+-----------------------
+
+The following results give an indication of the speed improvements.  Two
+example filesystems were tested, a liveCD filesystem (about 1.8 Gbytes
+uncompressed), and my home directory consisting largely of text files
+(about 1.3 Gbytes uncompressed).  Tests were run on a single core
+and a dual core system.
+
+Dual Core (AMDx2 3800+) system:
+Source directories on ext3.
+
+LiveCD, old mksquashfs:
+
+real    11m48.401s
+user    9m27.056s
+sys     0m15.281s
+
+LiveCD, new par_mksquashfs:
+
+real    4m8.736s
+user    7m11.771s
+sys     0m27.749s
+
+"Home", old mksquashfs:
+
+real    4m34.360s
+user    3m54.007s
+sys     0m32.155s
+
+"Home", new par_mksquashfs:
+
+real    1m27.381s
+user    2m7.304s
+sys     0m17.234s
+
+Single Core PowerBook (PowerPC G4 1.5 GHz Ubuntu Linux)
+Source directories on ext3.
+
+LiveCD, old mksquashs:
+
+real    11m38.472s
+user    9m6.137s
+sys     0m23.799s
+
+LiveCD,  par_mksquashfs:
+
+real    10m5.572s
+user    8m59.921s
+sys     0m16.145s
+
+"Home", old mksquashfs:
+
+real    3m42.298s
+user    2m49.478s
+sys     0m13.675s
+
+"Home", new par_mksquashfs:
+
+real    3m9.178s
+user    2m50.699s
+sys     0m9.069s
+
+I'll be interested in any performance results obtained, especially from SMP
+machines larger than my dual-core AMD box, as this will give an indication of
+the scalability of the code.  Obviously, I'm also interested in any problems,
+deadlocks, low performance etc.
+
+2. UNSQUASHFS
+-------------
+
+Unsquashfs now allows you to specify the filename or directory that is to be
+extracted from the Squashfs filesystem, rather than always extracting the
+entire filesystem.  It also has a new "-force" option, and all options can be
+specified in a short form (-i rather than -info).
+
+The Unsquashfs usage info is now:
+
+SYNTAX: ./unsquashfs [options] filesystem [directory or file to extract]
+	-v[ersion]		print version, licence and copyright information
+	-i[nfo]			print files as they are unsquashed
+	-l[s]			list filesystem only
+	-d[est] <pathname>	unsquash to <pathname>, default "squashfs-root"
+	-f[orce]		if file already exists then overwrite
+
+To extract a subset of the filesystem, the filename or directory
+tree that is to be extracted can now be specified on the command line.  The
+file/directory should be specified using the full path to the file/directory
+as it appears within the Squashfs filesystem.  The file/directory will also be
+extracted to that position within the specified destination directory.
+
+The new "-force" option forces Unsquashfs to output to the destination
+directory even if files or directories already exist.  This allows you
+to update an existing directory tree, or to Unsquashfs to a partially
+filled directory.  Without the "-force" option, Unsquashfs will
+refuse to overwrite any existing files, or to create any directories if they
+already exist.  This is done to protect data in case of mistakes, and
+so the "-force" option should be used with caution.

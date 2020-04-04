@@ -1,0 +1,18 @@
+[Unit]
+Description=vblade instance %I
+SourcePath=/etc/vblade.conf.d/%I.conf
+Documentation=man:vblade(8)
+PartOf=vblade.service
+After=rc-local.service
+
+[Service]
+Type=simple
+Environment="ionice=-c2 -n7"
+EnvironmentFile=/etc/vblade.conf.d/%I.conf
+ExecStart=/usr/bin/ionice $ionice /usr/sbin/vblade $shelf $slot $netif $filename $options
+SyslogIdentifier=vblade
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

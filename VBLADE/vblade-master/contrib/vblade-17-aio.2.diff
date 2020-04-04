@@ -1,0 +1,538 @@
+diff -uprN vblade-17.orig/aoe.c vblade-17/aoe.c
+--- vblade-17.orig/aoe.c	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/aoe.c	2008-06-09 11:05:23.000000000 -0400
+@@ -8,6 +8,9 @@
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <netinet/in.h>
++#include <errno.h>
++#include <aio.h>
++#include <poll.h>
+ #include "dat.h"
+ #include "fns.h"
+ 
+@@ -22,6 +25,11 @@ char config[Nconfig];
+ int nconfig = 0;
+ int maxscnt = 2;
+ char *ifname;
++int queuepipe[2];
++int pktlen[Nplaces], pending[Nplaces];
++Ata *pkt[Nplaces];
++Ataregs regs[Nplaces];
++struct aiocb aiocb[Nplaces];
+ 
+ void
+ aoead(int fd)			// advertise the virtual blade
+@@ -78,32 +86,52 @@ getlba(uchar *p)
+ }
+ 
+ int
+-aoeata(Ata *p, int pktlen)	// do ATA reqeust
++aoeata(int place)	// do ATA reqeust
+ {
+-	Ataregs r;
+-	int len = 60;
+ 	int n;
++	int len = 60; // minimum ethernet packet size
+ 
+-	r.lba = getlba(p->lba);
+-	r.sectors = p->sectors;
+-	r.feature = p->err;
+-	r.cmd = p->cmd;
+-	if (atacmd(&r, (uchar *)(p+1), maxscnt*512, pktlen - sizeof(*p)) < 0) {
+-		p->h.flags |= Error;
+-		p->h.error = BadArg;
++	regs[place].lba = getlba(pkt[place]->lba);
++	regs[place].sectors = pkt[place]->sectors;
++	regs[place].feature = pkt[place]->err;
++	regs[place].cmd = pkt[place]->cmd;
++	n = atacmd(regs + place, (uchar *)(pkt[place] + 1), maxscnt*512,
++				pktlen[place] - sizeof(Ata), aiocb + place);
++	if (n < 0) {
++		pkt[place]->h.flags |= Error;
++		pkt[place]->h.error = BadArg;
+ 		return len;
++	} else if (n > 0) {
++		pending[place] = 1;
++		return 0;
++	}
++	if (!(pkt[place]->aflag & Write) && (n = pkt[place]->sectors)) {
++		n -= regs[place].sectors;
++		len = sizeof (Ata) + (n*512);
+ 	}
+-	if (!(p->aflag & Write))
+-	if ((n = p->sectors)) {
+-		n -= r.sectors;
++	pkt[place]->sectors = regs[place].sectors;
++	pkt[place]->err = regs[place].err;
++	pkt[place]->cmd = regs[place].status;
++	return len;
++}
++
++int aoeatacomplete(int place, int pktlen)
++{
++	int n;
++	int len = 60; // minimum ethernet packet size
++	atacmdcomplete(regs + place, aiocb + place);
++	if (!(pkt[place]->aflag & Write) && (n = pkt[place]->sectors)) {
++		n -= regs[place].sectors;
+ 		len = sizeof (Ata) + (n*512);
+ 	}
+-	p->sectors = r.sectors;
+-	p->err = r.err;
+-	p->cmd = r.status;
++	pkt[place]->sectors = regs[place].sectors;
++	pkt[place]->err = regs[place].err;
++	pkt[place]->cmd = regs[place].status;
++	pending[place] = 0;
+ 	return len;
+ }
+ 
++
+ #define QCMD(x) ((x)->vercmd & 0xf)
+ 
+ // yes, this makes unnecessary copies.
+@@ -156,8 +184,9 @@ confcmd(Conf *p, int payload)	// process
+ }
+ 
+ void
+-doaoe(Aoehdr *p, int n)
++doaoe(int place)
+ {
++	Aoehdr *p = (Aoehdr *) pkt[place];
+ 	int len;
+ 	enum {	// config query header size
+ 		CHDR_SIZ = sizeof(Conf) - sizeof(((Conf *)0)->data),
+@@ -165,14 +194,16 @@ doaoe(Aoehdr *p, int n)
+ 
+ 	switch (p->cmd) {
+ 	case ATAcmd:
+-		if (n < sizeof(Ata))
++		if (pktlen[place] < sizeof(Ata))
++			return;
++		len = aoeata(place);
++		if (len == 0)
+ 			return;
+-		len = aoeata((Ata*)p, n);
+ 		break;
+ 	case Config:
+-		if (n < CHDR_SIZ)
++		if (pktlen[place] < CHDR_SIZ)
+ 			return;
+-		len = confcmd((Conf *)p, n - CHDR_SIZ);
++		len = confcmd((Conf *)p, pktlen[place] - CHDR_SIZ);
+ 		if (len == 0)
+ 			return;
+ 		break;
+@@ -193,25 +224,129 @@ doaoe(Aoehdr *p, int n)
+ }
+ 
+ void
++doaoecomplete(int place)
++{
++	Aoehdr *p = (Aoehdr *) pkt[place];
++	int len = aoeatacomplete(place, pktlen[place]);
++	memmove(p->dst, p->src, 6);
++	memmove(p->src, mac, 6);
++	p->maj = htons(shelf);
++	p->min = slot;
++	p->flags |= Resp;
++	if (putpkt(sfd, (uchar *) p, len) == -1) {
++		perror("write to network");
++		exit(1);
++	}
++
++}
++
++// allocate the buffer so that the ata data area
++// is page aligned for o_direct on linux
++
++void *
++bufalloc(void **buf, long len)
++{
++	long psize;
++	unsigned long n;
++
++	psize = sysconf(_SC_PAGESIZE);
++	if (psize == -1) {
++		perror("sysconf");
++		exit(EXIT_FAILURE);
++	}
++	n = len/psize + 3;
++	*buf = malloc(psize * n);
++	if (!*buf) {
++		perror("malloc");
++		exit(EXIT_FAILURE);
++	}
++	n = (unsigned long) *buf;
++	n += psize * 2;
++	n &= ~(psize - 1);
++	return (void *) (n - sizeof (Ata));
++}
++
++void
++sigio(int signo) 
++{
++	const char dummy = 0;
++	write(queuepipe[1], &dummy, 1);
++}
++
++void
+ aoe(void)
+ {
+ 	Aoehdr *p;
+-	uchar *buf;
+-	int n, sh;
++	char dummy;
++	int n, place, sh;
+ 	enum { bufsz = 1<<16, };
+-
+-	buf = malloc(bufsz);
++	sigset_t mask, oldmask;
++	struct sigaction sigact;
++	struct pollfd pollfds[2];
++	void *freeme[Nplaces];
++
++	for (n = 0; n < Nplaces; n++) {
++		pkt[n] = bufalloc(freeme + n, bufsz);
++		pending[n] = 0;
++	}
+ 	aoead(sfd);
+ 
++	pipe(queuepipe);
++	fcntl(queuepipe[0], F_SETFL, O_NONBLOCK);
++	fcntl(queuepipe[1], F_SETFL, O_NONBLOCK);
++
++	sigemptyset(&sigact.sa_mask);
++	sigact.sa_flags = 0;
++	sigact.sa_sigaction = (void *) sigio;
++	sigaction(SIGIO, &sigact, NULL);
++
++	sigemptyset(&mask);
++	sigaddset(&mask, SIGIO);
++	sigprocmask(SIG_BLOCK, &mask, &oldmask);
++
++	pollfds[0].fd = queuepipe[0];
++	pollfds[1].fd = sfd;
++	pollfds[0].events = pollfds[1].events = POLLIN;
++
+ 	for (;;) {
+-		n = getpkt(sfd, buf, bufsz);
+-		if (n < 0) {
++		sigprocmask(SIG_SETMASK, &oldmask, NULL);
++		n = poll(pollfds, 2, 1000);
++		sigprocmask(SIG_BLOCK, &mask, NULL);
++
++		if (n < 0 && errno != EINTR) {
++			perror("poll");
++			continue;
++		} else if (n == 0 || pollfds[0].revents & POLLIN) {
++			while(read(queuepipe[0], &dummy, 1) > 0);
++			for (place = 0; place < Nplaces; place++) {
++				if (!pending[place])
++					continue;
++				if (aio_error(aiocb + place) == EINPROGRESS)
++					continue;
++				doaoecomplete(place);
++				pollfds[1].events = POLLIN;
++			}
++		}
++
++		if ((pollfds[1].revents & POLLIN) == 0)
++			continue;
++			
++		for (place = 0; pending[place] && place < Nplaces; place++);
++		if (place >= Nplaces) {
++			pollfds[1].events = 0;
++			continue;
++		}
++
++		pktlen[place] = getpkt(sfd, (uchar *) pkt[place], bufsz);
++		if (pktlen[place] < 0) {
++			if (errno == EINTR)
++				continue;
+ 			perror("read network");
+ 			exit(1);
+ 		}
+-		if (n < sizeof(Aoehdr))
++		if (pktlen[place] < sizeof(Aoehdr))
+ 			continue;
+-		p = (Aoehdr *) buf;
++		p = (Aoehdr *) pkt[place];
+ 		if (ntohs(p->type) != 0x88a2)
+ 			continue;
+ 		if (p->flags & Resp)
+@@ -223,9 +358,10 @@ aoe(void)
+ 			continue;
+ 		if (nmasks && !maskok(p->src))
+ 			continue;
+-		doaoe(p, n);
++		doaoe(place);
+ 	}
+-	free(buf);
++	for (place = 0; place < Nplaces; place++)
++		free(freeme[place]);
+ }
+ 
+ void
+@@ -317,7 +453,7 @@ main(int argc, char **argv)
+ 	}
+ 	if (s.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH))
+ 		omode = O_RDWR;
+-	bfd = open(argv[3], omode);
++	bfd = opendisk(argv[3], omode);
+ 	if (bfd == -1) {
+ 		perror("open");
+ 		exit(1);
+diff -uprN vblade-17.orig/ata.c vblade-17/ata.c
+--- vblade-17.orig/ata.c	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/ata.c	2008-06-09 11:05:23.000000000 -0400
+@@ -3,6 +3,8 @@
+ #include <string.h>
+ #include <stdio.h>
+ #include <sys/types.h>
++#include <errno.h>
++#include <aio.h>
+ #include "dat.h"
+ #include "fns.h"
+ 
+@@ -98,7 +100,7 @@ atainit(void)
+  * check for that.
+  */
+ int
+-atacmd(Ataregs *p, uchar *dp, int ndp, int payload) // do the ata cmd
++atacmd(Ataregs *p, uchar *dp, int ndp, int payload, struct aiocb *aiocb) // do the ata cmd
+ {
+ 	vlong lba;
+ 	ushort *ip;
+@@ -155,14 +157,29 @@ atacmd(Ataregs *p, uchar *dp, int ndp, i
+ 		return 0;
+ 	}
+ 	if (p->cmd == 0x20 || p->cmd == 0x24)
+-		n = getsec(bfd, dp, lba, p->sectors);
++		n = getsec(bfd, dp, lba, p->sectors, aiocb);
+ 	else {
+ 		// packet should be big enough to contain the data
+ 		if (payload < 512 * p->sectors)
+ 			return -1;
+-		n = putsec(bfd, dp, lba, p->sectors);
++		n = putsec(bfd, dp, lba, p->sectors, aiocb);
+ 	}
+-	n /= 512;
++	if (n < 0) {
++		p->err = ABRT;
++		p->status = ERR|DRDY;
++		p->lba += n;
++		p->sectors -= n;
++		return 0;
++	}
++	return 1; // callback expected
++}
++
++
++int
++atacmdcomplete(Ataregs *p, struct aiocb *aiocb) // complete the ata cmd
++{
++	int n;
++	n = aio_return(aiocb) / 512;
+ 	if (n != p->sectors) {
+ 		p->err = ABRT;
+ 		p->status = ERR;
+@@ -173,4 +190,3 @@ atacmd(Ataregs *p, uchar *dp, int ndp, i
+ 	p->sectors -= n;
+ 	return 0;
+ }
+-
+diff -uprN vblade-17.orig/dat.h vblade-17/dat.h
+--- vblade-17.orig/dat.h	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/dat.h	2008-06-09 11:05:23.000000000 -0400
+@@ -111,6 +111,8 @@ enum {
+ 	Nconfig = 1024,
+ 
+ 	Bufcount = 16,
++
++	Nplaces = 32,
+ };
+ 
+ int	shelf, slot;
+diff -uprN vblade-17.orig/fns.h vblade-17/fns.h
+--- vblade-17.orig/fns.h	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/fns.h	2008-06-09 11:07:21.000000000 -0400
+@@ -15,7 +15,8 @@ int	maskok(uchar *);
+ // ata.c
+ 
+ void	atainit(void);
+-int	atacmd(Ataregs *, uchar *, int, int);
++int	atacmd(Ataregs *, uchar *, int, int, struct aiocb *);
++int	atacmdcomplete(Ataregs *, struct aiocb *);
+ 
+ // bpf.c
+ 
+@@ -26,8 +27,9 @@ void	free_bpf_program(void *);
+ 
+ int	dial(char *);
+ int	getea(int, char *, uchar *);
+-int	putsec(int, uchar *, vlong, int);
+-int	getsec(int, uchar *, vlong, int);
++int	opendisk(const char *, int);
++int	putsec(int, uchar *, vlong, int, struct aiocb *);
++int	getsec(int, uchar *, vlong, int, struct aiocb *);
+ int	putpkt(int, uchar *, int);
+ int	getpkt(int, uchar *, int);
+ vlong	getsize(int);
+diff -uprN vblade-17.orig/freebsd.c vblade-17/freebsd.c
+--- vblade-17.orig/freebsd.c	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/freebsd.c	2008-06-09 11:05:23.000000000 -0400
+@@ -209,19 +209,40 @@ getea(int s, char *eth, uchar *ea)
+ 	return(0);
+ }
+ 
+-
+ int
+-getsec(int fd, uchar *place, vlong lba, int nsec)
++opendisk(const char *disk, int omode)
+ {
+-	return pread(fd, place, nsec * 512, lba * 512);
++	return open(disk, omode);
+ }
+ 
+ int
+-putsec(int fd, uchar *place, vlong lba, int nsec)
+-{
+-	return pwrite(fd, place, nsec * 512, lba * 512);
++getsec(int fd, uchar *place, vlong lba, int nsec, struct aiocb *aiocb)
++{       
++        bzero((char *) aiocb, sizeof(struct aiocb));
++        aiocb->aio_fildes = fd;
++        aiocb->aio_buf = place;
++        aiocb->aio_nbytes = nsec * 512;
++        aiocb->aio_offset = lba * 512;
++        aiocb->aio_sigevent.sigev_notify = SIGEV_SIGNAL;
++        aiocb->aio_sigevent.sigev_signo = SIGIO;
++        aiocb->aio_sigevent.sigev_value.sival_ptr = aiocb;
++        return aio_read(aiocb);
+ }
+ 
++int
++putsec(int fd, uchar *place, vlong lba, int nsec, struct aiocb *aiocb)
++{       
++        bzero((char *) aiocb, sizeof(struct aiocb));
++        aiocb->aio_fildes = fd;
++        aiocb->aio_buf = place;
++        aiocb->aio_nbytes = nsec * 512;
++        aiocb->aio_offset = lba * 512;
++        aiocb->aio_sigevent.sigev_notify = SIGEV_SIGNAL;
++        aiocb->aio_sigevent.sigev_signo = SIGIO;
++        aiocb->aio_sigevent.sigev_value.sival_ptr = aiocb;
++        return aio_write(aiocb);
++}       
++
+ static int pktn = 0;
+ static uchar *pktbp = NULL;
+ 
+diff -uprN vblade-17.orig/linux.c vblade-17/linux.c
+--- vblade-17.orig/linux.c	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/linux.c	2008-06-09 11:05:23.000000000 -0400
+@@ -1,5 +1,6 @@
+ // linux.c: low level access routines for Linux
+ #include "config.h"
++#define _GNU_SOURCE
+ #include <sys/socket.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -22,6 +23,9 @@
+ #include <netinet/in.h>
+ #include <linux/fs.h>
+ #include <sys/stat.h>
++#include <fcntl.h>
++#include <errno.h>
++#include <aio.h>
+ 
+ #include "dat.h"
+ #include "fns.h"
+@@ -29,8 +33,6 @@
+ int	getindx(int, char *);
+ int	getea(int, char *, uchar *);
+ 
+-
+-
+ int
+ dial(char *eth)		// get us a raw connection to an interface
+ {
+@@ -84,7 +86,7 @@ getea(int s, char *name, uchar *ea)
+ 	struct ifreq xx;
+ 	int n;
+ 
+-        strcpy(xx.ifr_name, name);
++	strcpy(xx.ifr_name, name);
+ 	n = ioctl(s, SIOCGIFHWADDR, &xx);
+ 	if (n == -1) {
+ 		perror("Can't get hw addr");
+@@ -110,17 +112,37 @@ getmtu(int s, char *name)
+ }
+ 
+ int
+-getsec(int fd, uchar *place, vlong lba, int nsec)
++opendisk(const char *disk, int omode)
++{
++	return open(disk, omode|O_DIRECT);
++}
++
++int
++getsec(int fd, uchar *place, vlong lba, int nsec, struct aiocb *aiocb)
+ {
+-	lseek(fd, lba * 512, 0);
+-	return read(fd, place, nsec * 512);
++	bzero((char *) aiocb, sizeof(struct aiocb));
++	aiocb->aio_fildes = fd;
++	aiocb->aio_buf = place;
++	aiocb->aio_nbytes = nsec * 512;
++	aiocb->aio_offset = lba * 512;
++	aiocb->aio_sigevent.sigev_notify = SIGEV_SIGNAL;
++	aiocb->aio_sigevent.sigev_signo = SIGIO;
++	aiocb->aio_sigevent.sigev_value.sival_ptr = aiocb;
++	return aio_read(aiocb);
+ }
+ 
+ int
+-putsec(int fd, uchar *place, vlong lba, int nsec)
++putsec(int fd, uchar *place, vlong lba, int nsec, struct aiocb *aiocb)
+ {
+-	lseek(fd, lba * 512, 0);
+-	return write(fd, place, nsec * 512);
++	bzero((char *) aiocb, sizeof(struct aiocb));
++	aiocb->aio_fildes = fd;
++	aiocb->aio_buf = place;
++	aiocb->aio_nbytes = nsec * 512;
++	aiocb->aio_offset = lba * 512;
++	aiocb->aio_sigevent.sigev_notify = SIGEV_SIGNAL;
++	aiocb->aio_sigevent.sigev_signo = SIGIO;
++	aiocb->aio_sigevent.sigev_value.sival_ptr = aiocb;
++	return aio_write(aiocb);
+ }
+ 
+ int
+diff -uprN vblade-17.orig/linux.h vblade-17/linux.h
+--- vblade-17.orig/linux.h	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/linux.h	2008-06-09 11:05:23.000000000 -0400
+@@ -6,6 +6,6 @@ typedef long long vlong;
+ int	dial(char *);
+ int	getindx(int, char *);
+ int	getea(int, char *, uchar *);
+-int	getsec(int, uchar *, vlong, int);
+-int	putsec(int, uchar *, vlong, int);
++int	getsec(int, uchar *, vlong, int, struct aiocb *);
++int	putsec(int, uchar *, vlong, int, struct aiocb *);
+ vlong	getsize(int);
+diff -uprN vblade-17.orig/makefile vblade-17/makefile
+--- vblade-17.orig/makefile	2008-06-09 10:53:07.000000000 -0400
++++ vblade-17/makefile	2008-06-09 11:05:23.000000000 -0400
+@@ -13,7 +13,7 @@ CFLAGS += -Wall -g -O2
+ CC = gcc
+ 
+ vblade: $O
+-	${CC} -o vblade $O
++	${CC} -lrt -o vblade $O
+ 
+ aoe.o : aoe.c config.h dat.h fns.h makefile
+ 	${CC} ${CFLAGS} -c $<

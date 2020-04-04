@@ -1,0 +1,10 @@
+FAT File IO Library License
+-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+This versions license: GPL
+
+If you include GPL software in your project, you must release the source code of that project too.
+
+If you would like a version with a more permissive license for use in closed source commercial applications please contact me for details.
+
+Email: admin@ultra-embedded.com

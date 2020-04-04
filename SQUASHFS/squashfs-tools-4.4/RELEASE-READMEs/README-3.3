@@ -1,0 +1,169 @@
+	SQUASHFS 3.3 - A squashed read-only filesystem for Linux
+
+	Copyright 2002-2007 Phillip Lougher <phillip@lougher.demon.co.uk>
+
+	Released under the GPL licence (version 2 or later).
+
+Welcome to another release of Squashfs.  This is the 22nd release in just
+over five years of work.  Squashfs 3.3 has lots of nice improvements,
+both to the filesystem itself (bigger blocks, and sparse files), but
+also to the Squashfs-tools Mksquashfs and Unsquashfs.  As usual the
+CHANGES file has a detailed list of all the improvements.
+
+Following is a description of the changes to  the Squashfs tools, usage
+guides to the new options, and a summary of the new options.
+
+1. MKSQUASHFS - EXTENDED EXCLUDE FILE HANDLING
+----------------------------------------------
+
+1. Extended wildcard pattern matching now supported in exclude files
+
+  Enabled by specifying -wildcards option
+
+  Supports both anchored and non-anchored exclude files.
+
+1.1 Anchored excludes
+
+  Similar to existing exclude files except with wildcards.  Exclude
+  file matches from root of source directories.
+
+  Examples:
+
+  1. mksquashfs example image.sqsh -wildcards -e 'test/*.gz'
+
+     Exclude all files matching "*.gz" in the top level directory "test".
+
+  2. mksquashfs example image.sqsh -wildcards -e '*/[Tt]est/example*'
+
+     Exclude all files beginning with "example" inside directories called
+     "Test" or "test", that occur inside any top level directory.
+
+  Using extended wildcards, negative matching is also possible.
+
+  3. mksquashfs example image.sqsh -wildcards -e 'test/!(*data*).gz'
+
+     Exclude all files matching "*.gz" in top level directory "test",
+     except those with "data" in the name.
+
+1.2 Non-anchored excludes
+
+  By default excludes match from the top level directory, but it is
+  often useful to exclude a file matching anywhere in the source directories.
+  For this non-anchored excludes can be used, specified by pre-fixing the
+  exclude with "...".
+
+  Examples:
+
+  1. mksquashfs example image.sqsh -wildcards -e '... *.gz'
+
+     Exclude files matching "*.gz" anywhere in the source directories.
+     For example this will match "example.gz", "test/example.gz", and
+     "test/test/example.gz".
+
+  2. mksquashfs example image.sqsh -wildcards -e '... [Tt]est/*.gz'
+
+     Exclude files matching "*.gz" inside directories called "Test" or
+     "test" that occur anywhere in the source directories.
+
+  Again, using extended wildcards, negative matching is also possible.
+
+  3. mksquashfs example image.sqsh -wildcards -e '... !(*data*).gz'
+
+     Exclude all files matching "*.gz" anywhere in the source directories,
+     except those with "data" in the name.
+
+2. Regular expression pattern matching now supported in exclude files
+
+  Enabled by specifying -regex option.  Identical behaviour to wild
+card pattern matching, except patterns are considered to be regular
+expressions.
+
+  Supports both anchored and non-anchored exclude files.
+
+
+2. MKSQUASHFS - NEW RECOVERY FILE FEATURE
+-----------------------------------------
+
+Recovery files are now created when appending to existing Squashfs
+filesystems.  This allows the original filesystem to be recovered
+if Mksquashfs aborts unexpectedly (i.e. power failure).
+
+The recovery files are called squashfs_recovery_xxx_yyy, where
+"xxx" is the name of the filesystem being appended to, and "yyy" is a
+number to guarantee filename uniqueness (the PID of the parent Mksquashfs
+process).
+
+Normally if Mksquashfs exits correctly the recovery file is deleted to
+avoid cluttering the filesystem.  If Mksquashfs aborts, the "-recover"
+option can be used to recover the filesystem, giving the previously
+created recovery file as a parameter, i.e.
+
+mksquashfs dummy image.sqsh -recover squashfs_recovery_image.sqsh_1234
+
+The writing of the recovery file can be disabled by specifying the
+"-no-recovery" option.
+
+
+3. UNSQUASHFS - EXTENDED EXTRACT FILE HANDLING
+----------------------------------------------
+
+1. Multiple extract files can now be specified on the command line, and the
+files/directories to be extracted can now also be given in a file.
+
+To specify a file containing the extract files use the "-e[f]" option.
+
+2. Extended wildcard pattern matching now supported in extract files
+
+  Enabled by default.  Similar to existing extract files except with
+wildcards.
+
+  Examples:
+
+  1. unsquashfs image.sqsh 'test/*.gz'
+
+     Extract all files matching "*.gz" in the top level directory "test".
+
+  2. unsquashfs image.sqsh '[Tt]est/example*'
+
+     Extract all files beginning with "example" inside top level directories
+     called "Test" or "test".
+
+  Using extended wildcards, negative matching is also possible.
+
+  3. unsquashfs image.sqsh 'test/!(*data*).gz'
+
+     Extract all files matching "*.gz" in top level directory "test",
+     except those with "data" in the name.
+
+3. Regular expression pattern matching now supported in extract files
+
+  Enabled by specifying -r[egex] option.  Identical behaviour to wild
+card pattern matching, except patterns are considered to be regular
+expressions.
+
+4. UNSQUASHFS - EXTENDED FILENAME PRINTING
+------------------------------------------
+
+Filename printing has been enhanced and Unquashfs can now display filenames
+with file attributes ('ls -l' style output).
+
+New options:
+
+  -ll[s]
+
+   list filesystem with file attributes, but don't unsquash
+
+  -li[nfo]
+
+   print files as they are unsquashed with file attributes
+
+
+5. UNSQUASHFS - MISCELLANEOUS OPTIONS
+-------------------------------------
+
+   -s[tat]
+
+   Display the filesystem superblock information.  This is useful to
+   discover the filesystem version, byte ordering, whether it has an
+   NFS export table, and what options were used to compress
+   the filesystem.

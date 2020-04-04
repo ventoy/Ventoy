@@ -1,0 +1,13 @@
+[Unit]
+Description=vblade exports
+Documentation=man:vblade-persistence(5)
+Documentation=man:vblade(8)
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+ExecReload=/bin/true
+RemainAfterExit=on
+
+[Install]
+WantedBy=multi-user.target

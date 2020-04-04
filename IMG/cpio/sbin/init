@@ -1,0 +1,75 @@
+#!/ventoy/busybox/tmpsh
+#************************************************************************************
+# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# 
+#************************************************************************************
+
+####################################################################
+#                                                                  #
+# Step 1 : extract busybox & set busybox enviroment                #
+#                                                                  #
+####################################################################
+
+export VTOY_ORG_PATH=$PATH
+export VTOY_PATH=/ventoy
+export BUSYBOX_PATH=$VTOY_PATH/busybox
+export VTLOG=$VTOY_PATH/log
+export FIND=$BUSYBOX_PATH/find
+export GREP=$BUSYBOX_PATH/grep
+export EGREP=$BUSYBOX_PATH/egrep
+export CAT=$BUSYBOX_PATH/cat
+export AWK=$BUSYBOX_PATH/awk
+export SED=$BUSYBOX_PATH/sed
+export SLEEP=$BUSYBOX_PATH/sleep
+export HEAD=$BUSYBOX_PATH/head
+
+$BUSYBOX_PATH/tmpxz -d $BUSYBOX_PATH/busybox.xz
+$BUSYBOX_PATH/busybox --install $BUSYBOX_PATH
+
+export PATH=$BUSYBOX_PATH/:$VTOY_PATH/tool
+
+export VTOY_BREAK_LEVEL=$(hexdump -n 1 -s 429 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+export VTOY_DEBUG_LEVEL=$(hexdump -n 1 -s 430 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+
+#Fixme: busybox shell output redirect seems to have some bug in rhel5
+if uname -a | grep -q el5; then
+    VTOY_REDT_BUG=YES
+fi
+
+if [ -z "$VTOY_REDT_BUG" ]; then
+    echo "============== VENTOY =================" >>$VTLOG
+fi
+
+cd $VTOY_PATH
+xz -d ventoy.sh.xz
+
+if [ -n "$VTOY_REDT_BUG" ]; then
+    xz -d -c hook.cpio.xz | cpio -idm
+    xz -d -c tool.cpio.xz | cpio -idm
+else
+    xz -d -c hook.cpio.xz | cpio -idm 2>>$VTLOG
+    xz -d -c tool.cpio.xz | cpio -idm 2>>$VTLOG
+fi
+
+rm -f *.xz
+cd /
+
+####################################################################
+#                                                                  #
+# Step 2 : Hand over to ventoy init                                #
+#                                                                  #
+####################################################################
+exec $BUSYBOX_PATH/sh $VTOY_PATH/init

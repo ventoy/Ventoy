@@ -1,0 +1,2 @@
+exfat follows GPLv2 (see gpl-2.0.txt) License.
+Ventoy modify its source code, these code modified by Ventoy follows the same license as exfat.

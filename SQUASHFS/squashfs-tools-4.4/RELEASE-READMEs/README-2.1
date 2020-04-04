@@ -1,0 +1,87 @@
+	SQUASHFS 2.1 - A squashed read-only filesystem for Linux
+
+	Copyright 2004 Phillip Lougher (plougher@users.sourceforge.net)
+
+	Released under the GPL licence (version 2 or later).
+
+Welcome to Squashfs version 2.1-r2.  Squashfs 2.1 introduces indexed
+directories which considerably speed up directory lookup (ls, find etc.) for
+directories which are greater than 8K in size.  All directories are now also
+sorted alphabetically which further speeds up directory lookup.  Many smaller
+improvements have also been made to this release, please see the CHANGES file
+entry for detailed changes.
+
+1. DIRECTORY SPEED IMPROVEMENT EXAMPLES
+---------------------------------------
+
+To give an indication of the directory speed improvements a number of test
+results are shown here.  There is in addition a new PERFORMANCE.README file
+which gives details of I/O and lookup performance for Squashfs 2.1 against
+the Zisofs, Cloop and CRAMFS filesystems.
+
+example 1:
+
+Filesystems generated from a single directory of 72,784 files (2.6 MB
+directory size).  Each file is 10 bytes in size (the test is directory
+lookup and so the file size isn't an issue).  The ext3 uncompressed
+directory size is 288 MB (presumably because of one file per block).
+
+Zisofs compressed size        153.50 MB
+Cloop (isofs) compressed size 1.74 MB
+Squashfs2.1 compressed size   612 KB (0.60 MB)
+
+Time taken to perform "ls -lR --color=always | cat > /dev/null" on
+filesystems mounted on hard disk.
+
+Zisofs       35 minutes 7.895 seconds (User 7.868 secs, Sys 34 mins 5.621 secs)
+Cloop        35 minutes 12.765 seconds (User 7.771 secs, Sys 34 mins 3.869 secs)
+Squashfs2.1  19 seconds (User 5.119 secs, Sys 14.547 secs)
+
+example 2:
+
+Filesystems were generated from the Ubuntu Warty livecd (original uncompressed
+size on ext3 is 1.4 GB).
+
+Zisofs compressed size        589.81 MB
+Cloop (isofs) compressed size 471.19 MB
+Squashfs2.0 compressed size   448.58 MB
+Squashfs2.1 compressed size   448.58 MB
+
+Time taken to perform "ls -lR --color=always | cat > /dev/null" on
+filesystems mounted on hard disk.
+
+Zisofs        49.875 seconds (User time 2.589 secs, Sys 11.194 secs)
+Cloop         20.797 seconds (User time 2.706 secs, Sys 13.496 secs)
+Squashfs2.0   16.556 seconds (User time 2.424 secs, Sys 10.371 secs)
+Squashfs2.1   10.143 seconds (User time 2.475 secs, Sys 4.440 secs)
+
+
+NOTE: the usual warnings apply to these results, they are provided for
+illustrative purposes only, and due to different hardware and/or file data, you
+may obtain different results.  As such the results are provided "as is" without
+any warranty (either express or implied) and you assume all risks as to their
+quality and accuracy.
+
+2. NEW MKSQUASHFS OPTIONS
+-------------------------
+
+There is only one extra option "-2.0".  This tells mksquashfs to generate
+a filesystem which is mountable with Squashfs version 2.0.
+
+3. APPENDING AND MOUNTING SQUASHFS 2.0 FILESYSTEMS
+--------------------------------------------------
+
+Mounting 2.0 filesystems is supported by Squashfs 2.1.  In addition
+mksquashfs v2.1 can append to 2.0 filesystems, although the generated
+filesystem will still be a 2.0 filesystem.
+
+4. DONATIONS
+------------
+
+If you find Squashfs useful then please consider making a donation,
+particularly if you use Squashfs in a commercial product.  Please consider
+giving something back especially if you're making money from it.
+
+Off the Squashfs subject somewhat I'm currently looking for another
+job doing Linux kernel or filesystems work.  If you know of any such
+work that can be performed from the UK then please get in touch.  Thanks.

@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8D231B30-65B1-48A2-A720-F659E61DD390}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Ventoy2Disk</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <EmbedManifest>true</EmbedManifest>
+    <IncludePath>$(ProjectDir)\fat_io_lib\;$(ProjectDir)\xz-embedded-20130513\linux\include;$(ProjectDir)\xz-embedded-20130513\linux\include\linux;$(ProjectDir)\xz-embedded-20130513\userspace;$(ProjectDir)\ff14\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir)\fat_io_lib\;$(ProjectDir)\xz-embedded-20130513\linux\include;$(ProjectDir)\xz-embedded-20130513\linux\include\linux;$(ProjectDir)\xz-embedded-20130513\userspace;$(ProjectDir)\ff14\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>FATFS_INC_FORMAT_SUPPORT=0;STATIC=static;INIT=;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>version.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2Disk.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>FATFS_INC_FORMAT_SUPPORT=0;STATIC=static;INIT=;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <AdditionalDependencies>version.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2Disk.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="fat_io_lib\fat_access.c" />
+    <ClCompile Include="fat_io_lib\fat_cache.c" />
+    <ClCompile Include="fat_io_lib\fat_filelib.c" />
+    <ClCompile Include="fat_io_lib\fat_format.c" />
+    <ClCompile Include="fat_io_lib\fat_misc.c" />
+    <ClCompile Include="fat_io_lib\fat_string.c" />
+    <ClCompile Include="fat_io_lib\fat_table.c" />
+    <ClCompile Include="fat_io_lib\fat_write.c" />
+    <ClCompile Include="ff14\source\diskio.c" />
+    <ClCompile Include="ff14\source\ff.c" />
+    <ClCompile Include="ff14\source\ffsystem.c" />
+    <ClCompile Include="ff14\source\ffunicode.c" />
+    <ClCompile Include="Language.c" />
+    <ClCompile Include="PhyDrive.c" />
+    <ClCompile Include="Utility.c" />
+    <ClCompile Include="Ventoy2Disk.c" />
+    <ClCompile Include="WinDialog.c" />
+    <ClCompile Include="xz-embedded-20130513\linux\lib\decompress_unxz.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fat_io_lib\fat_access.h" />
+    <ClInclude Include="fat_io_lib\fat_cache.h" />
+    <ClInclude Include="fat_io_lib\fat_defs.h" />
+    <ClInclude Include="fat_io_lib\fat_filelib.h" />
+    <ClInclude Include="fat_io_lib\fat_format.h" />
+    <ClInclude Include="fat_io_lib\fat_list.h" />
+    <ClInclude Include="fat_io_lib\fat_misc.h" />
+    <ClInclude Include="fat_io_lib\fat_opts.h" />
+    <ClInclude Include="fat_io_lib\fat_string.h" />
+    <ClInclude Include="fat_io_lib\fat_table.h" />
+    <ClInclude Include="fat_io_lib\fat_types.h" />
+    <ClInclude Include="fat_io_lib\fat_write.h" />
+    <ClInclude Include="ff14\source\diskio.h" />
+    <ClInclude Include="ff14\source\ff.h" />
+    <ClInclude Include="ff14\source\ffconf.h" />
+    <ClInclude Include="Language.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Ventoy2Disk.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Ventoy2Disk.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Res\ventoy.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

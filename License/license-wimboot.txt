@@ -1,0 +1,5 @@
+wimboot follows GPLv2+ license (see gpl-2.0.txt)
+
+Ventoy use the lzx decompress file from wimboot. These code follow the same license as wimboot.
+
+

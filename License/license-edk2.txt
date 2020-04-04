@@ -1,0 +1,2 @@
+EDK2 follows BSD-2-Clause Plus Patent License (see BSD-2-Clause-Patent.txt)
+Ventoy add an uefi application module in MdeModulePkg, the code is developed by ventoy and is under GPLv3+ License (see gpl-3.0.txt).

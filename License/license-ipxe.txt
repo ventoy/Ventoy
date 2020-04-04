@@ -1,0 +1,2 @@
+iPXE follows GPLv2 (see gpl-2.0.txt) or Unmodified Binary Distribution Licence (see ubdl.txt)
+Ventoy modify its source code, these code modified by Ventoy follow the same license as iPXE.

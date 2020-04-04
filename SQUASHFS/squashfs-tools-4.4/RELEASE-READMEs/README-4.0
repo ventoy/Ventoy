@@ -1,0 +1,48 @@
+	SQUASHFS 4.0 - A squashed read-only filesystem for Linux
+
+	Copyright 2002-2009 Phillip Lougher <phillip@lougher.demon.co.uk>
+
+	Released under the GPL licence (version 2 or later).
+
+Welcome to Squashfs 4.0.  This is an initial tools only release to
+support users of the 2.6.29 kernel, following the mainlining of Squashfs
+earlier this year.
+
+Later releases will probably contain kernel patches supporting 4.0
+layouts for earlier kernels.
+
+New Mksquashfs options
+----------------------
+
+Mksquashfs now supports pseudo files, these allow fake directories, character
+and block devices to be specified and added to the Squashfs filesystem being
+built, rather than requiring them to be present in the source directories.
+This, for example, allows device nodes to be added to the filesystem without
+requiring root access.
+
+Two options are supported, -p allows one pseudo file to be specified on the
+command line, and -pf allows a pseudo file to be specified containing a
+list of pseduo definitions, one per line.
+
+Pseudo device nodes are specified using 7 arguments
+
+Filename type mode uid gid major minor
+
+Where type is either
+	b - for block devices, and
+	c - for character devices
+
+mode is the octal mode specifier, similar to that expected by chmod.
+
+Uid and gid can be either specified as a decimal number, or by name.
+
+For example:
+
+/dev/chr_dev c 666 root root 100 1
+/dev/blk_dev b 444 0 0 200 200
+
+Directories are specified using 5 arguments
+
+Filename type mode uid gid
+
+Where type is d.

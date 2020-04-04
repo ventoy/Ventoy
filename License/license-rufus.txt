@@ -1,0 +1,3 @@
+Rufus follows GPLv3+ license (see gpl-3.0.txt)
+Ventoy uses some function from Rufus, and all the Ventoy's code also follow GPLv3+ license.
+

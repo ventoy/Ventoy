@@ -1,0 +1,6 @@
+#! /bin/sh
+# run a vblade daemon using a logger process
+# output is directed to syslogd
+#
+
+sh -c "`dirname $0`/vblade $* < /dev/null 2>&1 | logger -t vbladed" &

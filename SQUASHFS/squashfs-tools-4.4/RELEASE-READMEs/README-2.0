@@ -1,0 +1,161 @@
+NOTE:  This the original README for version 2.0.  It is retained as it
+contains information about the fragment design.  A description of the new 2.0
+mksquashfs options has been added to the main README file, and that
+file should now be consulted for these.
+
+	SQUASHFS 2.0 - A squashed read-only filesystem for Linux
+
+	Copyright 2004 Phillip Lougher (plougher@users.sourceforge.net)
+
+	Released under the GPL licence (version 2 or later).
+
+Welcome to the final release of Squashfs version 2.0!  A lot of changes to the
+filesystem have been made under the bonnet (hood).  Squashfs 2.0 uses fragment
+blocks and larger blocks (64K) to improve compression ratio by about 5 - 20%
+over Squashfs 1.0 depending on the files being compressed.  Using fragment
+blocks allows Squashfs 2.0 to achieve better compression than cloop and similar
+compression to tgz files while retaining the I/O efficiency of a compressed
+filesystem.
+
+Detailed changes:
+
+1. Squashfs 2.0 has added the concept of fragment blocks (see later discussion).
+   Files smaller than the file block size (64K in Squashfs 2.0) and optionally
+   the remainder of files that do not fit fully into a block (i.e. the last 32K
+   in a 96K file) are packed into shared fragments and compressed together.
+   This achieves on average 5 - 20% better compression than Squashfs 1.x.
+
+2. The maximum block size has been increased to 64K.
+
+3. The maximum number of UIDs has been increased to 256 (from 48 in 1.x).
+
+4. The maximum number of GIDs has been increased to 256 (from 15 in 1.x).
+
+5. New mksquashfs -all-root, -root-owned, -force-uid, and -force-gid
+   options.  These allow the uids/gids of files in the generated
+   filesystem to be specified, overriding the uids/gids in the
+   source filesystem.
+
+6. Initrds are now supported for kernels 2.6.x.
+
+7. Removal of sleep_on() function call in 2.6.x patch, to allow Squashfs
+   to work on the Fedora rc2 kernel.
+
+8. AMD64, check-data and gid bug fixes.
+
+9. Numerous small bug fixes have been made.
+
+10. New patch for Linux 2.6.7.
+
+
+New Squashfs 2.0 options
+------------------------
+
+-noF or -noFragmentCompression
+
+	Do not compress the fragments.  Added for compatibility with noI and
+	noD, probably not that useful.
+
+-no-fragments
+
+	Do not use fragment blocks, and rather generate a filesystem
+	similar to a Squashfs 1.x filesystem.  It will of course still
+	be a Squashfs 2.0 filesystem but without fragments, and so
+	it won't be mountable on a Squashfs 1.x system.
+
+-always-use-fragments
+
+	By default only small files less than the block size are packed into
+	fragment blocks.  The ends of files which do not fit fully into a block,
+	are NOT by default packed into fragments.  To illustrate this, a
+	100K file has an initial 64K block and a 36K remainder.  This
+	36K remainder is not packed into a fragment by default.  This is
+	because to do so leads to a 10 - 20% drop in sequential I/O
+	performance, as a disk head seek is needed to seek to the initial
+	file data and another disk seek is need to seek to the fragment
+	block.
+
+	Specify this option if you want file remainders to be packed into
+	fragment blocks.  Doing so may increase the compression obtained
+	BUT at the expense of I/O speed.
+
+-no-duplicates
+
+	Do not detect duplicate files.
+
+-all-root
+-root-owned
+
+	These options (both do exactly the same thing), force all file
+	uids/gids in the generated Squashfs filesystem to be root.
+	This allows root owned filesystems to be built without root access
+	on the host machine.
+
+-force-uid uid
+
+	This option forces all files in the generated Squashfs filesystem to
+	be owned by the specified uid.  The uid can be specified either by
+	name (i.e. "root") or by number.
+
+-force-gid gid
+
+	This option forces all files in the generated Squashfs filesystem to
+	be group owned by the specified gid.  The gid can be specified either by
+	name (i.e. "root") or by number.
+
+
+Compression improvements example
+--------------------------------
+
+The following is the compression results obtained compressing the 2.6.6
+linux kernel source using CRAMFS, Cloop (with iso filesystem), Squashfs 1.3 and
+Squashfs 2.0 (results generated using big-endian filesystems).
+
+In decreasing order of size:
+
+	CRAMFS		62791680 bytes (59.9M)
+	Squashfs 1.x	51351552 bytes (48.9M)
+	Cloop		46118681 bytes (44.0M)
+	Squashfs 2.0	45604854 bytes (43.5M)
+
+
+The Squashfs 1.x filesystem is 12.6% larger than the new 2.0 filesystem.
+The cloop filesystem is 1.1% larger than the Squashfs 2.0 filesystem.
+
+
+Fragment blocks in Squashfs 2.0
+-------------------------------
+
+Squashfs like all other compressed filesystems compresses files individually
+on a block by block basis.  This is performed to allow mounting and
+de-compression of files on a block by block basis without requiring the entire
+filesystem to be decompressed.  This is in contrast to data-based compression
+schemes which compress without understanding the underlying filesystem (i.e.
+cloop and tgz files) and which, therefore, do not compress files individually.
+Each approach has advantages and disadvantages, data-based systems have better
+compression because compression is always performed at the maximum block size
+(64K in cloop) irrespective of the size of each file (which could be less than
+the block size).  Compressed filesystems tend to be faster at I/O because
+they understand the filesystem and therefore employ better caching stategies
+and read less un-needed data from the filesystem.
+
+Fragment blocks in Squashfs 2.0 solves this problem by packing files (and
+optionally the ends of files) which are smaller than the block size into
+shared blocks, which are compressed together.  For example five files each of
+10K will be packed into one shared fragment of 50K and compressed together,
+rather than being compressed in five 10K blocks.
+
+This scheme produces a hybrid filesystem, retaining the I/O efficiency
+of a compressed filesystem, while obtaining the compression efficiency
+of data-based schemes by compressing small files together.
+
+
+Squashfs 1.x and Squashfs 2.0 compatibility
+-------------------------------------------
+
+Appending to Squashfs 1.x filesystems is not supported.  If you wish to append
+to 1.x filesystems, then either use the original mksquashfs, or convert them
+to Squashfs 2.0 by mounting the filesystem and running the 2.0 mksquashfs
+on the mounted filesystem.
+
+Mounting Squashfs 1.x filesystems IS supported by the 2.0 kernel patch.

@@ -1,0 +1,664 @@
+			SQUASHFS CHANGE LOG
+
+4.4	29 AUG 2019	Reproducible builds, new compressors,
+			CVE fixes, security hardening and new options
+			for Mksquashfs/Unsquashfs.
+
+	1. Overall improvements:
+
+		1.1 Mksquashfs now generates reproducible images by default.
+		1.2 Mkfs time and file timestamps can also be specified.
+		1.3 Support for the Zstandard (ZSTD) compression algorithm.
+		1.4 CVE-2015-4645 and CVE-2015-4646 have been fixed.
+
+	2. Mksquashfs improvements and major bug fixes:
+
+		2.1 Pseudo files now support symbolic links.
+		2.2 New -mkfs-time option.
+		2.3 New -all-time option.
+		2.4 New -root-mode option.
+		2.5 New -quiet option.
+		2.6 New -noId option.
+		2.7 New -offset option.
+		2.8 Update lz4 wrapper to use new functions introduced
+		    in 1.7.0.
+		2.9 Bug fix, don't allow "/" pseudo filenames.
+		2.10 Bug fix, allow quoting of pseudo files, to
+		     better handle filenames with spaces.
+		2.11 Fix compilation with glibc 2.25+.
+
+	3. Unsquashfs improvements and major bug fixes:
+
+		3.1 CVE-2015-4645 and CVE-2015-4646 have been fixed.
+		3.2 Unsquashfs has been further hardened against corrupted
+		    filestems.
+		3.3 Unsquashfs is now more strict about error handling.
+		3.4 New -ignore-errors option.
+		3.5 New -strict-errors option.
+		3.6 New -lln[umeric] option.
+		3.7 New -lc option.
+		3.8 New -llc option.
+		3.9 New -mkfs-time option.
+		3.10 New -UTC option.
+		3.11 New -offset option.
+		3.12 New -quiet option.
+		3.13 Update lz4 wrapper to use new functions introduced
+		     in 1.7.0.
+		3.14 Bug fix, fatal and non-fatal errors now set the exit
+		     code to 1.
+		3.15 Bug fix, fix time setting for symlinks.
+		3.16 Bug fix, try to set sticky-bit when running as a
+		     user process.
+		3.17 Fix compilation with glibc 2.25+.
+
+4.3	12 MAY 2014	New compressor options, new Mksquashfs/Unsquashfs
+			functionality, duplicate checking optimisations,
+			stability improvements (option/file parsing,
+			buffer/memory overflow checks, filesystem hardening
+			on corrupted filesystems), CVE fixes.
+
+	Too many changes to do the traditional custom changelog.  But, this
+	is now unnecessary, so instead list most significant 15% of commits
+	from git changelog in chronological order.
+
+	- unsquashfs: add checks for corrupted data in opendir functions
+	- unsquashfs: completely empty filesystems incorrectly generate an error
+	- unsquashfs: fix open file limit
+	- mksquashfs: Use linked list to store directory entries rather
+	- mksquashfs: Remove qsort and add a bottom up linked list merge sort
+	- mksquashfs: optimise lookup_inode2() for dirs
+	- pseudo: fix handling of modify pseudo files
+	- pseudo: fix handling of directory pseudo files
+	- xattr: Fix ERROR() so that it is synchronised with the progress bar
+	- mksquashfs/sort: Fix INFO() so that it is synced with the progress bar
+	- mksquashfs: Add -progress to force progress bar when using -info
+	- error.h: consolidate the various error macros into one header file
+	- mksquashfs: fix stack overflow in write_fragment_table()
+	- mksquashfs: move list allocation from off the stack
+	- unsquashfs: fix oversight in directory permission setting
+	- mksquashfs: dynamically allocate recovery_file
+	- mksquashfs: dynamically allocate buffer in subpathname()
+	- mksquashfs: dynamically allocate buffer in pathname()
+	- unsquashfs: fix CVE-2012-4024
+	- unsquashfs: fix CVE-2012-4025
+	- mksquashfs: fix potential stack overflow in get_component()
+	- mksquashfs: add parse_number() helper for numeric command line options
+	- mksquasfs: check return value of fstat() in reader_read_file()
+	- mksquashfs: dynamically allocate filename in old_add_exclude()
+	- unsquashfs: dynamically allocate pathname in dir_scan()
+	- unsquashfs: dynamically allocate pathname in pre_scan()
+	- sort: dynamically allocate filename in add_sort_list()
+	- mksquashfs: fix dir_scan() exit if lstat of source directory fails
+	- pseudo: fix memory leak in read_pseudo_def() if exec_file() fails
+	- pseudo: dynamically allocate path in dump_pseudo()
+	- mksquashfs: dynamically allocate path in display_path2()
+	- mksquashfs: dynamically allocate b_buffer in getbase()
+	- pseudo: fix potential stack overflow in get_component()
+	- pseudo: avoid buffer overflow in read_pseudo_def() using sscanf()
+	- pseudo: dynamically allocate filename in exec_file()
+	- pseudo: avoid buffer overflow in read_sort_file() using fscanf()
+	- sort: tighten up sort file parsing
+	- unsquashfs: fix name under-allocation in process_extract_files()
+	- unsquashfs: avoid buffer overflow in print_filename() using sprintf()
+	- Fix some limits in the file parsing routines
+	- pseudo: Rewrite pseudo file processing
+	- read_fs: fix small memory leaks in read_filesystem()
+	- mksquashfs: fix fclose leak in reader_read_file() on I/O error
+	- mksquashfs: fix frag struct leak in write_file_{process|blocks|frag}
+	- unsquashfs_xattr: fix memory leak in write_xattr()
+	- read_xattrs: fix xattr free in get_xattr() in error path
+	- unsquashfs: add -user-xattrs option to only extract user.xxx xattrs
+	- unsquashfs: add code to only print "not superuser" error message once
+	- unsquashfs: check for integer overflow in user input
+	- mksquashfs: check for integer overflow in user input
+	- mksquashfs: fix "new" variable leak in dir_scan1()
+	- read_fs: prevent buffer {over|under}flow in read_block() with
+	  corrupted filesystems
+	- read_fs: check metadata blocks are expected size in scan_inode_table()
+	- read_fs: check the root inode block is found in scan_inode_table()
+	- read_fs: Further harden scan_inode_table() against corrupted
+	  filesystems
+	- unsquashfs: prevent buffer {over|under}flow in read_block() with
+	  corrupted filesystems
+	- read_xattrs: harden xattr data reading against corrupted filesystems
+	- unsquash-[23]: harden frag table reading against corrupted filesystems
+	- unsquash-4.c: harden uid/gid & frag table reading against corruption
+	- unsquashfs: harden inode/directory table reading against corruption
+	- mksquashfs: improve out of space in output filesystem handling
+	- mksquashfs: flag lseek error in writer as probable out of space
+	- mksquashfs: flag lseek error in write_destination as probable out of
+	  space
+	- mksquashfs: print file being squashed when ^\ (SIGQUIT) typed
+	- mksquashfs: make EXIT_MKSQUASHFS() etc restore via new restore thread
+	- mksquashfs: fix recursive restore failure check
+	- info: dump queue and cache status if ^\ hit twice within one second
+	- mksquashfs: fix rare race condition in "locked fragment" queueing
+	- lz4: add experimental support for lz4 compression
+	- lz4: add support for lz4 "high compression"
+	- lzo_wrapper: new implementation with compression options
+	- gzip_wrapper: add compression options
+	- mksquashfs: redo -comp <compressor> parsing
+	- mksquashfs: display compressor options when -X option isn't recognised
+	- mksquashfs: add -Xhelp option
+	- mksquashfs/unsquashfs: fix mtime signedness
+	- Mksquashfs: optimise duplicate checking when appending
+	- Mksquashfs: introduce additional per CPU fragment process threads
+	- Mksquashfs: significantly optimise fragment duplicate checking
+	- read_fs: scan_inode_table(), fix memory leak on filesystem corruption
+	- pseudo: add_pseudo(), fix use of freed variable
+	- mksquashfs/unsquashfs: exclude/extract/pseudo files, fix handling of
+	  leaf name
+	- mksquashfs: rewrite default queue size so it's based on physical mem
+	- mksquashfs: add a new -mem <mbytes> option
+	- mksquashfs: fix limit on the number of dynamic pseudo files
+	- mksquashfs: make -mem take a normal byte value, optionally with a
+	  K, M or G 
+
+4.2	28 FEB 2011	XZ compression, and compression options support
+
+	1. Filesystem improvements:
+
+	    1.1 Added XZ compression
+	    1.2 Added compression options support
+
+	2. Miscellaneous improvements/bug fixes
+
+	    1.1 Add missing NO_XATTR filesystem flag to indicate no-xattrs
+		option was specified and no xattrs should be stored when
+		appending.
+	    1.2 Add suppport in Unquashfs -stat option for displaying
+		NO_XATTR flag.
+	    1.3 Remove checkdata entry from Unsquashfs -stat option if a 4.0
+		filesystem - checkdata is no longer supported.
+	    1.4 Fix appending bug when appending to an empty filesystem - this
+		would be incorrectly treated as an error.
+	    1.5 Use glibc sys/xattr.h include rather than using attr/xattr.h
+		which isn't present by default on some distributions.
+	    1.6 Unsquashfs, fix block calculation error with regular files when
+		file size is between 2^32-block_size+1 and 2^32-1.
+	    1.7 Unsquashfs, fix sparse file writing when holes are larger than
+		2^31-1.
+	    1.8 Add external CFLAGS and LDFLAGS support to Makefile, and allow
+		build options to be specified on command line.  Also don't
+		over-write passed in CFLAGS definition.
+	
+
+4.1	19 SEPT 2010	Major filesystem and tools improvements
+
+	1. Filesystem improvements:
+
+	    1.1 Extended attribute support
+	    1.2 New compression framework
+	    1.3 Support for LZO compression
+	    1.4 Support for LZMA compression (not yet in mainline)
+
+	2. Mksquashfs improvements:
+
+	    1.1 Enhanced pseudo file support
+	    1.2 New options for choosing compression algorithm used
+	    1.3 New options for controlling extended attributes
+	    1.4 Fix misalignment issues with memcpy etc. seen on ARM
+	    1.5 Fix floating point error in progress_bar when max == 0
+	    1.6 Removed use of get_nproc() call unavailable in ulibc
+	    1.7 Reorganised help text
+	  
+	3. Unsquashfs improvements:
+
+	    1.1 New options for controlling extended attributes
+	    1.2 Fix misalignment issues with memcpy etc. seen on ARM
+	    1.3 Fix floating point error in progress_bar when max == 0
+	    1.4 Removed use of get_nproc() call unavailable in ulibc
+
+	  
+4.0	5 APR 2009	Major filesystems improvements
+
+	1. Kernel code improvements:
+
+	    1.1 Fixed little endian layout adopted.  All swapping macros
+		removed, and in-line swapping added for big-endian
+		architectures.
+	    1.2 Kernel code substantially improved and restructured.
+	    1.3 Kernel code split into separate files along functional lines.
+	    1.4 Vmalloc usage removed, and code changed to use separately
+		allocated 4K buffers
+
+	2. Unsquashfs improvements:
+
+	    2.1 Support for 4.0 filesystems added.
+	    2.2 Swapping macros rewritten.
+	    2.3 Unsquashfs code restructured and split into separate files.
+
+	3. Mksquashfs improvements:
+
+	    3.1 Swapping macros rewritten.  Fixed little-endian layout allows
+		code to be optimised and only added at compile time for
+		big endian systems.
+	    3.2 Support for pseudo files added.
+	 
+3.4	26 AUG 2008	Performance improvements to Unsquashfs, Mksquashfs
+			and the kernel code.  Plus many small bug fixes.
+
+	1. Kernel code improvements:
+
+	    1.1 Internal Squashfs kernel metadata and fragment cache
+		implementations have been merged and optimised.  Spinlocks are
+		now used, locks are held for smaller periods and wakeups have
+		been minimised.  Small race condition fixed where if two or
+		more processes tried to read the same cache block
+		simultaneously they would both read and decompress it.  10-20%+
+		speed improvement has been seen on tests.
+	    1.2 NFS export code rewritten following VFS changes in
+		linux-2.6.24.
+	    1.3 New patches for linux-2.6.25, linux-2.6.26, and linux-2.6.27.
+		Fixed patch for linux-2.6.24.
+	    1.4 Fixed small buffer_head leak in squashfs_read_data when
+		handling badly corrupted filesystems.
+	    1.5 Fixed bug in get_dir_index_using_offset.
+
+	2. Unsquashfs improvements:
+
+	    2.1 Unsquashfs has been parallelised.  Filesystem reading, writing
+		and decompression is now multi-threaded.  Up to 40% speed
+		improvement seen on tests.
+	    2.2 Unsquashfs now has a progress bar.  Use -no-progress to
+		disable it.
+	    2.3 Fixed small bug where unistd.h wasn't being included on
+		some distributions, leading to lseek being used rather than
+		lseek64 - which meant on these distributions Unsquashfs
+		couldn't unsquash filesystems larger than 4GB.
+
+       3. Mksquashfs improvements:
+
+	    3.1 Removed some small remaining parallelisation bottlenecks.
+		Depending on source filesystem, up to 10%+ speed improvement.
+	    3.2 Progress bar improved, and moved to separate thread.
+	    3.3 Sparse file handling bug in Mksquashfs 3.3 fixed.
+	    3.4 Two rare appending restore bugs fixed (when ^C hit twice).
+
+
+3.3	1 NOV 2007	Increase in block size, sparse file support,
+			Mksquashfs and Unsquashfs extended to use
+			pattern matching in exclude/extract files, plus
+			many more improvements and bug fixes.
+
+	1. Filesystem improvements:
+
+	     1.1. Maximum block size has been increased to 1Mbyte, and the
+	    	  default block size has been increased to 128 Kbytes.
+		  This improves compression.
+
+	     1.2. Sparse files are now supported.  Sparse files are files
+		  which have large areas of unallocated data commonly called
+		  holes.  These files are now detected by Squashfs and stored
+		  more efficiently.  This improves compression and read
+		  performance for sparse files.
+
+	2. Mksquashfs improvements:
+
+	   2.1.  Exclude files have been extended to use wildcard pattern
+		 matching and regular expressions.  Support has also been
+		 added for non-anchored excludes, which means it is
+		 now possible to specify excludes which match anywhere
+		 in the filesystem (i.e. leaf files), rather than always
+		 having to specify exclude files starting from the root
+		 directory (anchored excludes).
+
+	   2.2.  Recovery files are now created when appending to existing
+		 Squashfs filesystems.  This allows the original filesystem
+		 to be recovered if Mksquashfs aborts unexpectedly
+		 (i.e. power failure).
+
+	3. Unsquashfs improvements:
+
+	    3.1. Multiple extract files can now be specified on the
+		 command line, and the files/directories to be extracted can
+		 now also be given in a file.
+
+	    3.2. Extract files have been extended to use wildcard pattern
+		 matching and regular expressions.
+
+	    3.3. Filename printing has been enhanced and Unquashfs can
+		 now display filenames with file attributes
+		 ('ls -l' style output).
+
+	    3.4. A -stat option has been added which displays the filesystem
+		 superblock information.
+
+	    3.5. Unsquashfs now supports 1.x filesystems.
+
+	4. Miscellaneous improvements/bug fixes:
+
+	    4.1. Squashfs kernel code improved to use SetPageError in
+		 squashfs_readpage() if I/O error occurs.
+
+	    4.2. Fixed Squashfs kernel code bug preventing file
+		 seeking beyond 2GB.
+
+	    4.3. Mksquashfs now detects file size changes between
+		 first phase directory scan and second phase filesystem create.
+		 It also deals better with file I/O errors.
+
+
+3.2-r2	15 JAN 2007	Kernel patch update and progress bar bug fix
+
+	1. Kernel patches 2.6.19/2.6.20 have been updated to use
+	   const structures and mutexes rather than older semaphores.
+	2. Minor SMP bug fixes.
+	3. Progress bar broken on x86-64.  Fixed.
+
+3.2	2 JAN 2007	NFS support, improvements to the Squashfs-tools, major
+			bug fixes, lots of small improvements/bug fixes, and new
+			kernel patches.
+
+	Improvements:
+
+	1. Squashfs filesystems can now be exported via NFS.
+	2. Unsquashfs now supports 2.x filesystems.
+	3. Mksquashfs now displays a progress bar.
+	4. Squashfs kernel code has been hardened against accidently or
+	   maliciously corrupted Squashfs filesystems.
+
+	Bug fixes:
+
+	5. Race condition occurring on S390 in readpage() fixed.
+	6. Odd behaviour of MIPS memcpy in read_data() routine worked-around.
+	7. Missing cache_flush in Squashfs symlink_readpage() added.
+	
+
+3.1-r2	30 AUG 2006	Mksquashfs -sort bug fix
+
+			A code optimisation after testing unfortunately
+			broke sorting in Mksquashfs.  This has been fixed.
+
+3.1	19 AUG 2006	This release has some major improvements to
+			the squashfs-tools, a couple of major bug
+			fixes, lots of small improvements/bug fixes,
+			and new kernel patches.
+
+			
+	1. Mksquashfs has been rewritten to be multi-threaded.  It
+	   has the following improvements
+
+	   1.1. Parallel compression.  By default as many compression and
+		fragment compression threads are created as there are available
+		processors.  This significantly speeds up performance on SMP
+		systems.
+	   1.2. File input and filesystem output is peformed in parallel on
+		separate threads to maximise I/O performance.  Even on single
+		processor systems this speeds up performance by at least 10%.
+	   1.3. Appending has been significantly improved, and files within the
+		filesystem being appended to are no longer scanned and
+		checksummed.  This significantly improves append time for large
+		filesystems.
+	   1.4. File duplicate checking has been optimised, and split into two
+		separate phases.  Only files which are considered possible
+		duplicates after the first phase are checksummed and cached in
+		memory.
+	   1.5	The use of swap memory was found to significantly impact
+		performance. The amount of memory used to cache files is now a
+		command line option, by default this is 512 Mbytes.
+ 
+	2. Unsquashfs has the following improvements
+
+	   2.1  Unsquashfs now allows you to specify the filename or the
+		directory within the Squashfs filesystem that is to be
+		extracted, rather than always extracting the entire filesystem.
+	   2.2  A new -force option has been added which forces Unsquashfs to
+		output to the destination directory even if files and directories
+		already exist in the destination directory.  This allows you to
+		update an already existing directory tree, or to Unsquashfs to
+		a partially filled directory tree.  Without the -force option
+		Unsquashfs will refuse to output.
+
+	3.  The following major bug fixes have been made
+
+	  3.1  	A fragment table rounding bug has been fixed in Mksquashfs.
+		Previously if the number of fragments in the filesystem
+		were a multiple of 512, Mksquashfs would generate an
+		incorrect filesystem.
+	  3.2  	A rare SMP bug which occurred when simultaneously acccessing
+		multiply mounted Squashfs filesystems has been fixed.
+
+	4. Miscellaneous improvements/bug fixes
+
+	  4.1	Kernel code stack usage has been reduced.  This is to ensure
+		Squashfs works with 4K stacks.
+	  4.2   Readdir (Squashfs kernel code) has been fixed to always
+		return 0, rather than the number of directories read.  Squashfs
+		should now interact better with NFS.
+	  4.3	Lseek bug in Mksquashfs when appending to larger than 4GB
+		filesystems fixed.
+	  4.4	Squashfs 2.x initrds can now been mounted.
+	  4.5	Unsquashfs exit status fixed.
+	  4.6	New patches for linux-2.6.18 and linux-2.4.33.
+
+	
+3.0	15 MAR 2006	Major filesystem improvements
+
+	1. Filesystems are no longer limited to 4 GB.  In
+	   theory 2^64 or 4 exabytes is now supported.
+	2. Files are no longer limited to 4 GB.  In theory the maximum
+	   file size is 4 exabytes.
+	3. Metadata (inode table and directory tables) are no longer
+	   restricted to 16 Mbytes.
+	4. Hardlinks are now suppported.
+	5. Nlink counts are now supported.
+	6. Readdir now returns '.' and '..' entries.
+	7. Special support for files larger than 256 MB has been added to
+	   the Squashfs kernel code for faster read access.
+	8. Inode numbers are now stored within the inode rather than being
+	   computed from inode location on disk (this is not so much an
+	   improvement, but a change forced by the previously listed
+	   improvements).
+
+2.2-r2	8 SEPT 2005	Second release of 2.2, this release fixes a couple
+			of small bugs, a couple of small documentation
+			mistakes, and adds a patch for kernel 2.6.13. 
+
+	1. Mksquashfs now deletes the output filesystem image file if an
+	   error occurs whilst generating the filesystem.  Previously on
+	   error the image file was left empty or partially written.
+	2. Updated mksquashfs so that it doesn't allow you to generate
+	   filesystems with block sizes smaller than 4K.  Squashfs hasn't
+	   supported block sizes less than 4K since 2.0-alpha.
+	3. Mksquashfs now ignores missing files/directories in sort files.
+	   This was the original behaviour before 2.2.
+	4. Fixed small mistake in fs/Kconfig where the version was still
+	   listed as 2.0.
+	5. Updated ACKNOWLEDGEMENTS file.
+
+
+2.2	3 JUL 2005	This release has some small improvements, bug fixes
+			and patches for new kernels.
+
+	1. Sort routine re-worked and debugged from release 2.1.  It now allows
+	   you to give Mkisofs style sort files and checks for filenames that
+	   don't match anything.  Sort priority has also been changed to
+	   conform to Mkisofs usage, highest priority files are now placed
+	   at the start of the filesystem (this means they will be on the
+	   inside of a CD or DVD).
+	2. New Configure options for embedded systems (memory constrained
+	   systems).  See INSTALL file for further details.
+	3. Directory index bug fixed where chars were treated as signed on
+           some architectures.  A file would not be found in the rare case
+	   that the filename started with a chracter greater than 127.
+	4. Bug introduced into the read_data() routine when sped up to use data
+	   block queueing fixed.  If the second or later block resulted in an
+	   I/O error this was not checked.
+	5. Append bug introduced in 2.1 fixed.  The code to compute the new
+	   compressed and uncompressed directory parts after appending was
+	   wrong.
+	6. Metadata block length read routine altered to not perform a
+	   misaligned short read.  This was to fix reading on an ARM7 running
+	   uCLinux without a misaligned read interrupt handler.
+	7. Checkdata bug introduced in 2.1 fixed.
+	
+
+2.1-r2  15 DEC 2004	Code changed so it can be compiled with gcc 2.x
+
+	1.  In some of the code added for release 2.1 I unknowingly used some
+	    gcc extensions only supported by 3.x compilers.  I have received
+	    a couple of reports that the 2.1 release doesn't build on 2.x and so
+	    people are clearly still using gcc 2.x.  The code has been
+	    rewritten to remove these extensions.
+
+2.1	10 DEC 2004	Significantly improved directory handling plus numerous
+			other smaller improvements
+
+	1.  Fast indexed directories implemented.  These speed up directory
+	    operations (ls, file lookup etc.) significantly for directories
+	    larger than 8 KB.
+	2.  All directories are now sorted in alphabetical order.  This again
+	    speeds up directory operations, and in some cases it also results in
+	    a small compression improvement (greater data similarity between
+	    files with alphabetically similar names).
+	3.  Maximum directory size increased from 512 KB to 128 MB.
+	4.  Duplicate fragment checking and appending optimised in mksquashfs,
+	    depending on filesystem, this is now up to 25% faster.
+	5.  Mksquashfs help information reformatted and reorganised.
+	6.  The Squashfs version and release date is now printed at kernel
+	    boot-time or module insertion.  This addition will hopefully help
+	    to reduce the growing problem where the Squashfs version supported
+	    by a kernel is unknown and the kernel source is unavailable.
+        7.  New PERFORMANCE.README file.
+	8.  New -2.0 mksquashfs option.
+	9.  CHANGES file reorganised.
+	10. README file reorganised, clarified and updated to include the 2.0
+	    mksquashfs options.
+	11. New patch for Linux 2.6.9.
+	12. New patch for Linux 2.4.28.
+
+2.0r2	29 AUG 2004	Workaround for kernel bug in kernels 2.6.8 and newer
+			added
+
+	1. New patch for kernel 2.6.8.1.  This includes a workaround for a
+	   kernel bug introduced in 2.6.7bk14, which is present in all later
+	   versions of the kernel.  
+
+	   If you're using a 2.6.8 kernel or later then you must use this
+	   2.6.8.1 patch.  If you've experienced hangs or oopses using Squashfs
+	   with a 2.6.8 or later kernel then you've hit this bug, and this
+	   patch will fix it.
+
+	   It is worth mentioning that this kernel bug potentially affects
+	   other filesystems.  If you receive odd results with other
+	   filesystems you may be experiencing this bug with that filesystem.
+	   I submitted a patch but this has not yet gone into the
+	   kernel, hopefully the bug will be fixed in later kernels. 
+
+2.0	13 JULY 2004	A couple of new options, and some bug fixes
+
+	1. New mksquashfs -all-root, -root-owned, -force-uid, and -force-gid
+	   options.  These allow the uids/gids of files in the generated
+	   filesystem to be specified, overriding the uids/gids in the
+	   source filesystem.
+	2. Initrds are now supported for kernels 2.6.x.
+	3. amd64 bug fixes.  If you use an amd64, please read the README-AMD64
+	   file.
+	4. Check-data and gid bug fixes.  With 2.0-alpha when mounting 1.x
+	   filesystems in certain cases file gids were corrupted.
+	5. New patch for Linux 2.6.7.
+
+2.0-ALPHA	21 MAY 2004	Filesystem changes and compression improvements
+
+	1. Squashfs 2.0 has added the concept of fragment blocks.
+           Files smaller than the file block size and optionally the
+	   remainder of files that do not fit fully into a block (i.e. the
+	   last 32K in a 96K file) are packed into shared fragments and
+	   compressed together.  This achieves on average 5 - 20% better
+	   compression than Squashfs 1.x.
+	2. The maximum block size has been increased to 64K (in the ALPHA
+	   version of Squashfs 2.0).
+	3. The maximum number of UIDs has been increased to 256 (from 48 in
+	   1.x).
+	4. The maximum number of GIDs has been increased to 256 (from 15 in
+	   1.x).
+	5. Removal of sleep_on() function call in 2.6.x patch, to allow Squashfs
+	   to work on the Fedora rc2 kernel.
+	6. Numerous small bug fixes have been made.
+
+1.3r3	18 JAN 2004	Third release of 1.3, this adds a new mksquashfs option,
+			some bug fixes, and extra patches for new kernels
+
+	1. New mksquashfs -ef exclude option.  This option reads the exclude
+	   dirs/files from an exclude file, one exclude dir/file per line.  This
+	   avoids the command line size limit when using the -e exclude option,
+	2. When appending to existing filesystems, if mksquashfs experiences a
+	   fatal error (e.g. out of space when adding to the destination), the
+	   original filesystem is restored,
+	3. Mksquashfs now builds standalone, without the kernel needing to be
+	   patched.
+	4. Bug fix in the kernel squashfs filesystem, where the pages being
+	   filled were not kmapped.  This seems to only have caused problems
+	   on an Apple G5,
+	5. New patch for Linux 2.4.24,
+
+	6. New patch for Linux 2.6.1, this replaces the patch for 2.6.0-test7.
+
+1.3r2	14 OCT 2003	Second release of 1.3, bug fixes and extra patches for
+		        new kernels
+
+	1. Bug fix in routine that adds files to the filesystem being
+	   generated in mksquashfs.  This bug was introduced in 1.3
+	   (not enough testing...) when I rewrote it to handle files larger
+	   than available memory.  This bug caused a SEGV, so if you've ever
+	   got that, it is now fixed,
+	2. Long running bug where ls -s and du reported wrong block size
+	   fixed.  I'm pretty sure this used to work many kernel versions ago
+	   (2.4.7) but it broke somewhere along the line since then,
+	3. New patch for Linux 2.4.22,
+	4. New patch for 2.6.0-test7, this replaces the patch for 2.6.0-test1.
+
+1.3	29 JUL 2003	FIFO/Socket support added plus optimisations and
+		        improvements
+
+	1. FIFOs and Socket inodes are now supported,
+	2. Mksquashfs can now compress files larger than available
+	   memory,
+	3. File duplicate check routine optimised,
+	4. Exit codes fixed in Mksquashfs,
+	5. Patch for Linux 2.4.21,
+	6. Patch for Linux 2.6.0-test1.  Hopefully, this will work for
+	   the next few releases of 2.6.0-testx, otherwise, I'll be
+	   releasing a lot of updates to the 2.6.0 patch...
+
+1.2	13 MAR 2003	Append feature and new mksquashfs options added
+
+	Mksquashfs can now add to existing squashfs filesystems.  Three extra
+	options "-noappend", "-keep-as-directory", and "root-becomes"
+	have been added.
+
+	The append option with file duplicate detection, means squashfs can be
+	used as a simple versioning archiving filesystem. A squashfs
+	filesystem can be created with for example the linux-2.4.19 source.
+	Appending the linux-2.4.20 source will create a filesystem with the
+	two source trees, but only the changed files will take extra room,
+	the unchanged files will be detected as duplicates.
+
+	See the README file for usage changes.
+
+1.1b	16 JAN 2003	Bug fix release
+
+	Fixed readpage deadlock bug.  This was a rare deadlock bug that
+	happened when pushing pages into the page cache when using greater
+	than 4K blocks.  I never got this bug when I tested the filesystem,
+	but two people emailed me on the same day about the problem!
+	I fixed it by using a page cache function that wasn't there when
+	I originally did the work, which was nice :-)
+
+1.1	8 JAN 2003	Added features
+
+	1. Kernel squashfs can now mount different byte order filesystems.
+	2. Additional features added to mksquashfs.  Mksquashfs now supports
+	   exclude files and multiple source files/directories can be
+	   specified.  A nopad option has also been added, which
+	   informs mksquashfs not to pad filesystems to a multiple of 4K.
+	   See README for mksquashfs usage changes.
+	3. Greater than 2GB filesystems bug fix.  Filesystems greater than 2GB
+	   can now be created.
+
+1.0c 	14 NOV 2002	Bug fix release
+
+	Fixed bugs with initrds and device nodes
+
+1.0 	23 OCT 2002	Initial release

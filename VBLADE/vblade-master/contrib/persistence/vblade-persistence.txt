@@ -1,0 +1,107 @@
+
+= VBLADE-PERSISTENCE(5)
+
+== NAME
+
+vblade-persistence - description of the vblade persistence
+
+== DESCRIPTION
+
+vblade-persistence uses the files in `/etc/vblade.conf.d/` to manage
+exports. File names must end in `.conf`. The "instance" name is the
+file name without `.conf`.
+
+The file format is a POSIX shell fragment.
+
+The following variables *must* be defined: `netif`, `shelf`, `slot`,
+and `filename`. See vblade(8) for their meaning. Incomplete
+configuration files are ignored, so are files that are not a valid
+shell syntax.
+
+Additionally, the following variables may be defined:
+
+* `options`
+
+Any options as provided by vblade(7).
+
+* `ionice`
+
+Use these to define an I/O scheduling class and level for that export.
+The value must be understood by ionice(1).
+
+
+== EXAMPLE
+
+----
+    shelf=14
+    slot=2
+    netif=ens3
+    filename=/dev/mapper/export
+    options='-r -m 11:22:33:44:55:66,22:33:44:55:66:77 -o 8'
+    ionice='--class best-effort --classdata 7'
+----
+
+
+== USAGE
+
+=== On systems using systemd
+
+Install `vblade-generator` in `/lib/systemd/system-generators/`, and
+both `vblade.service` and `vblade@.service` in `/lib/systemd/system/`.
+Enable the vblade service, reload systemd. Additional units for each
+export should appear, named `vblade@<instance>.service`.
+
+=== On systems using SysV init
+
+Individual instances may be controlled by providing their name as
+a second option, e.g.
+
+----
+    /etc/init.d/vblade status demo
+----
+
+Two different init scripts are available:
+
+==== `vblade.init.lsb-daemon`
+
+Uses LSB functions and daemon(1) program to control the instance.
+
+Pros: daemon(1) is a very fine tool for this, providing also respawning
+and output redirection.
+
+==== `vblade.init.daemon`
+
+As above, but without using LSB functions.
+
+Pros: Should be fairly portable, no thrills.
+
+==== Template
+
+The template for these scripts is `vblade.init.in`, the actual
+templating is done using tpage(1p), see `vblade.init.generate`.
+
+Support for using Debian's start-stop-daemon has been prepared but
+requires pid file supprt in vblade to be usable.
+
+
+== BUGS
+
+On SysV init systems, the configuration files are always sourced as
+shell scripts. On systemd systems, the configuration file is just
+a key/value store without shell expansion.
+
+It's a wise idea to run `sh -n` against a configuration file after any
+modification for basic format validation.
+
+
+== SEE ALSO
+
+daemon: <http://www.libslack.org/daemon/>
+
+tpage(1p)
+
+vblade(8)
+
+== AUTHOR
+
+Christoph Biedl <sourceforge.bnwi@manchmal.in-ulm.de>

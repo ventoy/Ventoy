@@ -1,0 +1,74 @@
+# Pseudo file example
+
+# Mksquashfs supports pseudo files, these allow fake files, directories,
+# character and block devices to be specified and added to the Squashfs
+# filesystem being built, rather than requiring them to be present in the
+# source directories.
+#
+# This, for example, allows device nodes to be added to the filesystem without
+# requiring root access.
+
+# Mksquashfs 4.1 adds support for "dynamic pseudo files" and a modify operation.
+# Dynamic pseudo files allow files to be dynamically created when Mksquashfs
+# is run, their contents being the result of running a command or piece of
+# shell script.  The modifiy operation allows the mode/uid/gid of an existing
+# file in the source filesystem to be modified.
+
+# Two Mksquashfs options are supported, -p allows one pseudo file to be
+# specified #on the command line, and -pf allows a pseudo file to be specified
+# containing a list of pseduo definitions, one per line.
+
+# Pseudo file examples
+# Run mkquashfs . /tmp/img -pf pseudo-file.examples
+# to see their effect
+
+# Creating dynamic file examples
+
+# Create a file "dmesg" containing the output from dmesg.
+dmesg f 444 root root dmesg
+
+
+# Create a file RELEASE containing the release name, date, build host, and
+# an incrementing version number.  The incrementing version is a side-effect
+# of executing the shell script, and ensures every time Mksquashfs is run a
+# new version number is used without requiring any other shell scripting.
+RELEASE f 444 root root \
+		if [ ! -e /tmp/ver ]; then \
+			echo 0 > /tmp/ver; \
+		fi; \
+                ver=`cat /tmp/ver`; \
+                ver=$((ver +1)); \
+                echo $ver > /tmp/ver; \
+                echo -n "release x.x"; \
+                echo "-dev #"$ver `date` "Build host" `hostname`
+
+
+# Copy 10K from the device /dev/sda1 into the file input.  Ordinarily
+# Mksquashfs given a device, fifo, or named socket will place that special file
+# within the Squashfs filesystem, this allows input from these special
+# files to be captured and placed in the Squashfs filesystem.
+input f 444 root root dd if=/dev/sda1 bs=1024 count=10
+
+
+# Creating a block or character device examples
+
+# Create a character device "chr_dev" with major:minor 100:1 and
+# a block device "blk_dev" with major:minor 200:200, both with root
+# uid/gid and a mode of rw-rw-rw.
+chr_dev c 666 root root 100 1
+blk_dev b 666 0 0 200 200
+
+
+# Creating a directory example
+
+# create a directory "pseudo_dir" with root uid/gid and mode of r--r--r--.
+pseudo_dir d 444 root root
+
+
+# Modifying attributes of an existing file exmaple
+
+# Change the attributes of the file "INSTALL" in the filesystem to have
+# root uid/gid and a mode of rw-rw-rw, overriding the attributes obtained
+# from the source filesystem.
+INSTALL m 666 root root
+

@@ -1,0 +1,4 @@
+
+squashfs-tools follows the GPLv2 License (see gpl-2.0.txt).
+Ventoy modify its source code, these code modified by Ventoy follow the same license as squashfs-tools.
+

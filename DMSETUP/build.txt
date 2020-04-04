@@ -1,0 +1,30 @@
+Build a static linked, small dmsetup tool
+
+======== Source Code ========
+use an old version of dmsetup
+xxx/centos-vault/5.3/os/SRPMS/device-mapper-1.02.28-2.el5.src.rpm
+
+======== Build Envrioment ======== 
+build for 32bit, static linked with dietlibc
+1. install centos 6.10 i386 with CentOS-6.10-i386-bin-DVD1.iso
+2. yum install gcc kernel-devel package
+3. install dietc libc (just make && make install)
+4. export PATH=$PATH:/opt/diet/bin
+
+======== Build Step ======== 
+1. extract device mapper source code
+2. CC="diet gcc" ./configure --disable-nls  --disable-selinux --disable-shared
+3. modify include/configure.h file
+   --- delete the line with "#define malloc rpl_malloc"
+   --- add 2 defines as follow:
+       #ifndef UINT32_MAX
+       #define UINT32_MAX  (4294967295U)
+       #endif
+       
+       #ifndef UINT64_C
+       #define UINT64_C(c) c ## ULL
+       #endif
+   
+4. make
+5. strip dmsetup/dmsetup
+5. get dmsetup/dmsetup as the binary file

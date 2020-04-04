@@ -1,0 +1,50 @@
+
+desktop-image: "background.png"
+title-text: " "
+title-font: "ascii"
+title-color: "#ffffff"
+message-font: "ascii"
+message-color: "#f2f2f2"
+
+terminal-box: "terminal_box_*.png"
+
++ boot_menu {
+  left = 10%
+  width = 80%
+  top = 30%
+  height = 50%
+
+  menu_pixmap_style = "menu_*.png"
+
+  item_font = "ascii"  
+  item_color = "#ffffff"  
+  item_height = 30
+  item_icon_space = 1
+  item_spacing = 1
+  item_padding = 1
+
+  selected_item_font = "ascii"
+  selected_item_color= "#f2f2f2"
+  selected_item_pixmap_style = "select_*.png"
+
+  #icon_height = 30
+  #icon_width = 30
+
+  scrollbar = true
+  scrollbar_width = 10
+  scrollbar_thumb = "slider_*.png"
+}
+
++ progress_bar {
+  id = "__timeout__"
+  text = "@TIMEOUT_NOTIFICATION_SHORT@"
+
+  left = 95%
+  width = 48
+  top = 95%
+  height = 48
+
+  text_color = "#f2f2f2"
+  bar_style = "*"
+  highlight_style = "*"
+}

@@ -1,0 +1,155 @@
+-*- change-log -*-
+2018-08-25 Christoph Biedl <sourceforge.bnwi@manchmal.in-ulm.de>
+	Print helpful error and exit immediately for missing device
+	vblade-24
+
+2017-11-19 Catalin Salgau <csalgau@users.sourceforge.net>
+	On FreeBSD limit used MTU to address BPF limitation
+
+2015-06-14 Ed Cashin <ed.cashin@acm.org>
+	Add convenience script for creating sparse files
+	vblade-23
+
+2015-02-25 Catalin Salgau <csalgau@users.sourceforge.net>
+	Warn about Windows problem with CHS misalignment
+
+2014-09-13 Ed Cashin <ed.cashin@acm.org>
+	code cleanup: remove unused variables
+
+2014-08-10 Ed Cashin <ed.cashin@acm.org>
+	vblade-22
+
+2014-06-08 Ed Cashin <ed.cashin@acm.org>
+	update version for v22 release candidate 1
+	buffer boundary cleanups
+	FreeBSD BPF and MTU fixes from Catalin Salgau
+	offset and size options by Christoph Biedl
+	vblade-22rc1
+
+2013-03-18 Ed Cashin <ecashin@coraid.com>
+	add big-endian support from Daniel Mealha Cabrita <dancab@gmx.net>
+	vblade-21
+
+2009-08-14 Sam Hopkins <sah@coraid.com>
+	bugfix: aoe command error did not set Error bit in flags
+	add support for AoEr11
+	set ident serial to shelf.slot:hostname
+	vblade-20
+
+2008-10-08 Ed Cashin <ecashin@coraid.com>
+	add Chris Webb's bpf fix for FreeBSD
+	add Ryan Thomas's fix to stop bufcnt being overridden
+	vblade-19
+	
+2008-07-14 Ed Cashin <ecashin@coraid.com>
+	add Chris Webb's block device options patch
+	add Chris Webb's socket options patch for better jumbo handling
+	remove obsolete contrib/o_direct.diff
+	vblade-18
+
+2008-06-09 Ed Cashin <ecashin@coraid.com>
+	add Chris Webb's latest BPF patch to vblade, remove from contrib
+	update contributed AIO patch for compatibility with current sources
+	vblade-17
+	
+2008-05-07 Ed Cashin <ecashin@coraid.com>
+	add Chris Webb's AIO patch to the contributions
+	add Chris Webb's BPF patch to the contributions
+	vblade-16
+
+2008-02-20 Ed Cashin <ecashin@coraid.com>
+	require the amount of data we use, not the amount ethernet requires
+	make sure the packet length agrees with the config query length
+	make sure the packet length agrees with the amount to write
+	remove newline embedded in fw version field of ATA dev ID response
+	vblade-15
+	
+2006-11-20 Sam Hopkins <sah@coraid.com>
+	apply contrib jumbo patch to standard distribution
+	add jumbo configuration app. note in README
+	add jumbo README reference to manpage
+	add mask feature; -m flag
+	update manpage to describe -m flag
+	vblade-14
+
+2006-10-05 Sam Hopkins <sah@coraid.com>
+	fix confcmd memcpy bug
+	correct scnt return value in read/write ata response
+	replace O_RDONLY fallback with explicit stat.  root always wins.
+	vblade-13
+
+2006-10-04 Sam Hopkins <sah@coraid.com>
+	fix confcmd buglets
+	fix atacmd buglets
+	add atacmd handling for bad argument errors
+	add O_RDONLY open if O_RDWR fails
+	add contrib patch directory
+	add contrib/README
+	add jumbo patch to contrib
+	add o_direct patch to contrib
+	vblade-12
+
+2006-09-21 "Adam J. Richter" <adam@yggdrasil.com>
+	add install target for makefile
+	vblade-11
+	
+2005-12-06 Ed Cashin <ecashin@coraid.com>
+	fix u64 configuration on FreeBSD
+	release vblade-10
+	
+2005-12-06 Valeriy Glushkov <valery@rocketdivision.com>
+	implemented config string support
+	added handler for ATA Check power mode command
+	
+2005-11-15 Ed Cashin <ecashin@coraid.com>
+	add compatibility with platforms lacking u64 (e.g., Slackware)
+	release vblade-9
+	
+2005-11-10 Ed Cashin <ecashin@coraid.com>
+	call atainit on program startup
+	put VBLADE_VERSION in dat.h and use it in firmware version
+	release vblade-7
+	include Stacey's patch to use p{read,write} on FreeBSD
+	include Stacey's patch to typedef ulong on FreeBSD
+	fix makefile dependencies (e.g., rebuild on new aoe.c)
+	fix config string length specification
+	include Stacey's patch to avoid compile warnings on FreeBSD
+	release vblade-8
+	
+2005-11-10 "Stacey D. Son" <sson@verio.net>
+	include FreeBSD support
+	
+2005-10-03 Ed Cashin <ecashin@coraid.com>
+	don't invoke vblade with dash from vbladed
+	
+2005-08-31 20:14:12 GMT Ed Cashin <ecashin@coraid.com>
+	ATA identify: don't juggle bytes in shorts on big endian arch
+	add manpage for vblade, vbladed
+	release vblade-6
+	
+2005-03-17 15:24:30 GMT	Ed Cashin <ecashin@coraid.com>
+	follow up on vblade-2's off-by-one patch, making end of device usable
+	release vblade-5
+	
+2005-03-15 22:03:17 GMT	Ed Cashin <ecashin@coraid.com>
+	don't rely on kernel headers for defining the aoe type 0x88a2
+	release vblade-4
+	
+2005-03-15 17:27:01 GMT	Ed Cashin <ecashin@coraid.com>
+	docs: aoe-2.6-7 is the first driver to support multiple blades per mac
+	release vblade-3
+	
+2005-03-11 18:30:26 GMT	Ed Cashin <ecashin@coraid.com>
+	put 64-bit configuration into config.h file
+	don't use uninitialized variables
+	broadcast config query on startup
+	clarify desired patch format in HACKING
+	add sah@coraid.com's vblade-1.ata.c.patch: fix off-by-one and ext LBA
+	add docs, remove daemonizing code from vblade
+	release vblade-2
+	
+2005-02-08 20:21:52 GMT	Ed Cashin <ecashin@coraid.com>
+	starting documentation
+	add script that daemonizes vblade process, logging output
+	make vblade sources -Wall clean, use daemon(3)
+	release vblade-1

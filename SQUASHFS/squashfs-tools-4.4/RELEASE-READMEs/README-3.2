@@ -1,0 +1,33 @@
+	SQUASHFS 3.2 - A squashed read-only filesystem for Linux
+
+	Copyright 2002-2007 Phillip Lougher <phillip@lougher.org.uk>
+
+	Released under the GPL licence (version 2 or later).
+
+Welcome to Squashfs version 3.2.  Squashfs 3.2 has support for NFS exporting,
+some improvements to the Squashfs tools (Mksquashfs and Unsquashfs), some
+major bug fixes, new kernel patches, and various other smaller improvements
+and bug fixes.  Please see the CHANGES file for a detailed list.
+
+1. MKSQUASHFS
+-------------
+
+New command line options:
+
+-no-exports
+
+	Squashfs now supports NFS exports.  By default the additional
+	information necessary is added to the filesystem by Mksquashfs.  If you
+	do not wish this extra information, then this option can be specified.
+	This will save a couple of bytes per file, and the filesystem
+	will be identical to Squashfs 3.1.
+
+-no-progress
+
+	Mksquashfs by default now displays a progress bar. This option disables
+	it.
+
+2. UNSQUASHFS
+-------------
+
+	Unsquashfs now supports Squashfs 2.x filesystems.

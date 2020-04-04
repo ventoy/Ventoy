@@ -1,0 +1,2 @@
+efifs follows GPLv3 (see gpl-3.0.txt) License.
+Ventoy modify its source code, these code modified by Ventoy follows the same license as efifs.

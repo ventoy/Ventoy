@@ -1,0 +1,5 @@
+*.orig
+cscope.*
+*.rej
+*~
+*.o

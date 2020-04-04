@@ -1,0 +1,154 @@
+#!/ventoy/busybox/sh
+#************************************************************************************
+# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# 
+#************************************************************************************
+
+
+###################################################################
+#                                                                  #
+# Step 1 : parse kernel debug parameter                            #
+#                                                                  #
+####################################################################
+mkdir /proc; mount -t proc proc /proc
+vtcmdline=$(cat /proc/cmdline)
+vtkerver=$(cat /proc/version)
+umount /proc; rm -rf /proc
+
+echo "kenel version=$vtkerver" >>$VTLOG
+echo "kenel cmdline=$vtcmdline" >>$VTLOG
+
+#break here for debug
+if [ "$VTOY_BREAK_LEVEL" = "01" ] || [ "$VTOY_BREAK_LEVEL" = "11" ]; then
+    sleep 5
+    echo -e "\n\n\033[32m ################################################# \033[0m"
+    echo -e "\033[32m ################ VENTOY DEBUG ################### \033[0m"
+    echo -e "\033[32m ################################################# \033[0m \n"
+    
+    if [ "$VTOY_BREAK_LEVEL" = "11" ]; then
+        cat $VTLOG
+    fi
+    exec $BUSYBOX_PATH/sh
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 2 : extract real initramfs to /                             #
+#                                                                  #
+####################################################################
+cd /
+rm -rf /init /linuxrc /sbin /dev/  /root
+
+ventoy_is_initrd_ramdisk() {
+    #As I known, PCLinuxOS use ramdisk
+    if echo $vtkerver | grep -i -q 'PCLinuxOS'; then
+        true
+    else
+        false
+    fi
+}
+
+# param: file skip magic tmp
+ventoy_unpack_initramfs() {        
+    vtfile=$1; vtskip=$2; vtmagic=$3; vttmp=$4    
+    echo "=====ventoy_unpack_initramfs: #$*#" >> $VTLOG
+    
+    for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat'; do
+        if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
+            echo "vtx=$vtx" >> $VTLOG            
+            if [ $vtskip -eq 0 ]; then
+                ${vtx:5} $vtfile | (cpio -idm 2>>$VTLOG; cat > $vttmp)
+            else
+                dd if=$vtfile skip=$vtskip iflag=skip_bytes status=none | ${vtx:5} | (cpio -idm 2>>$VTLOG; cat > $vttmp)
+            fi
+            break
+        fi
+    done
+}
+
+# param: file magic tmp
+ventoy_unpack_initrd() {        
+    vtfile=$1; vtmagic=$2; vttmp=$3    
+    echo "=====ventoy_unpack_initrd: #$*#" >> $VTLOG
+    
+    for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat'; do
+        if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
+            echo "vtx=$vtx" >> $VTLOG            
+            ${vtx:5} $vtfile > $vttmp
+            break
+        fi
+    done    
+}
+
+
+# This export is for busybox cpio command
+export EXTRACT_UNSAFE_SYMLINKS=1
+
+for vtfile in $(ls /initrd*); do    
+    #decompress first initrd
+    vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $vtfile)
+
+    if ventoy_is_initrd_ramdisk; then
+        ventoy_unpack_initrd $vtfile $vtmagic ${vtfile}_tmp
+        mv ${vtfile}_tmp $vtfile
+        break
+    else
+        ventoy_unpack_initramfs $vtfile 0 $vtmagic ${vtfile}_tmp
+    fi
+
+    #only for cpio,cpio,...,initrd sequence, initrd,cpio or initrd,initrd sequence is not supported
+    while [ -e ${vtfile}_tmp ] && [ $(stat -c '%s' ${vtfile}_tmp) -gt 512 ]; do
+        mv ${vtfile}_tmp $vtfile
+        vtdump=$(hexdump -n 512 -e '512/1 "%02X"' $vtfile)
+        vtmagic=$(echo $vtdump | sed 's/^\(00\)*//')
+        let vtoffset="(${#vtdump}-${#vtmagic})/2"
+        
+        if [ -z "$vtmagic" ]; then
+            echo "terminate with all zero data file" >> $VTLOG
+            break
+        fi
+        
+        ventoy_unpack_initramfs $vtfile $vtoffset ${vtmagic:0:4} ${vtfile}_tmp
+    done
+    
+    rm -f $vtfile ${vtfile}_tmp
+done
+
+
+#break here for debug
+if [ "$VTOY_BREAK_LEVEL" = "02" ] || [ "$VTOY_BREAK_LEVEL" = "12" ]; then
+    sleep 5
+    echo -e "\n\n\033[32m ################################################# \033[0m"
+    echo -e "\033[32m ################ VENTOY DEBUG ################### \033[0m"
+    echo -e "\033[32m ################################################# \033[0m \n"   
+    if [ "$VTOY_BREAK_LEVEL" = "12" ]; then 
+        cat $VTOY_PATH/log
+    fi    
+    exec $BUSYBOX_PATH/sh
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 3 : Hand over to ventoy.sh                                  #
+#                                                                  #
+####################################################################
+echo "Now hand over to ventoy.sh" >>$VTLOG
+. $VTOY_PATH/tool/vtoytool_install.sh
+
+export PATH=$VTOY_ORG_PATH
+exec $BUSYBOX_PATH/sh $VTOY_PATH/ventoy.sh

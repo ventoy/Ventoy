@@ -1,0 +1,93 @@
+.TH vblade 8
+.SH NAME
+vblade, vbladed \- export data via ATA over Ethernet
+.SH SYNOPSIS
+.nf
+.B vblade [ -m mac[,mac...] ] shelf slot netif filename
+.fi
+.SH DESCRIPTION
+The
+.I vblade
+command starts a process that uses raw sockets to perform ATA over
+Ethernet, acting like a virtual EtherDrive (R) blade.
+.PP
+The 
+.I vbladed
+script can be used to daemonize the vblade process,
+detaching it from your terminal and sending its output to the system
+logs.
+.SS Arguments
+.TP
+\fBshelf\fP
+This should be the shelf address (major AoE address) of the AoE device
+to create.
+.TP
+\fBslot\fP
+This should be the slot address (minor AoE address) of the AoE device
+to create.
+.TP
+\fBnetif\fP
+The name of the ethernet network interface to use for AoE
+communications.
+.TP
+\fBfilename\fP
+The name of the regular file or block device to export.
+.SS Options
+.TP
+\fB-b\fP
+The \-b flag takes an argument, the advertised buffer count, specifying
+the maximum number of outstanding messages the server can queue for
+processing.
+.TP
+\fB-d\fP
+The \-d flag selects O_DIRECT mode for accessing the underlying block
+device.
+.TP
+\fB-s\fP
+The \-s flag selects O_SYNC mode for accessing the underlying block
+device, so all writes are committed to disk before returning to the
+client.
+.TP
+\fB-r\fP
+The \-r flag restricts the export of the device to be read-only.
+.TP
+\fB-m\fP
+The \-m flag takes an argument, a comma separated list of MAC addresses
+permitted access to the vblade.  A MAC address can be specified in upper
+or lower case, with or without colons.
+.TP
+\fB-o\fP
+The \-o flag takes an argument, the number of sectors at the beginning
+of the exported file that are excluded from AoE export (default zero).
+.TP
+\fB-l\fP
+The \-l flag takes an argument, the number of sectors to export.
+Defaults to the file size in sectors minus the offset.
+.SH EXAMPLE
+In this example, the root user on a host named
+.I nai
+exports a file named "3TB" to the LAN on eth0 using AoE shelf address 11
+and slot address 1.  The process runs in the foreground.  Using
+.I vbladed
+would have resulted in the process running as a daemon in the
+background.
+.IP
+.EX
+.nf
+nai:~# vblade 11 1 eth0 /data/3TB
+.fi
+.EE
+.SH NOTES AND WARNINGS
+Users of Jumbo frames should read the README file distributed with
+.I vblade
+to learn about a workaround for kernel buffering limitations.
+.PP
+At least one AoE initiator (WinAoE) has been found to enforce legacy
+CHS geometry for drives by discarding sectors. You should ensure that
+the underlaying regular file or block device size is a multiple of
+8225280 bytes (255 heads, 63 sectors/track, 512 bytes/sector) if you
+encounter filesystem corruption.
+.SH REPORTING BUGS
+Please report bugs to the aoetools-discuss mailing list.
+.SH AUTHOR
+Brantley Coile (brantley@coraid.com)

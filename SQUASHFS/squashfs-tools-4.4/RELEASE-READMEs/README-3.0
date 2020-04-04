@@ -1,0 +1,60 @@
+	SQUASHFS 3.0 - A squashed read-only filesystem for Linux
+
+	Copyright 2002-2006 Phillip Lougher <phillip@lougher.org.uk>
+
+	Released under the GPL licence (version 2 or later).
+
+Welcome to the first release of Squashfs version 3.0.  Squashfs 3.0 has the
+the following improvements to 2.x.
+
+	1. Filesystems are no longer limited to 4 GB.  In
+	   theory 2^64 or 4 exabytes is now supported.
+
+	2. Files are no longer limited to 4 GB.  In theory the maximum
+	   file size is 4 exabytes.
+
+	3. Metadata (inode table and directory tables) are no longer
+	   restricted to 16 Mbytes.
+
+	4. Hardlinks are now suppported.
+
+	5. Nlink counts are now supported.
+
+	6. Readdir now returns '.' and '..' entries.
+
+	7. Special support for files larger than 256 MB has been added to
+	   the Squashfs kernel code for faster read access.
+
+	8. Inode numbers are now stored within the inode rather than being
+	   computed from inode location on disk (this is not so much an
+	   improvement, but a change forced by the previously listed
+	   improvements).
+
+There is a new Unsquashfs utility (in squashfs-tools) than can be used to
+decompress a filesystem without mounting it.
+
+Squashfs 3.0 supports 2.x filesystems.  Support for 1.x filesystems
+will be added in the future.
+
+1. UNSQUASHFS
+-------------
+
+Unsquashfs has the following options:
+
+SYNTAX: unsquashfs [-ls | -dest] filesystem
+	-version		print version, licence and copyright information
+	-info			print files as they are unsquashed
+	-ls			list filesystem only
+	-dest <pathname>	unsquash to <pathname>, default "squashfs-root"
+
+The "-ls" option can be used to list the contents of a filesystem without
+decompressing the filesystem data itself.
+
+The "-info" option forces Unsquashfs to print each file as it is decompressed.
+
+The "-dest" option specifies the directory that is used to decompress
+the filesystem data.  If this option is not given then the filesystem is
+decompressed to the directory "squashfs-root" in the current working directory.
+
+Unsquashfs can decompress 3.0 filesystems.  Support for 2.x and 1.x
+filesystems will be added in the future.

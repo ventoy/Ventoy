@@ -1,0 +1,146 @@
+
+INTRODUCTION
+------------
+
+The vblade is a minimal ATA over Ethernet (AoE) storage target.  Its
+focus is simplicity, not performance or richness of features.  It
+exports a seekable file available over an ethernet local area network
+(LAN) via the AoE data storage protocol.
+
+The name, "vblade," is historical: It is a virtual EtherDrive (R)
+blade.  The first AoE target hardware sold by Coraid was in a blade
+form factor, ten to a 4-rack-unit chassis.
+
+The seekable file is typically a block device like /dev/md0 but even
+regular files will work.  Sparse files can be especially convenient.
+When vblade exports the block storage over AoE it becomes a storage
+target.  Another host on the same LAN can access the storage if it has
+a compatible aoe kernel driver.
+
+BUILDING
+--------
+
+The following command should build the vblade program on a Linux-based
+system:
+
+  make
+
+For FreeBSD systems, include an extra parameter like so:
+
+  make PLATFORM=freebsd
+
+EXAMPLES
+--------
+
+There is a "vbladed" script that daemonizes the program and sends its
+output to the logger program.  Make sure you have logger installed if
+you would like to run vblade as a daemon with the vbladed script.
+
+  ecashin@kokone vblade$ echo 'I have logger' | logger
+  ecashin@kokone vblade$ tail -3 /var/log/messages
+  Feb  8 14:52:49 kokone -- MARK --
+  Feb  8 15:12:49 kokone -- MARK --
+  Feb  8 15:19:56 kokone logger: I have logger
+
+Here is a short example showing how to export a block device with a
+vblade.  (This is a loop device backed by a sparse file, but you could
+use any seekable file instead of /dev/loop7.)
+
+  ecashin@kokone vblade$ make
+  cc -Wall   -c -o aoe.o aoe.c
+  cc -Wall   -c -o linux.o linux.c
+  cc -Wall   -c -o ata.o ata.c
+  cc -o vblade aoe.o linux.o ata.o
+  ecashin@kokone vblade$ su
+  Password: 
+  root@kokone vblade# modprobe loop
+  root@kokone vblade# dd if=/dev/zero bs=1k count=1 seek=`expr 1024 \* 4096` of=bd
+  -file
+  1+0 records in
+  1+0 records out
+  1024 bytes transferred in 0.009901 seconds (103423 bytes/sec)
+  root@kokone vblade# losetup /dev/loop7 bd-file  
+  root@kokone vblade# ./vblade 9 0 eth0 /dev/loop7 
+  ioctl returned 0
+  4294968320 bytes
+  pid 16967: e9.0, 8388610 sectors
+
+Here's how you can use the Linux aoe driver to access the storage from
+another host on the LAN.
+
+  ecashin@kokone ecashin$ ssh makki
+  Last login: Mon Feb  7 10:25:04 2005
+  ecashin@makki ~$ su
+  Password: 
+  root@makki ecashin# modprobe aoe
+  root@makki ecashin# aoe-stat
+      e9.0            eth1              up
+  root@makki ecashin# mkfs -t ext3 /dev/etherd/e9.0
+  mke2fs 1.35 (28-Feb-2004)
+...
+  Creating journal (8192 blocks): done
+  Writing superblocks and filesystem accounting information: done
+  
+  This filesystem will be automatically checked every 24 mounts or
+  180 days, whichever comes first.  Use tune2fs -c or -i to override.
+  root@makki ecashin# mkdir /mnt/e9.0
+  root@makki ecashin# mount /dev/etherd/e9.0 /mnt/e9.0
+  root@makki ecashin# echo hooray > /mnt/e9.0/test.txt
+  root@makki ecashin# cat /mnt/e9.0/test.txt
+  hooray
+
+Remember: be as careful with these devices as you would with /dev/hda!
+
+Jumbo Frame Compatibility
+-------------------------
+
+Vblade can use jumbo frames provided your initiator is jumbo frame
+capable.  There is one small configuration gotcha to consider 
+to avoid having the vblade kernel frequently drop frames.
+
+Vblade uses a raw socket to perform AoE.  The linux kernel will
+only buffer a certain amount of data for a raw socket.  For 2.6
+kernels, this value is managed through /proc:
+
+root@nai aoe# grep . /proc/sys/net/core/rmem_*
+/proc/sys/net/core/rmem_default:128000
+/proc/sys/net/core/rmem_max:128000
+
+rmem_max is the max amount a user process may expand the receive
+buffer to -- through setsockopt(...) -- and rmem_default is, as you
+might expect, the default.
+
+The gotcha is that this amount to buffer does not relate
+to the amount of user data buffered, but the amount of
+real data buffered.  As an example, the Intel GbE controller
+must be given 16KB frames to use an MTU over 8KB.
+For each received frame, the kernel must be able to buffer
+16KB, even if the aoe frame is only 60 bytes in length.
+
+The linux aoe initiator will use 16 outstanding frames when
+used with vblade.  A good default for ensuring frames are
+not dropped is to allocate 16KB for 17 frames:
+
+for f in /proc/sys/net/core/rmem_*; do echo $((17 * 16 * 1024)) >$f; done
+
+Be sure to start vblade after changing the buffering defaults
+as the buffer value is set when the socket is opened.
+
+AoE Initiator Compatibility
+---------------------------
+
+The Linux aoe driver for the 2.6 kernel is compatible if you use
+aoe-2.6-7 or newer.  You can use older aoe drivers but you will only
+be able to see one vblade per MAC address.
+
+Contrib Patches
+---------------
+
+see contrib/README
+
+Kvblade
+-------
+
+  While vblade runs as a userland process (like "ls" or "vi"), there
+  is another program that runs inside the kernel.  It is called
+  kvblade.  It is alpha software.

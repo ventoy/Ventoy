@@ -1,0 +1,2 @@
+#define _FILE_OFFSET_BITS 64 
+//u64 typedef unsigned long long u64;
