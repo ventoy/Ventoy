@@ -8,14 +8,14 @@ A "Ventoy Compatible" concept is introduced by ventoy, which can help to support
 See http://www.ventoy.net for detail.
 
 # Features
-*100% open source (license)
-*Simple to use (Get started)
-*Directly boot from iso file, no extraction needed
-*Legacy + UEFI supported in the same way
-*Native boot menu style for Legacy & UEFI
-*Most type of OS supported, 100+ iso files tested
-*"Ventoy Compatible" concept
-*Plugin Framework
-*Readonly to USB drive during boot
-*USB normal use unafftected
-*Data nondestructive during version upgrade
+* 100% open source (license)
+* Simple to use (Get started)
+* Directly boot from iso file, no extraction needed
+* Legacy + UEFI supported in the same way
+* Native boot menu style for Legacy & UEFI
+* Most type of OS supported, 100+ iso files tested
+* "Ventoy Compatible" concept
+* Plugin Framework
+* Readonly to USB drive during boot
+* USB normal use unafftected
+* Data nondestructive during version upgrade
