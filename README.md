@@ -8,8 +8,8 @@ A "Ventoy Compatible" concept is introduced by ventoy, which can help to support
 See http://www.ventoy.net for detail.
 
 # Features
-* 100% open source (license)
-* Simple to use (Get started)
+* 100% open source 
+* Simple to use
 * Directly boot from iso file, no extraction needed
 * Legacy + UEFI supported in the same way
 * Native boot menu style for Legacy & UEFI
