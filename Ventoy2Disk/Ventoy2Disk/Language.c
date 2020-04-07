@@ -38,9 +38,9 @@ const TCHAR * g_Str_English[STR_ID_MAX] =
     TEXT("The disk will be formatted and all the data will be lost.\r\nContinue?"),
     TEXT("The disk will be formatted and all the data will be lost.\r\nContinue? (Double Check)"),
     TEXT("Congratulations!\r\nVentoy has been successfully installed to the device."),
-    TEXT("An error occurred during the installation. Please check log.txt for detail."),
+    TEXT("An error occurred during the installation. You can try again and check log.txt for detail."),
     TEXT("Congratulations!\r\nVentoy has been successfully updated to the device."),
-    TEXT("An error occurred during the update. Please check log.txt for detail."),
+    TEXT("An error occurred during the update. You can try again and check log.txt for detail."),
 
     TEXT("A thread is running, please wait..."),
 };
@@ -61,9 +61,9 @@ const TCHAR * g_Str_ChineseSimple[STR_ID_MAX] =
     TEXT("磁盘会被格式化, 所有数据都会丢失!\r\n是否继续？"),
     TEXT("磁盘会被格式化, 所有数据都会丢失!\r\n再次确认是否继续？"),
     TEXT("恭喜你! Ventoy 已经成功安装到此设备中."),
-    TEXT("安装 Ventoy 过程中发生错误. 详细信息请查阅 log.txt 文件."),
+    TEXT("安装 Ventoy 过程中发生错误. 你可以重试一次, 详细信息请查阅 log.txt 文件."),
     TEXT("恭喜你! 新版本的 Ventoy 已经成功更新到此设备中."),
-    TEXT("更新 Ventoy 过程中遇到错误. 详细信息请查阅 log.txt 文件."),
+    TEXT("更新 Ventoy 过程中遇到错误. 你可以重试一次, 详细信息请查阅 log.txt 文件."),
 
     TEXT("当前有任务正在运行, 请等待..."),
 };

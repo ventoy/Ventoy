@@ -754,6 +754,25 @@ static int VentoyHook(ventoy_os_param *param)
     return 0;
 }
 
+const char * GetFileNameInPath(const char *fullpath)
+{
+	int i;
+	const char *pos = NULL;
+
+	if (strstr(fullpath, ":"))
+	{
+		for (i = (int)strlen(fullpath); i > 0; i--)
+		{
+			if (fullpath[i - 1] == '/' || fullpath[i - 1] == '\\')
+			{
+				return fullpath + i;
+			}
+		}
+	}
+	
+	return fullpath;
+}
+
 int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 {
 	int rc = 1;
@@ -763,9 +782,6 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	BYTE *Buffer = NULL; 
 	ventoy_os_param os_param;
 	CHAR ExeFileName[MAX_PATH];
-
-	Log("######## VentoyJump ##########");
-	Log("argc = %d argv[0] = <%s>", argc, argv[0]);
 
 	sprintf_s(ExeFileName, sizeof(ExeFileName), "%s", argv[0]);
 	if (!IsPathExist(FALSE, "%s", ExeFileName))
@@ -816,7 +832,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 			}
 
 			PeStart += sizeof(ventoy_os_param);
-			sprintf_s(LunchFile, MAX_PATH, "ventoy\\%s", ExeFileName);
+			sprintf_s(LunchFile, MAX_PATH, "ventoy\\%s", GetFileNameInPath(ExeFileName));
 			SaveBuffer2File(LunchFile, Buffer + PeStart, FileSize - PeStart);
 			break;
 		}
@@ -849,12 +865,46 @@ End:
 
 int main(int argc, char **argv)
 {
+	CHAR *Pos = NULL;
+	CHAR CurDir[MAX_PATH];
 	CHAR LunchFile[MAX_PATH];
 	STARTUPINFOA Si;
 	PROCESS_INFORMATION Pi;
 
+	if (argv[0] && argv[0][0] && argv[0][1] == ':')
+	{
+		GetCurrentDirectoryA(sizeof(CurDir), CurDir);
+
+		strcpy_s(LunchFile, sizeof(LunchFile), argv[0]);
+		Pos = (char *)GetFileNameInPath(LunchFile);
+
+		strcat_s(CurDir, sizeof(CurDir), "\\");
+		strcat_s(CurDir, sizeof(CurDir), Pos);
+		
+		if (_stricmp(argv[0], CurDir) != 0)
+		{
+			*Pos = 0;
+			SetCurrentDirectoryA(LunchFile);
+		}
+	}
+
+	Log("######## VentoyJump ##########");
+	Log("argc = %d argv[0] = <%s>", argc, argv[0]);
+
+	if (Pos && *Pos == 0)
+	{
+		Log("Old current directory = <%s>", CurDir);
+		Log("New current directory = <%s>", LunchFile);
+	}
+	else
+	{
+		GetCurrentDirectoryA(sizeof(CurDir), CurDir);
+		Log("Current directory = <%s>", CurDir);
+	}
+
     GetStartupInfoA(&Si);
 
+	memset(LunchFile, 0, sizeof(LunchFile));
 	if (VentoyJump(argc, argv, LunchFile) == 0)
 	{
         Log("Ventoy jump success ...");
