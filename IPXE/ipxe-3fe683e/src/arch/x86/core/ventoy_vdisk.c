@@ -361,12 +361,15 @@ static void ventoy_dump_chain(ventoy_chain_head *chain)
     uint32_t i = 0;
     uint8_t chksum = 0;
     uint8_t *guid;
+    uint8_t *vtoy_reserve;
     
     guid = chain->os_param.vtoy_disk_guid;
     for (i = 0; i < sizeof(ventoy_os_param); i++)
     {
         chksum += *((uint8_t *)(&(chain->os_param)) + i);
     }
+
+    vtoy_reserve = (uint8_t *)(chain->os_param.vtoy_reserved);
 
     printf("##################### ventoy_dump_chain #######################\n");
 
@@ -379,6 +382,8 @@ static void ventoy_dump_chain(ventoy_chain_head *chain)
     printf("os_param->vtoy_disk_part_type=%u\n",  chain->os_param.vtoy_disk_part_type);
     printf("os_param->vtoy_img_path=<%s>\n",      chain->os_param.vtoy_img_path);
     printf("os_param->vtoy_img_size=<%llu>\n",    chain->os_param.vtoy_img_size);
+    printf("os_param->vtoy_reserve[0]=<%u>\n",    vtoy_reserve[0]);
+    printf("os_param->vtoy_reserve[1]=<%u>\n",    vtoy_reserve[1]);
     printf("os_param->vtoy_img_location_addr=<0x%llx>\n", chain->os_param.vtoy_img_location_addr);
     printf("os_param->vtoy_img_location_len=<%u>\n",   chain->os_param.vtoy_img_location_len);
     ventoy_debug_pause();

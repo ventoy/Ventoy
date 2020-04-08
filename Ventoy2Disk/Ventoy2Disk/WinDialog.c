@@ -213,6 +213,16 @@ static DWORD WINAPI InstallVentoyThread(void* Param)
     PHY_DRIVE_INFO *pPhyDrive = (PHY_DRIVE_INFO *)Param;
 
     rc = InstallVentoy2PhyDrive(pPhyDrive);
+	if (rc)
+	{
+		Log("This time install failed, now wait and retry...");
+		Sleep(10000);
+
+		Log("Now retry to install...");
+
+		rc = InstallVentoy2PhyDrive(pPhyDrive);
+	}
+
     if (rc == 0)
     {
 		PROGRESS_BAR_SET_POS(PT_FINISH);
@@ -239,6 +249,16 @@ static DWORD WINAPI UpdateVentoyThread(void* Param)
     PHY_DRIVE_INFO *pPhyDrive = (PHY_DRIVE_INFO *)Param;
 
     rc = UpdateVentoy2PhyDrive(pPhyDrive);
+	if (rc)
+	{
+		Log("This time update failed, now wait and retry...");
+		Sleep(10000);
+
+		Log("Now retry to update...");
+
+		rc = UpdateVentoy2PhyDrive(pPhyDrive);
+	}
+
     if (rc == 0)
     {
 		PROGRESS_BAR_SET_POS(PT_FINISH);

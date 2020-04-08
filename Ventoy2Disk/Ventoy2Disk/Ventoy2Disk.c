@@ -25,7 +25,7 @@
 
 PHY_DRIVE_INFO *g_PhyDriveList = NULL;
 DWORD g_PhyDriveCount = 0;
-static int g_FilterRemovable = 1;
+static int g_FilterRemovable = 0;
 static int g_FilterUSB = 1;
 int g_ForceOperation = 1;
 
@@ -41,11 +41,8 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
 
     for (i = 0; i < __argc; i++)
     {
-        if (strncmp(__argv[i], "-R", 2) == 0)
-        {
-            g_FilterRemovable = 0;
-        }
-        else if (strncmp(__argv[i], "-U", 2) == 0)
+        if (strncmp(__argv[i], "-U", 2) == 0 ||
+			strncmp(__argv[i], "-u", 2) == 0)
         {
             g_FilterUSB = 0;
         }
@@ -57,11 +54,6 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
 
     GetCurrentDirectoryA(sizeof(cfgfile), cfgfile);
     strcat_s(cfgfile, sizeof(cfgfile), "\\Ventoy2Disk.ini");
-
-    if (0 == GetPrivateProfileIntA("Filter", "Removable", 1, cfgfile))
-    {
-        g_FilterRemovable = 0;
-    }
 
     if (0 == GetPrivateProfileIntA("Filter", "USB", 1, cfgfile))
     {
@@ -258,6 +250,30 @@ PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id)
     return NULL;
 }
 
+int SortPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
+{
+	DWORD i, j;
+	PHY_DRIVE_INFO TmpDriveInfo;
+
+	for (i = 0; i < DriveCount; i++)
+	{
+		for (j = i + 1; j < DriveCount; j++)
+		{
+			if (pDriveList[i].BusType == BusTypeUsb && pDriveList[j].BusType == BusTypeUsb)
+			{
+				if (pDriveList[i].RemovableMedia == FALSE && pDriveList[j].RemovableMedia == TRUE)
+				{
+					memcpy(&TmpDriveInfo, pDriveList + i, sizeof(PHY_DRIVE_INFO));
+					memcpy(pDriveList + i, pDriveList + j, sizeof(PHY_DRIVE_INFO));
+					memcpy(pDriveList + j, &TmpDriveInfo, sizeof(PHY_DRIVE_INFO));
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
 int Ventoy2DiskInit(void)
 {
     g_PhyDriveList = (PHY_DRIVE_INFO *)malloc(sizeof(PHY_DRIVE_INFO)* VENTOY_MAX_PHY_DRIVE);
@@ -269,6 +285,9 @@ int Ventoy2DiskInit(void)
     memset(g_PhyDriveList, 0, sizeof(PHY_DRIVE_INFO)* VENTOY_MAX_PHY_DRIVE);
 
     GetAllPhysicalDriveInfo(g_PhyDriveList, &g_PhyDriveCount);
+
+	SortPhysicalDrive(g_PhyDriveList, g_PhyDriveCount);
+
     FilterPhysicalDrive(g_PhyDriveList, g_PhyDriveCount);
 
     return 0;

@@ -41,8 +41,8 @@ $BUSYBOX_PATH/busybox --install $BUSYBOX_PATH
 
 export PATH=$BUSYBOX_PATH/:$VTOY_PATH/tool
 
-export VTOY_BREAK_LEVEL=$(hexdump -n 1 -s 429 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
-export VTOY_DEBUG_LEVEL=$(hexdump -n 1 -s 430 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+export VTOY_BREAK_LEVEL=$(hexdump -n 1 -s 449 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+export VTOY_DEBUG_LEVEL=$(hexdump -n 1 -s 450 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 
 #Fixme: busybox shell output redirect seems to have some bug in rhel5
 if uname -a | grep -q el5; then

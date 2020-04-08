@@ -2,6 +2,12 @@
 
 VENTOY_PATH=$PWD/../
 
+if [ -e check.sh ]; then
+    if ! sh check.sh; then
+        exit 1
+    fi
+fi
+
 rm -f ventoy.cpio
 
 chmod -R 777 cpio
