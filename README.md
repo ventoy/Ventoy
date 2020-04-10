@@ -8,14 +8,18 @@ A "Ventoy Compatible" concept is introduced by ventoy, which can help to support
 See http://www.ventoy.net for detail.
 
 # Features
-* 100% open source 
+* 100% open source
 * Simple to use
+* Fast (limited only by the speed of copying iso file)
 * Directly boot from iso file, no extraction needed
 * Legacy + UEFI supported in the same way
+* ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
 * Most type of OS supported, 100+ iso files tested
+* Not only boot but also complete installation process
 * "Ventoy Compatible" concept
 * Plugin Framework
 * Readonly to USB drive during boot
 * USB normal use unafftected
 * Data nondestructive during version upgrade
+* No need to update Ventoy when a new distro is released
