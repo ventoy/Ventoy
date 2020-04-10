@@ -32,11 +32,15 @@
 #include <Guid/FileInfo.h>
 #include <Guid/FileSystemInfo.h>
 #include <Protocol/BlockIo.h>
+#include <Protocol/RamDisk.h>
 #include <Protocol/SimpleFileSystem.h>
 #include <Ventoy.h>
 
+UINTN g_iso_buf_size = 0;
+BOOLEAN gMemdiskMode = FALSE;
 BOOLEAN gDebugPrint = FALSE;
 BOOLEAN gLoadIsoEfi = FALSE;
+ventoy_ram_disk g_ramdisk_param;
 ventoy_chain_head *g_chain;
 ventoy_img_chunk *g_chunk;
 UINT32 g_img_chunk_num;
@@ -353,6 +357,25 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
     return EFI_SUCCESS;    
 }
 
+EFI_STATUS EFIAPI ventoy_block_io_ramdisk_read 
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    OUT VOID                          *Buffer
+) 
+{
+    //debug("### ventoy_block_io_ramdisk_read sector:%u count:%u", (UINT32)Lba, (UINT32)BufferSize / 2048);
+
+    (VOID)This;
+    (VOID)MediaId;
+
+    CopyMem(Buffer, (char *)g_chain + (Lba * 2048), BufferSize);
+
+	return EFI_SUCCESS;
+}
+
 EFI_STATUS EFIAPI ventoy_block_io_read 
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
@@ -497,6 +520,33 @@ EFI_STATUS EFIAPI ventoy_fill_device_path(VOID)
     return EFI_SUCCESS;
 }
 
+EFI_STATUS EFIAPI ventoy_save_ramdisk_param(VOID)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_GUID VarGuid = VENTOY_GUID;
+    
+    Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
+                  sizeof(g_ramdisk_param), &(g_ramdisk_param));
+    debug("set efi variable %r", Status);
+
+    return Status;
+}
+
+EFI_STATUS EFIAPI ventoy_del_ramdisk_param(VOID)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_GUID VarGuid = VENTOY_GUID;
+    
+    Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
+                  0, NULL);
+    debug("delete efi variable %r", Status);
+
+    return Status;
+}
+
+
 EFI_STATUS EFIAPI ventoy_set_variable(VOID)
 {
     EFI_STATUS Status = EFI_SUCCESS;
@@ -524,7 +574,7 @@ EFI_STATUS EFIAPI ventoy_delete_variable(VOID)
 }
 
 
-EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle)
+EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 ImgSize)
 {   
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_BLOCK_IO_PROTOCOL *pBlockIo = &(gBlockData.BlockIo);
@@ -532,7 +582,7 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle)
     ventoy_fill_device_path();
     
     gBlockData.Media.BlockSize = 2048;
-    gBlockData.Media.LastBlock = g_chain->virt_img_size_in_bytes / 2048 - 1;
+    gBlockData.Media.LastBlock = ImgSize / 2048 - 1;
     gBlockData.Media.ReadOnly = TRUE;
     gBlockData.Media.MediaPresent = 1;
     gBlockData.Media.LogicalBlocksPerPhysicalBlock = 1;
@@ -540,7 +590,16 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle)
 	pBlockIo->Revision = EFI_BLOCK_IO_PROTOCOL_REVISION3;
 	pBlockIo->Media = &(gBlockData.Media);
 	pBlockIo->Reset = ventoy_block_io_reset;
-	pBlockIo->ReadBlocks = ventoy_block_io_read;
+
+    if (gMemdiskMode)
+    {
+        pBlockIo->ReadBlocks = ventoy_block_io_ramdisk_read;
+    }
+    else
+    {
+    	pBlockIo->ReadBlocks = ventoy_block_io_read;        
+    }
+    
 	pBlockIo->WriteBlocks = ventoy_block_io_write;
 	pBlockIo->FlushBlocks = ventoy_block_io_flush;
 
@@ -827,6 +886,7 @@ static int ventoy_update_image_location(ventoy_os_param *param)
 STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
 {   
     UINT32 i = 0;
+    UINTN size = 0;
     UINT8 chksum = 0;
     CHAR16 *pPos = NULL;
     CHAR16 *pCmdLine = NULL;
@@ -866,32 +926,44 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     pGrubParam = (ventoy_grub_param *)StrHexToUintn(pPos + StrLen(L"env_param="));
     grub_env_get = pGrubParam->grub_env_get;
 
-
     pPos = StrStr(pCmdLine, L"mem:");
     g_chain = (ventoy_chain_head *)StrHexToUintn(pPos + 4);
 
-    g_chunk = (ventoy_img_chunk *)((char *)g_chain + g_chain->img_chunk_offset);
-    g_img_chunk_num = g_chain->img_chunk_num;
-    g_override_chunk = (ventoy_override_chunk *)((char *)g_chain + g_chain->override_chunk_offset);
-    g_override_chunk_num = g_chain->override_chunk_num;
-    g_virt_chunk = (ventoy_virt_chunk *)((char *)g_chain + g_chain->virt_chunk_offset);
-    g_virt_chunk_num = g_chain->virt_chunk_num;
+    pPos = StrStr(pPos, L"size:");
+    size = StrDecimalToUintn(pPos + 5);
 
-    for (i = 0; i < sizeof(ventoy_os_param); i++)
+    debug("memory addr:%p size:%lu", g_chain, size);
+
+    if (StrStr(pCmdLine, L"memdisk"))
     {
-        chksum += *((UINT8 *)(&(g_chain->os_param)) + i);
+        g_iso_buf_size = size;
+        gMemdiskMode = TRUE;
     }
-
-    if (gDebugPrint)
+    else
     {
-        debug("os param checksum: 0x%x %a", g_chain->os_param.chksum, chksum ? "FAILED" : "SUCCESS");
-    }
+        g_chunk = (ventoy_img_chunk *)((char *)g_chain + g_chain->img_chunk_offset);
+        g_img_chunk_num = g_chain->img_chunk_num;
+        g_override_chunk = (ventoy_override_chunk *)((char *)g_chain + g_chain->override_chunk_offset);
+        g_override_chunk_num = g_chain->override_chunk_num;
+        g_virt_chunk = (ventoy_virt_chunk *)((char *)g_chain + g_chain->virt_chunk_offset);
+        g_virt_chunk_num = g_chain->virt_chunk_num;
 
-    ventoy_update_image_location(&(g_chain->os_param));
+        for (i = 0; i < sizeof(ventoy_os_param); i++)
+        {
+            chksum += *((UINT8 *)(&(g_chain->os_param)) + i);
+        }
 
-    if (gDebugPrint)
-    {
-        ventoy_dump_chain(g_chain);
+        if (gDebugPrint)
+        {
+            debug("os param checksum: 0x%x %a", g_chain->os_param.chksum, chksum ? "FAILED" : "SUCCESS");
+        }
+
+        ventoy_update_image_location(&(g_chain->os_param));
+
+        if (gDebugPrint)
+        {
+            ventoy_dump_chain(g_chain);
+        }
     }
 
     FreePool(pCmdLine);
@@ -974,6 +1046,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
         if (EFI_ERROR(Status))
         {
             debug("Failed to start image %r", Status);
+            sleep(3);
             gBS->UnloadImage(Image);
             break;
         }
@@ -1016,8 +1089,49 @@ EFI_STATUS EFIAPI ventoy_clean_env(VOID)
     return EFI_SUCCESS;
 }
 
-EFI_STATUS EFIAPI VentoyEfiMain
+EFI_STATUS EFIAPI ventoy_ramdisk_boot(IN EFI_HANDLE ImageHandle)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_RAM_DISK_PROTOCOL *RamDisk = NULL;
+    EFI_DEVICE_PATH_PROTOCOL *DevicePath = NULL;
 
+    debug("RamDisk Boot ...");
+
+    Status = gBS->LocateProtocol(&gEfiRamDiskProtocolGuid, NULL, (VOID **)&RamDisk);
+    if (EFI_ERROR(Status))
+    {
+        debug("Failed to locate ramdisk protocol %r", Status);
+        return Status;
+    }
+    debug("Locate RamDisk Protocol %r ...", Status);
+
+    Status = RamDisk->Register((UINTN)g_chain, (UINT64)g_iso_buf_size, &gEfiVirtualCdGuid, NULL, &DevicePath);
+    if (EFI_ERROR(Status))
+    {
+        debug("Failed to register ramdisk %r", Status);
+        return Status;
+    }
+    
+    debug("Register RamDisk %r ...", Status);
+    debug("RamDisk DevicePath:<%s> ...", ConvertDevicePathToText(DevicePath, FALSE, FALSE));
+
+    ventoy_debug_pause();
+
+    gBlockData.Path = DevicePath;
+    gBlockData.DevicePathCompareLen = GetDevicePathSize(DevicePath) - sizeof(EFI_DEVICE_PATH_PROTOCOL);
+
+    Status = ventoy_boot(ImageHandle);
+    if (EFI_NOT_FOUND == Status)
+    {
+        gST->ConOut->OutputString(gST->ConOut, L"No bootfile found for UEFI!\r\n");
+        gST->ConOut->OutputString(gST->ConOut, L"Maybe the image does not support " VENTOY_UEFI_DESC  L"!\r\n");
+        sleep(300);
+    }
+    
+    return EFI_SUCCESS;
+}
+
+EFI_STATUS EFIAPI VentoyEfiMain
 (
     IN EFI_HANDLE         ImageHandle,
     IN EFI_SYSTEM_TABLE  *SystemTable
@@ -1037,35 +1151,55 @@ EFI_STATUS EFIAPI VentoyEfiMain
     ventoy_clear_input();
 
     ventoy_parse_cmdline(ImageHandle);
-    ventoy_set_variable();
-    ventoy_find_iso_disk(ImageHandle);
 
-    if (gLoadIsoEfi)
+    if (gMemdiskMode)
     {
-        ventoy_find_iso_disk_fs(ImageHandle);
-        ventoy_load_isoefi_driver(ImageHandle);
-    }
+        g_ramdisk_param.PhyAddr = (UINT64)(UINTN)g_chain;
+        g_ramdisk_param.DiskSize = (UINT64)g_iso_buf_size;
 
-    ventoy_debug_pause();
+        ventoy_save_ramdisk_param();
+        
+        ventoy_install_blockio(ImageHandle, g_iso_buf_size);
+        Status = ventoy_boot(ImageHandle);
+        if (EFI_NOT_FOUND == Status)
+        {
+            gST->ConOut->OutputString(gST->ConOut, L"No bootfile found for UEFI!\r\n");
+            gST->ConOut->OutputString(gST->ConOut, L"Maybe the image does not support " VENTOY_UEFI_DESC  L"!\r\n");
+            sleep(300);
+        }
+
+        ventoy_del_ramdisk_param();
+    }
+    else
+    {
+        ventoy_set_variable();
+        ventoy_find_iso_disk(ImageHandle);
+
+        if (gLoadIsoEfi)
+        {
+            ventoy_find_iso_disk_fs(ImageHandle);
+            ventoy_load_isoefi_driver(ImageHandle);
+        }
+
+        ventoy_debug_pause();
+        
+        ventoy_install_blockio(ImageHandle, g_chain->virt_img_size_in_bytes);
+
+        ventoy_debug_pause();
+
+        Status = ventoy_boot(ImageHandle);
+        if (EFI_NOT_FOUND == Status)
+        {
+            gST->ConOut->OutputString(gST->ConOut, L"No bootfile found for UEFI!\r\n");
+            gST->ConOut->OutputString(gST->ConOut, L"Maybe the image does not support " VENTOY_UEFI_DESC  L"!\r\n");
+            sleep(300);
+        }
+
+        ventoy_clean_env();
+    }
     
-    ventoy_install_blockio(ImageHandle);
-
-    ventoy_debug_pause();
-
-    Status = ventoy_boot(ImageHandle);
-    if (EFI_NOT_FOUND == Status)
-    {
-        gST->ConOut->OutputString(gST->ConOut, L"No bootfile found for UEFI!\r\n");
-        gST->ConOut->OutputString(gST->ConOut, L"Maybe the image does not support " VENTOY_UEFI_DESC  L"!\r\n");
-        sleep(300);
-    }
-
-    ventoy_clean_env();
-
     ventoy_clear_input();
     gST->ConOut->ClearScreen(gST->ConOut);
-
-    
 
     return EFI_SUCCESS;
 }

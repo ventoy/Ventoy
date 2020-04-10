@@ -119,7 +119,7 @@ if [ "$MODE" = "install" ]; then
 
     #Print disk info
     echo "Disk : $DISK"
-    parted $DISK p 2>&1 | grep Model
+    parted -s $DISK p 2>&1 | grep Model
     echo "Size : $disk_size_gb GB"
     echo ''
 
@@ -176,13 +176,17 @@ if [ "$MODE" = "install" ]; then
 
     $cmd -n ventoy -s $cluster_sectors ${DISK}1
 
-    dd status=none if=./boot/boot.img of=$DISK bs=1 count=446 
+    chmod +x ./tool/vtoy_gen_uuid
+
+    dd status=none if=./boot/boot.img of=$DISK bs=1 count=446
     ./tool/xzcat ./boot/core.img.xz | dd status=none of=$DISK bs=512 count=2047 seek=1
     ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
-
-
-    chmod +x ./tool/vtoy_gen_uuid
+    
+    #disk uuid
     ./tool/vtoy_gen_uuid | dd status=none of=${DISK} seek=384 bs=1 count=16
+    
+    #disk signature
+    ./tool/vtoy_gen_uuid | dd status=none of=${DISK} skip=12 seek=440 bs=1 count=4
 
     sync
 
@@ -216,7 +220,7 @@ else
 
     PART2=$(get_disk_part_name $DISK 2)
     
-    dd status=none if=./boot/boot.img of=$DISK bs=1 count=446 
+    dd status=none if=./boot/boot.img of=$DISK bs=1 count=440
     
     ./tool/xzcat ./boot/core.img.xz | dd status=none of=$DISK bs=512 count=2047 seek=1  
 

@@ -32,6 +32,7 @@
 #include <grub/script_sh.h>
 #include <grub/gfxterm.h>
 #include <grub/dl.h>
+#include <grub/env.h>
 
 /* Time to delay after displaying an error message about a default/fallback
    entry failing to boot.  */
@@ -785,6 +786,36 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 		    grub_menu_entry_run (e);
 		}
 	      goto refresh;
+
+        case GRUB_TERM_KEY_F1:
+            menu_fini ();
+            if (grub_env_get("VTOY_MEM_DISK")) {
+                grub_env_unset("VTOY_MEM_DISK");
+            }else {
+                grub_env_set("VTOY_MEM_DISK", grub_env_get("VTOY_MEM_DISK_STR"));
+            }
+            grub_env_set("VTOY_MENU_REFRESH", "1");
+            goto refresh;
+            
+        case GRUB_TERM_KEY_F3:
+            menu_fini ();
+            if (grub_env_get("VTOY_ISO_RAW")) {
+                grub_env_unset("VTOY_ISO_RAW");
+            }else {
+                grub_env_set("VTOY_ISO_RAW", grub_env_get("VTOY_ISO_RAW_STR"));
+            }
+            grub_env_set("VTOY_MENU_REFRESH", "1");
+            goto refresh;
+            
+        case GRUB_TERM_KEY_F4:
+            menu_fini ();
+            if (grub_env_get("VTOY_ISO_UEFI_DRV")) {
+                grub_env_unset("VTOY_ISO_UEFI_DRV");
+            }else {
+                grub_env_set("VTOY_ISO_UEFI_DRV", grub_env_get("VTOY_ISO_UEFI_DRV_STR"));
+            }
+            grub_env_set("VTOY_MENU_REFRESH", "1");
+            goto refresh;
 
 	    default:
 	      {

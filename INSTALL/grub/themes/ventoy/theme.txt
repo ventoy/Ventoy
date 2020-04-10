@@ -48,3 +48,31 @@ terminal-box: "terminal_box_*.png"
   bar_style = "*"
   highlight_style = "*"
 }
+
+
++ hbox{ 
+    left = 90%
+    top = 5 
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_MEM_DISK@" color = "red" align = "left"} 
+}
+
+
++ hbox{ 
+    left = 90%
+    top = 30 
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_ISO_RAW@" color = "red" align = "left"} 
+}
+
+
++ hbox{ 
+    left = 90%
+    top = 55 
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_ISO_UEFI_DRV@" color = "red" align = "left"} 
+}
+

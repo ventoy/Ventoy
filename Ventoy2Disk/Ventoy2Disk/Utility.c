@@ -426,11 +426,21 @@ static int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT
 
 int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
 {
+    GUID Guid;
+    UINT32 DiskSignature;
     UINT32 DiskSectorCount;
     UINT32 PartSectorCount;
     UINT32 PartStartSector;
 
     VentoyGetLocalBootImg(pMBR);
+
+    CoCreateGuid(&Guid);
+
+    memcpy(&DiskSignature, &Guid, sizeof(UINT32));
+
+    Log("Disk signature: 0x%08x", DiskSignature);
+
+    *((UINT32 *)(pMBR->BootCode + 0x1B8)) = DiskSignature;
 
     DiskSectorCount = (UINT32)(DiskSizeBytes / 512);
 

@@ -41,9 +41,11 @@
 
 [Guids]
   gShellVariableGuid
+  gEfiVirtualCdGuid
   
 [Protocols]
   gEfiLoadedImageProtocolGuid
   gEfiBlockIoProtocolGuid
   gEfiDevicePathProtocolGuid
   gEfiSimpleFileSystemProtocolGuid
+  gEfiRamDiskProtocolGuid

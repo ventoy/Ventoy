@@ -223,6 +223,13 @@ typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
 }ventoy_grub_param;
+
+typedef struct ventoy_ram_disk
+{
+    UINT64 PhyAddr;
+    UINT64 DiskSize;
+}ventoy_ram_disk;
+
 #pragma pack()
 
 

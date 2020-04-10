@@ -28,6 +28,7 @@
 #include "vtoyjump.h"
 #include "fat_filelib.h"
 
+static UINT8 g_os_param_reserved[32];
 static BOOL g_64bit_system = FALSE;
 static ventoy_guid g_ventoy_guid = VENTOY_GUID;
 
@@ -714,23 +715,26 @@ static int VentoyHook(ventoy_os_param *param)
 
 	while (Drives)
 	{
-		sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
-		if (IsPathExist(FALSE, "%s", IsoPath))
-		{
-			Log("File exist under %C:", Letter);
-			if (GetPhyDiskUUID(Letter, UUID, &DiskExtent) == 0)
-			{
-				if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
-				{
-					Log("Disk UUID match");
-					break;
-				}
-			}
-		}
-		else
-		{
-			Log("File NOT exist under %C:", Letter);
-		}
+        if (Drives & 0x01)
+        {
+            sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
+            if (IsPathExist(FALSE, "%s", IsoPath))
+            {
+                Log("File exist under %C:", Letter);
+                if (GetPhyDiskUUID(Letter, UUID, &DiskExtent) == 0)
+                {
+                    if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
+                    {
+                        Log("Disk UUID match");
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                Log("File NOT exist under %C:", Letter);
+            }
+        }
 
 		Drives >>= 1;
 		Letter++;
@@ -816,7 +820,9 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 			Log("Find os pararm at %u", PeStart);
 			memcpy(&os_param, Buffer + PeStart, sizeof(ventoy_os_param));
 
-			if (os_param.vtoy_reserved[0] == 1)
+            memcpy(g_os_param_reserved, os_param.vtoy_reserved, sizeof(g_os_param_reserved));
+
+            if (g_os_param_reserved[0] == 1)
 			{
 				Log("break here for debug .....");
 				goto End;
@@ -844,7 +850,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 		goto End;
 	}
 
-    if (os_param.vtoy_reserved[0] == 2)
+    if (g_os_param_reserved[0] == 2)
     {
         Log("skip hook for debug .....");
         rc = 0;
@@ -865,6 +871,8 @@ End:
 
 int main(int argc, char **argv)
 {
+    int i = 0;
+    int rc = 0;
 	CHAR *Pos = NULL;
 	CHAR CurDir[MAX_PATH];
 	CHAR LunchFile[MAX_PATH];
@@ -904,20 +912,35 @@ int main(int argc, char **argv)
 
     GetStartupInfoA(&Si);
 
-	memset(LunchFile, 0, sizeof(LunchFile));
-	if (VentoyJump(argc, argv, LunchFile) == 0)
-	{
-        Log("Ventoy jump success ...");
-        Si.dwFlags |= STARTF_USESHOWWINDOW;
-        Si.wShowWindow = SW_HIDE;
-	}
-    else
+    for (i = 0; i < 10; i++)
     {
-        Log("Ventoy jump fail, now lunch cmd...");
-        sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
+        Log("VentoyJump loop %d", i + 1); 
+
+        memset(LunchFile, 0, sizeof(LunchFile));
+        rc = VentoyJump(argc, argv, LunchFile);
+
+        if (g_os_param_reserved[0] == 3)
+        {
+            Log("Open log for debug ...");
+            sprintf_s(LunchFile, sizeof(LunchFile), "%s", "notepad.exe ventoy.log");
+            break;
+        }
+        else if (rc == 0)
+        {
+            Log("Ventoy jump success ...");
+            Si.dwFlags |= STARTF_USESHOWWINDOW;
+            Si.wShowWindow = SW_HIDE;
+            break;
+        }
+        else
+        {
+            Log("Ventoy jump fail, now wait ...");
+            sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
+            Sleep(3000);
+        }
     }
 
-	CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+	CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);   
 	WaitForSingleObject(Pi.hProcess, INFINITE);
 
 	return 0;

@@ -33,6 +33,9 @@
 #include <grub/datetime.h>
 #include <grub/i18n.h>
 #include <grub/net.h>
+#ifdef GRUB_MACHINE_EFI
+#include <grub/efi/efi.h>
+#endif
 #include <grub/time.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
@@ -259,6 +262,84 @@ static grub_err_t ventoy_cmd_incr(grub_extcmd_context_t ctxt, int argc, char **a
     grub_env_set(args[0], buf);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t ventoy_cmd_file_size(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int rc = 1;
+    char buf[32];
+    grub_file_t file;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (argc != 2)
+    {
+        return rc;
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (file == NULL)
+    {
+        debug("failed to open file <%s> for udf check\n", args[0]);
+        return 1;
+    }
+
+    grub_snprintf(buf, sizeof(buf), "%llu", (unsigned long long)file->size);
+
+    grub_env_set(args[1], buf);
+
+    grub_file_close(file); 
+    rc = 0;
+    
+    return rc;
+}
+
+static grub_err_t ventoy_cmd_load_iso_to_mem(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int rc = 1;
+    char name[32];
+    char value[32];
+    char *buf = NULL;
+    grub_file_t file;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (argc != 2)
+    {
+        return rc;
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (file == NULL)
+    {
+        debug("failed to open file <%s> for udf check\n", args[0]);
+        return 1;
+    }
+
+#ifdef GRUB_MACHINE_EFI
+    buf = (char *)grub_efi_allocate_iso_buf(file->size);
+#else
+    buf = (char *)grub_malloc(file->size);
+#endif   
+
+    grub_file_read(file, buf, file->size);
+
+    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
+    grub_snprintf(value, sizeof(value), "0x%llx", (unsigned long long)(unsigned long)buf);
+    grub_env_set(name, value);
+    
+    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
+    grub_snprintf(value, sizeof(value), "%llu", (unsigned long long)file->size);
+    grub_env_set(name, value);
+
+    grub_file_close(file); 
+    rc = 0;
+    
+    return rc;
 }
 
 static grub_err_t ventoy_cmd_is_udf(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -1107,6 +1188,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_load_cpio", ventoy_cmd_load_cpio, 0, NULL, "", "", NULL },
 
     { "vt_is_udf", ventoy_cmd_is_udf, 0, NULL, "", "", NULL },
+    { "vt_file_size", ventoy_cmd_file_size, 0, NULL, "", "", NULL },
+    { "vt_load_iso_to_mem", ventoy_cmd_load_iso_to_mem, 0, NULL, "", "", NULL },
     
     { "vt_linux_parse_initrd_isolinux", ventoy_cmd_isolinux_initrd_collect, 0, NULL, "{cfgfile}", "", NULL },
     { "vt_linux_parse_initrd_grub", ventoy_cmd_grub_initrd_collect, 0, NULL, "{cfgfile}", "", NULL },
