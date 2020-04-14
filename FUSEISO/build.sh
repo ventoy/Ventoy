@@ -15,7 +15,7 @@ fi
 export C_INCLUDE_PATH=$LIBFUSE_DIR/include
 
 rm -f $name
-gcc  -O2 -D_FILE_OFFSET_BITS=64  vtoy_fuse_iso.c -o $name $LIBFUSE_DIR/lib/libfuse.a  -lpthread -ldl $opt
+gcc -static -O2 -D_FILE_OFFSET_BITS=64  vtoy_fuse_iso.c -o $name $LIBFUSE_DIR/lib/libfuse.a  -lpthread -ldl $opt
 
 if [ -e $name ]; then
    echo -e "\n############### SUCCESS $name ##################\n"

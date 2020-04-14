@@ -23,5 +23,9 @@ if [ -d /etc/udev/rules.d ]; then
     ventoy_systemd_udevd_work_around
     ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
 else
-    $SED "/mdev *-s/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/disk_hook.sh"  -i /init
+    if $GREP -q kaspersky /proc/version; then
+        $SED "/sysresccd_stage1_normal[^(]*$/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/disk_hook.sh"  -i /init
+    else
+        $SED "/mdev *-s/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/disk_hook.sh"  -i /init
+    fi
 fi

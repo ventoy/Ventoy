@@ -21,11 +21,36 @@
 
 DISTRO='default'
 
-if [ -e /etc/initrd-release ]; then
+if [ -d /KNOPPIX ]; then
+    DISTRO='knoppix'
+elif [ -e /etc/initrd-release ]; then
     if $EGREP -q "ID=.*antix|ID=.*mx" /etc/initrd-release; then
         DISTRO='antix'
     fi
 fi
+
+if [ -e /init ]; then
+    if $GREP -q PUPPYSFS /init; then
+        if $GREP -q VEKETSFS /init; then
+            DISTRO='veket'
+        else
+            DISTRO='puppy'
+        fi
+    fi
+fi
+
+if [ -e /etc/os-release ]; then
+    if $GREP -q 'Tails' /etc/os-release; then
+        DISTRO='tails'
+    fi
+fi
+
+if [ "$DISTRO"="default" ]; then
+    if $GREP -q 'slax/' /proc/cmdline; then
+        DISTRO='slax'
+    fi
+fi
+
 
 echo "##### distribution = $DISTRO ######" >> $VTLOG
 . $VTOY_PATH/hook/debian/${DISTRO}-hook.sh

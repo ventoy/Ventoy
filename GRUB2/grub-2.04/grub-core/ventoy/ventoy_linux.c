@@ -543,6 +543,7 @@ grub_err_t ventoy_cmd_specify_initrd_file(grub_extcmd_context_t ctxt, int argc, 
     grub_strncpy(img->name, args[0], sizeof(img->name));
     if (ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
     {
+        debug("%s is already exist\n", args[0]);
         grub_free(img);
     }
     else
@@ -740,6 +741,23 @@ grub_err_t ventoy_cmd_initrd_count(grub_extcmd_context_t ctxt, int argc, char **
 
     if (argc == 1)
     {
+        grub_snprintf(buf, sizeof(buf), "%d", g_initrd_img_count);
+        grub_env_set(args[0], buf);
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_valid_initrd_count(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    char buf[32] = {0};
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (argc == 1)
+    {
         grub_snprintf(buf, sizeof(buf), "%d", g_valid_initrd_count);
         grub_env_set(args[0], buf);
     }
@@ -750,6 +768,7 @@ grub_err_t ventoy_cmd_initrd_count(grub_extcmd_context_t ctxt, int argc, char **
 static grub_err_t ventoy_linux_locate_initrd(int filt, int *filtcnt)
 {
     int data;
+    int filtbysize = 1;
     int sizefilt = 0;
     grub_file_t file;
     initrd_info *node;
@@ -757,6 +776,11 @@ static grub_err_t ventoy_linux_locate_initrd(int filt, int *filtcnt)
     debug("ventoy_linux_locate_initrd %d\n", filt);
 
     g_valid_initrd_count = 0;
+
+    if (grub_env_get("INITRD_NO_SIZE_FILT"))
+    {
+        filtbysize = 0;
+    }
     
     for (node = g_initrd_img_list; node; node = node->next)
     {
@@ -769,12 +793,18 @@ static grub_err_t ventoy_linux_locate_initrd(int filt, int *filtcnt)
         debug("file <%s> size:%d\n", node->name, (int)file->size);
 
         /* initrd file too small */
-        if (filt > 0 && file->size <= g_ventoy_cpio_size + 2048)
+        if (filtbysize 
+            && (NULL == grub_strstr(node->name, "minirt.gz"))
+            && (NULL == grub_strstr(node->name, "initrd.xz"))
+            )
         {
-            debug("file size too small %d\n", (int)g_ventoy_cpio_size);
-            grub_file_close(file);
-            sizefilt++;
-            continue;
+            if (filt > 0 && file->size <= g_ventoy_cpio_size + 2048)
+            {
+                debug("file size too small %d\n", (int)g_ventoy_cpio_size);
+                grub_file_close(file);
+                sizefilt++;
+                continue;
+            }
         }
 
         if (grub_strcmp(file->fs->name, "iso9660") == 0)

@@ -142,6 +142,12 @@ ventoy_get_os_type() {
         echo 'slackware'; return
     fi
     
+    if [ -e /init ]; then
+        if $GREP -i -q zeroshell /init; then
+            echo 'zeroshell'; return
+        fi
+    fi
+    
     
     echo "default"
 }

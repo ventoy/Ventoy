@@ -28,6 +28,7 @@
 #include "vtoyjump.h"
 #include "fat_filelib.h"
 
+static ventoy_os_param g_os_param;
 static UINT8 g_os_param_reserved[32];
 static BOOL g_64bit_system = FALSE;
 static ventoy_guid g_ventoy_guid = VENTOY_GUID;
@@ -784,7 +785,6 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	DWORD PeStart;
     DWORD FileSize;
 	BYTE *Buffer = NULL; 
-	ventoy_os_param os_param;
 	CHAR ExeFileName[MAX_PATH];
 
 	sprintf_s(ExeFileName, sizeof(ExeFileName), "%s", argv[0]);
@@ -818,9 +818,9 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 			CheckPeHead(Buffer + PeStart + sizeof(ventoy_os_param)))
 		{
 			Log("Find os pararm at %u", PeStart);
-			memcpy(&os_param, Buffer + PeStart, sizeof(ventoy_os_param));
 
-            memcpy(g_os_param_reserved, os_param.vtoy_reserved, sizeof(g_os_param_reserved));
+            memcpy(&g_os_param, Buffer + PeStart, sizeof(ventoy_os_param));
+            memcpy(g_os_param_reserved, g_os_param.vtoy_reserved, sizeof(g_os_param_reserved));
 
             if (g_os_param_reserved[0] == 1)
 			{
@@ -829,11 +829,11 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 			}
 
 			// convert / to \\   
-			for (Pos = 0; Pos < sizeof(os_param.vtoy_img_path) && os_param.vtoy_img_path[Pos]; Pos++)
+            for (Pos = 0; Pos < sizeof(g_os_param.vtoy_img_path) && g_os_param.vtoy_img_path[Pos]; Pos++)
 			{
-				if (os_param.vtoy_img_path[Pos] == '/')
+                if (g_os_param.vtoy_img_path[Pos] == '/')
 				{
-					os_param.vtoy_img_path[Pos] = '\\';
+                    g_os_param.vtoy_img_path[Pos] = '\\';
 				}
 			}
 
@@ -857,7 +857,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
         goto End;
     }
 
-	rc = VentoyHook(&os_param);
+    rc = VentoyHook(&g_os_param);
 
 End:
 
@@ -912,35 +912,31 @@ int main(int argc, char **argv)
 
     GetStartupInfoA(&Si);
 
-    for (i = 0; i < 10; i++)
+    memset(LunchFile, 0, sizeof(LunchFile));
+    rc = VentoyJump(argc, argv, LunchFile);
+
+    if (g_os_param_reserved[0] == 3)
     {
-        Log("VentoyJump loop %d", i + 1); 
-
-        memset(LunchFile, 0, sizeof(LunchFile));
-        rc = VentoyJump(argc, argv, LunchFile);
-
-        if (g_os_param_reserved[0] == 3)
-        {
-            Log("Open log for debug ...");
-            sprintf_s(LunchFile, sizeof(LunchFile), "%s", "notepad.exe ventoy.log");
-            break;
-        }
-        else if (rc == 0)
-        {
-            Log("Ventoy jump success ...");
-            Si.dwFlags |= STARTF_USESHOWWINDOW;
-            Si.wShowWindow = SW_HIDE;
-            break;
-        }
-        else
-        {
-            Log("Ventoy jump fail, now wait ...");
-            sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
-            Sleep(3000);
-        }
+        Log("Open log for debug ...");
+        sprintf_s(LunchFile, sizeof(LunchFile), "%s", "notepad.exe ventoy.log");
+    }
+    else
+    {
+        Si.dwFlags |= STARTF_USESHOWWINDOW;
+        Si.wShowWindow = SW_HIDE;
+        Log("Ventoy jump %s ...", rc == 0 ? "success" : "failed");
     }
 
-	CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);   
+	CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+    while (rc)
+    {
+        Log("Ventoy hook failed, now wait and retry ...");
+        Sleep(1000);
+
+        rc = VentoyHook(&g_os_param);
+    }
+
 	WaitForSingleObject(Pi.hProcess, INFINITE);
 
 	return 0;

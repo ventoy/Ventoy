@@ -23,7 +23,7 @@
 # Step 1 : parse kernel debug parameter                            #
 #                                                                  #
 ####################################################################
-mkdir /proc; mount -t proc proc /proc
+[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
 vtcmdline=$(cat /proc/cmdline)
 vtkerver=$(cat /proc/version)
 umount /proc; rm -rf /proc
@@ -71,9 +71,9 @@ ventoy_unpack_initramfs() {
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
             echo "vtx=$vtx" >> $VTLOG            
             if [ $vtskip -eq 0 ]; then
-                ${vtx:5} $vtfile | (cpio -idm 2>>$VTLOG; cat > $vttmp)
+                ${vtx:5} $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
             else
-                dd if=$vtfile skip=$vtskip iflag=skip_bytes status=none | ${vtx:5} | (cpio -idm 2>>$VTLOG; cat > $vttmp)
+                dd if=$vtfile skip=$vtskip iflag=skip_bytes status=none | ${vtx:5} | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
             fi
             break
         fi
@@ -98,36 +98,57 @@ ventoy_unpack_initrd() {
 # This export is for busybox cpio command
 export EXTRACT_UNSAFE_SYMLINKS=1
 
-for vtfile in $(ls /initrd*); do    
-    #decompress first initrd
-    vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $vtfile)
-
-    if ventoy_is_initrd_ramdisk; then
-        ventoy_unpack_initrd $vtfile $vtmagic ${vtfile}_tmp
-        mv ${vtfile}_tmp $vtfile
-        break
-    else
-        ventoy_unpack_initramfs $vtfile 0 $vtmagic ${vtfile}_tmp
-    fi
-
-    #only for cpio,cpio,...,initrd sequence, initrd,cpio or initrd,initrd sequence is not supported
-    while [ -e ${vtfile}_tmp ] && [ $(stat -c '%s' ${vtfile}_tmp) -gt 512 ]; do
-        mv ${vtfile}_tmp $vtfile
-        vtdump=$(hexdump -n 512 -e '512/1 "%02X"' $vtfile)
-        vtmagic=$(echo $vtdump | sed 's/^\(00\)*//')
-        let vtoffset="(${#vtdump}-${#vtmagic})/2"
-        
-        if [ -z "$vtmagic" ]; then
-            echo "terminate with all zero data file" >> $VTLOG
-            break
+# special process
+need_xzminidec() {
+    testmagic=$(hexdump -n 2 -e '2/1 "%02X"' /initrd001)
+    if [ "FD37" = "${testmagic:0:4}" ]; then
+        if echo $vtkerver | grep -q 'kaspersky'; then
+            true
+        elif echo $vtkerver | grep -q 'kiosk.*Gentoo'; then
+            true
+        else
+            false
         fi
-        
-        ventoy_unpack_initramfs $vtfile $vtoffset ${vtmagic:0:4} ${vtfile}_tmp
-    done
-    
-    rm -f $vtfile ${vtfile}_tmp
-done
+    else
+        false
+    fi
+}
 
+if need_xzminidec; then
+    echo "use xzminidec" >> $VTLOG
+    cat /initrd001 | xzminidec | cpio -idmu 2>>$VTLOG
+    rm -f /initrd001
+else
+    for vtfile in $(ls /initrd*); do    
+        #decompress first initrd
+        vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $vtfile)
+
+        if ventoy_is_initrd_ramdisk; then
+            ventoy_unpack_initrd $vtfile $vtmagic ${vtfile}_tmp
+            mv ${vtfile}_tmp $vtfile
+            break
+        else
+            ventoy_unpack_initramfs $vtfile 0 $vtmagic ${vtfile}_tmp
+        fi
+
+        #only for cpio,cpio,...,initrd sequence, initrd,cpio or initrd,initrd sequence is not supported
+        while [ -e ${vtfile}_tmp ] && [ $(stat -c '%s' ${vtfile}_tmp) -gt 512 ]; do
+            mv ${vtfile}_tmp $vtfile
+            vtdump=$(hexdump -n 512 -e '512/1 "%02X"' $vtfile)
+            vtmagic=$(echo $vtdump | sed 's/^\(00\)*//')
+            let vtoffset="(${#vtdump}-${#vtmagic})/2"
+            
+            if [ -z "$vtmagic" ]; then
+                echo "terminate with all zero data file" >> $VTLOG
+                break
+            fi
+            
+            ventoy_unpack_initramfs $vtfile $vtoffset ${vtmagic:0:4} ${vtfile}_tmp
+        done
+        
+        rm -f $vtfile ${vtfile}_tmp
+    done
+fi
 
 #break here for debug
 if [ "$VTOY_BREAK_LEVEL" = "02" ] || [ "$VTOY_BREAK_LEVEL" = "12" ]; then

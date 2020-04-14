@@ -29,7 +29,7 @@ SED=$BUSYBOX_PATH/sed
 SLEEP=$BUSYBOX_PATH/sleep
 HEAD=$BUSYBOX_PATH/head
 VTOY_DM_PATH=/dev/mapper/ventoy
-VTOY_DEBUG_LEVEL=$($BUSYBOX_PATH/hexdump -n 1 -s 430 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+VTOY_DEBUG_LEVEL=$($BUSYBOX_PATH/hexdump -n 1 -s 450 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 
 if [ "$VTOY_DEBUG_LEVEL" = "01" ]; then
     if [ -e /dev/console ]; then

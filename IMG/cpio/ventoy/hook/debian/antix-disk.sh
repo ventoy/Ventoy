@@ -97,6 +97,9 @@ ventoy_os_install_dmsetup() {
     fi
 }
 
+
+wait_for_usb_disk_ready
+
 vtdiskname=$(get_ventoy_disk_name)
 if [ "$vtdiskname" = "unknown" ]; then
     vtlog "ventoy disk not found"
