@@ -23,3 +23,5 @@ See http://www.ventoy.net for detail.
 * USB normal use unafftected
 * Data nondestructive during version upgrade
 * No need to update Ventoy when a new distro is released
+
+![avatar](http://www.ventoy.net/static/img/screen/screen_uefi.png)
