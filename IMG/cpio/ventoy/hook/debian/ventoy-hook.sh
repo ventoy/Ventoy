@@ -19,38 +19,69 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-DISTRO='default'
-
-if [ -d /KNOPPIX ]; then
-    DISTRO='knoppix'
-elif [ -e /etc/initrd-release ]; then
-    if $EGREP -q "ID=.*antix|ID=.*mx" /etc/initrd-release; then
-        DISTRO='antix'
-    fi
-fi
-
-if [ -e /init ]; then
-    if $GREP -q PUPPYSFS /init; then
-        if $GREP -q VEKETSFS /init; then
-            DISTRO='veket'
-        else
-            DISTRO='puppy'
+ventoy_get_debian_distro() {
+    if [ -d /KNOPPIX ]; then
+        echo 'knoppix'; return
+    elif [ -e /etc/initrd-release ]; then
+        if $EGREP -q "ID=.*antix|ID=.*mx" /etc/initrd-release; then
+            echo 'antix'; return
         fi
     fi
-fi
-
-if [ -e /etc/os-release ]; then
-    if $GREP -q 'Tails' /etc/os-release; then
-        DISTRO='tails'
+    
+    if [ -e /init ]; then
+        if $GREP -q PUPPYSFS /init; then
+            if $GREP -q VEKETSFS /init; then
+                echo 'veket'; return
+            else
+                echo 'puppy'; return
+            fi
+        fi
     fi
-fi
 
-if [ "$DISTRO"="default" ]; then
+    if [ -e /etc/os-release ]; then
+        if $GREP -q 'Tails' /etc/os-release; then
+            echo 'tails'; return
+        fi
+    fi
+
     if $GREP -q 'slax/' /proc/cmdline; then
-        DISTRO='slax'
+        echo 'slax'; return
     fi
-fi
+    
+    if $GREP -q 'PVE ' /proc/version; then
+        echo 'pve'; return
+    fi
+    
+    if $GREP -q '[Dd]eepin' /proc/version; then
+        echo 'deepin'; return
+    fi
+    
+    if $GREP -q '[Uu][Oo][Ss] ' /proc/version; then
+        echo 'deepin'; return
+    fi
+    
+    if [ -d /porteus ]; then
+        echo 'porteus'; return
+    fi
+    
+    if $GREP -q 'porteus' /proc/version; then
+        echo 'porteus'; return
+    fi
+    
+    echo 'default'
+}
 
+DISTRO=$(ventoy_get_debian_distro)
 
 echo "##### distribution = $DISTRO ######" >> $VTLOG
 . $VTOY_PATH/hook/debian/${DISTRO}-hook.sh
+
+
+
+
+
+
+
+
+
+

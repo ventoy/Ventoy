@@ -148,6 +148,13 @@ ventoy_get_os_type() {
         fi
     fi
     
+    if $EGREP -q 'ALT ' /proc/version; then
+        echo 'alt'; return
+    fi
+    
+    if $EGREP -q 'porteus' /proc/version; then
+        echo 'debian'; return
+    fi
     
     echo "default"
 }

@@ -67,6 +67,12 @@ ventoy_unpack_initramfs() {
     vtfile=$1; vtskip=$2; vtmagic=$3; vttmp=$4    
     echo "=====ventoy_unpack_initramfs: #$*#" >> $VTLOG
     
+    #special process
+    #if [ "${vtmagic:0:4}" = '5678' ]; then
+    #    echo -en '\x1F\x8B' | dd status=none of=$vtfile bs=1 count=2 conv=notrunc
+    #    vtmagic='1F8B'
+    #fi
+    
     for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat'; do
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
             echo "vtx=$vtx" >> $VTLOG            
@@ -100,11 +106,18 @@ export EXTRACT_UNSAFE_SYMLINKS=1
 
 # special process
 need_xzminidec() {
-    testmagic=$(hexdump -n 2 -e '2/1 "%02X"' /initrd001)
+    if [ -e /initrd001 ]; then
+        testmagic=$(hexdump -n 2 -e '2/1 "%02X"' /initrd001)
+    else
+        testmagic='xxxx'
+    fi
+    
     if [ "FD37" = "${testmagic:0:4}" ]; then
         if echo $vtkerver | grep -q 'kaspersky'; then
             true
         elif echo $vtkerver | grep -q 'kiosk.*Gentoo'; then
+            true
+        elif echo $vtkerver | grep -q 'porteus '; then
             true
         else
             false

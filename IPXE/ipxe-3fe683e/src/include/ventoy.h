@@ -163,6 +163,7 @@ typedef struct ventoy_sector_flag
 
 #define VENTOY_BIOS_FAKE_DRIVE  0xFE
 
+extern int g_debug;
 extern char *g_cmdline_copy;
 extern void *g_initrd_addr;
 extern size_t g_initrd_len;
@@ -207,6 +208,17 @@ struct smbios3_entry {
     uint64_t address;
 } __attribute__ (( packed ));
 
+
+typedef struct isolinux_boot_info
+{
+    uint32_t isolinux0;
+    uint32_t isolinux1;
+    uint32_t PvdLocation;
+    uint32_t BootFileLocation;
+    uint32_t BootFileLen;
+    uint32_t BootFileChecksum;
+    uint8_t  Reserved[40];
+}isolinux_boot_info;
 
 //#undef DBGLVL
 //#define DBGLVL 7

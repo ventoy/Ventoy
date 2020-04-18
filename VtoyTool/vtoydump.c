@@ -389,6 +389,11 @@ static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
     {
         cnt = vtoy_find_disk_by_guid(param->vtoy_disk_guid, diskname);
     }
+    else if (cnt == 0)
+    {
+        cnt = vtoy_find_disk_by_guid(param->vtoy_disk_guid, diskname);
+        debug("find 0 disk by size, try with guid cnt=%d...\n", cnt);
+    }
     
     if (param->vtoy_disk_part_type == 0)
     {
