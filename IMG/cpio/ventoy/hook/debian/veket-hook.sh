@@ -17,15 +17,6 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
-
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
-
-#$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-disk.sh /lib/dracut/hooks/initqueue/01-ventoy-disk.sh
-
-# suppress write protected mount warning
-if [ -e /usr/sbin/anaconda-diskroot ]; then
-    $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
-fi
-
+$SED '1 apmedia=usbhd'  -i /init
+$SED "/^ *HAVE_PARTS=/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/veket-disk.sh"  -i /init
+$SED "/^ *HAVE_PARTS=/a\ HAVE_PARTS='ventoy|iso9660'"  -i /init

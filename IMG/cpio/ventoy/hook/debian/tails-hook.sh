@@ -17,15 +17,8 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+$SED "s#.*livefs_root=.*find_livefs.*#$BUSYBOX_PATH/mount -t iso9660 /dev/mapper/ventoy \$mountpoint; livefs_root=\$mountpoint#" -i /usr/lib/live/boot/9990-main.sh
+$SED "s#.*livefs_root=.*find_livefs.*#$BUSYBOX_PATH/mount -t iso9660 /dev/mapper/ventoy \$mountpoint; livefs_root=\$mountpoint#" -i /usr/bin/boot/9990-main.sh
 
 ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
-
-#$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-disk.sh /lib/dracut/hooks/initqueue/01-ventoy-disk.sh
-
-# suppress write protected mount warning
-if [ -e /usr/sbin/anaconda-diskroot ]; then
-    $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
-fi
-
+ventoy_add_udev_rule "$VTOY_PATH/hook/debian/udev_disk_hook.sh %k"

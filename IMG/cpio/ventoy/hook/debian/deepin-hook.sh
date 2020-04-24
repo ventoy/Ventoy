@@ -17,15 +17,31 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+drop_initramfs_workaround() {
+    mainfilelist=$($FIND / -name 9990-main.sh)
+    
+    echo "mainfilelist=$mainfilelist" >> $VTLOG
+    
+    if [ -z "$mainfilelist" ]; then 
+        return
+    fi
+
+    for vtfile in $mainfilelist; do
+        vtcnt=$($GREP -c 'panic.*Unable to find a medium' $vtfile)
+        if [ $vtcnt -ne 1 ]; then
+            return
+        fi
+    done
+    
+    echo "direct_hook insert ..." >> $VTLOG
+    
+    for vtfile in $mainfilelist; do
+        $SED "s#panic.*Unable to find a medium.*#$BUSYBOX_PATH/sh  $VTOY_PATH/hook/debian/deepin-disk.sh \$mountpoint; livefs_root=\$mountpoint#" -i $vtfile
+    done
+}
 
 ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
+ventoy_add_udev_rule "$VTOY_PATH/hook/debian/udev_disk_hook.sh %k"
 
-#$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-disk.sh /lib/dracut/hooks/initqueue/01-ventoy-disk.sh
-
-# suppress write protected mount warning
-if [ -e /usr/sbin/anaconda-diskroot ]; then
-    $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
-fi
+drop_initramfs_workaround
 

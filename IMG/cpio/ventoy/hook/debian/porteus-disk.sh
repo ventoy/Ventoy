@@ -19,37 +19,36 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
+vtlog "####### $0 $* ########"
+
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-ventoy_os_install_device_mapper_by_unsquashfs() {
-    vtlog "ventoy_os_install_device_mapper_by_unsquashfs $*"
-    
-    vtKoExt=$(ventoy_get_module_postfix)
-    vtlog "vtKoExt=$vtKoExt"
 
-    vtoydm -i -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/iso_file_list
+ventoy_os_install_dmsetup_by_fuse() {
+    vtlog "ventoy_os_install_dmsetup_by_fuse $*"
 
-    vtline=$(grep '[-][-] livecd.sqfs '  $VTOY_PATH/iso_file_list)    
-    sector=$(echo $vtline | awk '{print $(NF-1)}')
-    length=$(echo $vtline | awk '{print $NF}')
-    
-    vtoydm -E -f $VTOY_PATH/ventoy_image_map -d $1 -s $sector -l $length -o $VTOY_PATH/fsdisk
-    
-    dmModPath="/lib/modules/$2/kernel/drivers/md/dm-mod.$vtKoExt"
-    echo $dmModPath > $VTOY_PATH/fsextract
-    vtoy_unsquashfs -d $VTOY_PATH/sqfs -n -q -e $VTOY_PATH/fsextract $VTOY_PATH/fsdisk
+    mkdir -p $VTOY_PATH/mnt/fuse $VTOY_PATH/mnt/iso $VTOY_PATH/mnt/squashfs
 
-    if [ -e $VTOY_PATH/sqfs${dmModPath} ]; then
-        vtlog "success $VTOY_PATH/sqfs${dmModPath}"
-        insmod $VTOY_PATH/sqfs${dmModPath}
-    else
-        false
-    fi
+    vtoydm -p -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/ventoy_dm_table
+    vtoy_fuse_iso -f $VTOY_PATH/ventoy_dm_table -m $VTOY_PATH/mnt/fuse
+
+    mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
+    
+    sfsfile=$(ls $VTOY_PATH/mnt/iso/porteus/base/*kernel.xzm)
+    
+    mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs
+
+    KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
+    vtlog "insmod $KoName"
+    insmod $KoName 
+
+    umount $VTOY_PATH/mnt/squashfs
+    umount $VTOY_PATH/mnt/iso
+    umount $VTOY_PATH/mnt/fuse
 }
 
-
-ventoy_os_install_device_mapper() {
-    vtlog "ventoy_os_install_device_mapper"
+ventoy_os_install_dmsetup() {
+    vtlog "ventoy_os_install_dmsetup"
     
     if grep -q 'device-mapper' /proc/devices; then
         vtlog "device-mapper module already loaded"
@@ -57,18 +56,22 @@ ventoy_os_install_device_mapper() {
     fi
     
     vtKerVer=$(uname -r)
-    if ventoy_os_install_device_mapper_by_unsquashfs $1 $vtKerVer; then
-        vtlog "unsquashfs success"
-    else
-        vterr "unsquashfs failed"
-    fi
+    
+    ventoy_os_install_dmsetup_by_fuse $1 $vtKerVer
 }
 
 wait_for_usb_disk_ready
 
 vtdiskname=$(get_ventoy_disk_name)
-ventoy_os_install_device_mapper $vtdiskname
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    PATH=$VTPATH_OLD
+    exit 0
+fi
 
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"
+ventoy_os_install_dmsetup $vtdiskname
+
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
 PATH=$VTPATH_OLD
+

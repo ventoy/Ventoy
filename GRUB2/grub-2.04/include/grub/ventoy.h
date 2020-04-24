@@ -183,9 +183,22 @@ typedef struct ventoy_img_chunk_list
 typedef const char * (*grub_env_get_pf)(const char *name);
 
 #pragma pack(1)
+
+#define GRUB_FILE_REPLACE_MAGIC  0x1258BEEF
+
+typedef struct ventoy_grub_param_file_replace
+{
+    grub_uint32_t magic;
+    char old_file_name[4][256];
+    grub_uint32_t old_name_cnt;
+    grub_uint32_t new_file_virtual_id;
+}ventoy_grub_param_file_replace;
+
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
+
+    ventoy_grub_param_file_replace file_replace;
 }ventoy_grub_param;
 
 #pragma pack()

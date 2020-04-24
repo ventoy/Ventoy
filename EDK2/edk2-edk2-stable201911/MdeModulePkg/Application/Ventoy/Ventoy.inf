@@ -28,6 +28,7 @@
 [Sources]
   Ventoy.h
   Ventoy.c
+  VentoyDebug.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -42,6 +43,7 @@
 [Guids]
   gShellVariableGuid
   gEfiVirtualCdGuid
+  gEfiFileInfoGuid
   
 [Protocols]
   gEfiLoadedImageProtocolGuid
@@ -49,3 +51,30 @@
   gEfiDevicePathProtocolGuid
   gEfiSimpleFileSystemProtocolGuid
   gEfiRamDiskProtocolGuid
+  gEfiAbsolutePointerProtocolGuid
+  gEfiAcpiTableProtocolGuid
+  gEfiBlockIo2ProtocolGuid
+  gEfiBusSpecificDriverOverrideProtocolGuid
+  gEfiComponentNameProtocolGuid
+  gEfiComponentName2ProtocolGuid
+  gEfiDriverBindingProtocolGuid
+  gEfiDiskIoProtocolGuid
+  gEfiDiskIo2ProtocolGuid
+  gEfiGraphicsOutputProtocolGuid
+  gEfiHiiConfigAccessProtocolGuid
+  gEfiHiiFontProtocolGuid
+  gEfiLoadFileProtocolGuid
+  gEfiLoadFile2ProtocolGuid
+  gEfiLoadedImageProtocolGuid
+  gEfiLoadedImageDevicePathProtocolGuid
+  gEfiPciIoProtocolGuid
+  gEfiSerialIoProtocolGuid
+  gEfiSimpleTextInProtocolGuid
+  gEfiSimpleTextInputExProtocolGuid
+  gEfiSimpleTextOutProtocolGuid
+  
+  
+  
+  
+  
+  

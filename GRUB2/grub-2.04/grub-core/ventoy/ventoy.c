@@ -65,7 +65,7 @@ grub_uint32_t g_ventoy_cpio_size = 0;
 cpio_newc_header *g_ventoy_initrd_head = NULL;
 grub_uint8_t *g_ventoy_runtime_buf = NULL;
 
-ventoy_grub_param g_grub_param;
+ventoy_grub_param *g_grub_param = NULL;
 
 ventoy_guid  g_ventoy_guid = VENTOY_GUID;
 
@@ -1085,6 +1085,8 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
 
     grub_file_close(file);
 
+    grub_memset(&g_grub_param->file_replace, 0, sizeof(g_grub_param->file_replace));
+
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
@@ -1104,6 +1106,33 @@ static grub_err_t ventoy_cmd_dump_img_sector(grub_extcmd_context_t ctxt, int arg
             cur->img_start_sector, cur->img_end_sector,
             (unsigned long long)cur->disk_start_sector, (unsigned long long)cur->disk_end_sector
             );
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t ventoy_cmd_add_replace_file(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    ventoy_grub_param_file_replace *replace = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (argc >= 2)
+    {
+        replace = &(g_grub_param->file_replace);
+        replace->magic = GRUB_FILE_REPLACE_MAGIC;
+            
+        replace->old_name_cnt = 0;
+        for (i = 0; i < 4 && i + 1 < argc; i++)
+        {
+            replace->old_name_cnt++;
+            grub_snprintf(replace->old_file_name[i], sizeof(replace->old_file_name[i]), "%s", args[i + 1]);
+        }
+        
+        replace->new_file_virtual_id = (grub_uint32_t)grub_strtoul(args[0], NULL, 10);
     }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
@@ -1162,10 +1191,14 @@ static int ventoy_env_init(void)
     grub_env_set("vtdebug_flag", "");
 
     ventoy_filt_register(0, ventoy_wrapper_open);
-    
-    g_grub_param.grub_env_get = grub_env_get;
-    grub_snprintf(buf, sizeof(buf), "%p", &g_grub_param);
-    grub_env_set("env_param", buf);
+
+    g_grub_param = (ventoy_grub_param *)grub_zalloc(sizeof(ventoy_grub_param));
+    if (g_grub_param)
+    {
+        g_grub_param->grub_env_get = grub_env_get;
+        grub_snprintf(buf, sizeof(buf), "%p", g_grub_param);
+        grub_env_set("env_param", buf);
+    }
 
     return 0;
 }
@@ -1204,6 +1237,9 @@ static cmd_para ventoy_cmds[] =
     { "vt_windows_reset",      ventoy_cmd_wimdows_reset, 0, NULL, "", "", NULL },
     { "vt_windows_locate_wim", ventoy_cmd_wimdows_locate_wim, 0, NULL, "", "", NULL },
     { "vt_windows_chain_data", ventoy_cmd_windows_chain_data, 0, NULL, "", "", NULL },
+
+    { "vt_add_replace_file", ventoy_cmd_add_replace_file, 0, NULL, "", "", NULL },
+
     
     { "vt_load_plugin", ventoy_cmd_load_plugin, 0, NULL, "", "", NULL },
 };

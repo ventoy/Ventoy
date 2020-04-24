@@ -1,5 +1,11 @@
 #!/bin/sh
 
+OLDDIR=$PWD
+
+if ! [ -f ./tool/ventoy_lib.sh ]; then
+    cd ${0%Ventoy2Disk.sh}
+fi
+
 . ./tool/ventoy_lib.sh
 
 print_usage() {
@@ -18,12 +24,7 @@ echo '*             longpanda  admin@ventoy.net                 *'
 echo '***********************************************************'
 echo ''
 
-vtdebug "############# Ventoy2Disk ################"
-
-if ! [ -e ventoy/version ]; then
-    vterr "Please run under the correct directory!"
-    exit 1
-fi
+vtdebug "############# Ventoy2Disk $0 ################"
 
 if [ "$1" = "-i" ]; then
     MODE="install"
@@ -34,11 +35,13 @@ elif [ "$1" = "-u" ]; then
     MODE="update"
 else
     print_usage
+    cd $OLDDIR
     exit 1
 fi
 
 if ! [ -b "$2" ]; then
     print_usage
+    cd $OLDDIR
     exit 1
 fi
 
@@ -46,6 +49,7 @@ if [ -z "$SUDO_USER" ]; then
     if [ "$USER" != "root" ]; then
         vterr "EUID is $EUID root permission is required."
         echo ''
+        cd $OLDDIR
         exit 1
     fi
 fi
@@ -67,6 +71,7 @@ cd ../
 
 if ! check_tool_work_ok; then
     vterr "Some tools can not run in current system. Please check log.txt for detail."
+    cd $OLDDIR
     exit 1
 fi
 
@@ -75,17 +80,26 @@ DISK=$2
 
 if ! [ -b "$DISK" ]; then
     vterr "Disk $DISK does not exist"
+    cd $OLDDIR
     exit 1
 fi
 
 
 if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
     vterr "$DISK is a partition, please use the whole disk"
+    cd $OLDDIR
     exit 1
 fi
 
+grep "^$DISK" /proc/mounts | while read mtline; do
+    mtpnt=$(echo $mtline | awk '{print $2}')
+    vtdebug "Trying to umount $mtpnt ..."
+    umount $mtpnt >/dev/null 2>&1
+done
+
 if grep "$DISK" /proc/mounts; then
     vterr "$DISK is already mounted, please umount it first!"
+    cd $OLDDIR
     exit 1
 fi
 
@@ -95,6 +109,7 @@ if [ "$MODE" = "install" ]; then
     
     if ! fdisk -v >/dev/null 2>&1; then
         vterr "fdisk is needed by ventoy installation, but is not found in the system."
+        cd $OLDDIR
         exit 1
     fi
     
@@ -105,6 +120,7 @@ if [ "$MODE" = "install" ]; then
             vtwarn "Use -u option to do a safe upgrade operation."
             vtwarn "OR if you really want to reinstall ventoy to $DISK, please use -I option."
             vtwarn ""
+            cd $OLDDIR
             exit 1
         fi
     fi
@@ -114,6 +130,7 @@ if [ "$MODE" = "install" ]; then
 
     if [ $disk_sector_num -gt 4294967296 ]; then
         vterr "$DISK is over 2TB size, MBR will not work on it."
+        cd $OLDDIR
         exit 1
     fi
 
@@ -150,7 +167,7 @@ if [ "$MODE" = "install" ]; then
         exit 1
     fi
 
-    if ! dd if=/dev/zero of=$DISK bs=1 count=512 status=none; then
+    if ! dd if=/dev/zero of=$DISK bs=1 count=512 status=none conv=fsync; then
         vterr "Write data to $DISK failed, please check whether it's in use."
         exit 1
     fi
@@ -178,15 +195,15 @@ if [ "$MODE" = "install" ]; then
 
     chmod +x ./tool/vtoy_gen_uuid
 
-    dd status=none if=./boot/boot.img of=$DISK bs=1 count=446
-    ./tool/xzcat ./boot/core.img.xz | dd status=none of=$DISK bs=512 count=2047 seek=1
-    ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
+    dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=446
+    ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
+    ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
     
     #disk uuid
-    ./tool/vtoy_gen_uuid | dd status=none of=${DISK} seek=384 bs=1 count=16
+    ./tool/vtoy_gen_uuid | dd status=none conv=fsync of=${DISK} seek=384 bs=1 count=16
     
     #disk signature
-    ./tool/vtoy_gen_uuid | dd status=none of=${DISK} skip=12 seek=440 bs=1 count=4
+    ./tool/vtoy_gen_uuid | dd status=none conv=fsync of=${DISK} skip=12 seek=440 bs=1 count=4
 
     sync
 
@@ -203,6 +220,7 @@ else
         echo ""
         vtwarn "Please use -i option if you want to install ventoy to $DISK"
         echo ""
+        cd $OLDDIR
         exit 1
     fi
 
@@ -214,19 +232,20 @@ else
     read -p "Update Ventoy  $oldver ===> $curver   Continue? (y/n)"  Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
+            cd $OLDDIR
             exit 0
         fi
     fi
 
     PART2=$(get_disk_part_name $DISK 2)
     
-    dd status=none if=./boot/boot.img of=$DISK bs=1 count=440
+    dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
     
-    ./tool/xzcat ./boot/core.img.xz | dd status=none of=$DISK bs=512 count=2047 seek=1  
+    ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1  
 
     disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size) 
     part2_start=$(expr $disk_sector_num - $VENTOY_SECTOR_NUM)
-    ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
+    ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
 
     sync
 
@@ -235,4 +254,6 @@ else
     echo ""
     
 fi
+
+cd $OLDDIR
 

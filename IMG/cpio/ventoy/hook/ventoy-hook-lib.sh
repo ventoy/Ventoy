@@ -226,7 +226,7 @@ wait_for_ventoy_dm_disk_label() {
         if ls -l /dev/disk/by-label/ | $GREP -q "$DM"; then
             break
         else
-            $SLEEP 0.3
+            $SLEEP 1
         fi
     done
 }
@@ -395,7 +395,7 @@ ventoy_udev_disk_common_hook() {
     else
         vtlog "==== create ventoy device mapper failed ===="
         
-        $SLEEP 5
+        $SLEEP 3
         
         if $GREP -q "/dev/$VTDISK" /proc/mounts; then
             $GREP "/dev/$VTDISK" /proc/mounts | while read vtLine; do

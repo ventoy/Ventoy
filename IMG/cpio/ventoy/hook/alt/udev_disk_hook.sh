@@ -17,15 +17,30 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
-
-#$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-disk.sh /lib/dracut/hooks/initqueue/01-ventoy-disk.sh
-
-# suppress write protected mount warning
-if [ -e /usr/sbin/anaconda-diskroot ]; then
-    $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
+if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
+    exit 0
 fi
+
+ventoy_udev_disk_common_hook $* "noreplace"
+
+if ! [ -e $VTOY_DM_PATH ]; then
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+    mknod -m 0666 $VTOY_DM_PATH b $blkdev_num
+fi
+
+# 
+# We do a trick for ATL series here.
+# Use /dev/loop7 and wapper it as a cdrom with bind mount.
+# Then the installer will accept /dev/loop7 as the install medium.
+#
+ventoy_copy_device_mapper  /dev/loop7
+$BUSYBOX_PATH/mkdir -p /tmp/loop7/device/
+echo 5 > /tmp/loop7/device/type
+$BUSYBOX_PATH/mount --bind /tmp/loop7 /sys/block/loop7 >> $VTLOG 2>&1
+
+
+# OK finish
+set_ventoy_hook_finish
 

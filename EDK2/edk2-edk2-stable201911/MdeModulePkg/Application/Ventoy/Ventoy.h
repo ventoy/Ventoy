@@ -205,6 +205,7 @@ typedef struct vtoy_block_data
 #define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_x64.efi"
 
 #define debug(expr, ...) if (gDebugPrint) VtoyDebug("[VTOY] "expr"\r\n", ##__VA_ARGS__)
+#define trace(expr, ...) VtoyDebug("[VTOY] "expr"\r\n", ##__VA_ARGS__)
 #define sleep(sec) gBS->Stall(1000000 * (sec))
 
 #define ventoy_debug_pause() \
@@ -219,9 +220,32 @@ if (gDebugPrint) \
 typedef const char * (*grub_env_get_pf)(const char *name);
 
 #pragma pack(1)
+
+#define GRUB_FILE_REPLACE_MAGIC  0x1258BEEF
+
+typedef struct ventoy_efi_file_replace
+{
+    UINT64 BlockIoSectorStart;
+
+    UINT64 CurPos;
+    UINT64 FileSizeBytes;
+
+    EFI_FILE_PROTOCOL  WrapperHandle;
+}ventoy_efi_file_replace;
+
+typedef struct ventoy_grub_param_file_replace
+{
+    UINT32 magic;
+    char   old_file_name[4][256];
+    UINT32 old_file_cnt;
+    UINT32 new_file_virtual_id;
+}ventoy_grub_param_file_replace;
+
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
+
+    ventoy_grub_param_file_replace file_replace;
 }ventoy_grub_param;
 
 typedef struct ventoy_ram_disk
@@ -233,8 +257,44 @@ typedef struct ventoy_ram_disk
 #pragma pack()
 
 
+typedef struct well_known_guid 
+{
+	EFI_GUID *guid;
+	const char *name;
+}well_known_guid;
+
+typedef struct ventoy_system_wrapper
+{
+    EFI_LOCATE_PROTOCOL NewLocateProtocol;
+    EFI_LOCATE_PROTOCOL OriLocateProtocol;
+
+    EFI_HANDLE_PROTOCOL NewHandleProtocol;
+    EFI_HANDLE_PROTOCOL OriHandleProtocol;
+    
+    EFI_OPEN_PROTOCOL NewOpenProtocol;
+    EFI_OPEN_PROTOCOL OriOpenProtocol;
+} ventoy_system_wrapper;
+
+#define ventoy_wrapper(bs, wrapper, func, newfunc) \
+{\
+    wrapper.Ori##func = bs->func;\
+    wrapper.New##func = newfunc;\
+    bs->func = wrapper.New##func;\
+}
+
+extern ventoy_efi_file_replace g_efi_file_replace;
 extern BOOLEAN gDebugPrint;
 VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...);
+EFI_STATUS EFIAPI ventoy_wrapper_system(VOID);
+EFI_STATUS EFIAPI ventoy_wrapper_file_procotol(EFI_FILE_PROTOCOL *File);
+EFI_STATUS EFIAPI ventoy_block_io_read 
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    OUT VOID                          *Buffer
+);
 
 #endif
 

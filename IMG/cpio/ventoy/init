@@ -76,8 +76,19 @@ ventoy_unpack_initramfs() {
     for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat'; do
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
             echo "vtx=$vtx" >> $VTLOG            
-            if [ $vtskip -eq 0 ]; then
-                ${vtx:5} $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+            if [ $vtskip -eq 0 ]; then            
+                if [ "${vtx:5}" = "xzcat" ]; then
+                    rm -f $VTOY_PATH/xzlog
+                    ${vtx:5} $vtfile 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+                    
+                    if grep -q 'corrupted data' $VTOY_PATH/xzlog; then
+                        echo 'xzcat failed, now try xzminidec...' >> $VTLOG        
+                        cat $vtfile | xzminidec | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+                    fi
+                    
+                else
+                    ${vtx:5} $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+                fi
             else
                 dd if=$vtfile skip=$vtskip iflag=skip_bytes status=none | ${vtx:5} | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
             fi
@@ -104,64 +115,36 @@ ventoy_unpack_initrd() {
 # This export is for busybox cpio command
 export EXTRACT_UNSAFE_SYMLINKS=1
 
-# special process
-need_xzminidec() {
-    if [ -e /initrd001 ]; then
-        testmagic=$(hexdump -n 2 -e '2/1 "%02X"' /initrd001)
+for vtfile in $(ls /initrd*); do    
+    #decompress first initrd
+    vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $vtfile)
+
+    if ventoy_is_initrd_ramdisk; then
+        ventoy_unpack_initrd $vtfile $vtmagic ${vtfile}_tmp
+        mv ${vtfile}_tmp $vtfile
+        break
     else
-        testmagic='xxxx'
+        ventoy_unpack_initramfs $vtfile 0 $vtmagic ${vtfile}_tmp
     fi
-    
-    if [ "FD37" = "${testmagic:0:4}" ]; then
-        if echo $vtkerver | grep -q 'kaspersky'; then
-            true
-        elif echo $vtkerver | grep -q 'kiosk.*Gentoo'; then
-            true
-        elif echo $vtkerver | grep -q 'porteus '; then
-            true
-        else
-            false
-        fi
-    else
-        false
-    fi
-}
 
-if need_xzminidec; then
-    echo "use xzminidec" >> $VTLOG
-    cat /initrd001 | xzminidec | cpio -idmu 2>>$VTLOG
-    rm -f /initrd001
-else
-    for vtfile in $(ls /initrd*); do    
-        #decompress first initrd
-        vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $vtfile)
-
-        if ventoy_is_initrd_ramdisk; then
-            ventoy_unpack_initrd $vtfile $vtmagic ${vtfile}_tmp
-            mv ${vtfile}_tmp $vtfile
-            break
-        else
-            ventoy_unpack_initramfs $vtfile 0 $vtmagic ${vtfile}_tmp
-        fi
-
-        #only for cpio,cpio,...,initrd sequence, initrd,cpio or initrd,initrd sequence is not supported
-        while [ -e ${vtfile}_tmp ] && [ $(stat -c '%s' ${vtfile}_tmp) -gt 512 ]; do
-            mv ${vtfile}_tmp $vtfile
-            vtdump=$(hexdump -n 512 -e '512/1 "%02X"' $vtfile)
-            vtmagic=$(echo $vtdump | sed 's/^\(00\)*//')
-            let vtoffset="(${#vtdump}-${#vtmagic})/2"
-            
-            if [ -z "$vtmagic" ]; then
-                echo "terminate with all zero data file" >> $VTLOG
-                break
-            fi
-            
-            ventoy_unpack_initramfs $vtfile $vtoffset ${vtmagic:0:4} ${vtfile}_tmp
-        done
+    #only for cpio,cpio,...,initrd sequence, initrd,cpio or initrd,initrd sequence is not supported
+    while [ -e ${vtfile}_tmp ] && [ $(stat -c '%s' ${vtfile}_tmp) -gt 512 ]; do
+        mv ${vtfile}_tmp $vtfile
+        vtdump=$(hexdump -n 512 -e '512/1 "%02X"' $vtfile)
+        vtmagic=$(echo $vtdump | sed 's/^\(00\)*//')
+        let vtoffset="(${#vtdump}-${#vtmagic})/2"
         
-        rm -f $vtfile ${vtfile}_tmp
+        if [ -z "$vtmagic" ]; then
+            echo "terminate with all zero data file" >> $VTLOG
+            break
+        fi
+        
+        ventoy_unpack_initramfs $vtfile $vtoffset ${vtmagic:0:4} ${vtfile}_tmp
     done
-fi
+    
+    rm -f $vtfile ${vtfile}_tmp
+done
+
 
 #break here for debug
 if [ "$VTOY_BREAK_LEVEL" = "02" ] || [ "$VTOY_BREAK_LEVEL" = "12" ]; then

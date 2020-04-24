@@ -17,15 +17,7 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
-
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
-
-#$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-disk.sh /lib/dracut/hooks/initqueue/01-ventoy-disk.sh
-
-# suppress write protected mount warning
-if [ -e /usr/sbin/anaconda-diskroot ]; then
-    $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
-fi
-
+$SED '/^findknoppix/a\ return 0'  -i /init
+$SED '/^findknoppix/a\ trymount $ROOTDEV /mnt-system >/dev/null 2>&1'  -i /init
+$SED '/^findknoppix/a\ ROOTDEV=/dev/mapper/ventoy'  -i /init
+$SED "/^findknoppix/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/knoppix-disk.sh"  -i /init

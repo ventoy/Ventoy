@@ -130,6 +130,7 @@ ventoy_get_os_type() {
             echo 'xen'; return
         elif $GREP -q 'SUSE ' /etc/os-release; then
             echo 'suse'; return
+       
         fi
     fi
     
@@ -154,6 +155,14 @@ ventoy_get_os_type() {
     
     if $EGREP -q 'porteus' /proc/version; then
         echo 'debian'; return
+    fi
+    
+    if $GREP -q 'Clear Linux ' /proc/version; then
+        echo 'clear'; return
+    fi
+    
+    if $GREP -q 'artix' /proc/version; then
+        echo 'arch'; return
     fi
     
     echo "default"

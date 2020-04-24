@@ -80,13 +80,18 @@ ventoy_add_udev_rule() {
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=869719
 #
 ventoy_systemd_udevd_work_around() {
-    VTSYSTEMUDEV="$VT_RULE_DIR_PREFIX/lib/systemd/system/systemd-udevd.service"
-    if [ -e $VTSYSTEMUDEV ]; then
-        if $GREP -q 'SystemCallArchitectures.*native' $VTSYSTEMUDEV; then
-            $SED "s/.*\(SystemCallArchitectures.*native\)/#\1/g"  -i $VTSYSTEMUDEV
+    for vtdir in 'lib' 'usr/lib'; do
+    
+        VTSYSTEMUDEV="$VT_RULE_DIR_PREFIX/$vtdir/systemd/system/systemd-udevd.service"
+        if [ -e $VTSYSTEMUDEV ]; then
+            if $GREP -q 'SystemCallArchitectures.*native' $VTSYSTEMUDEV; then
+                $SED "s/.*\(SystemCallArchitectures.*native\)/#\1/g"  -i $VTSYSTEMUDEV
+                break
+            fi
         fi
-    fi
+    done
 }
+
 
 ventoy_print_yum_repo() {
     echo "[$1]"

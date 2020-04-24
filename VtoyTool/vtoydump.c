@@ -328,6 +328,11 @@ static int vtoy_find_disk_by_size(unsigned long long size, char *diskname)
     int rc = 0;
 
     dir = opendir("/sys/block");
+    if (!dir)
+    {
+        return 0;
+    }
+    
     while ((p = readdir(dir)) != NULL)
     {
         if (!vtoy_is_possible_blkdev(p->d_name))
@@ -357,6 +362,11 @@ static int vtoy_find_disk_by_guid(uint8_t *guid, char *diskname)
     uint8_t vtguid[16];
 
     dir = opendir("/sys/block");
+    if (!dir)
+    {
+        return 0;
+    }
+    
     while ((p = readdir(dir)) != NULL)
     {
         if (!vtoy_is_possible_blkdev(p->d_name))
@@ -376,6 +386,12 @@ static int vtoy_find_disk_by_guid(uint8_t *guid, char *diskname)
     closedir(dir);
     
     return count;    
+}
+
+static int vtoy_printf_iso_path(ventoy_os_param *param)
+{
+    printf("%s\n", param->vtoy_img_path);
+    return 0;
 }
 
 static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
@@ -458,12 +474,13 @@ int vtoydump_main(int argc, char **argv)
 {
     int rc;
     int ch;
+    int print_path = 0;
     char filename[256] = {0};
     char diskname[256] = {0};
     char device[64] = {0};
     ventoy_os_param *param = NULL;
 
-    while ((ch = getopt(argc, argv, "c:f:v::")) != -1)
+    while ((ch = getopt(argc, argv, "c:f:p:v::")) != -1)
     {
         if (ch == 'f')
         {
@@ -476,6 +493,11 @@ int vtoydump_main(int argc, char **argv)
         else if (ch == 'c')
         {
             strncpy(device, optarg, sizeof(device) - 1);
+        }
+        else if (ch == 'p')
+        {
+            print_path = 1;
+            strncpy(filename, optarg, sizeof(filename) - 1);
         }
         else
         {
@@ -513,7 +535,11 @@ int vtoydump_main(int argc, char **argv)
         vtoy_dump_os_param(param);
     }
 
-    if (device[0])
+    if (print_path)
+    {
+        rc = vtoy_printf_iso_path(param);
+    }
+    else if (device[0])
     {
         rc = vtoy_check_device(param, device);
     }
