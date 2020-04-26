@@ -23,22 +23,13 @@ if is_ventoy_hook_finished; then
     exit 0
 fi
 
-vtlog "####### $0 $* ########"
+vtlog "##### INOTIFYD: $2/$3 is created ..."
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-wait_for_usb_disk_ready
-
-vtdiskname=$(get_ventoy_disk_name)
-if [ "$vtdiskname" = "unknown" ]; then
-    vtlog "ventoy disk not found"
-    PATH=$VTPATH_OLD
-    exit 0
+if is_inotify_ventoy_part $3; then
+    vtlog "find ventoy partition $3 ..."    
+    $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/udev_disk_hook.sh "$3"
 fi
 
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"
-
 PATH=$VTPATH_OLD
-
-set_ventoy_hook_finish
-

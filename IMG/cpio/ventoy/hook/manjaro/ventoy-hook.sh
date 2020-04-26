@@ -28,6 +28,13 @@ else
     $CAT $VTOY_PATH/hook/default/13-dm-disk.rules > "$DISTRO_UDEV_DIR/13-dm-disk.rules"
 fi
 
-ventoy_systemd_udevd_work_around
 
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k"
+if $GREP -q '^mount_setup$' init; then
+    echo "Here use notify ..." >> $VTLOG
+    
+    ventoy_set_inotify_script  manjaro/ventoy-inotifyd-hook.sh
+    $SED  "/^mount_setup$/a\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/default/ventoy-inotifyd-start.sh"  -i /init
+else
+    ventoy_systemd_udevd_work_around
+    ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k"
+fi

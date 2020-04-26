@@ -23,13 +23,6 @@ vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-vtmountpoint=$1
-
-if is_ventoy_hook_finished; then
-    PATH=$VTPATH_OLD
-    exit 0
-fi
-
 wait_for_usb_disk_ready
 
 vtdiskname=$(get_ventoy_disk_name)
@@ -39,9 +32,4 @@ if [ "$vtdiskname" = "unknown" ]; then
     exit 0
 fi
 
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"
-
-$BUSYBOX_PATH/mount -t iso9660 $VTOY_DM_PATH $vtmountpoint
-
-# OK finish
-set_ventoy_hook_finish
+$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/udev_disk_hook.sh "${vtdiskname#/dev/}2"

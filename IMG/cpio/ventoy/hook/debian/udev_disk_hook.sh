@@ -86,6 +86,10 @@ if [ -z "$dmsetup_path" ]; then
     ventoy_os_install_dmsetup "/dev/${1:0:-1}"
 fi
 
+if ! $GREP -q 'device-mapper' /proc/devices; then
+    ventoy_os_install_dmsetup "/dev/${1:0:-1}"
+fi
+
 ventoy_udev_disk_common_hook $*
 
 #
@@ -103,7 +107,14 @@ else
     else
         vtlog "No boot param, need to mount"
         $BUSYBOX_PATH/mkdir /cdrom
-        $BUSYBOX_PATH/mount -t iso9660 $VTOY_DM_PATH  /cdrom
+        
+        if [ -b $VTOY_DM_PATH ]; then
+            vtlog "mount $VTOY_DM_PATH ..."
+            $BUSYBOX_PATH/mount -t iso9660 $VTOY_DM_PATH  /cdrom
+        else
+            vtlog "mount /dev/$1 ..."
+            $BUSYBOX_PATH/mount -t iso9660 /dev/$1  /cdrom
+        fi
     fi
 fi
 

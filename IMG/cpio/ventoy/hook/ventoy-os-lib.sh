@@ -101,3 +101,7 @@ ventoy_print_yum_repo() {
     echo "gpgcheck=0"
     echo "priority=0"
 }
+
+ventoy_set_inotify_script() {
+    echo $VTOY_PATH/hook/$1 > $VTOY_PATH/inotifyd-hook-script.txt
+}

@@ -448,7 +448,7 @@ static int vtoy_check_device(ventoy_os_param *param, const char *device)
     debug("param->vtoy_disk_size=%llu size=%llu\n", 
         (unsigned long long)param->vtoy_disk_size, (unsigned long long)size);
 
-    if (param->vtoy_disk_size == size && 
+    if ((param->vtoy_disk_size == size || param->vtoy_disk_size == size + 512) && 
         memcmp(vtguid, param->vtoy_disk_guid, 16) == 0)
     {
         debug("<%s> is right ventoy disk\n", device);

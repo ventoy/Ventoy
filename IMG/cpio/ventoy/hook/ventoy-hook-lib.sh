@@ -421,4 +421,37 @@ ventoy_udev_disk_common_hook() {
     fi
 }
 
+is_inotify_ventoy_part() {
+    if echo $1 | grep -q "2$"; then
+        if ! [ -e /sys/block/$1 ]; then
+            if [ -e /sys/class/block/$1 ]; then
+                if [ -e /dev/${1:0:-1} ]; then
+                    $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c ${1:0:-1}
+                    return
+                fi
+            fi
+        fi
+    fi
+    
+    [ "1" = "0" ]
+}
+
+ventoy_find_dm_id() {
+    for vt in $($BUSYBOX_PATH/ls /sys/block/); do
+        if [ "${vt:0:3}" = "dm-" ]; then
+            vtMajorMinor=$($CAT /sys/block/$vt/dev)
+            if [ "$vtMajorMinor" = "$1" ]; then
+                echo ${vt}
+                return
+            fi
+        fi
+    done
+    echo 'xx'
+}
+
+ventoy_swap_device() {
+    mv $1 $VTOY_PATH/swap_tmp_dev
+    mv $2 $1
+    mv $VTOY_PATH/swap_tmp_dev $2
+}
 

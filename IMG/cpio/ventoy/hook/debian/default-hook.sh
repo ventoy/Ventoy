@@ -17,5 +17,21 @@
 # 
 #************************************************************************************
 
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/debian/udev_disk_hook.sh %k"
+if [ -e /init ] && $GREP -q '^mountroot$' /init; then
+    echo "Here before mountroot ..." >> $VTLOG
+    
+    $SED  "/^mountroot$/i\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/disk_mount_hook.sh"  -i /init
+    $SED  "/^mountroot$/i\\export LIVEMEDIA=/dev/mapper/ventoy"  -i /init
+    $SED  "/^mountroot$/i\\export LIVE_MEDIA=/dev/mapper/ventoy"  -i /init    
+    
+elif [ -e /init ] && $GREP -q '/start-udev$' /init; then
+    echo "Here use notify ..." >> $VTLOG
+    
+    ventoy_set_inotify_script  debian/ventoy-inotifyd-hook.sh
+    $SED  "/start-udev$/i\\mount -n -o mode=0755 -t devtmpfs devtmpfs /dev"  -i /init
+    $SED  "/start-udev$/i\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/default/ventoy-inotifyd-start.sh"  -i /init
+else
+    echo "Here use udev hook ..." >> $VTLOG
+    ventoy_systemd_udevd_work_around
+    ventoy_add_udev_rule "$VTOY_PATH/hook/debian/udev_disk_hook.sh %k"
+fi

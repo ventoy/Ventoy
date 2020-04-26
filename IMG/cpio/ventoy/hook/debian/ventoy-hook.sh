@@ -52,14 +52,6 @@ ventoy_get_debian_distro() {
         echo 'pve'; return
     fi
     
-    if $GREP -q '[Dd]eepin' /proc/version; then
-        echo 'deepin'; return
-    fi
-    
-    if $GREP -q '[Uu][Oo][Ss] ' /proc/version; then
-        echo 'deepin'; return
-    fi
-    
     if [ -d /porteus ]; then
         echo 'porteus'; return
     fi

@@ -17,31 +17,30 @@
 # 
 #************************************************************************************
 
-drop_initramfs_workaround() {
-    mainfilelist=$($FIND / -name 9990-main.sh)
+. /ventoy/hook/ventoy-hook-lib.sh
+
+if is_ventoy_hook_finished; then
+    exit 0
+fi
+
+vtlog "##### INOTIFYD: $2/$3 is created ..."
+
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+
+if is_inotify_ventoy_part $3; then
+    vtlog "find ventoy partition $3 ..."    
+    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh "$3"
     
-    echo "mainfilelist=$mainfilelist" >> $VTLOG
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
+    vtDM=$(ventoy_find_dm_id ${blkdev_num})
+    vtLABEL=$($BUSYBOX_PATH/blkid /dev/$vtDM | $AWK '{print $2}' | $SED 's/.*"\(.*\)".*/\1/')
+
+    vtlog "blkdev_num=$blkdev_num  vtDM=$vtDM  label $vtLABEL ..."
     
-    if [ -z "$mainfilelist" ]; then 
-        return
+    if ! [ -d /dev/disk/by-label ]; then
+        mkdir -p /dev/disk/by-label
     fi
+    $BUSYBOX_PATH/cp -a /dev/$vtDM /dev/disk/by-label/$vtLABEL
+fi
 
-    for vtfile in $mainfilelist; do
-        vtcnt=$($GREP -c 'panic.*Unable to find a medium' $vtfile)
-        if [ $vtcnt -ne 1 ]; then
-            return
-        fi
-    done
-    
-    echo "direct_hook insert ..." >> $VTLOG
-    
-    for vtfile in $mainfilelist; do
-        $SED "s#panic.*Unable to find a medium.*#$BUSYBOX_PATH/sh  $VTOY_PATH/hook/debian/deepin-disk.sh \$mountpoint; livefs_root=\$mountpoint#" -i $vtfile
-    done
-}
-
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/debian/udev_disk_hook.sh %k"
-
-drop_initramfs_workaround
-
+PATH=$VTPATH_OLD

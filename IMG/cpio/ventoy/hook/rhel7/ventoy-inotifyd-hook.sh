@@ -17,18 +17,31 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-#ventoy_systemd_udevd_work_around
-#ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
-
-$SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0#" -i /lib/dracut-lib.sh
-ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh
-
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/default/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/01-ventoy-inotifyd-start.sh
-
-# suppress write protected mount warning
-if [ -e /usr/sbin/anaconda-diskroot ]; then
-    $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
+if is_ventoy_hook_finished; then
+    exit 0
 fi
 
+vtlog "##### INOTIFYD: $2/$3 is created ..."
+
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+
+if is_inotify_ventoy_part $3; then
+    vtlog "find ventoy partition ..."
+    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
+    
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
+    vtDM=$(ventoy_find_dm_id ${blkdev_num})
+
+    if [ "$vtDM" = "dm-0" ]; then
+        vtlog "This is dm-0, OK ..."
+    else
+        vtlog "####### This is $vtDM ####### this is abnormal ..."
+        ventoy_swap_device /dev/dm-0 /dev/$vtDM
+    fi
+    
+    set_ventoy_hook_finish
+fi
+
+PATH=$VTPATH_OLD
