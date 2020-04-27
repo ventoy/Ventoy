@@ -49,6 +49,14 @@ terminal-box: "terminal_box_*.png"
   highlight_style = "*"
 }
 
++ hbox{ 
+    left = 40%
+    top = 95%
+    width = 10%
+    height = 25
+    + label {text = "F1:Memdisk" color = "blue" align = "left"} 
+}
+
 
 + hbox{ 
     left = 90%
