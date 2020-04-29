@@ -5,7 +5,7 @@ You can copy many iso files at a time and ventoy will give you a boot menu to se
 Both Legacy BIOS and UEFI are supported in the same way. 200+ ISO files are tested.  
 A "Ventoy Compatible" concept is introduced by ventoy, which can help to support any ISO file.  
 
-See http://www.ventoy.net for detail.
+See https://www.ventoy.net for detail.
 
 # Features
 * 100% open source
@@ -25,4 +25,4 @@ See http://www.ventoy.net for detail.
 * Data nondestructive during version upgrade
 * No need to update Ventoy when a new distro is released
 
-![avatar](http://www.ventoy.net/static/img/screen/screen_uefi.png)
+![avatar](https://www.ventoy.net/static/img/screen/screen_uefi.png)
