@@ -1,0 +1,5 @@
+For Ventoy2Disk.exe (Windows) or Ventoy2Disk.sh (Linux).
+
+You should download the install package, decompress it, and run the exe/sh there.
+They should NOT be run in the source tree(INSTALL directory).
+
