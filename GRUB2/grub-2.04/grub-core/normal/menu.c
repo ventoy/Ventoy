@@ -34,6 +34,12 @@
 #include <grub/dl.h>
 #include <grub/env.h>
 
+int g_ventoy_menu_refresh = 0;
+int g_ventoy_memdisk_mode = 0;
+int g_ventoy_iso_raw = 0;
+int g_ventoy_iso_uefi_drv = 0;
+int g_ventoy_last_entry = 0;
+
 /* Time to delay after displaying an error message about a default/fallback
    entry failing to boot.  */
 #define DEFAULT_ENTRY_ERROR_DELAY_MS  2500
@@ -577,16 +583,20 @@ print_countdown (struct grub_term_coordinate *pos, int n)
 static int
 run_menu (grub_menu_t menu, int nested, int *auto_boot)
 {
+  const char *cmdstr;
   grub_uint64_t saved_time;
-  int default_entry, current_entry;
+  int default_entry,current_entry;
   int timeout;
   enum timeout_style timeout_style;
 
   default_entry = get_entry_number (menu, "default");
-
+  
+  if (g_ventoy_last_entry >= 0 && g_ventoy_last_entry < menu->size) {
+      default_entry = g_ventoy_last_entry;
+  } 
   /* If DEFAULT_ENTRY is not within the menu entries, fall back to
      the first entry.  */
-  if (default_entry < 0 || default_entry >= menu->size)
+  else if (default_entry < 0 || default_entry >= menu->size)
     default_entry = 0;
 
   timeout = grub_menu_get_timeout ();
@@ -787,34 +797,76 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 		}
 	      goto refresh;
 
+        case GRUB_TERM_KEY_F2:
+            cmdstr = grub_env_get("VTOY_F2_CMD");
+            if (cmdstr)
+            {
+                menu_fini ();
+                grub_script_execute_sourcecode(cmdstr);
+                goto refresh;
+            }
+            break;
+        case GRUB_TERM_KEY_F3:
+            cmdstr = grub_env_get("VTOY_F3_CMD");
+            if (cmdstr)
+            {
+                menu_fini ();
+                grub_script_execute_sourcecode(cmdstr);
+                goto refresh;
+            }
+            break;
+        case GRUB_TERM_KEY_F4:
+            cmdstr = grub_env_get("VTOY_F4_CMD");
+            if (cmdstr)
+            {
+                menu_fini ();
+                grub_script_execute_sourcecode(cmdstr);
+                goto refresh;
+            }
+            break;
+        case GRUB_TERM_KEY_F5:
+            cmdstr = grub_env_get("VTOY_F5_CMD");
+            if (cmdstr)
+            {
+                menu_fini ();
+                grub_script_execute_sourcecode(cmdstr);
+                goto refresh;
+            }
+            break;
+        case GRUB_TERM_KEY_F6:
+            cmdstr = grub_env_get("VTOY_F6_CMD");
+            if (cmdstr)
+            {
+                menu_fini ();
+                grub_script_execute_sourcecode(cmdstr);
+                goto refresh;
+            }
+            break;
+        case GRUB_TERM_KEY_F7:
+            cmdstr = grub_env_get("VTOY_F7_CMD");
+            if (cmdstr)
+            {
+                menu_fini ();
+                grub_script_execute_sourcecode(cmdstr);
+                goto refresh;
+            }
+            break;
         case GRUB_TERM_KEY_F1:
             menu_fini ();
-            if (grub_env_get("VTOY_MEM_DISK")) {
-                grub_env_unset("VTOY_MEM_DISK");
-            }else {
-                grub_env_set("VTOY_MEM_DISK", grub_env_get("VTOY_MEM_DISK_STR"));
-            }
-            grub_env_set("VTOY_MENU_REFRESH", "1");
+            g_ventoy_memdisk_mode = 1 - g_ventoy_memdisk_mode;
+            g_ventoy_menu_refresh = 1;
             goto refresh;
             
-        case GRUB_TERM_KEY_F3:
+        case (GRUB_TERM_CTRL | 'i'):
             menu_fini ();
-            if (grub_env_get("VTOY_ISO_RAW")) {
-                grub_env_unset("VTOY_ISO_RAW");
-            }else {
-                grub_env_set("VTOY_ISO_RAW", grub_env_get("VTOY_ISO_RAW_STR"));
-            }
-            grub_env_set("VTOY_MENU_REFRESH", "1");
+            g_ventoy_iso_raw = 1 - g_ventoy_iso_raw;
+            g_ventoy_menu_refresh = 1;
             goto refresh;
             
-        case GRUB_TERM_KEY_F4:
+        case (GRUB_TERM_CTRL | 'u'):
             menu_fini ();
-            if (grub_env_get("VTOY_ISO_UEFI_DRV")) {
-                grub_env_unset("VTOY_ISO_UEFI_DRV");
-            }else {
-                grub_env_set("VTOY_ISO_UEFI_DRV", grub_env_get("VTOY_ISO_UEFI_DRV_STR"));
-            }
-            grub_env_set("VTOY_MENU_REFRESH", "1");
+            g_ventoy_iso_uefi_drv = 1 - g_ventoy_iso_uefi_drv;
+            g_ventoy_menu_refresh = 1;
             goto refresh;
 
 	    default:
@@ -896,6 +948,8 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
       boot_entry = run_menu (menu, nested, &auto_boot);
       if (boot_entry < 0)
 	break;
+
+      g_ventoy_last_entry = boot_entry;
 
       e = grub_menu_get_entry (menu, boot_entry);
       if (! e)

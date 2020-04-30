@@ -165,6 +165,12 @@ ventoy_get_os_type() {
         echo 'arch'; return
     fi
     
+    if $GREP -q 'berry ' /proc/version; then
+        echo 'berry'; return
+    fi
+    
+    
+    
     echo "default"
 }
 

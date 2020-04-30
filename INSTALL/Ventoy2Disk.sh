@@ -56,6 +56,15 @@ fi
 
 vtdebug "MODE=$MODE FORCE=$FORCE"
 
+if ! [ -f ./boot/boot.img ]; then
+    if [ -d ./grub ]; then
+        vterr "Don't run me here, please download the released install package, and run there."
+    else
+        vterr "Please run under the right directory!" 
+    fi
+    exit 1
+fi
+
 #decompress tool
 cd tool
 chmod +x ./xzcat

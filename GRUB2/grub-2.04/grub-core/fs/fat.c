@@ -964,6 +964,12 @@ grub_fat_dir (grub_device_t device, const char *path, grub_fs_dir_hook_t hook,
 
       info.dir = !! (ctxt.dir.attr & GRUB_FAT_ATTR_DIRECTORY);
       info.case_insensitive = 1;
+
+      #ifdef MODE_EXFAT
+      if (!info.dir)
+         info.size = ctxt.dir.file_size;
+      #endif
+      
 #ifdef MODE_EXFAT
       if (!ctxt.dir.have_stream)
 	continue;
@@ -1445,4 +1451,3 @@ END:
 }
 
 #endif
-

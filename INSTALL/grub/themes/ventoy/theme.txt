@@ -19,7 +19,7 @@ terminal-box: "terminal_box_*.png"
   item_font = "ascii"  
   item_color = "#ffffff"  
   item_height = 30
-  item_icon_space = 1
+  
   item_spacing = 1
   item_padding = 1
 
@@ -27,8 +27,7 @@ terminal-box: "terminal_box_*.png"
   selected_item_color= "#f2f2f2"
   selected_item_pixmap_style = "select_*.png"
 
-  #icon_height = 30
-  #icon_width = 30
+  item_icon_space = 0
 
   scrollbar = true
   scrollbar_width = 10
@@ -50,11 +49,11 @@ terminal-box: "terminal_box_*.png"
 }
 
 + hbox{ 
-    left = 40%
+    left = 30%
     top = 95%
     width = 10%
     height = 25
-    + label {text = "F1:Memdisk" color = "blue" align = "left"} 
+    + label {text = "@VTOY_HOTKEY_TIP@" color = "blue" align = "left"} 
 }
 
 

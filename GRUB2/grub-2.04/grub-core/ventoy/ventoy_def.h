@@ -21,10 +21,13 @@
 #ifndef __VENTOY_DEF_H__
 #define __VENTOY_DEF_H__
 
+#define VTOY_MAX_SCRIPT_BUF    (4 * 1024 * 1024)
+
 #define JSON_SUCCESS    0
 #define JSON_FAILED     1
 #define JSON_NOT_FOUND  2
 
+#define ulong unsigned long
 #define ulonglong  unsigned long long
 
 #define vtoy_to_upper(c) (((char)(c) >= 'a' && (char)(c) <= 'z') ? ((char)(c) - 'a' + 'A') : (char)(c))
@@ -115,11 +118,15 @@ typedef struct ventoy_udf_override
 
 #pragma pack()
 
-
 typedef struct img_info
 {
     char path[512];
     char name[256];
+    int id;
+    grub_uint64_t size;
+    int select;
+
+    void *parent;
 
     struct img_info *next;
     struct img_info *prev;
@@ -130,7 +137,18 @@ typedef struct img_iterator_node
     struct img_iterator_node *next;
     img_info **tail;
     char dir[400];
+    int dirlen;
+    int isocnt;
+    int done;
+    int select;
+
+    struct img_iterator_node *parent;
+    struct img_iterator_node *firstchild;
+    
+    void *firstiso;    
 }img_iterator_node;
+
+
 
 typedef struct initrd_info
 {
@@ -503,6 +521,42 @@ static inline int ventoy_is_word_end(int c)
 {
     return (c == 0 || c == ',' || ventoy_isspace(c));    
 }
+
+#pragma pack(1)
+typedef struct ventoy_part_table
+{
+    grub_uint8_t  Active; // 0x00  0x80
+
+    grub_uint8_t  StartHead;
+    grub_uint16_t StartSector : 6;
+    grub_uint16_t StartCylinder : 10;
+
+    grub_uint8_t  FsFlag;
+
+    grub_uint8_t  EndHead;
+    grub_uint16_t EndSector : 6;
+    grub_uint16_t EndCylinder : 10;
+
+    grub_uint32_t StartSectorId;
+    grub_uint32_t SectorCount;
+}ventoy_part_table;
+
+typedef struct ventoy_mbr_head
+{
+    grub_uint8_t BootCode[446];
+    ventoy_part_table PartTbl[4];
+    grub_uint8_t Byte55;
+    grub_uint8_t ByteAA;
+}ventoy_mbr_head;
+#pragma pack()
+
+extern int g_ventoy_last_entry;
+extern int g_ventoy_memdisk_mode;
+extern int g_ventoy_iso_raw;
+extern int g_ventoy_iso_uefi_drv;
+
+int ventoy_cmp_img(img_info *img1, img_info *img2);
+void ventoy_swap_img(img_info *img1, img_info *img2);
 
 #endif /* __VENTOY_DEF_H__ */
 
