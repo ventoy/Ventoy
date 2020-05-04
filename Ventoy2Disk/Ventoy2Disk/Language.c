@@ -52,8 +52,8 @@ const TCHAR * g_Str_ChineseSimple[STR_ID_MAX] =
     TEXT("提醒"),
     TEXT("请在正确的目录下运行!"),
     TEXT("设备"),
-    TEXT("本地 Ventoy"),
-    TEXT("设备上 Ventoy"),
+    TEXT("安装包内 Ventoy 版本"),
+    TEXT("设备内部 Ventoy 版本"),
     TEXT("状态 - 准备就绪"),
     TEXT("安装"),
     TEXT("升级"),
@@ -70,5 +70,5 @@ const TCHAR * g_Str_ChineseSimple[STR_ID_MAX] =
 
 const TCHAR * GetString(enum STR_ID ID)
 {
-    return g_Str_English[ID];
+	return g_cur_lang_data->MsgString[ID];
 };

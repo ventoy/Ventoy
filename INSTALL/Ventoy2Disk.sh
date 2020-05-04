@@ -26,20 +26,29 @@ echo ''
 
 vtdebug "############# Ventoy2Disk $0 ################"
 
-if [ "$1" = "-i" ]; then
-    MODE="install"
-elif [ "$1" = "-I" ]; then
-    MODE="install"
-    FORCE="Y"
-elif [ "$1" = "-u" ]; then
-    MODE="update"
-else
-    print_usage
-    cd $OLDDIR
-    exit 1
-fi
+while [ -n "$1" ]; do
+    if [ "$1" = "-i" ]; then
+        MODE="install"
+    elif [ "$1" = "-I" ]; then
+        MODE="install"
+        FORCE="Y"
+    elif [ "$1" = "-u" ]; then
+        MODE="update"
+    elif [ "$1" = "-s" ]; then
+        SECUREBOOT="YES"
+    else
+        if ! [ -b "$1" ]; then
+            print_usage
+            cd $OLDDIR
+            exit 1
+        fi
+        DISK=$1
+    fi
+    
+    shift
+done
 
-if ! [ -b "$2" ]; then
+if [ -z "$MODE" ]; then
     print_usage
     cd $OLDDIR
     exit 1
@@ -85,8 +94,6 @@ if ! check_tool_work_ok; then
 fi
 
 
-DISK=$2
-
 if ! [ -b "$DISK" ]; then
     vterr "Disk $DISK does not exist"
     cd $OLDDIR
@@ -101,7 +108,7 @@ if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
 fi
 
 grep "^$DISK" /proc/mounts | while read mtline; do
-    mtpnt=$(echo $mtline | awk '{print $2}')
+    mtpnt=$(echo $mtline | awk '{print $DISK}')
     vtdebug "Trying to umount $mtpnt ..."
     umount $mtpnt >/dev/null 2>&1
 done
@@ -204,6 +211,7 @@ if [ "$MODE" = "install" ]; then
 
     chmod +x ./tool/vtoy_gen_uuid
 
+    vtinfo "writing data to disk ..."
     dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=446
     ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
     ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
@@ -214,7 +222,31 @@ if [ "$MODE" = "install" ]; then
     #disk signature
     ./tool/vtoy_gen_uuid | dd status=none conv=fsync of=${DISK} skip=12 seek=440 bs=1 count=4
 
+    vtinfo "sync data ..."
     sync
+    
+    vtinfo "esp partition processing ..."
+    
+    if [ "$SECUREBOOT" != "YES" ]; then
+        mkdir ./tmp_mnt
+        
+        vtdebug "mounting part2 ...."
+        for tt in 1 2 3; do
+            if mount ${DISK}2 ./tmp_mnt; then
+                vtdebug "mounting part2 success"
+                break
+            fi
+            sleep 2
+        done
+              
+        rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
+        rm -f ./tmp_mnt/EFI/BOOT/grubx64.efi
+        rm -f ./tmp_mnt/EFI/BOOT/MokManager.efi
+        mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
+        
+        umount ./tmp_mnt
+        rm -rf ./tmp_mnt
+    fi
 
     echo ""
     vtinfo "Install Ventoy to $DISK successfully finished."
@@ -257,6 +289,27 @@ else
     ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
 
     sync
+    
+    if [ "$SECUREBOOT" != "YES" ]; then
+        mkdir ./tmp_mnt
+        
+        vtdebug "mounting part2 ...."
+        for tt in 1 2 3; do
+            if mount ${DISK}2 ./tmp_mnt; then
+                vtdebug "mounting part2 success"
+                break
+            fi
+            sleep 2
+        done
+              
+        rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
+        rm -f ./tmp_mnt/EFI/BOOT/grubx64.efi
+        rm -f ./tmp_mnt/EFI/BOOT/MokManager.efi
+        mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
+        
+        umount ./tmp_mnt
+        rm -rf ./tmp_mnt
+    fi
 
     echo ""
     vtinfo "Update Ventoy to $DISK successfully finished."

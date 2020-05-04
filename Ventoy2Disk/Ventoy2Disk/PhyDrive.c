@@ -824,9 +824,127 @@ int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, CHAR *VerBuf, size_
 
 
 
+
 static unsigned int g_disk_unxz_len = 0;
 static BYTE *g_part_img_pos = NULL;
 static BYTE *g_part_img_buf[VENTOY_EFI_PART_SIZE / SIZE_1MB];
+
+
+static int VentoyFatMemRead(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
+{
+	uint32 i;
+	uint32 offset;
+	BYTE *MbBuf = NULL;
+
+	for (i = 0; i < SectorCount; i++)
+	{
+		offset = (Sector + i) * 512;
+
+		if (g_part_img_buf[1] == NULL)
+		{
+			MbBuf = g_part_img_buf[0] + offset;
+			memcpy(Buffer + i * 512, MbBuf, 512);
+		}
+		else
+		{
+			MbBuf = g_part_img_buf[offset / SIZE_1MB];
+			memcpy(Buffer + i * 512, MbBuf + (offset % SIZE_1MB), 512);
+		}
+	}
+
+	return 1;
+}
+
+
+static int VentoyFatMemWrite(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
+{
+	uint32 i;
+	uint32 offset;
+	BYTE *MbBuf = NULL;
+
+	for (i = 0; i < SectorCount; i++)
+	{
+		offset = (Sector + i) * 512;
+
+		if (g_part_img_buf[1] == NULL)
+		{
+			MbBuf = g_part_img_buf[0] + offset;
+			memcpy(MbBuf, Buffer + i * 512, 512);
+		}
+		else
+		{
+			MbBuf = g_part_img_buf[offset / SIZE_1MB];
+			memcpy(MbBuf + (offset % SIZE_1MB), Buffer + i * 512, 512);
+		}
+	}
+
+	return 1;
+}
+
+int VentoyProcSecureBoot(BOOL SecureBoot)
+{
+	int rc = 0;
+	int size;
+	char *filebuf = NULL;
+	void *file = NULL;
+
+	Log("VentoyProcSecureBoot %d ...", SecureBoot);
+	
+	if (SecureBoot)
+	{
+		Log("Secure boot is enabled ...");
+		return 0;
+	}
+
+	fl_init();
+
+	if (0 == fl_attach_media(VentoyFatMemRead, VentoyFatMemWrite))
+	{
+		file = fl_fopen("/EFI/BOOT/grubx64_real.efi", "rb");
+		Log("Open ventoy efi file %p ", file);
+		if (file)
+		{
+			fl_fseek(file, 0, SEEK_END);
+			size = (int)fl_ftell(file);
+			fl_fseek(file, 0, SEEK_SET);
+
+			Log("ventoy efi file size %d ...", size);
+
+			filebuf = (char *)malloc(size);
+			if (filebuf)
+			{
+				fl_fread(filebuf, 1, size, file);
+			}
+
+			fl_fclose(file);
+
+			Log("Now delete all efi files ...");
+			fl_remove("/EFI/BOOT/BOOTX64.EFI");
+			fl_remove("/EFI/BOOT/grubx64.efi");
+			fl_remove("/EFI/BOOT/grubx64_real.efi");
+			fl_remove("/EFI/BOOT/MokManager.efi");
+
+			file = fl_fopen("/EFI/BOOT/BOOTX64.EFI", "wb");
+			Log("Open bootx64 efi file %p ", file);
+			if (file)
+			{
+				fl_fwrite(filebuf, 1, size, file);
+				fl_fflush(file);
+				fl_fclose(file);
+			}
+		}
+	}
+	else
+	{
+		rc = 1;
+	}
+
+	fl_shutdown();
+
+	return rc;
+}
+
+
 
 static int disk_xz_flush(void *src, unsigned int size)
 {
@@ -919,6 +1037,9 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
         if (len == writelen)
         {
             Log("decompress finished success");
+
+			VentoyProcSecureBoot(g_SecureBoot);
+
             for (i = 0; i < VENTOY_EFI_PART_SIZE / SIZE_1MB; i++)
             {
                 dwSize = 0;
@@ -965,6 +1086,9 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
         if (g_disk_unxz_len == VENTOY_EFI_PART_SIZE)
         {
             Log("decompress finished success");
+			
+			VentoyProcSecureBoot(g_SecureBoot);
+
             for (int i = 0; i < VENTOY_EFI_PART_SIZE / SIZE_1MB; i++)
             {
                 dwSize = 0;

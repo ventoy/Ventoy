@@ -26,16 +26,54 @@
 
 HINSTANCE g_hInst;
 
+
+BOOL g_SecureBoot = FALSE;
 HWND g_DialogHwnd;
 HWND g_ComboxHwnd;
 HWND g_StaticLocalVerHwnd;
 HWND g_StaticDiskVerHwnd;
 HWND g_BtnInstallHwnd;
+HWND g_StaticDevHwnd;
+HWND g_StaticLocalHwnd;
+HWND g_StaticDiskHwnd;
 HWND g_BtnUpdateHwnd;
 HWND g_ProgressBarHwnd;
 HWND g_StaticStatusHwnd;
 CHAR g_CurVersion[64];
 HANDLE g_ThreadHandle = NULL;
+
+int g_language_count = 0;
+int g_cur_lang_id = 0;
+VENTOY_LANGUAGE *g_language_data = NULL;
+VENTOY_LANGUAGE *g_cur_lang_data = NULL;
+
+static int LoadCfgIni(void)
+{
+	int value;
+
+	value = GetPrivateProfileInt(TEXT("Ventoy"), TEXT("SecureBoot"), 0, VENTOY_CFG_INI);
+
+	if (value == 1)
+	{
+		g_SecureBoot = TRUE;
+	}
+	
+	return 0;
+}
+
+static int WriteCfgIni(void)
+{
+	WCHAR TmpBuf[128];
+
+	swprintf_s(TmpBuf, 128, TEXT("%d"), g_cur_lang_id);
+	WritePrivateProfileString(TEXT("Ventoy"), TEXT("Language"), TmpBuf, VENTOY_CFG_INI);
+
+	swprintf_s(TmpBuf, 128, TEXT("%d"), g_SecureBoot);
+	WritePrivateProfileString(TEXT("Ventoy"), TEXT("SecureBoot"), TmpBuf, VENTOY_CFG_INI);
+
+	return 0;
+}
+
 
 void GetExeVersionInfo(const char *FilePath)
 {
@@ -124,15 +162,126 @@ static void OnComboxSelChange(HWND hCombox)
     UpdateWindow(g_DialogHwnd);
 }
 
+static void UpdateItemString(int defaultLangId)
+{
+	int i;
+	HMENU SubMenu;
+	HFONT hLangFont;
+	HMENU hMenu = GetMenu(g_DialogHwnd);
+
+	g_cur_lang_id = defaultLangId;
+	g_cur_lang_data = g_language_data + defaultLangId;
+
+
+
+	hLangFont = CreateFont(g_language_data[defaultLangId].FontSize, 0, 0, 0, 400, FALSE, FALSE, 0,
+		DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH, g_language_data[defaultLangId].FontFamily);
+
+	SendMessage(g_BtnInstallHwnd, WM_SETFONT, (WPARAM)hLangFont, TRUE);
+	SendMessage(g_BtnUpdateHwnd, WM_SETFONT, (WPARAM)hLangFont, TRUE);
+	SendMessage(g_StaticStatusHwnd, WM_SETFONT, (WPARAM)hLangFont, TRUE);
+	SendMessage(g_StaticLocalHwnd, WM_SETFONT, (WPARAM)hLangFont, TRUE);
+	SendMessage(g_StaticDiskHwnd, WM_SETFONT, (WPARAM)hLangFont, TRUE);
+	SendMessage(g_StaticDevHwnd, WM_SETFONT, (WPARAM)hLangFont, TRUE);
+	SendMessage(g_DialogHwnd, WM_SETFONT, (WPARAM)hLangFont, TRUE);
+
+	ModifyMenu(hMenu, 0, MF_BYPOSITION | MF_STRING, 0, _G(STR_MENU_OPTION));
+
+	SetWindowText(GetDlgItem(g_DialogHwnd, IDC_STATIC_DEV), _G(STR_DEVICE));
+	SetWindowText(GetDlgItem(g_DialogHwnd, IDC_STATIC_LOCAL), _G(STR_LOCAL_VER));
+	SetWindowText(GetDlgItem(g_DialogHwnd, IDC_STATIC_DISK), _G(STR_DISK_VER));
+	SetWindowText(g_StaticStatusHwnd, _G(STR_STATUS));
+
+	SetWindowText(g_BtnInstallHwnd, _G(STR_INSTALL));
+	SetWindowText(g_BtnUpdateHwnd, _G(STR_UPDATE));
+
+	SubMenu = GetSubMenu(hMenu, 0);
+	if (g_SecureBoot)
+	{
+		ModifyMenu(SubMenu, 0, MF_BYPOSITION | MF_STRING | MF_CHECKED, 0, _G(STR_MENU_SECURE_BOOT));
+	}
+	else
+	{
+		ModifyMenu(SubMenu, 0, MF_BYPOSITION | MF_STRING | MF_UNCHECKED, 0, _G(STR_MENU_SECURE_BOOT));
+	}
+
+	ShowWindow(g_DialogHwnd, SW_HIDE);
+	ShowWindow(g_DialogHwnd, SW_NORMAL);
+
+	//Update check
+	for (i = 0; i < g_language_count; i++)
+	{
+		CheckMenuItem(hMenu, VTOY_MENU_LANGUAGE_BEGIN | i, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED);
+	}
+	CheckMenuItem(hMenu, VTOY_MENU_LANGUAGE_BEGIN | defaultLangId, MF_BYCOMMAND | MF_STRING | MF_CHECKED);
+}
+
 static void LanguageInit(void)
 {
-    SetWindowText(GetDlgItem(g_DialogHwnd, IDC_STATIC_DEV), _G(STR_DEVICE));
-    SetWindowText(GetDlgItem(g_DialogHwnd, IDC_STATIC_LOCAL), _G(STR_LOCAL_VER));
-    SetWindowText(GetDlgItem(g_DialogHwnd, IDC_STATIC_DISK), _G(STR_DISK_VER));
-    SetWindowText(g_StaticStatusHwnd, _G(STR_STATUS));
+	int i, j, k;
+	int id, DefaultId;
+	WCHAR Language[64];
+	WCHAR TmpBuf[256];
+	LANGID LangId = GetSystemDefaultUILanguage();
+	HMENU SubMenu;
+	HMENU hMenu = GetMenu(g_DialogHwnd);
 
-    SetWindowText(g_BtnInstallHwnd, _G(STR_INSTALL));
-    SetWindowText(g_BtnUpdateHwnd, _G(STR_UPDATE));
+	SubMenu = GetSubMenu(hMenu, 1);
+	DeleteMenu(SubMenu, 0, MF_BYPOSITION);
+
+	g_language_data = (VENTOY_LANGUAGE *)malloc(sizeof(VENTOY_LANGUAGE)* VENTOY_MAX_LANGUAGE);
+	memset(g_language_data, 0, sizeof(VENTOY_LANGUAGE)* VENTOY_MAX_LANGUAGE);
+
+	swprintf_s(Language, 64, L"StringDefine");
+	for (i = 0; i < STR_ID_MAX; i++)
+	{
+		swprintf_s(TmpBuf, 256, L"%d", i);
+		GET_INI_STRING(TmpBuf, g_language_data[0].StrId[i]);
+	}
+
+	for (i = 0; i < VENTOY_MAX_LANGUAGE; i++)
+	{
+		swprintf_s(Language, 64, L"Language%d", i);
+		GET_INI_STRING(TEXT("name"), g_language_data[i].Name);
+
+		if (g_language_data[i].Name[0] == '#')
+		{
+			break;
+		}
+
+		g_language_count++;
+		Log("Find Language%d ...", i);
+		
+		AppendMenu(SubMenu, MF_STRING | MF_BYCOMMAND, VTOY_MENU_LANGUAGE_BEGIN | i, g_language_data[i].Name);
+
+		GET_INI_STRING(TEXT("FontFamily"), g_language_data[i].FontFamily);
+		g_language_data[i].FontSize = GetPrivateProfileInt(Language, TEXT("FontSize"), 10, VENTOY_LANGUAGE_INI);
+
+		for (j = 0; j < STR_ID_MAX; j++)
+		{
+			GET_INI_STRING(g_language_data[0].StrId[j], g_language_data[i].MsgString[j]);
+
+			for (k = 0; g_language_data[i].MsgString[j][k] && g_language_data[i].MsgString[j][k + 1]; k++)
+			{
+				if (g_language_data[i].MsgString[j][k] == '#' && g_language_data[i].MsgString[j][k + 1] == '@')
+				{
+					g_language_data[i].MsgString[j][k] = '\r';
+					g_language_data[i].MsgString[j][k + 1] = '\n';
+				}
+			}
+		}
+	}
+
+	DefaultId = (MAKELANGID(LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED) == LangId) ? 0 : 1;
+	id = GetPrivateProfileInt(TEXT("Ventoy"), TEXT("Language"), DefaultId, VENTOY_CFG_INI);
+	if (id >= i)
+	{
+		id = DefaultId;
+	}
+
+	UpdateItemString(id);
 }
 
 static BOOL InitDialog(HWND hWnd, WPARAM wParam, LPARAM lParam)
@@ -149,6 +298,13 @@ static BOOL InitDialog(HWND hWnd, WPARAM wParam, LPARAM lParam)
     g_StaticLocalVerHwnd = GetDlgItem(hWnd, IDC_STATIC_LOCAL_VER);
     g_StaticDiskVerHwnd = GetDlgItem(hWnd, IDC_STATIC_DISK_VER);
     g_BtnInstallHwnd = GetDlgItem(hWnd, IDC_BUTTON4);
+
+
+	g_StaticDevHwnd = GetDlgItem(hWnd, IDC_STATIC_DEV);
+	g_StaticLocalHwnd = GetDlgItem(hWnd, IDC_STATIC_LOCAL);
+	g_StaticDiskHwnd = GetDlgItem(hWnd, IDC_STATIC_DISK);
+	
+
     g_BtnUpdateHwnd = GetDlgItem(hWnd, IDC_BUTTON3);
     g_ProgressBarHwnd = GetDlgItem(hWnd, IDC_PROGRESS1);
     g_StaticStatusHwnd = GetDlgItem(hWnd, IDC_STATIC_STATUS);
@@ -160,7 +316,11 @@ static BOOL InitDialog(HWND hWnd, WPARAM wParam, LPARAM lParam)
     SendMessage(g_ProgressBarHwnd, PBM_SETRANGE, (WPARAM)0, (LPARAM)(MAKELPARAM(0, PT_FINISH)));
     PROGRESS_BAR_SET_POS(PT_START);
 
+	SetMenu(hWnd, LoadMenu(g_hInst, MAKEINTRESOURCE(IDR_MENU1)));
+
+	LoadCfgIni();
     LanguageInit();
+
 
     // Fill device combox
     hCombox = GetDlgItem(hWnd, IDC_COMBO1);
@@ -358,6 +518,31 @@ static void OnUpdateBtnClick(void)
     g_ThreadHandle = CreateThread(NULL, 0, UpdateVentoyThread, (LPVOID)pPhyDrive, 0, NULL);
 }
 
+static void MenuProc(HWND hWnd, WPARAM wParam, LPARAM lParam)
+{
+	WORD CtrlID;
+	HMENU hMenu = GetMenu(hWnd);
+
+	CtrlID = LOWORD(wParam);
+
+	if (CtrlID == 0)
+	{
+		g_SecureBoot = !g_SecureBoot;
+
+		if (g_SecureBoot)
+		{
+			CheckMenuItem(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_CHECKED);
+		}
+		else
+		{
+			CheckMenuItem(hMenu, 0, MF_BYCOMMAND | MF_STRING | MF_UNCHECKED);
+		}
+	}
+	else if (CtrlID >= VTOY_MENU_LANGUAGE_BEGIN && CtrlID < VTOY_MENU_LANGUAGE_BEGIN + g_language_count)
+	{
+		UpdateItemString(CtrlID - VTOY_MENU_LANGUAGE_BEGIN);
+	}
+}
 
 INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
@@ -385,6 +570,10 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
                 OnUpdateBtnClick();
             }
 
+			if (lParam == 0 && NotifyCode == 0)
+			{
+				MenuProc(hWnd, wParam, lParam);
+			}
 
             break;
         }
@@ -417,6 +606,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
             {
                 EndDialog(hWnd, 0);
             }
+			WriteCfgIni();
             break;
         }
     }
@@ -430,7 +620,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     if (!IsFileExist(VENTOY_FILE_VERSION))
     {
-        MessageBox(NULL, _G(STR_INCORRECT_DIR), _G(STR_ERROR), MB_OK | MB_ICONERROR);
+		if (IsDirExist("grub"))
+		{
+			MessageBox(NULL, _G(STR_INCORRECT_DIR), _G(STR_ERROR), MB_OK | MB_ICONERROR);
+		}
+		else
+		{
+			MessageBox(NULL, _G(STR_INCORRECT_DIR), _G(STR_ERROR), MB_OK | MB_ICONERROR);
+		}
         return ERROR_NOT_FOUND;
     }
 
@@ -443,6 +640,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     DumpWindowsVersion();
 
     Ventoy2DiskInit();
+
+	
 
     g_hInst = hInstance;
     DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc);
