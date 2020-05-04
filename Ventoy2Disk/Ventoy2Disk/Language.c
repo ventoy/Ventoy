@@ -45,27 +45,50 @@ const TCHAR * g_Str_English[STR_ID_MAX] =
     TEXT("A thread is running, please wait..."),
 };
 
+const TCHAR * g_Str_German[STR_ID_MAX] =
+{
+    TEXT("Fehler"),
+    TEXT("Warnung"),
+    TEXT("Info"),
+    TEXT("Bitte in dem richtigen Verzeichnis starten!"),
+    TEXT("GerÃ¤t"),
+    TEXT("Ventoy (lokal)"),
+    TEXT("Ventoy (GerÃ¤t)"),
+    TEXT("Status - BEREIT"),
+    TEXT("Installieren"),
+    TEXT("Aktualisieren"),
+    TEXT("Die Aktualisierung ist sicher, ISO-Dateien bleiben unverÃ¤ndert.\r\Fortfahren?"),
+    TEXT("Das GerÃ¤t wird formatiert und alle Daten gehen verloren.\r\Fortfahren?"),
+    TEXT("Das GerÃ¤t wird formatiert und alle Daten gehen verloren.\r\Fortfahren? (erneute ÃœberprÃ¼fung)"),
+    TEXT("Herzlichen GlÃ¼ckwunsch!\r\nVentoy wurde erfolgreich auf dem GerÃ¤t installiert."),
+    TEXT("WÃ¤hrend der Installation ist ein Fehler aufgetreten. Stecken Sie das GerÃ¤t neu ein und versuchen Sie es erneut. ÃœberprÃ¼fen sie die log.txt auf Details."),
+    TEXT("Herlichen GlÃ¼ckwunsch!\r\nVentoy wurde erfolgreich auf dem GerÃ¤t aktualisiert."),
+    TEXT("WÃ¤hrend der Aktualisierung ist ein Fehler aufgetreten. Stecken Sie das GerÃ¤t neu ein und versuchen Sie es erneut. ÃœberprÃ¼fen sie die log.txt auf Details."),
+
+    TEXT("Ein Thread lÃ¤uft, bitte warten..."),
+};
+
 const TCHAR * g_Str_ChineseSimple[STR_ID_MAX] =
 {
-    TEXT("´íÎó"),
-    TEXT("¾¯¸æ"),
-    TEXT("ÌáĞÑ"),
-    TEXT("ÇëÔÚÕıÈ·µÄÄ¿Â¼ÏÂÔËĞĞ!"),
-    TEXT("Éè±¸"),
-    TEXT("±¾µØ Ventoy"),
-    TEXT("Éè±¸ÉÏ Ventoy"),
-    TEXT("×´Ì¬ - ×¼±¸¾ÍĞ÷"),
-    TEXT("°²×°"),
-    TEXT("Éı¼¶"),
-    TEXT("Éı¼¶²Ù×÷ÊÇ°²È«µÄ, ISOÎÄ¼ş²»»á¶ªÊ§\r\nÊÇ·ñ¼ÌĞø£¿"),
-    TEXT("´ÅÅÌ»á±»¸ñÊ½»¯, ËùÓĞÊı¾İ¶¼»á¶ªÊ§!\r\nÊÇ·ñ¼ÌĞø£¿"),
-    TEXT("´ÅÅÌ»á±»¸ñÊ½»¯, ËùÓĞÊı¾İ¶¼»á¶ªÊ§!\r\nÔÙ´ÎÈ·ÈÏÊÇ·ñ¼ÌĞø£¿"),
-    TEXT("¹§Ï²Äã! Ventoy ÒÑ¾­³É¹¦°²×°µ½´ËÉè±¸ÖĞ."),
-    TEXT("°²×° Ventoy ¹ı³ÌÖĞ·¢Éú´íÎó. Äã¿ÉÒÔÖØĞÂ°Î²åÒ»ÏÂUÅÌÈ»ºóÖØÊÔÒ»´Î, ÏêÏ¸ĞÅÏ¢Çë²éÔÄ log.txt ÎÄ¼ş."),
-    TEXT("¹§Ï²Äã! ĞÂ°æ±¾µÄ Ventoy ÒÑ¾­³É¹¦¸üĞÂµ½´ËÉè±¸ÖĞ."),
-    TEXT("¸üĞÂ Ventoy ¹ı³ÌÖĞÓöµ½´íÎó. Äã¿ÉÒÔÖØĞÂ°Î²åÒ»ÏÂUÅÌÈ»ºóÖØÊÔÒ»´Î, ÏêÏ¸ĞÅÏ¢Çë²éÔÄ log.txt ÎÄ¼ş."),
+    TEXT("é”™è¯¯"),
+    TEXT("è­¦å‘Š"),
+    TEXT("æé†’"),
+    TEXT("è¯·åœ¨æ­£ç¡®çš„ç›®å½•ä¸‹è¿è¡Œ!"),
+    TEXT("è®¾å¤‡"),
+    TEXT("æœ¬åœ° Ventoy"),
+    TEXT("è®¾å¤‡ä¸Š Ventoy"),
+    TEXT("çŠ¶æ€ - å‡†å¤‡å°±ç»ª"),
+    TEXT("å®‰è£…"),
+    TEXT("å‡çº§"),
+    TEXT("å‡çº§æ“ä½œæ˜¯å®‰å…¨çš„, ISOæ–‡ä»¶ä¸ä¼šä¸¢å¤±\r\næ˜¯å¦ç»§ç»­ï¼Ÿ"),
+    TEXT("ç£ç›˜ä¼šè¢«æ ¼å¼åŒ–, æ‰€æœ‰æ•°æ®éƒ½ä¼šä¸¢å¤±!\r\næ˜¯å¦ç»§ç»­ï¼Ÿ"),
+    TEXT("ç£ç›˜ä¼šè¢«æ ¼å¼åŒ–, æ‰€æœ‰æ•°æ®éƒ½ä¼šä¸¢å¤±!\r\nå†æ¬¡ç¡®è®¤æ˜¯å¦ç»§ç»­ï¼Ÿ"),
+    TEXT("æ­å–œä½ ! Ventoy å·²ç»æˆåŠŸå®‰è£…åˆ°æ­¤è®¾å¤‡ä¸­."),
+    TEXT("å®‰è£… Ventoy è¿‡ç¨‹ä¸­å‘ç”Ÿé”™è¯¯. ä½ å¯ä»¥é‡æ–°æ‹”æ’ä¸€ä¸‹Uç›˜ç„¶åé‡è¯•ä¸€æ¬¡, è¯¦ç»†ä¿¡æ¯è¯·æŸ¥é˜… log.txt æ–‡ä»¶."),
+    TEXT("æ­å–œä½ ! æ–°ç‰ˆæœ¬çš„ Ventoy å·²ç»æˆåŠŸæ›´æ–°åˆ°æ­¤è®¾å¤‡ä¸­."),
+    TEXT("æ›´æ–° Ventoy è¿‡ç¨‹ä¸­é‡åˆ°é”™è¯¯. ä½ å¯ä»¥é‡æ–°æ‹”æ’ä¸€ä¸‹Uç›˜ç„¶åé‡è¯•ä¸€æ¬¡, è¯¦ç»†ä¿¡æ¯è¯·æŸ¥é˜… log.txt æ–‡ä»¶."),
 
-    TEXT("µ±Ç°ÓĞÈÎÎñÕıÔÚÔËĞĞ, ÇëµÈ´ı..."),
+    TEXT("å½“å‰æœ‰ä»»åŠ¡æ­£åœ¨è¿è¡Œ, è¯·ç­‰å¾…..."),
 };
 
 const TCHAR * GetString(enum STR_ID ID)
