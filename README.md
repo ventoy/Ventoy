@@ -24,5 +24,15 @@ See https://www.ventoy.net for detail.
 * USB normal use unafftected
 * Data nondestructive during version upgrade
 * No need to update Ventoy when a new distro is released
+* Multi-language support
+
+# Languages
+* Chinese Simplified (简体中文)
+* English (English)
+* French (Français)
+* German (Deutsch)
+* Polish (Polski)
+* Portuguese Brazilian (Português do Brasil)
+* Turkish (Türkçe)
 
 ![avatar](https://www.ventoy.net/static/img/screen/screen_uefi.png)
