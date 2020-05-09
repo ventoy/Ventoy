@@ -65,6 +65,12 @@ typedef struct ventoy_os_param
 	UINT8   reserved[31];
 }ventoy_os_param;
 
+typedef struct ventoy_windows_data
+{
+    char auto_install_script[384];
+    UINT8 reserved[128];
+}ventoy_windows_data;
+
 #pragma pack()
 
 

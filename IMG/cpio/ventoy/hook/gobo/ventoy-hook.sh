@@ -19,17 +19,8 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-if [ -f $VTOY_PATH/autoinstall ]; then    
-    if [ -f /linuxrc.config ]; then
-        echo "AutoYaST: file:///ventoy/autoinstall" >> /info-ventoy
-        $SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-    fi
-fi
+$SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/mapper/ventoy#" -i /lib/dracut-lib.sh
 
+ventoy_set_inotify_script  gobo/ventoy-inotifyd-hook.sh
 
-#echo "Exec: /bin/sh $VTOY_PATH/hook/suse/cdrom-hook.sh" >> /info-ventoy
-#echo "install: hd:/?device=/dev/mapper/ventoy" >> /info-ventoy
-#$SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/suse/udev_disk_hook.sh %k"
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/gobo/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/01-ventoy-inotifyd-start.sh

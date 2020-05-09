@@ -38,6 +38,8 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+static install_template *g_install_template_head = NULL;
+
 static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
 {
     const char *value;
@@ -46,7 +48,15 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     value = vtoy_json_get_string_ex(json->pstChild, "file");
     if (value)
     {
-        grub_snprintf(filepath, sizeof(filepath), "%s/ventoy/%s", isodisk, value);
+        if (value[0] == '/')
+        {
+            grub_snprintf(filepath, sizeof(filepath), "%s%s", isodisk, value);
+        }
+        else
+        {
+            grub_snprintf(filepath, sizeof(filepath), "%s/ventoy/%s", isodisk, value);
+        }
+        
         if (ventoy_is_file_exist(filepath) == 0)
         {
             debug("Theme file %s does not exist\n", filepath);
@@ -67,9 +77,67 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     return 0;
 }
 
+
+static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk)
+{
+    const char *iso = NULL;
+    const char *script = NULL;
+    VTOY_JSON *pNode = NULL;
+    install_template *node = NULL;
+    install_template *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_install_template_head)
+    {
+        for (node = g_install_template_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_install_template_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        iso = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (iso && iso[0] == '/')
+        {
+            script = vtoy_json_get_string_ex(pNode->pstChild, "template");
+            if (script && script[0] == '/')
+            {
+                node = grub_zalloc(sizeof(install_template));
+                if (node)
+                {
+                    grub_snprintf(node->isopath, sizeof(node->isopath), "%s", iso);
+                    grub_snprintf(node->templatepath, sizeof(node->templatepath), "%s", script);
+
+                    if (g_install_template_head)
+                    {
+                        node->next = g_install_template_head;
+                    }
+                    
+                    g_install_template_head = node;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+
 static plugin_entry g_plugin_entries[] = 
 {
     { "theme", ventoy_plugin_theme_entry },
+    { "auto_install", ventoy_plugin_auto_install_entry },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -147,5 +215,35 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     grub_free(buf);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+
+void ventoy_plugin_dump_auto_install(void)
+{
+    install_template *node = NULL;
+
+    for (node = g_install_template_head; node; node = node->next)
+    {
+        grub_printf("IMAGE:<%s>\n", node->isopath);
+        grub_printf("SCRIPT:<%s>\n\n", node->templatepath);
+    }
+
+    return;
+}
+
+
+char * ventoy_plugin_get_install_template(const char *isopath)
+{
+    install_template *node = NULL;
+
+    for (node = g_install_template_head; node; node = node->next)
+    {
+        if (grub_strcmp(node->isopath, isopath) == 0)
+        {
+            return node->templatepath;
+        }
+    }
+
+    return NULL;
 }
 

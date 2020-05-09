@@ -928,9 +928,18 @@ int VentoyProcSecureBoot(BOOL SecureBoot)
 			Log("Open bootx64 efi file %p ", file);
 			if (file)
 			{
-				fl_fwrite(filebuf, 1, size, file);
+				if (filebuf)
+				{
+					fl_fwrite(filebuf, 1, size, file);
+				}
+				
 				fl_fflush(file);
 				fl_fclose(file);
+			}
+
+			if (filebuf)
+			{
+				free(filebuf);
 			}
 		}
 	}

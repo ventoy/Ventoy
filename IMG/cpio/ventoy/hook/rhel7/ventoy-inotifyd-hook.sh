@@ -41,6 +41,9 @@ if is_inotify_ventoy_part $3; then
         ventoy_swap_device /dev/dm-0 /dev/$vtDM
     fi
     
+    vtlog "set anaconda-diskroot ..."
+    /sbin/initqueue --settled --onetime --name anaconda-diskroot anaconda-diskroot  /dev/dm-0
+    
     set_ventoy_hook_finish
 fi
 

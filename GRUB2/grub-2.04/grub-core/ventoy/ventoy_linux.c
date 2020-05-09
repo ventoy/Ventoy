@@ -588,7 +588,7 @@ static void ventoy_cpio_newc_fill_int(grub_uint32_t value, char *buf, int buflen
     }
 }
 
-int ventoy_cpio_newc_fill_head(void *buf, int filesize, void *filedata, const char *name)
+int ventoy_cpio_newc_fill_head(void *buf, int filesize, const void *filedata, const char *name)
 {
     int namelen = 0;
     int headlen = 0;
@@ -852,18 +852,22 @@ grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, 
 
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    grub_uint8_t *buf;
+    char *template_file = NULL;
+    char *template_buf = NULL;
+    grub_uint8_t *buf = NULL;
     grub_uint32_t mod;
     grub_uint32_t headlen;
     grub_uint32_t initrd_head_len;
     grub_uint32_t padlen;
     grub_uint32_t img_chunk_size;
+    grub_uint32_t template_size = 0;
     grub_file_t file;
+    grub_file_t scriptfile;
         
     (void)ctxt;
     (void)argc;
 
-    if (argc != 1)
+    if (argc != 3)
     {
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s cpiofile\n", cmd_raw_name); 
     }
@@ -888,7 +892,30 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
         g_ventoy_cpio_size = 0;
     }
 
-    g_ventoy_cpio_buf = grub_malloc(file->size + 4096 + img_chunk_size);
+    template_file = ventoy_plugin_get_install_template(args[1]);
+    if (template_file)
+    {
+        debug("auto install template: <%s>\n", template_file);
+        scriptfile = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[2], template_file);
+        if (scriptfile)
+        {
+            debug("auto install script size %d\n", (int)scriptfile->size);
+            template_size = scriptfile->size;
+            template_buf = grub_malloc(template_size);
+            if (template_buf)
+            {
+                grub_file_read(scriptfile, template_buf, template_size);
+            }
+
+            grub_file_close(scriptfile);
+        }
+        else
+        {
+            debug("Failed to open install script %s%s\n", args[2], template_file);
+        }
+    }
+
+    g_ventoy_cpio_buf = grub_malloc(file->size + 4096 + template_size + img_chunk_size);
     if (NULL == g_ventoy_cpio_buf)
     {
         grub_file_close(file);
@@ -909,6 +936,12 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     /* step1: insert image chunk data to cpio */
     headlen = ventoy_cpio_newc_fill_head(buf, img_chunk_size, g_img_chunk_list.chunk, "ventoy/ventoy_image_map");
     buf += headlen + ventoy_align(img_chunk_size, 4);
+
+    if (template_buf)
+    {
+        headlen = ventoy_cpio_newc_fill_head(buf, template_size, template_buf, "ventoy/autoinstall");
+        buf += headlen + ventoy_align(template_size, 4);
+    }
 
     /* step2: insert os param to cpio */
     headlen = ventoy_cpio_newc_fill_head(buf, 0, NULL, "ventoy/ventoy_os_param");

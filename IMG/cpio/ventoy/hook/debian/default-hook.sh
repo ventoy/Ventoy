@@ -23,6 +23,12 @@ if [ -e /init ] && $GREP -q '^mountroot$' /init; then
     $SED  "/^mountroot$/i\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/disk_mount_hook.sh"  -i /init
     $SED  "/^mountroot$/i\\export LIVEMEDIA=/dev/mapper/ventoy"  -i /init
     $SED  "/^mountroot$/i\\export LIVE_MEDIA=/dev/mapper/ventoy"  -i /init    
+
+    if $GREP -q 'live-media=' /proc/cmdline; then
+        if [ -f /scripts/casper ] && $GREP -q '^  *LIVEMEDIA=' /scripts/casper; then
+            $SED "s#^  *LIVEMEDIA=.*#LIVEMEDIA=/dev/mapper/ventoy#" -i /scripts/casper
+        fi
+    fi
     
 elif [ -e /init ] && $GREP -q '/start-udev$' /init; then
     echo "Here use notify ..." >> $VTLOG
@@ -35,3 +41,15 @@ else
     ventoy_systemd_udevd_work_around
     ventoy_add_udev_rule "$VTOY_PATH/hook/debian/udev_disk_hook.sh %k"
 fi
+
+if [ -f $VTOY_PATH/autoinstall ]; then
+    echo "Do auto install ..." >> $VTLOG
+    
+    if $GREP -q "^mount /proc$" /init; then
+        $SED "/^mount \/proc/a export file=$VTOY_PATH/autoinstall; export auto='true'; export priority='critical'"  -i /init
+    fi
+fi
+
+
+
+

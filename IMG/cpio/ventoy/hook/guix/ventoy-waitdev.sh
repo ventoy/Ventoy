@@ -17,19 +17,21 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-if [ -f $VTOY_PATH/autoinstall ]; then    
-    if [ -f /linuxrc.config ]; then
-        echo "AutoYaST: file:///ventoy/autoinstall" >> /info-ventoy
-        $SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-    fi
-fi
+vtlog "####### $0 $* ########"
+
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+
+while ! [ -e /dev/null ]; do
+    echo 'xxxxxxxxxx'
+    echo 'xxxxxxxxxx' > /dev/console
+    sleep 1
+done
+
+vtlog "... start inotifyd listen $vtHook ..."
+$BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd  $VTOY_PATH/hook/guix/ventoy-disk.sh  /dev:n  2>&-  & 
 
 
-#echo "Exec: /bin/sh $VTOY_PATH/hook/suse/cdrom-hook.sh" >> /info-ventoy
-#echo "install: hd:/?device=/dev/mapper/ventoy" >> /info-ventoy
-#$SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
+PATH=$VTPATH_OLD
 
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/suse/udev_disk_hook.sh %k"

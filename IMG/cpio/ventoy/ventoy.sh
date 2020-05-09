@@ -169,7 +169,20 @@ ventoy_get_os_type() {
         echo 'berry'; return
     fi
     
+    if $GREP -q 'Gobo ' /proc/version; then
+        echo 'gobo'; return
+    fi
     
+    if $GREP -q 'NuTyX' /proc/version; then
+        echo 'nutyx'; return
+    fi
+    
+    if [ -d /gnu ]; then
+        vtLineNum=$($FIND /gnu/ -name guix | $BUSYBOX_PATH/wc -l)
+        if [ $vtLineNum -gt 0 ]; then
+            echo 'guix'; return
+        fi
+    fi
     
     echo "default"
 }

@@ -440,14 +440,14 @@ static int ventoy_cat_exe_file_data(grub_uint32_t exe_len, grub_uint8_t *exe_dat
     jump_align = ventoy_align(jump_len, 16);
     
     g_wim_data.jump_exe_len = jump_len;
-    g_wim_data.bin_raw_len = jump_align + sizeof(ventoy_os_param) + exe_len;
+    g_wim_data.bin_raw_len = jump_align + sizeof(ventoy_os_param) + sizeof(ventoy_windows_data) + exe_len;
     g_wim_data.bin_align_len = ventoy_align(g_wim_data.bin_raw_len, 2048);
     
     g_wim_data.jump_bin_data = grub_malloc(g_wim_data.bin_align_len);
     if (g_wim_data.jump_bin_data)
     {
         grub_memcpy(g_wim_data.jump_bin_data, jump_data, jump_len);
-        grub_memcpy(g_wim_data.jump_bin_data + jump_align + sizeof(ventoy_os_param), exe_data, exe_len);
+        grub_memcpy(g_wim_data.jump_bin_data + jump_align + sizeof(ventoy_os_param) + sizeof(ventoy_windows_data), exe_data, exe_len);
     }
 
     debug("jump_exe_len:%u bin_raw_len:%u bin_align_len:%u\n", 
@@ -456,7 +456,35 @@ static int ventoy_cat_exe_file_data(grub_uint32_t exe_len, grub_uint8_t *exe_dat
     return 0;
 }
 
-static int ventoy_update_before_chain(ventoy_os_param *param)
+int ventoy_fill_windows_rtdata(void *buf, char *isopath)
+{
+    char *pos = NULL;
+    char *script = NULL;
+    ventoy_windows_data *data = (ventoy_windows_data *)buf;
+
+    grub_memset(data, 0, sizeof(ventoy_windows_data));
+
+    pos = grub_strstr(isopath, "/");
+    if (!pos)
+    {
+        return 1;
+    }
+
+    script = ventoy_plugin_get_install_template(pos);
+    if (script)
+    {
+        debug("auto install script <%s>\n", script);
+        grub_snprintf(data->auto_install_script, sizeof(data->auto_install_script) - 1, "%s", script);
+    }
+    else
+    {
+        debug("auto install script not found %p\n", pos);
+    }
+    
+    return 0;
+}
+
+static int ventoy_update_before_chain(ventoy_os_param *param, char *isopath)
 {
     grub_uint32_t jump_align = 0;
     wim_lookup_entry *meta_look = NULL;
@@ -469,6 +497,7 @@ static int ventoy_update_before_chain(ventoy_os_param *param)
     if (g_wim_data.jump_bin_data)
     {
         grub_memcpy(g_wim_data.jump_bin_data + jump_align, param, sizeof(ventoy_os_param));        
+        ventoy_fill_windows_rtdata(g_wim_data.jump_bin_data + jump_align + sizeof(ventoy_os_param), isopath);
     }
 
     grub_crypto_hash(GRUB_MD_SHA1, g_wim_data.bin_hash.sha1, g_wim_data.jump_bin_data, g_wim_data.bin_raw_len);
@@ -878,7 +907,7 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
 
     if (g_wim_data.jump_bin_data && g_wim_data.new_meta_data)
     {
-        ventoy_update_before_chain(&(chain->os_param));
+        ventoy_update_before_chain(&(chain->os_param), args[0]);
     }
 
     /* part 2: chain head */

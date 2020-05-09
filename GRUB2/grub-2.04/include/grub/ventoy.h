@@ -104,6 +104,15 @@ typedef struct ventoy_os_param
     grub_uint8_t   reserved[31];
 }ventoy_os_param;
 
+
+typedef struct ventoy_windows_data
+{
+    char auto_install_script[384];
+    grub_uint8_t reserved[128];
+}ventoy_windows_data;
+
+
+
 #pragma pack()
 
 // compile assert check : sizeof(ventoy_os_param) must be 512

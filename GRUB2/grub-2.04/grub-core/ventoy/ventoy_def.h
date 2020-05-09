@@ -418,7 +418,7 @@ grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, 
 grub_err_t ventoy_cmd_initrd_count(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_valid_initrd_count(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args);
-int ventoy_cpio_newc_fill_head(void *buf, int filesize, void *filedata, const char *name);
+int ventoy_cpio_newc_fill_head(void *buf, int filesize, const void *filedata, const char *name);
 grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...);
 int ventoy_is_file_exist(const char *fmt, ...);
 int ventoy_fill_data(grub_uint32_t buflen, char *buffer);
@@ -550,6 +550,15 @@ typedef struct ventoy_mbr_head
 }ventoy_mbr_head;
 #pragma pack()
 
+
+typedef struct install_template
+{
+    char isopath[256];
+    char templatepath[256];
+
+    struct install_template *next;
+}install_template;
+
 extern int g_ventoy_last_entry;
 extern int g_ventoy_memdisk_mode;
 extern int g_ventoy_iso_raw;
@@ -557,6 +566,10 @@ extern int g_ventoy_iso_uefi_drv;
 
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
+char * ventoy_plugin_get_install_template(const char *isopath);
+void ventoy_plugin_dump_auto_install(void);
+int ventoy_fill_windows_rtdata(void *buf, char *isopath);
+
 
 #endif /* __VENTOY_DEF_H__ */
 

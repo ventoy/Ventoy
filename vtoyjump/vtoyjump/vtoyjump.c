@@ -29,6 +29,7 @@
 #include "fat_filelib.h"
 
 static ventoy_os_param g_os_param;
+static ventoy_windows_data g_windows_data;
 static UINT8 g_os_param_reserved[32];
 static BOOL g_64bit_system = FALSE;
 static ventoy_guid g_ventoy_guid = VENTOY_GUID;
@@ -703,6 +704,40 @@ static int DeleteVentoyPart2MountPoint(DWORD PhyDrive)
     return 1;
 }
 
+static int ProcessUnattendedInstallation(const char *script)
+{
+    DWORD dw;
+    HKEY hKey;
+    LSTATUS Ret;
+    CHAR Letter;
+    CHAR CurDir[MAX_PATH];
+
+    Log("Copy unattended XML ...");
+    
+    GetCurrentDirectory(sizeof(CurDir), CurDir);
+    Letter = CurDir[0];
+    if ((Letter >= 'A' && Letter <= 'Z') || (Letter >= 'a' && Letter <= 'z'))
+    {
+        Log("Current Drive Letter: %C", Letter);
+    }
+    else
+    {
+        Letter = 'X';
+    }
+
+    sprintf_s(CurDir, sizeof(CurDir), "%C:\\Autounattend.xml", Letter);
+    Log("Copy file <%s> --> <%s>", script, CurDir);
+    CopyFile(script, CurDir, FALSE);
+
+    Ret = RegCreateKeyEx(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dw);
+    if (ERROR_SUCCESS == Ret)
+    {
+        Ret = RegSetValueEx(hKey, "UnattendFile", 0, REG_SZ, CurDir, (DWORD)(strlen(CurDir) + 1));
+    }
+
+    return 0;
+}
+
 static int VentoyHook(ventoy_os_param *param)
 {
     int rc;
@@ -755,6 +790,24 @@ static int VentoyHook(ventoy_os_param *param)
     // for protect
     rc = DeleteVentoyPart2MountPoint(DiskExtent.DiskNumber);
     Log("Delete ventoy mountpoint: %s", rc == 0 ? "SUCCESS" : "NO NEED");
+    
+    if (g_windows_data.auto_install_script[0])
+    {
+        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", Letter, g_windows_data.auto_install_script);
+        if (IsPathExist(FALSE, "%s", IsoPath))
+        {
+            Log("use auto install script %s...", IsoPath);
+            ProcessUnattendedInstallation(IsoPath);
+        }
+        else
+        {
+            Log("auto install script %s not exist", IsoPath);
+        }
+    }
+    else
+    {
+        Log("auto install no need");
+    }
 
     return 0;
 }
@@ -815,11 +868,12 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	for (PeStart = 0; PeStart < FileSize; PeStart += 16)
 	{
 		if (CheckOsParam((ventoy_os_param *)(Buffer + PeStart)) && 
-			CheckPeHead(Buffer + PeStart + sizeof(ventoy_os_param)))
+            CheckPeHead(Buffer + PeStart + sizeof(ventoy_os_param) + sizeof(ventoy_windows_data)))
 		{
 			Log("Find os pararm at %u", PeStart);
 
             memcpy(&g_os_param, Buffer + PeStart, sizeof(ventoy_os_param));
+            memcpy(&g_windows_data, Buffer + PeStart + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));            
             memcpy(g_os_param_reserved, g_os_param.vtoy_reserved, sizeof(g_os_param_reserved));
 
             if (g_os_param_reserved[0] == 1)
@@ -837,7 +891,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 				}
 			}
 
-			PeStart += sizeof(ventoy_os_param);
+			PeStart += sizeof(ventoy_os_param) + sizeof(ventoy_windows_data);
 			sprintf_s(LunchFile, MAX_PATH, "ventoy\\%s", GetFileNameInPath(ExeFileName));
 			SaveBuffer2File(LunchFile, Buffer + PeStart, FileSize - PeStart);
 			break;

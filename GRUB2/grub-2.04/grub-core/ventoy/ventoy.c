@@ -1358,6 +1358,17 @@ static grub_err_t ventoy_cmd_dump_menu(grub_extcmd_context_t ctxt, int argc, cha
     return 0;
 }
 
+static grub_err_t ventoy_cmd_dump_auto_install(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    ventoy_plugin_dump_auto_install();
+
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_check_mode(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
@@ -1387,22 +1398,58 @@ static grub_err_t ventoy_cmd_check_mode(grub_extcmd_context_t ctxt, int argc, ch
 
 static grub_err_t ventoy_cmd_dynamic_menu(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    static int configfile_mode = 0;
     char memfile[128] = {0};
     
     (void)ctxt;
     (void)argc;
     (void)args;
 
-    if (argc == 0)
+    /* 
+     * args[0]:  0:normal     1:configfile
+     * args[1]:  0:list_buf   1:tree_buf
+     */
+
+    if (argc != 2)
     {
-        grub_script_execute_sourcecode(g_list_script_buf);
+        debug("Invlaid argc %d\n", argc);
+        return 0;
+    }    
+
+    if (args[0][0] == '0')
+    {
+        if (args[1][0] == '0')
+        {
+            grub_script_execute_sourcecode(g_list_script_buf);            
+        }
+        else
+        {
+            grub_script_execute_sourcecode(g_tree_script_buf); 
+        }
     }
     else
     {
-        g_ventoy_last_entry = -1;
-        grub_snprintf(memfile, sizeof(memfile), "configfile mem:0x%llx:size:%d", 
-            (ulonglong)(ulong)g_tree_script_buf, g_tree_script_pos); 
+        if (configfile_mode)
+        {
+            debug("Now already in F3 mode %d\n", configfile_mode);
+            return 0;
+        }
+
+        if (args[1][0] == '0')
+        {
+            grub_snprintf(memfile, sizeof(memfile), "configfile mem:0x%llx:size:%d", 
+                (ulonglong)(ulong)g_list_script_buf, g_list_script_pos);
+        }
+        else
+        {
+             g_ventoy_last_entry = -1;
+            grub_snprintf(memfile, sizeof(memfile), "configfile mem:0x%llx:size:%d", 
+                (ulonglong)(ulong)g_tree_script_buf, g_tree_script_pos); 
+        }
+
+        configfile_mode = 1;
         grub_script_execute_sourcecode(memfile);
+        configfile_mode = 0;
     }
     
     return 0;
@@ -1567,6 +1614,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_dump_menu", ventoy_cmd_dump_menu, 0, NULL, "", "", NULL },
     { "vt_dynamic_menu", ventoy_cmd_dynamic_menu, 0, NULL, "", "", NULL },
     { "vt_check_mode", ventoy_cmd_check_mode, 0, NULL, "", "", NULL },
+    { "vt_dump_auto_install", ventoy_cmd_dump_auto_install, 0, NULL, "", "", NULL },
 
     { "vt_is_udf", ventoy_cmd_is_udf, 0, NULL, "", "", NULL },
     { "vt_file_size", ventoy_cmd_file_size, 0, NULL, "", "", NULL },

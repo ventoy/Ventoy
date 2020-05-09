@@ -17,19 +17,16 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-if [ -f $VTOY_PATH/autoinstall ]; then    
-    if [ -f /linuxrc.config ]; then
-        echo "AutoYaST: file:///ventoy/autoinstall" >> /info-ventoy
-        $SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-    fi
-fi
+vtlog "##### $0 $* ..."
 
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-#echo "Exec: /bin/sh $VTOY_PATH/hook/suse/cdrom-hook.sh" >> /info-ventoy
-#echo "install: hd:/?device=/dev/mapper/ventoy" >> /info-ventoy
-#$SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
+blkdev_num=$(dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
 
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/suse/udev_disk_hook.sh %k"
+vtlog "diskroot $vtDM ..."
+/sbin/initqueue --settled --onetime --name anaconda-diskroot anaconda-diskroot  /dev/$vtDM
+
+PATH=$VTPATH_OLD

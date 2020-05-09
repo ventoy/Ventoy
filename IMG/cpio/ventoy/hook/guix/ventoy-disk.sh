@@ -17,19 +17,26 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-if [ -f $VTOY_PATH/autoinstall ]; then    
-    if [ -f /linuxrc.config ]; then
-        echo "AutoYaST: file:///ventoy/autoinstall" >> /info-ventoy
-        $SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-    fi
+if is_ventoy_hook_finished; then
+    exit 0
 fi
 
+vtlog "##### INOTIFYD: $2/$3 is created ..."
 
-#echo "Exec: /bin/sh $VTOY_PATH/hook/suse/cdrom-hook.sh" >> /info-ventoy
-#echo "install: hd:/?device=/dev/mapper/ventoy" >> /info-ventoy
-#$SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/suse/udev_disk_hook.sh %k"
+if is_inotify_ventoy_part $3; then
+    vtlog "find ventoy partition ..."
+    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3
+    
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
+    vtDM=$(ventoy_find_dm_id ${blkdev_num})
+
+    vtlog "This is $vtDM ..."
+
+    set_ventoy_hook_finish
+fi
+
+PATH=$VTPATH_OLD

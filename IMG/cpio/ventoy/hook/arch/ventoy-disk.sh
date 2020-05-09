@@ -17,19 +17,32 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-if [ -f $VTOY_PATH/autoinstall ]; then    
-    if [ -f /linuxrc.config ]; then
-        echo "AutoYaST: file:///ventoy/autoinstall" >> /info-ventoy
-        $SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-    fi
+vtlog "######### $0 $* ############"
+
+if is_ventoy_hook_finished; then
+    exit 0
 fi
 
+wait_for_usb_disk_ready
 
-#echo "Exec: /bin/sh $VTOY_PATH/hook/suse/cdrom-hook.sh" >> /info-ventoy
-#echo "install: hd:/?device=/dev/mapper/ventoy" >> /info-ventoy
-#$SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
+vtdiskname=$(get_ventoy_disk_name)
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    exit 0
+fi
 
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/suse/udev_disk_hook.sh %k"
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
+
+if [ -n "$1" ]; then
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+    vtDM=$(ventoy_find_dm_id ${blkdev_num})
+    
+    vtlog "ln -s /dev/$vtDM $1"
+    ln -s /dev/$vtDM "$1"
+fi 
+
+# OK finish
+set_ventoy_hook_finish
+

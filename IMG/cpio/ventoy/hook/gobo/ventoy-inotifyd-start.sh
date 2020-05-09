@@ -17,19 +17,15 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-if [ -f $VTOY_PATH/autoinstall ]; then    
-    if [ -f /linuxrc.config ]; then
-        echo "AutoYaST: file:///ventoy/autoinstall" >> /info-ventoy
-        $SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-    fi
+vtHook=$($CAT $VTOY_PATH/inotifyd-hook-script.txt)
+
+vtdisk=$(get_ventoy_disk_name)
+if [ "$vtdisk" = "unknown" ]; then
+    vtlog "... start inotifyd listen $vtHook ..."
+    $BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd $vtHook  /dev:n  2>&-  & 
+else
+    vtlog "... $vtdisk already exist ..."
+    $BUSYBOX_PATH/sh $vtHook n /dev "${vtdisk#/dev/}2"
 fi
-
-
-#echo "Exec: /bin/sh $VTOY_PATH/hook/suse/cdrom-hook.sh" >> /info-ventoy
-#echo "install: hd:/?device=/dev/mapper/ventoy" >> /info-ventoy
-#$SED "1 iinfo: file:/info-ventoy" -i /linuxrc.config
-
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/suse/udev_disk_hook.sh %k"
