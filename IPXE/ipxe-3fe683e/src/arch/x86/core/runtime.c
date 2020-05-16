@@ -117,6 +117,10 @@ static void cmdline_strip ( char *cmdline, const char *cruft ) {
  */
 static int cmdline_init ( void ) {
 	userptr_t cmdline_user;
+	userptr_t chainaddr;
+	char *pos1;
+	char *pos2;
+    int chainlen;
 	char *cmdline;
 	size_t len;
 	int rc;
@@ -129,6 +133,23 @@ static int cmdline_init ( void ) {
 	cmdline_user = phys_to_user ( cmdline_phys );
 	len = ( strlen_user ( cmdline_user, 0 ) + 1 /* NUL */ );
 
+    pos1 = strstr((char *)cmdline_user, "mem:");
+    if (pos1)
+    {
+        pos2 = strstr(pos1, ":size:");
+        if (pos2)
+        {
+            *pos2 = 0;
+            chainaddr = phys_to_user(strtoul(pos1 + 4 + 2, NULL, 16)); // skip 0x prefix in hex number
+            chainlen = (int)strtoul(pos2 + 6, NULL, 10);
+            *pos2 = ':';
+
+            g_initrd_addr = (void *)umalloc(chainlen);  
+            g_initrd_len = chainlen;
+            memcpy_user((userptr_t)g_initrd_addr, 0, chainaddr, 0, chainlen);
+        }
+    }
+
 	/* Allocate and copy command line */
 	cmdline_copy = malloc ( len );
 	if ( ! cmdline_copy ) {
@@ -137,6 +158,9 @@ static int cmdline_init ( void ) {
 		rc = -ENOMEM;
 		goto err_alloc_cmdline_copy;
 	}
+
+    g_cmdline_copy = cmdline_copy;
+    
 	cmdline = cmdline_copy;
 	copy_from_user ( cmdline, cmdline_user, 0, len );
 	DBGC ( colour, "RUNTIME found command line \"%s\" at %08x\n",
@@ -220,11 +244,6 @@ static int initrd_init ( void ) {
 	image->len = initrd_len;
 	memcpy_user ( image->data, 0, phys_to_user ( initrd_phys ), 0,
 		      initrd_len );
-
-    g_initrd_addr = (void *)image->data;  
-    g_initrd_len = image->len;  
-    g_cmdline_copy = cmdline_copy;
-
 
 	/* Mark initrd as consumed */
 	initrd_phys = 0;

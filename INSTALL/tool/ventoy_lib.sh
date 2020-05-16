@@ -14,16 +14,6 @@ ventoy_true() {
 }
 
 ventoy_is_linux64() {
-    if [ -e /lib64 ]; then
-        ventoy_true
-        return
-    fi
-    
-    if [ -e /usr/lib64 ]; then
-        ventoy_true
-        return
-    fi
-    
     if uname -a | egrep -q 'x86_64|amd64'; then
         ventoy_true
         return
@@ -165,12 +155,12 @@ is_disk_contains_ventoy() {
         return
     fi
     
-    PART1_TYPE=$(dd if=$DISK bs=1 count=1 skip=450 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
-    if [ "$PART1_TYPE" != "07" ]; then
-        vtdebug "part1 type is $PART2_TYPE not 07"
-        ventoy_false
-        return
-    fi
+    # PART1_TYPE=$(dd if=$DISK bs=1 count=1 skip=450 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+    # if [ "$PART1_TYPE" != "07" ]; then
+        # vtdebug "part1 type is $PART2_TYPE not 07"
+        # ventoy_false
+        # return
+    # fi
     
     if [ -e /sys/class/block/${PART1#/dev/}/start ]; then
         PART1_START=$(cat /sys/class/block/${PART1#/dev/}/start)

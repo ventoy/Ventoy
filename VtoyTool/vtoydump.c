@@ -43,6 +43,17 @@ typedef unsigned char   uint8_t;
 
 #define VENTOY_GUID { 0x77772020, 0x2e77, 0x6576, { 0x6e, 0x74, 0x6f, 0x79, 0x2e, 0x6e, 0x65, 0x74 }}
 
+typedef enum ventoy_fs_type
+{
+    ventoy_fs_exfat = 0, /* 0: exfat */
+    ventoy_fs_ntfs,      /* 1: NTFS */
+    ventoy_fs_ext,       /* 2: ext2/ext3/ext4 */
+    ventoy_fs_xfs,       /* 3: XFS */
+    ventoy_fs_udf,       /* 4: UDF */
+
+    ventoy_fs_max
+}ventoy_fs_type;
+
 #pragma pack(1)
 
 typedef struct ventoy_guid
@@ -129,6 +140,11 @@ static int verbose = 0;
 #define debug(fmt, ...) if(verbose) printf(fmt, ##__VA_ARGS__)
 
 static ventoy_guid vtoy_guid = VENTOY_GUID;
+
+static const char *g_ventoy_fs[ventoy_fs_max] = 
+{
+    "exfat", "ntfs", "ext*", "xfs", "udf"
+};
 
 static int vtoy_check_os_param(ventoy_os_param *param)
 {
@@ -410,14 +426,10 @@ static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
         cnt = vtoy_find_disk_by_guid(param->vtoy_disk_guid, diskname);
         debug("find 0 disk by size, try with guid cnt=%d...\n", cnt);
     }
-    
-    if (param->vtoy_disk_part_type == 0)
+
+    if (param->vtoy_disk_part_type < ventoy_fs_max)
     {
-        fs = "exfat";
-    }
-    else if (param->vtoy_disk_part_type == 0)
-    {
-        fs = "ntfs";
+        fs = g_ventoy_fs[param->vtoy_disk_part_type];
     }
     else
     {

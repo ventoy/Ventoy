@@ -130,8 +130,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes)
     PartStartSector = 2048;
     PartSectorCount = (UINT32)((SizeBytes - VENTOY_EFI_PART_SIZE - SIZE_1MB) / 512);
 
-    if (MBR.PartTbl[0].FsFlag != 0x07 ||
-        MBR.PartTbl[0].StartSectorId != PartStartSector ||
+    if (MBR.PartTbl[0].StartSectorId != PartStartSector ||
         MBR.PartTbl[0].SectorCount != PartSectorCount)
     {
         Log("Part1 not match %u %u", PartStartSector, PartSectorCount);

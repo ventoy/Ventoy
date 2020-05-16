@@ -9,12 +9,16 @@ fi
 . ./tool/ventoy_lib.sh
 
 print_usage() {
-    echo 'Usage:  VentoyInstaller.sh OPTION /dev/sdX'
-    echo '  OPTION:'
+    echo 'Usage:  Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX'
+    echo '  CMD:'
     echo '   -i  install ventoy to sdX (fail if disk already installed with ventoy)'
     echo '   -u  update ventoy in sdX'
     echo '   -I  force install ventoy to sdX (no matter installed or not)'
     echo ''
+    echo '  OPTION: (optional)'
+    echo '   -s  enable secure boot support (default is disabled)'
+    echo ''
+    
 }
 
 echo ''
@@ -38,6 +42,7 @@ while [ -n "$1" ]; do
         SECUREBOOT="YES"
     else
         if ! [ -b "$1" ]; then
+            vterr "$1 is NOT a valid device"
             print_usage
             cd $OLDDIR
             exit 1
@@ -54,13 +59,25 @@ if [ -z "$MODE" ]; then
     exit 1
 fi
 
-if [ -z "$SUDO_USER" ]; then
-    if [ "$USER" != "root" ]; then
-        vterr "EUID is $EUID root permission is required."
-        echo ''
-        cd $OLDDIR
-        exit 1
-    fi
+if ! [ -b "$DISK" ]; then
+    vterr "Disk $DISK does not exist"
+    cd $OLDDIR
+    exit 1
+fi
+
+if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
+    vterr "$DISK is a partition, please use the whole disk"
+    cd $OLDDIR
+    exit 1
+fi
+
+if dd if="$DISK" of=/dev/null bs=1 count=1 >/dev/null 2>&1; then
+    vtdebug "root permission check ok ..."
+else
+    vterr "Failed to access $DISK, maybe root privilege is needed!"
+    echo ''
+    cd $OLDDIR
+    exit 1
 fi
 
 vtdebug "MODE=$MODE FORCE=$FORCE"
@@ -89,20 +106,6 @@ cd ../
 
 if ! check_tool_work_ok; then
     vterr "Some tools can not run in current system. Please check log.txt for detail."
-    cd $OLDDIR
-    exit 1
-fi
-
-
-if ! [ -b "$DISK" ]; then
-    vterr "Disk $DISK does not exist"
-    cd $OLDDIR
-    exit 1
-fi
-
-
-if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
-    vterr "$DISK is a partition, please use the whole disk"
     cd $OLDDIR
     exit 1
 fi
@@ -242,6 +245,7 @@ if [ "$MODE" = "install" ]; then
         rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
         rm -f ./tmp_mnt/EFI/BOOT/grubx64.efi
         rm -f ./tmp_mnt/EFI/BOOT/MokManager.efi
+        rm -f ./tmp_mnt/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
         mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
         
         umount ./tmp_mnt
@@ -305,6 +309,7 @@ else
         rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
         rm -f ./tmp_mnt/EFI/BOOT/grubx64.efi
         rm -f ./tmp_mnt/EFI/BOOT/MokManager.efi
+        rm -f ./tmp_mnt/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
         mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
         
         umount ./tmp_mnt

@@ -126,11 +126,8 @@ void hide_umalloc ( physaddr_t start, physaddr_t end ) {
  *
  */
 void hide_textdata ( void ) {
-/* Deleted by longpanda */
-#if 0
 	hide_region ( &hidemem_textdata, virt_to_phys ( _textdata ),
 		      virt_to_phys ( _etextdata ) );
-#endif
 }
 
 /**

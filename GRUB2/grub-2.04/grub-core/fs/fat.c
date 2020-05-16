@@ -965,10 +965,8 @@ grub_fat_dir (grub_device_t device, const char *path, grub_fs_dir_hook_t hook,
       info.dir = !! (ctxt.dir.attr & GRUB_FAT_ATTR_DIRECTORY);
       info.case_insensitive = 1;
 
-      #ifdef MODE_EXFAT
       if (!info.dir)
          info.size = ctxt.dir.file_size;
-      #endif
       
 #ifdef MODE_EXFAT
       if (!ctxt.dir.have_stream)
@@ -1276,54 +1274,6 @@ GRUB_MOD_FINI(fat)
 
 #ifdef MODE_EXFAT
 
-static int grub_fat_add_chunk(ventoy_img_chunk_list *chunk_list, grub_uint64_t sector, grub_uint64_t size, grub_uint32_t log_sector_size)
-{
-    ventoy_img_chunk *last_chunk;
-    ventoy_img_chunk *new_chunk;
-    
-    if (chunk_list->cur_chunk == 0)
-    {
-        chunk_list->chunk[0].img_start_sector = 0;
-        chunk_list->chunk[0].img_end_sector = (size >> 11) - 1;
-        chunk_list->chunk[0].disk_start_sector = sector;
-        chunk_list->chunk[0].disk_end_sector = sector + (size >> log_sector_size) - 1;
-        chunk_list->cur_chunk = 1;
-        return 0;
-    }
-
-    last_chunk = chunk_list->chunk + chunk_list->cur_chunk - 1;
-    if (last_chunk->disk_end_sector + 1 == sector)
-    {
-        last_chunk->img_end_sector  += (size >> 11);
-        last_chunk->disk_end_sector += (size >> log_sector_size);
-        return 0;
-    }
-
-    if (chunk_list->cur_chunk == chunk_list->max_chunk)
-    {
-        new_chunk = grub_realloc(chunk_list->chunk, chunk_list->max_chunk * 2 * sizeof(ventoy_img_chunk));
-        if (NULL == new_chunk)
-        {
-            return -1;
-        }
-        chunk_list->chunk = new_chunk;
-        chunk_list->max_chunk *= 2;
-
-        /* issue: update last_chunk */
-        last_chunk = chunk_list->chunk + chunk_list->cur_chunk - 1;
-    }
-
-    new_chunk = chunk_list->chunk + chunk_list->cur_chunk;
-    new_chunk->img_start_sector = last_chunk->img_end_sector + 1;
-    new_chunk->img_end_sector = new_chunk->img_start_sector + (size >> 11) - 1;
-    new_chunk->disk_start_sector = sector;
-    new_chunk->disk_end_sector = sector + (size >> log_sector_size) - 1;
-
-    chunk_list->cur_chunk++;
-
-    return 0;
-}
-
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list)
 {
     grub_size_t size;
@@ -1433,7 +1383,7 @@ int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_i
       if (size > len)
 	    size = len;
 
-    grub_fat_add_chunk(chunk_list, sector, size, disk->log_sector_size);
+    grub_disk_blocklist_read(chunk_list, sector, size, disk->log_sector_size);
 
       len -= size;
       logical_cluster++;

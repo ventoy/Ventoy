@@ -37,6 +37,7 @@
 #include <grub/efi/efi.h>
 #endif
 #include <grub/time.h>
+#include <grub/relocator.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 
@@ -98,6 +99,36 @@ int ventoy_is_efi_os(void)
     }
 
     return g_efi_os;
+}
+
+static int ventoy_get_fs_type(const char *fs)
+{
+    if (NULL == fs)
+    {
+        return ventoy_fs_max;
+    }
+    else if (grub_strncmp(fs, "exfat", 5) == 0)
+    {
+        return ventoy_fs_exfat;
+    }
+    else if (grub_strncmp(fs, "ntfs", 4) == 0)
+    {
+        return ventoy_fs_ntfs;
+    }
+    else if (grub_strncmp(fs, "ext", 3) == 0)
+    {
+        return ventoy_fs_ext;
+    }
+    else if (grub_strncmp(fs, "xfs", 3) == 0)
+    {
+        return ventoy_fs_xfs;
+    }
+    else if (grub_strncmp(fs, "udf", 3) == 0)
+    {
+        return ventoy_fs_udf;
+    }
+
+    return ventoy_fs_max;
 }
 
 static int ventoy_string_check(const char *str, grub_char_check_func check)
@@ -942,6 +973,12 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         goto fail;
     }
 
+    if (ventoy_get_fs_type(fs->name) >= ventoy_fs_max)
+    {
+        debug("unsupported fs:<%s>\n", fs->name);
+        goto fail;
+    }
+
     grub_memset(&g_img_iterator_head, 0, sizeof(g_img_iterator_head));
 
     g_img_iterator_head.dirlen = 1;
@@ -1212,19 +1249,7 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
 
     param->vtoy_disk_size = disk->total_sectors * (1 << disk->log_sector_size);
     param->vtoy_disk_part_id = disk->partition->number + 1;
-
-    if (grub_strcmp(file->fs->name, "exfat") == 0)
-    {
-        param->vtoy_disk_part_type = 0;
-    }
-    else if (grub_strcmp(file->fs->name, "ntfs") == 0)
-    {
-        param->vtoy_disk_part_type = 1;
-    }
-    else
-    {
-        param->vtoy_disk_part_type = 0xFFFF;
-    }
+    param->vtoy_disk_part_type = ventoy_get_fs_type(file->fs->name);
 
     pos = grub_strstr(file->name, "/");
     if (!pos)
@@ -1249,6 +1274,52 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
     param->chksum = (grub_uint8_t)(0x100 - chksum);
 
     return;
+}
+
+static int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start)
+{
+    int fs_type;
+    grub_uint32_t i = 0;
+    grub_uint32_t sector = 0;
+    grub_uint32_t count = 0;
+    grub_off_t size = 0;
+    grub_off_t read = 0;
+
+    fs_type = ventoy_get_fs_type(file->fs->name);
+    if (fs_type == ventoy_fs_exfat)
+    {
+        grub_fat_get_file_chunk(start, file, chunklist);        
+    }
+    else
+    {
+        file->read_hook = (grub_disk_read_hook_t)grub_disk_blocklist_read;
+        file->read_hook_data = chunklist;
+
+        for (size = file->size; size > 0; size -= read)
+        {
+            read = (size > VTOY_SIZE_1GB) ? VTOY_SIZE_1GB : size;
+            grub_file_read(file, NULL, read);
+        }
+
+        for (i = 0; start > 0 && i < chunklist->cur_chunk; i++)
+        {
+            chunklist->chunk[i].disk_start_sector += start;
+            chunklist->chunk[i].disk_end_sector += start;
+        }
+
+        if (ventoy_fs_udf == fs_type)
+        {
+            for (i = 0; i < chunklist->cur_chunk; i++)
+            {
+                count = (chunklist->chunk[i].disk_end_sector + 1 - chunklist->chunk[i].disk_start_sector) >> 2;
+                chunklist->chunk[i].img_start_sector = sector;
+                chunklist->chunk[i].img_end_sector = sector + count - 1;
+                sector += count;
+            }
+        }
+    }
+
+    return 0;
 }
 
 static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -1280,8 +1351,7 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
     g_img_chunk_list.max_chunk = DEFAULT_CHUNK_NUM;
     g_img_chunk_list.cur_chunk = 0;
 
-    debug("get fat file chunk part start:%llu\n", (unsigned long long)file->device->disk->partition->start);
-    grub_fat_get_file_chunk(file->device->disk->partition->start, file, &g_img_chunk_list);
+    ventoy_get_block_list(file, &g_img_chunk_list, file->device->disk->partition->start);
 
     grub_file_close(file);
 
@@ -1307,6 +1377,121 @@ static grub_err_t ventoy_cmd_dump_img_sector(grub_extcmd_context_t ctxt, int arg
             (unsigned long long)cur->disk_start_sector, (unsigned long long)cur->disk_end_sector
             );
     }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+#ifdef GRUB_MACHINE_EFI
+static grub_err_t ventoy_cmd_relocator_chaindata(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+    return 0;
+}
+#else
+static grub_err_t ventoy_cmd_relocator_chaindata(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int rc = 0;
+    ulong chain_len = 0;
+    char *chain_data = NULL;
+    char *relocator_addr = NULL;
+    grub_relocator_chunk_t ch;
+    struct grub_relocator *relocator = NULL;
+    char envbuf[64] = { 0 };
+
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+    
+    if (argc != 2)
+    {
+        return 1;
+    }
+
+    chain_data = (char *)grub_strtoul(args[0], NULL, 16);
+    chain_len = grub_strtoul(args[1], NULL, 10);
+
+    relocator = grub_relocator_new ();
+    if (!relocator)
+    {
+        debug("grub_relocator_new failed %p %lu\n", chain_data, chain_len);
+        return 1;
+    }
+
+    rc = grub_relocator_alloc_chunk_addr (relocator, &ch,
+					   0x100000, // GRUB_LINUX_BZIMAGE_ADDR,
+					   chain_len);
+    if (rc)
+    {
+        debug("grub_relocator_alloc_chunk_addr failed %d %p %lu\n", rc, chain_data, chain_len);
+        grub_relocator_unload (relocator);
+        return 1;
+    }
+
+    relocator_addr = get_virtual_current_address(ch);
+
+    grub_memcpy(relocator_addr, chain_data, chain_len);
+    
+    grub_relocator_unload (relocator);
+
+    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)relocator_addr);
+    grub_env_set("vtoy_chain_relocator_addr", envbuf);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+#endif
+
+static grub_err_t ventoy_cmd_test_block_list(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint32_t i;
+    grub_file_t file;
+    ventoy_img_chunk_list chunklist;
+    
+    (void)ctxt;
+    (void)argc;
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't open file %s\n", args[0]); 
+    }
+
+    /* get image chunk data */
+    grub_memset(&chunklist, 0, sizeof(chunklist));
+    chunklist.chunk = grub_malloc(sizeof(ventoy_img_chunk) * DEFAULT_CHUNK_NUM);
+    if (NULL == chunklist.chunk)
+    {
+        return grub_error(GRUB_ERR_OUT_OF_MEMORY, "Can't allocate image chunk memoty\n");
+    }
+    
+    chunklist.max_chunk = DEFAULT_CHUNK_NUM;
+    chunklist.cur_chunk = 0;
+
+    ventoy_get_block_list(file, &chunklist, 0);
+
+    grub_file_close(file);
+
+    grub_printf("filesystem: <%s> entry number:<%u>\n", file->fs->name, chunklist.cur_chunk);
+
+    for (i = 0; i < chunklist.cur_chunk; i++)
+    {
+        grub_printf("%llu+%llu,", (ulonglong)chunklist.chunk[i].disk_start_sector,
+            (ulonglong)(chunklist.chunk[i].disk_end_sector + 1 - chunklist.chunk[i].disk_start_sector));
+    }
+
+    grub_printf("\n==================================\n");
+    for (i = 0; i < chunklist.cur_chunk; i++)
+    {
+        grub_printf("%2u: [%llu %llu] - [%llu %llu]\n", i, 
+            (ulonglong)chunklist.chunk[i].img_start_sector,
+            (ulonglong)chunklist.chunk[i].img_end_sector,
+            (ulonglong)chunklist.chunk[i].disk_start_sector,
+            (ulonglong)chunklist.chunk[i].disk_end_sector
+            );
+    }
+
+    grub_free(chunklist.chunk);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -1412,7 +1597,7 @@ static grub_err_t ventoy_cmd_dynamic_menu(grub_extcmd_context_t ctxt, int argc, 
 
     if (argc != 2)
     {
-        debug("Invlaid argc %d\n", argc);
+        debug("Invalid argc %d\n", argc);
         return 0;
     }    
 
@@ -1635,6 +1820,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_windows_chain_data", ventoy_cmd_windows_chain_data, 0, NULL, "", "", NULL },
 
     { "vt_add_replace_file", ventoy_cmd_add_replace_file, 0, NULL, "", "", NULL },
+    { "vt_relocator_chaindata", ventoy_cmd_relocator_chaindata, 0, NULL, "", "", NULL },
+    { "vt_test_block_list", ventoy_cmd_test_block_list, 0, NULL, "", "", NULL },
 
     
     { "vt_load_plugin", ventoy_cmd_load_plugin, 0, NULL, "", "", NULL },

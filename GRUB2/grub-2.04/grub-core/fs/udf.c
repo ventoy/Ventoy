@@ -1152,6 +1152,8 @@ grub_udf_dir_iter (const char *filename, enum grub_fshelp_filetype filetype,
 
       info.mtime -= 60 * tz;
     }
+  if (!info.dir)
+    info.size = U64 (node->block.fe.file_size);
   grub_free (node);
   return ctx->hook (filename, &info, ctx->hook_data);
 }

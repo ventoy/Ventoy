@@ -28,6 +28,17 @@
 
 #define VENTOY_GUID { 0x77772020, 0x2e77, 0x6576, { 0x6e, 0x74, 0x6f, 0x79, 0x2e, 0x6e, 0x65, 0x74 }}
 
+typedef enum ventoy_fs_type
+{
+    ventoy_fs_exfat = 0, /* 0: exfat */
+    ventoy_fs_ntfs,      /* 1: NTFS */
+    ventoy_fs_ext,       /* 2: ext2/ext3/ext4 */
+    ventoy_fs_xfs,       /* 3: XFS */
+    ventoy_fs_udf,       /* 4: UDF */
+
+    ventoy_fs_max
+}ventoy_fs_type;
+
 #pragma pack(1)
 
 typedef struct ventoy_guid

@@ -374,7 +374,7 @@ static int ventoy_is_mbr_match(ventoy_mbr_head *head)
         return 0;
     }
 
-    if (head->PartTbl[0].FsFlag != 0x07 || head->PartTbl[0].StartSectorId != 2048) {
+    if (head->PartTbl[0].StartSectorId != 2048) {
         return 0;
     }
 

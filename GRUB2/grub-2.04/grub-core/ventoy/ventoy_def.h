@@ -23,6 +23,8 @@
 
 #define VTOY_MAX_SCRIPT_BUF    (4 * 1024 * 1024)
 
+#define VTOY_SIZE_1GB  1073741824
+
 #define JSON_SUCCESS    0
 #define JSON_FAILED     1
 #define JSON_NOT_FOUND  2
