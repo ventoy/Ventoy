@@ -2,6 +2,7 @@
  * PhyDrive.c
  *
  * Copyright (c) 2020, longpanda <admin@ventoy.net>
+ * Copyright (c) 2011-2020, Pete Batard <pete@akeo.ie>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +30,10 @@
 #include "fat_filelib.h"
 #include "ff.h"
 
+/* 
+ * Some code and functions in the file are copied from rufus.
+ * https://github.com/pbatard/rufus
+ */
 #define VDS_SET_ERROR SetLastError
 #define IVdsServiceLoader_LoadService(This, pwszMachineName, ppService) (This)->lpVtbl->LoadService(This, pwszMachineName, ppService)
 #define IVdsServiceLoader_Release(This) (This)->lpVtbl->Release(This)
