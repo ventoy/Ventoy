@@ -2,12 +2,6 @@
 
 VENTOY_PATH=$PWD/../
 
-if [ -e check.sh ]; then
-    if ! sh check.sh; then
-        exit 1
-    fi
-fi
-
 rm -f ventoy.cpio
 
 chmod -R 777 cpio
@@ -22,6 +16,13 @@ ln -s sbin/init linuxrc
 cd ventoy
 
 
+cp -a $VENTOY_PATH/DMSETUP/dmsetup tool/
+cp -a $VENTOY_PATH/SQUASHFS/unsquashfs_* tool/
+cp -a $VENTOY_PATH/FUSEISO/vtoy_fuse_iso_* tool/
+cp -a $VENTOY_PATH/VtoyTool/vtoytool tool/
+cp -a $VENTOY_PATH/VBLADE/vblade-master/vblade_* tool/
+
+chmod -R 777 ./tool
 
 find ./tool | cpio  -o -H newc>tool.cpio
 xz tool.cpio

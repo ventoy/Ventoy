@@ -15,12 +15,12 @@ rm -rf libfuse
 rm -rf $LIBFUSE_DIR
 
 # please download https://gitee.com/mirrors/libfuse/repository/archive/fuse-2.9.9.zip
-if ! [ -e mirrors-libfuse-fuse-2.9.9.zip ]; then
+if ! [ -e ../ExFAT/mirrors-libfuse-fuse-2.9.9.zip ]; then
     echo "Please download mirrors-libfuse-fuse-2.9.9.zip first"
     exit 1
 fi
 
-unzip mirrors-libfuse-fuse-2.9.9.zip
+unzip ../ExFAT/mirrors-libfuse-fuse-2.9.9.zip
 
 
 cd libfuse

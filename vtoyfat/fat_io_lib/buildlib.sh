@@ -1,7 +1,15 @@
 #!/bin/sh
 
+if ! [ -f fat_io_lib.zip ]; then
+    echo "No fat_io_lib.zip found ..."
+    exit 1
+fi
+
+unzip fat_io_lib.zip
+
 rm -rf include
 rm -rf lib
+
 
 cd release
 gcc -O2 -D_FILE_OFFSET_BITS=64 fat*.c -c
