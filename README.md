@@ -27,3 +27,12 @@ See https://www.ventoy.net for detail.
 * No need to update Ventoy when a new distro is released
 
 ![avatar](https://www.ventoy.net/static/img/screen/screen_uefi.png)
+
+
+# Installation Instructions
+See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detail
+
+
+# Compile Instructions
+Please refer to DOC/BuildVentoyFromSource.txt
+
