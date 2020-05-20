@@ -1,0 +1,203 @@
+
+==========================================
+1. Compile Enviroment
+==========================================
+    My build envrioment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
+    Because Ventoy is based on many open source projects, so the envrioment is important. I suggest you test it on a virtual machine first.
+
+1.1 Install CentOS 7.8
+    I use CentOS-7-x86_64-Everything-2003.iso and select Minimal install
+    
+1.2 Install Packages    
+    yum install \
+        libXpm net-tools bzip2 wget vim gcc gcc-c++ samba dos2unix glibc-devel glibc.i686 glibc-devel.i686 \
+        mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
+        flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
+        libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
+    
+
+
+==========================================
+2. Download Source Code
+==========================================
+2.1 Download Ventoy source code from github and decompress it. 
+    Next I assume that you have unzipped the code into the /home directory (check /home/Ventoy-master/README.md file for the directory level).
+    
+2.2 Download third-part source code
+    
+    https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz                    ===>  /home/Ventoy-master/DOC/dietlibc-0.34.tar.xz
+    https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz                        ===>  /home/Ventoy-master/GRUB2/grub-2.04.tar.xz
+    https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911     ===>  /home/Ventoy-master/EDK2/edk2-edk2-stable201911.zip
+    https://codeload.github.com/relan/exfat/zip/v1.3.0                   ===>  /home/Ventoy-master/ExFAT/exfat-1.3.0.zip
+    https://gitee.com/mirrors/libfuse/repository/archive/fuse-2.9.9.zip  ===>  /home/Ventoy-master/ExFAT/mirrors-libfuse-fuse-2.9.9.zip
+    http://ultra-embedded.com/releases/fat_io_lib.zip                    ===>  /home/Ventoy-master/vtoyfat/fat_io_lib/fat_io_lib.zip
+
+
+
+==========================================
+3. All in one script
+==========================================
+    I have made the whole build process in all_in_one.sh, you can run this script to build and pack ventoy.
+    If you want to compile a certain part separately, you can continue to refer to the later chapters of this text.
+    
+    cd /home/Ventoy-master/INSTALL
+    sh all_in_one.sh
+
+    It should be noted that, some part of Ventoy has 32bit&64bit version (like 4.9 4.10 4.11 follows)
+    all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit verison. You should create a 32bit CentOS environment and build them.
+    Fortunately these parts are few modified, you only need to build once or you can directly use the binary I have built.
+
+    Besides, after a fully compile and pack, you can only build the part you modified (for example grub2) and run ventoy_pack.sh to generate the package.
+
+
+
+==========================================
+4. Build every part of Ventoy
+==========================================
+4.1 == Build grub2 ==
+    cd /home/Ventoy-master/GRUB2
+    sh buildgrub.sh
+      
+4.2 == Build ipxe.krn ==
+    cd /home/Ventoy-master/IPXE
+    sh buildipxe.sh
+      
+4.3 == Build Ventoy2Disk.exe ==
+    Ventoy2Disk.exe is the installer in Windows platform. And it must be built in Windows with Microsoft Visual Studio (2013+).   
+    Open /home/Ventoy-master/Ventoy2Disk/Ventoy2Disk.sln with Visual Studio and build it.
+   
+4.4 == Build vtoyjump64.exe/vtoyjump32.exe ==
+    vtoyjump64.exe/vtoyjump32.exe is used to mount iso file in windows PE. You should install Microsoft Visual Studio (2013+) to build it.
+    Open /home/Ventoy-master/vtoyjump/vtoyjump.sln with Visual Studio and build it (64&32).
+   
+4.5 == Build dmsetup ==
+    Please refer to DMSETUP/build.txt
+   
+4.6 == Build ventoy_x64.efi ==
+    cd /home/Ventoy-master/EDK2
+    sh buildedk.sh
+   
+4.7 == Build VtoyTool ==
+    cd /home/Ventoy-master/VtoyTool
+    sh build.sh
+
+4.8 == Build vtoyfat ==
+    cd /home/Ventoy-master/vtoyfat/fat_io_lib
+    sh buildlib.sh
+    cd /home/Ventoy-master/vtoyfat
+    sh build.sh
+
+4.9 == Build exfat-util ==
+    cd /home/Ventoy-master/ExFAT
+    sh buidlibfuse.sh
+    sh buidexfat.sh
+    
+    After that, copy EXFAT/shared/mkexfatfs         ===> /home/Ventoy-master/INSTALL/tool/mkexfatfs_64
+    After that, copy EXFAT/shared/mount.exfat-fuse  ===> /home/Ventoy-master/INSTALL/tool/mount.exfat-fuse_64
+
+    Use the same build step to build exfat-util 32bit in a 32bit CentOS system and get mkexfatfs_32 and mount.exfat-fuse_32
+
+4.10 == Build vtoy_fuse_iso_64/vtoy_fuse_iso_32 ==
+    cd /home/Ventoy-master/FUSEISO
+    sh build_libfuse.sh
+    sh build.sh
+    
+    Use the same build step to build in a 32bit CentOS system and get vtoy_fuse_iso_32
+   
+4.11 == Build unsquashfs_64/unsquashfs_32 ==
+    cd /home/Ventoy-master/SQUASHFS/SRC
+    sh build_lz4.sh
+    sh build_lzma.sh
+    sh build_lzo.sh
+    sh build_zstd.sh
+    
+    cd /home/Ventoy-master/SQUASHFS/squashfs-tools-4.4/squashfs-tools
+    sh build.sh
+    
+    Use the same build step to build in a 32bit CentOS system and get unsquashfs_32
+   
+4.12 == Build vblade_64/vblade_32 ==
+    cd /home/Ventoy-master/VBLADE/vblade-master
+    sh build.sh
+   
+4.13 == Build zstdcat ==
+    Please refer to ZSTD/build.txt
+
+4.14 == Build vtoy_gen_uuid ==
+    cd /home/Ventoy-master/GenUUID
+    sh build.sh
+    
+4.15 == Build xzminidec ==
+   cd /home/Ventoy-master/xz-embedded-20130513/userspace
+   make -f ventoy_makefile
+   strip --strip-all xzminidec
+   
+4.16 == Build iso9660_x64.efi ==
+   This efi driver is from https://github.com/pbatard/efifs
+   Follow all the build instructions in this project. I modified 3 files (the original and modified source are at /home/Ventoy-master/EDK2/efiffs)
+
+
+
+==========================================
+5. Binaries
+==========================================
+  There some binaries in Ventoy install package. These files are downloaded from other open source project's website, such as busybox.
+  Here is the list of the binaries, their SHA-256 and the download urls:   
+
+5.1 IMG/cpio/ventoy/tool/lz4cat
+  https://create.stephan-brumme.com/smallz4   smallz4cat-x32-v1.4
+  SHA-256: 13d293ddeedb469f51da41167f79b2cbdb904e681716f6e6191b233dbb162438
+   
+5.2 IMG/cpio/ventoy/tool/ar
+  https://busybox.net/downloads/binaries/1.30.0-i686   busybox_AR
+  SHA-256: f29b7d81a983c0c85d22496f4a833c18f2528a1b666eb7d47c93084c1ed66ae0  
+  
+5.3 IMG/cpio/ventoy/tool/inotifyd
+  https://busybox.net/downloads/binaries/1.30.0-i686   busybox_INOTIFYD
+  SHA-256: 3532162a8695e91a1ed9ddea28b2cb22259a90e93d5d9c4a517b6c36842c686f  
+
+5.4 IMG/cpio/ventoy/busybox/tmpsh
+  https://busybox.net/downloads/binaries/1.27.1-i686   busybox_ASH
+  SHA-256: 44a6274bca580c2758ffc173fc76d18bb855b1fe8dcf70efd9ee75cbd57dee97  
+
+5.5 IMG/cpio/ventoy/busybox/tmpxz
+  https://busybox.net/downloads/binaries/1.27.1-i686   busybox_XZ
+  SHA-256: f6cdb6293680424c29b89bde0685ca27f455166c9b302cd6082ef90681456291  
+
+5.6 INSTALL/tool/xzcat
+  https://busybox.net/downloads/binaries/1.30.0-i686/   busybox_XZCAT
+  SHA-256: 7399db642c2beaf52a16ab5264ffc55cfd1ff5699a524f63e5d48edf84e20f44  
+  
+5.7 INSTALL/tool/hexdump
+  https://busybox.net/downloads/binaries/1.30.0-i686/   busybox_HEXDUMP
+  SHA-256: cde08b6a2cf5ad914f05203e18e3f7c2ed6060a63604e3d75536f19b55e8e0af  
+
+5.8 imdisk
+  download http://www.ltr-data.se/files/imdiskinst.exe and extract it by 7zip.
+  
+  INSTALL/ventoy/imdisk/64/imdisk.sys --> sys/amd64/imdisk.sys  SHA-256: 6702202220268787e361f5a82dae53362c8e6c6dcd240bb01b44dd77ae0788da
+  INSTALL/ventoy/imdisk/64/imdisk.exe --> cli/amd64/imdisk.exe  SHA-256: 9759175380af836869443e5f21ce2e33022125d154bc6b3d1c04dc36b190de04
+  INSTALL/ventoy/imdisk/64/imdisk.cpl --> cpl/amd64/imdisk.cpl  SHA-256: aea2ebbea2b073c947263744962af8a3eab025ff4c9d825c543e380e738a4c99
+  
+  INSTALL/ventoy/imdisk/32/imdisk.sys --> sys/i386/imdisk.sys  SHA-256: a94caec2f71a924d6a914c093ad4b905d7cfdea3f515ed48aaa8c3950b2dc191
+  INSTALL/ventoy/imdisk/32/imdisk.exe --> cli/i386/imdisk.exe  SHA-256: 33b53858e2139704cf603b115a3e5e1dfd4daeaaed4d3e03c633f2df3b55dbaa
+  INSTALL/ventoy/imdisk/32/imdisk.cpl --> cpl/i386/imdisk.cpl  SHA-256: b781d3e2d286ac8bf548f44e50cbbb3fe78203296e41e4d2e73b407668f88f2d
+  
+5.9 INSTALL/ventoy/memdisk
+  https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/syslinux-6.03.tar.gz
+  decompress it and memdisk is at syslinux-6.03/bios/memdisk/memdisk
+  SHA-256: 3f6cd656b8a14109cd3f906fee2dd2e75418f983a5e1bfdb64f44f7765588cbb
+  
+
+5.10 UEFIinSecureBoot
+ https://github.com/ValdikSS/Super-UEFIinSecureBoot-Disk/releases   Super-UEFIinSecureBoot-Disk_minimal_v3.zip
+ unzip it and get Super-UEFIinSecureBoot-Disk_minimal.img, extract the img by 7zip.
+ 
+ INSTALL/EFI/BOOT/BOOTX64.EFI --> EFI/BOOT/BOOTX64.EFI  SHA-256: 475552c7476ad45e42344eee8b30d44c264d200ac2468428aa86fc8795fb6e34
+ INSTALL/EFI/BOOT/grubx64.efi --> EFI/BOOT/grubx64.efi  SHA-256: 25d858157349dc52fa70f3cdf5c62fe1e0bae37ddfc3a6b6528af9a3c745775f
+ INSTALL/EFI/BOOT/MokManager.efi --> EFI/BOOT/MokManager.efi  SHA-256: 3bf1f46cee0832355c7dd1dba880dea9bcaa78cc44375a1559d43bc9db18933b
+
+
+   
+   

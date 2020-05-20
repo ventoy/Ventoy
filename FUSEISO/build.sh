@@ -2,8 +2,7 @@
 
 CUR="$PWD"
 
-#LIBFUSE_DIR=$CUR/LIBFUSE
-LIBFUSE_DIR=../ExFAT/LIBFUSE
+LIBFUSE_DIR=$CUR/LIBFUSE
 
 if uname -a | egrep -q 'x86_64|amd64'; then
     name=vtoy_fuse_iso_64

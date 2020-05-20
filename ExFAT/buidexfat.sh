@@ -18,14 +18,14 @@ if ! [ -e LIBFUSE ]; then
 	./buidlibfuse.sh
 fi
 
-
-rm -f EXFAT/shared/*
-rm -f EXFAT/static/*
+rm -rf EXFAT
+mkdir -p EXFAT/shared
+mkdir -p EXFAT/static
 
 
 rm -rf exfat-1.3.0
 unzip exfat-1.3.0.zip
-
+sed "/printf.*VERSION/a\    if (access(\"/etc/initrd-release\", F_OK) >= 0) argv[0][0] = '@';"  -i exfat-1.3.0/fuse/main.c
 
 cd exfat-1.3.0
 autoreconf --install
@@ -42,6 +42,8 @@ cd ..
 rm -rf exfat-1.3.0
 
 unzip exfat-1.3.0.zip
+sed "/printf.*VERSION/a\    if (access(\"/etc/initrd-release\", F_OK) >= 0) argv[0][0] = '@';"  -i exfat-1.3.0/fuse/main.c
+
 
 cd exfat-1.3.0
 autoreconf --install
