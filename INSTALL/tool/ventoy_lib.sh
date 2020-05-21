@@ -267,8 +267,14 @@ EOF
     
     if ! [ -b $PART2 ]; then
         MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART2#/dev/}/dev)        
-        echo "mknod -m 0660 $PART2 b $MajorMinor ..."        
+        echo "mknod -m 0660 $PART2 b $MajorMinor ..."
         mknod -m 0660 $PART2 b $MajorMinor
+        
+        if ! [ -b $PART1 ]; then
+            MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART1#/dev/}/dev)        
+            echo "mknod -m 0660 $PART1 b $MajorMinor ..."
+            mknod -m 0660 $PART1 b $MajorMinor
+        fi
     fi
 
     echo "create efi fat fs ..."
