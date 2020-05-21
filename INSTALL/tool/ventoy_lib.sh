@@ -210,6 +210,7 @@ get_disk_ventoy_version() {
 
 format_ventoy_disk() {
     DISK=$1
+    PART1=$(get_disk_part_name $DISK 1)
     PART2=$(get_disk_part_name $DISK 2)
     
     sector_num=$(cat /sys/block/${DISK#/dev/}/size)
