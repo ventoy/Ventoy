@@ -2,7 +2,8 @@ Build a static linked, small dmsetup tool
 
 ======== Source Code ========
 use an old version of dmsetup
-xxx/centos-vault/5.3/os/SRPMS/device-mapper-1.02.28-2.el5.src.rpm
+http://vault.centos.org/5.3/os/SRPMS/device-mapper-1.02.28-2.el5.src.rpm
+https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz
 
 ======== Build Envrioment ======== 
 build for 32bit, static linked with dietlibc
