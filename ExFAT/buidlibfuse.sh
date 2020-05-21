@@ -5,10 +5,14 @@ CUR="$PWD"
 rm -rf libfuse
 rm -rf LIBFUSE
 
-unzip mirrors-libfuse-fuse-2.9.9.zip
+if [ -e mirrors-libfuse-fuse-2.9.9.zip ]; then
+    unzip mirrors-libfuse-fuse-2.9.9.zip
+    cd libfuse
+else
+    unzip libfuse-fuse-2.9.9.zip
+    cd libfuse-fuse-2.9.9
+fi
 
-
-cd libfuse
 ./makeconf.sh
 
 ./configure --prefix="$CUR/LIBFUSE"
