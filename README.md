@@ -22,7 +22,7 @@ See https://www.ventoy.net for detail.
 * Plugin Framework
 * Auto installation supported (1.0.09+)
 * Readonly to USB drive during boot
-* USB normal use unafftected
+* USB normal use unaffected
 * Data nondestructive during version upgrade
 * No need to update Ventoy when a new distro is released
 
