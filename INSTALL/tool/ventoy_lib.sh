@@ -255,12 +255,21 @@ EOF
     partprobe >/dev/null 2>&1
     sleep 3
 
-
     echo 'mkfs on disk partitions ...'
-    while ! [ -e $PART2 ]; do
-        echo "wait $PART2 ..."
-        sleep 1
+    for i in 1 2 3 4 5 6 7; do
+        if [ -b $PART2 ]; then
+            break
+        else
+            echo "wait $PART2 ..."
+            sleep 1
+        fi
     done
+    
+    if ! [ -b $PART2 ]; then
+        MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART2#/dev/}/dev)        
+        echo "mknod -m 0660 $PART2 b $MajorMinor ..."        
+        mknod -m 0660 $PART2 b $MajorMinor
+    fi
 
     echo "create efi fat fs ..."
     for i in 0 1 2 3 4 5 6 7 8 9; do
