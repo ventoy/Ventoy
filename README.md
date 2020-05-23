@@ -14,6 +14,7 @@ See https://www.ventoy.net for detail.
 * Directly boot from iso file, no extraction needed
 * Legacy + UEFI supported in the same way
 * UEFI Secure Boot supported (since 1.0.07+)
+* Persistence supported (since 1.0.11+)
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
 * Most type of OS supported, 200+ iso files tested
