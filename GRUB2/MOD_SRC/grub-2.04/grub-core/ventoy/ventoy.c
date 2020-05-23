@@ -127,6 +127,10 @@ static int ventoy_get_fs_type(const char *fs)
     {
         return ventoy_fs_udf;
     }
+    else if (grub_strncmp(fs, "fat", 3) == 0)
+    {
+        return ventoy_fs_fat;
+    }
 
     return ventoy_fs_max;
 }
@@ -1288,7 +1292,35 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
     return;
 }
 
-static int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start)
+int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start)
+{
+    grub_uint32_t i = 0;
+    grub_uint64_t total = 0;
+    ventoy_img_chunk *chunk = NULL;
+
+    for (i = 0; i < chunklist->cur_chunk; i++)
+    {
+        chunk = chunklist->chunk + i;
+        
+        if (chunk->disk_start_sector <= start)
+        {
+            debug("%u disk start invalid %lu\n", i, (ulong)start);
+            return 1;
+        }
+
+        total += chunk->disk_end_sector + 1 - chunk->disk_start_sector;
+    }
+
+    if (total != (file->size / 512))
+    {
+        debug("Invalid total: %llu %llu\n", (ulonglong)total, (ulonglong)(file->size / 512));
+        return 1;
+    }
+
+    return 0;
+}
+
+int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start)
 {
     int fs_type;
     grub_uint32_t i = 0;
@@ -1301,6 +1333,10 @@ static int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunkl
     if (fs_type == ventoy_fs_exfat)
     {
         grub_fat_get_file_chunk(start, file, chunklist);        
+    }
+    else if (fs_type == ventoy_fs_ext)
+    {
+        grub_ext_get_file_chunk(start, file, chunklist);        
     }
     else
     {
@@ -1336,7 +1372,9 @@ static int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunkl
 
 static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int rc;
     grub_file_t file;
+    grub_disk_addr_t start;
     
     (void)ctxt;
     (void)argc;
@@ -1363,12 +1401,19 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
     g_img_chunk_list.max_chunk = DEFAULT_CHUNK_NUM;
     g_img_chunk_list.cur_chunk = 0;
 
-    ventoy_get_block_list(file, &g_img_chunk_list, file->device->disk->partition->start);
+    start = file->device->disk->partition->start;
 
+    ventoy_get_block_list(file, &g_img_chunk_list, start);
+
+    rc = ventoy_check_block_list(file, &g_img_chunk_list, start);
     grub_file_close(file);
+    
+    if (rc)
+    {
+        return grub_error(GRUB_ERR_NOT_IMPLEMENTED_YET, "Unsupported chunk list.\n");
+    }
 
     grub_memset(&g_grub_param->file_replace, 0, sizeof(g_grub_param->file_replace));
-
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
@@ -1481,8 +1526,11 @@ static grub_err_t ventoy_cmd_test_block_list(grub_extcmd_context_t ctxt, int arg
     chunklist.cur_chunk = 0;
 
     ventoy_get_block_list(file, &chunklist, 0);
-
-    grub_file_close(file);
+    
+    if (0 != ventoy_check_block_list(file, &chunklist, 0))
+    {
+        grub_printf("########## UNSUPPORTED ###############\n");
+    }
 
     grub_printf("filesystem: <%s> entry number:<%u>\n", file->fs->name, chunklist.cur_chunk);
 
@@ -1493,6 +1541,7 @@ static grub_err_t ventoy_cmd_test_block_list(grub_extcmd_context_t ctxt, int arg
     }
 
     grub_printf("\n==================================\n");
+
     for (i = 0; i < chunklist.cur_chunk; i++)
     {
         grub_printf("%2u: [%llu %llu] - [%llu %llu]\n", i, 
@@ -1504,6 +1553,7 @@ static grub_err_t ventoy_cmd_test_block_list(grub_extcmd_context_t ctxt, int arg
     }
 
     grub_free(chunklist.chunk);
+    grub_file_close(file);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -1562,6 +1612,17 @@ static grub_err_t ventoy_cmd_dump_auto_install(grub_extcmd_context_t ctxt, int a
     (void)args;
 
     ventoy_plugin_dump_auto_install();
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_dump_persistence(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    ventoy_plugin_dump_persistence();
 
     return 0;
 }
@@ -1812,6 +1873,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_dynamic_menu", ventoy_cmd_dynamic_menu, 0, NULL, "", "", NULL },
     { "vt_check_mode", ventoy_cmd_check_mode, 0, NULL, "", "", NULL },
     { "vt_dump_auto_install", ventoy_cmd_dump_auto_install, 0, NULL, "", "", NULL },
+    { "vt_dump_persistence", ventoy_cmd_dump_persistence, 0, NULL, "", "", NULL },
 
     { "vt_is_udf", ventoy_cmd_is_udf, 0, NULL, "", "", NULL },
     { "vt_file_size", ventoy_cmd_file_size, 0, NULL, "", "", NULL },

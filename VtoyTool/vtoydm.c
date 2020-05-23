@@ -500,10 +500,17 @@ static int vtoydm_print_linear_table(const char *img_map_file, const char *diskn
     {
         sector_start = chunk[i].img_start_sector;
         sector_num = chunk[i].img_end_sector - chunk[i].img_start_sector + 1;
-        
+
+        /* TBD: to be more flexible */
+        #if 0
         printf("%u %u linear %s %llu\n", 
                (sector_start << 2), (sector_num << 2), 
                diskname, (unsigned long long)chunk[i].disk_start_sector);
+        #else
+        printf("%u %u linear %s1 %llu\n", 
+               (sector_start << 2), (sector_num << 2), 
+               diskname, (unsigned long long)chunk[i].disk_start_sector - 2048);
+        #endif
     }
 
     free(chunk);

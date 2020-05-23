@@ -215,6 +215,29 @@ create_ventoy_device_mapper() {
     fi    
 }
 
+create_persistent_device_mapper() {
+    vtlog "create_persistent_device_mapper $*"
+    
+    VT_DM_BIN=$(ventoy_find_bin_path dmsetup)
+    if [ -z "$VT_DM_BIN" ]; then
+        vtlog "no dmsetup avaliable, lastly try inbox dmsetup"
+        VT_DM_BIN=$VTOY_PATH/tool/dmsetup
+    fi
+    
+    vtlog "dmsetup avaliable in system $VT_DM_BIN"
+        
+    if ventoy_check_dm_module "$1"; then
+        vtlog "device-mapper module check success"
+    else
+        vterr "Error: no dm module avaliable"
+    fi
+    
+    $VTOY_PATH/tool/vtoydm -p -f $VTOY_PATH/ventoy_persistent_map -d $1 > $VTOY_PATH/persistent_dm_table        
+    $VT_DM_BIN create vtoy_persistent $VTOY_PATH/persistent_dm_table >>$VTLOG 2>&1
+}
+
+
+
 wait_for_ventoy_dm_disk_label() {
     DM=$($BUSYBOX_PATH/readlink $VTOY_DM_PATH)    
     vtlog "wait_for_ventoy_dm_disk_label $DM ..."
@@ -385,6 +408,30 @@ ventoy_copy_device_mapper() {
     fi 
 }
 
+# create link for device-mapper
+ventoy_create_persistent_link() {
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep vtoy_persistent | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
+    vtDM=$(ventoy_find_dm_id ${blkdev_num})
+
+    if ! [ -d /dev/disk/by-label ]; then
+        mkdir -p /dev/disk/by-label
+    fi
+
+    VTLABEL=$($BUSYBOX_PATH/blkid /dev/$vtDM | $SED 's/.*LABEL="\([^"]*\)".*/\1/')
+    if [ -z "$VTLABEL" ]; then
+        VTLABEL=casper-rw
+    fi
+
+    vtlog "Persistent Label: ##${VTLABEL}##"
+
+    if ! [ -e /dev/disk/by-label/$VTLABEL ]; then
+        vtOldDir=$PWD
+        cd /dev/disk/by-label
+        ln -s ../../$vtDM $VTLABEL
+        cd $vtOldDir
+    fi    
+}
+
 ventoy_udev_disk_common_hook() {
     
     VTDISK="${1:0:-1}"
@@ -419,7 +466,13 @@ ventoy_udev_disk_common_hook() {
     else
         ventoy_copy_device_mapper "/dev/$1"
     fi
+    
+    if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
+        create_persistent_device_mapper "/dev/$VTDISK"
+        ventoy_create_persistent_link
+    fi
 }
+
 
 is_inotify_ventoy_part() {
     if echo $1 | grep -q "2$"; then

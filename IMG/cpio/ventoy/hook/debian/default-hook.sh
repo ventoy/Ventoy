@@ -50,6 +50,3 @@ if [ -f $VTOY_PATH/autoinstall ]; then
     fi
 fi
 
-
-
-

@@ -38,7 +38,9 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+static char g_iso_disk_name[128];
 static install_template *g_install_template_head = NULL;
+static persistence_config *g_persistence_head = NULL;
 
 static int ventoy_plugin_control_entry(VTOY_JSON *json, const char *isodisk)
 {
@@ -101,6 +103,24 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
         debug("vtoy_gfxmode %s\n", value);
         grub_env_set("vtoy_gfxmode", value);
     }
+    
+    value = vtoy_json_get_string_ex(json->pstChild, "ventoy_left");
+    if (value)
+    {
+        grub_env_set("VTLE_LFT", value);
+    }
+    
+    value = vtoy_json_get_string_ex(json->pstChild, "ventoy_top");
+    if (value)
+    {
+        grub_env_set("VTLE_TOP", value);
+    }
+    
+    value = vtoy_json_get_string_ex(json->pstChild, "ventoy_color");
+    if (value)
+    {
+        grub_env_set("VTLE_CLR", value);
+    }
 
     return 0;
 }
@@ -162,17 +182,76 @@ static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk
 }
 
 
+static int ventoy_plugin_persistence_entry(VTOY_JSON *json, const char *isodisk)
+{
+    const char *iso = NULL;
+    const char *persist = NULL;
+    VTOY_JSON *pNode = NULL;
+    persistence_config *node = NULL;
+    persistence_config *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_persistence_head)
+    {
+        for (node = g_persistence_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_persistence_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        iso = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (iso && iso[0] == '/')
+        {
+            persist = vtoy_json_get_string_ex(pNode->pstChild, "backend");
+            if (persist && persist[0] == '/')
+            {
+                node = grub_zalloc(sizeof(persistence_config));
+                if (node)
+                {
+                    grub_snprintf(node->isopath, sizeof(node->isopath), "%s", iso);
+                    grub_snprintf(node->filepath, sizeof(node->filepath), "%s", persist);
+
+                    if (g_persistence_head)
+                    {
+                        node->next = g_persistence_head;
+                    }
+                    
+                    g_persistence_head = node;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+
 static plugin_entry g_plugin_entries[] = 
 {
     { "control", ventoy_plugin_control_entry },
     { "theme", ventoy_plugin_theme_entry },
     { "auto_install", ventoy_plugin_auto_install_entry },
+    { "persistence", ventoy_plugin_persistence_entry },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
 {
     int i;
     VTOY_JSON *cur = json;
+
+    grub_snprintf(g_iso_disk_name, sizeof(g_iso_disk_name), "%s", isodisk);
 
     while (cur)
     {
@@ -260,6 +339,32 @@ void ventoy_plugin_dump_auto_install(void)
     return;
 }
 
+void ventoy_plugin_dump_persistence(void)
+{
+    int rc;
+    persistence_config *node = NULL;
+    ventoy_img_chunk_list chunk_list;
+    
+    for (node = g_persistence_head; node; node = node->next)
+    {
+        grub_printf("IMAGE:<%s>\n", node->isopath);
+        grub_printf("PERSIST:<%s>", node->filepath);
+
+        rc = ventoy_plugin_get_persistent_chunklist(node->isopath, &chunk_list);
+        if (rc == 0)
+        {
+            grub_printf(" [ SUCCESS ]\n\n");
+            grub_free(chunk_list.chunk);
+        }
+        else
+        {
+            grub_printf(" [ FAILED ]\n\n");
+        }
+    }
+
+    return;
+}
+
 
 char * ventoy_plugin_get_install_template(const char *isopath)
 {
@@ -274,5 +379,61 @@ char * ventoy_plugin_get_install_template(const char *isopath)
     }
 
     return NULL;
+}
+
+int ventoy_plugin_get_persistent_chunklist(const char *isopath, ventoy_img_chunk_list *chunk_list)
+{
+    int rc = 1;
+    grub_uint64_t start = 0;
+    grub_file_t file = NULL;
+    persistence_config *node = NULL;
+
+    for (node = g_persistence_head; node; node = node->next)
+    {
+        if (grub_strcmp(node->isopath, isopath) == 0)
+        {
+            break;
+        }
+    }
+
+    if (NULL == node)
+    {
+        goto end;
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", g_iso_disk_name, node->filepath);
+    if (!file)
+    {
+        debug("Failed to open file %s%s\n", g_iso_disk_name, node->filepath);
+        goto end;
+    }
+
+    grub_memset(chunk_list, 0, sizeof(ventoy_img_chunk_list));
+    chunk_list->chunk = grub_malloc(sizeof(ventoy_img_chunk) * DEFAULT_CHUNK_NUM);
+    if (NULL == chunk_list->chunk)
+    {
+        goto end;
+    }
+    
+    chunk_list->max_chunk = DEFAULT_CHUNK_NUM;
+    chunk_list->cur_chunk = 0;
+
+    start = file->device->disk->partition->start;
+    ventoy_get_block_list(file, chunk_list, start);
+    
+    if (0 != ventoy_check_block_list(file, chunk_list, start))
+    {
+        grub_free(chunk_list->chunk);
+        chunk_list->chunk = NULL;
+        goto end;
+    }
+
+    rc = 0;
+
+end:
+    if (file)
+        grub_file_close(file);
+
+    return rc;
 }
 

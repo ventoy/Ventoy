@@ -50,6 +50,7 @@ typedef enum ventoy_fs_type
     ventoy_fs_ext,       /* 2: ext2/ext3/ext4 */
     ventoy_fs_xfs,       /* 3: XFS */
     ventoy_fs_udf,       /* 4: UDF */
+    ventoy_fs_fat,       /* 5: FAT */
 
     ventoy_fs_max
 }ventoy_fs_type;
@@ -143,7 +144,7 @@ static ventoy_guid vtoy_guid = VENTOY_GUID;
 
 static const char *g_ventoy_fs[ventoy_fs_max] = 
 {
-    "exfat", "ntfs", "ext*", "xfs", "udf"
+    "exfat", "ntfs", "ext*", "xfs", "udf", "fat"
 };
 
 static int vtoy_check_os_param(ventoy_os_param *param)

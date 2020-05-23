@@ -111,13 +111,27 @@ if ! check_tool_work_ok; then
 fi
 
 grep "^$DISK" /proc/mounts | while read mtline; do
-    mtpnt=$(echo $mtline | awk '{print $DISK}')
+    mtpnt=$(echo $mtline | awk '{print $2}')
     vtdebug "Trying to umount $mtpnt ..."
     umount $mtpnt >/dev/null 2>&1
 done
 
+if swapon -s | grep -q "^${DISK}[0-9]"; then
+    swapon -s | grep "^${DISK}[0-9]" | awk '{print $1}' | while read line; do
+        vtdebug "Trying to swapoff $line ..."
+        swapoff $line
+    done
+fi
+
+
 if grep "$DISK" /proc/mounts; then
     vterr "$DISK is already mounted, please umount it first!"
+    cd $OLDDIR
+    exit 1
+fi
+
+if swapon -s | grep -q "^${DISK}[0-9]"; then
+    vterr "$DISK is used as swap, please swapoff it first!"
     cd $OLDDIR
     exit 1
 fi
@@ -230,6 +244,12 @@ if [ "$MODE" = "install" ]; then
     
     vtinfo "esp partition processing ..."
     
+    sleep 1
+    mtpnt=$(grep "^${DISK}2" /proc/mounts | awk '{print $2}')
+    if [ -n "$mtpnt" ]; then
+        umount $mtpnt >/dev/null 2>&1
+    fi
+    
     if [ "$SECUREBOOT" != "YES" ]; then
         mkdir ./tmp_mnt
         
@@ -239,9 +259,14 @@ if [ "$MODE" = "install" ]; then
                 vtdebug "mounting part2 success"
                 break
             fi
+            
+            mtpnt=$(grep "^${DISK}2" /proc/mounts | awk '{print $2}')
+            if [ -n "$mtpnt" ]; then
+                umount $mtpnt >/dev/null 2>&1
+            fi
             sleep 2
         done
-              
+
         rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
         rm -f ./tmp_mnt/EFI/BOOT/grubx64.efi
         rm -f ./tmp_mnt/EFI/BOOT/MokManager.efi

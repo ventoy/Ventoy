@@ -561,6 +561,14 @@ typedef struct install_template
     struct install_template *next;
 }install_template;
 
+typedef struct persistence_config
+{
+    char isopath[256];
+    char filepath[256];
+
+    struct persistence_config *next;
+}persistence_config;
+
 extern int g_ventoy_last_entry;
 extern int g_ventoy_memdisk_mode;
 extern int g_ventoy_iso_raw;
@@ -571,7 +579,10 @@ void ventoy_swap_img(img_info *img1, img_info *img2);
 char * ventoy_plugin_get_install_template(const char *isopath);
 void ventoy_plugin_dump_auto_install(void);
 int ventoy_fill_windows_rtdata(void *buf, char *isopath);
-
+int ventoy_plugin_get_persistent_chunklist(const char *isopath, ventoy_img_chunk_list *chunk_list);
+int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
+int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
+void ventoy_plugin_dump_persistence(void);
 
 #endif /* __VENTOY_DEF_H__ */
 

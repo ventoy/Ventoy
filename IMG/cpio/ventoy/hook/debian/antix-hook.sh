@@ -25,5 +25,9 @@ fi
 
 $SED -i "/_search_for_boot_device_/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/antix-disk.sh" /init
 
+if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
+    $SED 's#for param in $cmdline#for param in persist_all $cmdline#g' -i /init
+fi
+
 # for debug
 #$SED -i "/^linuxfs_error/a\exec $VTOY_PATH/busybox/sh" /init

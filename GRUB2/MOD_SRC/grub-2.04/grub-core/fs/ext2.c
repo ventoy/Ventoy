@@ -46,6 +46,7 @@
 #include <grub/dl.h>
 #include <grub/types.h>
 #include <grub/fshelp.h>
+#include <grub/ventoy.h>
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
@@ -339,7 +340,7 @@ struct grub_ext2_data
 
 static grub_dl_t my_mod;
 
-
+static int g_ventoy_block_count;
 
 /* Check is a = b^x for some x.  */
 static inline int
@@ -499,6 +500,7 @@ grub_ext2_read_block (grub_fshelp_node_t node, grub_disk_addr_t fileblock)
               start = grub_le_to_cpu16 (ext[i].start_hi);
               start = (start << 32) + grub_le_to_cpu32 (ext[i].start);
 
+              g_ventoy_block_count = (int)(grub_le_to_cpu16 (ext[i].len) - fileblock);
               ret = fileblock + start;
             }
         }
@@ -1069,8 +1071,46 @@ grub_ext2_mtime (grub_device_t device, grub_int32_t *tm)
 
 }
 
+int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list)
+{
+    int blocksize;
+    int log2blocksize;
+    grub_disk_t disk;
+    grub_disk_addr_t i = 0;
+    grub_disk_addr_t blockcnt;
+    grub_disk_addr_t blknr;
+    grub_fshelp_node_t node = NULL;
 
-
+    disk = file->device->disk;
+    node = &(((struct grub_ext2_data *)file->data)->diropen);
+
+    log2blocksize = LOG2_EXT2_BLOCK_SIZE (node->data);
+    blocksize = 1 << (log2blocksize + GRUB_DISK_SECTOR_BITS);
+    blockcnt = (file->size + blocksize - 1) >> (log2blocksize + GRUB_DISK_SECTOR_BITS);
+
+    while (i < blockcnt)
+    {
+        g_ventoy_block_count = 1;
+        blknr = grub_ext2_read_block(node, i);
+        if (blknr == 0)
+        {
+            return 0;
+        }
+        
+        i += g_ventoy_block_count;        
+        blknr = blknr << log2blocksize;
+        grub_disk_blocklist_read(chunk_list, blknr, g_ventoy_block_count * blocksize, disk->log_sector_size);
+    }
+
+    for (i = 0; i < chunk_list->cur_chunk; i++)
+    {
+        chunk_list->chunk[i].disk_start_sector += part_start;
+        chunk_list->chunk[i].disk_end_sector += part_start;
+    }
+
+    return 0;
+}
+
 static struct grub_fs grub_ext2_fs =
   {
     .name = "ext2",

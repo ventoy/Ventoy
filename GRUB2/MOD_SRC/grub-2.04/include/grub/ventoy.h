@@ -35,6 +35,7 @@ typedef enum ventoy_fs_type
     ventoy_fs_ext,       /* 2: ext2/ext3/ext4 */
     ventoy_fs_xfs,       /* 3: XFS */
     ventoy_fs_udf,       /* 4: UDF */
+    ventoy_fs_fat,       /* 5: FAT */
 
     ventoy_fs_max
 }ventoy_fs_type;
@@ -224,7 +225,7 @@ typedef struct ventoy_grub_param
 #pragma pack()
 
 
-
+int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 grub_uint64_t grub_iso9660_get_last_read_pos(grub_file_t file);
 grub_uint64_t grub_iso9660_get_last_file_dirent_pos(grub_file_t file);

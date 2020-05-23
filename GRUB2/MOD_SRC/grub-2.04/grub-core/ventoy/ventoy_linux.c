@@ -852,8 +852,10 @@ grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, 
 
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int rc;
     char *template_file = NULL;
     char *template_buf = NULL;
+    char *persistent_buf = NULL;
     grub_uint8_t *buf = NULL;
     grub_uint32_t mod;
     grub_uint32_t headlen;
@@ -861,9 +863,11 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     grub_uint32_t padlen;
     grub_uint32_t img_chunk_size;
     grub_uint32_t template_size = 0;
+    grub_uint32_t persistent_size = 0;
     grub_file_t file;
     grub_file_t scriptfile;
-        
+    ventoy_img_chunk_list chunk_list;
+
     (void)ctxt;
     (void)argc;
 
@@ -892,6 +896,13 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
         g_ventoy_cpio_size = 0;
     }
 
+    rc = ventoy_plugin_get_persistent_chunklist(args[1], &chunk_list);
+    if (rc == 0 && chunk_list.cur_chunk > 0 && chunk_list.chunk)
+    {
+        persistent_size = chunk_list.cur_chunk * sizeof(ventoy_img_chunk);
+        persistent_buf = (char *)(chunk_list.chunk);
+    }
+
     template_file = ventoy_plugin_get_install_template(args[1]);
     if (template_file)
     {
@@ -915,7 +926,7 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
         }
     }
 
-    g_ventoy_cpio_buf = grub_malloc(file->size + 4096 + template_size + img_chunk_size);
+    g_ventoy_cpio_buf = grub_malloc(file->size + 4096 + template_size + persistent_size + img_chunk_size);
     if (NULL == g_ventoy_cpio_buf)
     {
         grub_file_close(file);
@@ -941,6 +952,15 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     {
         headlen = ventoy_cpio_newc_fill_head(buf, template_size, template_buf, "ventoy/autoinstall");
         buf += headlen + ventoy_align(template_size, 4);
+    }
+
+    if (persistent_size > 0 && persistent_buf)
+    {
+        headlen = ventoy_cpio_newc_fill_head(buf, persistent_size, persistent_buf, "ventoy/ventoy_persistent_map");
+        buf += headlen + ventoy_align(persistent_size, 4);
+
+        grub_free(persistent_buf);
+        persistent_buf = NULL;
     }
 
     /* step2: insert os param to cpio */
