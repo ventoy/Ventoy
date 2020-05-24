@@ -110,6 +110,13 @@ if ! check_tool_work_ok; then
     exit 1
 fi
 
+testEF=$(echo -en '\xEF' | ./tool/hexdump -n 1 -e '1/1 "%02X"')
+if [ "$testEF" != "EF" ]; then
+    vtdebug "testEF=##${testEF}##"
+    vterr "There is something wrong with the interpreter !"
+    exit 1
+fi
+
 grep "^$DISK" /proc/mounts | while read mtline; do
     mtpnt=$(echo $mtline | awk '{print $2}')
     vtdebug "Trying to umount $mtpnt ..."
@@ -139,9 +146,13 @@ fi
 
 if [ "$MODE" = "install" ]; then
     vtdebug "install ventoy ..."
-    
-    if ! fdisk -v >/dev/null 2>&1; then
-        vterr "fdisk is needed by ventoy installation, but is not found in the system."
+
+    if parted -v > /dev/null 2>&1; then
+        PARTTOOL='parted'
+    elif fdisk -v >/dev/null 2>&1; then
+        PARTTOOL='fdisk'
+    else
+        vterr "Both parted and fdisk are not found in the sysstem, Ventoy can't create new partition."
         cd $OLDDIR
         exit 1
     fi
@@ -205,7 +216,7 @@ if [ "$MODE" = "install" ]; then
         exit 1
     fi
 
-    format_ventoy_disk $DISK
+    format_ventoy_disk $DISK $PARTTOOL
 
     # format part1
     if ventoy_is_linux64; then
