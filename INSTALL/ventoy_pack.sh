@@ -1,5 +1,7 @@
 #!/bin/sh
 
+dos2unix -q ./tool/ventoy_lib.sh
+
 . ./tool/ventoy_lib.sh
 
 GRUB_DIR=../GRUB2/INSTALL
@@ -76,6 +78,7 @@ xz --check=crc32 $tmpdir/boot/core.img
 cp -a ./tool $tmpdir/
 cp -a Ventoy2Disk.sh $tmpdir/
 
+dos2unix -q $tmpdir/Ventoy2Disk.sh
 
 #32MB disk img
 dd status=none if=$LOOP of=$tmpdir/ventoy/ventoy.disk.img bs=512 count=$VENTOY_SECTOR_NUM skip=$part2_start_sector
