@@ -33,7 +33,20 @@ See https://www.ventoy.net for detail.
 # Installation Instructions
 See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detail
 
-
 # Compile Instructions
-Please refer to DOC/BuildVentoyFromSource.txt
+Please refer to [BuildVentoyFromSource.txt](https://github.com/ventoy/Ventoy/blob/master/DOC/BuildVentoyFromSource.txt)
 
+# Document
+Title | Link
+-|-
+**Install & Update** | [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html)
+**Customize Theme** | [https://www.ventoy.net/en/plugin_theme.html](https://www.ventoy.net/en/plugin_theme.html)  
+**Auto Installation** | [https://www.ventoy.net/en/plugin_autoinstall.html](https://www.ventoy.net/en/plugin_autoinstall.html)  
+**Persistence Support** | [https://www.ventoy.net/en/plugin_persistence.html](https://www.ventoy.net/en/plugin_persistence.html)  
+**Memdisk Mode** | [https://www.ventoy.net/en/doc_memdisk.html](https://www.ventoy.net/en/doc_memdisk.html)  
+**TreeView Mode** | [https://www.ventoy.net/en/doc_treeview.html](https://www.ventoy.net/en/doc_treeview.html)  
+**Disk Layout** | [https://www.ventoy.net/en/doc_disk_layout.html](https://www.ventoy.net/en/doc_disk_layout.html)  
+
+
+# FAQ
+See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for detail
