@@ -19,13 +19,18 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-vtHook=$($CAT $VTOY_PATH/inotifyd-hook-script.txt)
+vtlog "######### $0 $* ############"
 
-vtdisk=$(get_ventoy_disk_name)
-if [ "$vtdisk" = "unknown" ]; then
-    vtlog "... start inotifyd listen $vtHook ..."
-    $BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd $vtHook  /dev:n  2>&-  & 
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
+
+if [ -b /dev/$vtDM ]; then
+    vtlog "ln -s /dev/$vtDM $1"
+    ln -s /dev/$vtDM "$1"
+    exit 0
 else
-    vtlog "... $vtdisk already exist ..."
-    $BUSYBOX_PATH/sh $vtHook n /dev "${vtdisk#/dev/}2"
+    vtlog "Device-mapper not found"
+    exit 1
 fi
+
+

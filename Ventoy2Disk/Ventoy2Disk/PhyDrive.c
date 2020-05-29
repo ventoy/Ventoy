@@ -661,6 +661,12 @@ int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount)
             continue;
         }
 
+        if (DevDescHeader.Size < sizeof(STORAGE_DEVICE_DESCRIPTOR))
+        {
+            Log("Invalid DevDescHeader.Size:%u", DevDescHeader.Size);
+            continue;
+        }
+
         pDevDesc = (STORAGE_DEVICE_DESCRIPTOR *)malloc(DevDescHeader.Size);
         if (!pDevDesc)
         {

@@ -39,6 +39,8 @@ int g_ventoy_memdisk_mode = 0;
 int g_ventoy_iso_raw = 0;
 int g_ventoy_iso_uefi_drv = 0;
 int g_ventoy_last_entry = 0;
+int g_ventoy_suppress_esc = 0;
+int g_ventoy_menu_esc = 0;
 
 /* Time to delay after displaying an error message about a default/fallback
    entry failing to boot.  */
@@ -590,8 +592,10 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
   enum timeout_style timeout_style;
 
   default_entry = get_entry_number (menu, "default");
-  
-  if (g_ventoy_last_entry >= 0 && g_ventoy_last_entry < menu->size) {
+
+  if (g_ventoy_suppress_esc)
+      default_entry = 1;
+  else if (g_ventoy_last_entry >= 0 && g_ventoy_last_entry < menu->size) {
       default_entry = g_ventoy_last_entry;
   } 
   /* If DEFAULT_ENTRY is not within the menu entries, fall back to
@@ -771,12 +775,12 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	    case '\r':
 	//    case GRUB_TERM_KEY_RIGHT:
 	    case GRUB_TERM_CTRL | 'f':
-	      menu_fini ();
+	        menu_fini ();
               *auto_boot = 0;
-	      return current_entry;
+	        return current_entry;
 
 	    case GRUB_TERM_ESC:
-	      if (nested)
+	      if (nested && 0 == g_ventoy_suppress_esc)
 		{
 		  menu_fini ();
 		  return -1;
@@ -950,10 +954,15 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
 	break;
 
       g_ventoy_last_entry = boot_entry;
+      if (g_ventoy_menu_esc)
+          break;
 
       e = grub_menu_get_entry (menu, boot_entry);
       if (! e)
 	continue; /* Menu is empty.  */
+
+      if (2 == e->argc && e->args && e->args[1] && grub_strncmp(e->args[1], "VTOY_RET", 8) == 0)
+        break;  
 
       grub_cls ();
 

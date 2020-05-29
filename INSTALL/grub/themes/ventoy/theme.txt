@@ -58,8 +58,8 @@ terminal-box: "terminal_box_*.png"
 
 
 + hbox{ 
-    left = 90%
-    top = 5 
+    left = 30%
+    top = 95%-25
     width = 10%
     height = 25
     + label {text = "@VTOY_MEM_DISK@" color = "red" align = "left"} 

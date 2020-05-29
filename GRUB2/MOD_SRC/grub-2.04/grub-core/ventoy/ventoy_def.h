@@ -23,7 +23,10 @@
 
 #define VTOY_MAX_SCRIPT_BUF    (4 * 1024 * 1024)
 
-#define VTOY_SIZE_1GB  1073741824
+#define VTOY_FILT_MIN_FILE_SIZE  32768
+
+#define VTOY_SIZE_1GB     1073741824
+#define VTOY_SIZE_512KB  (512 * 1024)
 
 #define JSON_SUCCESS    0
 #define JSON_FAILED     1
@@ -62,6 +65,7 @@ typedef struct cmd_para
     grub_extcmd_t cmd;
 }cmd_para;
 
+#define ventoy_align_2k(value)  ((value + 2047) / 2048 * 2048)
 #define ventoy_align(value, align)  (((value) + ((align) - 1)) & (~((align) - 1)))
 
 #pragma pack(1)
@@ -87,6 +91,7 @@ typedef struct cpio_newc_header
 
 #define cmd_raw_name ctxt->extcmd->cmd->name
 #define check_free(p, func) if (p) { func(p); p = NULL; }
+#define grub_check_free(p) if (p) { grub_free(p); p = NULL; }
 
 typedef int (*grub_char_check_func)(int c);
 #define ventoy_is_decimal(str)  ventoy_string_check(str, grub_isdigit)
@@ -120,13 +125,18 @@ typedef struct ventoy_udf_override
 
 #pragma pack()
 
+#define img_type_iso 0
+#define img_type_wim 1
+
 typedef struct img_info
 {
     char path[512];
     char name[256];
     int id;
+    int type;
     grub_uint64_t size;
     int select;
+    int unsupport;
 
     void *parent;
 
@@ -186,12 +196,15 @@ extern grub_uint8_t *g_ventoy_runtime_buf;
 extern ventoy_guid  g_ventoy_guid;
 
 extern ventoy_img_chunk_list g_img_chunk_list;
+extern ventoy_img_chunk_list g_wimiso_chunk_list;
+extern char *g_wimiso_path;
 
 extern int g_ventoy_debug;
 void ventoy_debug(const char *fmt, ...);
 #define debug(fmt, ...) if (g_ventoy_debug) ventoy_debug("[VTOY]: "fmt, __VA_ARGS__)
 
-
+#define vtoy_ssprintf(buf, pos, fmt, ...) \
+    pos += grub_snprintf(buf + pos, VTOY_MAX_SCRIPT_BUF - pos, fmt, __VA_ARGS__)
 
 #define FLAG_HEADER_RESERVED          0x00000001
 #define FLAG_HEADER_COMPRESSION       0x00000002
@@ -422,12 +435,14 @@ grub_err_t ventoy_cmd_valid_initrd_count(grub_extcmd_context_t ctxt, int argc, c
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args);
 int ventoy_cpio_newc_fill_head(void *buf, int filesize, const void *filedata, const char *name);
 grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...);
+grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...);
 int ventoy_is_file_exist(const char *fmt, ...);
 int ventoy_fill_data(grub_uint32_t buflen, char *buffer);
 grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wimdows_locate_wim(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 
 VTOY_JSON *vtoy_json_find_item
 (
@@ -552,23 +567,37 @@ typedef struct ventoy_mbr_head
 }ventoy_mbr_head;
 #pragma pack()
 
+typedef struct file_fullpath
+{
+    char path[256];
+}file_fullpath;
 
 typedef struct install_template
 {
+    int pathlen;
     char isopath[256];
-    char templatepath[256];
+
+    int cursel;
+    int templatenum;
+    file_fullpath *templatepath;
 
     struct install_template *next;
 }install_template;
 
 typedef struct persistence_config
 {
+    int pathlen;
     char isopath[256];
-    char filepath[256];
 
+    int cursel;
+    int backendnum;
+    file_fullpath *backendpath;
+    
     struct persistence_config *next;
 }persistence_config;
 
+extern int g_ventoy_menu_esc;
+extern int g_ventoy_suppress_esc;
 extern int g_ventoy_last_entry;
 extern int g_ventoy_memdisk_mode;
 extern int g_ventoy_iso_raw;
@@ -576,10 +605,12 @@ extern int g_ventoy_iso_uefi_drv;
 
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
-char * ventoy_plugin_get_install_template(const char *isopath);
+char * ventoy_plugin_get_cur_install_template(const char *isopath);
+install_template * ventoy_plugin_find_install_template(const char *isopath);
+persistence_config * ventoy_plugin_find_persistent(const char *isopath);
 void ventoy_plugin_dump_auto_install(void);
 int ventoy_fill_windows_rtdata(void *buf, char *isopath);
-int ventoy_plugin_get_persistent_chunklist(const char *isopath, ventoy_img_chunk_list *chunk_list);
+int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);

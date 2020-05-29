@@ -27,6 +27,7 @@ blkdev_num=$(dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]
 vtDM=$(ventoy_find_dm_id ${blkdev_num})
 
 vtlog "diskroot $vtDM ..."
-/sbin/initqueue --settled --onetime --name anaconda-diskroot anaconda-diskroot  /dev/$vtDM
+/sbin/anaconda-diskroot /dev/dm-0    
+#/sbin/initqueue --settled --onetime --name anaconda-diskroot anaconda-diskroot  /dev/$vtDM
 
 PATH=$VTPATH_OLD

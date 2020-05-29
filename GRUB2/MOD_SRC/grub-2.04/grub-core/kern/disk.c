@@ -412,16 +412,23 @@ grub_disk_read_small (grub_disk_t disk, grub_disk_addr_t sector,
 grub_err_t grub_disk_blocklist_read(void *chunklist, grub_uint64_t sector, 
     grub_uint64_t size, grub_uint32_t log_sector_size)
 {
+    grub_uint64_t sizeshift;
     ventoy_img_chunk *last_chunk = NULL;
     ventoy_img_chunk *new_chunk = NULL;
     ventoy_img_chunk_list *chunk_list = (ventoy_img_chunk_list *)chunklist;
+
+    sizeshift = (size >> log_sector_size);
+    if (sizeshift == 0)
+    {
+        sizeshift = 1;
+    }
 
     if (chunk_list->cur_chunk == 0)
     {
         chunk_list->chunk[0].img_start_sector = 0;
         chunk_list->chunk[0].img_end_sector = (size >> 11) - 1;
         chunk_list->chunk[0].disk_start_sector = sector;
-        chunk_list->chunk[0].disk_end_sector = sector + (size >> log_sector_size) - 1;
+        chunk_list->chunk[0].disk_end_sector = sector + sizeshift - 1;
         chunk_list->cur_chunk = 1;
         return 0;
     }
@@ -430,7 +437,7 @@ grub_err_t grub_disk_blocklist_read(void *chunklist, grub_uint64_t sector,
     if (last_chunk->disk_end_sector + 1 == sector)
     {
         last_chunk->img_end_sector  += (size >> 11);
-        last_chunk->disk_end_sector += (size >> log_sector_size);
+        last_chunk->disk_end_sector += sizeshift;
         return 0;
     }
 
@@ -452,7 +459,7 @@ grub_err_t grub_disk_blocklist_read(void *chunklist, grub_uint64_t sector,
     new_chunk->img_start_sector = last_chunk->img_end_sector + 1;
     new_chunk->img_end_sector = new_chunk->img_start_sector + (size >> 11) - 1;
     new_chunk->disk_start_sector = sector;
-    new_chunk->disk_end_sector = sector + (size >> log_sector_size) - 1;
+    new_chunk->disk_end_sector = sector + sizeshift - 1;
 
     chunk_list->cur_chunk++;
 

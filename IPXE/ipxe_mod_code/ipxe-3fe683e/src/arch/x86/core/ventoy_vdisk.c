@@ -224,7 +224,7 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
     ix86 = (struct i386_all_regs *)sandev->x86_regptr;
 
     readend = (lba + count) * 2048;
-    if (readend < g_chain->real_img_size_in_bytes)
+    if (readend <= g_chain->real_img_size_in_bytes)
     {
         ventoy_vdisk_read_real(lba, count, buffer);
         ix86->regs.dl = sandev->drive;

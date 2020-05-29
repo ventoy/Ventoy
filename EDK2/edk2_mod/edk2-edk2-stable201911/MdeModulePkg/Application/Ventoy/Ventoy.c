@@ -413,7 +413,7 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     secNum = BufferSize / 2048;
     offset = Lba * 2048;
 
-    if (offset + BufferSize < g_chain->real_img_size_in_bytes)
+    if (offset + BufferSize <= g_chain->real_img_size_in_bytes)
     {
         return ventoy_read_iso_sector(Lba, secNum, Buffer);
     }

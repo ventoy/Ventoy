@@ -22,6 +22,10 @@
 if $GREP -q '^"$mount_handler"' /init; then
     echo 'use mount_handler ...' >> $VTLOG
     $SED "/^\"\$mount_handler\"/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/arch/ventoy-disk.sh \"\$archisodevice\"" -i /init
+    
+    if [ -f /hooks/archiso ]; then
+        $SED  '/while ! poll_device "${dev}"/a\    if /ventoy/busybox/sh /ventoy/hook/arch/ventoy-timeout.sh ${dev}; then break; fi'   -i /hooks/archiso
+    fi
 else
     # some archlinux initramfs doesn't contain device-mapper udev rules file
     ARCH_UDEV_DIR=$(ventoy_get_udev_conf_dir)
