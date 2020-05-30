@@ -184,6 +184,10 @@ ventoy_get_os_type() {
         fi
     fi
     
+    if $GREP -q 'android.x86' /proc/version; then
+        echo 'android'; return
+    fi 
+    
     echo "default"
 }
 

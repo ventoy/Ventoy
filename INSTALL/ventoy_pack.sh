@@ -1,6 +1,7 @@
 #!/bin/sh
 
 dos2unix -q ./tool/ventoy_lib.sh
+dos2unix -q ./tool/VentoyWorker.sh
 
 . ./tool/ventoy_lib.sh
 
@@ -30,7 +31,7 @@ while ! grep -q 524288 /sys/block/${LOOP#/dev/}/size 2>/dev/null; do
     sleep 1
 done
 
-format_ventoy_disk $LOOP 
+format_ventoy_disk $LOOP fdisk
 
 $GRUB_DIR/sbin/grub-bios-setup  --skip-fs-probe  --directory="./grub/i386-pc"  $LOOP
 
@@ -77,8 +78,9 @@ xz --check=crc32 $tmpdir/boot/core.img
 
 cp -a ./tool $tmpdir/
 cp -a Ventoy2Disk.sh $tmpdir/
-
+cp -a CreatePersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
+dos2unix -q $tmpdir/CreatePersistentImg.sh
 
 #32MB disk img
 dd status=none if=$LOOP of=$tmpdir/ventoy/ventoy.disk.img bs=512 count=$VENTOY_SECTOR_NUM skip=$part2_start_sector
@@ -119,4 +121,5 @@ else
     exit 1
 fi
 
+rm -f log.txt
 

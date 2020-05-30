@@ -266,6 +266,16 @@ else
     
     dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
     
+    PART1_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=446 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+    PART2_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=462 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+    
+    vtdebug "PART1_ACTIVE=$PART1_ACTIVE  PART2_ACTIVE=$PART2_ACTIVE"
+    if [ "$PART1_ACTIVE" = "00" ] && [ "$PART2_ACTIVE" = "80" ]; then
+        vtdebug "change 1st partition active, 2nd partition inactive ..."
+        echo -en '\x80' | dd of=$DISK conv=fsync bs=1 count=1 seek=446 status=none
+        echo -en '\x00' | dd of=$DISK conv=fsync bs=1 count=1 seek=462 status=none
+    fi
+    
     ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1  
 
     disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size) 

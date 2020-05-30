@@ -686,6 +686,8 @@ static grub_uint32_t ventoy_linux_get_override_chunk_size(void)
 static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *override)
 {
     initrd_info *node;
+    grub_uint32_t mod;
+    grub_uint32_t newlen;
     grub_uint64_t sector;
     ventoy_override_chunk *cur;
 
@@ -699,13 +701,20 @@ static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *ove
             continue;
         }
 
+        newlen = (grub_uint32_t)(node->size + g_ventoy_cpio_size);
+        mod = newlen % 4; 
+        if (mod > 0)
+        {
+            newlen += 4 - mod;
+        }
+
         if (node->iso_type == 0)
         {
             ventoy_iso9660_override *dirent = (ventoy_iso9660_override *)node->override_data;
 
             node->override_length   = sizeof(ventoy_iso9660_override);
             dirent->first_sector    = (grub_uint32_t)sector;
-            dirent->size            = (grub_uint32_t)(node->size + g_ventoy_cpio_size);
+            dirent->size            = newlen;
             dirent->first_sector_be = grub_swap_bytes32(dirent->first_sector);
             dirent->size_be         = grub_swap_bytes32(dirent->size);
 
@@ -716,7 +725,7 @@ static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *ove
             ventoy_udf_override *udf = (ventoy_udf_override *)node->override_data;
             
             node->override_length = sizeof(ventoy_udf_override);
-            udf->length   = (grub_uint32_t)(node->size + g_ventoy_cpio_size);
+            udf->length   = newlen;
             udf->position = (grub_uint32_t)sector - node->udf_start_block;
 
             sector += (udf->length + 2047) / 2048;

@@ -449,7 +449,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
     PartSectorCount = DiskSectorCount - VENTOY_EFI_PART_SIZE / 512 - PartStartSector;
     VentoyFillLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
 
-    pMBR->PartTbl[0].Active = 0x00;
+    pMBR->PartTbl[0].Active = 0x80; // bootable
     pMBR->PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
 
     //Part2
@@ -457,7 +457,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
     PartSectorCount = VENTOY_EFI_PART_SIZE / 512;
     VentoyFillLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
 
-    pMBR->PartTbl[1].Active = 0x80; // bootable
+    pMBR->PartTbl[1].Active = 0x00; 
     pMBR->PartTbl[1].FsFlag = 0xEF; // EFI System Partition
 
     pMBR->Byte55 = 0x55;

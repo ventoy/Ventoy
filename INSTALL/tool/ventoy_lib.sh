@@ -216,7 +216,7 @@ format_ventoy_disk() {
             unit s \
             mkpart primary ntfs $part1_start_sector $part1_end_sector \
             mkpart primary fat16 $part2_start_sector $part2_end_sector \
-            set 2 boot on \
+            set 1 boot on \
             quit
 
         sync
@@ -243,7 +243,7 @@ t
 2
 ef
 a
-2
+1
 w
 EOF
     fi
