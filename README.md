@@ -53,3 +53,9 @@ Title | Link
 
 # FAQ
 See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for detail
+
+
+# Forum
+[https://forums.ventoy.net](https://forums.ventoy.net)
+
+
