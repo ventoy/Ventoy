@@ -17,6 +17,9 @@ prefix=/opt/diet64 make install 2>/dev/null
 cd ..
 rm -rf dietlibc-0.34
 
+
+
+
 tar -xvf dietlibc-0.34.tar.xz
 cd dietlibc-0.34
 
