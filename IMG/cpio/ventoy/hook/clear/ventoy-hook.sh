@@ -19,4 +19,10 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$SED "/find_and_mount_installer *$/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/disk-hook.sh" -i  /init
+if $GREP -q find_and_mount_installer /init; then
+    echo "find_and_mount_installer" >> $VTLOG
+    $SED "/find_and_mount_installer *$/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/disk-hook.sh" -i  /init
+else
+    echo "find_installer" >> $VTLOG
+    $SED "/\$.*find_installer/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/disk-hook.sh" -i  /init
+fi

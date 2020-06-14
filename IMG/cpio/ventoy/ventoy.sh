@@ -87,6 +87,10 @@ ventoy_get_os_type() {
     elif $EGREP -q 'archlinux|ARCH' /proc/version; then
         echo 'arch'; return
     
+    # kiosk
+    elif $EGREP -q 'kiosk' /proc/version; then
+        echo 'kiosk'; return
+    
     # gentoo
     elif $EGREP -q '[Gg]entoo' /proc/version; then
         echo 'gentoo'; return
@@ -213,7 +217,6 @@ if [ "$VTOY_BREAK_LEVEL" = "03" ] || [ "$VTOY_BREAK_LEVEL" = "13" ]; then
     fi
     exec $BUSYBOX_PATH/sh
 fi
-
 
 
 ####################################################################

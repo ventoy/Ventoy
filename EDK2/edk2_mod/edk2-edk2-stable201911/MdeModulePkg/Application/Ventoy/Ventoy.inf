@@ -29,6 +29,7 @@
   Ventoy.h
   Ventoy.c
   VentoyDebug.c
+  VentoyProtocol.c
 
 [Packages]
   MdePkg/MdePkg.dec

@@ -117,12 +117,19 @@ struct grub_fshelp_find_file_iter_ctx
   enum grub_fshelp_filetype *foundtype;
 };
 
+int g_ventoy_case_insensitive = 0;
+
 /* Helper for grub_fshelp_find_file.  */
 static int
 find_file_iter (const char *filename, enum grub_fshelp_filetype filetype,
 		grub_fshelp_node_t node, void *data)
 {
   struct grub_fshelp_find_file_iter_ctx *ctx = data;
+
+  if (g_ventoy_case_insensitive)
+  {
+      filetype |= GRUB_FSHELP_CASE_INSENSITIVE;
+  }
 
   if (filetype == GRUB_FSHELP_UNKNOWN ||
       ((filetype & GRUB_FSHELP_CASE_INSENSITIVE)

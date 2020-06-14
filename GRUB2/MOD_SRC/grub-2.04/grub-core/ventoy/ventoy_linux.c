@@ -841,6 +841,50 @@ static grub_err_t ventoy_linux_locate_initrd(int filt, int *filtcnt)
 }
 
 
+grub_err_t ventoy_cmd_linux_get_main_initrd_index(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int index = 0;
+    char buf[32];
+    initrd_info *node = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (argc != 1)
+    {
+        return 1;
+    }
+
+    if (g_initrd_img_count == 1)
+    {
+        ventoy_set_env(args[0], "0");
+        VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+    }
+
+    for (node = g_initrd_img_list; node; node = node->next)
+    {
+        if (node->size <= 0)
+        {
+            continue;
+        }
+    
+        if (grub_strstr(node->name, "ucode") || grub_strstr(node->name, "-firmware"))
+        {
+            index++;
+            continue;
+        }
+
+        grub_snprintf(buf, sizeof(buf), "%d", index);
+        ventoy_set_env(args[0], buf);
+        break;
+    }
+
+    debug("main initrd index:%d\n", index);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int sizefilt = 0;
@@ -1100,6 +1144,7 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
     /* part 1: os parameter */
+    g_ventoy_chain_type = 0;
     ventoy_fill_os_param(file, &(chain->os_param));
 
     /* part 2: chain head */

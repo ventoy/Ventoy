@@ -33,6 +33,8 @@ ventoy_img_chunk *g_chunk;
 uint32_t g_img_chunk_num;
 ventoy_img_chunk *g_cur_chunk;
 uint32_t g_disk_sector_size;
+uint8_t *g_os_param_reserved;
+
 
 ventoy_override_chunk *g_override_chunk;
 uint32_t g_override_chunk_num;
@@ -41,6 +43,14 @@ ventoy_virt_chunk *g_virt_chunk;
 uint32_t g_virt_chunk_num;
 
 ventoy_sector_flag g_sector_flag[128];
+
+#define VENTOY_ISO9660_SECTOR_OVERFLOW  2097152
+
+int     g_fixup_iso9660_secover_enable = 0;
+int     g_fixup_iso9660_secover_start  = 0;
+uint64  g_fixup_iso9660_secover_1st_secs = 0;
+uint64  g_fixup_iso9660_secover_cur_secs = 0;
+uint64  g_fixup_iso9660_secover_tot_secs = 0;
 
 static struct int13_disk_address __bss16 ( ventoy_address );
 #define ventoy_address __use_data16 ( ventoy_address )
@@ -195,11 +205,75 @@ static int ventoy_vdisk_read_real(uint64_t lba, unsigned int count, unsigned lon
                 memcpy((char *)databuffer, override_data + start - override_start, override_end - start);
             }
         }
+
+        if (g_fixup_iso9660_secover_enable && (!g_fixup_iso9660_secover_start) && 
+            g_override_chunk[i].override_size == sizeof(ventoy_iso9660_override))
+        {
+            ventoy_iso9660_override *dirent = (ventoy_iso9660_override *)override_data;
+            if (dirent->first_sector >= VENTOY_ISO9660_SECTOR_OVERFLOW)
+            {
+                g_fixup_iso9660_secover_start = 1;
+                g_fixup_iso9660_secover_cur_secs = 0;
+            }
+        }
     }
 
 end:
 
     return 0;
+}
+
+uint64_t ventoy_fixup_iso9660_sector(uint64_t Lba, uint32_t secNum)
+{
+    uint32_t i = 0;
+
+    if (g_fixup_iso9660_secover_cur_secs > 0)
+    {
+        Lba += VENTOY_ISO9660_SECTOR_OVERFLOW;
+        g_fixup_iso9660_secover_cur_secs += secNum;
+        if (g_fixup_iso9660_secover_cur_secs >= g_fixup_iso9660_secover_tot_secs)
+        {
+            g_fixup_iso9660_secover_start = 0;
+            goto end;
+        }
+    }
+    else
+    {
+        ventoy_iso9660_override *dirent;
+        ventoy_override_chunk *pOverride;
+
+        for (i = 0, pOverride = g_override_chunk; i < g_override_chunk_num; i++, pOverride++)
+        {
+            dirent = (ventoy_iso9660_override *)pOverride->override_data;
+            if (Lba == dirent->first_sector)
+            {
+                g_fixup_iso9660_secover_start = 0;
+                goto end;
+            }
+        }
+
+        if (g_fixup_iso9660_secover_start)
+        {
+            for (i = 0, pOverride = g_override_chunk; i < g_override_chunk_num; i++, pOverride++)
+            {
+                dirent = (ventoy_iso9660_override *)pOverride->override_data;
+                if (Lba + VENTOY_ISO9660_SECTOR_OVERFLOW == dirent->first_sector)
+                {
+                    g_fixup_iso9660_secover_tot_secs = (dirent->size + 2047) / 2048;
+                    g_fixup_iso9660_secover_cur_secs = secNum;
+                    if (g_fixup_iso9660_secover_cur_secs >= g_fixup_iso9660_secover_tot_secs)
+                    {
+                        g_fixup_iso9660_secover_start = 0;
+                    }
+                    Lba += VENTOY_ISO9660_SECTOR_OVERFLOW;
+                    goto end;
+                }
+            }
+        }
+    }
+
+end:
+    return Lba;
 }
 
 int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int count, unsigned long buffer)
@@ -222,6 +296,12 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
     }
 
     ix86 = (struct i386_all_regs *)sandev->x86_regptr;
+
+    /* Workaround for SSTR PE loader error */
+    if (g_fixup_iso9660_secover_start)
+    {
+        lba = ventoy_fixup_iso9660_sector(lba, count);
+    }
 
     readend = (lba + count) * 2048;
     if (readend <= g_chain->real_img_size_in_bytes)
@@ -384,6 +464,8 @@ static void ventoy_dump_chain(ventoy_chain_head *chain)
     printf("os_param->vtoy_img_size=<%llu>\n",    chain->os_param.vtoy_img_size);
     printf("os_param->vtoy_reserve[0]=<%u>\n",    vtoy_reserve[0]);
     printf("os_param->vtoy_reserve[1]=<%u>\n",    vtoy_reserve[1]);
+    printf("os_param->vtoy_reserve[2]=<%u>\n",    vtoy_reserve[2]);
+    printf("os_param->vtoy_reserve[3]=<%u>\n",    vtoy_reserve[3]);
     printf("os_param->vtoy_img_location_addr=<0x%llx>\n", chain->os_param.vtoy_img_location_addr);
     printf("os_param->vtoy_img_location_len=<%u>\n",   chain->os_param.vtoy_img_location_len);
     ventoy_debug_pause();
@@ -488,6 +570,14 @@ int ventoy_boot_vdisk(void *data)
     g_img_chunk_num = g_chain->img_chunk_num;
     g_disk_sector_size = g_chain->disk_sector_size;
     g_cur_chunk = g_chunk;
+
+    g_os_param_reserved = (uint8_t *)(g_chain->os_param.vtoy_reserved);
+
+    /* Workaround for Windows & ISO9660 */
+    if (g_os_param_reserved[2] == 1 && g_os_param_reserved[3] == 0)
+    {
+        g_fixup_iso9660_secover_enable = 1;
+    }
 
     g_override_chunk = (ventoy_override_chunk *)((char *)g_chain + g_chain->override_chunk_offset);
     g_override_chunk_num = g_chain->override_chunk_num;

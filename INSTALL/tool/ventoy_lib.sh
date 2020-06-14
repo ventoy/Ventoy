@@ -278,7 +278,7 @@ EOF
 
     echo "create efi fat fs $PART2 ..."
     for i in 0 1 2 3 4 5 6 7 8 9; do
-        if mkfs.vfat -F 16 -n EFI $PART2; then
+        if mkfs.vfat -F 16 -n VTOYEFI $PART2; then
             echo 'success'
             break
         else

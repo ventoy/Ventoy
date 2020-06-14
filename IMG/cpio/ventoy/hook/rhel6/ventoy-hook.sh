@@ -22,6 +22,5 @@
 $BUSYBOX_PATH/mkdir -p /etc/anaconda.repos.d  /mnt/ventoy
 ventoy_print_yum_repo "ventoy" "file:///mnt/ventoy" > /etc/anaconda.repos.d/ventoy.repo
 
-
 ventoy_add_udev_rule "$VTOY_PATH/hook/rhel6/udev_disk_hook.sh %k"
 ventoy_add_kernel_udev_rule "loop7" "$VTOY_PATH/hook/rhel6/udev_disk_hook.sh %k"

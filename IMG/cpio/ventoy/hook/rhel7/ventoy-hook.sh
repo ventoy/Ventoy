@@ -31,7 +31,13 @@ else
             VTKS="inst.ks=hd:/dev/dm-0:$vtRawKs"
             break
         fi
-    done    
+        
+        if echo $vtParam | $GREP -q '^ks=.*:/'; then
+            vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
+            VTKS="ks=hd:/dev/dm-0:$vtRawKs"
+            break
+        fi
+    done
 fi
 
 echo "VTKS=$VTKS" >> $VTLOG
@@ -44,8 +50,15 @@ fi
 
 ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh
 
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/01-ventoy-inotifyd-start.sh
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-timeout.sh /lib/dracut/hooks/initqueue/timeout/01-ventoy-timeout.sh
+#Fedora
+if $BUSYBOX_PATH/which dmsquash-live-root > /dev/null; then
+    vtPriority=99
+else
+    vtPriority=01
+fi
+
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/${vtPriority}-ventoy-inotifyd-start.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-timeout.sh /lib/dracut/hooks/initqueue/timeout/${vtPriority}-ventoy-timeout.sh
 
 # suppress write protected mount warning
 if [ -e /usr/sbin/anaconda-diskroot ]; then

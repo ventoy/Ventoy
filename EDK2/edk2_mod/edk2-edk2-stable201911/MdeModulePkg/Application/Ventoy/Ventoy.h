@@ -199,10 +199,8 @@ typedef struct vtoy_block_data
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *pDiskFs;
     EFI_DEVICE_PATH_PROTOCOL *pDiskFsDevPath;
 
-    EFI_HANDLE IsoDriverImage;
 }vtoy_block_data;
 
-#define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_x64.efi"
 
 #define debug(expr, ...) if (gDebugPrint) VtoyDebug("[VTOY] "expr"\r\n", ##__VA_ARGS__)
 #define trace(expr, ...) VtoyDebug("[VTOY] "expr"\r\n", ##__VA_ARGS__)
@@ -254,6 +252,14 @@ typedef struct ventoy_ram_disk
     UINT64 DiskSize;
 }ventoy_ram_disk;
 
+typedef struct ventoy_iso9660_override
+{
+    UINT32 first_sector;
+    UINT32 first_sector_be;
+    UINT32 size;
+    UINT32 size_be;
+}ventoy_iso9660_override;
+
 #pragma pack()
 
 
@@ -282,7 +288,6 @@ typedef struct ventoy_system_wrapper
     bs->func = wrapper.New##func;\
 }
 
-extern ventoy_efi_file_replace g_efi_file_replace;
 extern BOOLEAN gDebugPrint;
 VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...);
 EFI_STATUS EFIAPI ventoy_wrapper_system(VOID);
@@ -295,6 +300,31 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     IN UINTN                           BufferSize,
     OUT VOID                          *Buffer
 );
+
+
+extern ventoy_chain_head *g_chain;
+extern ventoy_img_chunk *g_chunk;
+extern UINT32 g_img_chunk_num;
+extern ventoy_override_chunk *g_override_chunk;
+extern UINT32 g_override_chunk_num;
+extern ventoy_virt_chunk *g_virt_chunk;
+extern UINT32 g_virt_chunk_num;
+extern vtoy_block_data gBlockData;
+extern ventoy_efi_file_replace g_efi_file_replace;
+extern ventoy_sector_flag *g_sector_flag;
+extern UINT32 g_sector_flag_num;
+extern BOOLEAN gMemdiskMode;
+extern UINTN g_iso_buf_size;
+extern ventoy_grub_param_file_replace *g_file_replace_list;
+extern BOOLEAN g_fixup_iso9660_secover_enable;
+
+EFI_STATUS EFIAPI ventoy_wrapper_open_volume
+(
+    IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL     *This,
+    OUT EFI_FILE_PROTOCOL                 **Root
+);
+EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 ImgSize);
+EFI_STATUS EFIAPI ventoy_wrapper_push_openvolume(IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME OpenVolume);
 
 #endif
 

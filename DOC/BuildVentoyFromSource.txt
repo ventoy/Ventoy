@@ -199,5 +199,7 @@
  INSTALL/EFI/BOOT/MokManager.efi --> EFI/BOOT/MokManager.efi  SHA-256: 3bf1f46cee0832355c7dd1dba880dea9bcaa78cc44375a1559d43bc9db18933b
 
 
-   
+5.11 INSTALL/tool/ash
+ https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/   busybox_ASH
+ SHA-256: 2943f02f85fee0c9551aec47110a558a73f919c032b3c51e56d6f197b5ec4d7b  
    

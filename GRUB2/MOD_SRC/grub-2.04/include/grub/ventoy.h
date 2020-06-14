@@ -109,6 +109,8 @@ typedef struct ventoy_os_param
      *
      * vtoy_reserved[0]: vtoy_break_level
      * vtoy_reserved[1]: vtoy_debug_level
+     * vtoy_reserved[2]: vtoy_chain_type     0:Linux    1:Windows
+     * vtoy_reserved[3]: vtoy_iso_format     0:iso9660  1:udf
      *
      */
     grub_uint8_t   vtoy_reserved[32];    // Internal use by ventoy
@@ -227,6 +229,7 @@ typedef struct ventoy_grub_param
 
 int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
+void grub_iso9660_set_nojoliet(int nojoliet);
 grub_uint64_t grub_iso9660_get_last_read_pos(grub_file_t file);
 grub_uint64_t grub_iso9660_get_last_file_dirent_pos(grub_file_t file);
 grub_uint64_t grub_udf_get_file_offset(grub_file_t file);

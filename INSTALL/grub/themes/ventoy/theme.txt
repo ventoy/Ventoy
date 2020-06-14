@@ -1,9 +1,7 @@
 
 desktop-image: "background.png"
 title-text: " "
-title-font: "ascii"
 title-color: "#ffffff"
-message-font: "ascii"
 message-color: "#f2f2f2"
 
 terminal-box: "terminal_box_*.png"
@@ -16,14 +14,12 @@ terminal-box: "terminal_box_*.png"
 
   menu_pixmap_style = "menu_*.png"
 
-  item_font = "ascii"  
   item_color = "#ffffff"  
   item_height = 30
   
   item_spacing = 1
   item_padding = 1
 
-  selected_item_font = "ascii"
   selected_item_color= "#f2f2f2"
   selected_item_pixmap_style = "select_*.png"
 
@@ -67,8 +63,8 @@ terminal-box: "terminal_box_*.png"
 
 
 + hbox{ 
-    left = 90%
-    top = 30 
+    left = 30%
+    top = 95%-50
     width = 10%
     height = 25
     + label {text = "@VTOY_ISO_RAW@" color = "red" align = "left"} 

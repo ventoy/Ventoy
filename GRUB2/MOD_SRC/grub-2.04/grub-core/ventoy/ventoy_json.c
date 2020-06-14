@@ -42,6 +42,11 @@ static void json_debug(const char *fmt, ...)
 {
     va_list args;
 
+    if (g_ventoy_debug == 0)
+    {
+        return;
+    }
+
     va_start (args, fmt);
     grub_vprintf (fmt, args);
     va_end (args);

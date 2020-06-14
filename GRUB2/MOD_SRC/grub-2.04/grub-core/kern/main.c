@@ -260,6 +260,45 @@ reclaim_module_space (void)
 #endif
 }
 
+#ifndef GRUB_MACHINE_EFI
+static int ventoy_legacy_limit_workaround(void)
+{
+    grub_file_t file;
+    char *pos, *root;
+    char buf[128];
+
+    root = grub_strdup(grub_env_get("root"));
+    if (!root)
+    {
+        return 1;
+    }
+
+    pos = grub_strchr(root, ',');
+    if (pos) *pos = 0;
+
+    grub_snprintf(buf, sizeof(buf), "(%s,1)/ventoy/ventoy.disk.img.xz", root);
+    file = grub_file_open(buf, GRUB_FILE_TYPE_NONE);
+    if (file)
+    {
+        pos = grub_malloc(file->size);
+        if (pos)
+        {
+            grub_file_read(file, pos, file->size);
+            grub_snprintf(buf, sizeof(buf), "loopback ventoydisk mem:0x%lx:size:%lu", 
+                          (unsigned long)pos, (unsigned long)file->size);
+            
+            grub_parser_execute(buf);
+            grub_env_set("prefix", "(ventoydisk)/grub");
+        }
+
+        grub_file_close(file);
+    }
+
+    grub_free(root);      
+    return 0;
+}
+#endif
+
 /* The main routine.  */
 void __attribute__ ((noreturn))
 grub_main (void)
@@ -292,6 +331,12 @@ grub_main (void)
   grub_set_prefix_and_root ();
   grub_env_export ("root");
   grub_env_export ("prefix");
+
+#ifndef GRUB_MACHINE_EFI
+  if (0 == ventoy_check_file_exist("%s/grub.cfg", grub_env_get("prefix"))) {
+      ventoy_legacy_limit_workaround();
+  }
+#endif
 
   /* Reclaim space used for modules.  */
   reclaim_module_space ();

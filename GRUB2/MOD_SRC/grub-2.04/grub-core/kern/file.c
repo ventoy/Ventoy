@@ -83,6 +83,29 @@ grub_file_t grub_memfile_open(const char *name)
     return file;
 }
 
+int ventoy_check_file_exist(const char * fmt, ...)
+{
+    va_list ap;
+    grub_file_t file;
+    char fullpath[256] = {0};
+
+    va_start (ap, fmt);
+    grub_vsnprintf(fullpath, 255, fmt, ap);
+    va_end (ap);
+
+    file = grub_file_open(fullpath, GRUB_FILE_TYPE_NONE);
+    if (!file)
+    {
+        grub_errno = 0;
+        return 0;
+    }
+    else
+    {
+        grub_file_close(file);
+        return 1;
+    }
+}
+
 grub_file_t
 grub_file_open (const char *name, enum grub_file_type type)
 {

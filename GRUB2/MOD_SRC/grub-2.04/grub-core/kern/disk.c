@@ -27,7 +27,7 @@
 #include <grub/i18n.h>
 #include <grub/ventoy.h>
 
-#define	GRUB_CACHE_TIMEOUT	2
+#define	GRUB_CACHE_TIMEOUT	10
 
 /* The last time the disk was used.  */
 static grub_uint64_t grub_last_time = 0;

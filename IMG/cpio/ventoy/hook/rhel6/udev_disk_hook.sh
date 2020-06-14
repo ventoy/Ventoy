@@ -64,7 +64,7 @@ fi
 
 
 #some distro add there repo file to /etc/anaconda.repos.d/ which will cause error during installation
-$BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd $VTOY_PATH/hook/rhel6/anaconda-repo-listen.sh /etc/anaconda.repos.d:n &  
+#$BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd $VTOY_PATH/hook/rhel6/anaconda-repo-listen.sh /etc/anaconda.repos.d:n &  
 
 ventoy_udev_disk_common_hook $* "noreplace"
 

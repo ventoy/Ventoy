@@ -51,7 +51,17 @@ fi
 #                                                                  #
 ####################################################################
 cd /
-rm -rf /init /linuxrc /sbin /dev/  /root
+rm -rf /init /linuxrc /dev/  /root
+
+vtSbinFileNum=$(ls -1 /sbin | wc -l)
+if [ $vtSbinFileNum -eq 1 ]; then
+    echo "remove whole sbin directory" >> $VTLOG
+    rm -rf /sbin
+else
+    echo "remove only sbin/init file" >> $VTLOG
+    ls -l /sbin >> $VTLOG
+    rm -f /sbin/init
+fi
 
 ventoy_is_initrd_ramdisk() {
     #As I known, PCLinuxOS use ramdisk

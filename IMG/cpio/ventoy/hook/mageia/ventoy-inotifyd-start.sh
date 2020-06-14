@@ -17,13 +17,15 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-#ventoy_systemd_udevd_work_around
-#ventoy_add_udev_rule "$VTOY_PATH/hook/mageia/udev_disk_hook.sh %k noreplace"
+vtHook=$($CAT $VTOY_PATH/inotifyd-hook-script.txt)
 
-ventoy_set_inotify_script  mageia/ventoy-inotifyd-hook.sh
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/mageia/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/99-ventoy-inotifyd-start.sh
-
-
-
+vtdisk=$(get_ventoy_disk_name)
+if [ "$vtdisk" = "unknown" ]; then
+    vtlog "... start inotifyd listen $vtHook ..."
+    $BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd $vtHook  /dev:n  2>&-  & 
+else
+    vtlog "... $vtdisk already exist ..."
+    $BUSYBOX_PATH/sh $vtHook n /dev "${vtdisk#/dev/}2"
+fi

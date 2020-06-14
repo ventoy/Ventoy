@@ -492,13 +492,13 @@ static int VentoyFatDiskRead(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
 
 static CHAR GetMountLogicalDrive(void)
 {
-	CHAR Letter = 'Z';
+	CHAR Letter = 'Y';
 	DWORD Drives;
-	DWORD Mask = 0x2000000;
+	DWORD Mask = 0x1000000;
 
 	Drives = GetLogicalDrives();
     Log("Drives=0x%x", Drives);
-
+    
 	while (Mask)
 	{
 		if ((Drives & Mask) == 0)
@@ -724,7 +724,7 @@ static int ProcessUnattendedInstallation(const char *script)
     {
         Letter = 'X';
     }
-
+    
     sprintf_s(CurDir, sizeof(CurDir), "%C:\\Autounattend.xml", Letter);
     Log("Copy file <%s> --> <%s>", script, CurDir);
     CopyFile(script, CurDir, FALSE);

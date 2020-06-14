@@ -32,6 +32,7 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+static int g_ventoy_no_joliet = 0;
 static grub_uint64_t g_ventoy_last_read_pos = 0;
 static grub_uint64_t g_ventoy_last_read_offset = 0;
 static grub_uint64_t g_ventoy_last_read_dirent_pos = 0;
@@ -480,8 +481,10 @@ grub_iso9660_mount (grub_disk_t disk)
                 (voldesc.escape[2] == 0x43) ||  /* UCS-2 Level 2.  */
                 (voldesc.escape[2] == 0x45)))	/* UCS-2 Level 3.  */
         {
-          copy_voldesc = 1;
-          data->joliet = 1;
+          if (0 == g_ventoy_no_joliet) {
+            copy_voldesc = 1;
+            data->joliet = 1;
+          }
         }
 
       if (copy_voldesc)
@@ -1106,6 +1109,11 @@ grub_iso9660_mtime (grub_device_t device, grub_int32_t *timebuf)
   grub_free (data);
 
   return err;
+}
+
+void grub_iso9660_set_nojoliet(int nojoliet)
+{
+    g_ventoy_no_joliet = nojoliet;
 }
 
 grub_uint64_t grub_iso9660_get_last_read_pos(grub_file_t file)
