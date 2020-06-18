@@ -31,7 +31,6 @@
     https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911     ===>  /home/Ventoy-master/EDK2/edk2-edk2-stable201911.zip
     https://codeload.github.com/relan/exfat/zip/v1.3.0                   ===>  /home/Ventoy-master/ExFAT/exfat-1.3.0.zip
     https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9           ===>  /home/Ventoy-master/ExFAT/libfuse-fuse-2.9.9.zip
-    http://ultra-embedded.com/releases/fat_io_lib.zip                    ===>  /home/Ventoy-master/vtoyfat/fat_io_lib/fat_io_lib.zip
 
 
 
