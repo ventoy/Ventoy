@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  ventoy:
+    build: .
+    privileged: true
+    volumes:
+     - .:/ventoy
