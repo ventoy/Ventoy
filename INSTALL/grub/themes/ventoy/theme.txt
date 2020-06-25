@@ -34,12 +34,11 @@ terminal-box: "terminal_box_*.png"
   id = "__timeout__"
   text = "@TIMEOUT_NOTIFICATION_SHORT@"
 
-  left = 95%
-  width = 48
-  top = 95%
-  height = 48
+  left = 20%
+  width = 60%
+  top = 85%
 
-  text_color = "#f2f2f2"
+  text_color = "red"
   bar_style = "*"
   highlight_style = "*"
 }

@@ -19,6 +19,8 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
+vtCheatLoop=loop6
+
 ventoy_os_install_dmsetup() {
     vtlog "ventoy_os_install_dmsetup $1"
     
@@ -50,9 +52,9 @@ ventoy_os_install_dmsetup() {
 
 
 if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
-    # /dev/loop7 come first
-    if [ "$1" = "loop7" ] && [ -b $VTOY_DM_PATH ]; then
-        ventoy_copy_device_mapper  /dev/loop7
+    # /dev/vtCheatLoop come first
+    if [ "$1" = "$vtCheatLoop" ] && [ -b $VTOY_DM_PATH ]; then
+        ventoy_copy_device_mapper  /dev/$vtCheatLoop
     fi
     exit 0
 fi
@@ -72,14 +74,14 @@ $BUSYBOX_PATH/mount $VTOY_DM_PATH /mnt/ventoy
 
 # 
 # We do a trick for rhel6 series here.
-# Use /dev/loop7 and wapper it as a removable cdrom with bind mount.
-# Then the anaconda installer will accept /dev/loop7 as the install medium.
+# Use /dev/$vtCheatLoop and wapper it as a removable cdrom with bind mount.
+# Then the anaconda installer will accept /dev/$vtCheatLoop as the install medium.
 #
-ventoy_copy_device_mapper  /dev/loop7
+ventoy_copy_device_mapper  /dev/$vtCheatLoop
 
-$BUSYBOX_PATH/cp -a /sys/devices/virtual/block/loop7 /tmp/ >> $VTLOG 2>&1
-echo 19 > /tmp/loop7/capability
-$BUSYBOX_PATH/mount --bind /tmp/loop7 /sys/block/loop7 >> $VTLOG 2>&1
+$BUSYBOX_PATH/cp -a /sys/devices/virtual/block/$vtCheatLoop /tmp/ >> $VTLOG 2>&1
+echo 19 > /tmp/$vtCheatLoop/capability
+$BUSYBOX_PATH/mount --bind /tmp/$vtCheatLoop /sys/block/$vtCheatLoop >> $VTLOG 2>&1
 
 # OK finish
 set_ventoy_hook_finish

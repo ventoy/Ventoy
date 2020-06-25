@@ -127,13 +127,18 @@ typedef struct ventoy_udf_override
 
 #define img_type_iso 0
 #define img_type_wim 1
+#define img_type_efi 2
+#define img_type_img 3
 
 typedef struct img_info
 {
+    int pathlen;
     char path[512];
     char name[256];
 
     const char *alias;
+    const char *class;
+    const char *menu_prefix;
     
     int id;
     int type;
@@ -623,6 +628,15 @@ typedef struct menu_alias
     struct menu_alias *next;
 }menu_alias;
 
+typedef struct menu_class
+{
+    int  patlen;
+    char pattern[256];
+    char class[64];
+
+    struct menu_class *next;
+}menu_class;
+
 extern int g_ventoy_menu_esc;
 extern int g_ventoy_suppress_esc;
 extern int g_ventoy_last_entry;
@@ -641,6 +655,7 @@ void ventoy_plugin_dump_auto_install(void);
 int ventoy_fill_windows_rtdata(void *buf, char *isopath);
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);
 const char * ventoy_plugin_get_menu_alias(const char *isopath);
+const char * ventoy_plugin_get_menu_class(const char *isoname);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);

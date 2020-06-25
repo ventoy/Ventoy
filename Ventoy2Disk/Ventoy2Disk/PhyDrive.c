@@ -304,7 +304,7 @@ static DWORD GetVentoyVolumeName(int PhyDrive, UINT32 StartSectorId, CHAR *NameB
 
     PartOffset = 512ULL * StartSectorId;
 
-    Log("GetVentoyVolumeName PhyDrive %d PartOffset:%llu", PhyDrive, (ULONGLONG)PartOffset);
+	Log("GetVentoyVolumeName PhyDrive %d SectorStart:%u PartOffset:%llu", PhyDrive, StartSectorId, (ULONGLONG)PartOffset);
 
     hVolume = FindFirstVolumeA(VolumeName, sizeof(VolumeName));
     if (hVolume == INVALID_HANDLE_VALUE)
@@ -798,7 +798,7 @@ static int VentoyFatDiskRead(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
 }
 
 
-int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, CHAR *VerBuf, size_t BufLen)
+int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, MBR_HEAD *pMBR, CHAR *VerBuf, size_t BufLen)
 {
     int rc = 0;
     HANDLE hDrive;
@@ -810,7 +810,7 @@ int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, CHAR *VerBuf, size_
     }
     
     g_FatPhyDrive = hDrive;
-    g_Part2StartSec = (pDriveInfo->SizeInBytes - VENTOY_EFI_PART_SIZE) / 512;
+	g_Part2StartSec = pMBR->PartTbl[1].StartSectorId;
 
     Log("Parse FAT fs...");
 
@@ -1033,8 +1033,9 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
     BOOL bRet;
     unsigned char *data = NULL;
     LARGE_INTEGER liCurrentPosition;
+	LARGE_INTEGER liNewPosition;
 
-    Log("FormatPart2Fat ...");
+	Log("FormatPart2Fat %llu...", StartSectorId);
 
     rc = ReadWholeFileToBuf(VENTOY_FILE_DISK_IMG, 0, (void **)&data, &len);
     if (rc)
@@ -1044,7 +1045,9 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
     }
 
     liCurrentPosition.QuadPart = StartSectorId * 512;
-    SetFilePointerEx(hDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN);
+	SetFilePointerEx(hDrive, liCurrentPosition, &liNewPosition, FILE_BEGIN);
+
+	Log("Set file pointer: %llu  New pointer:%llu", liCurrentPosition.QuadPart, liNewPosition.QuadPart);
 
     memset(g_part_img_buf, 0, sizeof(g_part_img_buf));
 
@@ -1063,7 +1066,7 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
             for (i = 0; i < VENTOY_EFI_PART_SIZE / SIZE_1MB; i++)
             {
                 dwSize = 0;
-                bRet = WriteFile(hDrive, g_part_img_buf[0] + i * SIZE_1MB, SIZE_1MB, &dwSize, NULL);
+				bRet = WriteFile(hDrive, g_part_img_buf[0] + i * SIZE_1MB, SIZE_1MB, &dwSize, NULL);
                 Log("Write part data bRet:%u dwSize:%u code:%u", bRet, dwSize, LASTERR);
 
                 if (!bRet)
@@ -1425,10 +1428,9 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     CHAR DriveName[] = "?:\\";
     CHAR DriveLetters[MAX_PATH] = { 0 };
     UINT32 StartSector;
+	UINT64 ReservedMB = 0;
     MBR_HEAD BootImg;
     MBR_HEAD MBR;
-
-    StartSector = (UINT32)(pPhyDrive->SizeInBytes / 512 - VENTOY_EFI_PART_SIZE / 512);
 
     Log("UpdateVentoy2PhyDrive PhyDrive%d <<%s %s %dGB>>",
         pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId, 
@@ -1446,7 +1448,14 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     }
 
     // Read MBR
+	SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
     ReadFile(hDrive, &MBR, sizeof(MBR), &dwSize, NULL);
+
+	StartSector = MBR.PartTbl[1].StartSectorId;
+	Log("StartSector in PartTbl:%u", StartSector);
+
+	ReservedMB = (pPhyDrive->SizeInBytes / 512 - (StartSector + VENTOY_EFI_PART_SIZE / 512)) / 2048;
+	Log("Reserved Disk Space:%u MB", ReservedMB);
 
     GetLettersBelongPhyDrive(pPhyDrive->PhyDrive, DriveLetters, sizeof(DriveLetters));
 

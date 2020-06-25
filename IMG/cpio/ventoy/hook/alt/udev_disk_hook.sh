@@ -32,13 +32,14 @@ fi
 
 # 
 # We do a trick for ATL series here.
-# Use /dev/loop7 and wapper it as a cdrom with bind mount.
-# Then the installer will accept /dev/loop7 as the install medium.
+# Use /dev/vtCheatLoop and wapper it as a cdrom with bind mount.
+# Then the installer will accept /dev/vtCheatLoop as the install medium.
 #
-ventoy_copy_device_mapper  /dev/loop7
-$BUSYBOX_PATH/mkdir -p /tmp/loop7/device/
-echo 5 > /tmp/loop7/device/type
-$BUSYBOX_PATH/mount --bind /tmp/loop7 /sys/block/loop7 >> $VTLOG 2>&1
+vtCheatLoop=loop6
+ventoy_copy_device_mapper  /dev/$vtCheatLoop
+$BUSYBOX_PATH/mkdir -p /tmp/$vtCheatLoop/device/
+echo 5 > /tmp/$vtCheatLoop/device/type
+$BUSYBOX_PATH/mount --bind /tmp/$vtCheatLoop /sys/block/$vtCheatLoop >> $VTLOG 2>&1
 
 
 # OK finish

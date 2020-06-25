@@ -17,21 +17,7 @@
 # 
 #************************************************************************************
 
-. /ventoy/hook/ventoy-hook-lib.sh
+. $VTOY_PATH/hook/ventoy-os-lib.sh
 
-vtlog "####### $0 $* ########"
-
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
-
-while ! [ -e /dev/null ]; do
-    echo 'xxxxxxxxxx'
-    echo 'xxxxxxxxxx' > /dev/console
-    sleep 1
-done
-
-vtlog "... start inotifyd listen $vtHook ..."
-$BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd  $VTOY_PATH/hook/guix/ventoy-disk.sh  /dev:n  2>&-  & 
-
-
-PATH=$VTPATH_OLD
+$VTOY_PATH/hook/adelie/disk-hook.sh &
 

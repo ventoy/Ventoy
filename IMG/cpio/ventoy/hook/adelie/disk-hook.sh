@@ -19,7 +19,11 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-vtlog "######### $0 $* ############"
+if is_ventoy_hook_finished; then
+    exit 0
+fi
+
+vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
@@ -34,17 +38,6 @@ fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
-blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
-blkdev_num_mknod=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
-vtDM=$(ventoy_find_dm_id ${blkdev_num})
-
-vtlog "blkdev_num=$blkdev_num blkdev_num_mknod=$blkdev_num_mknod vtDM=$vtDM"
-
-if [ -b /dev/$vtDM ]; then
-    vtlog "dev already exist ..."
-else
-    vtlog "mknode dev ..."
-    mknod -m 660 /dev/$vtDM  b  $blkdev_num_mknod
-fi
-
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish

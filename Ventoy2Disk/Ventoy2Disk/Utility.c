@@ -427,10 +427,12 @@ static int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT
 int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
 {
     GUID Guid;
+	int ReservedValue;
     UINT32 DiskSignature;
     UINT32 DiskSectorCount;
     UINT32 PartSectorCount;
     UINT32 PartStartSector;
+	UINT32 ReservedSector;
 
     VentoyGetLocalBootImg(pMBR);
 
@@ -444,9 +446,21 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
 
     DiskSectorCount = (UINT32)(DiskSizeBytes / 512);
 
+	ReservedValue = GetReservedSpaceInMB();
+	if (ReservedValue <= 0)
+	{
+		ReservedSector = 0;
+	}
+	else
+	{
+		ReservedSector = (UINT32)(ReservedValue * 2048);
+	}
+
+	Log("ReservedSector: %u", ReservedSector);
+
     //Part1
     PartStartSector = VENTOY_PART1_START_SECTOR;
-    PartSectorCount = DiskSectorCount - VENTOY_EFI_PART_SIZE / 512 - PartStartSector;
+	PartSectorCount = DiskSectorCount - ReservedSector - VENTOY_EFI_PART_SIZE / 512 - PartStartSector;
     VentoyFillLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
 
     pMBR->PartTbl[0].Active = 0x80; // bootable

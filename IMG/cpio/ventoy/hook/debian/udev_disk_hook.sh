@@ -21,6 +21,8 @@
 
 ventoy_os_install_dmsetup() {
 
+    vtlog "ventoy_os_install_dmsetup $1 ..."
+
     vt_usb_disk=$1
 
     # dump iso file location

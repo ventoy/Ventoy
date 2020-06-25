@@ -36,6 +36,10 @@
 #include <Protocol/SimpleFileSystem.h>
 #include <Ventoy.h>
 
+#define PROCOTOL_SLEEP_SECONDS  0
+
+#define debug_sleep() if (PROCOTOL_SLEEP_SECONDS) sleep(PROCOTOL_SLEEP_SECONDS)
+
 STATIC ventoy_system_wrapper g_system_wrapper;
 
 static struct well_known_guid g_efi_well_known_guids[] = 
@@ -84,183 +88,6 @@ static const char * ventoy_get_guid_name(EFI_GUID *guid)
     return gEfiGuidName;
 }
 
-EFI_STATUS EFIAPI
-ventoy_wrapper_fs_open(EFI_FILE_HANDLE This, EFI_FILE_HANDLE *New, CHAR16 *Name, UINT64 Mode, UINT64 Attributes)
-{
-    (VOID)This;
-    (VOID)New;
-    (VOID)Name;
-    (VOID)Mode;
-    (VOID)Attributes;
-    return EFI_SUCCESS;
-}
-
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_open_ex(EFI_FILE_HANDLE This, EFI_FILE_HANDLE *New, CHAR16 *Name, UINT64 Mode, UINT64 Attributes, EFI_FILE_IO_TOKEN *Token)
-{
-	return ventoy_wrapper_fs_open(This, New, Name, Mode, Attributes);
-}
-
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_delete(EFI_FILE_HANDLE This)
-{
-    (VOID)This;
-	return EFI_SUCCESS;
-}
-
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_set_info(EFI_FILE_HANDLE This, EFI_GUID *Type, UINTN Len, VOID *Data)
-{
-	return EFI_SUCCESS;
-}
-
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_flush(EFI_FILE_HANDLE This)
-{
-    (VOID)This;
-	return EFI_SUCCESS;
-}
-
-/* Ex version */
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_flush_ex(EFI_FILE_HANDLE This, EFI_FILE_IO_TOKEN *Token)
-{
-    (VOID)This;
-    (VOID)Token;
-	return EFI_SUCCESS;
-}
-
-
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_write(EFI_FILE_HANDLE This, UINTN *Len, VOID *Data)
-{
-    (VOID)This;
-    (VOID)Len;
-    (VOID)Data;
-
-	return EFI_WRITE_PROTECTED;
-}
-
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_write_ex(IN EFI_FILE_PROTOCOL *This, IN OUT EFI_FILE_IO_TOKEN *Token)
-{
-	return ventoy_wrapper_file_write(This, &(Token->BufferSize), Token->Buffer);
-}
-
-
-static EFI_STATUS EFIAPI
-ventoy_wrapper_file_close(EFI_FILE_HANDLE This)
-{
-    (VOID)This;
-    return EFI_SUCCESS;
-}
-
-
-static EFI_STATUS EFIAPI
-ventoy_wrapper_file_set_pos(EFI_FILE_HANDLE This, UINT64 Position)
-{
-    (VOID)This;
-    
-    g_efi_file_replace.CurPos = Position;
-    return EFI_SUCCESS;
-}
-
-static EFI_STATUS EFIAPI
-ventoy_wrapper_file_get_pos(EFI_FILE_HANDLE This, UINT64 *Position)
-{
-    (VOID)This;
-
-    *Position = g_efi_file_replace.CurPos;
-
-    return EFI_SUCCESS;
-}
-
-
-static EFI_STATUS EFIAPI
-ventoy_wrapper_file_get_info(EFI_FILE_HANDLE This, EFI_GUID *Type, UINTN *Len, VOID *Data)
-{
-    EFI_FILE_INFO *Info = (EFI_FILE_INFO *) Data;
-
-    debug("ventoy_wrapper_file_get_info ... %u", *Len);
-
-    if (!CompareGuid(Type, &gEfiFileInfoGuid))
-    {
-        return EFI_INVALID_PARAMETER;
-    }
-
-    if (*Len == 0)
-    {
-        *Len = 384;
-        return EFI_BUFFER_TOO_SMALL;
-    }
-
-    ZeroMem(Data, sizeof(EFI_FILE_INFO));
-
-    Info->Size = sizeof(EFI_FILE_INFO);
-    Info->FileSize = g_efi_file_replace.FileSizeBytes;
-    Info->PhysicalSize = g_efi_file_replace.FileSizeBytes;
-    Info->Attribute = EFI_FILE_READ_ONLY;
-    //Info->FileName = EFI_FILE_READ_ONLY;
-
-    *Len = Info->Size;
-    
-    return EFI_SUCCESS;
-}
-
-static EFI_STATUS EFIAPI
-ventoy_wrapper_file_read(EFI_FILE_HANDLE This, UINTN *Len, VOID *Data)
-{
-    EFI_LBA Lba;
-    UINTN ReadLen = *Len;
-    
-    (VOID)This;
-
-    debug("ventoy_wrapper_file_read ... %u", *Len);
-
-    if (g_efi_file_replace.CurPos + ReadLen > g_efi_file_replace.FileSizeBytes)
-    {
-        ReadLen = g_efi_file_replace.FileSizeBytes - g_efi_file_replace.CurPos;
-    }
-
-    Lba = g_efi_file_replace.CurPos / 2048 + g_efi_file_replace.BlockIoSectorStart;
-
-    ventoy_block_io_read(NULL, 0, Lba, ReadLen, Data);
-
-    *Len = ReadLen;
-
-    g_efi_file_replace.CurPos += ReadLen;
-
-    return EFI_SUCCESS;
-}
-
-
-EFI_STATUS EFIAPI
-ventoy_wrapper_file_read_ex(IN EFI_FILE_PROTOCOL *This, IN OUT EFI_FILE_IO_TOKEN *Token)
-{
-	return ventoy_wrapper_file_read(This, &(Token->BufferSize), Token->Buffer);
-}
-
-EFI_STATUS EFIAPI ventoy_wrapper_file_procotol(EFI_FILE_PROTOCOL *File)
-{
-    File->Revision    = EFI_FILE_PROTOCOL_REVISION2;
-    File->Open        = ventoy_wrapper_fs_open;
-    File->Close       = ventoy_wrapper_file_close;
-    File->Delete      = ventoy_wrapper_file_delete;
-    File->Read        = ventoy_wrapper_file_read;
-    File->Write       = ventoy_wrapper_file_write;
-    File->GetPosition = ventoy_wrapper_file_get_pos;
-    File->SetPosition = ventoy_wrapper_file_set_pos;
-    File->GetInfo     = ventoy_wrapper_file_get_info;
-    File->SetInfo     = ventoy_wrapper_file_set_info;
-    File->Flush       = ventoy_wrapper_file_flush;
-    File->OpenEx      = ventoy_wrapper_file_open_ex;
-    File->ReadEx      = ventoy_wrapper_file_read_ex;
-    File->WriteEx     = ventoy_wrapper_file_write_ex;
-    File->FlushEx     = ventoy_wrapper_file_flush_ex;
-
-    return EFI_SUCCESS;
-}
-
 STATIC EFI_STATUS EFIAPI ventoy_handle_protocol
 (
     IN  EFI_HANDLE                Handle,
@@ -270,7 +97,7 @@ STATIC EFI_STATUS EFIAPI ventoy_handle_protocol
 {
     EFI_STATUS Status = EFI_SUCCESS;
     
-    debug("ventoy_handle_protocol:%a", ventoy_get_guid_name(Protocol)); 
+    debug("ventoy_handle_protocol:%a", ventoy_get_guid_name(Protocol)); debug_sleep();
     Status = g_system_wrapper.OriHandleProtocol(Handle, Protocol, Interface);
 
     if (CompareGuid(Protocol, &gEfiSimpleFileSystemProtocolGuid))
@@ -280,7 +107,7 @@ STATIC EFI_STATUS EFIAPI ventoy_handle_protocol
         
         pFile->OpenVolume(pFile, &FileProtocol);
         
-        debug("Handle FS Protocol: %p OpenVolume:%p, FileProtocol:%p, Open:%p", 
+        trace("Handle FS Protocol: %p OpenVolume:%p, FileProtocol:%p, Open:%p", 
             pFile, pFile->OpenVolume, FileProtocol, FileProtocol->Open); 
 
         sleep(3);
@@ -299,7 +126,7 @@ STATIC EFI_STATUS EFIAPI ventoy_open_protocol
     IN  UINT32                     Attributes
 )
 {
-    debug("ventoy_open_protocol:%a", ventoy_get_guid_name(Protocol));
+    debug("ventoy_open_protocol:%a", ventoy_get_guid_name(Protocol));  debug_sleep();
     return g_system_wrapper.OriOpenProtocol(Handle, Protocol, Interface, AgentHandle, ControllerHandle, Attributes);
 }
 
@@ -310,7 +137,7 @@ STATIC EFI_STATUS EFIAPI ventoy_locate_protocol
     OUT VOID      **Interface
 )
 {
-    debug("ventoy_locate_protocol:%a", ventoy_get_guid_name(Protocol));
+    debug("ventoy_locate_protocol:%a", ventoy_get_guid_name(Protocol));  debug_sleep();
     return g_system_wrapper.OriLocateProtocol(Protocol, Registration, Interface);
 }
 
@@ -318,7 +145,7 @@ EFI_STATUS EFIAPI ventoy_wrapper_system(VOID)
 {
     ventoy_wrapper(gBS, g_system_wrapper, LocateProtocol, ventoy_locate_protocol);
     ventoy_wrapper(gBS, g_system_wrapper, HandleProtocol, ventoy_handle_protocol);
-    ventoy_wrapper(gBS, g_system_wrapper, OpenProtocol,    ventoy_open_protocol);
+    ventoy_wrapper(gBS, g_system_wrapper, OpenProtocol,   ventoy_open_protocol);
 
     return EFI_SUCCESS;
 }

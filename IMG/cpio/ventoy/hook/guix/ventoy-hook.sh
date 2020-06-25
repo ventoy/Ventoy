@@ -18,8 +18,3 @@
 #************************************************************************************
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
-
-$BUSYBOX_PATH/mkdir /dev
-$BUSYBOX_PATH/mknode -m 0666 /dev/null c 1 3
-
-$BUSYBOX_PATH/nohup $VTOY_PATH/hook/guix/ventoy-waitdev.sh &

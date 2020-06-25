@@ -17,34 +17,10 @@
 # 
 #************************************************************************************
 
-. /ventoy/hook/ventoy-hook-lib.sh
+. $VTOY_PATH/hook/ventoy-os-lib.sh
 
-vtlog "######### $0 $* ############"
+$BUSYBOX_PATH/mkdir /dev
+$BUSYBOX_PATH/mknod -m 0660 /dev/null c 1 3
 
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+$BUSYBOX_PATH/sh $VTOY_PATH/hook/guix/ventoy-disk.sh &
 
-wait_for_usb_disk_ready
-
-vtdiskname=$(get_ventoy_disk_name)
-if [ "$vtdiskname" = "unknown" ]; then
-    vtlog "ventoy disk not found"
-    PATH=$VTPATH_OLD
-    exit 0
-fi
-
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
-
-blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
-blkdev_num_mknod=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
-vtDM=$(ventoy_find_dm_id ${blkdev_num})
-
-vtlog "blkdev_num=$blkdev_num blkdev_num_mknod=$blkdev_num_mknod vtDM=$vtDM"
-
-if [ -b /dev/$vtDM ]; then
-    vtlog "dev already exist ..."
-else
-    vtlog "mknode dev ..."
-    mknod -m 660 /dev/$vtDM  b  $blkdev_num_mknod
-fi
-
-PATH=$VTPATH_OLD

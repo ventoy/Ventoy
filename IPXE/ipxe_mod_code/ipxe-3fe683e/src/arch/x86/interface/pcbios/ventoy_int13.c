@@ -1057,6 +1057,28 @@ static __asmcall void int13 ( struct i386_all_regs *ix86 ) {
         return;
     }
 
+    if (VENTOY_BOOT_FIXBIN_DRIVE == bios_drive && INT13_READ_SECTORS == command)
+    {
+        /* read sector 0 0x80 */
+        if (ix86->regs.dh == 0 && (ix86->regs.cl & 0x3f) == 1 && ix86->regs.al == 1)
+        {
+            userptr_t buffer;
+            
+            buffer = real_to_user(ix86->segs.es, ix86->regs.bx);
+            if (buffer)
+            {
+                memset((void *)buffer, 0, 512);
+            }
+
+            ix86->regs.dl = 0x80;
+            ix86->regs.ah = 0;
+
+    		/* Set OF to indicate to wrapper not to chain this call */
+    		ix86->flags |= OF;
+            return;
+        }
+    }
+
     // drive swap
     if (g_drive_map1 >= 0x80 && g_drive_map2 >= 0x80)
     {

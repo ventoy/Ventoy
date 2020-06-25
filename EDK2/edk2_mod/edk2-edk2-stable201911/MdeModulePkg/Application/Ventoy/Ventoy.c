@@ -52,6 +52,8 @@ static grub_env_get_pf grub_env_get = NULL;
 ventoy_grub_param_file_replace *g_file_replace_list = NULL;
 ventoy_efi_file_replace g_efi_file_replace;
 
+STATIC BOOLEAN g_hook_keyboard = FALSE;
+
 CHAR16 gFirstTryBootFile[256] = {0};
 
 /* Boot filename */
@@ -191,11 +193,12 @@ static void EFIAPI ventoy_dump_chain(ventoy_chain_head *chain)
     debug("os_param->vtoy_img_size=<%llu>",    chain->os_param.vtoy_img_size);
     debug("os_param->vtoy_img_location_addr=<0x%llx>", chain->os_param.vtoy_img_location_addr);
     debug("os_param->vtoy_img_location_len=<%u>",    chain->os_param.vtoy_img_location_len);
-    debug("os_param->vtoy_reserved=<%u %u %u %u>",    
+    debug("os_param->vtoy_reserved=<%u %u %u %u %u>",    
           g_os_param_reserved[0], 
           g_os_param_reserved[1], 
           g_os_param_reserved[2], 
-          g_os_param_reserved[3]
+          g_os_param_reserved[3],
+          g_os_param_reserved[4]
           );
 
     ventoy_debug_pause();
@@ -585,6 +588,13 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
             g_fixup_iso9660_secover_enable = TRUE;
         }
 
+        if (g_os_param_reserved[2] == 1 && g_os_param_reserved[4] != 1)
+        {
+            g_hook_keyboard = TRUE;
+        }
+
+        debug("internal param: secover:%u keyboard:%u", g_fixup_iso9660_secover_enable, g_hook_keyboard);
+
         for (i = 0; i < sizeof(ventoy_os_param); i++)
         {
             chksum += *((UINT8 *)(&(g_chain->os_param)) + i);
@@ -707,16 +717,26 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
             if (gDebugPrint)
             {
                 gST->ConIn->Reset(gST->ConIn, FALSE);
-                //ventoy_wrapper_system();
             }
-
+            
             if (g_file_replace_list && g_file_replace_list->magic == GRUB_FILE_REPLACE_MAGIC)
             {
                 ventoy_wrapper_push_openvolume(pFile->OpenVolume);
                 pFile->OpenVolume = ventoy_wrapper_open_volume;
             }
-            
+
+            if (g_hook_keyboard)
+            {
+                ventoy_hook_keyboard_start();
+            }
+            /* can't add debug print here */
+            //ventoy_wrapper_system();
             Status = gBS->StartImage(Image, NULL, NULL);
+            if (g_hook_keyboard)
+            {
+                ventoy_hook_keyboard_stop();
+            }
+            
             if (EFI_ERROR(Status))
             {
                 debug("Failed to start image %r", Status);
@@ -743,7 +763,6 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
     return EFI_SUCCESS;
 }
 
-
 EFI_STATUS EFIAPI VentoyEfiMain
 (
     IN EFI_HANDLE         ImageHandle,
@@ -751,6 +770,7 @@ EFI_STATUS EFIAPI VentoyEfiMain
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
+    EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *Protocol;
     
     g_sector_flag_num = 512; /* initial value */
 
@@ -758,6 +778,12 @@ EFI_STATUS EFIAPI VentoyEfiMain
     if (NULL == g_sector_flag)
     {
         return EFI_OUT_OF_RESOURCES;
+    }
+
+    Status = gBS->HandleProtocol(gST->ConsoleInHandle, &gEfiSimpleTextInputExProtocolGuid, (VOID **)&Protocol);
+    if (EFI_SUCCESS == Status)
+    {
+        g_con_simple_input_ex = Protocol;
     }
 
     gST->ConOut->ClearScreen(gST->ConOut);

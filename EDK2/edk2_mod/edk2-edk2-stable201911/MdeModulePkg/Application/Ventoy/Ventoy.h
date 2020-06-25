@@ -291,7 +291,6 @@ typedef struct ventoy_system_wrapper
 extern BOOLEAN gDebugPrint;
 VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...);
 EFI_STATUS EFIAPI ventoy_wrapper_system(VOID);
-EFI_STATUS EFIAPI ventoy_wrapper_file_procotol(EFI_FILE_PROTOCOL *File);
 EFI_STATUS EFIAPI ventoy_block_io_read 
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
@@ -317,6 +316,7 @@ extern BOOLEAN gMemdiskMode;
 extern UINTN g_iso_buf_size;
 extern ventoy_grub_param_file_replace *g_file_replace_list;
 extern BOOLEAN g_fixup_iso9660_secover_enable;
+extern EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *g_con_simple_input_ex;
 
 EFI_STATUS EFIAPI ventoy_wrapper_open_volume
 (
@@ -325,6 +325,8 @@ EFI_STATUS EFIAPI ventoy_wrapper_open_volume
 );
 EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 ImgSize);
 EFI_STATUS EFIAPI ventoy_wrapper_push_openvolume(IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME OpenVolume);
+EFI_STATUS ventoy_hook_keyboard_start(VOID);
+EFI_STATUS ventoy_hook_keyboard_stop(VOID);
 
 #endif
 

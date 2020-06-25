@@ -144,7 +144,7 @@ int GetRegDwordValue(HKEY Key, LPCSTR SubKey, LPCSTR ValueName, DWORD *pValue);
 int GetPhysicalDriveCount(void);
 int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount);
 int GetPhyDriveByLogicalDrive(int DriveLetter);
-int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, CHAR *VerBuf, size_t BufLen);
+int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, MBR_HEAD *pMBR, CHAR *VerBuf, size_t BufLen);
 int Ventoy2DiskInit(void);
 int Ventoy2DiskDestroy(void);
 PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id);
@@ -159,5 +159,7 @@ int INIT unxz(unsigned char *in, int in_size,
     unsigned char *out, int *in_used,
     void(*error)(char *x));
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount);
+INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+int GetReservedSpaceInMB(void);
 
 #endif

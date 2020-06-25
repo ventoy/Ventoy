@@ -32,4 +32,5 @@ if [ "$vtdiskname" = "unknown" ]; then
     exit 0
 fi
 
+vtlog "${vtdiskname#/dev/}2 found..."
 $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/udev_disk_hook.sh "${vtdiskname#/dev/}2"

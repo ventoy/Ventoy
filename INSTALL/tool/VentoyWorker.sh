@@ -10,12 +10,13 @@ print_usage() {
     echo '   -I  force install ventoy to sdX (no matter installed or not)'
     echo ''
     echo '  OPTION: (optional)'
-    echo '   -s  enable secure boot support (default is disabled)'
+    echo '   -r SIZE_MB  preserve some space at the bottom of the disk (only for install)'
+    echo '   -s          enable secure boot support (default is disabled)'
     echo ''
     
 }
 
-
+RESERVE_SIZE_MB=0
 while [ -n "$1" ]; do
     if [ "$1" = "-i" ]; then
         MODE="install"
@@ -26,6 +27,10 @@ while [ -n "$1" ]; do
         MODE="update"
     elif [ "$1" = "-s" ]; then
         SECUREBOOT="YES"
+    elif [ "$1" = "-r" ]; then
+        RESERVE_SPACE="YES"
+        shift
+        RESERVE_SIZE_MB=$1
     else
         if ! [ -b "$1" ]; then
             vterr "$1 is NOT a valid device"
@@ -53,6 +58,15 @@ if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
     exit 1
 fi
 
+if [ -n "$RESERVE_SPACE" ]; then
+    if echo $RESERVE_SIZE_MB | grep -q '^[0-9][0-9]*$'; then
+        vtdebug "User will reserve $RESERVE_SIZE_MB MB disk space"
+    else
+        vterr "$RESERVE_SIZE_MB is invalid for reserved space"
+        exit 1
+    fi
+fi
+
 if dd if="$DISK" of=/dev/null bs=1 count=1 >/dev/null 2>&1; then
     vtdebug "root permission check ok ..."
 else
@@ -61,7 +75,7 @@ else
     exit 1
 fi
 
-vtdebug "MODE=$MODE FORCE=$FORCE"
+vtdebug "MODE=$MODE FORCE=$FORCE RESERVE_SPACE=$RESERVE_SPACE RESERVE_SIZE_MB=$RESERVE_SIZE_MB"
 
 if ! check_tool_work_ok; then
     vterr "Some tools can not run in current system. Please check log.txt for detail."
@@ -124,10 +138,26 @@ if [ "$MODE" = "install" ]; then
         exit 1
     fi
 
+    if [ -n "$RESERVE_SPACE" ]; then
+        sum_size_mb=$(expr $RESERVE_SIZE_MB + $VENTOY_PART_SIZE_MB)
+        reserve_sector_num=$(expr $sum_size_mb \* 2048)
+        
+        if [ $disk_sector_num -le $reserve_sector_num ]; then
+            vterr "Can't reserve $RESERVE_SIZE_MB MB space from $DISK"
+            exit 1
+        fi
+    fi
+
+
     #Print disk info
     echo "Disk : $DISK"
     parted -s $DISK p 2>&1 | grep Model
     echo "Size : $disk_size_gb GB"
+    echo ''
+
+    if [ -n "$RESERVE_SPACE" ]; then
+        echo "You will reserve $RESERVE_SIZE_MB MB disk space "
+    fi
     echo ''
 
     vtwarn "Attention:"
@@ -162,7 +192,7 @@ if [ "$MODE" = "install" ]; then
         exit 1
     fi
 
-    format_ventoy_disk $DISK $PARTTOOL
+    format_ventoy_disk $RESERVE_SIZE_MB $DISK $PARTTOOL
 
     # format part1
     if ventoy_is_linux64; then
@@ -278,8 +308,7 @@ else
     
     ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1  
 
-    disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size) 
-    part2_start=$(expr $disk_sector_num - $VENTOY_SECTOR_NUM)
+    part2_start=$(cat /sys/class/block/${PART2#/dev/}/start) 
     ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
 
     sync

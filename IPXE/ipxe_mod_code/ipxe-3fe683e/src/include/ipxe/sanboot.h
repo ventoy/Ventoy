@@ -92,7 +92,7 @@ struct san_device {
     uint8_t boot_catalog_sector[2048];
 
 	/** SAN paths */
-	struct san_path path[0];
+	struct san_path path[0];    
 };
 
 /** SAN device flags */

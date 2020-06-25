@@ -70,7 +70,7 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
     return 0;
 }
 
-static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes)
+static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR)
 {
     int i;
     BOOL bRet;
@@ -121,30 +121,24 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes)
         Log("PartTbl.EndCylinder = %u", MBR.PartTbl[i].EndCylinder);
     }
 
-    if (MBR.PartTbl[2].SectorCount > 0 || MBR.PartTbl[3].SectorCount > 0)
+
+    if (MBR.PartTbl[0].StartSectorId != 2048)
     {
-        Log("Part3 Part4 are not empty");
+        Log("Part1 not match %u", MBR.PartTbl[0].StartSectorId);
         return FALSE;
     }
 
-    PartStartSector = 2048;
-    PartSectorCount = (UINT32)((SizeBytes - VENTOY_EFI_PART_SIZE - SIZE_1MB) / 512);
-
-    if (MBR.PartTbl[0].StartSectorId != PartStartSector ||
-        MBR.PartTbl[0].SectorCount != PartSectorCount)
-    {
-        Log("Part1 not match %u %u", PartStartSector, PartSectorCount);
-        return FALSE;
-    }
-
-    PartStartSector = (UINT32)((SizeBytes - VENTOY_EFI_PART_SIZE) / 512);
+    PartStartSector = MBR.PartTbl[0].StartSectorId + MBR.PartTbl[0].SectorCount;
     PartSectorCount = VENTOY_EFI_PART_SIZE / 512;
 
     if (MBR.PartTbl[1].FsFlag != 0xEF ||
         MBR.PartTbl[1].StartSectorId != PartStartSector ||
         MBR.PartTbl[1].SectorCount != PartSectorCount)
     {
-        Log("Part2 not match %u %u", PartStartSector, PartSectorCount);
+        Log("Part2 not match [0x%x 0x%x] [%u %u] [%u %u]",
+            MBR.PartTbl[1].FsFlag, 0xEF,
+            MBR.PartTbl[1].StartSectorId, PartStartSector,
+            MBR.PartTbl[1].SectorCount, PartSectorCount);
         return FALSE;
     }
 
@@ -154,6 +148,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes)
         return FALSE;
     }
 
+	memcpy(pMBR, &MBR, sizeof(MBR_HEAD));
     Log("PhysicalDrive%d is ventoy disk", PhyDrive);
     return TRUE;
 }
@@ -167,6 +162,7 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
     int Id = 0;
     int LetterCount = 0;
     PHY_DRIVE_INFO *CurDrive;
+	MBR_HEAD MBR;
     int LogLetter[VENTOY_MAX_PHY_DRIVE];
     int PhyDriveId[VENTOY_MAX_PHY_DRIVE];
 
@@ -221,9 +217,9 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
             }
         }
 
-        if (IsVentoyPhyDrive(CurDrive->PhyDrive, CurDrive->SizeInBytes))
+		if (IsVentoyPhyDrive(CurDrive->PhyDrive, CurDrive->SizeInBytes, &MBR))
         {
-            GetVentoyVerInPhyDrive(CurDrive, CurDrive->VentoyVersion, sizeof(CurDrive->VentoyVersion));
+			GetVentoyVerInPhyDrive(CurDrive, &MBR, CurDrive->VentoyVersion, sizeof(CurDrive->VentoyVersion));
         }
     }
 

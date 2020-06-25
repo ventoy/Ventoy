@@ -104,6 +104,7 @@
     <ClCompile Include="ff14\source\ffsystem.c" />
     <ClCompile Include="ff14\source\ffunicode.c" />
     <ClCompile Include="Language.c" />
+    <ClCompile Include="PartDialog.c" />
     <ClCompile Include="PhyDrive.c" />
     <ClCompile Include="Utility.c" />
     <ClCompile Include="Ventoy2Disk.c" />

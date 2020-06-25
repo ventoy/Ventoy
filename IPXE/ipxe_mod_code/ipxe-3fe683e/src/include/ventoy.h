@@ -170,6 +170,7 @@ typedef struct ventoy_sector_flag
 }ventoy_sector_flag;
 
 #define VENTOY_BIOS_FAKE_DRIVE  0xFE
+#define VENTOY_BOOT_FIXBIN_DRIVE  0xFD
 
 extern int g_debug;
 extern char *g_cmdline_copy;

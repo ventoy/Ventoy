@@ -2,6 +2,7 @@
 
 #Ventoy partition 32MB
 VENTOY_PART_SIZE=33554432
+VENTOY_PART_SIZE_MB=32
 VENTOY_SECTOR_SIZE=512
 VENTOY_SECTOR_NUM=65536
 
@@ -185,18 +186,28 @@ get_disk_ventoy_version() {
 }
 
 format_ventoy_disk() {
-    DISK=$1
-    PARTTOOL=$2
+    reserve_mb=$1
+    DISK=$2
+    PARTTOOL=$3
     
     PART1=$(get_disk_part_name $DISK 1)
     PART2=$(get_disk_part_name $DISK 2)
     
     sector_num=$(cat /sys/block/${DISK#/dev/}/size)
     
-    part1_start_sector=2048
-    part1_end_sector=$(expr $sector_num - $VENTOY_SECTOR_NUM - 1)
-    export part2_start_sector=$(expr $part1_end_sector + 1)
-    part2_end_sector=$(expr $sector_num - 1)
+    part1_start_sector=2048 
+    
+    if [ $reserve_mb -gt 0 ]; then
+        reserve_sector_num=$(expr $reserve_mb \* 2048)
+        part1_end_sector=$(expr $sector_num - $reserve_sector_num - $VENTOY_SECTOR_NUM - 1)
+    else
+        part1_end_sector=$(expr $sector_num - $VENTOY_SECTOR_NUM - 1)
+    fi
+    
+    part2_start_sector=$(expr $part1_end_sector + 1)
+    part2_end_sector=$(expr $part2_start_sector + $VENTOY_SECTOR_NUM - 1)
+
+    export part2_start_sector
 
     vtdebug "part1_start_sector=$part1_start_sector  part1_end_sector=$part1_end_sector"
     vtdebug "part2_start_sector=$part2_start_sector  part2_end_sector=$part2_end_sector"
