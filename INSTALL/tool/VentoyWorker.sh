@@ -293,6 +293,8 @@ else
     fi
 
     PART2=$(get_disk_part_name $DISK 2)
+    SHORT_PART2=${PART2#/dev/}
+    part2_start=$(cat /sys/class/block/$SHORT_PART2/start)
     
     dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
     
@@ -307,8 +309,6 @@ else
     fi
     
     ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1  
-
-    part2_start=$(cat /sys/class/block/${PART2#/dev/}/start) 
     ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
 
     sync
