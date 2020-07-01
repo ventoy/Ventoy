@@ -31,7 +31,7 @@ while ! grep -q 524288 /sys/block/${LOOP#/dev/}/size 2>/dev/null; do
     sleep 1
 done
 
-format_ventoy_disk $LOOP fdisk
+format_ventoy_disk 0 $LOOP fdisk
 
 $GRUB_DIR/sbin/grub-bios-setup  --skip-fs-probe  --directory="./grub/i386-pc"  $LOOP
 
