@@ -57,6 +57,10 @@ typedef enum STR_ID
     STR_PRESERVE_SPACE,//24
 	STR_SPACE_VAL_INVALID,//25
 
+    STR_MENU_CLEAR, //26
+    STR_CLEAR_SUCCESS, //27
+    STR_CLEAR_FAILED, //28
+
 	STR_ID_MAX
 }STR_ID;
 
@@ -64,6 +68,7 @@ extern BOOL g_SecureBoot;
 
 #define VTOY_MENU_SECURE_BOOT	  0xA000
 #define VTOY_MENU_PART_CFG        0xA001
+#define VTOY_MENU_CLEAN           0xA002
 #define VTOY_MENU_LANGUAGE_BEGIN  0xB000
 
 

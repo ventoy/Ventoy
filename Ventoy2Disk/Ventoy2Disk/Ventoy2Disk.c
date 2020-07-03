@@ -276,6 +276,7 @@ int SortPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 
 int Ventoy2DiskInit(void)
 {
+    Log("\n===================== Enum All PhyDrives =====================");
     g_PhyDriveList = (PHY_DRIVE_INFO *)malloc(sizeof(PHY_DRIVE_INFO)* VENTOY_MAX_PHY_DRIVE);
     if (NULL == g_PhyDriveList)
     {

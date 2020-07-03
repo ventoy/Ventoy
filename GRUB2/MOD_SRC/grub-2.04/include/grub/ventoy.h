@@ -40,6 +40,15 @@ typedef enum ventoy_fs_type
     ventoy_fs_max
 }ventoy_fs_type;
 
+typedef enum ventoy_chain_type
+{
+    ventoy_chain_linux = 0, /* 0: linux */
+    ventoy_chain_windows,   /* 1: windows */
+    ventoy_chain_wim,       /* 2: wim */
+
+    ventoy_chain_max
+}ventoy_chain_type;
+
 #pragma pack(1)
 
 typedef struct ventoy_guid
@@ -109,7 +118,7 @@ typedef struct ventoy_os_param
      *
      * vtoy_reserved[0]: vtoy_break_level
      * vtoy_reserved[1]: vtoy_debug_level
-     * vtoy_reserved[2]: vtoy_chain_type     0:Linux    1:Windows
+     * vtoy_reserved[2]: vtoy_chain_type     0:Linux    1:Windows  2:wimfile
      * vtoy_reserved[3]: vtoy_iso_format     0:iso9660  1:udf
      * vtoy_reserved[4]: vtoy_windows_cd_prompt
      *
@@ -204,11 +213,12 @@ typedef struct ventoy_img_chunk_list
 
 #define ventoy_filt_register grub_file_filter_register
 
-typedef const char * (*grub_env_get_pf)(const char *name);
-
 #pragma pack(1)
 
 #define GRUB_FILE_REPLACE_MAGIC  0x1258BEEF
+
+typedef const char * (*grub_env_get_pf)(const char *name);
+typedef int (*grub_env_printf_pf)(const char *fmt, ...);
 
 typedef struct ventoy_grub_param_file_replace
 {
@@ -221,8 +231,8 @@ typedef struct ventoy_grub_param_file_replace
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
-
     ventoy_grub_param_file_replace file_replace;
+    grub_env_printf_pf grub_env_printf;
 }ventoy_grub_param;
 
 #pragma pack()

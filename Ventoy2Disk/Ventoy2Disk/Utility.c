@@ -382,7 +382,7 @@ BOOL IsVentoyLogicalDrive(CHAR DriveLetter)
 }
 
 
-static int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table)
+int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table)
 {
     BYTE Head;
     BYTE Sector;

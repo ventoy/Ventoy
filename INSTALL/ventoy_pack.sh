@@ -104,7 +104,7 @@ cd $CurDir
 tar -czvf ventoy-${curver}-linux.tar.gz $tmpdir
 
 rm -f ventoy-${curver}-windows.zip
-cp -a Ventoy2Disk.exe $tmpdir/
+cp -a Ventoy2Disk*.exe $tmpdir/
 cp -a $LANG_DIR/languages.ini $tmpdir/ventoy/
 rm -rf $tmpdir/tool
 rm -f $tmpdir/*.sh

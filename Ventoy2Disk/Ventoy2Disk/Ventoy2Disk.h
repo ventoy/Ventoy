@@ -161,5 +161,13 @@ int INIT unxz(unsigned char *in, int in_size,
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount);
 INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 int GetReservedSpaceInMB(void);
+int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive);
+int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
+int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter);
+
+#define SET_FILE_POS(pos) \
+    liCurrentPosition.QuadPart = pos; \
+    SetFilePointerEx(hDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN)\
+
 
 #endif

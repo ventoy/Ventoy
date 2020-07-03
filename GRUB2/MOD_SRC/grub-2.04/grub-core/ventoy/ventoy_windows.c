@@ -332,7 +332,7 @@ grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char *
     g_wim_patch_head = NULL;
     g_wim_total_patch_count = 0;
     g_wim_valid_patch_count = 0;
-    
+
     return 0;
 }
 
@@ -549,13 +549,9 @@ static wim_directory_entry * search_full_wim_dirent
     {
         subdir = (wim_directory_entry *)((char *)meta_data + search->subdir);
         search = search_wim_dirent(subdir, *path);
-        if (!search)
-        {
-            debug("%s search failed\n", *path);
-        }
-
         path++;
     }
+    
     return search;
 }
 
@@ -563,16 +559,18 @@ static wim_directory_entry * search_replace_wim_dirent(void *meta_data, wim_dire
 {
     wim_directory_entry *wim_dirent = NULL;
     const char *winpeshl_path[] = { "Windows", "System32", "winpeshl.exe", NULL };
-    //const char *pecmd_path[] = { "Windows", "System32", "PECMD.exe", NULL };
+    //const char *native_path[] = { "Windows", "System32", "native.exe", NULL };
 
     wim_dirent = search_full_wim_dirent(meta_data, dir, winpeshl_path);
+    debug("search winpeshl.exe %p\n", wim_dirent);
     if (wim_dirent)
     {
         return wim_dirent;
     }
-    
+
     #if 0
-    wim_dirent = search_full_wim_dirent(meta_data, dir, pecmd_path);
+    wim_dirent = search_full_wim_dirent(meta_data, dir, native_path);
+    debug("search native.exe %p\n", wim_dirent);
     if (wim_dirent)
     {
         return wim_dirent;
@@ -1385,7 +1383,7 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
     /* part 1: os parameter */
-    g_ventoy_chain_type = 1;
+    g_ventoy_chain_type = ventoy_chain_windows;
     ventoy_fill_os_param(file, &(chain->os_param));
 
     if (0 == unknown_image)
@@ -1597,7 +1595,7 @@ grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
     /* part 1: os parameter */
-    g_ventoy_chain_type = 0;
+    g_ventoy_chain_type = ventoy_chain_wim;
     ventoy_fill_os_param(file, &(chain->os_param));
 
     /* part 2: chain head */

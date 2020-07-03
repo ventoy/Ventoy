@@ -21,10 +21,10 @@ all_extra_modules="elf macho offsetio regexp file"
 
 if [ "$1" = "uefi" ]; then
     all_modules="$net_modules_uefi $all_modules_uefi $all_extra_modules"
-    grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi" --prefix '(,msdos2)/grub' --output "$VT_DIR/INSTALL/EFI/BOOT/grubx64_real.efi"  --format 'x86_64-efi' --compression 'auto'  $all_modules_uefi 'fat' 'part_msdos'
+    grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/EFI/BOOT/grubx64_real.efi"  --format 'x86_64-efi' --compression 'auto'  $all_modules_uefi 'fat' 'part_msdos'
 else
     all_modules="$net_modules_legacy $all_modules_legacy"
-    grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,msdos2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk' 
+    grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk' 
 fi
 
 grub-mknetdir  --modules="$all_modules" --net-directory=$VT_DIR/GRUB2/PXE  --subdir=grub2 --locales=en@quot || exit 1

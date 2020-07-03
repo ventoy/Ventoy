@@ -1144,7 +1144,7 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
     /* part 1: os parameter */
-    g_ventoy_chain_type = 0;
+    g_ventoy_chain_type = ventoy_chain_linux;
     ventoy_fill_os_param(file, &(chain->os_param));
 
     /* part 2: chain head */

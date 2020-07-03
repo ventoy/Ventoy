@@ -460,6 +460,7 @@ int ventoy_cpio_newc_fill_head(void *buf, int filesize, const void *filedata, co
 grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...);
 grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...);
 int ventoy_is_file_exist(const char *fmt, ...);
+int ventoy_is_dir_exist(const char *fmt, ...);
 int ventoy_fill_data(grub_uint32_t buflen, char *buffer);
 grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -600,6 +601,7 @@ typedef struct install_template
     int pathlen;
     char isopath[256];
 
+    int autosel;
     int cursel;
     int templatenum;
     file_fullpath *templatepath;
@@ -612,6 +614,7 @@ typedef struct persistence_config
     int pathlen;
     char isopath[256];
 
+    int autosel;
     int cursel;
     int backendnum;
     file_fullpath *backendpath;
@@ -619,8 +622,12 @@ typedef struct persistence_config
     struct persistence_config *next;
 }persistence_config;
 
+#define vtoy_alias_image_file 0
+#define vtoy_alias_directory  1
+
 typedef struct menu_alias
 {
+    int type;
     int pathlen;
     char isopath[256];
     char alias[256];
@@ -628,8 +635,12 @@ typedef struct menu_alias
     struct menu_alias *next;
 }menu_alias;
 
+#define vtoy_class_image_file  0
+#define vtoy_class_directory   1
+
 typedef struct menu_class
 {
+    int  type;
     int  patlen;
     char pattern[256];
     char class[64];
@@ -654,8 +665,8 @@ persistence_config * ventoy_plugin_find_persistent(const char *isopath);
 void ventoy_plugin_dump_auto_install(void);
 int ventoy_fill_windows_rtdata(void *buf, char *isopath);
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);
-const char * ventoy_plugin_get_menu_alias(const char *isopath);
-const char * ventoy_plugin_get_menu_class(const char *isoname);
+const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);
+const char * ventoy_plugin_get_menu_class(int type, const char *name);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);

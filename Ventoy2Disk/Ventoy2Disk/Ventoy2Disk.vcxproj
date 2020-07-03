@@ -106,6 +106,7 @@
     <ClCompile Include="Language.c" />
     <ClCompile Include="PartDialog.c" />
     <ClCompile Include="PhyDrive.c" />
+    <ClCompile Include="process.c" />
     <ClCompile Include="Utility.c" />
     <ClCompile Include="Ventoy2Disk.c" />
     <ClCompile Include="WinDialog.c" />
@@ -128,6 +129,7 @@
     <ClInclude Include="ff14\source\ff.h" />
     <ClInclude Include="ff14\source\ffconf.h" />
     <ClInclude Include="Language.h" />
+    <ClInclude Include="process.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Ventoy2Disk.h" />
   </ItemGroup>
@@ -135,6 +137,8 @@
     <ResourceCompile Include="Ventoy2Disk.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\icon2.ico" />
+    <Image Include="Res\refresh.ico" />
     <Image Include="Res\ventoy.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

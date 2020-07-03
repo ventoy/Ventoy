@@ -65,6 +65,47 @@ EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *g_con_simple_input_ex = NULL;
 STATIC EFI_INPUT_READ_KEY_EX g_org_read_key_ex = NULL;
 STATIC EFI_INPUT_READ_KEY g_org_read_key = NULL;
 
+STATIC EFI_LOCATE_HANDLE g_org_locate_handle = NULL;
+
+BOOLEAN ventoy_is_cdrom_dp_exist(VOID)
+{
+    UINTN i = 0;
+    UINTN Count = 0;
+    EFI_HANDLE *Handles = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_DEVICE_PATH_PROTOCOL *DevicePath = NULL;
+
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiDevicePathProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return FALSE;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
+        if (EFI_ERROR(Status))
+        {
+            continue;
+        }
+
+        while (!IsDevicePathEnd(DevicePath))
+        {
+            if (MEDIA_DEVICE_PATH == DevicePath->Type && MEDIA_CDROM_DP == DevicePath->SubType)
+            {
+                FreePool(Handles);
+                return TRUE;
+            }
+        
+            DevicePath = NextDevicePathNode(DevicePath);
+        }
+    }
+
+    FreePool(Handles);
+    return FALSE;         
+}
+
 #if 0
 /* Block IO procotol */
 #endif
@@ -475,7 +516,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
     if (i < Count)
     {
         Status = gBS->ConnectController(ControllerHandle, DrvHandles, NULL, TRUE);
-        debug("Connect partition driver:<%r>", Status);
+        debug("ventoy_connect_driver:<%s> <%r>", DrvName, Status);
         goto end;
     }
 
@@ -517,7 +558,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
     if (i < Count)
     {
         Status = gBS->ConnectController(ControllerHandle, DrvHandles, NULL, TRUE);
-        debug("Connect partition driver:<%r>", Status);
+        debug("ventoy_connect_driver:<%s> <%r>", DrvName, Status);
         goto end;
     }
 
@@ -535,6 +576,9 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
     EFI_BLOCK_IO_PROTOCOL *pBlockIo = &(gBlockData.BlockIo);
     
     ventoy_fill_device_path();
+
+    debug("install block io protocol %p", ImageHandle);
+    ventoy_debug_pause();
     
     gBlockData.Media.BlockSize = 2048;
     gBlockData.Media.LastBlock = ImgSize / 2048 - 1;
@@ -561,7 +605,6 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
     
     Status = ventoy_connect_driver(gBlockData.Handle, L"Disk I/O Driver");
     debug("Connect disk IO driver %r", Status);
-    ventoy_debug_pause();
     
     Status = ventoy_connect_driver(gBlockData.Handle, L"Partition Driver");
     debug("Connect partition driver %r", Status);
@@ -913,6 +956,58 @@ EFI_STATUS ventoy_hook_keyboard_stop(VOID)
 
     gST->ConIn->ReadKeyStroke = g_org_read_key;
 
+    return EFI_SUCCESS;
+}
+
+#if 0
+/* Fixup the 1st cdrom influnce for Windows boot */
+#endif
+
+STATIC EFI_STATUS EFIAPI ventoy_wrapper_locate_handle
+(
+    IN     EFI_LOCATE_SEARCH_TYPE    SearchType,
+    IN     EFI_GUID                 *Protocol,    OPTIONAL
+    IN     VOID                     *SearchKey,   OPTIONAL
+    IN OUT UINTN                    *BufferSize,
+    OUT    EFI_HANDLE               *Buffer
+)
+{
+    UINTN i;
+    EFI_HANDLE Handle = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    Status = g_org_locate_handle(SearchType, Protocol, SearchKey, BufferSize, Buffer);
+    
+    if (EFI_SUCCESS == Status && Protocol && CompareGuid(&gEfiBlockIoProtocolGuid, Protocol))
+    {
+        for (i = 0; i < (*BufferSize) / sizeof(EFI_HANDLE); i++)
+        {
+            if (Buffer[i] == gBlockData.Handle)
+            {
+                Handle = Buffer[0];
+                Buffer[0] = Buffer[i];
+                Buffer[i] = Handle;
+                break;
+            }
+        }
+    }
+
+    return Status;
+}
+
+EFI_STATUS ventoy_hook_1st_cdrom_start(VOID)
+{
+    g_org_locate_handle = gBS->LocateHandle;
+    gBS->LocateHandle = ventoy_wrapper_locate_handle;
+    
+    return EFI_SUCCESS;
+}
+
+EFI_STATUS ventoy_hook_1st_cdrom_stop(VOID)
+{
+    gBS->LocateHandle = g_org_locate_handle;
+    g_org_locate_handle = NULL;
+    
     return EFI_SUCCESS;
 }
 

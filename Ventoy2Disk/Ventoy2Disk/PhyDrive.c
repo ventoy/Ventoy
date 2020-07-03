@@ -1232,9 +1232,13 @@ static int FormatPart1exFAT(UINT64 DiskSizeBytes)
 
             Ret = f_mount(0, TEXT("0:"), 1);
             Log("umount part %d", Ret);
+            return 0;
         }
-
-        return 0;
+        else
+        {
+            Log("mount exfat failed %d", Ret);
+            return 1;
+        }
     }
     else
     {
@@ -1243,6 +1247,201 @@ static int FormatPart1exFAT(UINT64 DiskSizeBytes)
     }
 }
 
+
+
+int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter)
+{
+    int i;
+    int rc = 0;
+    int state = 0;
+    HANDLE hDrive;
+    DWORD dwSize;
+    BOOL bRet;
+    CHAR MountDrive;
+    CHAR DriveName[] = "?:\\";
+    CHAR DriveLetters[MAX_PATH] = { 0 };
+    LARGE_INTEGER liCurrentPosition;
+    char *pTmpBuf = NULL;
+    MBR_HEAD MBR;
+
+    *pDrvLetter = 0;
+
+    Log("ClearVentoyFromPhyDrive PhyDrive%d <<%s %s %dGB>>",
+        pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId,
+        GetHumanReadableGBSize(pPhyDrive->SizeInBytes));
+
+    PROGRESS_BAR_SET_POS(PT_LOCK_FOR_CLEAN);
+
+    Log("Lock disk for clean ............................. ");
+
+    hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, FALSE, FALSE);
+    if (hDrive == INVALID_HANDLE_VALUE)
+    {
+        Log("Failed to open physical disk");
+        return 1;
+    }
+
+    GetLettersBelongPhyDrive(pPhyDrive->PhyDrive, DriveLetters, sizeof(DriveLetters));
+
+    if (DriveLetters[0] == 0)
+    {
+        Log("No drive letter was assigned...");
+        DriveName[0] = GetFirstUnusedDriveLetter();
+        Log("GetFirstUnusedDriveLetter %C: ...", DriveName[0]);
+    }
+    else
+    {
+        // Unmount all mounted volumes that belong to this drive
+        // Do it in reverse so that we always end on the first volume letter
+        for (i = (int)strlen(DriveLetters); i > 0; i--)
+        {
+            DriveName[0] = DriveLetters[i - 1];
+            bRet = DeleteVolumeMountPointA(DriveName);
+            Log("Delete mountpoint %s ret:%u code:%u", DriveName, bRet, GetLastError());
+        }
+    }
+
+    MountDrive = DriveName[0];
+    Log("Will use '%C:' as volume mountpoint", DriveName[0]);
+
+    // It kind of blows, but we have to relinquish access to the physical drive
+    // for VDS to be able to delete the partitions that reside on it...
+    DeviceIoControl(hDrive, FSCTL_UNLOCK_VOLUME, NULL, 0, NULL, 0, &dwSize, NULL);
+    CHECK_CLOSE_HANDLE(hDrive);
+
+    PROGRESS_BAR_SET_POS(PT_DEL_ALL_PART);
+
+    if (!DeletePartitions(pPhyDrive->PhyDrive, FALSE))
+    {
+        Log("Notice: Could not delete partitions: %u", GetLastError());
+    }
+
+    Log("Deleting all partitions ......................... OK");
+
+    PROGRESS_BAR_SET_POS(PT_LOCK_FOR_WRITE);
+
+    Log("Lock disk for write ............................. ");
+    hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, TRUE, FALSE);
+    if (hDrive == INVALID_HANDLE_VALUE)
+    {
+        Log("Failed to GetPhysicalHandle for write.");
+        rc = 1;
+        goto End;
+    }
+
+    // clear first and last 1MB space
+    pTmpBuf = malloc(SIZE_1MB);
+    if (!pTmpBuf)
+    {
+        Log("Failed to alloc memory.");
+        rc = 1;
+        goto End;
+    }
+    memset(pTmpBuf, 0, SIZE_1MB);   
+
+    SET_FILE_POS(512);
+    bRet = WriteFile(hDrive, pTmpBuf, SIZE_1MB - 512, &dwSize, NULL);
+    Log("Write fisrt 1MB ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
+    if (!bRet)
+    {
+        rc = 1;
+        goto End;
+    }
+
+    SET_FILE_POS(SIZE_1MB);
+    bRet = WriteFile(hDrive, pTmpBuf, SIZE_1MB, &dwSize, NULL);
+    Log("Write 2nd 1MB ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
+    if (!bRet)
+    {
+        rc = 1;
+        goto End;
+    }
+
+    SET_FILE_POS(0);
+    bRet = ReadFile(hDrive, &MBR, sizeof(MBR), &dwSize, NULL);
+    Log("Read MBR ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
+    if (!bRet)
+    {
+        rc = 1;
+        goto End;
+    }
+
+    //clear boot code and partition table (reserved disk signature)
+    memset(MBR.BootCode, 0, 440);
+    memset(MBR.PartTbl, 0, sizeof(MBR.PartTbl));
+
+    VentoyFillLocation(pPhyDrive->SizeInBytes, 2048, (UINT32)(pPhyDrive->SizeInBytes / 512 - 2048), MBR.PartTbl);
+
+    MBR.PartTbl[0].Active = 0x80; // bootable
+    MBR.PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
+
+    SET_FILE_POS(0);
+    bRet = WriteFile(hDrive, &MBR, 512, &dwSize, NULL);
+    Log("Write MBR ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
+    if (!bRet)
+    {
+        rc = 1;
+        goto End;
+    }
+
+    Log("Clear Ventoy successfully finished");
+
+End:
+    
+    PROGRESS_BAR_SET_POS(PT_MOUNT_VOLUME);
+    
+    if (pTmpBuf)
+    {
+        free(pTmpBuf);
+    }
+
+    if (rc == 0)
+    {
+        Log("Mounting Ventoy Partition ....................... ");
+        Sleep(1000);
+
+        state = 0;
+        memset(DriveLetters, 0, sizeof(DriveLetters));
+        GetLettersBelongPhyDrive(pPhyDrive->PhyDrive, DriveLetters, sizeof(DriveLetters));
+        Log("Logical drive letter after write ventoy: <%s>", DriveLetters);
+
+        for (i = 0; i < sizeof(DriveLetters) && DriveLetters[i]; i++)
+        {
+            DriveName[0] = DriveLetters[i];
+            Log("%s is ventoy part1, already mounted", DriveName);
+            state = 1;
+        }
+
+        if (state != 1)
+        {
+            Log("need to mount ventoy part1...");
+            if (0 == GetVentoyVolumeName(pPhyDrive->PhyDrive, MBR.PartTbl[0].StartSectorId, DriveLetters, sizeof(DriveLetters), FALSE))
+            {
+                DriveName[0] = MountDrive;
+                bRet = SetVolumeMountPointA(DriveName, DriveLetters);
+                Log("SetVolumeMountPoint <%s> <%s> bRet:%u code:%u", DriveName, DriveLetters, bRet, GetLastError());
+
+                *pDrvLetter = MountDrive;
+            }
+            else
+            {
+                Log("Failed to find ventoy volume");
+            }
+        }
+
+        Log("OK\n");
+    }
+    else
+    {
+        FindProcessOccupyDisk(hDrive, pPhyDrive);
+    }
+
+	//Refresh Drive Layout
+	DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
+
+    CHECK_CLOSE_HANDLE(hDrive);
+    return rc;
+}
 
 int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
 {
@@ -1332,6 +1531,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     Log("Formatting part1 exFAT ...");
     if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
     {
+        log("FormatPart1exFAT failed.");
         rc = 1;
         goto End;
     }
@@ -1340,6 +1540,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     Log("Writing part2 FAT img ...");
     if (0 != FormatPart2Fat(hDrive, MBR.PartTbl[1].StartSectorId))
     {
+        log("FormatPart2Fat failed.");
         rc = 1;
         goto End;
     }
@@ -1348,10 +1549,10 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     Log("Writting Boot Image ............................. ");
     if (WriteGrubStage1ToPhyDrive(hDrive) != 0)
     {
+        log("WriteGrubStage1ToPhyDrive failed.");
         rc = 1;
         goto End;
     }
-
 
     PROGRESS_BAR_SET_POS(PT_WRITE_PART_TABLE);
     Log("Writting Partition Table ........................ ");
@@ -1369,49 +1570,56 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
 
 End:
-    CHECK_CLOSE_HANDLE(hDrive);
 
     PROGRESS_BAR_SET_POS(PT_MOUNT_VOLUME);
-    Log("Mounting Ventoy Partition ....................... ");
-    Sleep(1000);
 
-    state = 0;
-    memset(DriveLetters, 0, sizeof(DriveLetters));
-    GetLettersBelongPhyDrive(pPhyDrive->PhyDrive, DriveLetters, sizeof(DriveLetters));
-    Log("Logical drive letter after write ventoy: <%s>", DriveLetters);
-
-    for (i = 0; i < sizeof(DriveLetters) && DriveLetters[i]; i++)
+    if (rc == 0)
     {
-        DriveName[0] = DriveLetters[i];
-        if (IsVentoyLogicalDrive(DriveName[0]))
+        Log("Mounting Ventoy Partition ....................... ");
+        Sleep(1000);
+
+        state = 0;
+        memset(DriveLetters, 0, sizeof(DriveLetters));
+        GetLettersBelongPhyDrive(pPhyDrive->PhyDrive, DriveLetters, sizeof(DriveLetters));
+        Log("Logical drive letter after write ventoy: <%s>", DriveLetters);
+
+        for (i = 0; i < sizeof(DriveLetters) && DriveLetters[i]; i++)
         {
-            Log("%s is ventoy part2, delete mountpoint", DriveName);
-            DeleteVolumeMountPointA(DriveName);
+            DriveName[0] = DriveLetters[i];
+            if (IsVentoyLogicalDrive(DriveName[0]))
+            {
+                Log("%s is ventoy part2, delete mountpoint", DriveName);
+                DeleteVolumeMountPointA(DriveName);
+            }
+            else
+            {
+                Log("%s is ventoy part1, already mounted", DriveName);
+                state = 1;
+            }
         }
-        else
+
+        if (state != 1)
         {
-            Log("%s is ventoy part1, already mounted", DriveName);
-            state = 1;
+            Log("need to mount ventoy part1...");
+            if (0 == GetVentoyVolumeName(pPhyDrive->PhyDrive, MBR.PartTbl[0].StartSectorId, DriveLetters, sizeof(DriveLetters), FALSE))
+            {
+                DriveName[0] = MountDrive;
+                bRet = SetVolumeMountPointA(DriveName, DriveLetters);
+                Log("SetVolumeMountPoint <%s> <%s> bRet:%u code:%u", DriveName, DriveLetters, bRet, GetLastError());
+            }
+            else
+            {
+                Log("Failed to find ventoy volume");
+            }
         }
+        Log("OK\n");
+    }
+    else
+    {
+        FindProcessOccupyDisk(hDrive, pPhyDrive);
     }
 
-    if (state != 1)
-    {
-        Log("need to mount ventoy part1...");
-        if (0 == GetVentoyVolumeName(pPhyDrive->PhyDrive, MBR.PartTbl[0].StartSectorId, DriveLetters, sizeof(DriveLetters), FALSE))
-        {
-            DriveName[0] = MountDrive;
-            bRet = SetVolumeMountPointA(DriveName, DriveLetters);
-            Log("SetVolumeMountPoint <%s> <%s> bRet:%u code:%u", DriveName, DriveLetters, bRet, GetLastError());
-        }
-        else
-        {
-            Log("Failed to find ventoy volume");
-        }
-    }
-
-    Log("OK\n");
-
+    CHECK_CLOSE_HANDLE(hDrive);
     return rc;
 }
 
@@ -1616,8 +1824,19 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
 
 End:
+
+    if (rc == 0)
+    {
+        Log("OK");
+    }
+    else
+    {
+        FindProcessOccupyDisk(hDrive, pPhyDrive);
+    }
+
     CHECK_CLOSE_HANDLE(hDrive);
 
     return rc;
 }
+
 
