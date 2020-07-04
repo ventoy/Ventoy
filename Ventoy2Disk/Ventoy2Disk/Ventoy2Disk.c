@@ -107,7 +107,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
         return FALSE;
     }
 
-	if (MBR.PartTbl[1].FsFlag == 0xEE)
+	if (MBR.PartTbl[0].FsFlag == 0xEE)
 	{
 		pGpt = malloc(sizeof(VTOY_GPT_INFO));
 		if (!pGpt)
