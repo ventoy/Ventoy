@@ -75,6 +75,9 @@
     <ClCompile Include="process.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="crc32.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ventoy2Disk.h">

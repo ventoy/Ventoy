@@ -91,6 +91,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="crc32.c" />
     <ClCompile Include="fat_io_lib\fat_access.c" />
     <ClCompile Include="fat_io_lib\fat_cache.c" />
     <ClCompile Include="fat_io_lib\fat_filelib.c" />
