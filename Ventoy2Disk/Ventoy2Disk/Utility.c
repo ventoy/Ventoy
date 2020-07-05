@@ -549,6 +549,7 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
     VTOY_GPT_PART_TBL *Table = pInfo->PartTbl;
     static GUID WindowsDataPartType = { 0xebd0a0a2, 0xb9e5, 0x4433, { 0x87, 0xc0, 0x68, 0xb6, 0xb7, 0x26, 0x99, 0xc7 } };
     static GUID EspPartType = { 0xc12a7328, 0xf81f, 0x11d2, { 0xba, 0x4b, 0x00, 0xa0, 0xc9, 0x3e, 0xc9, 0x3b } };
+	//static GUID BiosGrubPartType = { 0x21686148, 0x6449, 0x6e6f, { 0x74, 0x4e, 0x65, 0x65, 0x64, 0x45, 0x46, 0x49 } };
 
     VentoyFillProtectMBR(DiskSizeBytes, &pInfo->MBR);
 
@@ -587,6 +588,14 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
     Table[1].LastLBA = Table[1].StartLBA + VENTOY_EFI_PART_SIZE / 512 - 1;
     Table[1].Attr = 1;
     memcpy(Table[1].Name, L"VTOYEFI", 7 * 2);
+
+#if 0
+	memcpy(&(Table[2].PartType), &BiosGrubPartType, sizeof(GUID));
+	CoCreateGuid(&(Table[2].PartGuid));
+	Table[2].StartLBA = 34;
+	Table[2].LastLBA = 2047;
+	Table[2].Attr = 0;
+#endif
 
     //Update CRC
     Head->PartTblCrc = VentoyCrc32(Table, sizeof(pInfo->PartTbl));

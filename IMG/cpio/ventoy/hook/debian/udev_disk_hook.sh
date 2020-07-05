@@ -99,7 +99,18 @@ ventoy_udev_disk_common_hook $*
 # So if ventoy is installed on a non-USB device, we just mount /cdrom here except
 # for these has boot=live or boot=casper parameter in cmdline
 #
-if echo $ID_BUS | $GREP -q -i usb; then
+VT_BUS_USB=""
+if [ -n "$ID_BUS" ]; then
+    if echo $ID_BUS | $GREP -q -i usb; then
+        VT_BUS_USB="YES"
+    fi
+else
+    if $BUSYBOX_PATH/ls -l /sys/class/block/${1:0:-1} | $GREP -q -i usb; then
+        VT_BUS_USB="YES"
+    fi
+fi
+
+if [ -n "$VT_BUS_USB" ]; then
     vtlog "$1 is USB device"
 else
     vtlog "$1 is NOT USB device (bus $ID_BUS)"
