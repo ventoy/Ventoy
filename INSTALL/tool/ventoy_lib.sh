@@ -345,11 +345,19 @@ format_ventoy_disk_gpt() {
         unit s \
         mkpart Ventoy ntfs $part1_start_sector $part1_end_sector \
         mkpart VTOYEFI fat16 $part2_start_sector $part2_end_sector \
-        set 2 boot on \
-        set 2 esp on \
+        set 2 msftdata on \
         set 2 hidden on \
         quit
+        
+    sync
+    
+    if ventoy_is_linux64; then
+        vtoygpt=./tool/vtoygpt_64
+    else
+        vtoygpt=./tool/vtoygpt_32
+    fi
 
+    $vtoygpt -f $DISK
     sync
 
     udevadm trigger >/dev/null 2>&1

@@ -327,21 +327,27 @@ else
     SHORT_PART2=${PART2#/dev/}
     part2_start=$(cat /sys/class/block/$SHORT_PART2/start)
     
-    dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
+    PART1_TYPE=$(dd if=$DISK bs=1 count=1 skip=450 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
     
-    PART1_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=446 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
-    PART2_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=462 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+    if [ "$PART1_TYPE" = "EE" ]; then
+        vtdebug "This is GPT partition style ..."        
+        ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
+        echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
+    else
+        vtdebug "This is MBR partition style ..."
+        dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
     
-    vtdebug "PART1_ACTIVE=$PART1_ACTIVE  PART2_ACTIVE=$PART2_ACTIVE"
-    if [ "$PART1_ACTIVE" = "00" ] && [ "$PART2_ACTIVE" = "80" ]; then
-        vtdebug "change 1st partition active, 2nd partition inactive ..."
-        echo -en '\x80' | dd of=$DISK conv=fsync bs=1 count=1 seek=446 status=none
-        echo -en '\x00' | dd of=$DISK conv=fsync bs=1 count=1 seek=462 status=none
+        PART1_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=446 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+        PART2_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=462 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+        
+        vtdebug "PART1_ACTIVE=$PART1_ACTIVE  PART2_ACTIVE=$PART2_ACTIVE"
+        if [ "$PART1_ACTIVE" = "00" ] && [ "$PART2_ACTIVE" = "80" ]; then
+            vtdebug "change 1st partition active, 2nd partition inactive ..."
+            echo -en '\x80' | dd of=$DISK conv=fsync bs=1 count=1 seek=446 status=none
+            echo -en '\x00' | dd of=$DISK conv=fsync bs=1 count=1 seek=462 status=none
+        fi
+        ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
-
-
-    ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
-
 
     ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
 

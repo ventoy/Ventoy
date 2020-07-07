@@ -23,6 +23,8 @@ sh buildlib.sh
 cd $VTOY_PATH/vtoyfat
 sh build.sh || exit 1
 
+cd $VTOY_PATH/vtoygpt
+sh build.sh || exit 1
 
 cd $VTOY_PATH/ExFAT
 sh buidlibfuse.sh || exit 1

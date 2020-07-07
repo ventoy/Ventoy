@@ -549,7 +549,7 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
     VTOY_GPT_PART_TBL *Table = pInfo->PartTbl;
     static GUID WindowsDataPartType = { 0xebd0a0a2, 0xb9e5, 0x4433, { 0x87, 0xc0, 0x68, 0xb6, 0xb7, 0x26, 0x99, 0xc7 } };
     static GUID EspPartType = { 0xc12a7328, 0xf81f, 0x11d2, { 0xba, 0x4b, 0x00, 0xa0, 0xc9, 0x3e, 0xc9, 0x3b } };
-	//static GUID BiosGrubPartType = { 0x21686148, 0x6449, 0x6e6f, { 0x74, 0x4e, 0x65, 0x65, 0x64, 0x45, 0x46, 0x49 } };
+	static GUID BiosGrubPartType = { 0x21686148, 0x6449, 0x6e6f, { 0x74, 0x4e, 0x65, 0x65, 0x64, 0x45, 0x46, 0x49 } };
 
     VentoyFillProtectMBR(DiskSizeBytes, &pInfo->MBR);
 
@@ -582,11 +582,13 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
     Table[0].Attr = 0;
     memcpy(Table[0].Name, L"Ventoy", 6 * 2);
 
-    memcpy(&(Table[1].PartType), &EspPartType, sizeof(GUID));
+    // to fix windows issue
+    //memcpy(&(Table[1].PartType), &EspPartType, sizeof(GUID));
+    memcpy(&(Table[1].PartType), &WindowsDataPartType, sizeof(GUID));
     CoCreateGuid(&(Table[1].PartGuid));
     Table[1].StartLBA = Table[0].LastLBA + 1;
     Table[1].LastLBA = Table[1].StartLBA + VENTOY_EFI_PART_SIZE / 512 - 1;
-    Table[1].Attr = 1;
+    Table[1].Attr = 0xC000000000000001ULL;
     memcpy(Table[1].Name, L"VTOYEFI", 7 * 2);
 
 #if 0

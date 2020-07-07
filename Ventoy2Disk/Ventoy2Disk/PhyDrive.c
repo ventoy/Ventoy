@@ -934,6 +934,7 @@ int VentoyProcSecureBoot(BOOL SecureBoot)
 			fl_remove("/EFI/BOOT/grubx64.efi");
 			fl_remove("/EFI/BOOT/grubx64_real.efi");
 			fl_remove("/EFI/BOOT/MokManager.efi");
+            fl_remove("/ENROLL_THIS_KEY_IN_MOKMANAGER.cer");
 
 			file = fl_fopen("/EFI/BOOT/BOOTX64.EFI", "wb");
 			Log("Open bootx64 efi file %p ", file);
@@ -1551,6 +1552,12 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
 
     PROGRESS_BAR_SET_POS(PT_FORMAT_PART1);
 
+    if (PartStyle == 1 && pPhyDrive->PartStyle == 0)
+    {
+        Log("Wait for format part1 ...");
+        Sleep(1000 * 5);
+    }
+
     Log("Formatting part1 exFAT ...");
     if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
     {
@@ -1733,6 +1740,9 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
         // Read GPT Info
         SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
         ReadFile(hDrive, pGptInfo, sizeof(VTOY_GPT_INFO), &dwSize, NULL);
+
+        //MBR will be used to compare with local boot image
+        memcpy(&MBR, &pGptInfo->MBR, sizeof(MBR_HEAD));
 
         StartSector = pGptInfo->PartTbl[1].StartLBA;
         Log("GPT StartSector in PartTbl:%llu", (ULONGLONG)StartSector);
