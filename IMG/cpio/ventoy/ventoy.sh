@@ -196,6 +196,10 @@ ventoy_get_os_type() {
         echo 'adelie'; return
     fi
     
+    if $GREP -q 'pmagic' /proc/version; then
+        echo 'pmagic'; return
+    fi
+    
     echo "default"
 }
 

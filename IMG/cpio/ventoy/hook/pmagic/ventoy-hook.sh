@@ -17,33 +17,15 @@
 # 
 #************************************************************************************
 
-. /ventoy/hook/ventoy-hook-lib.sh
+. $VTOY_PATH/hook/ventoy-os-lib.sh
 
-if is_ventoy_hook_finished; then
-    exit 0
-fi
-
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
-
-if is_inotify_ventoy_part $3; then
-    vtlog "##### INOTIFYD: $2/$3 is created (YES)..."
-    
-    vtlog "find ventoy partition $3 ..."
-    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
-    
-    # blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    # vtDM=$(ventoy_find_dm_id ${blkdev_num})
-    # 
-    # if [ "$vtDM" = "dm-0" ]; then
-    #     vtlog "This is dm-0, OK ..."
-    # else
-    #     vtlog "####### This is $vtDM ####### this is abnormal ..."
-    #     ventoy_swap_device /dev/dm-0 /dev/$vtDM
-    # fi
-    
-    set_ventoy_hook_finish
+if $GREP -q 'Searching *for *PMAGIC' /init; then
+    echo "Find Searching PMAGIC" >> $VTLOG
+    $SED "/Searching *for *PMAGIC/a\ root=/dev/ventoy" -i  /init
+    $SED "/Searching *for *PMAGIC/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/pmagic/disk-hook.sh" -i  /init
 else
-    vtlog "##### INOTIFYD: $2/$3 is created (NO)..."
+    echo "Use default..." >> $VTLOG    
+    $SED "s#^root=.*cmdline.*#root=/dev/ventoy#g'" -i  /init
+    ventoy_systemd_udevd_work_around
+    ventoy_add_udev_rule "$VTOY_PATH/hook/pmagic/udev_disk_hook.sh %k"
 fi
-
-PATH=$VTPATH_OLD

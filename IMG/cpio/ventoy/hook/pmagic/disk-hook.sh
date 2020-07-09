@@ -23,25 +23,25 @@ if is_ventoy_hook_finished; then
     exit 0
 fi
 
+vtlog "####### $0 $* ########"
+
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-if is_inotify_ventoy_part $3; then
-    vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
-    vtlog "find ventoy partition $3 ..."    
-    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh "$3"
-    
-    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    vtDM=$(ventoy_find_dm_id ${blkdev_num})
-    vtLABEL=$($BUSYBOX_PATH/blkid /dev/$vtDM | $AWK '{print $2}' | $SED 's/.*"\(.*\)".*/\1/')
+wait_for_usb_disk_ready
 
-    vtlog "blkdev_num=$blkdev_num  vtDM=$vtDM  label $vtLABEL ..."
-    
-    if ! [ -d /dev/disk/by-label ]; then
-        mkdir -p /dev/disk/by-label
-    fi
-    $BUSYBOX_PATH/cp -a /dev/$vtDM /dev/disk/by-label/$vtLABEL
-else
-    vtlog "##### INOTIFYD: $2/$3 is created (NO) ..."
+vtdiskname=$(get_ventoy_disk_name)
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    PATH=$VTPATH_OLD
+    exit 0
 fi
 
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
+
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+mknod -m 0666 /dev/ventoy b $blkdev_num
+
+
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish

@@ -6,15 +6,14 @@ print_usage() {
     echo 'Usage:  Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX'
     echo '  CMD:'
     echo '   -i  install ventoy to sdX (fail if disk already installed with ventoy)'
-    echo '   -u  update ventoy in sdX'
     echo '   -I  force install ventoy to sdX (no matter installed or not)'
+    echo '   -u  update ventoy in sdX'
     echo ''
     echo '  OPTION: (optional)'
     echo '   -r SIZE_MB  preserve some space at the bottom of the disk (only for install)'
     echo '   -s          enable secure boot support (default is disabled)'
     echo '   -g          use GPT partition style, default is MBR (only for install)'
     echo ''
-    
 }
 
 RESERVE_SIZE_MB=0

@@ -17,6 +17,8 @@
 # 
 #************************************************************************************
 
+CD_DETECT="/var/lib/dpkg/info/cdrom-detect.postinst"
+
 if [ -e /init ] && $GREP -q '^mountroot$' /init; then
     echo "Here before mountroot ..." >> $VTLOG
     
@@ -29,7 +31,15 @@ if [ -e /init ] && $GREP -q '^mountroot$' /init; then
             $SED "s#^  *LIVEMEDIA=.*#LIVEMEDIA=/dev/mapper/ventoy#" -i /scripts/casper
         fi
     fi
-    
+elif [ -e "$CD_DETECT" ]; then
+    echo "$CD_DETECT exist, now add hook in it..." >> $VTLOG
+
+    $SED  "1 a $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/disk_mount_hook.sh"  -i "$CD_DETECT"
+    TITLE_LINE=$($GREP -m1 '^hw-detect.*detect_progress_title' "$CD_DETECT")
+    if [ $? -eq 0 ]; then
+        echo "add $TITLE_LINE for hook" >> $VTLOG
+        $SED  "1 a$TITLE_LINE"  -i "$CD_DETECT"
+    fi
 elif [ -e /init ] && $GREP -q '/start-udev$' /init; then
     echo "Here use notify ..." >> $VTLOG
     
