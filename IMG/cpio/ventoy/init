@@ -72,6 +72,13 @@ ventoy_is_initrd_ramdisk() {
     fi
 }
 
+ventoy_mount_squashfs() {
+    mkdir /dev
+    mount -t devtmpfs devtmpfs /dev    
+    dd if=$1 of=/dev/ram0 status=none
+    umount /dev && rm -rf /dev
+}
+
 # param: file skip magic tmp
 ventoy_unpack_initramfs() {        
     vtfile=$1; vtskip=$2; vtmagic=$3; vttmp=$4    
@@ -82,6 +89,11 @@ ventoy_unpack_initramfs() {
     #    echo -en '\x1F\x8B' | dd status=none of=$vtfile bs=1 count=2 conv=notrunc
     #    vtmagic='1F8B'
     #fi
+    
+    if [ "${vtmagic:0:4}" = '6873' ]; then
+        ventoy_mount_squashfs $vtfile
+        return
+    fi
     
     for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat'; do
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then

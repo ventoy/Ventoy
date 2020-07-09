@@ -200,6 +200,10 @@ ventoy_get_os_type() {
         echo 'pmagic'; return
     fi
     
+    if $GREP -q 'CDlinux' /proc/cmdline; then
+        echo 'cdlinux'; return
+    fi
+    
     echo "default"
 }
 
