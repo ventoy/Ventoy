@@ -818,11 +818,19 @@ int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSe
 
     if (0 == fl_attach_media(VentoyFatDiskRead, NULL))
     {
+        Log("attach media success...");
         rc = GetVentoyVersionFromFatFile(VerBuf, BufLen);
     }
     else
     {
+        Log("attach media failed...");
         rc = 1;
+    }
+
+    Log("GetVentoyVerInPhyDrive rc=%d...", rc);
+    if (rc == 0)
+    {
+        Log("VentoyVerInPhyDrive %d is <%s>...", pDriveInfo->PhyDrive, VerBuf);
     }
 
     fl_shutdown();
