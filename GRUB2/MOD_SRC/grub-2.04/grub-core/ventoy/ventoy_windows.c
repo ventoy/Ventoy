@@ -811,9 +811,9 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
         return 1;
     }
 
-    if (head->flags & FLAG_HEADER_COMPRESS_XPRESS)
+    if ((head->flags & FLAG_HEADER_COMPRESS_XPRESS) || (head->flags & FLAG_HEADER_COMPRESS_LZMS))
     {
-        debug("Xpress compress is not supported 0x%x\n", head->flags);
+        debug("Xpress or LZMS compress is not supported 0x%x\n", head->flags);
         grub_file_close(file);
         return 1;
     }

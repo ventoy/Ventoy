@@ -196,6 +196,14 @@ ventoy_get_os_type() {
         echo 'adelie'; return
     fi
     
+    if $GREP -q 'pmagic' /proc/version; then
+        echo 'pmagic'; return
+    fi
+    
+    if $GREP -q 'CDlinux' /proc/cmdline; then
+        echo 'cdlinux'; return
+    fi
+    
     echo "default"
 }
 

@@ -19,29 +19,14 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if is_ventoy_hook_finished; then
+if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
     exit 0
 fi
 
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+ventoy_udev_disk_common_hook $* "noreplace"
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+mknod -m 0666 /dev/ventoy b $blkdev_num
 
-if is_inotify_ventoy_part $3; then
-    vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
-    vtlog "find ventoy partition $3 ..."    
-    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh "$3"
-    
-    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    vtDM=$(ventoy_find_dm_id ${blkdev_num})
-    vtLABEL=$($BUSYBOX_PATH/blkid /dev/$vtDM | $AWK '{print $2}' | $SED 's/.*"\(.*\)".*/\1/')
+# OK finish
+set_ventoy_hook_finish
 
-    vtlog "blkdev_num=$blkdev_num  vtDM=$vtDM  label $vtLABEL ..."
-    
-    if ! [ -d /dev/disk/by-label ]; then
-        mkdir -p /dev/disk/by-label
-    fi
-    $BUSYBOX_PATH/cp -a /dev/$vtDM /dev/disk/by-label/$vtLABEL
-else
-    vtlog "##### INOTIFYD: $2/$3 is created (NO) ..."
-fi
-
-PATH=$VTPATH_OLD

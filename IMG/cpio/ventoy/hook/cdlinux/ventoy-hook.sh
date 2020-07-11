@@ -17,33 +17,27 @@
 # 
 #************************************************************************************
 
-. /ventoy/hook/ventoy-hook-lib.sh
+. $VTOY_PATH/hook/ventoy-os-lib.sh
 
-if is_ventoy_hook_finished; then
-    exit 0
-fi
+echo "CDlinux process..." >> $VTLOG
 
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+$BUSYBOX_PATH/mknod -m 0660 /ventoy/ram0 b 1 0
 
-if is_inotify_ventoy_part $3; then
-    vtlog "##### INOTIFYD: $2/$3 is created (YES)..."
-    
-    vtlog "find ventoy partition $3 ..."
-    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
-    
-    # blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    # vtDM=$(ventoy_find_dm_id ${blkdev_num})
-    # 
-    # if [ "$vtDM" = "dm-0" ]; then
-    #     vtlog "This is dm-0, OK ..."
-    # else
-    #     vtlog "####### This is $vtDM ####### this is abnormal ..."
-    #     ventoy_swap_device /dev/dm-0 /dev/$vtDM
-    # fi
-    
-    set_ventoy_hook_finish
-else
-    vtlog "##### INOTIFYD: $2/$3 is created (NO)..."
-fi
+$BUSYBOX_PATH/mkdir /vtmnt /ventoy_rdroot
+$BUSYBOX_PATH/mount -t squashfs /ventoy/ram0 /vtmnt
 
-PATH=$VTPATH_OLD
+$BUSYBOX_PATH/mount -nt tmpfs -o mode=755 tmpfs /ventoy_rdroot
+
+$BUSYBOX_PATH/cp -a /vtmnt/* /ventoy_rdroot
+$BUSYBOX_PATH/ls -1a /vtmnt/ | $GREP '^\.[^.]' | while read vtLine; do
+    $BUSYBOX_PATH/cp -a /vtmnt/$vtLine /ventoy_rdroot
+done
+
+$BUSYBOX_PATH/umount /vtmnt && $BUSYBOX_PATH/rm -rf /vtmnt
+$BUSYBOX_PATH/cp -a /ventoy /ventoy_rdroot
+
+echo "CDL_DEV=/dev/mapper/ventoy" >> /ventoy_rdroot/etc/default/cdlinux
+
+ventoy_set_rule_dir_prefix /ventoy_rdroot
+ventoy_systemd_udevd_work_around
+ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k"

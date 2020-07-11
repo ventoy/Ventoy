@@ -167,7 +167,7 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
                                      MapLba, secRead * 2048, pCurBuf);
             if (EFI_ERROR(Status))
             {
-                debug("Raw disk read block failed %r", Status);
+                debug("Raw disk read block failed %r LBA:%lu Count:%u", Status, MapLba, secRead);
                 return Status;
             }
 
