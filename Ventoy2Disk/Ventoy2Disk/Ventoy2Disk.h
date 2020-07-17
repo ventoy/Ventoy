@@ -165,6 +165,8 @@ extern PHY_DRIVE_INFO *g_PhyDriveList;
 extern DWORD g_PhyDriveCount;
 extern int g_ForceOperation;
 extern HWND g_ProgressBarHwnd;
+extern HFONT g_language_normal_font;
+extern HFONT g_language_bold_font;
 
 void Log(const char *Fmt, ...);
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...);
