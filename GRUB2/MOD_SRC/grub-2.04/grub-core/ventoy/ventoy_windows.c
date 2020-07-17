@@ -51,6 +51,7 @@ static grub_uint32_t g_suppress_wincd_override_data = 0;
 grub_uint8_t g_temp_buf[512];
 
 grub_ssize_t lzx_decompress ( const void *data, grub_size_t len, void *buf );
+grub_ssize_t xca_decompress ( const void *data, grub_size_t len, void *buf );
 
 static wim_patch *ventoy_find_wim_patch(const char *path)
 {
@@ -478,6 +479,8 @@ static int ventoy_read_resource(grub_file_t fp, wim_resource_header *head, void 
         else
         {
             decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, chunk_size, cur_dst);
+            if (decompress < 0)
+                decompress_len = (int)xca_decompress(buffer_compress + cur_offset, chunk_size, cur_dst);
         }
 
         //debug("chunk_size:%u decompresslen:%d\n", chunk_size, decompress_len);
@@ -499,7 +502,9 @@ static int ventoy_read_resource(grub_file_t fp, wim_resource_header *head, void 
     }
     else
     {
-        decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, head->size_in_wim - cur_offset, cur_dst);            
+        decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, head->size_in_wim - cur_offset, cur_dst);
+        if (decompress < 0)
+            decompress_len = (int)xca_decompress(buffer_compress + cur_offset, head->size_in_wim - cur_offset, cur_dst);
     }
     
     cur_dst += decompress_len;
