@@ -428,7 +428,7 @@ static int ventoy_get_override_info(grub_file_t file, wim_tail *wim_data)
     return 0;
 }
 
-static int ventoy_read_resource(grub_file_t fp, wim_resource_header *head, void **buffer)
+static int ventoy_read_resource(grub_file_t fp, wim_header *wimhdr, wim_resource_header *head, void **buffer)
 {
     int decompress_len = 0;
     int total_decompress = 0;
@@ -478,9 +478,14 @@ static int ventoy_read_resource(grub_file_t fp, wim_resource_header *head, void 
         }
         else
         {
-            decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, chunk_size, cur_dst);
-            if (decompress < 0)
+            if (wimhdr->flags & FLAG_HEADER_COMPRESS_XPRESS)
+            {
                 decompress_len = (int)xca_decompress(buffer_compress + cur_offset, chunk_size, cur_dst);
+            }
+            else
+            {
+                decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, chunk_size, cur_dst);                
+            }
         }
 
         //debug("chunk_size:%u decompresslen:%d\n", chunk_size, decompress_len);
@@ -502,9 +507,14 @@ static int ventoy_read_resource(grub_file_t fp, wim_resource_header *head, void 
     }
     else
     {
-        decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, head->size_in_wim - cur_offset, cur_dst);
-        if (decompress < 0)
+        if (wimhdr->flags & FLAG_HEADER_COMPRESS_XPRESS)
+        {
             decompress_len = (int)xca_decompress(buffer_compress + cur_offset, head->size_in_wim - cur_offset, cur_dst);
+        }
+        else
+        {
+            decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, head->size_in_wim - cur_offset, cur_dst);
+        }
     }
     
     cur_dst += decompress_len;
@@ -816,14 +826,14 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
         return 1;
     }
 
-    if ((head->flags & FLAG_HEADER_COMPRESS_XPRESS) || (head->flags & FLAG_HEADER_COMPRESS_LZMS))
+    if (head->flags & FLAG_HEADER_COMPRESS_LZMS)
     {
-        debug("Xpress or LZMS compress is not supported 0x%x\n", head->flags);
+        debug("LZMS compress is not supported 0x%x\n", head->flags);
         grub_file_close(file);
         return 1;
     }
 
-    rc = ventoy_read_resource(file, &head->metadata, (void **)&decompress_data);
+    rc = ventoy_read_resource(file, head, &head->metadata, (void **)&decompress_data);
     if (rc)
     {
         grub_printf("failed to read meta data %d\n", rc);
@@ -860,7 +870,7 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
         debug("find replace lookup entry_id:%ld raw_size:%u\n", 
             ((long)patch->replace_look - (long)lookup) / sizeof(wim_lookup_entry), exe_len);
 
-        if (0 == ventoy_read_resource(file, &(patch->replace_look->resource), (void **)&(exe_data)))
+        if (0 == ventoy_read_resource(file, head, &(patch->replace_look->resource), (void **)&(exe_data)))
         {
             ventoy_cat_exe_file_data(wim_data, exe_len, exe_data);
             grub_free(exe_data);
