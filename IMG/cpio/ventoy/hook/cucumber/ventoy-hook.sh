@@ -19,25 +19,8 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-echo "CDlinux process..." >> $VTLOG
+if [ -e /sbin/mount_installer ]; then
+    echo "hook at mount_installer ..." >> $VTLOG
+    $SED "1 a $BUSYBOX_PATH/sh $VTOY_PATH/hook/cucumber/disk-hook.sh" -i /sbin/mount_installer
+fi
 
-$BUSYBOX_PATH/mknod -m 0660 /ventoy/ram0 b 1 0
-
-$BUSYBOX_PATH/mkdir /vtmnt /ventoy_rdroot
-$BUSYBOX_PATH/mount -t squashfs /ventoy/ram0 /vtmnt
-
-$BUSYBOX_PATH/mount -nt tmpfs -o mode=755 tmpfs /ventoy_rdroot
-
-$BUSYBOX_PATH/cp -a /vtmnt/* /ventoy_rdroot
-$BUSYBOX_PATH/ls -1a /vtmnt/ | $GREP '^\.[^.]' | while read vtLine; do
-    $BUSYBOX_PATH/cp -a /vtmnt/$vtLine /ventoy_rdroot
-done
-
-$BUSYBOX_PATH/umount /vtmnt && $BUSYBOX_PATH/rm -rf /vtmnt
-$BUSYBOX_PATH/cp -a /ventoy /ventoy_rdroot
-
-echo 'echo "CDL_DEV=/dev/mapper/ventoy" >>"$VAR_FILE"' >> /ventoy_rdroot/etc/rc.d/rc.var
-
-ventoy_set_rule_dir_prefix /ventoy_rdroot
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"

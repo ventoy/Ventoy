@@ -77,6 +77,7 @@ dd if=$LOOP of=$tmpdir/boot/core.img bs=512 count=2047 skip=1 status=none
 xz --check=crc32 $tmpdir/boot/core.img
 
 cp -a ./tool $tmpdir/
+rm -f $tmpdir/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
 cp -a Ventoy2Disk.sh $tmpdir/
 cp -a CreatePersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh

@@ -19,25 +19,5 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-echo "CDlinux process..." >> $VTLOG
-
-$BUSYBOX_PATH/mknod -m 0660 /ventoy/ram0 b 1 0
-
-$BUSYBOX_PATH/mkdir /vtmnt /ventoy_rdroot
-$BUSYBOX_PATH/mount -t squashfs /ventoy/ram0 /vtmnt
-
-$BUSYBOX_PATH/mount -nt tmpfs -o mode=755 tmpfs /ventoy_rdroot
-
-$BUSYBOX_PATH/cp -a /vtmnt/* /ventoy_rdroot
-$BUSYBOX_PATH/ls -1a /vtmnt/ | $GREP '^\.[^.]' | while read vtLine; do
-    $BUSYBOX_PATH/cp -a /vtmnt/$vtLine /ventoy_rdroot
-done
-
-$BUSYBOX_PATH/umount /vtmnt && $BUSYBOX_PATH/rm -rf /vtmnt
-$BUSYBOX_PATH/cp -a /ventoy /ventoy_rdroot
-
-echo 'echo "CDL_DEV=/dev/mapper/ventoy" >>"$VAR_FILE"' >> /ventoy_rdroot/etc/rc.d/rc.var
-
-ventoy_set_rule_dir_prefix /ventoy_rdroot
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
+$SED "/find_local_device *(/a $BUSYBOX_PATH/sh $VTOY_PATH/hook/fatdog/disk-hook.sh" -i /init
+$SED "/find_and_choose_local_device *(/a $BUSYBOX_PATH/sh $VTOY_PATH/hook/fatdog/disk-hook.sh" -i /init

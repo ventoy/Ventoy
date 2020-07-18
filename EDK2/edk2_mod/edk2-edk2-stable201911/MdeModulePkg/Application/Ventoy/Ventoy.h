@@ -168,6 +168,8 @@ typedef struct ventoy_virt_chunk
 #define VTOY_BLOCK_DEVICE_PATH_GUID					\
 	{ 0x37b87ac6, 0xc180, 0x4583, { 0xa7, 0x05, 0x41, 0x4d, 0xa8, 0xf7, 0x7e, 0xd2 }}
 
+#define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_x64.efi"
+
 #define VTOY_BLOCK_DEVICE_PATH_NAME  L"ventoy"
 
 #if   defined (MDE_CPU_IA32)
@@ -208,6 +210,7 @@ typedef struct vtoy_block_data
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *pDiskFs;
     EFI_DEVICE_PATH_PROTOCOL *pDiskFsDevPath;
 
+    EFI_HANDLE IsoDriverImage;
 }vtoy_block_data;
 
 

@@ -1459,6 +1459,7 @@ grub_uint32_t ventoy_get_iso_boot_catlog(grub_file_t file)
 int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
 {
     int i;
+    int x86count = 0;
     grub_uint8_t buf[512];
 
     grub_file_seek(file, sector * 2048);
@@ -1470,11 +1471,22 @@ int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
         return 1;
     }
 
+    if (buf[0] == 0x01 && buf[1] == 0x00)
+    {
+        x86count++;
+    }
+
     for (i = 64; i < (int)sizeof(buf); i += 32)
     {
         if ((buf[i] == 0x90 || buf[i] == 0x91) && buf[i + 1] == 0xEF)
         {
             debug("%s efi eltorito offset %d 0x%02x\n", file->name, i, buf[i]);
+            return 1;
+        }
+
+        if (buf[i] == 0x91 && buf[i + 1] == 0x00 && x86count == 1)
+        {
+            debug("0x9100 assume %s efi eltorito offset %d 0x%02x\n", file->name, i, buf[i]);
             return 1;
         }
     }

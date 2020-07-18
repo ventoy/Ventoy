@@ -17,27 +17,27 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-echo "CDlinux process..." >> $VTLOG
+if is_ventoy_hook_finished; then
+    exit 0
+fi
 
-$BUSYBOX_PATH/mknod -m 0660 /ventoy/ram0 b 1 0
+vtlog "####### $0 $* ########"
 
-$BUSYBOX_PATH/mkdir /vtmnt /ventoy_rdroot
-$BUSYBOX_PATH/mount -t squashfs /ventoy/ram0 /vtmnt
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-$BUSYBOX_PATH/mount -nt tmpfs -o mode=755 tmpfs /ventoy_rdroot
+wait_for_usb_disk_ready
 
-$BUSYBOX_PATH/cp -a /vtmnt/* /ventoy_rdroot
-$BUSYBOX_PATH/ls -1a /vtmnt/ | $GREP '^\.[^.]' | while read vtLine; do
-    $BUSYBOX_PATH/cp -a /vtmnt/$vtLine /ventoy_rdroot
-done
+vtdiskname=$(get_ventoy_disk_name)
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    PATH=$VTPATH_OLD
+    exit 0
+fi
 
-$BUSYBOX_PATH/umount /vtmnt && $BUSYBOX_PATH/rm -rf /vtmnt
-$BUSYBOX_PATH/cp -a /ventoy /ventoy_rdroot
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
-echo 'echo "CDL_DEV=/dev/mapper/ventoy" >>"$VAR_FILE"' >> /ventoy_rdroot/etc/rc.d/rc.var
+PATH=$VTPATH_OLD
 
-ventoy_set_rule_dir_prefix /ventoy_rdroot
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
+set_ventoy_hook_finish

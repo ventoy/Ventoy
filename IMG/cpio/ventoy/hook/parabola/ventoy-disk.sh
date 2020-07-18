@@ -17,27 +17,32 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-echo "CDlinux process..." >> $VTLOG
+vtlog "######### $0 $* ############"
 
-$BUSYBOX_PATH/mknod -m 0660 /ventoy/ram0 b 1 0
+if is_ventoy_hook_finished; then
+    exit 0
+fi
 
-$BUSYBOX_PATH/mkdir /vtmnt /ventoy_rdroot
-$BUSYBOX_PATH/mount -t squashfs /ventoy/ram0 /vtmnt
+wait_for_usb_disk_ready
 
-$BUSYBOX_PATH/mount -nt tmpfs -o mode=755 tmpfs /ventoy_rdroot
+vtdiskname=$(get_ventoy_disk_name)
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    exit 0
+fi
 
-$BUSYBOX_PATH/cp -a /vtmnt/* /ventoy_rdroot
-$BUSYBOX_PATH/ls -1a /vtmnt/ | $GREP '^\.[^.]' | while read vtLine; do
-    $BUSYBOX_PATH/cp -a /vtmnt/$vtLine /ventoy_rdroot
-done
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
-$BUSYBOX_PATH/umount /vtmnt && $BUSYBOX_PATH/rm -rf /vtmnt
-$BUSYBOX_PATH/cp -a /ventoy /ventoy_rdroot
+if [ -n "$1" ]; then
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+    vtDM=$(ventoy_find_dm_id ${blkdev_num})
+    
+    vtlog "ln -s /dev/$vtDM $1"
+    ln -s /dev/$vtDM "$1"
+fi 
 
-echo 'echo "CDL_DEV=/dev/mapper/ventoy" >>"$VAR_FILE"' >> /ventoy_rdroot/etc/rc.d/rc.var
+# OK finish
+set_ventoy_hook_finish
 
-ventoy_set_rule_dir_prefix /ventoy_rdroot
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"

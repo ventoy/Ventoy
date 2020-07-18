@@ -699,8 +699,16 @@ STATIC EFI_STATUS EFIAPI
 ventoy_wrapper_file_set_pos(EFI_FILE_HANDLE This, UINT64 Position)
 {
     (VOID)This;
+        
+    if (Position <= g_efi_file_replace.FileSizeBytes)
+    {
+        g_efi_file_replace.CurPos = Position;
+    }
+    else
+    {
+        g_efi_file_replace.CurPos = g_efi_file_replace.FileSizeBytes;
+    }
     
-    g_efi_file_replace.CurPos = Position;
     return EFI_SUCCESS;
 }
 
@@ -815,6 +823,8 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
     CHAR8 TmpName[256];
     ventoy_virt_chunk *virt = NULL;
 
+    debug("## ventoy_wrapper_file_open <%s> ", Name);
+
     Status = g_original_fopen(This, New, Name, Mode, Attributes);
     if (EFI_ERROR(Status))
     {
@@ -849,6 +859,11 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
                 
                 return Status;
             }
+        }
+
+        if (StrCmp(Name, L"\\EFI\\BOOT") == 0)
+        {
+            (*New)->Open = ventoy_wrapper_file_open;
         }
     }
 

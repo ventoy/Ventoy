@@ -133,8 +133,9 @@ ventoy_get_os_type() {
         if $GREP -q 'XenServer' /etc/os-release; then
             echo 'xen'; return
         elif $GREP -q 'SUSE ' /etc/os-release; then
-            echo 'suse'; return
-       
+            echo 'suse'; return        
+        elif $GREP -q 'uruk' /etc/os-release; then
+            echo 'debian'; return
         fi
     fi
     
@@ -203,6 +204,23 @@ ventoy_get_os_type() {
     if $GREP -q 'CDlinux' /proc/cmdline; then
         echo 'cdlinux'; return
     fi
+    
+    if $GREP -q 'parabola' /proc/version; then
+        echo 'parabola'; return
+    fi
+    
+    if $GREP -q 'cucumber' /proc/version; then
+        echo 'cucumber'; return
+    fi
+    
+    if $GREP -q 'fatdog' /proc/version; then
+        echo 'fatdog'; return
+    fi
+    
+    if $GREP -q 'KWORT' /proc/version; then
+        echo 'kwort'; return
+    fi
+    
     
     echo "default"
 }

@@ -17,27 +17,20 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-echo "CDlinux process..." >> $VTLOG
+vtlog "######### $0 $* ############"
 
-$BUSYBOX_PATH/mknod -m 0660 /ventoy/ram0 b 1 0
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
 
-$BUSYBOX_PATH/mkdir /vtmnt /ventoy_rdroot
-$BUSYBOX_PATH/mount -t squashfs /ventoy/ram0 /vtmnt
+if [ -b /dev/$vtDM ]; then
+    vtlog "ln -s /dev/$vtDM $1"
+    ln -s /dev/$vtDM "$1"
+    exit 0
+else
+    vtlog "Device-mapper not found"
+    exit 1
+fi
 
-$BUSYBOX_PATH/mount -nt tmpfs -o mode=755 tmpfs /ventoy_rdroot
 
-$BUSYBOX_PATH/cp -a /vtmnt/* /ventoy_rdroot
-$BUSYBOX_PATH/ls -1a /vtmnt/ | $GREP '^\.[^.]' | while read vtLine; do
-    $BUSYBOX_PATH/cp -a /vtmnt/$vtLine /ventoy_rdroot
-done
-
-$BUSYBOX_PATH/umount /vtmnt && $BUSYBOX_PATH/rm -rf /vtmnt
-$BUSYBOX_PATH/cp -a /ventoy /ventoy_rdroot
-
-echo 'echo "CDL_DEV=/dev/mapper/ventoy" >>"$VAR_FILE"' >> /ventoy_rdroot/etc/rc.d/rc.var
-
-ventoy_set_rule_dir_prefix /ventoy_rdroot
-ventoy_systemd_udevd_work_around
-ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
