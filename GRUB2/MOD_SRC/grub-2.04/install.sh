@@ -27,15 +27,15 @@ else
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk' 
 fi
 
-grub-mknetdir  --modules="$all_modules" --net-directory=$VT_DIR/GRUB2/PXE  --subdir=grub2 --locales=en@quot || exit 1
-
 if [ "$1" = "uefi" ]; then
+    grub-mknetdir --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi" --modules="$all_modules" --net-directory=$VT_DIR/GRUB2/PXE  --subdir=grub2 --locales=en@quot || exit 1
     rm -f $VT_DIR/GRUB2/NBP/core.efi
     cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/core.efi  $VT_DIR/GRUB2/NBP/core.efi || exit 1
     
     rm -f $VT_DIR/INSTALL/grub/x86_64-efi/normal.mod
     cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/normal.mod    $VT_DIR/INSTALL/grub/x86_64-efi/normal.mod  || exit 1
 else
+    grub-mknetdir --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --modules="$all_modules" --net-directory=$VT_DIR/GRUB2/PXE  --subdir=grub2 --locales=en@quot || exit 1
     rm -f $VT_DIR/GRUB2/NBP/core.0
     cp -a $VT_DIR/GRUB2/PXE/grub2/i386-pc/core.0    $VT_DIR/GRUB2/NBP/core.0  || exit 1
     

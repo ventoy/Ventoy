@@ -29,6 +29,8 @@
 
 #define	GRUB_CACHE_TIMEOUT	10
 
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+
 /* The last time the disk was used.  */
 static grub_uint64_t grub_last_time = 0;
 

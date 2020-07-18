@@ -27,6 +27,8 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+
 typedef int (*iterate_dir_func) (grub_fshelp_node_t dir,
 				 grub_fshelp_iterate_dir_hook_t hook,
 				 void *data);

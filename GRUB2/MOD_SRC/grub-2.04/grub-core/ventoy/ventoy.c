@@ -44,6 +44,8 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+#pragma GCC diagnostic ignored "-Wcast-function-type"
+
 int g_ventoy_debug = 0;
 static int g_efi_os = 0xFF;
 initrd_info *g_initrd_img_list = NULL;
