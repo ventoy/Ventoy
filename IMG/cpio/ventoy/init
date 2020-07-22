@@ -183,7 +183,30 @@ fi
 
 ####################################################################
 #                                                                  #
-# Step 3 : Hand over to ventoy.sh                                  #
+# Step 3 : Extract injection archive                               #
+#                                                                  #
+####################################################################
+if [ -e $VTOY_PATH/ventoy_injection ]; then
+    echo "decompress injection ..." >>$VTLOG
+    
+    vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $VTOY_PATH/ventoy_injection)
+    echo "vtmagic=$vtmagic ..." >>$VTLOG
+    
+    if [ "1F8B" = "vtmagic" ] || [ "1F9E" = "vtmagic" ]; then
+        zcat $VTOY_PATH/ventoy_injection | tar -xf -C /
+    elif [ "425A" = "vtmagic" ]; then
+        bzcat $VTOY_PATH/ventoy_injection | tar -xf -C /
+    elif [ "FD37" = "vtmagic" ]; then
+        xzcat $VTOY_PATH/ventoy_injection | tar -xf -C /
+    else
+        unzip -o -q $VTOY_PATH/ventoy_injection -d /
+    fi
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 4 : Hand over to ventoy.sh                                  #
 #                                                                  #
 ####################################################################
 echo "Now hand over to ventoy.sh" >>$VTLOG

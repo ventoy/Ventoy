@@ -853,12 +853,16 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             }
             break;
         case GRUB_TERM_KEY_F6:
-            cmdstr = grub_env_get("VTOY_F6_CMD");
-            if (cmdstr)
-            {
-                menu_fini ();
-                grub_script_execute_sourcecode(cmdstr);
-                goto refresh;
+            if (0 == g_ventoy_fn_mutex) {
+                cmdstr = grub_env_get("VTOY_F6_CMD");
+                if (cmdstr)
+                {
+                    menu_fini ();
+                    g_ventoy_fn_mutex = 1;
+                    grub_script_execute_sourcecode(cmdstr);
+                    g_ventoy_fn_mutex = 0;
+                    goto refresh;
+                }
             }
             break;
         case GRUB_TERM_KEY_F7:

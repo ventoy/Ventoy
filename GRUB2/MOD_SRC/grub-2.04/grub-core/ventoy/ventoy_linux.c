@@ -909,6 +909,8 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     char *template_file = NULL;
     char *template_buf = NULL;
     char *persistent_buf = NULL;
+    char *injection_buf = NULL;
+    const char *injection_file = NULL;
     grub_uint8_t *buf = NULL;
     grub_uint32_t mod;
     grub_uint32_t headlen;
@@ -917,8 +919,9 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     grub_uint32_t img_chunk_size;
     grub_uint32_t template_size = 0;
     grub_uint32_t persistent_size = 0;
+    grub_uint32_t injection_size = 0;
     grub_file_t file;
-    grub_file_t scriptfile;
+    grub_file_t tmpfile;
     ventoy_img_chunk_list chunk_list;
 
     (void)ctxt;
@@ -960,18 +963,18 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     if (template_file)
     {
         debug("auto install template: <%s>\n", template_file);
-        scriptfile = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[2], template_file);
-        if (scriptfile)
+        tmpfile = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[2], template_file);
+        if (tmpfile)
         {
-            debug("auto install script size %d\n", (int)scriptfile->size);
-            template_size = scriptfile->size;
+            debug("auto install script size %d\n", (int)tmpfile->size);
+            template_size = tmpfile->size;
             template_buf = grub_malloc(template_size);
             if (template_buf)
             {
-                grub_file_read(scriptfile, template_buf, template_size);
+                grub_file_read(tmpfile, template_buf, template_size);
             }
 
-            grub_file_close(scriptfile);
+            grub_file_close(tmpfile);
         }
         else
         {
@@ -983,7 +986,34 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
         debug("auto install script skipped or not configed %s\n", args[1]);
     }
 
-    g_ventoy_cpio_buf = grub_malloc(file->size + 4096 + template_size + persistent_size + img_chunk_size);
+    injection_file = ventoy_plugin_get_injection(args[1]);
+    if (injection_file)
+    {
+        debug("injection archive: <%s>\n", injection_file);
+        tmpfile = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[2], injection_file);
+        if (tmpfile)
+        {
+            debug("injection archive size:%d\n", (int)tmpfile->size);
+            injection_size = tmpfile->size;
+            injection_buf = grub_malloc(injection_size);
+            if (injection_buf)
+            {
+                grub_file_read(tmpfile, injection_buf, injection_size);
+            }
+
+            grub_file_close(tmpfile);
+        }
+        else
+        {
+            debug("Failed to open injection archive %s%s\n", args[2], injection_file);
+        }
+    }
+    else
+    {
+        debug("injection not configed %s\n", args[1]);
+    }
+
+    g_ventoy_cpio_buf = grub_malloc(file->size + 4096 + template_size + persistent_size + injection_size + img_chunk_size);
     if (NULL == g_ventoy_cpio_buf)
     {
         grub_file_close(file);
@@ -1018,6 +1048,15 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
 
         grub_free(persistent_buf);
         persistent_buf = NULL;
+    }
+
+    if (injection_size > 0 && injection_buf)
+    {
+        headlen = ventoy_cpio_newc_fill_head(buf, injection_size, injection_buf, "ventoy/ventoy_injection");
+        buf += headlen + ventoy_align(injection_size, 4);
+
+        grub_free(injection_buf);
+        injection_buf = NULL;
     }
 
     /* step2: insert os param to cpio */

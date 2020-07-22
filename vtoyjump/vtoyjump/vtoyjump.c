@@ -704,6 +704,73 @@ static int DeleteVentoyPart2MountPoint(DWORD PhyDrive)
     return 1;
 }
 
+static int DecompressInjectionArchive(const char *archive, DWORD PhyDrive)
+{
+    int rc = 1;
+    BOOL bRet;
+    DWORD dwBytes;
+    HANDLE hDrive;
+    CHAR PhyPath[MAX_PATH];
+    STARTUPINFOA Si;
+    PROCESS_INFORMATION Pi;
+    GET_LENGTH_INFORMATION LengthInfo;
+
+    Log("DecompressInjectionArchive %s", archive);
+
+    sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", PhyDrive);
+    hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    if (hDrive == INVALID_HANDLE_VALUE)
+    {
+        Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
+        goto End;
+    }
+
+    bRet = DeviceIoControl(hDrive, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &LengthInfo, sizeof(LengthInfo), &dwBytes, NULL);
+    if (!bRet)
+    {
+        Log("Could not get phy disk %s size, error:%u", PhyPath, GetLastError());
+        goto End;
+    }
+
+    g_FatPhyDrive = hDrive;
+    g_Part2StartSec = (LengthInfo.Length.QuadPart - VENTOY_EFI_PART_SIZE) / 512;
+
+    Log("Parse FAT fs...");
+
+    fl_init();
+
+    if (0 == fl_attach_media(VentoyFatDiskRead, NULL))
+    {
+        if (g_64bit_system)
+        {
+            CopyFileFromFatDisk("/ventoy/7z/64/7za.exe", "ventoy\\7za.exe");
+        }
+        else
+        {
+            CopyFileFromFatDisk("/ventoy/7z/32/7za.exe", "ventoy\\7za.exe");
+        }
+
+        sprintf_s(PhyPath, sizeof(PhyPath), "ventoy\\7za.exe x -y -aoa -oX:\\ %s", archive);
+
+        Log("extract inject to X:");
+
+        GetStartupInfoA(&Si);
+
+        Si.dwFlags |= STARTF_USESHOWWINDOW;
+        Si.wShowWindow = SW_HIDE;
+
+        CreateProcessA(NULL, PhyPath, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+        WaitForSingleObject(Pi.hProcess, INFINITE);
+    }
+    fl_shutdown();
+
+End:
+
+    SAFE_CLOSE_HANDLE(hDrive);
+
+    return rc;
+}
+
 static int ProcessUnattendedInstallation(const char *script)
 {
     DWORD dw;
@@ -807,6 +874,24 @@ static int VentoyHook(ventoy_os_param *param)
     else
     {
         Log("auto install no need");
+    }
+
+    if (g_windows_data.injection_archive[0])
+    {
+        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", Letter, g_windows_data.injection_archive);
+        if (IsPathExist(FALSE, "%s", IsoPath))
+        {
+            Log("decompress injection archive %s...", IsoPath);
+            DecompressInjectionArchive(IsoPath, DiskExtent.DiskNumber);
+        }
+        else
+        {
+            Log("injection archive %s not exist", IsoPath);
+        }
+    }
+    else
+    {
+        Log("no injection archive found");
     }
 
     return 0;

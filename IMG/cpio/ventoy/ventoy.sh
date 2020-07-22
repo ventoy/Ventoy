@@ -221,6 +221,9 @@ ventoy_get_os_type() {
         echo 'kwort'; return
     fi
     
+    if $GREP -q 'iwamoto' /proc/version; then
+        echo 'vine'; return
+    fi
     
     echo "default"
 }
@@ -247,6 +250,7 @@ if [ "$VTOY_BREAK_LEVEL" = "03" ] || [ "$VTOY_BREAK_LEVEL" = "13" ]; then
     fi
     exec $BUSYBOX_PATH/sh
 fi
+
 
 ####################################################################
 #                                                                  #

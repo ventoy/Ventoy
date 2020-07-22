@@ -20,10 +20,10 @@ all_modules_uefi="blocklist ventoy test search at_keyboard usb_keyboard  gcry_md
 all_extra_modules="elf macho offsetio regexp file"
 
 if [ "$1" = "uefi" ]; then
-    all_modules="$net_modules_uefi $all_modules_uefi $all_extra_modules"
+    all_modules="$net_modules_uefi $all_modules_uefi $all_extra_modules "
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/EFI/BOOT/grubx64_real.efi"  --format 'x86_64-efi' --compression 'auto'  $all_modules_uefi 'fat' 'part_msdos'
 else
-    all_modules="$net_modules_legacy $all_modules_legacy"
+    all_modules="$net_modules_legacy $all_modules_legacy "
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk' 
 fi
 
@@ -34,16 +34,29 @@ if [ "$1" = "uefi" ]; then
     cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/core.efi  $VT_DIR/GRUB2/NBP/core.efi || exit 1
     
     rm -f $VT_DIR/INSTALL/grub/x86_64-efi/normal.mod
-    cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/normal.mod    $VT_DIR/INSTALL/grub/x86_64-efi/normal.mod  || exit 1
+    cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/normal.mod    $VT_DIR/INSTALL/grub/x86_64-efi/normal.mod  || exit 1      
+
+    #copy other modules
+    ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi/ | egrep '\.(lst|mod)$' | while read line; do
+        if ! echo $all_modules | grep -q "${line%.mod} "; then
+            echo "Copy $line ..."
+            rm -f $VT_DIR/INSTALL/grub/x86_64-efi/$line
+            cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi/$line    $VT_DIR/INSTALL/grub/x86_64-efi/
+        fi
+    done
 else
     rm -f $VT_DIR/GRUB2/NBP/core.0
     cp -a $VT_DIR/GRUB2/PXE/grub2/i386-pc/core.0    $VT_DIR/GRUB2/NBP/core.0  || exit 1
     
-    for md in $all_extra_modules; do
-        rm -f $VT_DIR/INSTALL/grub/i386-pc/${md}.mod
-        cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/${md}.mod  $VT_DIR/INSTALL/grub/i386-pc/
-    done
-    
     rm -f $VT_DIR/INSTALL/grub/i386-pc/boot.img
     cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/boot.img  $VT_DIR/INSTALL/grub/i386-pc/boot.img   || exit 1
+    
+    #copy other modules
+    ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/ | egrep '\.(lst|mod)$' | while read line; do
+        if ! echo $all_modules | grep -q "${line%.mod} "; then
+            echo "Copy $line ..."
+            rm -f $VT_DIR/INSTALL/grub/i386-pc/$line
+            cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/$line    $VT_DIR/INSTALL/grub/i386-pc/
+        fi
+    done
 fi

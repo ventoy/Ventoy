@@ -722,6 +722,17 @@ int ventoy_fill_windows_rtdata(void *buf, char *isopath)
     {
         debug("auto install script skipped or not configed %s\n", pos);
     }
+
+    script = (char *)ventoy_plugin_get_injection(pos);
+    if (script)
+    {
+        debug("injection archive <%s>\n", script);
+        grub_snprintf(data->injection_archive, sizeof(data->injection_archive) - 1, "%s", script);
+    }
+    else
+    {
+        debug("injection archive not configed %s\n", pos);
+    }
     
     return 0;
 }

@@ -60,6 +60,10 @@ ventoy_get_debian_distro() {
         echo 'porteus'; return
     fi
     
+    if $GREP -q 'linuxconsole' /proc/version; then
+        echo 'linuxconsole'; return
+    fi
+    
     echo 'default'
 }
 

@@ -44,6 +44,7 @@ static install_template *g_install_template_head = NULL;
 static persistence_config *g_persistence_head = NULL;
 static menu_alias *g_menu_alias_head = NULL;
 static menu_class *g_menu_class_head = NULL;
+static injection_config *g_injection_head = NULL;
 
 static int ventoy_plugin_control_check(VTOY_JSON *json, const char *isodisk)
 {
@@ -805,6 +806,96 @@ static int ventoy_plugin_menualias_entry(VTOY_JSON *json, const char *isodisk)
     return 0;
 }
 
+
+static int ventoy_plugin_injection_check(VTOY_JSON *json, const char *isodisk)
+{
+    const char *path = NULL;
+    const char *archive = NULL;
+    VTOY_JSON *pNode = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        grub_printf("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        path = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (!path)
+        {
+            grub_printf("image not found\n");
+            continue;
+        }
+
+        archive = vtoy_json_get_string_ex(pNode->pstChild, "archive");
+        if (!archive)
+        {
+            grub_printf("archive not found\n");
+            continue;
+        }
+
+        grub_printf("image: <%s> [%s]\n", path, ventoy_check_file_exist("%s%s", isodisk, path) ? "OK" : "NOT EXIST");
+        grub_printf("archive: <%s> [%s]\n\n", archive, ventoy_check_file_exist("%s%s", isodisk, archive) ? "OK" : "NOT EXIST");
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_injection_entry(VTOY_JSON *json, const char *isodisk)
+{
+    const char *path = NULL;
+    const char *archive = NULL;
+    VTOY_JSON *pNode = NULL;
+    injection_config *node = NULL;
+    injection_config *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_injection_head)
+    {
+        for (node = g_injection_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_injection_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        path = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        archive = vtoy_json_get_string_ex(pNode->pstChild, "archive");
+        if (path && path[0] == '/' && archive && archive[0] == '/')
+        {
+            node = grub_zalloc(sizeof(injection_config));
+            if (node)
+            {
+                node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", path);
+                grub_snprintf(node->archive, sizeof(node->archive), "%s", archive);
+
+                if (g_injection_head)
+                {
+                    node->next = g_injection_head;
+                }
+                
+                g_injection_head = node;
+            }
+        }
+    }
+
+    return 0;
+}
+
 static int ventoy_plugin_menuclass_entry(VTOY_JSON *json, const char *isodisk)
 {
     int type;
@@ -914,6 +1005,7 @@ static plugin_entry g_plugin_entries[] =
     { "persistence", ventoy_plugin_persistence_entry, ventoy_plugin_persistence_check },
     { "menu_alias", ventoy_plugin_menualias_entry, ventoy_plugin_menualias_check },
     { "menu_class", ventoy_plugin_menuclass_entry, ventoy_plugin_menuclass_check },
+    { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -1149,6 +1241,22 @@ end:
         grub_file_close(file);
 
     return rc;
+}
+
+const char * ventoy_plugin_get_injection(const char *isopath)
+{
+    injection_config *node = NULL;
+    int len = (int)grub_strlen(isopath);
+
+    for (node = g_injection_head; node; node = node->next)
+    {
+        if (node->pathlen == len && grub_strcmp(node->isopath, isopath) == 0)
+        {
+            return node->archive;
+        }
+    }
+
+    return NULL;
 }
 
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath)

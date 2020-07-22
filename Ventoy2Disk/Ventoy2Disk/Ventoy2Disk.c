@@ -197,6 +197,7 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 {
     DWORD i; 
     DWORD LogDrive;
+    int Count = 0;
     int Letter = 'A';
     int Id = 0;
     int LetterCount = 0;
@@ -225,7 +226,7 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
         CurDrive = pDriveList + i;
 
         CurDrive->Id = -1;
-        CurDrive->FirstDriveLetter = -1;
+        memset(CurDrive->DriveLetters, 0, sizeof(CurDrive->DriveLetters));
 
         // Too big for MBR
         if (CurDrive->SizeInBytes > 2199023255552ULL)
@@ -248,12 +249,15 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
         
         CurDrive->Id = Id++;
 
-        for (Letter = 0; Letter < LetterCount; Letter++)
+        for (Count = 0, Letter = 0; Letter < LetterCount; Letter++)
         {
             if (PhyDriveId[Letter] == CurDrive->PhyDrive)
             {
-                CurDrive->FirstDriveLetter = LogLetter[Letter];
-                break;
+                if (Count + 1 < sizeof(CurDrive->DriveLetters) / sizeof(CHAR))
+                {
+                    CurDrive->DriveLetters[Count] = LogLetter[Letter];
+                }
+                Count++;
             }
         }
 

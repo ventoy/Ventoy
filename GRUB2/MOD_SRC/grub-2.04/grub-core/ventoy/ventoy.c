@@ -2167,7 +2167,7 @@ static grub_err_t ventoy_cmd_find_bootable_hdd(grub_extcmd_context_t ctxt, int a
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s variable\n", cmd_raw_name); 
     }
 
-    isopath = grub_env_get("iso_path");
+    isopath = grub_env_get("vtoy_iso_part");
     if (!isopath)
     {
         debug("isopath is null %p\n", isopath);
@@ -2321,9 +2321,6 @@ static int ventoy_env_init(void)
     char buf[64];
 
     grub_env_set("vtdebug_flag", "");
-    grub_env_export("vtdebug_flag");
-
-
 
     g_tree_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);
     g_list_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);

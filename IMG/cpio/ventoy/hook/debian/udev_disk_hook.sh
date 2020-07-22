@@ -50,7 +50,7 @@ ventoy_os_install_dmsetup() {
     if $GREP -q 'device-mapper' /proc/devices; then
         vtlog "device mapper module is loaded"
     else
-        vtlog"device mapper module is NOT loaded, now load it..."
+        vtlog "device mapper module is NOT loaded, now load it..."
         
         VER=$($BUSYBOX_PATH/uname -r)    
         KO=$($FIND /lib/modules/$VER/kernel/drivers/md -name "dm-mod*")

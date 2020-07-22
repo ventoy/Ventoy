@@ -134,7 +134,8 @@ typedef struct PHY_DRIVE_INFO
     CHAR SerialNumber[128];
     STORAGE_BUS_TYPE BusType;
 
-    int FirstDriveLetter;
+    CHAR DriveLetters[64];
+
     CHAR VentoyVersion[32];
 
 }PHY_DRIVE_INFO;
