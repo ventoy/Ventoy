@@ -1087,6 +1087,20 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+void ventoy_plugin_dump_injection(void)
+{
+    injection_config *node = NULL;
+
+    for (node = g_injection_head; node; node = node->next)
+    {
+        grub_printf("\nIMAGE:<%s>\n", node->isopath);
+        grub_printf("ARCHIVE:<%s>\n", node->archive);
+    }
+
+    return;
+}
+
+
 void ventoy_plugin_dump_auto_install(void)
 {
     int i;

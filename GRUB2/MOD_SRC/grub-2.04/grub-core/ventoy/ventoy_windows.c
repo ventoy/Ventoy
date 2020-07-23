@@ -726,8 +726,15 @@ int ventoy_fill_windows_rtdata(void *buf, char *isopath)
     script = (char *)ventoy_plugin_get_injection(pos);
     if (script)
     {
-        debug("injection archive <%s>\n", script);
-        grub_snprintf(data->injection_archive, sizeof(data->injection_archive) - 1, "%s", script);
+        if (ventoy_check_file_exist("%s%s", ventoy_get_env("vtoy_iso_part"), script))
+        {
+            debug("injection archive <%s> OK\n", script);
+            grub_snprintf(data->injection_archive, sizeof(data->injection_archive) - 1, "%s", script);
+        }
+        else
+        {
+            debug("injection archive <%s> NOT exist\n", script);
+        }
     }
     else
     {

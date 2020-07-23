@@ -672,6 +672,7 @@ void ventoy_swap_img(img_info *img1, img_info *img2);
 char * ventoy_plugin_get_cur_install_template(const char *isopath);
 install_template * ventoy_plugin_find_install_template(const char *isopath);
 persistence_config * ventoy_plugin_find_persistent(const char *isopath);
+void ventoy_plugin_dump_injection(void);
 void ventoy_plugin_dump_auto_install(void);
 int ventoy_fill_windows_rtdata(void *buf, char *isopath);
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);

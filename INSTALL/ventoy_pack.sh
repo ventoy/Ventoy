@@ -80,6 +80,7 @@ cp -a ./tool $tmpdir/
 rm -f $tmpdir/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
 cp -a Ventoy2Disk.sh $tmpdir/
 cp -a README $tmpdir/
+cp -a plugin $tmpdir/
 cp -a CreatePersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
 dos2unix -q $tmpdir/CreatePersistentImg.sh

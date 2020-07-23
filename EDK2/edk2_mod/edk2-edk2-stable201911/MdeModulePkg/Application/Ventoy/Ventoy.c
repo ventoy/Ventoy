@@ -70,7 +70,7 @@ CONST CHAR16 *gEfiBootFileName[] =
     L"\\EFI\\BOOT\\GRUBX64.EFI",
     L"\\EFI\\BOOT\\BOOTx64.EFI",
     L"\\EFI\\BOOT\\bootx64.efi",
-    L"\\efi\\boot\\bootx64.efi"
+    L"\\efi\\boot\\bootx64.efi",
 };
 
 VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...)

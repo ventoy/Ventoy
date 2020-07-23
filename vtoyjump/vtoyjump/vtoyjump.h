@@ -69,7 +69,7 @@ typedef struct ventoy_windows_data
 {
     char auto_install_script[384];
     char injection_archive[384];
-    UINT8 reserved[128];
+    UINT8 reserved[256];
 }ventoy_windows_data;
 
 #pragma pack()

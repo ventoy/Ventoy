@@ -2017,6 +2017,17 @@ static grub_err_t ventoy_cmd_dump_img_list(grub_extcmd_context_t ctxt, int argc,
     return 0;
 }
 
+static grub_err_t ventoy_cmd_dump_injection(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    ventoy_plugin_dump_injection();
+
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_dump_auto_install(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
@@ -2361,6 +2372,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_dynamic_menu", ventoy_cmd_dynamic_menu, 0, NULL, "", "", NULL },
     { "vt_check_mode", ventoy_cmd_check_mode, 0, NULL, "", "", NULL },
     { "vt_dump_img_list", ventoy_cmd_dump_img_list, 0, NULL, "", "", NULL },
+    { "vt_dump_injection", ventoy_cmd_dump_injection, 0, NULL, "", "", NULL },
     { "vt_dump_auto_install", ventoy_cmd_dump_auto_install, 0, NULL, "", "", NULL },
     { "vt_dump_persistence", ventoy_cmd_dump_persistence, 0, NULL, "", "", NULL },
     { "vt_select_auto_install", ventoy_cmd_sel_auto_install, 0, NULL, "", "", NULL },
