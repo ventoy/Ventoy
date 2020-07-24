@@ -1814,7 +1814,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
 
     Log("Lock volume for update .......................... ");
     hVolume = INVALID_HANDLE_VALUE;
-    Status = GetVentoyVolumeName(pPhyDrive->PhyDrive, MBR.PartTbl[1].StartSectorId, DriveLetters, sizeof(DriveLetters), TRUE);
+	Status = GetVentoyVolumeName(pPhyDrive->PhyDrive, (UINT32)StartSector, DriveLetters, sizeof(DriveLetters), TRUE);
     if (ERROR_SUCCESS == Status)
     {
         Log("Now lock and dismount volume <%s>", DriveLetters);
