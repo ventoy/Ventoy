@@ -38,7 +38,7 @@ if [ "$1" = "uefi" ]; then
 
     #copy other modules
     ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi/ | egrep '\.(lst|mod)$' | while read line; do
-        if ! echo $all_modules | grep -q "${line%.mod} "; then
+        if ! echo $all_modules | grep -q " ${line%.mod} "; then
             echo "Copy $line ..."
             rm -f $VT_DIR/INSTALL/grub/x86_64-efi/$line
             cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi/$line    $VT_DIR/INSTALL/grub/x86_64-efi/
@@ -53,7 +53,7 @@ else
     
     #copy other modules
     ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/ | egrep '\.(lst|mod)$' | while read line; do
-        if ! echo $all_modules | grep -q "${line%.mod} "; then
+        if ! echo $all_modules | grep -q " ${line%.mod} "; then
             echo "Copy $line ..."
             rm -f $VT_DIR/INSTALL/grub/i386-pc/$line
             cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/$line    $VT_DIR/INSTALL/grub/i386-pc/
