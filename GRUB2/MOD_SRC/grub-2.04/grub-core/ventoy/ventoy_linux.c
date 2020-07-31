@@ -38,8 +38,7 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
-
-static char * ventoy_get_line(char *start)
+char * ventoy_get_line(char *start)
 {
     if (start == NULL)
     {

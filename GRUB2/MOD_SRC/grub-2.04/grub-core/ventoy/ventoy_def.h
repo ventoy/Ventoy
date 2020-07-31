@@ -123,6 +123,16 @@ typedef struct ventoy_udf_override
     grub_uint32_t position;
 }ventoy_udf_override;
 
+typedef struct ventoy_iso9660_vd
+{
+    grub_uint8_t type;
+    grub_uint8_t id[5];
+    grub_uint8_t ver;
+    grub_uint8_t res;
+    char sys[32];
+    char vol[32];
+}ventoy_iso9660_vd;
+
 #pragma pack()
 
 #define img_type_iso 0
@@ -667,6 +677,24 @@ extern int g_ventoy_iso_uefi_drv;
 extern int g_ventoy_case_insensitive;
 extern grub_uint8_t g_ventoy_chain_type;
 
+
+#define ventoy_unix_fill_virt(new_data, new_len) \
+{ \
+    data_secs = (new_len + 2047) / 2048; \
+    cur->mem_sector_start   = sector; \
+    cur->mem_sector_end     = cur->mem_sector_start + data_secs; \
+    cur->mem_sector_offset  = offset; \
+    cur->remap_sector_start = 0; \
+    cur->remap_sector_end   = 0; \
+    cur->org_sector_start   = 0; \
+    grub_memcpy(override + offset, new_data, new_len); \
+    cur++; \
+    sector += data_secs; \
+    offset += new_len; \
+    chain->virt_img_size_in_bytes += data_secs * 2048; \
+}
+
+char * ventoy_get_line(char *start);
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
 char * ventoy_plugin_get_cur_install_template(const char *isopath);
@@ -687,6 +715,12 @@ grub_err_t ventoy_cmd_linux_get_main_initrd_index(grub_extcmd_context_t ctxt, in
 grub_err_t ventoy_cmd_collect_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_patch_count(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_locate_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
+int ventoy_get_disk_guid(const char *filename, grub_uint8_t *guid);
+grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_freebsd_ver(grub_extcmd_context_t ctxt, int argc, char **args);
 
 #endif /* __VENTOY_DEF_H__ */
 
