@@ -782,11 +782,6 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
         return NULL;
     }
 
-    if (strcmp(pp->name, "ada1"))
-    {
-        return NULL;
-    }
-
     g_ventoy_tasted = true;
 
     G_DEBUG("######### ventoy disk <%s> #############\n", pp->name);
