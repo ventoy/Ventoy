@@ -29,12 +29,6 @@
  * $FreeBSD$
  */
 
-/* 
- * This file is just copied from g_concat.h and replace strings
- * "concat" ==> "ventoy"
- * "CONCAT" ==> "VENTOY"
- */
-
 #ifndef	_G_VENTOY_H_
 #define	_G_VENTOY_H_
 

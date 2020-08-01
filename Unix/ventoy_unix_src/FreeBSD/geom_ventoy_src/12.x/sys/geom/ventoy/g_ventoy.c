@@ -27,14 +27,6 @@
  * SUCH DAMAGE.
  */
 
-
-/* 
- * This file is just copied from g_concat.h and replace strings
- * "concat" ==> "ventoy"
- * "CONCAT" ==> "VENTOY"
- */
-
-
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 

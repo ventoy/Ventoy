@@ -2243,6 +2243,47 @@ static grub_err_t ventoy_cmd_find_bootable_hdd(grub_extcmd_context_t ctxt, int a
     return 0;
 }
 
+static grub_err_t ventoy_cmd_read_1st_line(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len = 1024;
+    grub_file_t file;
+    char *buf = NULL;
+        
+    (void)ctxt;
+    (void)argc;
+
+    if (argc != 2)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s file var \n", cmd_raw_name); 
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        debug("failed to open file %s\n", args[0]);
+        return 0;
+    }
+
+    buf = grub_malloc(len);
+    if (!buf)
+    {
+        goto end;
+    }
+
+    buf[len - 1] = 0;
+    grub_file_read(file, buf, len - 1);
+
+    ventoy_get_line(buf);
+    ventoy_set_env(args[1], buf);
+
+end:
+
+    grub_check_free(buf);
+    grub_file_close(file);
+    
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_parse_volume(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int len;
@@ -2280,6 +2321,44 @@ static grub_err_t ventoy_cmd_parse_volume(grub_extcmd_context_t ctxt, int argc, 
     grub_memset(buf, 0, sizeof(buf));
     grub_memcpy(buf, pvd.vol, sizeof(pvd.vol));
     ventoy_set_env(args[2], buf);
+
+end:
+    grub_file_close(file);
+    
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_parse_create_date(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len;
+    grub_file_t file;
+    char buf[64];
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (argc != 2)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s var \n", cmd_raw_name); 
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        debug("failed to open file %s\n", args[0]);
+        return 0;
+    }
+
+    grub_memset(buf, 0, sizeof(buf));
+    grub_file_seek(file, 16 * 2048 + 813);
+    len = (int)grub_file_read(file, buf, 17);
+    if (len != 17)
+    {
+        debug("failed to read create date %d\n", len);
+        goto end;
+    }
+
+    ventoy_set_env(args[1], buf);
 
 end:
     grub_file_close(file);
@@ -2468,7 +2547,10 @@ static cmd_para ventoy_cmds[] =
     { "vt_load_plugin", ventoy_cmd_load_plugin, 0, NULL, "", "", NULL },
     { "vt_check_plugin_json", ventoy_cmd_plugin_check_json, 0, NULL, "", "", NULL },
     
+    { "vt_1st_line", ventoy_cmd_read_1st_line, 0, NULL, "", "", NULL },
     { "vt_parse_iso_volume", ventoy_cmd_parse_volume, 0, NULL, "", "", NULL },
+    { "vt_parse_iso_create_date", ventoy_cmd_parse_create_date, 0, NULL, "", "", NULL },
+    { "vt_parse_freenas_ver", ventoy_cmd_parse_freenas_ver, 0, NULL, "", "", NULL },
     { "vt_unix_parse_freebsd_ver", ventoy_cmd_unix_freebsd_ver, 0, NULL, "", "", NULL },
     { "vt_unix_reset", ventoy_cmd_unix_reset, 0, NULL, "", "", NULL },
     { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
