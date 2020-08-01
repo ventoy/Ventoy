@@ -72,6 +72,12 @@
     <ClCompile Include="PartDialog.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="process.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="crc32.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ventoy2Disk.h">
@@ -128,6 +134,9 @@
     <ClInclude Include="ff14\source\ffconf.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="process.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Ventoy2Disk.rc">
@@ -136,6 +145,12 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\ventoy.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\icon2.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="Res\refresh.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

@@ -574,7 +574,7 @@ int ventoy_boot_vdisk(void *data)
     g_os_param_reserved = (uint8_t *)(g_chain->os_param.vtoy_reserved);
 
     /* Workaround for Windows & ISO9660 */
-    if (g_os_param_reserved[2] == 1 && g_os_param_reserved[3] == 0)
+    if (g_os_param_reserved[2] == ventoy_chain_windows && g_os_param_reserved[3] == 0)
     {
         g_fixup_iso9660_secover_enable = 1;
     }

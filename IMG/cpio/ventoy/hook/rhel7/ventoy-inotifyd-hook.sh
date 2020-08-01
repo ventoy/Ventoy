@@ -23,11 +23,11 @@ if is_ventoy_hook_finished; then
     exit 0
 fi
 
-vtlog "##### INOTIFYD: $2/$3 is created ..."
-
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
 if is_inotify_ventoy_part $3; then
+
+    vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
 
     vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
     if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
@@ -57,6 +57,8 @@ if is_inotify_ventoy_part $3; then
     fi
     
     set_ventoy_hook_finish
+else
+    vtlog "##### INOTIFYD: $2/$3 is created (NO) ..."
 fi
 
 PATH=$VTPATH_OLD

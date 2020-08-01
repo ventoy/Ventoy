@@ -202,3 +202,10 @@
  https://busybox.net/downloads/binaries/1.31.0-i686-uclibc/   busybox_ASH
  SHA-256: 2943f02f85fee0c9551aec47110a558a73f919c032b3c51e56d6f197b5ec4d7b  
    
+5.12 7za.exe
+ download from https://www.7-zip.org/a/7z1900-extra.7z
+ ISNTALL/ventoy/7z/64/7za.exe  SHA-256: 8117e40ee7f824f63373a4f5625bb62749f69159d0c449b3ce2f35aad3b83549
+ ISNTALL/ventoy/7z/32/7za.exe  SHA-256: ea308c76a2f927b160a143d94072b0dce232e04b751f0c6432a94e05164e716d
+ 
+
+

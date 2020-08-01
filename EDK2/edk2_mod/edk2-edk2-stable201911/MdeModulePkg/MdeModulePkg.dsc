@@ -204,6 +204,7 @@
 
 [Components]
   MdeModulePkg/Application/Ventoy/Ventoy.inf
+  MdeModulePkg/Application/VtoyUtil/VtoyUtil.inf
   MdeModulePkg/Application/HelloWorld/HelloWorld.inf
   MdeModulePkg/Application/DumpDynPcd/DumpDynPcd.inf
   MdeModulePkg/Application/MemoryProfileInfo/MemoryProfileInfo.inf

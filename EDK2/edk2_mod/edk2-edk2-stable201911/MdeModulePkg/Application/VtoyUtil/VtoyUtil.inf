@@ -1,0 +1,80 @@
+#************************************************************************************
+# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# 
+#************************************************************************************
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = VtoyUtil
+  FILE_GUID                      = a43466a0-68c6-469d-ba4b-678bbe90bc47
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = VtoyUtilEfiMain
+
+
+[Sources]
+  VtoyUtil.h
+  VtoyUtil.c
+  Memhole.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  ShellPkg/ShellPkg.dec
+
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiLib
+  DebugLib
+
+[Guids]
+  gShellVariableGuid
+  gEfiVirtualCdGuid
+  gEfiFileInfoGuid
+  
+[Protocols]
+  gEfiLoadedImageProtocolGuid
+  gEfiBlockIoProtocolGuid
+  gEfiDevicePathProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
+  gEfiRamDiskProtocolGuid
+  gEfiAbsolutePointerProtocolGuid
+  gEfiAcpiTableProtocolGuid
+  gEfiBlockIo2ProtocolGuid
+  gEfiBusSpecificDriverOverrideProtocolGuid
+  gEfiComponentNameProtocolGuid
+  gEfiComponentName2ProtocolGuid
+  gEfiDriverBindingProtocolGuid
+  gEfiDiskIoProtocolGuid
+  gEfiDiskIo2ProtocolGuid
+  gEfiGraphicsOutputProtocolGuid
+  gEfiHiiConfigAccessProtocolGuid
+  gEfiHiiFontProtocolGuid
+  gEfiLoadFileProtocolGuid
+  gEfiLoadFile2ProtocolGuid
+  gEfiLoadedImageProtocolGuid
+  gEfiLoadedImageDevicePathProtocolGuid
+  gEfiPciIoProtocolGuid
+  gEfiSerialIoProtocolGuid
+  gEfiSimpleTextInProtocolGuid
+  gEfiSimpleTextInputExProtocolGuid
+  gEfiSimpleTextOutProtocolGuid
+  
+  
+  
+  
+  
+  

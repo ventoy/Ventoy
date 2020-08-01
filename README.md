@@ -1,8 +1,8 @@
-# Ventoy
+# Ventoy  [https://www.ventoy.net](https://www.ventoy.net)
 Ventoy is an open source tool to create bootable USB drive for ISO files.   
 With ventoy, you don't need to format the disk over and over, you just need to copy the iso file to the USB drive and boot it.   
 You can copy many iso files at a time and ventoy will give you a boot menu to select them.  
-Both Legacy BIOS and UEFI are supported in the same way. 200+ ISO files are tested.  
+Both Legacy BIOS and UEFI are supported in the same way. 420+ ISO files are tested.  
 A "Ventoy Compatible" concept is introduced by ventoy, which can help to support any ISO file.  
 
 See https://www.ventoy.net for detail.
@@ -15,16 +15,17 @@ See https://www.ventoy.net for detail.
 * Legacy + UEFI supported in the same way
 * UEFI Secure Boot supported (since 1.0.07+)
 * Persistence supported (since 1.0.11+)
+* MBR and GPT partition style supported (1.0.15+)
 * WIM files boot supported (Legacy + UEFI) (1.0.12+)
 * Auto installation supported (1.0.09+)
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
-* Most type of OS supported, 200+ iso files tested
+* Most type of OS supported, 420+ iso files tested
 * Not only boot but also complete installation process
 * ISO files can be listed in List mode/TreeView mode
 * "Ventoy Compatible" concept
 * Plugin Framework
-* Readonly to USB drive during boot
+* USB drive write-protected support
 * USB normal use unaffected
 * Data nondestructive during version upgrade
 * No need to update Ventoy when a new distro is released
@@ -43,12 +44,18 @@ Title | Link
 -|-
 **Install & Update** | [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html)
 **Customize Theme** | [https://www.ventoy.net/en/plugin_theme.html](https://www.ventoy.net/en/plugin_theme.html)  
+**Global Control** | [https://www.ventoy.net/en/plugin_control.html](https://www.ventoy.net/en/plugin_control.html)  
 **Auto Installation** | [https://www.ventoy.net/en/plugin_autoinstall.html](https://www.ventoy.net/en/plugin_autoinstall.html)  
+**Injection Plugin** | [https://www.ventoy.net/en/plugin_injection.html](https://www.ventoy.net/en/plugin_injection.html)  
 **Persistence Support** | [https://www.ventoy.net/en/plugin_persistence.html](https://www.ventoy.net/en/plugin_persistence.html)  
 **Boot WIM file** | [https://www.ventoy.net/en/plugin_wimboot.html](https://www.ventoy.net/en/plugin_wimboot.html)  
+**Menu Class** | [https://www.ventoy.net/en/plugin_menuclass.html](https://www.ventoy.net/en/plugin_menuclass.html)  
+**Menu Alias** | [https://www.ventoy.net/en/plugin_menualias.html](https://www.ventoy.net/en/plugin_menualias.html)  
+**Menu Extension** | [https://www.ventoy.net/en/plugin_grubmenu.html](https://www.ventoy.net/en/plugin_grubmenu.html)  
 **Memdisk Mode** | [https://www.ventoy.net/en/doc_memdisk.html](https://www.ventoy.net/en/doc_memdisk.html)  
 **TreeView Mode** | [https://www.ventoy.net/en/doc_treeview.html](https://www.ventoy.net/en/doc_treeview.html)  
-**Disk Layout** | [https://www.ventoy.net/en/doc_disk_layout.html](https://www.ventoy.net/en/doc_disk_layout.html)  
+**Disk Layout MBR** | [https://www.ventoy.net/en/doc_disk_layout.html](https://www.ventoy.net/en/doc_disk_layout.html)  
+**Disk Layout GPT** | [https://www.ventoy.net/en/doc_disk_layout_gpt.html](https://www.ventoy.net/en/doc_disk_layout_gpt.html)  
 
 
 # FAQ

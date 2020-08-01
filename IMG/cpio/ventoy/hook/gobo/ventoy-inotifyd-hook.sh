@@ -23,11 +23,11 @@ if is_ventoy_hook_finished; then
     exit 0
 fi
 
-vtlog "##### INOTIFYD: $2/$3 is created ..."
-
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
 if is_inotify_ventoy_part $3; then
+    vtlog "##### INOTIFYD: $2/$3 is created (YES)..."
+    
     vtlog "find ventoy partition $3 ..."
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
     
@@ -42,6 +42,8 @@ if is_inotify_ventoy_part $3; then
     # fi
     
     set_ventoy_hook_finish
+else
+    vtlog "##### INOTIFYD: $2/$3 is created (NO)..."
 fi
 
 PATH=$VTPATH_OLD

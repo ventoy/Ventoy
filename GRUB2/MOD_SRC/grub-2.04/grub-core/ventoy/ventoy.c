@@ -305,6 +305,18 @@ static grub_err_t ventoy_cmd_break(grub_extcmd_context_t ctxt, int argc, char **
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_strstr(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        return 1;
+    }
+
+    return (grub_strstr(args[0], args[1])) ? 0 : 1;
+}
+
 static grub_err_t ventoy_cmd_incr(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     long value_long = 0;
@@ -891,8 +903,8 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
             *((img_info **)(node->tail)) = img;
             g_ventoy_img_count++;
 
-            img->alias = ventoy_plugin_get_menu_alias(img->path);
-            img->class = ventoy_plugin_get_menu_class(img->name);
+            img->alias = ventoy_plugin_get_menu_alias(vtoy_alias_image_file, img->path);
+            img->class = ventoy_plugin_get_menu_class(vtoy_class_image_file, img->name);
             if (!img->class)
             {
                 img->class = g_menu_class[type];
@@ -1029,7 +1041,9 @@ static img_iterator_node * ventoy_get_min_child(img_iterator_node *node)
 static int ventoy_dynamic_tree_menu(img_iterator_node *node)
 {
     int offset = 1;
-    img_info *img;
+    img_info *img = NULL;
+    const char *dir_class = NULL;
+    const char *dir_alias = NULL;
     img_iterator_node *child = NULL;
 
     if (node->isocnt == 0 || node->done == 1)
@@ -1055,9 +1069,25 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
     else
     {
         node->dir[node->dirlen - 1] = 0;
-        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                      "submenu \"%-10s [%s]\" --class=\"vtoydir\" {\n", 
-                      "DIR", node->dir + offset);
+        dir_class = ventoy_plugin_get_menu_class(vtoy_class_directory, node->dir);
+        if (!dir_class)
+        {
+            dir_class = "vtoydir";
+        }
+
+        dir_alias = ventoy_plugin_get_menu_alias(vtoy_alias_directory, node->dir);
+        if (dir_alias)
+        {
+            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                          "submenu \"%-10s %s\" --class=\"%s\" {\n", 
+                          "DIR", dir_alias, dir_class);
+        }
+        else
+        {
+            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                          "submenu \"%-10s [%s]\" --class=\"%s\" {\n", 
+                          "DIR", node->dir + offset, dir_class);
+        }
 
         vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
                       "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
@@ -1371,7 +1401,7 @@ static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int arg
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-static int ventoy_get_disk_guid(const char *filename, grub_uint8_t *guid)
+int ventoy_get_disk_guid(const char *filename, grub_uint8_t *guid)
 {
     grub_disk_t disk;
     char *device_name;
@@ -1441,6 +1471,7 @@ grub_uint32_t ventoy_get_iso_boot_catlog(grub_file_t file)
 int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
 {
     int i;
+    int x86count = 0;
     grub_uint8_t buf[512];
 
     grub_file_seek(file, sector * 2048);
@@ -1452,11 +1483,22 @@ int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
         return 1;
     }
 
+    if (buf[0] == 0x01 && buf[1] == 0x00)
+    {
+        x86count++;
+    }
+
     for (i = 64; i < (int)sizeof(buf); i += 32)
     {
         if ((buf[i] == 0x90 || buf[i] == 0x91) && buf[i + 1] == 0xEF)
         {
             debug("%s efi eltorito offset %d 0x%02x\n", file->name, i, buf[i]);
+            return 1;
+        }
+
+        if ((buf[i] == 0x90 || buf[i] == 0x91) && buf[i + 1] == 0x00 && x86count == 1)
+        {
+            debug("0x9100 assume %s efi eltorito offset %d 0x%02x\n", file->name, i, buf[i]);
             return 1;
         }
     }
@@ -1662,7 +1704,7 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
     (void)argc;
     (void)args;
 
-    debug("select auto installation %d\n", argc);
+    debug("select auto installation argc:%d\n", argc);
 
     if (argc < 1)
     {
@@ -1672,7 +1714,14 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
     node = ventoy_plugin_find_install_template(args[0]);
     if (!node)
     {
-        debug("Install template not found for %s\n", args[0]);
+        debug("Auto install template not found for %s\n", args[0]);
+        return 0;
+    }
+
+    if (node->autosel >= 0 && node->autosel <= node->templatenum)
+    {
+        node->cursel = node->autosel - 1;
+        debug("Auto install template auto select %d\n", node->autosel);
         return 0;
     }
 
@@ -1720,7 +1769,7 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
     (void)argc;
     (void)args;
 
-    debug("select persistece %d\n", argc);
+    debug("select persistence argc:%d\n", argc);
 
     if (argc < 1)
     {
@@ -1731,6 +1780,13 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
     if (!node)
     {
         debug("Persistence image not found for %s\n", args[0]);
+        return 0;
+    }
+
+    if (node->autosel >= 0 && node->autosel <= node->backendnum)
+    {
+        node->cursel = node->autosel - 1;
+        debug("Persistence image auto select %d\n", node->autosel);
         return 0;
     }
 
@@ -1973,32 +2029,22 @@ static grub_err_t ventoy_cmd_dump_img_list(grub_extcmd_context_t ctxt, int argc,
     return 0;
 }
 
-static grub_err_t ventoy_cmd_dump_auto_install(grub_extcmd_context_t ctxt, int argc, char **args)
+static grub_err_t ventoy_cmd_dump_injection(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
     (void)argc;
     (void)args;
 
-{
-    grub_file_t file;
-    char *buf;
-    char name[128];
+    ventoy_plugin_dump_injection();
 
-    file = grub_file_open("(hd0,1)/ventoy/ventoy.disk.img.xz", GRUB_FILE_TYPE_NONE);
-    if (file)
-    {
-        grub_printf("Open File OK (size:%llu)\n", (ulonglong)file->size);
-
-        buf = grub_malloc(file->size);
-        grub_file_read(file, buf, file->size);
-
-        grub_file_close(file);
-
-        grub_snprintf(name, sizeof(name), "mem:0x%llx:size:%llu", (ulonglong)(ulong)buf, (ulonglong)file->size);
-        grub_printf("<%s>\n", name);
-    }
+    return 0;
 }
 
+static grub_err_t ventoy_cmd_dump_auto_install(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
 
     ventoy_plugin_dump_auto_install();
 
@@ -2144,7 +2190,7 @@ static grub_err_t ventoy_cmd_find_bootable_hdd(grub_extcmd_context_t ctxt, int a
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s variable\n", cmd_raw_name); 
     }
 
-    isopath = grub_env_get("iso_path");
+    isopath = grub_env_get("vtoy_iso_part");
     if (!isopath)
     {
         debug("isopath is null %p\n", isopath);
@@ -2194,6 +2240,129 @@ static grub_err_t ventoy_cmd_find_bootable_hdd(grub_extcmd_context_t ctxt, int a
         grub_disk_close(disk);
     }
 
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_read_1st_line(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len = 1024;
+    grub_file_t file;
+    char *buf = NULL;
+        
+    (void)ctxt;
+    (void)argc;
+
+    if (argc != 2)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s file var \n", cmd_raw_name); 
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        debug("failed to open file %s\n", args[0]);
+        return 0;
+    }
+
+    buf = grub_malloc(len);
+    if (!buf)
+    {
+        goto end;
+    }
+
+    buf[len - 1] = 0;
+    grub_file_read(file, buf, len - 1);
+
+    ventoy_get_line(buf);
+    ventoy_set_env(args[1], buf);
+
+end:
+
+    grub_check_free(buf);
+    grub_file_close(file);
+    
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_parse_volume(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len;
+    grub_file_t file;
+    char buf[64];
+    ventoy_iso9660_vd pvd;
+        
+    (void)ctxt;
+    (void)argc;
+
+    if (argc != 3)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s sysid volid \n", cmd_raw_name); 
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        debug("failed to open file %s\n", args[0]);
+        return 0;
+    }
+
+    grub_file_seek(file, 16 * 2048);
+    len = (int)grub_file_read(file, &pvd, sizeof(pvd));
+    if (len != sizeof(pvd))
+    {
+        debug("failed to read pvd %d\n", len);
+        goto end;
+    }
+
+    grub_memset(buf, 0, sizeof(buf));
+    grub_memcpy(buf, pvd.sys, sizeof(pvd.sys));
+    ventoy_set_env(args[1], buf);
+
+    grub_memset(buf, 0, sizeof(buf));
+    grub_memcpy(buf, pvd.vol, sizeof(pvd.vol));
+    ventoy_set_env(args[2], buf);
+
+end:
+    grub_file_close(file);
+    
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_parse_create_date(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len;
+    grub_file_t file;
+    char buf[64];
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (argc != 2)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s var \n", cmd_raw_name); 
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        debug("failed to open file %s\n", args[0]);
+        return 0;
+    }
+
+    grub_memset(buf, 0, sizeof(buf));
+    grub_file_seek(file, 16 * 2048 + 813);
+    len = (int)grub_file_read(file, buf, 17);
+    if (len != 17)
+    {
+        debug("failed to read create date %d\n", len);
+        goto end;
+    }
+
+    ventoy_set_env(args[1], buf);
+
+end:
+    grub_file_close(file);
+    
     return 0;
 }
 
@@ -2267,14 +2436,37 @@ int ventoy_is_file_exist(const char *fmt, ...)
     return 0;
 }
 
+int ventoy_is_dir_exist(const char *fmt, ...)
+{
+    va_list ap;
+    int len;
+    char *pos = NULL;
+    char buf[256] = {0};
+
+    grub_snprintf(buf, sizeof(buf), "%s", "[ -d ");
+    pos = buf + 5;
+
+    va_start (ap, fmt);
+    len = grub_vsnprintf(pos, 255, fmt, ap);
+    va_end (ap);
+
+    grub_strncpy(pos + len, " ]", 2);
+
+    debug("script exec %s\n", buf);
+
+    if (0 == grub_script_execute_sourcecode(buf))
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 static int ventoy_env_init(void)
 {
     char buf[64];
 
     grub_env_set("vtdebug_flag", "");
-    grub_env_export("vtdebug_flag");
-
-
 
     g_tree_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);
     g_list_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);
@@ -2285,6 +2477,7 @@ static int ventoy_env_init(void)
     if (g_grub_param)
     {
         g_grub_param->grub_env_get = grub_env_get;
+        g_grub_param->grub_env_printf = (grub_env_printf_pf)grub_printf;
         grub_snprintf(buf, sizeof(buf), "%p", g_grub_param);
         grub_env_set("env_param", buf);
     }
@@ -2295,6 +2488,7 @@ static int ventoy_env_init(void)
 static cmd_para ventoy_cmds[] = 
 {
     { "vt_incr",  ventoy_cmd_incr,  0, NULL, "{Var} {INT}",   "Increase integer variable",    NULL },
+    { "vt_strstr",  ventoy_cmd_strstr,  0, NULL, "",   "",    NULL },
     { "vt_debug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
     { "vtdebug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
     { "vtbreak", ventoy_cmd_break, 0, NULL, "{level}",   "set debug break",    NULL },
@@ -2314,6 +2508,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_dynamic_menu", ventoy_cmd_dynamic_menu, 0, NULL, "", "", NULL },
     { "vt_check_mode", ventoy_cmd_check_mode, 0, NULL, "", "", NULL },
     { "vt_dump_img_list", ventoy_cmd_dump_img_list, 0, NULL, "", "", NULL },
+    { "vt_dump_injection", ventoy_cmd_dump_injection, 0, NULL, "", "", NULL },
     { "vt_dump_auto_install", ventoy_cmd_dump_auto_install, 0, NULL, "", "", NULL },
     { "vt_dump_persistence", ventoy_cmd_dump_persistence, 0, NULL, "", "", NULL },
     { "vt_select_auto_install", ventoy_cmd_sel_auto_install, 0, NULL, "", "", NULL },
@@ -2351,6 +2546,16 @@ static cmd_para ventoy_cmds[] =
     
     { "vt_load_plugin", ventoy_cmd_load_plugin, 0, NULL, "", "", NULL },
     { "vt_check_plugin_json", ventoy_cmd_plugin_check_json, 0, NULL, "", "", NULL },
+    
+    { "vt_1st_line", ventoy_cmd_read_1st_line, 0, NULL, "", "", NULL },
+    { "vt_parse_iso_volume", ventoy_cmd_parse_volume, 0, NULL, "", "", NULL },
+    { "vt_parse_iso_create_date", ventoy_cmd_parse_create_date, 0, NULL, "", "", NULL },
+    { "vt_parse_freenas_ver", ventoy_cmd_parse_freenas_ver, 0, NULL, "", "", NULL },
+    { "vt_unix_parse_freebsd_ver", ventoy_cmd_unix_freebsd_ver, 0, NULL, "", "", NULL },
+    { "vt_unix_reset", ventoy_cmd_unix_reset, 0, NULL, "", "", NULL },
+    { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
+    { "vt_unix_replace_ko", ventoy_cmd_unix_replace_ko, 0, NULL, "", "", NULL },
+    { "vt_unix_chain_data", ventoy_cmd_unix_chain_data, 0, NULL, "", "", NULL },
 
 };
 

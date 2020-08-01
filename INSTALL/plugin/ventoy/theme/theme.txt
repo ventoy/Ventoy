@@ -1,0 +1,80 @@
+
+desktop-image: "background.png"
+title-text: " "
+title-color: "#ffffff"
+message-color: "#f2f2f2"
+
+terminal-box: "terminal_box_*.png"
+
++ boot_menu {
+  left = 10%
+  width = 80%
+  top = 30%
+  height = 50%
+
+  menu_pixmap_style = "menu_*.png"
+
+  item_color = "#ffffff"  
+  item_height = 30
+  
+  item_spacing = 1
+  item_padding = 1
+
+  selected_item_color= "#f2f2f2"
+  selected_item_pixmap_style = "select_*.png"
+
+  item_icon_space = 0
+
+  scrollbar = true
+  scrollbar_width = 10
+  scrollbar_thumb = "slider_*.png"
+}
+
++ progress_bar {
+  id = "__timeout__"
+  text = "@TIMEOUT_NOTIFICATION_SHORT@"
+
+  left = 20%
+  width = 60%
+  top = 85%
+
+  text_color = "red"
+  bar_style = "*"
+  highlight_style = "*"
+}
+
++ hbox{ 
+    left = 30%
+    top = 95%
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_HOTKEY_TIP@" color = "blue" align = "left"} 
+}
+
+
++ hbox{ 
+    left = 30%
+    top = 95%-25
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_MEM_DISK@" color = "red" align = "left"} 
+}
+
+
++ hbox{ 
+    left = 30%
+    top = 95%-50
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_ISO_RAW@" color = "red" align = "left"} 
+}
+
+
++ hbox{ 
+    left = 90%
+    top = 55 
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_ISO_UEFI_DRV@" color = "red" align = "left"} 
+}
+

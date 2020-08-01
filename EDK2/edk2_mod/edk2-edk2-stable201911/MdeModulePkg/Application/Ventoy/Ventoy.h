@@ -25,6 +25,15 @@
 
 #define VENTOY_GUID { 0x77772020, 0x2e77, 0x6576, { 0x6e, 0x74, 0x6f, 0x79, 0x2e, 0x6e, 0x65, 0x74 }}
 
+typedef enum ventoy_chain_type
+{
+    ventoy_chain_linux = 0, /* 0: linux */
+    ventoy_chain_windows,   /* 1: windows */
+    ventoy_chain_wim,       /* 2: wim */
+
+    ventoy_chain_max
+}ventoy_chain_type;
+
 #pragma pack(1)
 
 typedef struct ventoy_guid
@@ -159,6 +168,8 @@ typedef struct ventoy_virt_chunk
 #define VTOY_BLOCK_DEVICE_PATH_GUID					\
 	{ 0x37b87ac6, 0xc180, 0x4583, { 0xa7, 0x05, 0x41, 0x4d, 0xa8, 0xf7, 0x7e, 0xd2 }}
 
+#define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_x64.efi"
+
 #define VTOY_BLOCK_DEVICE_PATH_NAME  L"ventoy"
 
 #if   defined (MDE_CPU_IA32)
@@ -199,6 +210,7 @@ typedef struct vtoy_block_data
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *pDiskFs;
     EFI_DEVICE_PATH_PROTOCOL *pDiskFsDevPath;
 
+    EFI_HANDLE IsoDriverImage;
 }vtoy_block_data;
 
 
@@ -216,6 +228,7 @@ if (gDebugPrint) \
 }
 
 typedef const char * (*grub_env_get_pf)(const char *name);
+typedef int (*grub_env_printf_pf)(const char *fmt, ...);
 
 #pragma pack(1)
 
@@ -242,8 +255,8 @@ typedef struct ventoy_grub_param_file_replace
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
-
     ventoy_grub_param_file_replace file_replace;
+    grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;
 
 typedef struct ventoy_ram_disk
@@ -279,6 +292,18 @@ typedef struct ventoy_system_wrapper
     
     EFI_OPEN_PROTOCOL NewOpenProtocol;
     EFI_OPEN_PROTOCOL OriOpenProtocol;
+
+    EFI_LOCATE_HANDLE_BUFFER NewLocateHandleBuffer;
+    EFI_LOCATE_HANDLE_BUFFER OriLocateHandleBuffer;
+
+    EFI_PROTOCOLS_PER_HANDLE NewProtocolsPerHandle;
+    EFI_PROTOCOLS_PER_HANDLE OriProtocolsPerHandle;
+
+    EFI_LOCATE_HANDLE NewLocateHandle;
+    EFI_LOCATE_HANDLE OriLocateHandle;
+
+    EFI_LOCATE_DEVICE_PATH NewLocateDevicePath;
+    EFI_LOCATE_DEVICE_PATH OriLocateDevicePath;
 } ventoy_system_wrapper;
 
 #define ventoy_wrapper(bs, wrapper, func, newfunc) \
@@ -317,6 +342,7 @@ extern UINTN g_iso_buf_size;
 extern ventoy_grub_param_file_replace *g_file_replace_list;
 extern BOOLEAN g_fixup_iso9660_secover_enable;
 extern EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *g_con_simple_input_ex;
+extern BOOLEAN g_fix_windows_1st_cdrom_issue;
 
 EFI_STATUS EFIAPI ventoy_wrapper_open_volume
 (
@@ -327,6 +353,9 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
 EFI_STATUS EFIAPI ventoy_wrapper_push_openvolume(IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME OpenVolume);
 EFI_STATUS ventoy_hook_keyboard_start(VOID);
 EFI_STATUS ventoy_hook_keyboard_stop(VOID);
+BOOLEAN ventoy_is_cdrom_dp_exist(VOID);
+EFI_STATUS ventoy_hook_1st_cdrom_start(VOID);
+EFI_STATUS ventoy_hook_1st_cdrom_stop(VOID);
 
 #endif
 
