@@ -105,3 +105,9 @@ ventoy_print_yum_repo() {
 ventoy_set_inotify_script() {
     echo $VTOY_PATH/hook/$1 > $VTOY_PATH/inotifyd-hook-script.txt
 }
+
+ventoy_set_loop_inotify_script() {
+    echo $VTOY_PATH/loop/$1 > $VTOY_PATH/inotifyd-loop-script.txt
+}
+
+

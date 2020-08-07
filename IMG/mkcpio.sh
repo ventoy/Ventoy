@@ -28,7 +28,8 @@ find ./tool | cpio  -o -H newc>tool.cpio
 xz tool.cpio
 rm -rf tool
 
-xz ventoy.sh
+xz ventoy_chain.sh
+xz ventoy_loop.sh
 
 find ./hook | cpio  -o -H newc>hook.cpio
 xz hook.cpio

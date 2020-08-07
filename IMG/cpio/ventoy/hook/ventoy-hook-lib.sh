@@ -475,7 +475,7 @@ ventoy_udev_disk_common_hook() {
 
 
 is_inotify_ventoy_part() {
-    if echo $1 | grep -q "2$"; then
+    if echo $1 | $GREP -q "2$"; then
         if ! [ -e /sys/block/$1 ]; then
             if [ -e /sys/class/block/$1 ]; then
                 if [ -e /dev/${1:0:-1} ]; then

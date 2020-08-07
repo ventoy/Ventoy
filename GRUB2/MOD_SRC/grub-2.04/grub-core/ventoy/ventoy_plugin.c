@@ -151,6 +151,12 @@ static int ventoy_plugin_theme_check(VTOY_JSON *json, const char *isodisk)
         grub_printf("display_mode: %s\n", value);
     }
 
+    value = vtoy_json_get_string_ex(json->pstChild, "serial_param");
+    if (value)
+    {
+        grub_printf("serial_param %s\n", value);
+    }
+
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_left");
     if (value)
     {
@@ -235,6 +241,13 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     {
         debug("display_mode %s\n", value);
         grub_env_set("vtoy_display_mode", value);
+    }
+    
+    value = vtoy_json_get_string_ex(json->pstChild, "serial_param");
+    if (value)
+    {
+        debug("serial_param %s\n", value);
+        grub_env_set("vtoy_serial_param", value);
     }
 
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_left");

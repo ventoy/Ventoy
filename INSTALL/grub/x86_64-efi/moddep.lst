@@ -93,6 +93,7 @@ bufio:
 usbserial_ftdi: serial usb usbserial_common
 legacy_password_test: functional_test legacycfg
 cpuid: extcmd
+blscfg: extcmd normal
 hdparm: extcmd hexdump
 bfs: fshelp
 gcry_blowfish: crypto

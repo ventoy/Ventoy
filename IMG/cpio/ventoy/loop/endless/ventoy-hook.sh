@@ -17,21 +17,20 @@
 # 
 #************************************************************************************
 
+. $VTOY_PATH/hook/ventoy-os-lib.sh
 
-###################################################################
-#                                                                  #
-# Step 1 : parse kernel debug parameter                            #
-#                                                                  #
-####################################################################
-[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
-vtoy_cmdline=$(cat /proc/cmdline)
-umount /proc; rm -rf /proc
+END_UDEV_DIR=$(ventoy_get_udev_conf_dir)
 
-if echo $vtoy_cmdline | grep -q 'rdinit=/vtoy/vtoy'; then
-    echo "handover to init_loop" >>$VTLOG
-    rm -f /xxxx /vtoyxrc
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_loop
-else
-    echo "handover to init_chain" >>$VTLOG
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_chain
+if ! [ -e "$END_UDEV_DIR/10-dm.rules" ]; then
+    echo 'Copy dm rule file' >> $VTLOG
+    $CAT $VTOY_PATH/hook/default/10-dm.rules > "$END_UDEV_DIR/10-dm.rules"
 fi
+
+if ! [ -e "$END_UDEV_DIR/13-dm-disk.rules" ]; then
+    echo 'Copy dm-disk rule file' >> $VTLOG
+    $CAT $VTOY_PATH/hook/default/13-dm-disk.rules > "$END_UDEV_DIR/13-dm-disk.rules"
+fi
+
+ventoy_set_loop_inotify_script  endless/ventoy-inotifyd-hook.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/loop/endless/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/01-ventoy-inotifyd-start.sh
+

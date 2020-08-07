@@ -810,6 +810,16 @@ module = {
 };
 
 module = {
+  name = blscfg;
+  common = commands/blscfg.c;
+  common = commands/loadenv.h;
+  enable = powerpc_ieee1275;
+  enable = efi;
+  enable = i386_pc;
+  enable = emu;
+};
+
+module = {
   name = boot;
   common = commands/boot.c;
   i386_pc = lib/i386/pc/biosnum.c;
@@ -986,6 +996,7 @@ module = {
 module = {
   name = loadenv;
   common = commands/loadenv.c;
+  common = commands/loadenv.h;
   common = lib/envblk.c;
 };
 

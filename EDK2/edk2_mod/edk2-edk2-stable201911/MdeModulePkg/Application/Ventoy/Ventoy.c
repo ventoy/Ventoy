@@ -331,7 +331,7 @@ EFI_STATUS EFIAPI ventoy_save_ramdisk_param(VOID)
     Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_ramdisk_param), &(g_ramdisk_param));
-    debug("set efi variable %r", Status);
+    debug("set ramdisk variable %r", Status);
 
     return Status;
 }
@@ -663,17 +663,22 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     size = StrDecimalToUintn(pPos + 5);
 
     debug("memory addr:%p size:%lu", chain, size);
-    
-    g_chain = AllocatePool(size);
-    CopyMem(g_chain, chain, size);
 
     if (StrStr(pCmdLine, L"memdisk"))
     {
-        g_iso_buf_size = size;
+        g_iso_data_buf = (UINT8 *)chain + sizeof(ventoy_chain_head);
+        g_iso_buf_size = size - sizeof(ventoy_chain_head);
+        debug("memdisk mode iso_buf_size:%u", g_iso_buf_size);
+
+        g_chain = chain;
         gMemdiskMode = TRUE;
     }
     else
     {
+        debug("This is normal mode");
+        g_chain = AllocatePool(size);
+        CopyMem(g_chain, chain, size);
+    
         g_chunk = (ventoy_img_chunk *)((char *)g_chain + g_chain->img_chunk_offset);
         g_img_chunk_num = g_chain->img_chunk_num;
         g_override_chunk = (ventoy_override_chunk *)((char *)g_chain + g_chain->override_chunk_offset);
@@ -724,6 +729,8 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
             g_fix_windows_1st_cdrom_issue = TRUE;
         }
     }
+
+    ventoy_debug_pause();
 
     FreePool(pCmdLine);
     return EFI_SUCCESS;
@@ -942,15 +949,29 @@ EFI_STATUS EFIAPI VentoyEfiMain
 
     if (gMemdiskMode)
     {
-        g_ramdisk_param.PhyAddr = (UINT64)(UINTN)g_chain;
+        g_ramdisk_param.PhyAddr = (UINT64)(UINTN)g_iso_data_buf;
         g_ramdisk_param.DiskSize = (UINT64)g_iso_buf_size;
 
         ventoy_save_ramdisk_param();
+
+        if (gLoadIsoEfi)
+        {
+            ventoy_find_iso_disk(ImageHandle);
+            ventoy_find_iso_disk_fs(ImageHandle);
+            ventoy_load_isoefi_driver(ImageHandle);
+        }
         
         ventoy_install_blockio(ImageHandle, g_iso_buf_size);
+        ventoy_debug_pause();
+
         Status = ventoy_boot(ImageHandle);
         
         ventoy_delete_ramdisk_param();
+
+        if (gLoadIsoEfi && gBlockData.IsoDriverImage)
+        {
+            gBS->UnloadImage(gBlockData.IsoDriverImage);
+        }
     }
     else
     {

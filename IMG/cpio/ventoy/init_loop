@@ -1,0 +1,90 @@
+#!/ventoy/busybox/sh
+#************************************************************************************
+# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# 
+#************************************************************************************
+
+
+###################################################################
+#                                                                  #
+# Step 1 : parse kernel debug parameter                            #
+#                                                                  #
+####################################################################
+[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
+vtcmdline=$(cat /proc/cmdline)
+vtkerver=$(cat /proc/version)
+umount /proc; rm -rf /proc
+
+echo "kenel version=$vtkerver" >>$VTLOG
+echo "kenel cmdline=$vtcmdline" >>$VTLOG
+
+#break here for debug
+if [ "$VTOY_BREAK_LEVEL" = "01" ] || [ "$VTOY_BREAK_LEVEL" = "11" ]; then
+    sleep 5
+    echo -e "\n\n\033[32m ################################################# \033[0m"
+    echo -e "\033[32m ################ VENTOY DEBUG ################### \033[0m"
+    echo -e "\033[32m ################################################# \033[0m \n"
+    
+    if [ "$VTOY_BREAK_LEVEL" = "11" ]; then
+        cat $VTLOG
+    fi
+    exec $BUSYBOX_PATH/sh
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 2 : Extract injection archive                               #
+#                                                                  #
+####################################################################
+ventoy_unpack_injection() {
+    vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $VTOY_PATH/ventoy_injection)
+    echo "ventoy_unpack_injection  vtmagic=$vtmagic ..."
+    
+    if [ "1F8B" = "$vtmagic" ] || [ "1F9E" = "$vtmagic" ]; then
+        echo "tar.gz  tar -xzvf"
+        tar -xzvf $VTOY_PATH/ventoy_injection -C /
+    elif [ "425A" = "$vtmagic" ]; then
+        echo "tar.bz2  tar -xjvf"
+        tar -xjvf $VTOY_PATH/ventoy_injection -C / 
+    elif [ "FD37" = "$vtmagic" ]; then
+        echo "tar.xz  tar -xJvf"
+        tar -xJvf $VTOY_PATH/ventoy_injection -C /
+    elif [ "5D00" = "$vtmagic" ]; then
+        echo "tar.lzma  tar -xavf"
+        tar -xavf $VTOY_PATH/ventoy_injection -C /
+    else
+        echo "unzip -o"
+        unzip -o $VTOY_PATH/ventoy_injection -d /
+    fi
+}
+
+if [ -e $VTOY_PATH/ventoy_injection ]; then
+    echo "### decompress injection ... ###" >>$VTLOG
+    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 3 : Hand over to ventoy_loop.sh                                  #
+#                                                                  #
+####################################################################
+echo "Now hand over to ventoy.sh" >>$VTLOG
+. $VTOY_PATH/tool/vtoytool_install.sh
+
+export PATH=$VTOY_ORG_PATH
+exec $BUSYBOX_PATH/sh $VTOY_PATH/ventoy_loop.sh

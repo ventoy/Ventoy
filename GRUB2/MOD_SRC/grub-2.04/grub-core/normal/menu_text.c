@@ -180,11 +180,13 @@ command-line or ESC to discard edits and return to the GRUB menu."),
 
       if (nested)
 	{
+      #if 0
 	  ret += grub_print_message_indented_real
 	    (_("Press enter to boot the selected OS, "
 	       "`e' to edit the commands before booting "
 	       "or `c' for a command-line. ESC to return previous menu."),
 	     STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
+      #endif
 	}
       else
 	{
@@ -195,7 +197,7 @@ command-line or ESC to discard edits and return to the GRUB menu."),
       
 	  ret += grub_print_message_indented_real("\n", STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
 	  ret += grub_print_message_indented_real(grub_env_get("VTOY_HOTKEY_TIP"),
-	     STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
+	     3, 6, term, dry_run);
 	}	
     }
   return ret;

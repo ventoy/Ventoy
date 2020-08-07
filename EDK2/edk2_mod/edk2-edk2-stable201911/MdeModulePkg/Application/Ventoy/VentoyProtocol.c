@@ -36,6 +36,7 @@
 #include <Protocol/SimpleFileSystem.h>
 #include <Ventoy.h>
 
+UINT8 *g_iso_data_buf = NULL;
 UINTN g_iso_buf_size = 0;
 BOOLEAN gMemdiskMode = FALSE;
 
@@ -254,7 +255,7 @@ EFI_STATUS EFIAPI ventoy_block_io_ramdisk_read
     (VOID)This;
     (VOID)MediaId;
 
-    CopyMem(Buffer, (char *)g_chain + (Lba * 2048), BufferSize);
+    CopyMem(Buffer, g_iso_data_buf + (Lba * 2048), BufferSize);
     
     if (g_blockio_start_record_bcd && FALSE == g_blockio_bcd_read_done)
     {

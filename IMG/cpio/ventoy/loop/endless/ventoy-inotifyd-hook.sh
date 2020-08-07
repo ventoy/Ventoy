@@ -17,21 +17,21 @@
 # 
 #************************************************************************************
 
+. /ventoy/hook/ventoy-hook-lib.sh
 
-###################################################################
-#                                                                  #
-# Step 1 : parse kernel debug parameter                            #
-#                                                                  #
-####################################################################
-[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
-vtoy_cmdline=$(cat /proc/cmdline)
-umount /proc; rm -rf /proc
-
-if echo $vtoy_cmdline | grep -q 'rdinit=/vtoy/vtoy'; then
-    echo "handover to init_loop" >>$VTLOG
-    rm -f /xxxx /vtoyxrc
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_loop
-else
-    echo "handover to init_chain" >>$VTLOG
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_chain
+if is_ventoy_hook_finished; then
+    exit 0
 fi
+
+VTPATH_OLD=$PATH; PATH=$PATH:$BUSYBOX_PATH:$VTOY_PATH/tool
+
+if is_inotify_ventoy_part $3; then
+    vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
+
+    ventoy_udev_disk_common_hook "$3" "noreplace"
+    set_ventoy_hook_finish
+else
+    vtlog "##### INOTIFYD: $2/$3 is created (NO) ..."
+fi
+
+PATH=$VTPATH_OLD

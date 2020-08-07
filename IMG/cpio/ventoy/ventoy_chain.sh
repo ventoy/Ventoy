@@ -136,6 +136,8 @@ ventoy_get_os_type() {
             echo 'suse'; return        
         elif $GREP -q 'uruk' /etc/os-release; then
             echo 'debian'; return
+        elif $GREP -q 'Solus' /etc/os-release; then
+            echo 'rhel7'; return
         fi
     fi
     

@@ -339,6 +339,7 @@ extern ventoy_sector_flag *g_sector_flag;
 extern UINT32 g_sector_flag_num;
 extern BOOLEAN gMemdiskMode;
 extern UINTN g_iso_buf_size;
+extern UINT8 *g_iso_data_buf;
 extern ventoy_grub_param_file_replace *g_file_replace_list;
 extern BOOLEAN g_fixup_iso9660_secover_enable;
 extern EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *g_con_simple_input_ex;

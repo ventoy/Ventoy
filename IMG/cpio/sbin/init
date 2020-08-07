@@ -54,7 +54,8 @@ if [ -z "$VTOY_REDT_BUG" ]; then
 fi
 
 cd $VTOY_PATH
-xz -d ventoy.sh.xz
+xz -d ventoy_chain.sh.xz
+xz -d ventoy_loop.sh.xz
 
 if [ -n "$VTOY_REDT_BUG" ]; then
     xz -d -c hook.cpio.xz | cpio -idm

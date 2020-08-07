@@ -34,6 +34,7 @@
 #include <grub/i18n.h>
 #include <grub/net.h>
 #include <grub/misc.h>
+#include <grub/kernel.h>
 #ifdef GRUB_MACHINE_EFI
 #include <grub/efi/efi.h>
 #endif
@@ -317,6 +318,38 @@ static grub_err_t ventoy_cmd_strstr(grub_extcmd_context_t ctxt, int argc, char *
     return (grub_strstr(args[0], args[1])) ? 0 : 1;
 }
 
+static grub_err_t ventoy_cmd_strbegin(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    char *c0, *c1;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        return 1;
+    }
+
+    c0 = args[0];
+    c1 = args[1];
+
+    while (*c0 && *c1)
+    {
+        if (*c0 != *c1)
+        {
+            return 1;
+        }
+        c0++;
+        c1++;
+    }
+
+    if (*c1)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_incr(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     long value_long = 0;
@@ -410,9 +443,171 @@ static grub_err_t ventoy_cmd_load_wimboot(grub_extcmd_context_t ctxt, int argc, 
     return 0;
 }
 
-static grub_err_t ventoy_cmd_load_iso_to_mem(grub_extcmd_context_t ctxt, int argc, char **args)
+static int ventoy_load_efiboot_template(char **buf, int *datalen, int *direntoff)
+{
+    int len;
+    grub_file_t file;
+    char exec[128];
+    char *data = NULL;
+    grub_uint32_t offset;
+
+    file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "%s/ventoy/ventoy_efiboot.img.xz", ventoy_get_env("vtoy_efi_part"));
+    if (file == NULL)
+    {
+        debug("failed to open file <%s>\n", "ventoy_efiboot.img.xz");
+        return 1;
+    }
+
+    len = (int)file->size;
+    
+    data = (char *)grub_malloc(file->size);
+    if (!data)
+    {
+        return 1;
+    }
+    
+    grub_file_read(file, data, file->size);
+    grub_file_close(file); 
+
+    grub_snprintf(exec, sizeof(exec), "loopback efiboot mem:0x%llx:size:%d", (ulonglong)(ulong)data, len);
+    grub_script_execute_sourcecode(exec);
+
+    file = grub_file_open("(efiboot)/EFI/BOOT/BOOTX64.EFI", GRUB_FILE_TYPE_LINUX_INITRD);    
+    offset = (grub_uint32_t)grub_iso9660_get_last_file_dirent_pos(file);
+    grub_file_close(file);
+    
+    grub_script_execute_sourcecode("loopback -d efiboot");
+
+    *buf = data;
+    *datalen = len;
+    *direntoff = offset + 2;
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_concat_efi_iso(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len = 0;
+    int totlen = 0;
+    int offset = 0;
+    grub_file_t file;
+    char name[32];
+    char value[32];
+    char *buf = NULL;
+    char *data = NULL;
+    ventoy_iso9660_override *dirent;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        return 1;
+    }
+
+    totlen = sizeof(ventoy_chain_head);
+
+    if (ventoy_load_efiboot_template(&buf, &len, &offset))
+    {
+        debug("failed to load efiboot template %d\n", len);
+        return 1;
+    }
+
+    totlen += len;
+    
+    debug("efiboot template len:%d offset:%d\n", len, offset);
+
+    file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "%s", args[0]);
+    if (file == NULL)
+    {
+        debug("failed to open file <%s>\n", args[0]);
+        return 1;
+    }
+
+    totlen += ventoy_align_2k(file->size);
+
+    dirent = (ventoy_iso9660_override *)(buf + offset);
+    dirent->first_sector = len / 2048;
+    dirent->first_sector_be = grub_swap_bytes32(dirent->first_sector);
+    dirent->size = (grub_uint32_t)file->size;
+    dirent->size_be = grub_swap_bytes32(dirent->size);
+
+    debug("rawiso len:%d efilen:%d total:%d\n", len, (int)file->size, totlen);
+
+#ifdef GRUB_MACHINE_EFI
+    data = (char *)grub_efi_allocate_iso_buf(totlen);
+#else
+    data = (char *)grub_malloc(totlen);
+#endif   
+
+    ventoy_fill_os_param(file, (ventoy_os_param *)data);
+
+    grub_memcpy(data + sizeof(ventoy_chain_head), buf, len);
+    grub_check_free(buf);
+
+    grub_file_read(file, data + sizeof(ventoy_chain_head) + len, file->size);
+    grub_file_close(file); 
+
+    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
+    grub_snprintf(value, sizeof(value), "0x%llx", (ulonglong)(ulong)data);
+    grub_env_set(name, value);
+    
+    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
+    grub_snprintf(value, sizeof(value), "%d", (int)(totlen));
+    grub_env_set(name, value);
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_load_file_to_mem(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc = 1;
+    char name[32];
+    char value[32];
+    char *buf = NULL;
+    grub_file_t file;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (argc != 2)
+    {
+        return rc;
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (file == NULL)
+    {
+        debug("failed to open file <%s>\n", args[0]);
+        return 1;
+    }
+
+#ifdef GRUB_MACHINE_EFI
+    buf = (char *)grub_efi_allocate_iso_buf(file->size);
+#else
+    buf = (char *)grub_malloc(file->size);
+#endif   
+
+    grub_file_read(file, buf, file->size);
+
+    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
+    grub_snprintf(value, sizeof(value), "0x%llx", (unsigned long long)(unsigned long)buf);
+    grub_env_set(name, value);
+    
+    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
+    grub_snprintf(value, sizeof(value), "%llu", (unsigned long long)file->size);
+    grub_env_set(name, value);
+
+    grub_file_close(file); 
+    rc = 0;
+    
+    return rc;
+}
+
+static grub_err_t ventoy_cmd_load_img_memdisk(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int rc = 1;
+    int headlen;
     char name[32];
     char value[32];
     char *buf = NULL;
@@ -434,13 +629,17 @@ static grub_err_t ventoy_cmd_load_iso_to_mem(grub_extcmd_context_t ctxt, int arg
         return 1;
     }
 
+    headlen = sizeof(ventoy_chain_head);
+
 #ifdef GRUB_MACHINE_EFI
-    buf = (char *)grub_efi_allocate_iso_buf(file->size);
+    buf = (char *)grub_efi_allocate_iso_buf(headlen + file->size);
 #else
-    buf = (char *)grub_malloc(file->size);
+    buf = (char *)grub_malloc(headlen + file->size);
 #endif   
 
-    grub_file_read(file, buf, file->size);
+    ventoy_fill_os_param(file, (ventoy_os_param *)buf);
+
+    grub_file_read(file, buf + headlen, file->size);
 
     grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
     grub_snprintf(value, sizeof(value), "0x%llx", (unsigned long long)(unsigned long)buf);
@@ -834,6 +1033,14 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
             type = img_type_efi;
         }
         #endif
+        else if (0 == grub_strcasecmp(filename + len - 4, ".img"))
+        {
+            if (len == 18 && grub_strncmp(filename, "ventoy_wimboot", 14) == 0)
+            {
+                return 0;
+            }
+            type = img_type_img;
+        }
         else
         {
             return 0;
@@ -1359,13 +1566,14 @@ static grub_err_t ventoy_cmd_img_name(grub_extcmd_context_t ctxt, int argc, char
 static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int img_id = 0;
+    char value[32];
     char *pos = NULL;
     const char *id = NULL;
     img_info *cur = g_ventoy_img_list;
 
     (void)ctxt;
     
-    if (argc != 1)
+    if (argc < 1 || argc > 2)
     {
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s {var}", cmd_raw_name);
     }
@@ -1397,6 +1605,12 @@ static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int arg
     }
 
     grub_env_set(args[0], cur->path);
+
+    if (argc > 1)
+    {
+        grub_snprintf(value, sizeof(value), "%llu", (ulonglong)(cur->size));
+        grub_env_set(args[1], value);        
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -2366,6 +2580,28 @@ end:
     return 0;
 }
 
+static grub_err_t ventoy_cmd_img_hook_root(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    ventoy_env_hook_root(1);
+    
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_img_unhook_root(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    ventoy_env_hook_root(0);
+    
+    return 0;
+}
+
 grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...)
 {
     grub_uint64_t size = 0;
@@ -2489,6 +2725,7 @@ static cmd_para ventoy_cmds[] =
 {
     { "vt_incr",  ventoy_cmd_incr,  0, NULL, "{Var} {INT}",   "Increase integer variable",    NULL },
     { "vt_strstr",  ventoy_cmd_strstr,  0, NULL, "",   "",    NULL },
+    { "vt_str_begin",  ventoy_cmd_strbegin,  0, NULL, "",   "",    NULL },
     { "vt_debug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
     { "vtdebug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
     { "vtbreak", ventoy_cmd_break, 0, NULL, "{level}",   "set debug break",    NULL },
@@ -2502,7 +2739,10 @@ static cmd_para ventoy_cmds[] =
     { "vt_img_sector", ventoy_cmd_img_sector, 0, NULL, "{imageName}", "", NULL },
     { "vt_dump_img_sector", ventoy_cmd_dump_img_sector, 0, NULL, "", "", NULL },
     { "vt_load_wimboot", ventoy_cmd_load_wimboot, 0, NULL, "", "", NULL },
+
     { "vt_load_cpio", ventoy_cmd_load_cpio, 0, NULL, "", "", NULL },
+    { "vt_trailer_cpio", ventoy_cmd_trailer_cpio, 0, NULL, "", "", NULL },
+    
     { "vt_find_first_bootable_hd", ventoy_cmd_find_bootable_hdd, 0, NULL, "", "", NULL },
     { "vt_dump_menu", ventoy_cmd_dump_menu, 0, NULL, "", "", NULL },
     { "vt_dynamic_menu", ventoy_cmd_dynamic_menu, 0, NULL, "", "", NULL },
@@ -2517,7 +2757,9 @@ static cmd_para ventoy_cmds[] =
     { "vt_iso9660_nojoliet", ventoy_cmd_iso9660_nojoliet, 0, NULL, "", "", NULL },
     { "vt_is_udf", ventoy_cmd_is_udf, 0, NULL, "", "", NULL },
     { "vt_file_size", ventoy_cmd_file_size, 0, NULL, "", "", NULL },
-    { "vt_load_iso_to_mem", ventoy_cmd_load_iso_to_mem, 0, NULL, "", "", NULL },
+    { "vt_load_file_to_mem", ventoy_cmd_load_file_to_mem, 0, NULL, "", "", NULL },
+    { "vt_load_img_memdisk", ventoy_cmd_load_img_memdisk, 0, NULL, "", "", NULL },
+    { "vt_concat_efi_iso", ventoy_cmd_concat_efi_iso, 0, NULL, "", "", NULL },
     
     { "vt_linux_parse_initrd_isolinux", ventoy_cmd_isolinux_initrd_collect, 0, NULL, "{cfgfile}", "", NULL },
     { "vt_linux_parse_initrd_grub", ventoy_cmd_grub_initrd_collect, 0, NULL, "{cfgfile}", "", NULL },
@@ -2556,6 +2798,9 @@ static cmd_para ventoy_cmds[] =
     { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
     { "vt_unix_replace_ko", ventoy_cmd_unix_replace_ko, 0, NULL, "", "", NULL },
     { "vt_unix_chain_data", ventoy_cmd_unix_chain_data, 0, NULL, "", "", NULL },
+
+    { "vt_img_hook_root", ventoy_cmd_img_hook_root, 0, NULL, "", "", NULL },
+    { "vt_img_unhook_root", ventoy_cmd_img_unhook_root, 0, NULL, "", "", NULL },
 
 };
 

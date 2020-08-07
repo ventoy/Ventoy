@@ -62,12 +62,12 @@ else
 fi
 
 # 00->ff avoid sparse file
-dd if=/dev/zero  bs=1M count=$size | tr '\000' '\377' > persistence.img
+dd if=/dev/zero  bs=1M count=$size | tr '\000' '\377' > persistence.dat
 sync
 
 freeloop=$(losetup -f)
 
-losetup $freeloop persistence.img
+losetup $freeloop persistence.dat
 
 mkfs -t $fstype $fsopt -L $label $freeloop 
 

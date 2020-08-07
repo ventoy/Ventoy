@@ -1,4 +1,4 @@
-#!/ventoy/busybox/sh
+#!/bin/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
 # 
@@ -17,21 +17,20 @@
 # 
 #************************************************************************************
 
+cd /ventoy
+xzcat tool.cpio.xz | cpio -idmu
+/ventoy/tool/vtoytool/00/vtoytool_64 --install
 
-###################################################################
-#                                                                  #
-# Step 1 : parse kernel debug parameter                            #
-#                                                                  #
-####################################################################
-[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
-vtoy_cmdline=$(cat /proc/cmdline)
-umount /proc; rm -rf /proc
+while [ -n "Y" ]; do	
+    line=$(/ventoy/tool/vtoydump -f /ventoy/ventoy_os_param)
+    if [ $? -eq 0 ]; then
+        vtdiskname=${line%%#*}
+        break
+    else    
+        sleep 1
+    fi
+done
 
-if echo $vtoy_cmdline | grep -q 'rdinit=/vtoy/vtoy'; then
-    echo "handover to init_loop" >>$VTLOG
-    rm -f /xxxx /vtoyxrc
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_loop
-else
-    echo "handover to init_chain" >>$VTLOG
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_chain
-fi
+echo "ventoy disk is $vtdiskname" >> /ventoy/log
+/ventoy/tool/vtoydm -p -f /ventoy/ventoy_image_map -d $vtdiskname > /ventoy/ventoy_dm_table
+dmsetup create ventoy /ventoy/ventoy_dm_table --readonly

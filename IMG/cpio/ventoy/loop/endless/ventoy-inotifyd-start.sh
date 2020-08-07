@@ -17,21 +17,15 @@
 # 
 #************************************************************************************
 
+. /ventoy/hook/ventoy-hook-lib.sh
 
-###################################################################
-#                                                                  #
-# Step 1 : parse kernel debug parameter                            #
-#                                                                  #
-####################################################################
-[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
-vtoy_cmdline=$(cat /proc/cmdline)
-umount /proc; rm -rf /proc
+vtHook=$($CAT $VTOY_PATH/inotifyd-loop-script.txt)
 
-if echo $vtoy_cmdline | grep -q 'rdinit=/vtoy/vtoy'; then
-    echo "handover to init_loop" >>$VTLOG
-    rm -f /xxxx /vtoyxrc
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_loop
+vtdisk=$(get_ventoy_disk_name)
+if [ "$vtdisk" = "unknown" ]; then
+    vtlog "... start inotifyd listen $vtHook ..."
+    $BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd $vtHook  /dev:n  2>&-  & 
 else
-    echo "handover to init_chain" >>$VTLOG
-    exec $BUSYBOX_PATH/sh $VTOY_PATH/init_chain
+    vtlog "... $vtdisk already exist ..."
+    $BUSYBOX_PATH/sh $vtHook n /dev "${vtdisk#/dev/}2"
 fi
