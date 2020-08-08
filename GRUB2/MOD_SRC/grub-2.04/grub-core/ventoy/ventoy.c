@@ -2498,6 +2498,49 @@ end:
     return 0;
 }
 
+static grub_err_t ventoy_cmd_file_strstr(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int rc = 1;
+    grub_file_t file;
+    char *buf = NULL;
+        
+    (void)ctxt;
+    (void)argc;
+
+    if (argc != 2)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s file str \n", cmd_raw_name); 
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        debug("failed to open file %s\n", args[0]);
+        return 1;
+    }
+
+    buf = grub_malloc(file->size + 1);
+    if (!buf)
+    {
+        goto end;
+    }
+
+    buf[file->size] = 0;
+    grub_file_read(file, buf, file->size);
+
+    if (grub_strstr(buf, args[1]))
+    {
+        rc = 0;
+    }
+
+end:
+
+    grub_check_free(buf);
+    grub_file_close(file);
+    
+    return rc;
+}
+
 static grub_err_t ventoy_cmd_parse_volume(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int len;
@@ -2790,6 +2833,9 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_plugin_json", ventoy_cmd_plugin_check_json, 0, NULL, "", "", NULL },
     
     { "vt_1st_line", ventoy_cmd_read_1st_line, 0, NULL, "", "", NULL },
+    { "vt_file_strstr", ventoy_cmd_file_strstr, 0, NULL, "", "", NULL },
+
+    
     { "vt_parse_iso_volume", ventoy_cmd_parse_volume, 0, NULL, "", "", NULL },
     { "vt_parse_iso_create_date", ventoy_cmd_parse_create_date, 0, NULL, "", "", NULL },
     { "vt_parse_freenas_ver", ventoy_cmd_parse_freenas_ver, 0, NULL, "", "", NULL },

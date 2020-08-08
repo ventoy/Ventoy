@@ -97,7 +97,7 @@ cd /
 
 unset VTLOG FIND GREP EGREP CAT AWK SED SLEEP HEAD
 
-for vtinit in $user_rdinit /sbin/init /init /linuxrc; do
+for vtinit in $user_rdinit /init /sbin/init  /linuxrc; do
     if [ -d /ventoy_rdroot ]; then
         if [ -e "/ventoy_rdroot$vtinit" ]; then
             # switch_root will check /init file, this is a cheat code

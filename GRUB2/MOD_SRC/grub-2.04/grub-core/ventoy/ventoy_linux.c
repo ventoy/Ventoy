@@ -910,6 +910,40 @@ grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_cpio_busybox64(cpio_newc_header *head)
+{
+    char *name;
+    int namelen;
+    int offset;
+    int count = 0;
+    
+    name = (char *)(head + 1);
+    while (name[0] && count < 2)
+    {
+        if (grub_strcmp(name, "ventoy/busybox/ash") == 0)
+        {
+            grub_memcpy(name, "ventoy/busybox/32h", 18);
+            count++;
+        }
+        else if (grub_strcmp(name, "ventoy/busybox/64h") == 0)
+        {
+            grub_memcpy(name, "ventoy/busybox/ash", 18);
+            count++;
+        }
+
+        namelen = ventoy_cpio_newc_get_int(head->c_namesize);
+        offset = sizeof(cpio_newc_header) + namelen;
+        offset = ventoy_align(offset, 4);
+        offset += ventoy_cpio_newc_get_int(head->c_filesize);
+        offset = ventoy_align(offset, 4);
+        
+        head = (cpio_newc_header *)((char *)head + offset);
+        name = (char *)(head + 1);
+    }
+
+    return 0;
+}
+
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc;
@@ -934,7 +968,7 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     (void)ctxt;
     (void)argc;
 
-    if (argc != 3)
+    if (argc != 4)
     {
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s cpiofile\n", cmd_raw_name); 
     }
@@ -1086,6 +1120,12 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     ventoy_cpio_newc_fill_head(g_ventoy_initrd_head, 0, NULL, "initrd000.xx");
 
     grub_file_close(file);
+
+    if (grub_strcmp(args[3], "busybox=64") == 0)
+    {
+        debug("cpio busybox proc %s\n", args[3]);
+        ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf);
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }

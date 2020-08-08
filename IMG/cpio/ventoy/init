@@ -23,11 +23,38 @@
 # Step 1 : parse kernel debug parameter                            #
 #                                                                  #
 ####################################################################
-[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
-vtoy_cmdline=$(cat /proc/cmdline)
-umount /proc; rm -rf /proc
 
-if echo $vtoy_cmdline | grep -q 'rdinit=/vtoy/vtoy'; then
+if ! [ -d /proc ]; then
+    mkdir /proc
+    vtrmproc='Y'
+fi
+
+mount -t proc proc /proc
+export vtcmdline=$(cat /proc/cmdline)
+export vtkerver=$(cat /proc/version)
+umount /proc; 
+
+if [ "$vtrmproc" = "Y" ]; then
+    rm -rf /proc
+fi
+
+echo "kenel version=$vtkerver" >>$VTLOG
+echo "kenel cmdline=$vtcmdline" >>$VTLOG
+
+#break here for debug
+if [ "$VTOY_BREAK_LEVEL" = "01" ] || [ "$VTOY_BREAK_LEVEL" = "11" ]; then
+    sleep 5
+    echo -e "\n\n\033[32m ################################################# \033[0m"
+    echo -e "\033[32m ################ VENTOY DEBUG ################### \033[0m"
+    echo -e "\033[32m ################################################# \033[0m \n"
+    
+    if [ "$VTOY_BREAK_LEVEL" = "11" ]; then
+        cat $VTLOG
+    fi
+    exec $BUSYBOX_PATH/sh
+fi
+
+if echo $vtcmdline | grep -q 'rdinit=/vtoy/vtoy'; then
     echo "handover to init_loop" >>$VTLOG
     rm -f /xxxx /vtoyxrc
     exec $BUSYBOX_PATH/sh $VTOY_PATH/init_loop

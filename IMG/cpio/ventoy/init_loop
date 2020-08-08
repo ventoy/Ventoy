@@ -18,36 +18,9 @@
 #************************************************************************************
 
 
-###################################################################
-#                                                                  #
-# Step 1 : parse kernel debug parameter                            #
-#                                                                  #
-####################################################################
-[ -d /proc ] || mkdir /proc; mount -t proc proc /proc
-vtcmdline=$(cat /proc/cmdline)
-vtkerver=$(cat /proc/version)
-umount /proc; rm -rf /proc
-
-echo "kenel version=$vtkerver" >>$VTLOG
-echo "kenel cmdline=$vtcmdline" >>$VTLOG
-
-#break here for debug
-if [ "$VTOY_BREAK_LEVEL" = "01" ] || [ "$VTOY_BREAK_LEVEL" = "11" ]; then
-    sleep 5
-    echo -e "\n\n\033[32m ################################################# \033[0m"
-    echo -e "\033[32m ################ VENTOY DEBUG ################### \033[0m"
-    echo -e "\033[32m ################################################# \033[0m \n"
-    
-    if [ "$VTOY_BREAK_LEVEL" = "11" ]; then
-        cat $VTLOG
-    fi
-    exec $BUSYBOX_PATH/sh
-fi
-
-
 ####################################################################
 #                                                                  #
-# Step 2 : Extract injection archive                               #
+# Step 1 : Extract injection archive                               #
 #                                                                  #
 ####################################################################
 ventoy_unpack_injection() {

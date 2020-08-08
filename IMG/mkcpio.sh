@@ -16,7 +16,7 @@ ln -s sbin/init linuxrc
 cd ventoy
 
 
-cp -a $VENTOY_PATH/DMSETUP/dmsetup tool/
+cp -a $VENTOY_PATH/DMSETUP/dmsetup* tool/
 cp -a $VENTOY_PATH/SQUASHFS/unsquashfs_* tool/
 cp -a $VENTOY_PATH/FUSEISO/vtoy_fuse_iso_* tool/
 cp -a $VENTOY_PATH/VtoyTool/vtoytool tool/
@@ -27,6 +27,10 @@ chmod -R 777 ./tool
 find ./tool | cpio  -o -H newc>tool.cpio
 xz tool.cpio
 rm -rf tool
+
+find ./loop | cpio  -o -H newc>loop.cpio
+xz loop.cpio
+rm -rf loop
 
 xz ventoy_chain.sh
 xz ventoy_loop.sh

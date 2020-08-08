@@ -28,4 +28,22 @@ build for 32bit, static linked with dietlibc
    
 4. make
 5. strip dmsetup/dmsetup
-5. get dmsetup/dmsetup as the binary file
+6. get dmsetup/dmsetup as the dmsetup32 binary file
+
+
+
+
+
+
+======================== Build for 64bit dmsetup =========================
+https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
+1. extract device mapper source code
+2. extract mini-native-x86_64.tar.bz2
+3. chroot to mini-native-x86_64
+3. ./configure --disable-nls  --disable-selinux --disable-shared  --enable-static_link
+4. make
+5. strip dmsetup/dmsetup.static
+6. get dmsetup/dmsetup.static as the dmsetup64 binary file
+
+
+
