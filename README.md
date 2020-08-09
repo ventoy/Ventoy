@@ -1,11 +1,22 @@
-# Ventoy  [https://www.ventoy.net](https://www.ventoy.net)
+<h1 align="center">
+  <a href=https://www.ventoy.net/>Ventoy</a>
+</h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
+  <img src="https://img.shields.io/github/license/ventoy/Ventoy?style=for-the-badge">
+  <img src="https://img.shields.io/github/stars/ventoy/Ventoy?style=for-the-badge">
+  <img src="https://img.shields.io/github/issues/ventoy/Ventoy?color=violet&style=for-the-badge">
+  <img src="https://img.shields.io/github/forks/ventoy/Ventoy?color=teal&style=for-the-badge">
+</p>
+
+<h4 align="center">
 Ventoy is an open source tool to create bootable USB drive for ISO files.   
 With ventoy, you don't need to format the disk over and over, you just need to copy the iso file to the USB drive and boot it.   
 You can copy many iso files at a time and ventoy will give you a boot menu to select them.  
 Both Legacy BIOS and UEFI are supported in the same way. 420+ ISO files are tested.  
-A "Ventoy Compatible" concept is introduced by ventoy, which can help to support any ISO file.  
-
-See https://www.ventoy.net for detail.
+A "Ventoy Compatible" concept is introduced by ventoy, which can help to support any ISO file.
+</h4>
 
 # Features
 * 100% open source
