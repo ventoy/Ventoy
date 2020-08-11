@@ -144,7 +144,7 @@ if [ "$MODE" = "install" ]; then
     disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size)
     disk_size_gb=$(expr $disk_sector_num / 2097152)
 
-    if [ $disk_sector_num -gt 4294967296 ]; then
+    if [ $disk_sector_num -gt 4294967296 ] && [ -z $VTGPT ]; then
         vterr "$DISK is over 2TB size, MBR will not work on it."
         exit 1
     fi
