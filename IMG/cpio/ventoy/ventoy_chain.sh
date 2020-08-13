@@ -227,6 +227,10 @@ ventoy_get_os_type() {
         echo 'vine'; return
     fi
     
+    if $GREP -q 'hyperbola' /proc/cmdline; then
+        echo 'hyperbola'; return
+    fi
+    
     echo "default"
 }
 

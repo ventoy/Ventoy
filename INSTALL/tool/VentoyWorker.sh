@@ -116,7 +116,7 @@ if [ "$MODE" = "install" ]; then
         if parted -v > /dev/null 2>&1; then
             PARTTOOL='parted'
         else
-            vterr "parted is not found in the sysstem, Ventoy can't create new partition."
+            vterr "parted is not found in the system, Ventoy can't create new partition."
             exit 1
         fi
     else
@@ -125,7 +125,7 @@ if [ "$MODE" = "install" ]; then
         elif fdisk -v >/dev/null 2>&1; then
             PARTTOOL='fdisk'
         else
-            vterr "Both parted and fdisk are not found in the sysstem, Ventoy can't create new partition."
+            vterr "Both parted and fdisk are not found in the system, Ventoy can't create new partition."
             exit 1
         fi
     fi
@@ -144,7 +144,7 @@ if [ "$MODE" = "install" ]; then
     disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size)
     disk_size_gb=$(expr $disk_sector_num / 2097152)
 
-    if [ $disk_sector_num -gt 4294967296 ] && [ -z $VTGPT ]; then
+    if [ $disk_sector_num -gt 4294967296 ] && [ -z "$VTGPT" ]; then
         vterr "$DISK is over 2TB size, MBR will not work on it."
         exit 1
     fi

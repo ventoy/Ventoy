@@ -37,10 +37,30 @@ for i in $vtcmdline; do
     fi
 done
 
+####################################################################
+#                                                                  #
+# Step 2 : Process ko                                              #
+#                                                                  #
+####################################################################
+$BUSYBOX_PATH/mkdir -p /ventoy/modules
+$BUSYBOX_PATH/ls -1a / | $EGREP '\.ko$|\.ko.[gx]z$' | while read vtline; do
+    if [ "${vtline:0:1}" = "." ]; then
+        $BUSYBOX_PATH/mv /${vtline} /ventoy/modules/${vtline:1}
+    else
+        $BUSYBOX_PATH/mv /${vtline} /ventoy/modules/
+    fi
+done
+
+if [ -e /vtloopex.tar.xz ]; then
+    echo "extract vtloopex ..." >> $VTLOG
+    $BUSYBOX_PATH/tar -xJf /vtloopex.tar.xz -C $VTOY_PATH/
+    $BUSYBOX_PATH/rm -f /vtloopex.tar.xz
+fi
+
 
 ####################################################################
 #                                                                  #
-# Step 2 : Do OS specific hook                                     #
+# Step 3 : Do OS specific hook                                     #
 #                                                                  #
 ####################################################################
 ventoy_get_os_type() {
@@ -56,6 +76,22 @@ ventoy_get_os_type() {
         echo 'endless'; return
     fi
     
+    if $GREP -q 'OpenWrt' /proc/version; then
+        echo 'openwrt'; return
+    fi
+    
+    if [ -e /BOOT_SPECS ]; then
+        if $GREP -q 'easyos' /BOOT_SPECS; then
+            echo 'easyos'; return
+        fi
+    fi
+    
+    if [ -e /etc/os-release ]; then
+        if $GREP -q 'volumio' /etc/os-release; then
+            echo 'volumio'; return
+        fi
+    fi
+    
     echo "default"
 }
 
@@ -68,7 +104,7 @@ fi
 
 ####################################################################
 #                                                                  #
-# Step 3 : Check for debug break                                   #
+# Step 4 : Check for debug break                                   #
 #                                                                  #
 ####################################################################
 if [ "$VTOY_BREAK_LEVEL" = "03" ] || [ "$VTOY_BREAK_LEVEL" = "13" ]; then
@@ -85,7 +121,7 @@ fi
 
 ####################################################################
 #                                                                  #
-# Step 3 : Hand over to real init                                  #
+# Step 5 : Hand over to real init                                  #
 #                                                                  #
 ####################################################################
 $BUSYBOX_PATH/umount /proc

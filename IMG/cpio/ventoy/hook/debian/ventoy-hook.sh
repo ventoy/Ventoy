@@ -64,6 +64,10 @@ ventoy_get_debian_distro() {
         echo 'linuxconsole'; return
     fi
     
+    if $GREP -q 'vyos' /proc/version; then
+        echo 'vyos'; return
+    fi
+    
     echo 'default'
 }
 

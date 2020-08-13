@@ -423,7 +423,6 @@ static grub_err_t
 cmd_timeout (const char *line, struct syslinux_menu *menu)
 {
   menu->timeout = grub_strtoul (line, NULL, 0);
-  
   return GRUB_ERR_NONE;
 }
 
@@ -991,6 +990,7 @@ write_entry (struct output_buffer *outbuf,
 
 	    print_string ("\n");
 	  }
+      print_string ("boot\n");
       }
       break;
     case KERNEL_CHAINLOADER:
@@ -1433,6 +1433,7 @@ config_file (struct output_buffer *outbuf,
 	     const char *fname, struct syslinux_menu *parent,
 	     grub_syslinux_flavour_t flav)
 {
+  const char *data;
   grub_err_t err;
   struct syslinux_menu menu;
   struct syslinux_menuentry *curentry, *lentry;
@@ -1447,6 +1448,13 @@ config_file (struct output_buffer *outbuf,
 
   menu.filename = fname;
   menu.parent = parent;
+
+  data = grub_env_get("vtdebug_flag");
+  if (data && data[0])
+  {
+      menu.timeout = 100;
+  }
+  
   err = syslinux_parse_real (&menu);
   if (err)
     return err;
