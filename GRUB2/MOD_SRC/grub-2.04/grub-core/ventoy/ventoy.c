@@ -2829,6 +2829,60 @@ end:
     return rc;
 }
 
+static grub_err_t ventoy_cmd_get_fs_label(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int rc = 1;
+    char *device_name = NULL;
+    grub_device_t dev = NULL;
+    grub_fs_t fs = NULL;
+    char *label = NULL;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        debug("ventoy_cmd_get_fs_label, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    device_name = grub_file_get_device_name(args[0]);
+    if (!device_name)
+    {
+        debug("grub_file_get_device_name failed, %s\n", args[0]);
+        goto end;
+    }
+
+    dev = grub_device_open(device_name);
+    if (!dev)
+    {
+        debug("grub_device_open failed, %s\n", device_name);
+        goto end;        
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        debug("grub_fs_probe failed, %s\n", device_name);
+        goto end;
+    }
+
+    fs->fs_label(dev, &label);
+    if (label)
+    {
+        ventoy_set_env(args[1], label);
+        grub_free(label);
+    }
+    
+    rc = 0;
+    
+end:
+
+    check_free(device_name, grub_free);
+    check_free(dev, grub_device_close);
+    
+    return rc;
+}
+
 grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...)
 {
     grub_uint64_t size = 0;
@@ -2973,6 +3027,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_push_last_entry", ventoy_cmd_push_last_entry, 0, NULL, "", "", NULL },
     { "vt_pop_last_entry", ventoy_cmd_pop_last_entry, 0, NULL, "", "", NULL },
     { "vt_get_lib_module_ver", ventoy_cmd_lib_module_ver, 0, NULL, "", "", NULL },
+    { "vt_get_fs_label", ventoy_cmd_get_fs_label, 0, NULL, "", "", NULL },
     
     { "vt_find_first_bootable_hd", ventoy_cmd_find_bootable_hdd, 0, NULL, "", "", NULL },
     { "vt_dump_menu", ventoy_cmd_dump_menu, 0, NULL, "", "", NULL },

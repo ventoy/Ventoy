@@ -532,3 +532,19 @@ ventoy_swap_device() {
     mv $VTOY_PATH/swap_tmp_dev $2
 }
 
+ventoy_extract_vtloopex() {
+    vtCurPwd=$PWD
+    $BUSYBOX_PATH/mkdir -p $VTOY_PATH/partmnt $VTOY_PATH/vtloopex
+    $BUSYBOX_PATH/mount -o ro -t vfat /dev/${vtdiskname#/dev/}2  $VTOY_PATH/partmnt
+    cd $VTOY_PATH/vtloopex
+    $CAT $VTOY_PATH/partmnt/ventoy/vtloopex.cpio | $BUSYBOX_PATH/cpio -idm
+    $BUSYBOX_PATH/umount $VTOY_PATH/partmnt
+    $BUSYBOX_PATH/rm -rf $VTOY_PATH/partmnt    
+
+    if [ -n "$2" ]; then
+        cd $VTOY_PATH/vtloopex/$2/
+        $BUSYBOX_PATH/tar -xJf vtloopex.tar.xz
+    fi
+    
+    cd $vtCurPwd
+}
