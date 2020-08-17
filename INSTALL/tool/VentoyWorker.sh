@@ -180,7 +180,7 @@ if [ "$MODE" = "install" ]; then
     vtwarn "All the data on the disk $DISK will be lost!!!"
     echo ""
 
-    read -p 'Continue? (y/n)'  Answer
+    read -p 'Continue? (y/n) ' Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
             exit 0
@@ -189,7 +189,7 @@ if [ "$MODE" = "install" ]; then
 
     echo ""
     vtwarn "All the data on the disk $DISK will be lost!!!"
-    read -p 'Double-check. Continue? (y/n)'  Answer
+    read -p 'Double-check. Continue? (y/n) ' Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
             exit 0
@@ -315,7 +315,7 @@ else
     vtinfo "Upgrade operation is safe, all the data in the 1st partition (iso files and other) will be unchanged!"
     echo ""
 
-    read -p "Update Ventoy  $oldver ===> $curver   Continue? (y/n)"  Answer
+    read -p "Update Ventoy  $oldver ===> $curver   Continue? (y/n) " Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
             exit 0
