@@ -9,10 +9,18 @@ on:
 jobs:
   build:
 
-    runs-on: centos-latest
+    runs-on: ubuntu-latest
+    container: centos:7
 
     steps:
     - uses: actions/checkout@v2
+    - name: dependencies
+      run: yum install -y \
+        libXpm net-tools bzip2 wget vim gcc gcc-c++ samba dos2unix glibc-devel glibc.i686 glibc-devel.i686 \
+        mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
+        flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
+        libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
     - name: download dietlibc
       run: curl -Ls https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz -O DOC/dietlibc-0.34.tar.xz
     - name: download grub
