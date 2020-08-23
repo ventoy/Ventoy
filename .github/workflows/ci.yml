@@ -22,16 +22,15 @@ jobs:
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
         iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
     - name: download dietlibc
-      run: curl -Ls https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz -O DOC/dietlibc-0.34.tar.xz
+      run: curl -Ls https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz -o DOC/dietlibc-0.34.tar.xz
     - name: download grub
-      run: curl -Ls https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz -O GRUB2/grub-2.04.tar.xz
+      run: curl -Ls https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz -o GRUB2/grub-2.04.tar.xz
     - name: download edk2
-      run: curl -Ls https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911 -O EDK2/edk2-edk2-stable201911.zip
+      run: curl -Ls https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911 -o EDK2/edk2-edk2-stable201911.zip
     - name: download exfat
-      run: curl -Ls https://codeload.github.com/relan/exfat/zip/v1.3.0 -O ExFAT/exfat-1.3.0.zip
+      run: curl -Ls https://codeload.github.com/relan/exfat/zip/v1.3.0 -o ExFAT/exfat-1.3.0.zip
     - name: download libfuse
-      run: curl -Ls https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9 -O ExFAT/libfuse-fuse-2.9.9.zip
-    
+      run: curl -Ls https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9 -o ExFAT/libfuse-fuse-2.9.9.zip
     - name: exec permission
       run: chmod +x ./INSTALL/all_in_one.sh
     - name: build
