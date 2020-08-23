@@ -15,6 +15,10 @@ jobs:
       run: docker-compose up
     - uses: actions/upload-artifact@v2
       with:
-        name: ventoy-build
-        path: INSTALL
+        name: ventoy-linux
+        path: INSTALL/ventoy-*linux*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ventoy-windows
+        path: INSTALL/ventoy-*windows*
 
