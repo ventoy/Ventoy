@@ -3,11 +3,10 @@
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge">
+  <img src="https://img.shields.io/github/release/ventoy/Ventoy.svg?style=for-the-badge">
   <img src="https://img.shields.io/github/license/ventoy/Ventoy?style=for-the-badge">
   <img src="https://img.shields.io/github/stars/ventoy/Ventoy?style=for-the-badge">
-  <img src="https://img.shields.io/github/issues/ventoy/Ventoy?color=violet&style=for-the-badge">
-  <img src="https://img.shields.io/github/forks/ventoy/Ventoy?color=teal&style=for-the-badge">
+  <img src="https://img.shields.io/github/downloads/ventoy/Ventoy/total.svg?style=for-the-badge">
 </p>
 
 <h4 align="center">
