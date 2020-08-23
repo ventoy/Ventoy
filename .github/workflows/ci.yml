@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: exec permission
+      run: chmod +x ./INSTALL/all_in_one.sh
     - name: build
       run: ./INSTALL/all_in_one.sh
