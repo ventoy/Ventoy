@@ -33,6 +33,12 @@ while [ -n "$1" ]; do
         RESERVE_SPACE="YES"
         shift
         RESERVE_SIZE_MB=$1
+    elif [ "$1" = "--help" ]; then
+        print_usage
+        exit 0
+    elif [ "$1" = "--version" ]; then
+        echo "Ventoy v1.0.19"
+        exit 0
     else
         if ! [ -b "$1" ]; then
             vterr "$1 is NOT a valid device"
