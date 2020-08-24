@@ -5,7 +5,8 @@ RUN dnf -y install dnf-plugins-core && dnf config-manager --set-enabled PowerToo
         mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
         flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
-        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static python3 && \
+        alternatives --set python /usr/bin/python3
 
 CMD cd /ventoy \
     && wget -P DOC/ https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz \
