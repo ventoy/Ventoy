@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 
 RUN yum -y install \
         libXpm net-tools bzip2 wget vim gcc gcc-c++ samba dos2unix glibc-devel glibc.i686 glibc-devel.i686 \
