@@ -1,12 +1,12 @@
 FROM centos:8
 
-RUN dnf -y install dnf-plugins-core && dnf config-manager --set-enabled PowerTools && dnf -y install \
+RUN dnf -y install dnf-plugins-core && dnf config-manager --set-enabled PowerTools && \
+        alternatives --set python /usr/bin/python3 && dnf -y install \
         libXpm net-tools bzip2 wget vim gcc gcc-c++ samba dos2unix glibc-devel glibc.i686 glibc-devel.i686 \
         mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
         flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
-        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static make python3 && \
-        alternatives --set python /usr/bin/python3
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static make
 
 CMD cd /ventoy \
     && wget -P DOC/ https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz \
