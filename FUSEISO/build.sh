@@ -4,7 +4,7 @@ CUR="$PWD"
 
 LIBFUSE_DIR=$CUR/LIBFUSE
 
-if uname -a | egrep -q 'x86_64|amd64'; then
+if uname -a | grep -e -q 'x86_64|amd64'; then
     name=vtoy_fuse_iso_64
 else
     name=vtoy_fuse_iso_32
