@@ -52,7 +52,10 @@ A "Ventoy Compatible" concept is introduced by ventoy, which can help to support
 See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detail
 
 # Compile Instructions
-Please refer to [BuildVentoyFromSource.txt](https://github.com/ventoy/Ventoy/blob/master/DOC/BuildVentoyFromSource.txt)
+
+If you have Docker and docker-compose installed, simply checkout Ventoy using git, cd to the project's directory and run `docker-compose up`. This will build and package the project using a CentOS 7 container, and then you can simply navigate to the `INSTALL` directory to find the packages. This is how Ventoy is built every time a commit is made using GitHub Actions. Artifacts from these CI builds can be found on the `Actions` tab of GitHub.
+
+To build Ventoy on CentOS 7 directly without using a container, please refer to [BuildVentoyFromSource.txt](https://github.com/ventoy/Ventoy/blob/master/DOC/BuildVentoyFromSource.txt).
 
 # Document
 Title | Link
