@@ -6,7 +6,7 @@
 #
 #
 
-if uname -a | egrep -q 'x86_64|amd64'; then
+if uname -a | grep -e -q 'x86_64|amd64'; then
     opt=
 else
     opt=-lrt
