@@ -59,7 +59,15 @@ mkdir -p $VTOY_PATH/mnt
 mount /vt_modloop $VTOY_PATH/mnt
 
 KoModPath=$(find $VTOY_PATH/mnt/ -name 'dm-mod.ko*')
-vtlog "insmod $KoModPath"
+vtlog "KoModPath=$KoModPath"
+
+if modinfo $KoModPath | grep -q 'depend.*dax'; then
+    vtlog "First install dax mod ..."
+    DaxModPath=$(echo $KoModPath | sed 's#md/dm-mod#dax/dax#')
+    vtlog "insmod $DaxModPath"
+    insmod $DaxModPath
+fi
+
 insmod $KoModPath
 
 umount $VTOY_PATH/mnt

@@ -2883,6 +2883,109 @@ end:
     return rc;
 }
 
+static int ventoy_fs_enum_1st_file(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    if (!info->dir)
+    {
+        grub_snprintf((char *)data, 256, "%s", filename);
+        return 1;
+    }
+
+    return 0;
+}
+
+
+static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int rc = 1;
+    char *device_name = NULL;
+    grub_device_t dev = NULL;
+    grub_fs_t fs = NULL;
+    char name[256] ={0};
+    
+    (void)ctxt;
+
+    if (argc != 3)
+    {
+        debug("ventoy_cmd_fs_enum_1st_file, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    device_name = grub_file_get_device_name(args[0]);
+    if (!device_name)
+    {
+        debug("grub_file_get_device_name failed, %s\n", args[0]);
+        goto end;
+    }
+
+    dev = grub_device_open(device_name);
+    if (!dev)
+    {
+        debug("grub_device_open failed, %s\n", device_name);
+        goto end;        
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        debug("grub_fs_probe failed, %s\n", device_name);
+        goto end;
+    }
+
+    fs->fs_dir(dev, args[1], ventoy_fs_enum_1st_file, name);
+    if (name[0])
+    {
+        ventoy_set_env(args[2], name);
+    }
+    
+    rc = 0;
+    
+end:
+
+    check_free(device_name, grub_free);
+    check_free(dev, grub_device_close);
+    
+    return rc;
+}
+
+static grub_err_t ventoy_cmd_basename(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    char c;
+    char *pos = NULL;
+    char *end = NULL;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        debug("ventoy_cmd_basename, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    for (pos = args[0]; *pos; pos++)
+    {
+        if (*pos == '.')
+        {
+            end = pos;
+        }
+    }
+
+    if (end)
+    {
+        c = *end;
+        *end = 0;
+    }
+
+    grub_env_set(args[1], args[0]);
+
+    if (end)
+    {
+        *end = c;
+    }
+
+    return 0;
+}
+
 grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...)
 {
     grub_uint64_t size = 0;
@@ -2920,7 +3023,7 @@ grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...
     file = grub_file_open(fullpath, type);
     if (!file)
     {
-        debug("grub_file_open failed <%s>\n", fullpath);
+        debug("grub_file_open failed <%s> %d\n", fullpath, grub_errno);
         grub_errno = 0;
     }
 
@@ -2995,6 +3098,7 @@ static int ventoy_env_init(void)
     if (g_grub_param)
     {
         g_grub_param->grub_env_get = grub_env_get;
+        g_grub_param->grub_env_set = (grub_env_set_pf)grub_env_set;
         g_grub_param->grub_env_printf = (grub_env_printf_pf)grub_printf;
         grub_snprintf(buf, sizeof(buf), "%p", g_grub_param);
         grub_env_set("env_param", buf);
@@ -3022,12 +3126,18 @@ static cmd_para ventoy_cmds[] =
     { "vt_dump_img_sector", ventoy_cmd_dump_img_sector, 0, NULL, "", "", NULL },
     { "vt_load_wimboot", ventoy_cmd_load_wimboot, 0, NULL, "", "", NULL },
 
+    { "vt_cpio_busybox64", ventoy_cmd_cpio_busybox_64, 0, NULL, "", "", NULL },
     { "vt_load_cpio", ventoy_cmd_load_cpio, 0, NULL, "", "", NULL },
     { "vt_trailer_cpio", ventoy_cmd_trailer_cpio, 0, NULL, "", "", NULL },
     { "vt_push_last_entry", ventoy_cmd_push_last_entry, 0, NULL, "", "", NULL },
     { "vt_pop_last_entry", ventoy_cmd_pop_last_entry, 0, NULL, "", "", NULL },
     { "vt_get_lib_module_ver", ventoy_cmd_lib_module_ver, 0, NULL, "", "", NULL },
+
     { "vt_get_fs_label", ventoy_cmd_get_fs_label, 0, NULL, "", "", NULL },
+    { "vt_fs_enum_1st_file", ventoy_cmd_fs_enum_1st_file, 0, NULL, "", "", NULL },
+    { "vt_file_basename", ventoy_cmd_basename, 0, NULL, "", "", NULL },
+    
+
     
     { "vt_find_first_bootable_hd", ventoy_cmd_find_bootable_hdd, 0, NULL, "", "", NULL },
     { "vt_dump_menu", ventoy_cmd_dump_menu, 0, NULL, "", "", NULL },

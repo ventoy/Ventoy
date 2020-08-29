@@ -227,6 +227,7 @@ if (gDebugPrint) \
     gBS->WaitForEvent(1, &gST->ConIn->WaitForKey, &__Index);\
 }
 
+typedef int (*grub_env_set_pf)(const char *name, const char *val);
 typedef const char * (*grub_env_get_pf)(const char *name);
 typedef int (*grub_env_printf_pf)(const char *fmt, ...);
 
@@ -255,6 +256,7 @@ typedef struct ventoy_grub_param_file_replace
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
+    grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
     grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;
@@ -338,6 +340,7 @@ extern ventoy_efi_file_replace g_efi_file_replace;
 extern ventoy_sector_flag *g_sector_flag;
 extern UINT32 g_sector_flag_num;
 extern BOOLEAN gMemdiskMode;
+extern BOOLEAN gSector512Mode;
 extern UINTN g_iso_buf_size;
 extern UINT8 *g_iso_data_buf;
 extern ventoy_grub_param_file_replace *g_file_replace_list;

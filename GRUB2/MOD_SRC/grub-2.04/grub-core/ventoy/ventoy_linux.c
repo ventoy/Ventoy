@@ -944,6 +944,19 @@ static int ventoy_cpio_busybox64(cpio_newc_header *head)
     return 0;
 }
 
+
+grub_err_t ventoy_cmd_cpio_busybox_64(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    debug("ventoy_cmd_busybox_64 %d\n", argc);
+    ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf);
+    return 0;
+}
+
+
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc;

@@ -155,6 +155,16 @@ static int vtoy_check_os_param(ventoy_os_param *param)
     
     if (memcmp(&param->guid, &vtoy_guid, sizeof(ventoy_guid)))
     {
+        uint8_t *data1 = (uint8_t *)(&param->guid);
+        uint8_t *data2 = (uint8_t *)(&vtoy_guid);
+        
+        for (i = 0; i < 16; i++)
+        {
+            if (data1[i] != data2[i])
+            {
+                debug("guid not equal i = %u, 0x%02x, 0x%02x\n", i, data1[i], data2[i]);
+            }
+        }
         return 1;
     }
 

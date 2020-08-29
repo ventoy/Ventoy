@@ -249,6 +249,58 @@ ventoy_get_os_type() {
         echo 'crux'; return
     fi
     
+    if [ -f /init ]; then
+        if $GREP -q 'AryaLinux' /init; then
+            echo 'aryalinux'; return
+        elif $GREP -q 'Dragora' /init; then
+            echo 'dragora'; return
+            
+        fi
+    fi
+    
+    if $GREP -q 'slackware' /proc/version; then
+        echo 'slackware'; return
+    fi
+    
+    if $BUSYBOX_PATH/hostname | $GREP -q 'smoothwall'; then
+        echo 'smoothwall'; return
+    fi 
+    
+    if $GREP -q 'photon' /proc/version; then
+        echo 'photon'; return
+    fi
+    
+    if $GREP -q 'ploplinux' /proc/version; then
+        echo 'ploplinux'; return
+    fi
+    
+    if $GREP -q 'lunar' /proc/version; then
+        echo 'lunar'; return
+    fi
+    
+    if $GREP -q 'SMGL-' /proc/version; then
+        echo 'smgl'; return
+    fi
+    
+    if $GREP -q 'rancher' /proc/version; then
+        echo 'rancher'; return
+    fi
+    
+    
+    if [ -e /init ]; then
+        if $GREP -q -m1 'T2 SDE' /init; then
+            echo 't2'; return
+        fi
+    fi
+    
+    if $GREP -q 'wifislax' /proc/version; then
+        echo 'wifislax'; return
+    fi
+    
+    if $GREP -q 'pisilinux' /proc/version; then
+        echo 'pisilinux'; return
+    fi
+    
     echo "default"
 }
 

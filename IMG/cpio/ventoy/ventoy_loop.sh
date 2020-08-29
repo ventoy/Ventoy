@@ -92,6 +92,10 @@ ventoy_get_os_type() {
         fi
     fi
     
+    if $GREP -q 'ventoyos=' /proc/cmdline; then
+        $SED "s/.*ventoyos=\([a-zA-Z0-9_-]*\).*/\1/" /proc/cmdline; return 
+    fi    
+    
     echo "default"
 }
 

@@ -485,6 +485,11 @@ static int ventoy_boot_opt_filter(char *opt)
         return 1;
     }
 
+    if (grub_strcmp(opt, "vga=current") == 0)
+    {
+        return 1;
+    }
+
     if (grub_strncmp(opt, "rdinit=", 7) == 0)
     {
         if (grub_strcmp(opt, "rdinit=/vtoy/vtoy") != 0)
@@ -1224,7 +1229,7 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
   linux_mem_size = 0;
   for (i = 1; i < argc; i++)
 #ifdef GRUB_MACHINE_PCBIOS
-    if (grub_memcmp (argv[i], "vga=", 4) == 0)
+    if (grub_memcmp (argv[i], "vga=", 4) == 0 && (grub_memcmp (argv[i], "vga=current", 11) != 0))
       {
 	/* Video mode selection support.  */
 	char *val = argv[i] + 4;

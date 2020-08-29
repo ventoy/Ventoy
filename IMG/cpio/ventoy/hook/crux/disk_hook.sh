@@ -29,7 +29,7 @@ for i in 0 1 2 3 4 5 6 7 8 9; do
     fi
 done
 
-ventoy_extract_vtloopex /dev/${vtdiskname#/dev/}2  crux
+ventoy_extract_vtloopex ${vtdiskname}2  crux
 
 vtLoopExDir=$VTOY_PATH/vtloopex/crux/vtloopex
 $BUSYBOX_PATH/xz -d  $vtLoopExDir/dm-mod/$(uname -r)/64/dax.ko.xz

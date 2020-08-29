@@ -37,6 +37,7 @@
 #include <Ventoy.h>
 
 BOOLEAN gDebugPrint = FALSE;
+BOOLEAN gDotEfiBoot = FALSE;
 BOOLEAN gLoadIsoEfi = FALSE;
 ventoy_ram_disk g_ramdisk_param;
 ventoy_chain_head *g_chain;
@@ -49,6 +50,7 @@ ventoy_virt_chunk *g_virt_chunk;
 UINT32 g_virt_chunk_num;
 vtoy_block_data gBlockData;
 static grub_env_get_pf grub_env_get = NULL;
+static grub_env_set_pf grub_env_set = NULL;
 
 ventoy_grub_param_file_replace *g_file_replace_list = NULL;
 ventoy_efi_file_replace g_efi_file_replace;
@@ -602,6 +604,11 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     {
         gDebugPrint = TRUE;
     }
+    
+    if (StrStr(pCmdLine, L"dotefi"))
+    {
+        gDotEfiBoot = TRUE;
+    }
 
     if (StrStr(pCmdLine, L"isoefi=on"))
     {
@@ -643,6 +650,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     
     pGrubParam = (ventoy_grub_param *)StrHexToUintn(pPos + StrLen(L"env_param="));
     grub_env_get = pGrubParam->grub_env_get;
+    grub_env_set = pGrubParam->grub_env_set;
 
     g_file_replace_list = &pGrubParam->file_replace;
     old_cnt = g_file_replace_list->old_file_cnt;
@@ -663,6 +671,11 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     size = StrDecimalToUintn(pPos + 5);
 
     debug("memory addr:%p size:%lu", chain, size);
+
+    if (StrStr(pCmdLine, L"sector512"))
+    {
+        gSector512Mode = TRUE;
+    }
 
     if (StrStr(pCmdLine, L"memdisk"))
     {
@@ -906,6 +919,11 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
 
         if (Find == 0)
         {
+            if (gDotEfiBoot)
+            {
+                break;
+            }
+        
             debug("Fs not found, now wait and retry...");
             sleep(2);
         }
@@ -972,6 +990,12 @@ EFI_STATUS EFIAPI VentoyEfiMain
         {
             gBS->UnloadImage(gBlockData.IsoDriverImage);
         }
+
+        gBS->DisconnectController(gBlockData.Handle, NULL, NULL);
+        gBS->UninstallMultipleProtocolInterfaces(gBlockData.Handle,
+                &gEfiBlockIoProtocolGuid, &gBlockData.BlockIo,
+                &gEfiDevicePathProtocolGuid, gBlockData.Path,
+                NULL);
     }
     else
     {
@@ -995,15 +1019,23 @@ EFI_STATUS EFIAPI VentoyEfiMain
         ventoy_clean_env();
     }
 
-    if (EFI_NOT_FOUND == Status)
+    if (FALSE == gDotEfiBoot)
     {
-        gST->ConOut->OutputString(gST->ConOut, L"No bootfile found for UEFI!\r\n");
-        gST->ConOut->OutputString(gST->ConOut, L"Maybe the image does not support " VENTOY_UEFI_DESC  L"!\r\n");
-        sleep(30);
+        if (EFI_NOT_FOUND == Status)
+        {
+            gST->ConOut->OutputString(gST->ConOut, L"No bootfile found for UEFI!\r\n");
+            gST->ConOut->OutputString(gST->ConOut, L"Maybe the image does not support " VENTOY_UEFI_DESC  L"!\r\n");
+            sleep(30);
+        }
     }
-
+    
     ventoy_clear_input();
     gST->ConOut->ClearScreen(gST->ConOut);
+
+    if (gDotEfiBoot && (EFI_NOT_FOUND == Status))
+    {
+        grub_env_set("vtoy_dotefi_retry", "YES");            
+    }
 
     return EFI_SUCCESS;
 }

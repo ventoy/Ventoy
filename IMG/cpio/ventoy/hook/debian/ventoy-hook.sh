@@ -35,6 +35,8 @@ ventoy_get_debian_distro() {
             else
                 echo 'puppy'; return
             fi
+        elif $GREP -m1 -q 'Minimal.*Linux.*Live' /init; then
+            echo 'mll'; return
         fi
     fi
 

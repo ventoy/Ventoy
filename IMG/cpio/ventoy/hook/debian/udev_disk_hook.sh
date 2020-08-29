@@ -47,7 +47,13 @@ ventoy_os_install_dmsetup() {
         if [ $LINTCNT -gt 1 ]; then
             vtlog "more than one pkgs, need to filter..."
             VER=$($BUSYBOX_PATH/uname -r)
+            
             LINE=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP $VER)
+            LINTCNT=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -c $VER)
+            if [ $LINTCNT -gt 1 ]; then
+                vtlog "Still more than one pkgs, use the first one..."
+                LINE=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP  -m1 $VER)
+            fi
         fi
         install_udeb_from_line "$LINE" ${vt_usb_disk} 
     fi

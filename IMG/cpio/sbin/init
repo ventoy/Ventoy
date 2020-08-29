@@ -40,11 +40,21 @@ if [ -e $BUSYBOX_PATH/64h ]; then
     $BUSYBOX_PATH/xzminidec32 < $BUSYBOX_PATH/busybox32.xz > $BUSYBOX_PATH/busybox
     $BUSYBOX_PATH/vtchmod32 $BUSYBOX_PATH/busybox
 else
-    $BUSYBOX_PATH/xzminidec64 < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
-    $BUSYBOX_PATH/vtchmod64 $BUSYBOX_PATH/busybox
+    $BUSYBOX_PATH/xzminidec64 < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox
+    if [ -s $BUSYBOX_PATH/busybox ]; then
+        $BUSYBOX_PATH/vtchmod64 $BUSYBOX_PATH/busybox
+    else
+        $BUSYBOX_PATH/xzminidec64_uclibc < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
+        $BUSYBOX_PATH/vtchmod64_uclibc $BUSYBOX_PATH/busybox
+    fi
 fi
 
-$BUSYBOX_PATH/busybox --install $BUSYBOX_PATH
+if [ -e $BUSYBOX_PATH/busybox ]; then
+    $BUSYBOX_PATH/busybox --install $BUSYBOX_PATH
+else
+    $BUSYBOX_PATH/tmpxz -d $BUSYBOX_PATH/busybox32.xz
+    $BUSYBOX_PATH/busybox32 --install $BUSYBOX_PATH
+fi
 
 export PATH=$BUSYBOX_PATH/:$VTOY_PATH/tool
 
@@ -78,10 +88,12 @@ if [ -e $BUSYBOX_PATH/64h ]; then
     echo "Use busybox32 toolkit ..." >>$VTLOG
     ln -s $BUSYBOX_PATH/xzminidec32 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup32 $VTOY_PATH/tool/dmsetup
+    ln -s $VTOY_PATH/tool/lunzip32 $VTOY_PATH/tool/lunzip
 else
     echo "Use busybox64 toolkit ..." >>$VTLOG
     ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
+    ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
 fi
 
 rm -f *.xz

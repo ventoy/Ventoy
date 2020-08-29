@@ -16,6 +16,7 @@ fi
 
 cd ../IMG
 sh mkcpio.sh
+sh mkloopex.sh
 cd -
 
 
@@ -103,8 +104,16 @@ for file in $(ls); do
     fi
 done
 
+#chmod 
 cd $CurDir
+find $tmpdir/ -type d -exec chmod 755 "{}" +
+find $tmpdir/ -type f -exec chmod 644 "{}" +
+chmod +x $tmpdir/Ventoy2Disk.sh
+chmod +x $tmpdir/CreatePersistentImg.sh
+
 tar -czvf ventoy-${curver}-linux.tar.gz $tmpdir
+
+
 
 rm -f ventoy-${curver}-windows.zip
 cp -a Ventoy2Disk*.exe $tmpdir/
