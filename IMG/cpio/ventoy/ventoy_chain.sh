@@ -301,6 +301,10 @@ ventoy_get_os_type() {
         echo 'pisilinux'; return
     fi
     
+    if $GREP -q 'blackPanther' /proc/version; then
+        echo 'blackPanther'; return
+    fi
+    
     echo "default"
 }
 

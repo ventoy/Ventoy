@@ -1318,7 +1318,7 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
                       "  %s_%s \n" 
                       "}\n", 
                       grub_get_human_size(img->size, GRUB_HUMAN_SIZE_SHORT), 
-                      img->unsupport ? "[unsupported] " : "", 
+                      img->unsupport ? "[***********] " : "", 
                       img->alias ? img->alias : img->name, img->class, img->id,
                       img->menu_prefix,
                       img->unsupport ? "unsupport_menuentry" : "common_menuentry");
@@ -1474,7 +1474,7 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
                   "menuentry \"%s%s\" --class=\"%s\" --id=\"VID_%d\" {\n"
                   "  %s_%s \n" 
                   "}\n", 
-                  cur->unsupport ? "[unsupported] " : "", 
+                  cur->unsupport ? "[***********] " : "", 
                   cur->alias ? cur->alias : cur->name, cur->class, cur->id,
                   cur->menu_prefix,
                   cur->unsupport ? "unsupport_menuentry" : "common_menuentry");
