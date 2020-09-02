@@ -15,7 +15,7 @@ With ventoy, you don't need to format the disk over and over, you just need to c
 You can copy many iso files at a time and ventoy will give you a boot menu to select them. <br/> 
 Both Legacy BIOS and UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
-Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...), 470+ ISO files are tested.  <br/>
+Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...), 550+ ISO files are tested.  <br/>
 A "Ventoy Compatible" concept is introduced by ventoy, which can help to support any ISO file.
 </h4>
 
@@ -34,7 +34,7 @@ A "Ventoy Compatible" concept is introduced by ventoy, which can help to support
 * File injection supported (1.0.16+)
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
-* Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...), 470+ iso files tested
+* Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...), 550+ iso files tested
 * Not only boot but also complete installation process
 * ISO files can be listed in List mode/TreeView mode
 * "Ventoy Compatible" concept
