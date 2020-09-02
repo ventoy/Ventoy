@@ -23,6 +23,9 @@ while [ -n "$1" ]; do
     elif [ "$1" = "-l" ]; then
         shift
         label=$1
+    elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+        print_usage
+        exit 0
     else
         print_usage
         exit 1

@@ -24,9 +24,12 @@ if $GREP -q '^"$mount_handler"' /init; then
     
     vthookfile=/hooks/archiso
     
-    if [ -e /hook/miso ]; then
+    if [ -e /hooks/miso ]; then
         vthookfile=/hooks/miso
         $SED "/^\"\$mount_handler\"/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/arch/ventoy-disk.sh \"\$misodevice\"" -i /init
+    elif [ -e /hooks/artix ]; then
+        vthookfile=/hooks/artix
+        $SED "/^\"\$mount_handler\"/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/arch/ventoy-disk.sh \"\$artixdevice\"" -i /init
     else
         $SED "/^\"\$mount_handler\"/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/arch/ventoy-disk.sh \"\$archisodevice\"" -i /init
     fi

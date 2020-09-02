@@ -127,6 +127,12 @@ zip -r ventoy-${curver}-windows.zip $tmpdir/
 
 rm -rf $tmpdir
 
+cd ../LiveCD
+sh livecd.sh
+cd $CurDir
+
+mv ../LiveCD/ventoy*.iso ./
+
 if [ -e ventoy-${curver}-windows.zip ] && [ -e ventoy-${curver}-linux.tar.gz ]; then
     echo -e "\n ============= SUCCESS =================\n"
 else
