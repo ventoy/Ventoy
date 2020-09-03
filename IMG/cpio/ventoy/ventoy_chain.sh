@@ -349,7 +349,7 @@ fi
 
 cd /
 
-unset VTLOG FIND GREP EGREP CAT AWK SED SLEEP HEAD
+unset VTLOG FIND GREP EGREP CAT AWK SED SLEEP HEAD vtcmdline
 
 for vtinit in $user_rdinit /init /sbin/init /linuxrc; do
     if [ -d /ventoy_rdroot ]; then
