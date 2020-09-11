@@ -1591,6 +1591,7 @@ module = {
   common = ventoy/ventoy_linux.c;
   common = ventoy/ventoy_unix.c;
   common = ventoy/ventoy_windows.c;
+  common = ventoy/ventoy_vhd.c;
   common = ventoy/ventoy_plugin.c;
   common = ventoy/ventoy_json.c;
   common = ventoy/lzx.c;

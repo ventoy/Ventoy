@@ -20,9 +20,15 @@ all_modules_uefi="blocklist ventoy test newc search at_keyboard usb_keyboard  gc
 if [ "$1" = "uefi" ]; then
     all_modules="$net_modules_uefi $all_modules_uefi "
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/EFI/BOOT/grubx64_real.efi"  --format 'x86_64-efi' --compression 'auto'  $all_modules_uefi 'fat' 'part_msdos'
+    
+    #grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi" -c "$VT_DIR/LiveCD/GRUB/embed.cfg" --prefix '/EFI/boot' --output "$VT_DIR/LiveCD/GRUB/bootx64.efi"  --format 'x86_64-efi' --compression 'auto'  $all_modules_uefi 'fat' 'part_msdos'
 else
     all_modules="$net_modules_legacy $all_modules_legacy "
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk' 
+    
+    #grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" -c "$VT_DIR/LiveCD/GRUB/embed.cfg" --prefix '/EFI/boot' --output "$VT_DIR/LiveCD/GRUB/cdrom.img"  --format 'i386-pc-eltorito' --compression 'auto'  $all_modules_legacy 'biosdisk' 'iso9660' 'fat' 'part_msdos'
+    #rm -f $VT_DIR/LiveCD/GRUB/boot_hybrid.img
+    #cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/boot_hybrid.img  $VT_DIR/LiveCD/GRUB/boot_hybrid.img
 fi
 
 grub-mknetdir  --modules="$all_modules" --net-directory=$VT_DIR/GRUB2/PXE  --subdir=grub2 --locales=en@quot || exit 1

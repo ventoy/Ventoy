@@ -40,6 +40,7 @@
 #endif
 #include <grub/time.h>
 #include <grub/relocator.h>
+#include <grub/charset.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 
@@ -87,6 +88,8 @@ int g_wimboot_enable = 0;
 ventoy_img_chunk_list g_wimiso_chunk_list;
 char *g_wimiso_path = NULL;
 
+int g_vhdboot_enable = 0;
+
 static char *g_tree_script_buf = NULL;
 static int g_tree_script_pos = 0;
 
@@ -98,12 +101,12 @@ static int g_part_list_pos = 0;
 
 static const char *g_menu_class[] = 
 {
-    "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg"
+    "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg", "vtoyvhd"
 };
     
 static const char *g_menu_prefix[] = 
 {
-    "iso", "wim", "efi", "img"
+    "iso", "wim", "efi", "img", "vhd"
 };
 
 void ventoy_debug(const char *fmt, ...)
@@ -113,6 +116,23 @@ void ventoy_debug(const char *fmt, ...)
     va_start (args, fmt);
     grub_vprintf (fmt, args);
     va_end (args);
+}
+
+void ventoy_debug_dump_guid(const char *prefix, grub_uint8_t *guid)
+{
+    int i;
+
+    if (!g_ventoy_debug)
+    {
+        return;
+    }
+    
+    debug("%s", prefix);
+    for (i = 0; i < 16; i++)
+    {
+        grub_printf("%02x ", guid[i]);
+    }
+    grub_printf("\n");       
 }
 
 int ventoy_is_efi_os(void)
@@ -1031,6 +1051,11 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
         {
             type = img_type_wim;
         }
+        else if (g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") || 
+                    0 == grub_strcasecmp(filename + len - 5, ".vhdx")))
+        {
+            type = img_type_vhd;
+        }
         #ifdef GRUB_MACHINE_EFI
         else if (0 == grub_strcasecmp(filename + len - 4, ".efi"))
         {
@@ -1039,9 +1064,13 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
         #endif
         else if (0 == grub_strcasecmp(filename + len - 4, ".img"))
         {
-            if (len == 18 && grub_strncmp(filename, "ventoy_wimboot", 14) == 0)
+            if (len == 18 && grub_strncmp(filename, "ventoy_", 7) == 0)
             {
-                return 0;
+                if (grub_strncmp(filename + 7, "wimboot", 7) == 0 ||
+                    grub_strncmp(filename + 7, "vhdboot", 7) == 0)
+                {
+                    return 0;
+                }
             }
             type = img_type_img;
         }
@@ -1121,6 +1150,14 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
                 img->class = g_menu_class[type];
             }
             img->menu_prefix = g_menu_prefix[type];
+
+            if (img_type_iso == type)
+            {
+                if (ventoy_plugin_check_memdisk(img->path))
+                {
+                    img->menu_prefix = "miso";
+                }
+            }
 
             debug("Add %s%s to list %d\n", node->dir, filename, g_ventoy_img_count);
         }
@@ -1333,6 +1370,93 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
     return 0;    
 }
 
+int ventoy_check_device_result(int ret)
+{
+    char buf[32];
+    
+    grub_snprintf(buf, sizeof(buf), "%d", ret);
+    ventoy_set_env("VTOY_CHKDEV_RESULT_STRING", buf);
+
+    if (ret)
+    {
+        grub_printf(VTOY_WARNING"\n");
+        grub_printf(VTOY_WARNING"\n");
+        grub_printf(VTOY_WARNING"\n\n\n");
+        
+        grub_printf("This is NOT a standard Ventoy device and is NOT officially supported.\n\n");
+        grub_printf("Recommend to follow the instructions in https://www.ventoy.net to use Ventoy.\n");
+        
+        grub_printf("\n\nWill continue to boot after 10 seconds ...... ");
+        grub_refresh();
+        grub_sleep(10);
+    }
+
+    return ret;
+}
+
+int ventoy_check_device(grub_device_t dev)
+{
+    grub_file_t file;
+    grub_uint64_t offset;
+    char devname[64];
+    grub_fs_t fs;
+    grub_device_t dev2;
+    char *label = NULL;
+    struct grub_partition *partition;
+    
+    if (dev->disk == NULL || dev->disk->partition == NULL)
+    {
+        return ventoy_check_device_result(1);
+    }
+
+    partition = dev->disk->partition;
+    if (partition->number != 0 || partition->start != 2048)
+    {
+        return ventoy_check_device_result(2);
+    }
+
+    offset = partition->start + partition->len;
+
+    /* We must have partition 2 */
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(%s,2)/ventoy/ventoy.cpio", dev->disk->name);
+    if (!file)
+    {
+        return ventoy_check_device_result(3);
+    }
+
+    partition = file->device->disk->partition;
+    if ((partition->number != 1) || (partition->len != 65536) || (offset != partition->start))
+    {
+        grub_file_close(file);
+        return ventoy_check_device_result(4);
+    }
+    grub_file_close(file);
+
+    grub_snprintf(devname, sizeof(devname), "%s,2", dev->disk->name);
+    dev2 = grub_device_open(devname);
+    if (!dev2)
+    {
+        return ventoy_check_device_result(5);
+    }
+
+    fs = grub_fs_probe(dev2);
+    if (!fs)
+    {
+        grub_device_close(dev2);
+        return ventoy_check_device_result(6);
+    }
+
+    fs->fs_label(dev2, &label);
+    if ((!label) || grub_strncmp("VTOYEFI", label, 7))
+    {
+        grub_device_close(dev2);
+        return ventoy_check_device_result(7);
+    }
+
+    grub_device_close(dev2);    
+    return ventoy_check_device_result(0);
+}
+
 static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int len;
@@ -1379,6 +1503,9 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         goto fail;        
     }
 
+    /* make sure that we are running in a correct Ventoy device */
+    ventoy_check_device(dev);
+
     g_enum_fs = fs = grub_fs_probe(dev);
     if (!fs)
     {
@@ -1391,6 +1518,8 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         ventoy_set_env("VTOY_NO_ISO_TIP", "unsupported file system");
         goto fail;
     }
+
+    ventoy_set_env("vtoy_iso_fs", fs->name);
 
     strdata = ventoy_get_env("VTOY_DEFAULT_MENU_MODE");
     if (strdata && strdata[0] == '1')
@@ -3125,6 +3254,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_img_sector", ventoy_cmd_img_sector, 0, NULL, "{imageName}", "", NULL },
     { "vt_dump_img_sector", ventoy_cmd_dump_img_sector, 0, NULL, "", "", NULL },
     { "vt_load_wimboot", ventoy_cmd_load_wimboot, 0, NULL, "", "", NULL },
+    { "vt_load_vhdboot", ventoy_cmd_load_vhdboot, 0, NULL, "", "", NULL },
+    { "vt_patch_vhdboot", ventoy_cmd_patch_vhdboot, 0, NULL, "", "", NULL },
 
     { "vt_cpio_busybox64", ventoy_cmd_cpio_busybox_64, 0, NULL, "", "", NULL },
     { "vt_load_cpio", ventoy_cmd_load_cpio, 0, NULL, "", "", NULL },

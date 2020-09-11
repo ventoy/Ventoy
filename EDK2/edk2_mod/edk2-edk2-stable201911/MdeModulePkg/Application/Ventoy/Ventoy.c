@@ -378,6 +378,36 @@ EFI_STATUS EFIAPI ventoy_delete_variable(VOID)
     return Status;
 }
 
+#if (VENTOY_DEVICE_WARN != 0)
+STATIC VOID ventoy_warn_invalid_device(VOID)
+{
+    STATIC BOOLEAN flag = FALSE;
+
+    if (flag)
+    {
+        return;
+    }
+
+    flag = TRUE;
+    gST->ConOut->ClearScreen(gST->ConOut);
+    gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n");
+    gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n");
+    gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n\r\n\r\n");
+
+    gST->ConOut->OutputString(gST->ConOut, L"This is NOT a standard Ventoy device and is NOT officially supported.\r\n\r\n");
+    gST->ConOut->OutputString(gST->ConOut, L"You should follow the official instructions in https://www.ventoy.net\r\n");
+    
+    gST->ConOut->OutputString(gST->ConOut, L"\r\n\r\nWill continue to boot after 15 seconds ...... ");
+
+    sleep(15);
+}
+#else
+STATIC VOID ventoy_warn_invalid_device(VOID)
+{
+    
+}
+#endif
+
 STATIC EFI_STATUS EFIAPI ventoy_load_image
 (
     IN EFI_HANDLE ImageHandle,
@@ -420,6 +450,7 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
     UINTN i = 0;
     UINTN Count = 0;
     UINT64 DiskSize = 0;
+    MBR_HEAD *pMBR = NULL;
     UINT8 *pBuffer = NULL;
     EFI_HANDLE *Handles;
     EFI_STATUS Status = EFI_SUCCESS;
@@ -463,6 +494,18 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
 
         if (CompareMem(g_chain->os_param.vtoy_disk_guid, pBuffer + 0x180, 16) == 0)
         {
+            pMBR = (MBR_HEAD *)pBuffer;
+            if (pMBR->PartTbl[0].FsFlag != 0xEE)
+            {
+                if (pMBR->PartTbl[0].StartSectorId != 2048 ||
+                    pMBR->PartTbl[1].SectorCount != 65536 ||
+                    pMBR->PartTbl[1].StartSectorId != pMBR->PartTbl[0].StartSectorId + pMBR->PartTbl[0].SectorCount)
+                {
+                    debug("Failed to check disk part table");
+                    ventoy_warn_invalid_device();
+                }
+            }
+        
             gBlockData.RawBlockIoHandle = Handles[i];
             gBlockData.pRawBlockIo = pBlockIo;
             gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid, 
@@ -582,6 +625,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     UINT32 old_cnt = 0;
     UINTN size = 0;
     UINT8 chksum = 0;
+    const char *pEnv = NULL;
     CHAR16 *pPos = NULL;
     CHAR16 *pCmdLine = NULL;
     EFI_STATUS Status = EFI_SUCCESS;
@@ -649,9 +693,19 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     }
     
     pGrubParam = (ventoy_grub_param *)StrHexToUintn(pPos + StrLen(L"env_param="));
-    grub_env_get = pGrubParam->grub_env_get;
     grub_env_set = pGrubParam->grub_env_set;
+    grub_env_get = pGrubParam->grub_env_get;
+    pEnv = grub_env_get("VTOY_CHKDEV_RESULT_STRING");
+    if (!pEnv)
+    {
+        return EFI_INVALID_PARAMETER;
+    }
 
+    if (pEnv[0] != '0' || pEnv[1] != 0)
+    {
+        ventoy_warn_invalid_device();
+    }
+    
     g_file_replace_list = &pGrubParam->file_replace;
     old_cnt = g_file_replace_list->old_file_cnt;
     debug("file replace: magic:0x%x virtid:%u name count:%u <%a> <%a> <%a> <%a>",
@@ -963,7 +1017,11 @@ EFI_STATUS EFIAPI VentoyEfiMain
     gST->ConOut->ClearScreen(gST->ConOut);
     ventoy_clear_input();
 
-    ventoy_parse_cmdline(ImageHandle);
+    Status = ventoy_parse_cmdline(ImageHandle);
+    if (EFI_ERROR(Status))
+    {
+        return Status;
+    }
 
     if (gMemdiskMode)
     {
@@ -1000,22 +1058,24 @@ EFI_STATUS EFIAPI VentoyEfiMain
     else
     {
         ventoy_save_variable();
-        ventoy_find_iso_disk(ImageHandle);
-
-        if (gLoadIsoEfi)
+        Status = ventoy_find_iso_disk(ImageHandle);
+        if (!EFI_ERROR(Status))
         {
-            ventoy_find_iso_disk_fs(ImageHandle);
-            ventoy_load_isoefi_driver(ImageHandle);
+            if (gLoadIsoEfi)
+            {
+                ventoy_find_iso_disk_fs(ImageHandle);
+                ventoy_load_isoefi_driver(ImageHandle);
+            }
+
+            ventoy_debug_pause();
+            
+            ventoy_install_blockio(ImageHandle, g_chain->virt_img_size_in_bytes);
+
+            ventoy_debug_pause();
+
+            Status = ventoy_boot(ImageHandle);
         }
-
-        ventoy_debug_pause();
         
-        ventoy_install_blockio(ImageHandle, g_chain->virt_img_size_in_bytes);
-
-        ventoy_debug_pause();
-
-        Status = ventoy_boot(ImageHandle);
-
         ventoy_clean_env();
     }
 

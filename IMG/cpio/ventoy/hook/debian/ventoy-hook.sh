@@ -78,10 +78,10 @@ DISTRO=$(ventoy_get_debian_distro)
 echo "##### distribution = $DISTRO ######" >> $VTLOG
 . $VTOY_PATH/hook/debian/${DISTRO}-hook.sh
 
-
-
-
-
+if [ -f /bin/env2debconf ]; then
+    $SED "1a /bin/sh $VTOY_PATH/hook/debian/ventoy_env2debconf.sh" -i /bin/env2debconf
+    $SED "s#in *\$(set)#in \$(cat /ventoy/envset)#" -i /bin/env2debconf
+fi
 
 
 

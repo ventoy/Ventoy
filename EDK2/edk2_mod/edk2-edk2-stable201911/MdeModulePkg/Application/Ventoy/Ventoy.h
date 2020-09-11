@@ -185,6 +185,9 @@ typedef struct ventoy_virt_chunk
   #error Unknown Processor Type
 #endif
 
+#define VENTOY_DEVICE_WARN 0
+#define VTOY_WARNING  L"!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!"
+
 typedef struct ventoy_sector_flag
 {
     UINT8 flag; // 0:init   1:mem  2:remap
@@ -274,6 +277,32 @@ typedef struct ventoy_iso9660_override
     UINT32 size;
     UINT32 size_be;
 }ventoy_iso9660_override;
+
+typedef struct PART_TABLE
+{
+    UINT8  Active; // 0x00  0x80
+
+    UINT8  StartHead;
+    UINT16 StartSector : 6;
+    UINT16 StartCylinder : 10;
+
+    UINT8  FsFlag;
+
+    UINT8  EndHead;
+    UINT16 EndSector : 6;
+    UINT16 EndCylinder : 10;
+
+    UINT32 StartSectorId;
+    UINT32 SectorCount;
+}PART_TABLE;
+
+typedef struct MBR_HEAD
+{
+    UINT8 BootCode[446];
+    PART_TABLE PartTbl[4];
+    UINT8 Byte55;
+    UINT8 ByteAA;
+}MBR_HEAD;
 
 #pragma pack()
 

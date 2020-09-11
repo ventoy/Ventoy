@@ -45,6 +45,7 @@ static persistence_config *g_persistence_head = NULL;
 static menu_alias *g_menu_alias_head = NULL;
 static menu_class *g_menu_class_head = NULL;
 static injection_config *g_injection_head = NULL;
+static auto_memdisk *g_auto_memdisk_head = NULL;
 
 static int ventoy_plugin_control_check(VTOY_JSON *json, const char *isodisk)
 {
@@ -1010,6 +1011,83 @@ static int ventoy_plugin_menuclass_check(VTOY_JSON *json, const char *isodisk)
     return 0;
 }
 
+static int ventoy_plugin_auto_memdisk_entry(VTOY_JSON *json, const char *isodisk)
+{
+    VTOY_JSON *pNode = NULL;
+    auto_memdisk *node = NULL;
+    auto_memdisk *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_auto_memdisk_head)
+    {
+        for (node = g_auto_memdisk_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_auto_memdisk_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        if (pNode->enDataType == JSON_TYPE_STRING)
+        {
+            node = grub_zalloc(sizeof(auto_memdisk));
+            if (node)
+            {
+                node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", pNode->unData.pcStrVal);
+
+                if (g_auto_memdisk_head)
+                {
+                    node->next = g_auto_memdisk_head;
+                }
+                
+                g_auto_memdisk_head = node;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_auto_memdisk_check(VTOY_JSON *json, const char *isodisk)
+{
+    VTOY_JSON *pNode = NULL;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        grub_printf("Not array %d\n", json->enDataType);
+        return 1;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        if (pNode->enDataType == JSON_TYPE_STRING)
+        {
+            grub_printf("<%s> ", pNode->unData.pcStrVal);
+
+            if (ventoy_check_file_exist("%s%s", isodisk, pNode->unData.pcStrVal))
+            {
+                grub_printf(" [OK]\n");
+            }
+            else
+            {
+                grub_printf(" [NOT EXIST]\n");
+            }
+        }
+    }
+
+    return 0;
+}
+
 static plugin_entry g_plugin_entries[] = 
 {
     { "control", ventoy_plugin_control_entry, ventoy_plugin_control_check },
@@ -1019,6 +1097,7 @@ static plugin_entry g_plugin_entries[] =
     { "menu_alias", ventoy_plugin_menualias_entry, ventoy_plugin_menualias_check },
     { "menu_class", ventoy_plugin_menuclass_entry, ventoy_plugin_menuclass_check },
     { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check },
+    { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -1163,9 +1242,15 @@ void ventoy_plugin_dump_persistence(void)
 
 install_template * ventoy_plugin_find_install_template(const char *isopath)
 {
+    int len;
     install_template *node = NULL;
-    int len = (int)grub_strlen(isopath);
-    
+
+    if (!g_install_template_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(isopath);
     for (node = g_install_template_head; node; node = node->next)
     {
         if (node->pathlen == len && grub_strcmp(node->isopath, isopath) == 0)
@@ -1197,9 +1282,15 @@ char * ventoy_plugin_get_cur_install_template(const char *isopath)
 
 persistence_config * ventoy_plugin_find_persistent(const char *isopath)
 {
+    int len;
     persistence_config *node = NULL;
-    int len = (int)grub_strlen(isopath);
-    
+
+    if (!g_persistence_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(isopath);
     for (node = g_persistence_head; node; node = node->next)
     {
         if ((len == node->pathlen) && (grub_strcmp(node->isopath, isopath) == 0))
@@ -1272,9 +1363,15 @@ end:
 
 const char * ventoy_plugin_get_injection(const char *isopath)
 {
+    int len;
     injection_config *node = NULL;
-    int len = (int)grub_strlen(isopath);
 
+    if (!g_injection_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(isopath);
     for (node = g_injection_head; node; node = node->next)
     {
         if (node->pathlen == len && grub_strcmp(node->isopath, isopath) == 0)
@@ -1288,9 +1385,15 @@ const char * ventoy_plugin_get_injection(const char *isopath)
 
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath)
 {
+    int len;
     menu_alias *node = NULL;
-    int len = (int)grub_strlen(isopath);
 
+    if (!g_menu_alias_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(isopath);
     for (node = g_menu_alias_head; node; node = node->next)
     {
         if (node->type == type && node->pathlen && 
@@ -1305,9 +1408,16 @@ const char * ventoy_plugin_get_menu_alias(int type, const char *isopath)
 
 const char * ventoy_plugin_get_menu_class(int type, const char *name)
 {
+    int len;
     menu_class *node = NULL;
-    int len = (int)grub_strlen(name);
 
+    if (!g_menu_class_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(name);
+    
     if (vtoy_class_image_file == type)
     {
         for (node = g_menu_class_head; node; node = node->next)
@@ -1330,6 +1440,28 @@ const char * ventoy_plugin_get_menu_class(int type, const char *name)
     }
 
     return NULL;
+}
+
+int ventoy_plugin_check_memdisk(const char *isopath)
+{
+    int len;
+    auto_memdisk *node = NULL;
+
+    if (!g_auto_memdisk_head)
+    {
+        return 0;
+    }
+
+    len = (int)grub_strlen(isopath);    
+    for (node = g_auto_memdisk_head; node; node = node->next)
+    {
+        if (node->pathlen == len && grub_strncmp(isopath, node->isopath, len) == 0)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, char **args)
