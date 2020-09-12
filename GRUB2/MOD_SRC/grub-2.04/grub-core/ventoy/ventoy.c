@@ -39,6 +39,7 @@
 #include <grub/efi/efi.h>
 #endif
 #include <grub/time.h>
+#include <grub/video.h>
 #include <grub/relocator.h>
 #include <grub/charset.h>
 #include <grub/ventoy.h>
@@ -90,6 +91,8 @@ char *g_wimiso_path = NULL;
 
 int g_vhdboot_enable = 0;
 
+ventoy_gpt_info *g_ventoy_part_info = NULL;
+
 static char *g_tree_script_buf = NULL;
 static int g_tree_script_pos = 0;
 
@@ -98,6 +101,10 @@ static int g_list_script_pos = 0;
 
 static char *g_part_list_buf = NULL;
 static int g_part_list_pos = 0;
+
+static int g_video_mode_max = 0;
+static int g_video_mode_num = 0;
+static ventoy_video_mode *g_video_mode_list = NULL;
 
 static const char *g_menu_class[] = 
 {
@@ -213,6 +220,120 @@ static grub_err_t ventoy_fs_close(grub_file_t file)
     file->name = 0;
 
     return 0;
+}
+
+static int ventoy_video_hook(const struct grub_video_mode_info *info, void *hook_arg)
+{
+    int i;
+
+    (void)hook_arg;
+
+    if (info->mode_type & GRUB_VIDEO_MODE_TYPE_PURE_TEXT)
+    {
+        return 0;
+    }
+    
+    for (i = 0; i < g_video_mode_num; i++)
+    {
+        if (g_video_mode_list[i].width == info->width && 
+            g_video_mode_list[i].height == info->height &&
+            g_video_mode_list[i].bpp == info->bpp)
+        {
+            return 0;
+        }
+    }
+
+    g_video_mode_list[g_video_mode_num].width = info->width;
+    g_video_mode_list[g_video_mode_num].height = info->height;
+    g_video_mode_list[g_video_mode_num].bpp = info->bpp;
+    g_video_mode_num++;
+
+    if (g_video_mode_num == g_video_mode_max)
+    {
+        g_video_mode_max *= 2;
+        g_video_mode_list = grub_realloc(g_video_mode_list, g_video_mode_max * sizeof(ventoy_video_mode));
+    }
+
+    return 0;
+}
+
+static int ventoy_video_mode_cmp(ventoy_video_mode *v1, ventoy_video_mode *v2)
+{
+    if (v1->bpp == v2->bpp)
+    {
+        if (v1->width == v2->width)
+        {
+            if (v1->height == v2->height)
+            {
+                return 0;
+            }
+            else
+            {
+                return (v1->height < v2->height) ? -1 : 1;
+            }
+        }
+        else
+        {
+            return (v1->width < v2->width) ? -1 : 1;
+        }
+    }
+    else
+    {
+        return (v1->bpp < v2->bpp) ? -1 : 1;
+    }
+}
+
+static int ventoy_enum_video_mode(void)
+{
+    int i, j;
+    grub_video_adapter_t adapter;
+    grub_video_driver_id_t id;
+    ventoy_video_mode mode;
+    
+    g_video_mode_num = 0;
+    g_video_mode_max = 1024;
+    g_video_mode_list = grub_malloc(sizeof(ventoy_video_mode) * g_video_mode_max);
+    if (!g_video_mode_list)
+    {
+        return 0;
+    }
+
+    #ifdef GRUB_MACHINE_PCBIOS
+    grub_dl_load ("vbe");
+    #endif
+
+    id = grub_video_get_driver_id ();
+
+    FOR_VIDEO_ADAPTERS (adapter)
+    {
+        if (!adapter->iterate ||
+            (adapter->id != id && (id != GRUB_VIDEO_DRIVER_NONE ||
+             adapter->init() != GRUB_ERR_NONE)))
+        {
+            continue;
+        }
+
+        adapter->iterate(ventoy_video_hook, NULL);
+
+        if (adapter->id != id)
+        {
+            adapter->fini();
+        }
+    }
+
+    /* sort video mode */
+    for (i = 0; i < g_video_mode_num; i++)
+    for (j = i + 1; j < g_video_mode_num; j++)
+    {
+        if (ventoy_video_mode_cmp(g_video_mode_list + i, g_video_mode_list + j) < 0)
+        {
+            grub_memcpy(&mode, g_video_mode_list + i, sizeof(ventoy_video_mode));
+            grub_memcpy(g_video_mode_list + i, g_video_mode_list + j, sizeof(ventoy_video_mode));
+            grub_memcpy(g_video_mode_list + j, &mode, sizeof(ventoy_video_mode));
+        }
+    }
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
 static grub_file_t ventoy_wrapper_open(grub_file_t rawFile, enum grub_file_type type)
@@ -2958,6 +3079,67 @@ end:
     return rc;
 }
 
+static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_disk_t disk;
+    
+    (void)argc;
+    (void)ctxt;
+
+    g_ventoy_part_info = grub_zalloc(sizeof(ventoy_gpt_info));
+    if (!g_ventoy_part_info)
+    {
+        return 1;
+    }
+
+    disk = grub_disk_open(args[0]);
+    if (!disk)
+    {
+        debug("Failed to open disk %s\n", args[0]);
+        return 1;
+    }
+
+    grub_disk_read(disk, 0, 0, sizeof(ventoy_gpt_info), g_ventoy_part_info);
+    grub_disk_close(disk);
+    
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_part_exist(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int id;
+    grub_uint8_t zeroguid[16] = {0};
+
+    (void)argc;
+    (void)ctxt;
+
+    id = (int)grub_strtoul(args[0], NULL, 10);
+    grub_errno = 0;
+    
+    if (grub_memcmp(g_ventoy_part_info->Head.Signature, "EFI PART", 8) == 0)
+    {
+        if (id >= 1 && id <= 128)
+        {
+            if (grub_memcmp(g_ventoy_part_info->PartTbl[id - 1].PartGuid, zeroguid, 16))
+            {
+                return 0;
+            }
+        }        
+    }
+    else
+    {
+        if (id >= 1 && id <= 4)
+        {
+            if (g_ventoy_part_info->MBR.PartTbl[id - 1].FsFlag)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
 static grub_err_t ventoy_cmd_get_fs_label(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc = 1;
@@ -3115,6 +3297,85 @@ static grub_err_t ventoy_cmd_basename(grub_extcmd_context_t ctxt, int argc, char
     return 0;
 }
 
+static grub_err_t ventoy_cmd_enum_video_mode(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    struct grub_video_mode_info info;
+    char buf[32];
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (!g_video_mode_list)
+    {
+        ventoy_enum_video_mode();
+    }
+
+    if (grub_video_get_info(&info) == GRUB_ERR_NONE)
+    {
+        grub_snprintf(buf, sizeof(buf), "Resolution (%ux%u)", info.width, info.height);
+    }
+    else
+    {
+        grub_snprintf(buf, sizeof(buf), "Resolution (0x0)");
+    }
+
+    grub_env_set("VTOY_CUR_VIDEO_MODE", buf);
+
+    grub_snprintf(buf, sizeof(buf), "%d", g_video_mode_num);
+    grub_env_set("VTOY_VIDEO_MODE_NUM", buf);
+
+    VENTOY_CMD_RETURN(0);
+}
+
+static grub_err_t vt_cmd_update_cur_video_mode(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    struct grub_video_mode_info info;
+    char buf[32];
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (grub_video_get_info(&info) == GRUB_ERR_NONE)
+    {
+        grub_snprintf(buf, sizeof(buf), "%ux%ux%u", info.width, info.height, info.bpp);
+    }
+    else
+    {
+        grub_snprintf(buf, sizeof(buf), "0x0x0");
+    }
+
+    grub_env_set(args[0], buf);
+
+    VENTOY_CMD_RETURN(0);
+}
+
+static grub_err_t ventoy_cmd_get_video_mode(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int id;
+    char buf[32];
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (!g_video_mode_list)
+    {
+        return 0;
+    }
+
+    id = (int)grub_strtoul(args[0], NULL, 10);
+    if (id < g_video_mode_num)
+    {
+        grub_snprintf(buf, sizeof(buf), "%ux%ux%u", 
+            g_video_mode_list[id].width, g_video_mode_list[id].height, g_video_mode_list[id].bpp);
+    }
+
+    grub_env_set(args[1], buf);
+
+    VENTOY_CMD_RETURN(0);
+}
+
 grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...)
 {
     grub_uint64_t size = 0;
@@ -3264,10 +3525,14 @@ static cmd_para ventoy_cmds[] =
     { "vt_pop_last_entry", ventoy_cmd_pop_last_entry, 0, NULL, "", "", NULL },
     { "vt_get_lib_module_ver", ventoy_cmd_lib_module_ver, 0, NULL, "", "", NULL },
 
+    { "vt_load_part_table", ventoy_cmd_load_part_table, 0, NULL, "", "", NULL },
+    { "vt_check_part_exist", ventoy_cmd_part_exist, 0, NULL, "", "", NULL },
     { "vt_get_fs_label", ventoy_cmd_get_fs_label, 0, NULL, "", "", NULL },
     { "vt_fs_enum_1st_file", ventoy_cmd_fs_enum_1st_file, 0, NULL, "", "", NULL },
-    { "vt_file_basename", ventoy_cmd_basename, 0, NULL, "", "", NULL },
-    
+    { "vt_file_basename", ventoy_cmd_basename, 0, NULL, "", "", NULL },    
+    { "vt_enum_video_mode", ventoy_cmd_enum_video_mode, 0, NULL, "", "", NULL },    
+    { "vt_get_video_mode", ventoy_cmd_get_video_mode, 0, NULL, "", "", NULL },    
+    { "vt_update_cur_video_mode", vt_cmd_update_cur_video_mode, 0, NULL, "", "", NULL },    
 
     
     { "vt_find_first_bootable_hd", ventoy_cmd_find_bootable_hdd, 0, NULL, "", "", NULL },

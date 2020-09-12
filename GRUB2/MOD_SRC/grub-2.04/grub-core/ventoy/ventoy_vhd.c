@@ -141,63 +141,34 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
     return 0;
 }
 
-static int ventoy_vhd_patch_disk(char *isopart, ventoy_patch_vhd *patch1, ventoy_patch_vhd *patch2)
+static int ventoy_vhd_patch_disk(ventoy_patch_vhd *patch1, ventoy_patch_vhd *patch2)
 {
-    char *pos;
-    grub_disk_t disk;
-    ventoy_gpt_info *gptinfo;
     char efipart[16] = {0};
 
-    pos = grub_strchr(isopart, ',');
-    if (pos)
-    {
-        *pos = 0;
-    }
+    grub_memcpy(efipart, g_ventoy_part_info->Head.Signature, sizeof(g_ventoy_part_info->Head.Signature));
 
-    pos = isopart;
-    if (*pos == '(')
-    {
-        pos++;
-    }
-
-    debug("vhd disk <%s>\n", pos);
-
-    disk = grub_disk_open(pos);
-    if (!disk)
-    {
-        debug("Failed to open disk %s\n", pos);
-        return 1;
-    }
-
-    gptinfo = (ventoy_gpt_info *)(g_vhdboot_isobuf + g_vhdboot_isolen);
-    grub_disk_read(disk, 0, 0, sizeof(ventoy_gpt_info), gptinfo);
-
-    grub_memcpy(efipart, gptinfo->Head.Signature, sizeof(gptinfo->Head.Signature));
-
-    debug("part1 type: 0x%x <%s>\n", gptinfo->MBR.PartTbl[0].FsFlag, efipart);
+    debug("part1 type: 0x%x <%s>\n", g_ventoy_part_info->MBR.PartTbl[0].FsFlag, efipart);
 
     if (grub_strncmp(efipart, "EFI PART", 8) == 0)
     {
-        ventoy_debug_dump_guid("GPT disk GUID: ", gptinfo->Head.DiskGuid);
-        ventoy_debug_dump_guid("GPT part GUID: ", gptinfo->PartTbl[0].PartGuid);
+        ventoy_debug_dump_guid("GPT disk GUID: ", g_ventoy_part_info->Head.DiskGuid);
+        ventoy_debug_dump_guid("GPT part GUID: ", g_ventoy_part_info->PartTbl[0].PartGuid);
         
-        grub_memcpy(patch1->disk_signature_or_guid, gptinfo->Head.DiskGuid, 16);
-        grub_memcpy(patch1->part_offset_or_guid, gptinfo->PartTbl[0].PartGuid, 16);
-        grub_memcpy(patch2->disk_signature_or_guid, gptinfo->Head.DiskGuid, 16);
-        grub_memcpy(patch2->part_offset_or_guid, gptinfo->PartTbl[0].PartGuid, 16);
+        grub_memcpy(patch1->disk_signature_or_guid, g_ventoy_part_info->Head.DiskGuid, 16);
+        grub_memcpy(patch1->part_offset_or_guid, g_ventoy_part_info->PartTbl[0].PartGuid, 16);
+        grub_memcpy(patch2->disk_signature_or_guid, g_ventoy_part_info->Head.DiskGuid, 16);
+        grub_memcpy(patch2->part_offset_or_guid, g_ventoy_part_info->PartTbl[0].PartGuid, 16);
 
         patch1->part_type = patch2->part_type = 0;
     }
     else
     {
         debug("MBR disk signature: %02x%02x%02x%02x\n",
-            gptinfo->MBR.BootCode[0x1b8 + 0], gptinfo->MBR.BootCode[0x1b8 + 1],
-            gptinfo->MBR.BootCode[0x1b8 + 2], gptinfo->MBR.BootCode[0x1b8 + 3]);
-        grub_memcpy(patch1->disk_signature_or_guid, gptinfo->MBR.BootCode + 0x1b8, 4);
-        grub_memcpy(patch2->disk_signature_or_guid, gptinfo->MBR.BootCode + 0x1b8, 4);
+            g_ventoy_part_info->MBR.BootCode[0x1b8 + 0], g_ventoy_part_info->MBR.BootCode[0x1b8 + 1],
+            g_ventoy_part_info->MBR.BootCode[0x1b8 + 2], g_ventoy_part_info->MBR.BootCode[0x1b8 + 3]);
+        grub_memcpy(patch1->disk_signature_or_guid, g_ventoy_part_info->MBR.BootCode + 0x1b8, 4);
+        grub_memcpy(patch2->disk_signature_or_guid, g_ventoy_part_info->MBR.BootCode + 0x1b8, 4);
     }
-
-    grub_disk_close(disk);
 
     return 0;
 }
@@ -214,7 +185,7 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
 
     grub_env_unset("vtoy_vhd_buf_addr");
 
-    debug("patch vhd <%s> <%s>\n", args[0], args[1]);
+    debug("patch vhd <%s>\n", args[0]);
 
     if ((!g_vhdboot_enable) || (!g_vhdboot_totbuf))
     {
@@ -232,8 +203,8 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
     patch1 = (ventoy_patch_vhd *)(g_vhdboot_isobuf + g_vhdboot_bcd_offset + 0x495a);
     patch2 = (ventoy_patch_vhd *)(g_vhdboot_isobuf + g_vhdboot_bcd_offset + 0x50aa);
 
-    ventoy_vhd_patch_disk(args[0], patch1, patch2);
-    ventoy_vhd_patch_path(args[1], patch1, patch2);
+    ventoy_vhd_patch_disk(patch1, patch2);
+    ventoy_vhd_patch_path(args[0], patch1, patch2);
 
     /* set buffer and size */
 #ifdef GRUB_MACHINE_EFI
@@ -278,7 +249,7 @@ grub_err_t ventoy_cmd_load_vhdboot(grub_extcmd_context_t ctxt, int argc, char **
 
     g_vhdboot_isolen = (int)file->size;
 
-    buflen = (int)(file->size + sizeof(ventoy_gpt_info) + sizeof(ventoy_chain_head));
+    buflen = (int)(file->size + sizeof(ventoy_chain_head));
 
 #ifdef GRUB_MACHINE_EFI
     g_vhdboot_totbuf = (char *)grub_efi_allocate_iso_buf(buflen);

@@ -658,6 +658,15 @@ typedef struct ventoy_gpt_info
 }ventoy_gpt_info;
 #pragma pack()
 
+typedef struct ventoy_video_mode
+{
+    grub_uint32_t width;
+    grub_uint32_t height;
+    grub_uint32_t bpp;
+}ventoy_video_mode;
+
+
+
 typedef struct file_fullpath
 {
     char path[256];
@@ -741,6 +750,7 @@ extern int g_ventoy_iso_uefi_drv;
 extern int g_ventoy_case_insensitive;
 extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
+extern ventoy_gpt_info *g_ventoy_part_info;
 
 
 #define ventoy_unix_fill_virt(new_data, new_len) \

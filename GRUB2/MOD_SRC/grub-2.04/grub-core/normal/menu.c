@@ -999,6 +999,9 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
 	grub_menu_execute_entry (e, 0);
       if (autobooted)
 	break;
+
+      if (2 == e->argc && e->args && e->args[1] && grub_strncmp(e->args[1], "VTOY_RUN_RET", 12) == 0)
+        break; 
     }
 
   return GRUB_ERR_NONE;
