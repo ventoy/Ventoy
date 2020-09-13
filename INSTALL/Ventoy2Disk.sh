@@ -1,11 +1,15 @@
 #!/bin/sh
 
+if [ -f ./ventoy/version ]; then
+    curver=$(cat ./ventoy/version) 
+fi
 
 echo ''
-echo '***********************************************************'
-echo '*                Ventoy2Disk Script                       *'
-echo '*             longpanda  admin@ventoy.net                 *'
-echo '***********************************************************'
+echo '**********************************************'
+echo "      Ventoy: $curver"
+echo "      longpanda admin@ventoy.net"
+echo "      https://www.ventoy.net"
+echo '**********************************************'
 echo ''
 
 OLDDIR=$PWD

@@ -19,10 +19,27 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-vtCheatLoop=loop6
+ventoy_os_install_dmsetup_by_ko() {
+    vtlog "ventoy_os_install_dmsetup_by_ko $1"
+    
+    vtVer=$($BUSYBOX_PATH/uname -r)
+    if $BUSYBOX_PATH/uname -m | $GREP -q 64; then
+        vtBit=64
+    else
+        vtBit=32
+    fi
+    
+    ventoy_extract_vtloopex $1  vine
+    vtLoopExDir=$VTOY_PATH/vtloopex/vine/vtloopex
+    
+    if [ -e $vtLoopExDir/dm-mod/$vtVer/$vtBit/dm-mod.ko.xz ]; then
+        $BUSYBOX_PATH/xz -d $vtLoopExDir/dm-mod/$vtVer/$vtBit/dm-mod.ko.xz
+        insmod $vtLoopExDir/dm-mod/$vtVer/$vtBit/dm-mod.ko
+    fi
+}
 
-ventoy_os_install_dmsetup() {
-    vtlog "ventoy_os_install_dmsetup $1"
+ventoy_os_install_dmsetup_by_rpm() {
+    vtlog "ventoy_os_install_dmsetup_by_rpm $1"
     
     vt_usb_disk=$1
 
@@ -32,48 +49,47 @@ ventoy_os_install_dmsetup() {
     # install dmsetup 
     LINE=$($GREP 'kernel-[0-9].*\.rpm'  $VTOY_PATH/iso_file_list)
     if [ $? -eq 0 ]; then
-        install_rpm_from_line "$LINE" ${vt_usb_disk}
+        extract_rpm_from_line "$LINE" ${vt_usb_disk}
     fi
 
-    $BUSYBOX_PATH/modprobe dm-mod
+    vtKoName=$($BUSYBOX_PATH/find $VTOY_PATH/rpm/ -name dm-mod.ko*)
+    vtlog "vtKoName=$vtKoName"
 
-    vtlog "dmsetup install finish, now check it..."
+    insmod $vtKoName
     
-    dmsetup_path=/ventoy/tool/dmsetup
-    if [ -z "$dmsetup_path" ]; then
-        vterr "dmsetup still not found after install"
-    elif $dmsetup_path info >> $VTLOG 2>&1; then
-        vtlog "$dmsetup_path work ok"
-    else
-        vterr "$dmsetup_path not work"
-    fi
+    $BUSYBOX_PATH/rm -rf $VTOY_PATH/rpm/
 }
 
-
-if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
-    # /dev/vtCheatLoop come first
-    if [ "$1" = "$vtCheatLoop" ] && [ -b $VTOY_DM_PATH ]; then
-        ventoy_copy_device_mapper  /dev/$vtCheatLoop
-    fi
+if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then    
     exit 0
 fi
 
-ventoy_os_install_dmsetup "/dev/${1:0:-1}"
+ventoy_os_install_dmsetup_by_ko "/dev/$1"
+if $GREP -q 'device.mapper' /proc/devices; then
+    vtlog "device-mapper module install OK"
+else
+    ventoy_os_install_dmsetup_by_rpm "/dev/${1:0:-1}"
+fi
 
-ventoy_udev_disk_common_hook $* "noreplace"
+ventoy_udev_disk_common_hook $*
 
-$BUSYBOX_PATH/mount $VTOY_DM_PATH /mnt/ventoy
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | $SED 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+blkdev_num_dev=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | $SED 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
 
-# 
-# We do a trick for rhel6 series here.
-# Use /dev/$vtCheatLoop and wapper it as a removable cdrom with bind mount.
-# Then the anaconda installer will accept /dev/$vtCheatLoop as the install medium.
-#
-ventoy_copy_device_mapper  /dev/$vtCheatLoop
+[ -b /dev/$vtDM ] || $BUSYBOX_PATH/mknod -m 0660 /dev/$vtDM b $blkdev_num_dev
+$BUSYBOX_PATH/rm -rf /dev/mapper
 
-$BUSYBOX_PATH/cp -a /sys/devices/virtual/block/$vtCheatLoop /tmp/ >> $VTLOG 2>&1
-echo 19 > /tmp/$vtCheatLoop/capability
-$BUSYBOX_PATH/mount --bind /tmp/$vtCheatLoop /sys/block/$vtCheatLoop >> $VTLOG 2>&1
+#Create a fake IDE-CDROM driver can't be ide-scsi   /proc has been patched to /vtoy
+$BUSYBOX_PATH/mkdir -p /vtoy
+$BUSYBOX_PATH/cp -a /proc/ide /vtoy/
+$BUSYBOX_PATH/mkdir -p /vtoy/ide/aztcd
+
+echo 'ide' > /vtoy/ide/aztcd/driver
+echo 'cdrom' > /vtoy/ide/aztcd/media
+
 
 # OK finish
 set_ventoy_hook_finish
+
+exit 0

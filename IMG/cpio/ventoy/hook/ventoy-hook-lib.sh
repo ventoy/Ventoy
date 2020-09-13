@@ -343,6 +343,37 @@ extract_file_from_line() {
     fi
 }
 
+extract_rpm_from_line() {
+    vtlog "extract_rpm_from_line $1 disk=#$2#"
+
+    if ! [ -b "$2" ]; then
+        vterr "disk #$2# not exist"
+        return 
+    fi
+
+    sector=$(echo $1 | $AWK '{print $(NF-1)}')
+    length=$(echo $1 | $AWK '{print $NF}')
+    vtlog "sector=$sector  length=$length"
+    
+    $VTOY_PATH/tool/vtoydm -e -f $VTOY_PATH/ventoy_image_map -d ${2} -s $sector -l $length -o /tmp/xxx.rpm
+    if [ -e /tmp/xxx.rpm ]; then
+        vtlog "extract rpm file from iso success"
+    else
+        vterr "extract rpm file from iso fail"
+        return
+    fi
+    
+    CURPWD=$($BUSYBOX_PATH/pwd)
+    
+    $BUSYBOX_PATH/mkdir -p $VTOY_PATH/rpm
+    cd $VTOY_PATH/rpm
+    vtlog "extract rpm..."
+    $BUSYBOX_PATH/rpm2cpio /tmp/xxx.rpm | $BUSYBOX_PATH/cpio -idm 2>>$VTLOG
+    cd $CURPWD
+    
+    $BUSYBOX_PATH/rm -f /tmp/xxx.rpm 
+}
+
 install_rpm_from_line() {
     vtlog "install_rpm_from_line $1 disk=#$2#"
 
@@ -535,9 +566,9 @@ ventoy_swap_device() {
 ventoy_extract_vtloopex() {
     vtCurPwd=$PWD
     $BUSYBOX_PATH/mkdir -p $VTOY_PATH/partmnt $VTOY_PATH/vtloopex
-    $BUSYBOX_PATH/mount -o ro -t vfat /dev/${vtdiskname#/dev/}2  $VTOY_PATH/partmnt
+    $BUSYBOX_PATH/mount -o ro -t vfat $1  $VTOY_PATH/partmnt
     cd $VTOY_PATH/vtloopex
-    $CAT $VTOY_PATH/partmnt/ventoy/vtloopex.cpio | $BUSYBOX_PATH/cpio -idm
+    $CAT $VTOY_PATH/partmnt/ventoy/vtloopex.cpio | $BUSYBOX_PATH/cpio -idm >> $VTLOG 2>&1
     $BUSYBOX_PATH/umount $VTOY_PATH/partmnt
     $BUSYBOX_PATH/rm -rf $VTOY_PATH/partmnt    
 

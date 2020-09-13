@@ -180,7 +180,11 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 		if (MBR.PartTbl[0].Active != 0x80 && MBR.PartTbl[1].Active != 0x80)
 		{
 			Log("Part1 and Part2 are both NOT active 0x%x 0x%x", MBR.PartTbl[0].Active, MBR.PartTbl[1].Active);
-			return FALSE;
+            if (MBR.PartTbl[2].Active != 0x80 && MBR.PartTbl[3].Active != 0x80)
+            {
+                Log("Part3 and Part4 are both NOT active 0x%x 0x%x", MBR.PartTbl[2].Active, MBR.PartTbl[3].Active);
+                return FALSE;
+            }
 		}
 
 		*Part2StartSector = MBR.PartTbl[1].StartSectorId;

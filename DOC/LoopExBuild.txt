@@ -1,0 +1,29 @@
+
+1. LAKKA dm-mod.ko 
+   LaKKa config 
+   https://github.com/libretro/Lakka-LibreELEC/releases download source code
+   \projects\Generic\linux\linux.x86_64.conf
+   
+   Linux Kernel
+   linux-4.11.12.tar.xz & patch-4.11.12-rt14.patch.xz
+   patch -p1 < ../patch-4.11.12-rt14
+   
+   make menuconfig
+   select device mapper as module
+   make -j 16
+   get drivers\md\dm-mod.ko
+
+2. LibreELEC dm-mod.ko
+   LibreELEC config 
+   https://github.com/LibreELEC/LibreELEC.tv/releases download source code
+   \projects\Generic\linux\linux.x86_64.conf
+   
+   Linux Kernel
+   linux-5.1.6.tar.xz
+   make menuconfig
+   select device mapper as module
+   make -j 16
+   get drivers\md\dm-mod.ko
+   
+   
+   

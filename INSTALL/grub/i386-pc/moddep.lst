@@ -122,7 +122,7 @@ crypto:
 part_bsd: part_msdos
 cs5536: pci
 biosdisk:
-ventoy: ext2 fshelp font crypto exfat udf extcmd normal relocator gcry_sha1 iso9660
+ventoy: ext2 fshelp font crypto exfat udf extcmd normal video gcry_sha1 relocator iso9660
 lsapm:
 gcry_sha512: crypto
 password: crypto normal

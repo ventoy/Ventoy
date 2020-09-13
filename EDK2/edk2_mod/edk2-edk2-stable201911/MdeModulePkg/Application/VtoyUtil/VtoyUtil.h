@@ -24,6 +24,7 @@
 #pragma pack(1)
 
 typedef EFI_STATUS (*VTOY_UTIL_PROC_PF)(IN EFI_HANDLE ImageHandle, IN CONST CHAR16 *CmdLine);
+typedef int (*grub_env_set_pf)(const char *name, const char *val);
 typedef const char * (*grub_env_get_pf)(const char *name);
 typedef int (*grub_env_printf_pf)(const char *fmt, ...);
 
@@ -38,6 +39,7 @@ typedef struct ventoy_grub_param_file_replace
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
+    grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
     grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;

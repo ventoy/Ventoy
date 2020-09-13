@@ -22,3 +22,12 @@
 ventoy_systemd_udevd_work_around
 
 ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k"
+
+if [ -f /init ]; then
+    vtSize=$($BUSYBOX_PATH/stat -c '%s' /init)
+    if ! [ -L /init ]; then
+        if [ $vtSize -eq 0 ]; then
+            rm -f /init
+        fi
+    fi
+fi

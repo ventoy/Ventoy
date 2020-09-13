@@ -37,8 +37,10 @@ else
 fi
 
 ventoy_is_initrd_ramdisk() {
-    #As I known, PCLinuxOS use ramdisk
+    #As I known, PCLinuxOS/smgl use ramdisk
     if echo $vtkerver | grep -i -q 'PCLinuxOS'; then
+        true
+    elif echo $vtkerver | grep -i -q 'SMGL-'; then
         true
     else
         false
@@ -68,7 +70,7 @@ ventoy_unpack_initramfs() {
         return
     fi
     
-    for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat'; do
+    for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat' '4C5A lunzip -c'; do
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
             echo "vtx=$vtx" >> $VTLOG            
             if [ $vtskip -eq 0 ]; then            

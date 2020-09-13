@@ -1,7 +1,7 @@
 
 ========== Ventoy2Disk.sh ===============
 
-sudo sh Ventoy2Disk.sh { -i | -I | -u } /dev/XXX   XXX is the USB device, for example /dev/sdb.
+sudo sh Ventoy2Disk.sh { -i | -I | -u } /dev/sdX   sdX is the USB device, for example /dev/sdb.
 
 Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX
   CMD:
@@ -13,16 +13,25 @@ Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX
    -r SIZE_MB  preserve some space at the bottom of the disk (only for install)
    -s          enable secure boot support (default is disabled)
    -g          use GPT partition style, default is MBR style (only for install)
-   
+
+Please refer https://www.ventoy.net/en/doc_start.html for details.   
+
+
+
+
 
 ========== CreatePersistentImg.sh ===============
 
-sudo sh CreatePersistentImg.sh
+sudo sh CreatePersistentImg.sh  [ -s SIZE_IN_MB ] [ -t FSTYPE ] [ -l LABEL ]   for example:
 
-sh CreatePersistentImg.sh  [ -s SIZE_IN_MB ] [ -t FSTYPE ] [ -l LABEL ]   for example:
+sh CreatePersistentImg.sh                 ---->  persistence.dat in 1GB size and ext4 filesystem and casper-rw label
+sh CreatePersistentImg.sh -l MX-Persist   ---->  persistence.dat in 1GB size and ext4 filesystem and MX-Persist label
+sh CreatePersistentImg.sh -s 2048         ---->  persistence.dat in 2GB size and ext4 filesystem and casper-rw label
+sh CreatePersistentImg.sh -s 4096 -t xfs  ---->  persistence.dat in 4GB size and xfs  filesystem  (ext2/3/4 xfs are supported)  and casper-rw label
 
-sh CreatePersistentImg.sh                 ---->  persistence.img in 1GB size and ext4 filesystem and casper-rw label
-sh CreatePersistentImg.sh -l MX-Persist   ---->  persistence.img in 1GB size and ext4 filesystem and MX-Persist label
-sh CreatePersistentImg.sh -s 2048         ---->  persistence.img in 2GB size and ext4 filesystem and casper-rw label
-sh CreatePersistentImg.sh -s 4096 -t xfs  ---->  persistence.img in 4GB size and xfs  filesystem  (ext2/3/4 xfs are supported)  and casper-rw label
+Please refer https://www.ventoy.net/en/plugin_persistence.html for details.
+
+
+
+
 

@@ -3,6 +3,7 @@
 . ./tool/ventoy_lib.sh
 
 print_usage() {
+    
     echo 'Usage:  Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX'
     echo '  CMD:'
     echo '   -i  install ventoy to sdX (fail if disk already installed with ventoy)'
@@ -33,6 +34,11 @@ while [ -n "$1" ]; do
         RESERVE_SPACE="YES"
         shift
         RESERVE_SIZE_MB=$1
+    elif [ "$1" = "-V" ] || [ "$1" = "--version" ]; then
+        exit 0
+    elif [ "$1" == "-h" ] || [ "$1" = "--help" ]; then
+        print_usage
+        exit 0
     else
         if ! [ -b "$1" ]; then
             vterr "$1 is NOT a valid device"
@@ -180,7 +186,7 @@ if [ "$MODE" = "install" ]; then
     vtwarn "All the data on the disk $DISK will be lost!!!"
     echo ""
 
-    read -p 'Continue? (y/n)'  Answer
+    read -p 'Continue? (y/n) '  Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
             exit 0
@@ -189,7 +195,7 @@ if [ "$MODE" = "install" ]; then
 
     echo ""
     vtwarn "All the data on the disk $DISK will be lost!!!"
-    read -p 'Double-check. Continue? (y/n)'  Answer
+    read -p 'Double-check. Continue? (y/n) '  Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
             exit 0

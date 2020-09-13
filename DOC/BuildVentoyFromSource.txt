@@ -146,6 +146,14 @@
   https://busybox.net/downloads/busybox-1.32.0.tar.bz2
   use BUSYBOX/64h.config and uclibc to build busybox-1.32
 
+4.19 == Build lunzip32/lunzip64 ==
+  http://mirror.yongbok.net/nongnu/lzip/lunzip/lunzip-1.11.tar.gz
+  PATH=$PATH:/opt/diet/bin
+  ./configure --disable-nls CC='diet gcc -nostdinc'
+  make
+  strip --strip-all lunzip
+
+
 
 ==========================================
 5. Binaries

@@ -19,10 +19,8 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$BUSYBOX_PATH/mkdir -p /etc/anaconda.repos.d  /mnt/ventoy
-ventoy_print_yum_repo "ventoy" "file:///mnt/ventoy" > /etc/anaconda.repos.d/ventoy.repo
-
+$BUSYBOX_PATH/cp -a /sbin/loader /sbin/loader_bk
+$VTOY_PATH/tool/vine_patch_loader /sbin/loader 253 -v >> $VTLOG
 
 $BUSYBOX_PATH/mknod -m 0660 /dev/null c 1 3
 $VTOY_PATH/hook/vine/dev-listen.sh  &  
-
