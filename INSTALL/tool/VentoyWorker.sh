@@ -240,7 +240,10 @@ if [ "$MODE" = "install" ]; then
         cluster_sectors=64
     fi
 
-    $cmd -n ventoy -s $cluster_sectors ${DISK}1
+    PART1=$(get_disk_part_name $DISK 1)  
+    PART2=$(get_disk_part_name $DISK 2)  
+
+    $cmd -n ventoy -s $cluster_sectors ${PART1}
 
     vtinfo "writing data to disk ..."
     
@@ -268,7 +271,7 @@ if [ "$MODE" = "install" ]; then
     vtinfo "esp partition processing ..."
     
     sleep 1
-    mtpnt=$(grep "^${DISK}2" /proc/mounts | awk '{print $2}')
+    mtpnt=$(grep "^${PART2}" /proc/mounts | awk '{print $2}')
     if [ -n "$mtpnt" ]; then
         umount $mtpnt >/dev/null 2>&1
     fi
@@ -278,12 +281,12 @@ if [ "$MODE" = "install" ]; then
         
         vtdebug "mounting part2 ...."
         for tt in 1 2 3; do
-            if mount ${DISK}2 ./tmp_mnt; then
+            if mount ${PART2} ./tmp_mnt; then
                 vtdebug "mounting part2 success"
                 break
             fi
             
-            mtpnt=$(grep "^${DISK}2" /proc/mounts | awk '{print $2}')
+            mtpnt=$(grep "^${PART2}" /proc/mounts | awk '{print $2}')
             if [ -n "$mtpnt" ]; then
                 umount $mtpnt >/dev/null 2>&1
             fi
@@ -363,7 +366,7 @@ else
         
         vtdebug "mounting part2 ...."
         for tt in 1 2 3; do
-            if mount ${DISK}2 ./tmp_mnt; then
+            if mount ${PART2} ./tmp_mnt; then
                 vtdebug "mounting part2 success"
                 break
             fi
