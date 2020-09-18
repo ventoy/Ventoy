@@ -53,6 +53,7 @@ else
 fi
 
 
+
 if $VTOY_PATH/tool/unsquashfs_64 -t 2>>$VTLOG; then
     echo "use unsquashfs_64" >>$VTLOG
     $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_64  $VTOY_PATH/tool/vtoy_unsquashfs

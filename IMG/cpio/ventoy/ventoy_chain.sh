@@ -47,6 +47,12 @@ ventoy_get_os_type() {
     echo "kernel version" >> $VTLOG
     $CAT /proc/version >> $VTLOG
 
+    if [ -d /twres ]; then
+        if $GREP -q 'Phoenix' /init; then
+            echo 'phoenixos'; return
+        fi
+    fi
+
     # rhel5/CentOS5 and all other distributions based on them
     if $GREP -q 'el5' /proc/version; then
         echo 'rhel5'; return
@@ -93,6 +99,10 @@ ventoy_get_os_type() {
     
     # gentoo
     elif $EGREP -q '[Gg]entoo' /proc/version; then
+        if $GREP -q 'daphile' /proc/version; then
+            echo 'daphile'; return
+        fi
+    
         echo 'gentoo'; return
         
     # TinyCore
@@ -119,9 +129,13 @@ ventoy_get_os_type() {
     elif $GREP -q 'Alpine' /proc/version; then
         echo 'alpine'; return
 
+    elif $GREP -i -q 'PhoenixOS' /proc/version; then
+        echo 'phoenixos'; return
+    
     # NixOS
     elif $GREP -i -q 'NixOS' /proc/version; then
         echo 'nixos'; return
+    
     
     fi
 
@@ -136,6 +150,8 @@ ventoy_get_os_type() {
             echo 'suse'; return        
         elif $GREP -q 'uruk' /etc/os-release; then
             echo 'debian'; return
+        elif $GREP -q 'Solus' /etc/os-release; then
+            echo 'rhel7'; return
         fi
     fi
     
@@ -225,6 +241,70 @@ ventoy_get_os_type() {
         echo 'vine'; return
     fi
     
+    if $GREP -q 'hyperbola' /proc/cmdline; then
+        echo 'hyperbola'; return
+    fi
+    
+    if $GREP -q 'CRUX' /proc/version; then
+        echo 'crux'; return
+    fi
+    
+    if [ -f /init ]; then
+        if $GREP -q 'AryaLinux' /init; then
+            echo 'aryalinux'; return
+        elif $GREP -q 'Dragora' /init; then
+            echo 'dragora'; return
+            
+        fi
+    fi
+    
+    if $GREP -q 'slackware' /proc/version; then
+        echo 'slackware'; return
+    fi
+    
+    if $BUSYBOX_PATH/hostname | $GREP -q 'smoothwall'; then
+        echo 'smoothwall'; return
+    fi 
+    
+    if $GREP -q 'photon' /proc/version; then
+        echo 'photon'; return
+    fi
+    
+    if $GREP -q 'ploplinux' /proc/version; then
+        echo 'ploplinux'; return
+    fi
+    
+    if $GREP -q 'lunar' /proc/version; then
+        echo 'lunar'; return
+    fi
+    
+    if $GREP -q 'SMGL-' /proc/version; then
+        echo 'smgl'; return
+    fi
+    
+    if $GREP -q 'rancher' /proc/version; then
+        echo 'rancher'; return
+    fi
+    
+    
+    if [ -e /init ]; then
+        if $GREP -q -m1 'T2 SDE' /init; then
+            echo 't2'; return
+        fi
+    fi
+    
+    if $GREP -q 'wifislax' /proc/version; then
+        echo 'wifislax'; return
+    fi
+    
+    if $GREP -q 'pisilinux' /proc/version; then
+        echo 'pisilinux'; return
+    fi
+    
+    if $GREP -q 'blackPanther' /proc/version; then
+        echo 'blackPanther'; return
+    fi
+    
     echo "default"
 }
 
@@ -269,7 +349,7 @@ fi
 
 cd /
 
-unset VTLOG FIND GREP EGREP CAT AWK SED SLEEP HEAD
+unset VTLOG FIND GREP EGREP CAT AWK SED SLEEP HEAD vtcmdline
 
 for vtinit in $user_rdinit /init /sbin/init /linuxrc; do
     if [ -d /ventoy_rdroot ]; then

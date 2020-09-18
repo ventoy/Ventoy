@@ -1,0 +1,8 @@
+https://www.freebsd.org/doc/en_US.ISO8859-1/books/porters-handbook/versions.html#versions-13
+
+sysctl kern.osreldate
+/usr/src/sys/sys/param.h
+#define __FreeBSD_version 1300102
+
+Modify the /usr/src/sys/sys/param.h  __FreeBSD_version to the value get by sysctl kern.osreldate in the OS.
+

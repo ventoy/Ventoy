@@ -35,14 +35,32 @@ fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
+vtlog "blkdev_num=$blkdev_num vtDM=$vtDM ..."
+
+while [ -n "Y" ]; do
+    if [ -b /dev/$vtDM ]; then
+        break
+    else
+        sleep 0.3
+    fi
+done
+
 if [ -n "$1" ]; then
-    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
-    vtDM=$(ventoy_find_dm_id ${blkdev_num})
-    
     vtlog "ln -s /dev/$vtDM $1"
     ln -s /dev/$vtDM "$1"
+else
+    vtLABEL=$($BUSYBOX_PATH/blkid /dev/$vtDM | $SED 's/.*LABEL="\([^"]*\)".*/\1/')
+    vtlog "vtLABEL is $vtLABEL"
+    
+    if [ -z "$vtLABEL" ]; then
+        vtLABEL=$($SED "s/.*label=\([^ ]*\)/\1/" /proc/cmdline)
+        vtlog "vtLABEL is $vtLABEL from cmdline"
+    fi
+    
+    ln -s /dev/$vtDM "/dev/disk/by-label/$vtLABEL"
 fi 
 
 # OK finish
 set_ventoy_hook_finish
-

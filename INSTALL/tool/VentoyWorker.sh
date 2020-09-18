@@ -3,6 +3,7 @@
 . ./tool/ventoy_lib.sh
 
 print_usage() {
+    
     echo 'Usage:  Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX'
     echo '  CMD:'
     echo '   -i  install ventoy to sdX (fail if disk already installed with ventoy)'
@@ -33,6 +34,11 @@ while [ -n "$1" ]; do
         RESERVE_SPACE="YES"
         shift
         RESERVE_SIZE_MB=$1
+    elif [ "$1" = "-V" ] || [ "$1" = "--version" ]; then
+        exit 0
+    elif [ "$1" == "-h" ] || [ "$1" = "--help" ]; then
+        print_usage
+        exit 0
     else
         if ! [ -b "$1" ]; then
             vterr "$1 is NOT a valid device"
@@ -116,7 +122,7 @@ if [ "$MODE" = "install" ]; then
         if parted -v > /dev/null 2>&1; then
             PARTTOOL='parted'
         else
-            vterr "parted is not found in the sysstem, Ventoy can't create new partition."
+            vterr "parted is not found in the system, Ventoy can't create new partition."
             exit 1
         fi
     else
@@ -125,7 +131,7 @@ if [ "$MODE" = "install" ]; then
         elif fdisk -v >/dev/null 2>&1; then
             PARTTOOL='fdisk'
         else
-            vterr "Both parted and fdisk are not found in the sysstem, Ventoy can't create new partition."
+            vterr "Both parted and fdisk are not found in the system, Ventoy can't create new partition."
             exit 1
         fi
     fi
@@ -144,7 +150,7 @@ if [ "$MODE" = "install" ]; then
     disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size)
     disk_size_gb=$(expr $disk_sector_num / 2097152)
 
-    if [ $disk_sector_num -gt 4294967296 ]; then
+    if [ $disk_sector_num -gt 4294967296 ] && [ -z "$VTGPT" ]; then
         vterr "$DISK is over 2TB size, MBR will not work on it."
         exit 1
     fi
@@ -180,7 +186,7 @@ if [ "$MODE" = "install" ]; then
     vtwarn "All the data on the disk $DISK will be lost!!!"
     echo ""
 
-    read -p 'Continue? (y/n)'  Answer
+    read -p 'Continue? (y/n) '  Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
             exit 0
@@ -189,7 +195,7 @@ if [ "$MODE" = "install" ]; then
 
     echo ""
     vtwarn "All the data on the disk $DISK will be lost!!!"
-    read -p 'Double-check. Continue? (y/n)'  Answer
+    read -p 'Double-check. Continue? (y/n) '  Answer
     if [ "$Answer" != "y" ]; then
         if [ "$Answer" != "Y" ]; then
             exit 0
@@ -222,7 +228,9 @@ if [ "$MODE" = "install" ]; then
         cmd=./tool/mkexfatfs_32
     fi
 
-    chmod +x ./tool/*
+    if [ -d ./tool/ ]; then 
+        chmod +x -R ./tool/
+    fi
 
     # DiskSize > 32GB  Cluster Size use 128KB
     # DiskSize < 32GB  Cluster Size use 32KB
@@ -233,8 +241,6 @@ if [ "$MODE" = "install" ]; then
     fi
 
     $cmd -n ventoy -s $cluster_sectors ${DISK}1
-
-    chmod +x ./tool/vtoy_gen_uuid
 
     vtinfo "writing data to disk ..."
     

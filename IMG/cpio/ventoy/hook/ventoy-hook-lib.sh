@@ -343,6 +343,37 @@ extract_file_from_line() {
     fi
 }
 
+extract_rpm_from_line() {
+    vtlog "extract_rpm_from_line $1 disk=#$2#"
+
+    if ! [ -b "$2" ]; then
+        vterr "disk #$2# not exist"
+        return 
+    fi
+
+    sector=$(echo $1 | $AWK '{print $(NF-1)}')
+    length=$(echo $1 | $AWK '{print $NF}')
+    vtlog "sector=$sector  length=$length"
+    
+    $VTOY_PATH/tool/vtoydm -e -f $VTOY_PATH/ventoy_image_map -d ${2} -s $sector -l $length -o /tmp/xxx.rpm
+    if [ -e /tmp/xxx.rpm ]; then
+        vtlog "extract rpm file from iso success"
+    else
+        vterr "extract rpm file from iso fail"
+        return
+    fi
+    
+    CURPWD=$($BUSYBOX_PATH/pwd)
+    
+    $BUSYBOX_PATH/mkdir -p $VTOY_PATH/rpm
+    cd $VTOY_PATH/rpm
+    vtlog "extract rpm..."
+    $BUSYBOX_PATH/rpm2cpio /tmp/xxx.rpm | $BUSYBOX_PATH/cpio -idm 2>>$VTLOG
+    cd $CURPWD
+    
+    $BUSYBOX_PATH/rm -f /tmp/xxx.rpm 
+}
+
 install_rpm_from_line() {
     vtlog "install_rpm_from_line $1 disk=#$2#"
 
@@ -436,8 +467,14 @@ ventoy_udev_disk_common_hook() {
     
     VTDISK="${1:0:-1}"
     
+    if [ -e /vtoy/vtoy ]; then
+        VTRWMOD=""
+    else
+        VTRWMOD="--readonly"
+    fi
+    
     # create device mapper for iso image file
-    if create_ventoy_device_mapper "/dev/$VTDISK" --readonly; then
+    if create_ventoy_device_mapper "/dev/$VTDISK" $VTRWMOD; then
         vtlog "==== create ventoy device mapper success ===="
     else
         vtlog "==== create ventoy device mapper failed ===="
@@ -453,7 +490,7 @@ ventoy_udev_disk_common_hook() {
             done
         fi
         
-        if create_ventoy_device_mapper "/dev/$VTDISK" --readonly; then
+        if create_ventoy_device_mapper "/dev/$VTDISK" $VTRWMOD; then
             vtlog "==== create ventoy device mapper success after retry ===="
         else
             vtlog "==== create ventoy device mapper failed after retry ===="
@@ -473,9 +510,27 @@ ventoy_udev_disk_common_hook() {
     fi
 }
 
+ventoy_create_dev_ventoy_part() {   
+    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | $SED 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+    $BUSYBOX_PATH/mknod -m 0666 /dev/ventoy b $blkdev_num
+    
+    if [ -e /vtoy_dm_table ]; then
+        vtPartid=1
+        
+        $CAT /vtoy_dm_table | while read vtline; do
+            echo $vtline > /ventoy/dm_table_part${vtPartid}
+            $VTOY_PATH/tool/dmsetup create ventoy${vtPartid} /ventoy/dm_table_part${vtPartid}
+            
+            blkdev_num=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy${vtPartid} | $SED 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+            $BUSYBOX_PATH/mknod -m 0666 /dev/ventoy${vtPartid} b $blkdev_num
+            
+            vtPartid=$(expr $vtPartid + 1)
+        done        
+    fi
+}
 
 is_inotify_ventoy_part() {
-    if echo $1 | grep -q "2$"; then
+    if echo $1 | $GREP -q "2$"; then
         if ! [ -e /sys/block/$1 ]; then
             if [ -e /sys/class/block/$1 ]; then
                 if [ -e /dev/${1:0:-1} ]; then
@@ -508,3 +563,19 @@ ventoy_swap_device() {
     mv $VTOY_PATH/swap_tmp_dev $2
 }
 
+ventoy_extract_vtloopex() {
+    vtCurPwd=$PWD
+    $BUSYBOX_PATH/mkdir -p $VTOY_PATH/partmnt $VTOY_PATH/vtloopex
+    $BUSYBOX_PATH/mount -o ro -t vfat $1  $VTOY_PATH/partmnt
+    cd $VTOY_PATH/vtloopex
+    $CAT $VTOY_PATH/partmnt/ventoy/vtloopex.cpio | $BUSYBOX_PATH/cpio -idm >> $VTLOG 2>&1
+    $BUSYBOX_PATH/umount $VTOY_PATH/partmnt
+    $BUSYBOX_PATH/rm -rf $VTOY_PATH/partmnt    
+
+    if [ -n "$2" ]; then
+        cd $VTOY_PATH/vtloopex/$2/
+        $BUSYBOX_PATH/tar -xJf vtloopex.tar.xz
+    fi
+    
+    cd $vtCurPwd
+}

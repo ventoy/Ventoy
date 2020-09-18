@@ -19,21 +19,20 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-while [ -n "1" ]; do
-    if [ -e /dev/null ]; then
-        break
-    else
-        $SLEEP 0.5
-    fi
-done
+vine_wait_for_exist() {
+    while [ -n "1" ]; do
+        if [ -e $1 ]; then
+            break
+        else
+            $SLEEP 0.5
+        fi
+    done
+}
 
-while [ -n "1" ]; do
-    if [ -e /sys/block ]; then
-        break
-    else
-        $SLEEP 0.5
-    fi
-done
+vine_wait_for_exist /dev/null
+vine_wait_for_exist /sys/block
+vine_wait_for_exist /proc/ide
+
 
 while [ -n "Y" ]; do
     vtdiskname=$(get_ventoy_disk_name)
@@ -51,13 +50,14 @@ if ! [ -b $vtdiskname ]; then
     $BUSYBOX_PATH/mknod -m 0660 $vtdiskname b $blkdev
 fi
 
+if ! [ -b "${vtdiskname}1" ]; then
+    blkdev=$($CAT /sys/class/block/${vtshortdev}1/dev | $SED 's/:/ /g')
+    $BUSYBOX_PATH/mknod -m 0660 "${vtdiskname}1" b $blkdev
+fi
+
 if ! [ -b "${vtdiskname}2" ]; then
     blkdev=$($CAT /sys/class/block/${vtshortdev}2/dev | $SED 's/:/ /g')
     $BUSYBOX_PATH/mknod -m 0660 "${vtdiskname}2" b $blkdev
 fi
 
-$BUSYBOX_PATH/ls /dev/ > /dev/console
-
 $BUSYBOX_PATH/sh $VTOY_PATH/hook/vine/udev_disk_hook.sh "${vtdiskname#/dev/}2"
-
-

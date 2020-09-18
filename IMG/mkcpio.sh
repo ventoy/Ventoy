@@ -16,11 +16,14 @@ ln -s sbin/init linuxrc
 cd ventoy
 
 
-cp -a $VENTOY_PATH/DMSETUP/dmsetup tool/
+cp -a $VENTOY_PATH/DMSETUP/dmsetup* tool/
 cp -a $VENTOY_PATH/SQUASHFS/unsquashfs_* tool/
 cp -a $VENTOY_PATH/FUSEISO/vtoy_fuse_iso_* tool/
 cp -a $VENTOY_PATH/VtoyTool/vtoytool tool/
 cp -a $VENTOY_PATH/VBLADE/vblade-master/vblade_* tool/
+cp -a $VENTOY_PATH/LZIP/lunzip32 tool/
+cp -a $VENTOY_PATH/LZIP/lunzip64 tool/
+
 
 chmod -R 777 ./tool
 
@@ -28,7 +31,12 @@ find ./tool | cpio  -o -H newc>tool.cpio
 xz tool.cpio
 rm -rf tool
 
-xz ventoy.sh
+find ./loop | cpio  -o -H newc>loop.cpio
+xz loop.cpio
+rm -rf loop
+
+xz ventoy_chain.sh
+xz ventoy_loop.sh
 
 find ./hook | cpio  -o -H newc>hook.cpio
 xz hook.cpio

@@ -129,13 +129,13 @@ is_disk_contains_ventoy() {
     PART1_TYPE=$(dd if=$DISK bs=1 count=1 skip=450 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
     PART2_TYPE=$(dd if=$DISK bs=1 count=1 skip=466 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
     
-    if [ "$PART1_TYPE" != "EE" ]; then
-        if [ "$PART2_TYPE" != "EF" ]; then
-            vtdebug "part2 type is $PART2_TYPE not EF"
-            ventoy_false
-            return
-        fi
-    fi
+    # if [ "$PART1_TYPE" != "EE" ]; then
+        # if [ "$PART2_TYPE" != "EF" ]; then
+            # vtdebug "part2 type is $PART2_TYPE not EF"
+            # ventoy_false
+            # return
+        # fi
+    # fi
     
     # PART1_TYPE=$(dd if=$DISK bs=1 count=1 skip=450 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
     # if [ "$PART1_TYPE" != "07" ]; then

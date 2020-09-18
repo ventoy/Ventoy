@@ -1,0 +1,3 @@
+lunzip follows GPLv2+ license (see gpl-2.0.txt)
+
+Ventoy does not modify its source code, only its binary is used.

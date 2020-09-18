@@ -60,3 +60,18 @@ if [ -f $VTOY_PATH/autoinstall ]; then
     fi
 fi
 
+#for ARMA aka Omoikane
+if [ -f /mod.img ] && [ -f /mod/fs/cramfs.ko ]; then
+    echo "mount mod.img and install dm-mod.ko" >> $VTLOG
+    $BUSYBOX_PATH/insmod /mod/fs/cramfs.ko
+    
+    $BUSYBOX_PATH/mkdir $VTOY_PATH/modmnt
+    $BUSYBOX_PATH/mount /mod.img $VTOY_PATH/modmnt
+    $BUSYBOX_PATH/insmod $VTOY_PATH/modmnt/md/dm-mod.ko
+    $BUSYBOX_PATH/umount $VTOY_PATH/modmnt
+    
+    $BUSYBOX_PATH/rmmod cramfs
+fi
+
+
+

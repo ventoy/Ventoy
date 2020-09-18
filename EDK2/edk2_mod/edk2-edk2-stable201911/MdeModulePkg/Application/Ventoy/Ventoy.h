@@ -185,6 +185,9 @@ typedef struct ventoy_virt_chunk
   #error Unknown Processor Type
 #endif
 
+#define VENTOY_DEVICE_WARN 0
+#define VTOY_WARNING  L"!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!"
+
 typedef struct ventoy_sector_flag
 {
     UINT8 flag; // 0:init   1:mem  2:remap
@@ -227,6 +230,7 @@ if (gDebugPrint) \
     gBS->WaitForEvent(1, &gST->ConIn->WaitForKey, &__Index);\
 }
 
+typedef int (*grub_env_set_pf)(const char *name, const char *val);
 typedef const char * (*grub_env_get_pf)(const char *name);
 typedef int (*grub_env_printf_pf)(const char *fmt, ...);
 
@@ -255,6 +259,7 @@ typedef struct ventoy_grub_param_file_replace
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
+    grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
     grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;
@@ -272,6 +277,32 @@ typedef struct ventoy_iso9660_override
     UINT32 size;
     UINT32 size_be;
 }ventoy_iso9660_override;
+
+typedef struct PART_TABLE
+{
+    UINT8  Active; // 0x00  0x80
+
+    UINT8  StartHead;
+    UINT16 StartSector : 6;
+    UINT16 StartCylinder : 10;
+
+    UINT8  FsFlag;
+
+    UINT8  EndHead;
+    UINT16 EndSector : 6;
+    UINT16 EndCylinder : 10;
+
+    UINT32 StartSectorId;
+    UINT32 SectorCount;
+}PART_TABLE;
+
+typedef struct MBR_HEAD
+{
+    UINT8 BootCode[446];
+    PART_TABLE PartTbl[4];
+    UINT8 Byte55;
+    UINT8 ByteAA;
+}MBR_HEAD;
 
 #pragma pack()
 
@@ -338,7 +369,9 @@ extern ventoy_efi_file_replace g_efi_file_replace;
 extern ventoy_sector_flag *g_sector_flag;
 extern UINT32 g_sector_flag_num;
 extern BOOLEAN gMemdiskMode;
+extern BOOLEAN gSector512Mode;
 extern UINTN g_iso_buf_size;
+extern UINT8 *g_iso_data_buf;
 extern ventoy_grub_param_file_replace *g_file_replace_list;
 extern BOOLEAN g_fixup_iso9660_secover_enable;
 extern EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *g_con_simple_input_ex;

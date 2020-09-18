@@ -513,6 +513,55 @@ static CHAR GetMountLogicalDrive(void)
 	return Letter;
 }
 
+UINT64 GetVentoyEfiPartStartSector(HANDLE hDrive)
+{
+	BOOL bRet;
+	DWORD dwSize; 
+	MBR_HEAD MBR;	
+	VTOY_GPT_INFO *pGpt = NULL;
+	UINT64 StartSector = 0;
+
+	SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
+
+	bRet = ReadFile(hDrive, &MBR, sizeof(MBR), &dwSize, NULL);
+	Log("Read MBR Ret:%u Size:%u code:%u", bRet, dwSize, LASTERR);
+
+	if ((!bRet) || (dwSize != sizeof(MBR)))
+	{
+		0;
+	}
+
+	if (MBR.PartTbl[0].FsFlag == 0xEE)
+	{
+		Log("GPT partition style");
+
+		pGpt = malloc(sizeof(VTOY_GPT_INFO));
+		if (!pGpt)
+		{
+			return 0;
+		}
+
+		SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
+		bRet = ReadFile(hDrive, pGpt, sizeof(VTOY_GPT_INFO), &dwSize, NULL);		
+		if ((!bRet) || (dwSize != sizeof(VTOY_GPT_INFO)))
+		{
+			Log("Failed to read gpt info %d %u %d", bRet, dwSize, LASTERR);
+			return 0;
+		}
+
+		StartSector = pGpt->PartTbl[1].StartLBA;
+		free(pGpt);
+	}
+	else
+	{
+		Log("MBR partition style");
+		StartSector = MBR.PartTbl[1].StartSectorId;
+	}
+
+	Log("GetVentoyEfiPart StartSector: %llu", StartSector);
+	return StartSector;
+}
+
 int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 {
 	int rc = 1;
@@ -543,7 +592,7 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 	}
 
 	g_FatPhyDrive = hDrive;
-	g_Part2StartSec = (LengthInfo.Length.QuadPart - VENTOY_EFI_PART_SIZE) / 512;
+	g_Part2StartSec = GetVentoyEfiPartStartSector(hDrive);
 
 	Log("Parse FAT fs...");
 
@@ -778,7 +827,7 @@ static int DecompressInjectionArchive(const char *archive, DWORD PhyDrive)
     }
 
     g_FatPhyDrive = hDrive;
-    g_Part2StartSec = (LengthInfo.Length.QuadPart - VENTOY_EFI_PART_SIZE) / 512;
+	g_Part2StartSec = GetVentoyEfiPartStartSector(hDrive);
 
     Log("Parse FAT fs...");
 

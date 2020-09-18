@@ -1,4 +1,4 @@
-#!/ventoy/busybox/tmpsh
+#!/ventoy/busybox/ash
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
 # 
@@ -36,8 +36,25 @@ export SED=$BUSYBOX_PATH/sed
 export SLEEP=$BUSYBOX_PATH/sleep
 export HEAD=$BUSYBOX_PATH/head
 
-$BUSYBOX_PATH/tmpxz -d $BUSYBOX_PATH/busybox.xz
-$BUSYBOX_PATH/busybox --install $BUSYBOX_PATH
+if [ -e $BUSYBOX_PATH/64h ]; then
+    $BUSYBOX_PATH/xzminidec32 < $BUSYBOX_PATH/busybox32.xz > $BUSYBOX_PATH/busybox
+    $BUSYBOX_PATH/vtchmod32 $BUSYBOX_PATH/busybox
+else
+    $BUSYBOX_PATH/xzminidec64 < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox
+    if [ -s $BUSYBOX_PATH/busybox ]; then
+        $BUSYBOX_PATH/vtchmod64 $BUSYBOX_PATH/busybox
+    else
+        $BUSYBOX_PATH/xzminidec64_uclibc < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
+        $BUSYBOX_PATH/vtchmod64_uclibc $BUSYBOX_PATH/busybox
+    fi
+fi
+
+if [ -e $BUSYBOX_PATH/busybox ]; then
+    $BUSYBOX_PATH/busybox --install $BUSYBOX_PATH
+else
+    $BUSYBOX_PATH/tmpxz -d $BUSYBOX_PATH/busybox32.xz
+    $BUSYBOX_PATH/busybox32 --install $BUSYBOX_PATH
+fi
 
 export PATH=$BUSYBOX_PATH/:$VTOY_PATH/tool
 
@@ -54,14 +71,29 @@ if [ -z "$VTOY_REDT_BUG" ]; then
 fi
 
 cd $VTOY_PATH
-xz -d ventoy.sh.xz
+xz -d ventoy_chain.sh.xz
+xz -d ventoy_loop.sh.xz
 
 if [ -n "$VTOY_REDT_BUG" ]; then
     xz -d -c hook.cpio.xz | cpio -idm
     xz -d -c tool.cpio.xz | cpio -idm
+    xz -d -c loop.cpio.xz | cpio -idm
 else
     xz -d -c hook.cpio.xz | cpio -idm 2>>$VTLOG
     xz -d -c tool.cpio.xz | cpio -idm 2>>$VTLOG
+    xz -d -c loop.cpio.xz | cpio -idm 2>>$VTLOG
+fi
+
+if [ -e $BUSYBOX_PATH/64h ]; then
+    echo "Use busybox32 toolkit ..." >>$VTLOG
+    ln -s $BUSYBOX_PATH/xzminidec32 $BUSYBOX_PATH/xzminidec
+    ln -s $VTOY_PATH/tool/dmsetup32 $VTOY_PATH/tool/dmsetup
+    ln -s $VTOY_PATH/tool/lunzip32 $VTOY_PATH/tool/lunzip
+else
+    echo "Use busybox64 toolkit ..." >>$VTLOG
+    ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
+    ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
+    ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
 fi
 
 rm -f *.xz

@@ -127,14 +127,31 @@
     cd /home/Ventoy-master/GenUUID
     sh build.sh
     
-4.15 == Build xzminidec ==
-   cd /home/Ventoy-master/xz-embedded-20130513/userspace
+4.15 == Build xzminidec32 ==
+   cd /home/Ventoy-master/Ventoy2Disk/Ventoy2Disk/xz-embedded-20130513/userspace
    make -f ventoy_makefile
    strip --strip-all xzminidec
-   
-4.16 == Build iso9660_x64.efi ==
+
+4.16 == Build xzminidec64 ==
+   cd /home/Ventoy-master/Ventoy2Disk/Ventoy2Disk/xz-embedded-20130513/userspace
+   make -f ventoy_makefile64
+   strip --strip-all xzminidec
+
+4.17 == Build iso9660_x64.efi ==
    This efi driver is from https://github.com/pbatard/efifs
    Follow all the build instructions in this project. I modified 3 files (the original and modified source are at /home/Ventoy-master/EDK2/efiffs)
+
+4.18 IMG/cpio/ventoy/busybox/64h
+  https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
+  https://busybox.net/downloads/busybox-1.32.0.tar.bz2
+  use BUSYBOX/64h.config and uclibc to build busybox-1.32
+
+4.19 == Build lunzip32/lunzip64 ==
+  http://mirror.yongbok.net/nongnu/lzip/lunzip/lunzip-1.11.tar.gz
+  PATH=$PATH:/opt/diet/bin
+  ./configure --disable-nls CC='diet gcc -nostdinc'
+  make
+  strip --strip-all lunzip
 
 
 
@@ -156,7 +173,7 @@
   https://busybox.net/downloads/binaries/1.30.0-i686   busybox_INOTIFYD
   SHA-256: 3532162a8695e91a1ed9ddea28b2cb22259a90e93d5d9c4a517b6c36842c686f  
 
-5.4 IMG/cpio/ventoy/busybox/tmpsh
+5.4 IMG/cpio/ventoy/busybox/ash
   https://busybox.net/downloads/binaries/1.27.1-i686   busybox_ASH
   SHA-256: 44a6274bca580c2758ffc173fc76d18bb855b1fe8dcf70efd9ee75cbd57dee97  
 

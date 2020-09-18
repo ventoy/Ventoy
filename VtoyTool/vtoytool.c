@@ -35,10 +35,12 @@ int vtoydump_main(int argc, char **argv);
 int vtoydm_main(int argc, char **argv);
 int vtoytool_install(int argc, char **argv);
 int vtoyloader_main(int argc, char **argv);
+int vtoyvine_main(int argc, char **argv);
 
 static char *g_vtoytool_name = NULL;
 static cmd_def g_cmd_list[] = 
 {
+    { "vine_patch_loader",  vtoyvine_main  },
     { "vtoydump",    vtoydump_main    },
     { "vtoydm",      vtoydm_main      },
     { "loader",      vtoyloader_main  },

@@ -1814,7 +1814,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
 
     Log("Lock volume for update .......................... ");
     hVolume = INVALID_HANDLE_VALUE;
-    Status = GetVentoyVolumeName(pPhyDrive->PhyDrive, MBR.PartTbl[1].StartSectorId, DriveLetters, sizeof(DriveLetters), TRUE);
+	Status = GetVentoyVolumeName(pPhyDrive->PhyDrive, (UINT32)StartSector, DriveLetters, sizeof(DriveLetters), TRUE);
     if (ERROR_SUCCESS == Status)
     {
         Log("Now lock and dismount volume <%s>", DriveLetters);
@@ -1852,23 +1852,25 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
 
     if (!TryWritePart2(hDrive, StartSector))
     {
-        ForceMBR = TRUE;
-        Log("Try write failed, now delete partition 2...");
+		if (pPhyDrive->PartStyle == 0)
+		{
+			ForceMBR = TRUE;
+			Log("Try write failed, now delete partition 2...");
 
-        CHECK_CLOSE_HANDLE(hDrive);
+			CHECK_CLOSE_HANDLE(hDrive);
 
-        Log("Now delete partition 2...");
-        DeletePartitions(pPhyDrive->PhyDrive, TRUE);
+			Log("Now delete partition 2...");
+			DeletePartitions(pPhyDrive->PhyDrive, TRUE);
 
-        hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, TRUE, FALSE);
-        if (hDrive == INVALID_HANDLE_VALUE)
-        {
-            Log("Failed to GetPhysicalHandle for write.");
-            rc = 1;
-            goto End;
-        }
+			hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, TRUE, FALSE);
+			if (hDrive == INVALID_HANDLE_VALUE)
+			{
+				Log("Failed to GetPhysicalHandle for write.");
+				rc = 1;
+				goto End;
+			}
+		}
     }
-
 
     PROGRESS_BAR_SET_POS(PT_FORMAT_PART2);
 

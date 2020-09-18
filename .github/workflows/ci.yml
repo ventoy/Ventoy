@@ -1,0 +1,24 @@
+name: Ventoy CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run docker-compose up
+      run: docker-compose up
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ventoy-linux
+        path: INSTALL/ventoy-*linux*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ventoy-windows
+        path: INSTALL/ventoy-*windows*
+

@@ -93,6 +93,7 @@ bufio:
 usbserial_ftdi: serial usb usbserial_common
 legacy_password_test: functional_test legacycfg
 cpuid: extcmd
+blscfg: extcmd normal
 hdparm: extcmd hexdump
 bfs: fshelp
 gcry_blowfish: crypto
@@ -118,7 +119,7 @@ ehci: cs5536 usb boot
 crypto:
 part_bsd: part_msdos
 cs5536:
-ventoy: ext2 fshelp font crypto exfat udf extcmd normal gcry_sha1 iso9660
+ventoy: ext2 fshelp crypto font exfat udf extcmd normal video gcry_sha1 iso9660
 gcry_sha512: crypto
 password: crypto normal
 fshelp:
