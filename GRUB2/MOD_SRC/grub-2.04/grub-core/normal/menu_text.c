@@ -190,10 +190,17 @@ command-line or ESC to discard edits and return to the GRUB menu."),
 	}
       else
 	{
+	  char szLine[128];
+	  const char *checkret = grub_env_get("VTOY_CHKDEV_RESULT_STRING");
+      if (checkret == NULL || checkret[0] != '0') {
+        grub_snprintf(szLine, sizeof(szLine), "%s  [Unofficial Ventoy]", grub_env_get("VTOY_TEXT_MENU_VER"));
+      } else {
+        grub_snprintf(szLine, sizeof(szLine), "%s", grub_env_get("VTOY_TEXT_MENU_VER"));
+      }
+      
 	  ret += grub_print_message_indented_real("\n", STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
 
-	  ret += grub_print_message_indented_real(grub_env_get("VTOY_TEXT_MENU_VER"),
-	     STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
+	  ret += grub_print_message_indented_real(szLine, STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
       
 	  ret += grub_print_message_indented_real("\n", STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
 	  ret += grub_print_message_indented_real(grub_env_get("VTOY_HOTKEY_TIP"),

@@ -273,3 +273,196 @@ grub_err_t ventoy_cmd_load_vhdboot(grub_extcmd_context_t ctxt, int argc, char **
     return 0;
 }
 
+grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    int offset = -1;
+    grub_file_t file;
+    vhd_footer_t vhdfoot;
+    VDIPREHEADER vdihdr;
+    char type[16] = {0};
+    ventoy_mbr_head mbr;
+    ventoy_gpt_info *gpt;
+    
+    (void)ctxt;
+
+    if (argc != 4)
+    {
+        return 0;
+    }
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        debug("Failed to open file %s\n", args[0]);
+        return 0;
+    }
+
+    grub_snprintf(type, sizeof(type), "unknown");
+    
+    grub_file_seek(file, file->size - 512);
+    grub_file_read(file, &vhdfoot, sizeof(vhdfoot));
+
+    if (grub_strncmp(vhdfoot.cookie, "conectix", 8) == 0)
+    {
+        offset = 0;
+        grub_snprintf(type, sizeof(type), "vhd%u", grub_swap_bytes32(vhdfoot.disktype));
+    }
+    else
+    {
+        grub_file_seek(file, 0);
+        grub_file_read(file, &vdihdr, sizeof(vdihdr));
+        if (vdihdr.u32Signature == VDI_IMAGE_SIGNATURE &&
+            grub_strncmp(vdihdr.szFileInfo, VDI_IMAGE_FILE_INFO, grub_strlen(VDI_IMAGE_FILE_INFO)) == 0)
+        {
+            offset = 2 * 1048576;
+            grub_snprintf(type, sizeof(type), "vdi");
+        }
+        else
+        {
+            offset = 0;
+            grub_snprintf(type, sizeof(type), "raw");
+        }
+    }
+
+    grub_env_set(args[1], type);
+    debug("<%s> vtoy type: <%s> ", args[0], type);
+    
+    if (offset >= 0)
+    {
+        grub_file_seek(file, offset);
+        grub_file_read(file, &mbr, sizeof(mbr));
+
+        if (mbr.Byte55 != 0x55 || mbr.ByteAA != 0xAA)
+        {
+            grub_env_set(args[1], "unknown");
+            debug("invalid mbr signature: 0x%x 0x%x\n", mbr.Byte55, mbr.ByteAA);
+            goto end;
+        }
+
+        if (mbr.PartTbl[0].FsFlag == 0xEE)
+        {
+            grub_env_set(args[2], "gpt");
+            debug("part type: %s\n", "GPT");
+
+            gpt = grub_zalloc(sizeof(ventoy_gpt_info));
+            if (gpt)
+            {
+                grub_file_seek(file, offset);
+                grub_file_read(file, gpt, sizeof(ventoy_gpt_info));
+
+                for (i = 0; i < 128; i++)
+                {
+                    if (grub_memcmp(gpt->PartTbl[i].PartType, "Hah!IdontNeedEFI", 16) == 0)
+                    {
+                        debug("part %d is grub_bios part\n", i);
+                        grub_env_set(args[3], "1");
+                        break;
+                    }
+                    else if (gpt->PartTbl[i].LastLBA == 0)
+                    {
+                        break;
+                    }
+                }
+                
+                grub_free(gpt);
+            }            
+        }
+        else
+        {
+            grub_env_set(args[2], "mbr");
+            debug("part type: %s\n", "MBR");
+        }
+    }
+    else
+    {
+        debug("part type: %s\n", "xxx");
+    }
+
+end:
+    grub_file_close(file);
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);    
+}
+
+grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint32_t size = 0;
+    grub_uint32_t img_chunk_size = 0;
+    grub_file_t file;
+    grub_disk_t disk;
+    const char *pLastChain = NULL;
+    ventoy_chain_head *chain;
+    char envbuf[64];
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (NULL == g_img_chunk_list.chunk)
+    {
+        grub_printf("ventoy not ready\n");
+        return 1;
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        return 1;
+    }
+
+    img_chunk_size = g_img_chunk_list.cur_chunk * sizeof(ventoy_img_chunk);
+    
+    size = sizeof(ventoy_chain_head) + img_chunk_size;
+    
+    pLastChain = grub_env_get("vtoy_chain_mem_addr");
+    if (pLastChain)
+    {
+        chain = (ventoy_chain_head *)grub_strtoul(pLastChain, NULL, 16);
+        if (chain)
+        {
+            debug("free last chain memory %p\n", chain);
+            grub_free(chain);
+        }
+    }
+
+    chain = grub_malloc(size);
+    if (!chain)
+    {
+        grub_printf("Failed to alloc chain memory size %u\n", size);
+        grub_file_close(file);
+        return 1;
+    }
+
+    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
+    grub_env_set("vtoy_chain_mem_addr", envbuf);
+    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
+    grub_env_set("vtoy_chain_mem_size", envbuf);
+
+    grub_env_export("vtoy_chain_mem_addr");
+    grub_env_export("vtoy_chain_mem_size");
+
+    grub_memset(chain, 0, sizeof(ventoy_chain_head));
+
+    /* part 1: os parameter */
+    g_ventoy_chain_type = ventoy_chain_linux;
+    ventoy_fill_os_param(file, &(chain->os_param));
+
+    /* part 2: chain head */
+    disk = file->device->disk;
+    chain->disk_drive = disk->id;
+    chain->disk_sector_size = (1 << disk->log_sector_size);
+    chain->real_img_size_in_bytes = file->size;
+    chain->virt_img_size_in_bytes = (file->size + 2047) / 2048 * 2048;
+    chain->boot_catalog = 0;
+
+    /* part 3: image chunk */
+    chain->img_chunk_offset = sizeof(ventoy_chain_head);
+    chain->img_chunk_num = g_img_chunk_list.cur_chunk;
+    grub_memcpy((char *)chain + chain->img_chunk_offset, g_img_chunk_list.chunk, img_chunk_size);
+
+    grub_file_seek(file, 0);
+    grub_file_read(file, chain->boot_catalog_sector, 512);
+
+    grub_file_close(file);
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}

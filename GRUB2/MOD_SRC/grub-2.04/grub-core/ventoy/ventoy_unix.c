@@ -194,6 +194,7 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
     grub_file_t isofile;
     char uuid[64] = {0};
     ventoy_img_chunk *chunk;
+    grub_uint8_t disk_sig[4];
     grub_uint8_t disk_guid[16];
 
     debug("ventoy_freebsd_append_conf %s\n", isopath);
@@ -209,7 +210,7 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
 
     disk = isofile->device->disk;
 
-    ventoy_get_disk_guid(isofile->name, disk_guid);
+    ventoy_get_disk_guid(isofile->name, disk_guid, disk_sig);
 
     for (i = 0; i < 16; i++)
     {
@@ -217,7 +218,8 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
     }
 
     vtoy_ssprintf(buf, pos, "hint.ventoy.0.disksize=%llu\n", (ulonglong)(disk->total_sectors * (1 << disk->log_sector_size)));
-    vtoy_ssprintf(buf, pos, "hint.ventoy.0.diskuuid=\"%s\"\n", uuid);    
+    vtoy_ssprintf(buf, pos, "hint.ventoy.0.diskuuid=\"%s\"\n", uuid);
+    vtoy_ssprintf(buf, pos, "hint.ventoy.0.disksignature=%02x%02x%02x%02x\n", disk_sig[0], disk_sig[1], disk_sig[2], disk_sig[3]);
     vtoy_ssprintf(buf, pos, "hint.ventoy.0.segnum=%u\n", g_img_chunk_list.cur_chunk);
 
     for (i = 0; i < g_img_chunk_list.cur_chunk; i++)

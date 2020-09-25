@@ -87,7 +87,13 @@ wait_for_usb_disk_ready() {
 		usb_disk=$(get_ventoy_disk_name)
         vtlog "wait_for_usb_disk_ready $usb_disk ..."
         
-		if [ -e "${usb_disk}2" ]; then
+        if echo $usb_disk | $EGREP -q "nvme|mmc"; then
+            vtpart2=${usb_disk}p2
+        else
+            vtpart2=${usb_disk}2
+        fi
+        
+        if [ -e "${vtpart2}" ]; then
             vtlog "wait_for_usb_disk_ready $usb_disk finish"
 			break
 		else
@@ -105,7 +111,13 @@ is_ventoy_disk() {
 }
 
 not_ventoy_disk() {
-    if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$1"; then
+    if echo $1 | $EGREP -q "nvme.*p$|mmc.*p$"; then
+        vtDiskName=${1:0:-1}
+    else
+        vtDiskName=$1
+    fi
+
+    if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$vtDiskName"; then
         $BUSYBOX_PATH/false
     else
         $BUSYBOX_PATH/true
@@ -463,9 +475,12 @@ ventoy_create_persistent_link() {
     fi    
 }
 
-ventoy_udev_disk_common_hook() {
-    
-    VTDISK="${1:0:-1}"
+ventoy_udev_disk_common_hook() {    
+    if echo $1 | $EGREP -q "nvme.*p[0-9]$|mmc.*p[0-9]$"; then
+        VTDISK="${1:0:-2}"    
+    else
+        VTDISK="${1:0:-1}"
+    fi
     
     if [ -e /vtoy/vtoy ]; then
         VTRWMOD=""
@@ -533,8 +548,14 @@ is_inotify_ventoy_part() {
     if echo $1 | $GREP -q "2$"; then
         if ! [ -e /sys/block/$1 ]; then
             if [ -e /sys/class/block/$1 ]; then
-                if [ -e /dev/${1:0:-1} ]; then
-                    $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c ${1:0:-1}
+                if echo $1 | $EGREP -q "nvme|mmc"; then
+                    vtShortName=${1:0:-2}
+                else
+                    vtShortName=${1:0:-1}
+                fi
+                
+                if [ -e /dev/$vtShortName ]; then
+                    $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c $vtShortName
                     return
                 fi
             fi
