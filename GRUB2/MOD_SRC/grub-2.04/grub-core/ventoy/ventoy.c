@@ -56,6 +56,7 @@ int g_initrd_img_count = 0;
 int g_valid_initrd_count = 0;
 int g_default_menu_mode = 0;
 int g_filt_dot_underscore_file = 0;
+int g_sort_case_sensitive = 0;
 static grub_file_t g_old_file;
 static int g_ventoy_last_entry_back;
 
@@ -1021,14 +1022,50 @@ int ventoy_cmp_img(img_info *img1, img_info *img2)
         c1 = *s1;
         c2 = *s2;
 
-        if (grub_islower(c1))
+        if (0 == g_sort_case_sensitive)
         {
-            c1 = c1 - 'a' + 'A';
+            if (grub_islower(c1))
+            {
+                c1 = c1 - 'a' + 'A';
+            }
+            
+            if (grub_islower(c2))
+            {
+                c2 = c2 - 'a' + 'A';
+            }
         }
-        
-        if (grub_islower(c2))
+
+        if (c1 != c2)
         {
-            c2 = c2 - 'a' + 'A';
+            break;
+        }
+    }
+
+    return (c1 - c2);
+}
+
+static int ventoy_cmp_subdir(char *name1, char *name2)
+{
+    char *s1, *s2;
+    int c1 = 0;
+    int c2 = 0;
+
+    for (s1 = name1, s2 = name2; *s1 && *s2; s1++, s2++)
+    {
+        c1 = *s1;
+        c2 = *s2;
+
+        if (0 == g_sort_case_sensitive)
+        {
+            if (grub_islower(c1))
+            {
+                c1 = c1 - 'a' + 'A';
+            }
+            
+            if (grub_islower(c2))
+            {
+                c2 = c2 - 'a' + 'A';
+            }
         }
 
         if (c1 != c2)
@@ -1372,10 +1409,10 @@ static img_info * ventoy_get_min_iso(img_iterator_node *node)
 {
     img_info *minimg = NULL;
     img_info *img = (img_info *)(node->firstiso);
-    
+
     while (img && (img_iterator_node *)(img->parent) == node)
     {
-        if (img->select == 0 && (NULL == minimg || grub_strcmp(img->name, minimg->name) < 0))
+        if (img->select == 0 && (NULL == minimg || ventoy_cmp_img(img, minimg) < 0))
         {
             minimg = img;
         }
@@ -1397,7 +1434,7 @@ static img_iterator_node * ventoy_get_min_child(img_iterator_node *node)
 
     while (child && child->parent == node)
     {
-        if (child->select == 0 && (NULL == Minchild || grub_strcmp(child->dir, Minchild->dir) < 0))
+        if (child->select == 0 && (NULL == Minchild || ventoy_cmp_subdir(child->dir, Minchild->dir) < 0))
         {
             Minchild = child;
         }
@@ -1631,6 +1668,12 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         g_filt_dot_underscore_file = 1;
     }
 
+    strdata = ventoy_get_env("VTOY_SORT_CASE_SENSITIVE");
+    if (strdata && strdata[0] == '1' && strdata[1] == 0)
+    {
+        g_sort_case_sensitive = 1;
+    }
+
     device_name = grub_file_get_device_name(args[0]);
     if (!device_name)
     {
@@ -1725,9 +1768,9 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
                       "}\n", "<--");
     }
 
+    default_image = ventoy_get_env("VTOY_DEFAULT_IMAGE");        
     if (g_default_menu_mode == 0)
     {
-        default_image = ventoy_get_env("VTOY_DEFAULT_IMAGE");        
         if (default_image)
         {
             img_len = grub_strlen(default_image);

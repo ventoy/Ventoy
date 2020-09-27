@@ -17,6 +17,7 @@ print_usage() {
     echo ''
 }
 
+
 RESERVE_SIZE_MB=0
 while [ -n "$1" ]; do
     if [ "$1" = "-i" ]; then
@@ -75,6 +76,7 @@ if [ -n "$RESERVE_SPACE" ]; then
     fi
 fi
 
+#check access 
 if dd if="$DISK" of=/dev/null bs=1 count=1 >/dev/null 2>&1; then
     vtdebug "root permission check ok ..."
 else
@@ -85,33 +87,32 @@ fi
 
 vtdebug "MODE=$MODE FORCE=$FORCE RESERVE_SPACE=$RESERVE_SPACE RESERVE_SIZE_MB=$RESERVE_SIZE_MB"
 
-if ! check_tool_work_ok; then
+#check tools
+if check_tool_work_ok; then
+    vtdebug "check tool work ok"
+else
     vterr "Some tools can not run in current system. Please check log.txt for detail."
     exit 1
 fi
 
+#check mountpoint
 grep "^$DISK" /proc/mounts | while read mtline; do
     mtpnt=$(echo $mtline | awk '{print $2}')
     vtdebug "Trying to umount $mtpnt ..."
     umount $mtpnt >/dev/null 2>&1
 done
 
-if swapon -s | grep -q "^${DISK}[0-9]"; then
-    swapon -s | grep "^${DISK}[0-9]" | awk '{print $1}' | while read line; do
-        vtdebug "Trying to swapoff $line ..."
-        swapoff $line
-    done
-fi
-
-
 if grep "$DISK" /proc/mounts; then
     vterr "$DISK is already mounted, please umount it first!"
     exit 1
 fi
 
-if swapon -s | grep -q "^${DISK}[0-9]"; then
-    vterr "$DISK is used as swap, please swapoff it first!"
-    exit 1
+#check swap partition
+if swapon --help 2>&1 | grep -q '^ \-s,'; then
+    if swapon -s | grep -q "^${DISK}[0-9]"; then
+        vterr "$DISK is used as swap, please swapoff it first!"
+        exit 1
+    fi
 fi
 
 
@@ -122,7 +123,8 @@ if [ "$MODE" = "install" ]; then
         if parted -v > /dev/null 2>&1; then
             PARTTOOL='parted'
         else
-            vterr "parted is not found in the system, Ventoy can't create new partition."
+            vterr "parted is not found in the system, Ventoy can't create new partitions without it."
+            vterr "You should install \"GNU parted\" first."
             exit 1
         fi
     else
@@ -131,7 +133,7 @@ if [ "$MODE" = "install" ]; then
         elif fdisk -v >/dev/null 2>&1; then
             PARTTOOL='fdisk'
         else
-            vterr "Both parted and fdisk are not found in the system, Ventoy can't create new partition."
+            vterr "Both parted and fdisk are not found in the system, Ventoy can't create new partitions."
             exit 1
         fi
     fi
@@ -202,7 +204,6 @@ if [ "$MODE" = "install" ]; then
         fi
     fi
 
-
     if [ $disk_sector_num -le $VENTOY_SECTOR_NUM ]; then  
         vterr "No enough space in disk $DISK"
         exit 1
@@ -251,13 +252,13 @@ if [ "$MODE" = "install" ]; then
     
     if [ -n "$VTGPT" ]; then
         echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92        
-        ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
+        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
         echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
     else
-        ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
+        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
     
-    ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
+    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
     
     #disk uuid
     ./tool/vtoy_gen_uuid | dd status=none conv=fsync of=${DISK} seek=384 bs=1 count=16
@@ -339,7 +340,7 @@ else
     
     if [ "$PART1_TYPE" = "EE" ]; then
         vtdebug "This is GPT partition style ..."        
-        ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
+        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
         echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
     else
         vtdebug "This is MBR partition style ..."
@@ -354,10 +355,10 @@ else
             echo -en '\x80' | dd of=$DISK conv=fsync bs=1 count=1 seek=446 status=none
             echo -en '\x00' | dd of=$DISK conv=fsync bs=1 count=1 seek=462 status=none
         fi
-        ./tool/xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
+        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
 
-    ./tool/xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
+    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
 
     sync
     

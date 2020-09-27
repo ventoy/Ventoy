@@ -52,7 +52,7 @@ check_tool_work_ok() {
         vtoyfat=vtoyfat_32
     fi
     
-    if echo 1 | ./tool/hexdump > /dev/null; then
+    if echo 1 | hexdump > /dev/null; then
         vtdebug "hexdump test ok ..."
     else
         vtdebug "hexdump test fail ..."
@@ -87,6 +87,8 @@ get_disk_part_name() {
     if echo $DISK | grep -q "/dev/loop"; then
         echo ${DISK}p${2}
     elif echo $DISK | grep -q "/dev/nvme[0-9][0-9]*n[0-9]"; then
+        echo ${DISK}p${2}
+    elif echo $DISK | grep -q "/dev/mmcblk[0-9]"; then
         echo ${DISK}p${2}
     else
         echo ${DISK}${2}

@@ -28,7 +28,8 @@
 #define VTOY_FILT_MIN_FILE_SIZE  32768
 
 #define VTOY_SIZE_1GB     1073741824
-#define VTOY_SIZE_512KB  (512 * 1024)
+#define VTOY_SIZE_1MB     (1024 * 1024)
+#define VTOY_SIZE_512KB   (512 * 1024)
 #define VTOY_SIZE_1KB     1024
 
 #define JSON_SUCCESS    0
@@ -787,7 +788,6 @@ extern int g_ventoy_case_insensitive;
 extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
 extern ventoy_gpt_info *g_ventoy_part_info;
-
 
 #define ventoy_unix_fill_virt(new_data, new_len) \
 { \
