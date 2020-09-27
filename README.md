@@ -37,6 +37,7 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 * Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...), 550+ iso files tested
 * Not only boot but also complete installation process
 * ISO files can be listed in List mode/TreeView mode
+* Linux vDisk boot supported (vdi/vhd/raw)
 * "Ventoy Compatible" concept
 * Plugin Framework
 * Menu Alias/Menu Style/Customized Menu supported
