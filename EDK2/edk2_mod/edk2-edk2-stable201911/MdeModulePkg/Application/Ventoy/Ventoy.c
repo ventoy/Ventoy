@@ -273,19 +273,33 @@ static int ventoy_update_image_location(ventoy_os_param *param)
     }
 
     CopyMem(&location->guid, &param->guid, sizeof(ventoy_guid));
-    location->image_sector_size = 2048;
+    location->image_sector_size = gSector512Mode ? 512 : 2048;
     location->disk_sector_size  = g_chain->disk_sector_size;
     location->region_count = g_img_chunk_num;
 
     region = location->regions;
 
-    for (i = 0; i < g_img_chunk_num; i++)
+    if (gSector512Mode)
     {
-        region->image_sector_count = chunk->img_end_sector - chunk->img_start_sector + 1;
-        region->image_start_sector = chunk->img_start_sector;
-        region->disk_start_sector  = chunk->disk_start_sector;
-        region++;
-        chunk++;
+        for (i = 0; i < g_img_chunk_num; i++)
+        {
+            region->image_sector_count = chunk->disk_end_sector - chunk->disk_start_sector + 1;
+            region->image_start_sector = chunk->img_start_sector * 4;
+            region->disk_start_sector  = chunk->disk_start_sector;
+            region++;
+            chunk++;
+        }
+    }
+    else
+    {
+        for (i = 0; i < g_img_chunk_num; i++)
+        {
+            region->image_sector_count = chunk->img_end_sector - chunk->img_start_sector + 1;
+            region->image_start_sector = chunk->img_start_sector;
+            region->disk_start_sector  = chunk->disk_start_sector;
+            region++;
+            chunk++;
+        }
     }
 
     return 0;

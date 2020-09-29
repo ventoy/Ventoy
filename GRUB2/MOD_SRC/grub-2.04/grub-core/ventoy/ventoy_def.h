@@ -28,7 +28,8 @@
 #define VTOY_FILT_MIN_FILE_SIZE  32768
 
 #define VTOY_SIZE_1GB     1073741824
-#define VTOY_SIZE_512KB  (512 * 1024)
+#define VTOY_SIZE_1MB     (1024 * 1024)
+#define VTOY_SIZE_512KB   (512 * 1024)
 #define VTOY_SIZE_1KB     1024
 
 #define JSON_SUCCESS    0
@@ -152,11 +153,12 @@ typedef struct ventoy_iso9660_vd
 
 #pragma pack()
 
-#define img_type_iso 0
-#define img_type_wim 1
-#define img_type_efi 2
-#define img_type_img 3
-#define img_type_vhd 4
+#define img_type_iso  0
+#define img_type_wim  1
+#define img_type_efi  2
+#define img_type_img  3
+#define img_type_vhd  4
+#define img_type_vtoy 5
 
 typedef struct img_info
 {
@@ -656,6 +658,41 @@ typedef struct ventoy_gpt_info
     ventoy_gpt_head Head;
     ventoy_gpt_part_tbl PartTbl[128];
 }ventoy_gpt_info;
+
+typedef struct vhd_footer_t
+{
+    char             cookie[8];    // Cookie
+    grub_uint32_t    features;     // Features
+    grub_uint32_t    ffversion;    // File format version
+    grub_uint32_t    dataoffset;   // Data offset
+    grub_uint32_t    timestamp;    // Timestamp
+    grub_uint32_t    creatorapp;   // Creator application
+    grub_uint32_t    creatorver;   // Creator version
+    grub_uint32_t    creatorhos;   // Creator host OS
+    grub_uint32_t    origsize;     // Original size
+    grub_uint32_t    currsize;     // Current size
+    grub_uint32_t    diskgeom;     // Disk geometry
+    grub_uint32_t    disktype;     // Disk type
+    grub_uint32_t    checksum;     // Checksum
+    grub_uint8_t     uniqueid[16]; // Unique ID
+    grub_uint8_t     savedst;      // Saved state
+}vhd_footer_t;
+
+#define VDI_IMAGE_FILE_INFO   "<<< Oracle VM VirtualBox Disk Image >>>\n"
+
+/** Image signature. */
+#define VDI_IMAGE_SIGNATURE   (0xbeda107f)
+
+typedef struct VDIPREHEADER
+{
+    /** Just text info about image type, for eyes only. */
+    char            szFileInfo[64];
+    /** The image signature (VDI_IMAGE_SIGNATURE). */
+    grub_uint32_t   u32Signature;
+    /** The image version (VDI_IMAGE_VERSION). */
+    grub_uint32_t   u32Version;
+} VDIPREHEADER, *PVDIPREHEADER;
+
 #pragma pack()
 
 typedef struct ventoy_video_mode
@@ -752,7 +789,6 @@ extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
 extern ventoy_gpt_info *g_ventoy_part_info;
 
-
 #define ventoy_unix_fill_virt(new_data, new_len) \
 { \
     data_secs = (new_len + 2047) / 2048; \
@@ -792,7 +828,7 @@ grub_err_t ventoy_cmd_collect_wim_patch(grub_extcmd_context_t ctxt, int argc, ch
 grub_err_t ventoy_cmd_wim_patch_count(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_locate_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
-int ventoy_get_disk_guid(const char *filename, grub_uint8_t *guid);
+int ventoy_get_disk_guid(const char *filename, grub_uint8_t *guid, grub_uint8_t *signature);
 grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -803,6 +839,8 @@ int ventoy_check_device(grub_device_t dev);
 void ventoy_debug_dump_guid(const char *prefix, grub_uint8_t *guid);
 grub_err_t ventoy_cmd_load_vhdboot(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char **args);
 
 #endif /* __VENTOY_DEF_H__ */
 

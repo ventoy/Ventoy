@@ -71,6 +71,7 @@ STATIC EFI_LOCATE_HANDLE g_org_locate_handle = NULL;
 
 STATIC UINT8 g_sector_buf[2048];
 STATIC EFI_BLOCK_READ g_sector_2048_read = NULL;
+STATIC EFI_BLOCK_WRITE g_sector_2048_write = NULL;
 
 BOOLEAN ventoy_is_cdrom_dp_exist(VOID)
 {
@@ -243,6 +244,87 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
     }
 
     return EFI_SUCCESS;    
+}
+
+STATIC EFI_STATUS EFIAPI ventoy_write_iso_sector
+(
+    IN UINT64                 Sector,
+    IN UINTN                  Count,
+    IN VOID                  *Buffer
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_LBA MapLba = 0;
+    UINT32 i = 0;
+    UINTN secLeft = 0;
+    UINTN secRead = 0;
+    UINT64 ReadStart = 0;
+    UINT64 ReadEnd = 0;
+    UINT8 *pCurBuf = (UINT8 *)Buffer;
+    ventoy_img_chunk *pchunk = g_chunk;
+    EFI_BLOCK_IO_PROTOCOL *pRawBlockIo = gBlockData.pRawBlockIo;
+    
+    debug("write iso sector %lu  count %u", Sector, Count);
+
+    ReadStart = Sector * 2048;
+    ReadEnd = (Sector + Count) * 2048;
+
+    for (i = 0; Count > 0 && i < g_img_chunk_num; i++, pchunk++)
+    {
+        if (Sector >= pchunk->img_start_sector && Sector <= pchunk->img_end_sector)
+        {
+            if (g_chain->disk_sector_size == 512)
+            {
+                MapLba = (Sector - pchunk->img_start_sector) * 4 + pchunk->disk_start_sector;
+            }
+            else
+            {
+                MapLba = (Sector - pchunk->img_start_sector) * 2048 / g_chain->disk_sector_size + pchunk->disk_start_sector;
+            }
+
+            secLeft = pchunk->img_end_sector + 1 - Sector;
+            secRead = (Count < secLeft) ? Count : secLeft;
+
+            Status = pRawBlockIo->WriteBlocks(pRawBlockIo, pRawBlockIo->Media->MediaId,
+                                     MapLba, secRead * 2048, pCurBuf);
+            if (EFI_ERROR(Status))
+            {
+                debug("Raw disk write block failed %r LBA:%lu Count:%u", Status, MapLba, secRead);
+                return Status;
+            }
+
+            Count -= secRead;
+            Sector += secRead;
+            pCurBuf += secRead * 2048;
+        }
+    }
+
+    return EFI_SUCCESS;    
+}
+
+EFI_STATUS EFIAPI ventoy_block_io_ramdisk_write 
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    IN VOID                           *Buffer
+) 
+{
+    (VOID)This;
+    (VOID)MediaId;
+    (VOID)Lba;
+    (VOID)BufferSize;
+    (VOID)Buffer;
+
+    if (!gSector512Mode)
+    {
+        return EFI_WRITE_PROTECTED;
+    }
+
+    CopyMem(g_iso_data_buf + (Lba * 2048), Buffer, BufferSize);
+
+	return EFI_SUCCESS;
 }
 
 EFI_STATUS EFIAPI ventoy_block_io_ramdisk_read 
@@ -438,12 +520,21 @@ EFI_STATUS EFIAPI ventoy_block_io_write
     IN VOID                           *Buffer
 ) 
 {
+    UINT32 secNum = 0;
+    UINT64 offset = 0;
+    
     (VOID)This;
     (VOID)MediaId;
-    (VOID)Lba;
-    (VOID)BufferSize;
-    (VOID)Buffer;
-	return EFI_WRITE_PROTECTED;
+
+    if (!gSector512Mode)
+    {
+        return EFI_WRITE_PROTECTED;
+    }
+
+    secNum = BufferSize / 2048;
+    offset = Lba * 2048;
+
+    return ventoy_write_iso_sector(Lba, secNum, Buffer);
 }
 
 EFI_STATUS EFIAPI ventoy_block_io_flush(IN EFI_BLOCK_IO_PROTOCOL *This)
@@ -633,6 +724,68 @@ EFI_STATUS EFIAPI ventoy_block_io_read_512
     return Status;
 }
 
+EFI_STATUS EFIAPI ventoy_block_io_write_512
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    IN VOID                           *Buffer
+)
+{
+    EFI_LBA Mod;
+    UINTN ReadSize;
+    UINT8 *CurBuf = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    debug("ventoy_block_io_write_512 %lu %lu\n", Lba, BufferSize / 512);
+
+    CurBuf = (UINT8 *)Buffer;
+
+    Mod = Lba % 4;
+    if (Mod > 0)
+    {
+        Status |= g_sector_2048_read(This, MediaId, Lba / 4, 2048, g_sector_buf);
+
+        if (BufferSize <= (4 - Mod) * 512)
+        {
+            CopyMem(g_sector_buf + Mod * 512, CurBuf, BufferSize);
+            return g_sector_2048_write(This, MediaId, Lba / 4, 2048, g_sector_buf);
+        }
+        else
+        {
+            ReadSize = (4 - Mod) * 512;
+            CopyMem(g_sector_buf + Mod * 512, CurBuf, ReadSize);
+            g_sector_2048_write(This, MediaId, Lba / 4, 2048, g_sector_buf);
+            
+            CurBuf += ReadSize;
+            Lba += (4 - Mod);
+            BufferSize -= ReadSize;
+        }
+    }
+
+    if (BufferSize >= 2048)
+    {
+        ReadSize = BufferSize / 2048 * 2048;
+            
+        Status |= g_sector_2048_write(This, MediaId, Lba / 4, ReadSize, CurBuf);
+        CurBuf += ReadSize;
+        
+        Lba += ReadSize / 512;
+        BufferSize -= ReadSize;
+    }
+
+    if (BufferSize > 0)
+    {
+        Status |= g_sector_2048_read(This, MediaId, Lba / 4, 2048, g_sector_buf);
+        
+        CopyMem(g_sector_buf, CurBuf, BufferSize);
+        g_sector_2048_write(This, MediaId, Lba / 4, 2048, g_sector_buf);
+    }
+
+    return Status;
+}
+
 EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 ImgSize)
 {   
     EFI_STATUS Status = EFI_SUCCESS;
@@ -665,14 +818,16 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
     if (gSector512Mode)
     {
         g_sector_2048_read = gMemdiskMode ? ventoy_block_io_ramdisk_read : ventoy_block_io_read;
+        g_sector_2048_write = gMemdiskMode ? ventoy_block_io_ramdisk_write : ventoy_block_io_write;
         pBlockIo->ReadBlocks = ventoy_block_io_read_512;
+    	pBlockIo->WriteBlocks = ventoy_block_io_write_512;
     }
     else
     {
         pBlockIo->ReadBlocks = gMemdiskMode ? ventoy_block_io_ramdisk_read : ventoy_block_io_read;        
+    	pBlockIo->WriteBlocks = ventoy_block_io_write;
     }
         
-	pBlockIo->WriteBlocks = ventoy_block_io_write;
 	pBlockIo->FlushBlocks = ventoy_block_io_flush;
 
     Status = gBS->InstallMultipleProtocolInterfaces(&gBlockData.Handle,

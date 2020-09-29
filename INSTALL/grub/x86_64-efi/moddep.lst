@@ -119,7 +119,7 @@ ehci: cs5536 usb boot
 crypto:
 part_bsd: part_msdos
 cs5536:
-ventoy: ext2 fshelp crypto font exfat udf extcmd normal video gcry_sha1 iso9660
+ventoy: ext2 fshelp font crypto exfat udf extcmd normal video gcry_sha1 iso9660
 gcry_sha512: crypto
 password: crypto normal
 fshelp:

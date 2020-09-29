@@ -1051,6 +1051,10 @@ static __asmcall void int13 ( struct i386_all_regs *ix86 ) {
 	/* We simulate a cdrom, so no need to sync hd drive number */
 	//int13_check_num_drives();
 
+    #if VTOY_DEBUG
+    printf("int13 0x%x 0x%x\n", bios_drive, command); sleep(1);
+    #endif
+
     if (bios_drive == VENTOY_BIOS_FAKE_DRIVE)
     {
         ix86->regs.dl = g_sandev->exdrive;
@@ -1255,39 +1259,15 @@ static void int13_hook_vector ( void ) {
  * @ret rc		Return status code
  */
 static int int13_load_mbr ( unsigned int drive, struct segoff *address ) {
-	uint16_t status;
-	int discard_b, discard_c, discard_d;
 	uint16_t magic;
 
-	/* Use INT 13, 02 to read the MBR */
-	address->segment = 0;
-	address->offset = 0x7c00;
-	__asm__ __volatile__ ( REAL_CODE ( "pushw %%es\n\t"
-					   "pushl %%ebx\n\t"
-					   "popw %%bx\n\t"
-					   "popw %%es\n\t"
-					   "stc\n\t"
-					   "sti\n\t"
-					   "int $0x13\n\t"
-					   "sti\n\t" /* BIOS bugs */
-					   "jc 1f\n\t"
-					   "xorw %%ax, %%ax\n\t"
-					   "\n1:\n\t"
-					   "popw %%es\n\t" )
-			       : "=a" ( status ), "=b" ( discard_b ),
-				 "=c" ( discard_c ), "=d" ( discard_d )
-			       : "a" ( 0x0201 ), "b" ( *address ),
-				 "c" ( 1 ), "d" ( drive ) );
-	if ( status ) {
-		DBG ( "INT13 drive %02x could not read MBR (status %04x)\n",
-		      drive, status );
-		return -EIO;
-	}
+    address->segment = 0;
+    address->offset = 0x7c00;
+    copy_to_real(address->segment, address->offset, g_sandev->boot_catalog_sector, 512);
 
 	/* Check magic signature */
-	get_real ( magic, address->segment,
-		   ( address->offset +
-		     offsetof ( struct master_boot_record, magic ) ) );
+	get_real ( magic, address->segment, (address->offset + offsetof ( struct master_boot_record, magic ) ) );
+    
 	if ( magic != INT13_MBR_MAGIC ) {
 		DBG ( "INT13 drive %02x does not contain a valid MBR\n",
 		      drive );
@@ -1443,8 +1423,14 @@ unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
     /* hook will copy num_drives to dl when int13 08 was called, so must initialize it's value */
 	get_real(num_drives, BDA_SEG, BDA_NUM_DRIVES);
     
-	//natural_drive = num_drives | 0x80;
-	natural_drive = 0xE0; /* just set a cdrom drive number 224 */
+	if (g_hddmode)
+    {
+        natural_drive = num_drives | 0x80;
+    }
+    else
+    {
+        natural_drive = 0xE0; /* just set a cdrom drive number 224 */
+    }
 
     if (chain->disk_drive >= 0x80 && chain->drive_map >= 0x80)
     {
@@ -1456,8 +1442,8 @@ unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
     g_sandev = zalloc(sizeof(struct san_device) + sizeof(struct int13_data));
     g_sandev->priv = int13 = (struct int13_data *)(g_sandev + 1);
     g_sandev->drive = int13->natural_drive = natural_drive;
-    g_sandev->is_cdrom = 1;
-    g_sandev->blksize_shift = 2;
+    g_sandev->is_cdrom = g_hddmode ? 0 : 1;
+    g_sandev->blksize_shift = g_hddmode ? 0 : 2;
     g_sandev->capacity.blksize = 512;
     g_sandev->capacity.blocks = chain->virt_img_size_in_bytes / 512;
     g_sandev->exdrive = chain->disk_drive;
@@ -1521,9 +1507,20 @@ int ventoy_int13_boot ( unsigned int drive, void *imginfo, const char *cmdline) 
     struct ibft_table *ibft = NULL;
         
 	/* Look for a usable boot sector */
-	if ( ( ( rc = int13_load_eltorito ( drive, &address ) ) != 0 ) &&
-        ( ( rc = int13_load_mbr ( drive, &address ) ) != 0 ))
+    if (g_hddmode)
+    {
+        if ((rc = int13_load_mbr(drive, &address)) != 0)
+        {
+            printf("int13_load_mbr %d\n", rc);
+            return rc;
+        }
+    }
+    else
+    {
+        if ( ( ( rc = int13_load_eltorito ( drive, &address ) ) != 0 ) &&
+            ( ( rc = int13_load_mbr ( drive, &address ) ) != 0 ))
 		return rc;
+    }
 
     if (imginfo)
     {
