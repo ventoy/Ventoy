@@ -1197,7 +1197,7 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
     else
     {
         debug("Find a file %s\n", filename);
-        if (len <= 4)
+        if (len < 4)
         {
             return 0;
         }
@@ -1211,7 +1211,7 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
             type = img_type_wim;
         }
         else if (g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") || 
-                    0 == grub_strcasecmp(filename + len - 5, ".vhdx")))
+                    (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vhdx"))))
         {
             type = img_type_vhd;
         }
