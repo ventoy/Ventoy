@@ -42,6 +42,7 @@ if ! [ -e $VTOY_DM_PATH ]; then
     blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
     mknod -m 0666 $VTOY_DM_PATH b $blkdev_num
 fi
+cp -a $VTOY_DM_PATH /dev/ventoy
 
 PATH=$VTPATH_OLD
 

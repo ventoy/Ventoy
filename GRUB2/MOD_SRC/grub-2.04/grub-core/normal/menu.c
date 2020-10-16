@@ -969,19 +969,28 @@ static struct grub_menu_execute_callback execution_callback =
 static grub_err_t
 show_menu (grub_menu_t menu, int nested, int autobooted)
 {
+    const char *def;    
+    def = grub_env_get("VTOY_DEFAULT_IMAGE");
+    
   while (1)
     {
       int boot_entry;
       grub_menu_entry_t e;
       int auto_boot;
-
+      
       boot_entry = run_menu (menu, nested, &auto_boot);
       if (boot_entry < 0)
 	break;
 
-      g_ventoy_last_entry = boot_entry;
-      if (g_ventoy_menu_esc)
-          break;
+      if (auto_boot && def && grub_strcmp(def, "VTOY_EXIT") == 0) {
+          grub_exit();
+      }
+
+      if (autobooted == 0 && auto_boot == 0) {
+          g_ventoy_last_entry = boot_entry;
+          if (g_ventoy_menu_esc)
+              break;          
+      }
 
       e = grub_menu_get_entry (menu, boot_entry);
       if (! e)

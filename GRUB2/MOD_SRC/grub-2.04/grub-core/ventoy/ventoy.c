@@ -57,6 +57,7 @@ int g_valid_initrd_count = 0;
 int g_default_menu_mode = 0;
 int g_filt_dot_underscore_file = 0;
 int g_sort_case_sensitive = 0;
+int g_tree_view_menu_style = 0;
 static grub_file_t g_old_file;
 static int g_ventoy_last_entry_back;
 
@@ -991,7 +992,7 @@ static grub_err_t ventoy_cmd_check_compatible(grub_extcmd_context_t ctxt, int ar
         grub_disk_close(disk);
         
         g_img_swap_tmp_buf[703] = 0;
-        for (i = 319; i < 703; i++)
+        for (i = 318; i < 703; i++)
         {
             if (g_img_swap_tmp_buf[i] == 'V' &&
                 0 == grub_strncmp(g_img_swap_tmp_buf + i, VENTOY_COMPATIBLE_STR, VENTOY_COMPATIBLE_STR_LEN))
@@ -1471,10 +1472,20 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
     {
         if (g_default_menu_mode == 0)
         {
-            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"%-10s [Return to ListView]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                          "  echo 'return ...' \n"
-                          "}\n", "<--");
+            if (g_tree_view_menu_style == 0)
+            {
+                vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                              "menuentry \"%-10s [Return to ListView]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                              "  echo 'return ...' \n"
+                              "}\n", "<--");
+            }
+            else
+            {
+                vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                              "menuentry \"[Return to ListView]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                              "  echo '%s ...' \n"
+                              "}\n", "return");
+            }
         }
     }
     else
@@ -1489,21 +1500,51 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
         dir_alias = ventoy_plugin_get_menu_alias(vtoy_alias_directory, node->dir);
         if (dir_alias)
         {
+            if (g_tree_view_menu_style == 0)
+            {
+                vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                              "submenu \"%-10s %s\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
+                              "DIR", dir_alias, dir_class, node->dir + offset);
+            }
+            else
+            {
+                vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                              "submenu \"%s\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
+                              dir_alias, dir_class, node->dir + offset);
+            }
+        }
+        else
+        {
+            dir_alias = node->dir + offset;
+
+            if (g_tree_view_menu_style == 0)
+            {
+                vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                              "submenu \"%-10s [%s]\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
+                              "DIR", dir_alias, dir_class, node->dir + offset);
+            }
+            else
+            {
+                vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                              "submenu \"[%s]\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
+                              dir_alias, dir_class, node->dir + offset);
+            }
+        }
+
+        if (g_tree_view_menu_style == 0)
+        {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "submenu \"%-10s %s\" --class=\"%s\" {\n", 
-                          "DIR", dir_alias, dir_class);
+                          "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "  echo 'return ...' \n"
+                          "}\n", "<--");
         }
         else
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "submenu \"%-10s [%s]\" --class=\"%s\" {\n", 
-                          "DIR", node->dir + offset, dir_class);
+                          "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "  echo '%s ...' \n"
+                          "}\n", "return");
         }
-
-        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                      "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                      "  echo 'return ...' \n"
-                      "}\n", "<--");
     }
 
     while ((child = ventoy_get_min_child(node)) != NULL)
@@ -1513,15 +1554,29 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
 
     while ((img = ventoy_get_min_iso(node)) != NULL)
     {
-        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                      "menuentry \"%-10s %s%s\" --class=\"%s\" --id=\"VID_%d\" {\n"
-                      "  %s_%s \n" 
-                      "}\n", 
-                      grub_get_human_size(img->size, GRUB_HUMAN_SIZE_SHORT), 
-                      img->unsupport ? "[***********] " : "", 
-                      img->alias ? img->alias : img->name, img->class, img->id,
-                      img->menu_prefix,
-                      img->unsupport ? "unsupport_menuentry" : "common_menuentry");
+        if (g_tree_view_menu_style == 0)
+        {
+            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                          "menuentry \"%-10s %s%s\" --class=\"%s\" --id=\"VID_%d\" {\n"
+                          "  %s_%s \n" 
+                          "}\n", 
+                          grub_get_human_size(img->size, GRUB_HUMAN_SIZE_SHORT), 
+                          img->unsupport ? "[***********] " : "", 
+                          img->alias ? img->alias : img->name, img->class, img->id,
+                          img->menu_prefix,
+                          img->unsupport ? "unsupport_menuentry" : "common_menuentry");
+        }
+        else
+        {
+            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
+                          "menuentry \"%s%s\" --class=\"%s\" --id=\"VID_%d\" {\n"
+                          "  %s_%s \n" 
+                          "}\n", 
+                          img->unsupport ? "[***********] " : "", 
+                          img->alias ? img->alias : img->name, img->class, img->id,
+                          img->menu_prefix,
+                          img->unsupport ? "unsupport_menuentry" : "common_menuentry");
+        }
     }
 
     if (node != &g_img_iterator_head)
@@ -1634,6 +1689,65 @@ int ventoy_check_device(grub_device_t dev)
     return ventoy_check_device_result(0);
 }
 
+static int ventoy_set_default_menu(void)
+{
+    int img_len = 0;
+    char *pos = NULL;
+    char *end = NULL;
+    char *def = NULL;
+    img_info *cur = NULL;
+    img_info *default_node = NULL;
+    const char *default_image = NULL;
+
+    default_image = ventoy_get_env("VTOY_DEFAULT_IMAGE");        
+    if (default_image && default_image[0] == '/')
+    {
+        img_len = grub_strlen(default_image);
+
+        for (cur = g_ventoy_img_list; cur; cur = cur->next)
+        {
+            if (img_len == cur->pathlen && grub_strcmp(default_image, cur->path) == 0)
+            {
+                default_node = cur;
+                break;
+            }
+        }
+
+        if (!default_node)
+        {
+            return 1;
+        }
+
+        if (0 == g_default_menu_mode)
+        {
+            vtoy_ssprintf(g_list_script_buf, g_list_script_pos, "set default='VID_%d'\n", default_node->id);
+        }
+        else
+        {
+            def = grub_strdup(default_image);
+            if (!def)
+            {
+                return 1;
+            }
+
+            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "set default=%c", '\'');
+
+            pos = def + 1;            
+            while ((end = grub_strchr(pos, '/')) != NULL)
+            {
+                *end = 0;                
+                vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "DIR_%s>", pos);
+                pos = end + 1;
+            }
+
+            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "VID_%d'\n", default_node->id);
+            grub_free(def);
+        }
+    }
+
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int len;
@@ -1641,11 +1755,8 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     grub_device_t dev = NULL;
     img_info *cur = NULL;
     img_info *tail = NULL;
-    img_info *default_node = NULL;
     const char *strdata = NULL;
     char *device_name = NULL;
-    const char *default_image = NULL;
-    int img_len = 0;
     char buf[32];
     img_iterator_node *node = NULL;
     img_iterator_node *tmp = NULL;
@@ -1734,6 +1845,14 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         fs->fs_dir(dev, node->dir, ventoy_colect_img_files, node);        
     }
 
+    strdata = ventoy_get_env("VTOY_TREE_VIEW_MENU_STYLE");
+    if (strdata && strdata[0] == '1' && strdata[1] == 0)
+    {
+        g_tree_view_menu_style = 1;
+    }
+
+    ventoy_set_default_menu();
+
     for (node = &g_img_iterator_head; node; node = node->next)
     {
         ventoy_dynamic_tree_menu(node);
@@ -1768,15 +1887,6 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
                       "}\n", "<--");
     }
 
-    default_image = ventoy_get_env("VTOY_DEFAULT_IMAGE");        
-    if (g_default_menu_mode == 0)
-    {
-        if (default_image)
-        {
-            img_len = grub_strlen(default_image);
-        }
-    }
-
     for (cur = g_ventoy_img_list; cur; cur = cur->next)
     {
         vtoy_ssprintf(g_list_script_buf, g_list_script_pos,
@@ -1787,21 +1897,9 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
                   cur->alias ? cur->alias : cur->name, cur->class, cur->id,
                   cur->menu_prefix,
                   cur->unsupport ? "unsupport_menuentry" : "common_menuentry");
-
-        if (g_default_menu_mode == 0 && default_image && default_node == NULL)
-        {
-            if (img_len == cur->pathlen && grub_strcmp(default_image, cur->path) == 0)
-            {
-                default_node = cur;
-            }
-        }
     }
 
-    if (default_node)
-    {
-        vtoy_ssprintf(g_list_script_buf, g_list_script_pos, "set default='VID_%d'\n", default_node->id);
-    }
-    
+    g_tree_script_buf[g_tree_script_pos] = 0;
     g_list_script_buf[g_list_script_pos] = 0;
 
     grub_snprintf(buf, sizeof(buf), "%d", g_ventoy_img_count);
