@@ -33,12 +33,11 @@ if [ -e /init ] && $GREP -q '^mountroot$' /init; then
     fi
 elif [ -e "$CD_DETECT" ]; then
     echo "$CD_DETECT exist, now add hook in it..." >> $VTLOG
-
     $SED  "1 a $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/disk_mount_hook.sh"  -i "$CD_DETECT"
-    TITLE_LINE=$($GREP -m1 '^hw-detect.*detect_progress_title' "$CD_DETECT")
-    if [ $? -eq 0 ]; then
-        echo "add $TITLE_LINE for hook" >> $VTLOG
-        $SED  "1 a$TITLE_LINE"  -i "$CD_DETECT"
+    
+    if [ -e /bin/list-devices ]; then
+        mv /bin/list-devices /bin/list-devices-bk
+        cp -a /ventoy/hook/debian/list-devices /bin/list-devices
     fi
 elif [ -e /init ] && $GREP -q '/start-udev$' /init; then
     echo "Here use notify ..." >> $VTLOG

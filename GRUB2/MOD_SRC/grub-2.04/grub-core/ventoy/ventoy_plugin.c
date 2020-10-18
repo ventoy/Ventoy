@@ -68,7 +68,15 @@ static int ventoy_plugin_control_check(VTOY_JSON *json, const char *isodisk)
             pChild = pNode->pstChild;
             if (pChild->enDataType == JSON_TYPE_STRING)
             {
-                grub_printf("%s: %s\n", pChild->pcName, pChild->unData.pcStrVal);
+                if (grub_strcmp(pChild->pcName, "VTOY_DEFAULT_IMAGE") == 0)
+                {                    
+                    grub_printf("%s: %s [%s]\n", pChild->pcName, pChild->unData.pcStrVal,
+                        ventoy_check_file_exist("%s%s", isodisk, pChild->unData.pcStrVal) ? "OK" : "NOT EXIST");
+                }
+                else
+                {
+                    grub_printf("%s: %s\n", pChild->pcName, pChild->unData.pcStrVal);                    
+                }
             }
             else
             {

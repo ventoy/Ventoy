@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if ! [ -f ./tool/ventoy_lib.sh ]; then
+    if [ -f ${0%Ventoy2Disk.sh}/tool/ventoy_lib.sh ]; then
+        cd ${0%Ventoy2Disk.sh}    
+    fi
+fi
+
 if [ -f ./ventoy/version ]; then
     curver=$(cat ./ventoy/version) 
 fi
@@ -12,13 +18,8 @@ echo "      https://www.ventoy.net"
 echo '**********************************************'
 echo ''
 
-OLDDIR=$PWD
-
-if ! [ -f ./tool/xzcat ]; then
-    if [ -f ${0%Ventoy2Disk.sh}/tool/xzcat ]; then
-        cd ${0%Ventoy2Disk.sh}    
-    fi
-fi
+OLDDIR=$(pwd)
+PATH=./tool:$PATH
 
 if ! [ -f ./boot/boot.img ]; then
     if [ -d ./grub ]; then
@@ -30,27 +31,30 @@ if ! [ -f ./boot/boot.img ]; then
 fi
 
 echo "############# Ventoy2Disk $* ################" >> ./log.txt
+date >> ./log.txt
 
 #decompress tool
-if ! [ -f ./tool/ash ]; then
+if [ -f ./tool/VentoyWorker.sh ]; then
+    echo "no need to decompress tools" >> ./log.txt
+else
     cd tool
-    chmod +x ./xzcat
+    
+    if [ -f ./xzcat ]; then
+        chmod +x ./xzcat
+    fi
+    
     for file in $(ls *.xz); do
-        ./xzcat $file > ${file%.xz}
+        xzcat $file > ${file%.xz}
         chmod +x ${file%.xz}
     done
     cd ../
-
-    if ! [ -f ./tool/ash ]; then
-        echo 'Failed to decompress tools ...'
-        if [ -n "$OLDDIR" ]; then 
-            cd $OLDDIR
-        fi
-        exit 1
-    fi
 fi
 
-./tool/ash ./tool/VentoyWorker.sh $*
+if [ -f /bin/bash ]; then
+    bash ./tool/VentoyWorker.sh $*
+else
+    ./tool/ash ./tool/VentoyWorker.sh $*
+fi
 
 if [ -n "$OLDDIR" ]; then 
     cd $OLDDIR

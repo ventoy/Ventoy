@@ -1,0 +1,9 @@
+#! /bin/sh
+
+if [ "$1" = "usb-partition" -a -z "$2" ]; then
+    if [ -f /ventoy/list-devices-usb-part ]; then
+        cat /ventoy/list-devices-usb-part
+    fi
+fi
+
+/bin/list-devices-bk $*

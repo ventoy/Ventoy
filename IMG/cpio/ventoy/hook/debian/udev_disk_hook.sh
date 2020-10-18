@@ -133,15 +133,7 @@ else
         vtlog "boot=, or casper, don't mount"
     else
         vtlog "No boot param, need to mount"
-        $BUSYBOX_PATH/mkdir /cdrom
-        
-        if [ -b $VTOY_DM_PATH ]; then
-            vtlog "mount $VTOY_DM_PATH ..."
-            $BUSYBOX_PATH/mount -t iso9660 $VTOY_DM_PATH  /cdrom
-        else
-            vtlog "mount /dev/$1 ..."
-            $BUSYBOX_PATH/mount -t iso9660 /dev/$1  /cdrom
-        fi
+        echo /dev/$1 > /ventoy/list-devices-usb-part
     fi
 fi
 
