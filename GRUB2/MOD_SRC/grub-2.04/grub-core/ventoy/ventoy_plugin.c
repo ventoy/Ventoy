@@ -1180,6 +1180,11 @@ static plugin_entry g_plugin_entries[] =
 {
     { "control", ventoy_plugin_control_entry, ventoy_plugin_control_check },
     { "theme", ventoy_plugin_theme_entry, ventoy_plugin_theme_check },
+#ifdef GRUB_MACHINE_EFI
+    { "theme_uefi", ventoy_plugin_theme_entry, ventoy_plugin_theme_check },
+#else
+    { "theme_legacy", ventoy_plugin_theme_entry, ventoy_plugin_theme_check },
+#endif
     { "auto_install", ventoy_plugin_auto_install_entry, ventoy_plugin_auto_install_check },
     { "persistence", ventoy_plugin_persistence_entry, ventoy_plugin_persistence_check },
     { "menu_alias", ventoy_plugin_menualias_entry, ventoy_plugin_menualias_check },
