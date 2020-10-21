@@ -46,6 +46,7 @@ static menu_alias *g_menu_alias_head = NULL;
 static menu_class *g_menu_class_head = NULL;
 static injection_config *g_injection_head = NULL;
 static auto_memdisk *g_auto_memdisk_head = NULL;
+static image_list *g_image_list_head = NULL;
 
 static int ventoy_plugin_control_check(VTOY_JSON *json, const char *isodisk)
 {
@@ -1096,6 +1097,85 @@ static int ventoy_plugin_auto_memdisk_check(VTOY_JSON *json, const char *isodisk
     return 0;
 }
 
+static int ventoy_plugin_image_list_entry(VTOY_JSON *json, const char *isodisk)
+{
+    VTOY_JSON *pNode = NULL;
+    image_list *node = NULL;
+    image_list *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_image_list_head)
+    {
+        for (node = g_image_list_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_image_list_head = NULL;
+    }
+
+    g_plugin_image_list = 1;
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        if (pNode->enDataType == JSON_TYPE_STRING)
+        {
+            node = grub_zalloc(sizeof(image_list));
+            if (node)
+            {
+                node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", pNode->unData.pcStrVal);
+
+                if (g_image_list_head)
+                {
+                    node->next = g_image_list_head;
+                }
+                
+                g_image_list_head = node;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_image_list_check(VTOY_JSON *json, const char *isodisk)
+{
+    VTOY_JSON *pNode = NULL;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        grub_printf("Not array %d\n", json->enDataType);
+        return 1;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        if (pNode->enDataType == JSON_TYPE_STRING)
+        {
+            grub_printf("<%s> ", pNode->unData.pcStrVal);
+
+            if (ventoy_check_file_exist("%s%s", isodisk, pNode->unData.pcStrVal))
+            {
+                grub_printf(" [OK]\n");
+            }
+            else
+            {
+                grub_printf(" [NOT EXIST]\n");
+            }
+        }
+    }
+
+    return 0;
+}
+
 static plugin_entry g_plugin_entries[] = 
 {
     { "control", ventoy_plugin_control_entry, ventoy_plugin_control_check },
@@ -1106,6 +1186,7 @@ static plugin_entry g_plugin_entries[] =
     { "menu_class", ventoy_plugin_menuclass_entry, ventoy_plugin_menuclass_check },
     { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check },
     { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check },
+    { "image_list", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -1462,6 +1543,28 @@ int ventoy_plugin_check_memdisk(const char *isopath)
 
     len = (int)grub_strlen(isopath);    
     for (node = g_auto_memdisk_head; node; node = node->next)
+    {
+        if (node->pathlen == len && grub_strncmp(isopath, node->isopath, len) == 0)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int ventoy_plugin_check_image_list(const char *isopath)
+{
+    int len;
+    image_list *node = NULL;
+
+    if (!g_image_list_head)
+    {
+        return 0;
+    }
+
+    len = (int)grub_strlen(isopath);    
+    for (node = g_image_list_head; node; node = node->next)
     {
         if (node->pathlen == len && grub_strncmp(isopath, node->isopath, len) == 0)
         {

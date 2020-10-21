@@ -778,6 +778,14 @@ typedef struct auto_memdisk
     struct auto_memdisk *next;
 }auto_memdisk;
 
+typedef struct image_list
+{
+    int pathlen;
+    char isopath[256];
+
+    struct image_list *next;
+}image_list;
+
 extern int g_ventoy_menu_esc;
 extern int g_ventoy_suppress_esc;
 extern int g_ventoy_last_entry;
@@ -787,6 +795,7 @@ extern int g_ventoy_iso_uefi_drv;
 extern int g_ventoy_case_insensitive;
 extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
+extern int g_plugin_image_list;
 extern ventoy_gpt_info *g_ventoy_part_info;
 
 #define ventoy_unix_fill_virt(new_data, new_len) \
@@ -819,6 +828,7 @@ const char * ventoy_plugin_get_injection(const char *isopath);
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);
 const char * ventoy_plugin_get_menu_class(int type, const char *name);
 int ventoy_plugin_check_memdisk(const char *isopath);
+int ventoy_plugin_check_image_list(const char *isopath);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);

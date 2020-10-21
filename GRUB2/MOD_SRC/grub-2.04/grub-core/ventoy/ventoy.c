@@ -82,6 +82,8 @@ grub_uint32_t g_ventoy_cpio_size = 0;
 cpio_newc_header *g_ventoy_initrd_head = NULL;
 grub_uint8_t *g_ventoy_runtime_buf = NULL;
 
+int g_plugin_image_list = 0;
+
 ventoy_grub_param *g_grub_param = NULL;
 
 ventoy_guid  g_ventoy_guid = VENTOY_GUID;
@@ -1247,7 +1249,16 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
         {
             return 0;
         }
-    
+
+        if (g_plugin_image_list)
+        {
+            grub_snprintf(g_img_swap_tmp_buf, sizeof(g_img_swap_tmp_buf), "%s%s", node->dir, filename);
+            if (ventoy_plugin_check_image_list(g_img_swap_tmp_buf) == 0)
+            {
+                return 0;
+            }
+        }
+        
         img = grub_zalloc(sizeof(img_info));
         if (img)
         {
@@ -1411,13 +1422,28 @@ static img_info * ventoy_get_min_iso(img_iterator_node *node)
     img_info *minimg = NULL;
     img_info *img = (img_info *)(node->firstiso);
 
-    while (img && (img_iterator_node *)(img->parent) == node)
+    if (g_plugin_image_list)
     {
-        if (img->select == 0 && (NULL == minimg || ventoy_cmp_img(img, minimg) < 0))
+        while (img && (img_iterator_node *)(img->parent) == node)
         {
-            minimg = img;
+            if (img->select == 0)
+            {
+                minimg = img;
+                break;
+            }
+            img = img->next;
         }
-        img = img->next;
+    }
+    else
+    {
+        while (img && (img_iterator_node *)(img->parent) == node)
+        {
+            if (img->select == 0 && (NULL == minimg || ventoy_cmp_img(img, minimg) < 0))
+            {
+                minimg = img;
+            }
+            img = img->next;
+        }
     }
 
     if (minimg)
@@ -1433,13 +1459,28 @@ static img_iterator_node * ventoy_get_min_child(img_iterator_node *node)
     img_iterator_node *Minchild = NULL;
     img_iterator_node *child = node->firstchild;
 
-    while (child && child->parent == node)
+    if (g_plugin_image_list)
     {
-        if (child->select == 0 && (NULL == Minchild || ventoy_cmp_subdir(child->dir, Minchild->dir) < 0))
+        while (child && child->parent == node)
         {
-            Minchild = child;
+            if (child->select == 0)
+            {
+                Minchild = child;
+                break;
+            }
+            child = child->next;
         }
-        child = child->next;
+    }
+    else
+    {
+        while (child && child->parent == node)
+        {
+            if (child->select == 0 && (NULL == Minchild || ventoy_cmp_subdir(child->dir, Minchild->dir) < 0))
+            {
+                Minchild = child;
+            }
+            child = child->next;
+        }
     }
 
     if (Minchild)
@@ -1823,7 +1864,7 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     grub_snprintf(g_iso_path, sizeof(g_iso_path), "%s", args[0]);
 
     strdata = ventoy_get_env("VTOY_DEFAULT_SEARCH_ROOT");
-    if (strdata && strdata[0] == '/')
+    if (0 == g_plugin_image_list && strdata && strdata[0] == '/')
     {
         len = grub_snprintf(g_img_iterator_head.dir, sizeof(g_img_iterator_head.dir) - 1, "%s", strdata);
         if (g_img_iterator_head.dir[len - 1] != '/')
@@ -1867,14 +1908,17 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         node = tmp;
     }
     
-    /* sort image list by image name */
-    for (cur = g_ventoy_img_list; cur; cur = cur->next)
+    /* sort image list by image name if image_list is not set in ventoy.json */
+    if (0 == g_plugin_image_list)
     {
-        for (tail = cur->next; tail; tail = tail->next)
+        for (cur = g_ventoy_img_list; cur; cur = cur->next)
         {
-            if (ventoy_cmp_img(cur, tail) > 0)
+            for (tail = cur->next; tail; tail = tail->next)
             {
-                ventoy_swap_img(cur, tail);
+                if (ventoy_cmp_img(cur, tail) > 0)
+                {
+                    ventoy_swap_img(cur, tail);
+                }
             }
         }
     }
