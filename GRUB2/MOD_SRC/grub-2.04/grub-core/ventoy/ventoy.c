@@ -1736,6 +1736,7 @@ static int ventoy_set_default_menu(void)
     char *pos = NULL;
     char *end = NULL;
     char *def = NULL;
+    const char *strdata = NULL;
     img_info *cur = NULL;
     img_info *default_node = NULL;
     const char *default_image = NULL;
@@ -1773,7 +1774,22 @@ static int ventoy_set_default_menu(void)
 
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "set default=%c", '\'');
 
-            pos = def + 1;            
+            strdata = ventoy_get_env("VTOY_DEFAULT_SEARCH_ROOT");
+            if (strdata && strdata[0] == '/')
+            {
+                pos = def + grub_strlen(strdata);
+                if (*pos == '/')
+                {
+                    pos++;
+                }
+            }
+            else
+            {
+                pos = def + 1;
+            }
+
+            pos = def + 1;
+
             while ((end = grub_strchr(pos, '/')) != NULL)
             {
                 *end = 0;                
