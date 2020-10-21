@@ -26,6 +26,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 
 int g_debug = 0;
 int g_hddmode = 0;
+int g_bios_disk80 = 0;
 char *g_cmdline_copy;
 void *g_initrd_addr;
 size_t g_initrd_len;
@@ -696,6 +697,11 @@ int ventoy_boot_vdisk(void *data)
     if (strstr(g_cmdline_copy, "sector512"))
     {
         g_hddmode = 1;
+    }
+    
+    if (strstr(g_cmdline_copy, "bios80"))
+    {
+        g_bios_disk80 = 1;
     }
 
     g_chain = (ventoy_chain_head *)g_initrd_addr;
