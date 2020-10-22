@@ -1102,6 +1102,7 @@ static int ventoy_plugin_image_list_entry(VTOY_JSON *json, const char *isodisk)
     VTOY_JSON *pNode = NULL;
     image_list *node = NULL;
     image_list *next = NULL;
+    image_list *tail = NULL;
 
     (void)isodisk;
 
@@ -1135,10 +1136,13 @@ static int ventoy_plugin_image_list_entry(VTOY_JSON *json, const char *isodisk)
 
                 if (g_image_list_head)
                 {
-                    node->next = g_image_list_head;
+                    tail->next = node;
                 }
-                
-                g_image_list_head = node;
+                else
+                {
+                    g_image_list_head = node;
+                }
+                tail = node;
             }
         }
     }
@@ -1558,9 +1562,10 @@ int ventoy_plugin_check_memdisk(const char *isopath)
     return 0;
 }
 
-int ventoy_plugin_check_image_list(const char *isopath)
+int ventoy_plugin_get_image_list_index(int type, const char *name)
 {
     int len;
+    int index = 1;
     image_list *node = NULL;
 
     if (!g_image_list_head)
@@ -1568,12 +1573,23 @@ int ventoy_plugin_check_image_list(const char *isopath)
         return 0;
     }
 
-    len = (int)grub_strlen(isopath);    
-    for (node = g_image_list_head; node; node = node->next)
+    len = (int)grub_strlen(name);    
+    
+    for (node = g_image_list_head; node; node = node->next, index++)
     {
-        if (node->pathlen == len && grub_strncmp(isopath, node->isopath, len) == 0)
+        if (vtoy_class_directory == type)
         {
-            return 1;
+            if (len < node->pathlen && grub_strncmp(name, node->isopath, len) == 0)
+            {
+                return index;
+            }
+        }
+        else
+        {
+            if (len == node->pathlen && grub_strncmp(name, node->isopath, len) == 0)
+            {
+                return index;
+            }
         }
     }
 

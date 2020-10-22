@@ -1020,6 +1020,11 @@ int ventoy_cmp_img(img_info *img1, img_info *img2)
     int c1 = 0;
     int c2 = 0;
 
+    if (g_plugin_image_list)
+    {
+        return (img1->plugin_list_index - img2->plugin_list_index);
+    }
+
     for (s1 = img1->name, s2 = img2->name; *s1 && *s2; s1++, s2++)
     {
         c1 = *s1;
@@ -1047,13 +1052,18 @@ int ventoy_cmp_img(img_info *img1, img_info *img2)
     return (c1 - c2);
 }
 
-static int ventoy_cmp_subdir(char *name1, char *name2)
+static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
 {
     char *s1, *s2;
     int c1 = 0;
     int c2 = 0;
 
-    for (s1 = name1, s2 = name2; *s1 && *s2; s1++, s2++)
+    if (g_plugin_image_list)
+    {
+        return (node1->plugin_list_index - node2->plugin_list_index);
+    }
+
+    for (s1 = node1->dir, s2 = node2->dir; *s1 && *s2; s1++, s2++)
     {
         c1 = *s1;
         c2 = *s2;
@@ -1137,6 +1147,7 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
     int i = 0;
     int type = 0;
     int ignore = 0;
+    int index = 0;
     grub_size_t len;
     img_info *img;
     img_info *tail;
@@ -1164,9 +1175,21 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
             return 0;
         }
 
+        if (g_plugin_image_list)
+        {
+            grub_snprintf(g_img_swap_tmp_buf, sizeof(g_img_swap_tmp_buf), "%s%s/", node->dir, filename);
+            index = ventoy_plugin_get_image_list_index(vtoy_class_directory, g_img_swap_tmp_buf);
+            if (index == 0)
+            {
+                debug("Directory %s not found in image_list plugin config...\n", g_img_swap_tmp_buf);
+                return 0; 
+            }
+        }
+
         new_node = grub_zalloc(sizeof(img_iterator_node));
         if (new_node)
         {
+            new_node->plugin_list_index = index;
             new_node->dirlen = grub_snprintf(new_node->dir, sizeof(new_node->dir), "%s%s/", node->dir, filename);
 
             g_enum_fs->fs_dir(g_enum_dev, new_node->dir, ventoy_check_ignore_flag, &ignore);
@@ -1253,9 +1276,11 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
         if (g_plugin_image_list)
         {
             grub_snprintf(g_img_swap_tmp_buf, sizeof(g_img_swap_tmp_buf), "%s%s", node->dir, filename);
-            if (ventoy_plugin_check_image_list(g_img_swap_tmp_buf) == 0)
+            index = ventoy_plugin_get_image_list_index(vtoy_class_image_file, g_img_swap_tmp_buf);
+            if (index == 0)
             {
-                return 0;
+                debug("File %s not found in image_list plugin config...\n", g_img_swap_tmp_buf);
+                return 0; 
             }
         }
         
@@ -1263,6 +1288,7 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
         if (img)
         {
             img->type = type;
+            img->plugin_list_index = index;
             grub_snprintf(img->name, sizeof(img->name), "%s", filename);
 
             for (i = 0; i < (int)len; i++)
@@ -1422,28 +1448,13 @@ static img_info * ventoy_get_min_iso(img_iterator_node *node)
     img_info *minimg = NULL;
     img_info *img = (img_info *)(node->firstiso);
 
-    if (g_plugin_image_list)
+    while (img && (img_iterator_node *)(img->parent) == node)
     {
-        while (img && (img_iterator_node *)(img->parent) == node)
+        if (img->select == 0 && (NULL == minimg || ventoy_cmp_img(img, minimg) < 0))
         {
-            if (img->select == 0)
-            {
-                minimg = img;
-                break;
-            }
-            img = img->next;
+            minimg = img;
         }
-    }
-    else
-    {
-        while (img && (img_iterator_node *)(img->parent) == node)
-        {
-            if (img->select == 0 && (NULL == minimg || ventoy_cmp_img(img, minimg) < 0))
-            {
-                minimg = img;
-            }
-            img = img->next;
-        }
+        img = img->next;
     }
 
     if (minimg)
@@ -1459,28 +1470,13 @@ static img_iterator_node * ventoy_get_min_child(img_iterator_node *node)
     img_iterator_node *Minchild = NULL;
     img_iterator_node *child = node->firstchild;
 
-    if (g_plugin_image_list)
+    while (child && child->parent == node)
     {
-        while (child && child->parent == node)
+        if (child->select == 0 && (NULL == Minchild || ventoy_cmp_subdir(child, Minchild) < 0))
         {
-            if (child->select == 0)
-            {
-                Minchild = child;
-                break;
-            }
-            child = child->next;
+            Minchild = child;
         }
-    }
-    else
-    {
-        while (child && child->parent == node)
-        {
-            if (child->select == 0 && (NULL == Minchild || ventoy_cmp_subdir(child->dir, Minchild->dir) < 0))
-            {
-                Minchild = child;
-            }
-            child = child->next;
-        }
+        child = child->next;
     }
 
     if (Minchild)
@@ -1880,7 +1876,7 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     grub_snprintf(g_iso_path, sizeof(g_iso_path), "%s", args[0]);
 
     strdata = ventoy_get_env("VTOY_DEFAULT_SEARCH_ROOT");
-    if (0 == g_plugin_image_list && strdata && strdata[0] == '/')
+    if (strdata && strdata[0] == '/')
     {
         len = grub_snprintf(g_img_iterator_head.dir, sizeof(g_img_iterator_head.dir) - 1, "%s", strdata);
         if (g_img_iterator_head.dir[len - 1] != '/')
@@ -1924,17 +1920,14 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         node = tmp;
     }
     
-    /* sort image list by image name if image_list is not set in ventoy.json */
-    if (0 == g_plugin_image_list)
+    /* sort image list by image name */
+    for (cur = g_ventoy_img_list; cur; cur = cur->next)
     {
-        for (cur = g_ventoy_img_list; cur; cur = cur->next)
+        for (tail = cur->next; tail; tail = tail->next)
         {
-            for (tail = cur->next; tail; tail = tail->next)
+            if (ventoy_cmp_img(cur, tail) > 0)
             {
-                if (ventoy_cmp_img(cur, tail) > 0)
-                {
-                    ventoy_swap_img(cur, tail);
-                }
+                ventoy_swap_img(cur, tail);
             }
         }
     }
@@ -2738,7 +2731,7 @@ static grub_err_t ventoy_cmd_dump_img_list(grub_extcmd_context_t ctxt, int argc,
 
     while (cur)
     {
-        grub_printf("path:<%s> id=%d\n", cur->path, cur->id);
+        grub_printf("path:<%s> id=%d list_index=%d\n", cur->path, cur->id, cur->plugin_list_index);
         grub_printf("name:<%s>\n\n", cur->name);
         cur = cur->next;
     }

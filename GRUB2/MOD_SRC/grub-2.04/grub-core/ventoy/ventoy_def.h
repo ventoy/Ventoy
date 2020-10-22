@@ -172,6 +172,7 @@ typedef struct img_info
     
     int id;
     int type;
+    int plugin_list_index;
     grub_uint64_t size;
     int select;
     int unsupport;
@@ -191,6 +192,8 @@ typedef struct img_iterator_node
     int isocnt;
     int done;
     int select;
+
+    int plugin_list_index;
 
     struct img_iterator_node *parent;
     struct img_iterator_node *firstchild;
@@ -828,7 +831,7 @@ const char * ventoy_plugin_get_injection(const char *isopath);
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);
 const char * ventoy_plugin_get_menu_class(int type, const char *name);
 int ventoy_plugin_check_memdisk(const char *isopath);
-int ventoy_plugin_check_image_list(const char *isopath);
+int ventoy_plugin_get_image_list_index(int type, const char *name);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);
