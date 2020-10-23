@@ -1184,11 +1184,6 @@ static plugin_entry g_plugin_entries[] =
 {
     { "control", ventoy_plugin_control_entry, ventoy_plugin_control_check },
     { "theme", ventoy_plugin_theme_entry, ventoy_plugin_theme_check },
-#ifdef GRUB_MACHINE_EFI
-    { "theme_uefi", ventoy_plugin_theme_entry, ventoy_plugin_theme_check },
-#else
-    { "theme_legacy", ventoy_plugin_theme_entry, ventoy_plugin_theme_check },
-#endif
     { "auto_install", ventoy_plugin_auto_install_entry, ventoy_plugin_auto_install_check },
     { "persistence", ventoy_plugin_persistence_entry, ventoy_plugin_persistence_check },
     { "menu_alias", ventoy_plugin_menualias_entry, ventoy_plugin_menualias_check },
@@ -1201,6 +1196,7 @@ static plugin_entry g_plugin_entries[] =
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
 {
     int i;
+    char key[128];
     VTOY_JSON *cur = json;
 
     grub_snprintf(g_iso_disk_name, sizeof(g_iso_disk_name), "%s", isodisk);
@@ -1209,7 +1205,8 @@ static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
     {
         for (i = 0; i < (int)ARRAY_SIZE(g_plugin_entries); i++)
         {
-            if (grub_strcmp(g_plugin_entries[i].key, cur->pcName) == 0)
+            grub_snprintf(key, sizeof(key), "%s_%s", g_plugin_entries[i].key, VTOY_DUAL_MODE_SUFFIX);
+            if (grub_strcmp(g_plugin_entries[i].key, cur->pcName) == 0 || grub_strcmp(key, cur->pcName) == 0)
             {
                 debug("Plugin entry for %s\n", g_plugin_entries[i].key);
                 g_plugin_entries[i].entryfunc(cur, isodisk);
@@ -1240,7 +1237,7 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     }
 
     debug("json configuration file size %d\n", (int)file->size);
-    
+
     buf = grub_malloc(file->size + 1);
     if (!buf)
     {
@@ -1263,6 +1260,9 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     ret = vtoy_json_parse(json, buf);
     if (ret)
     {
+        grub_env_set("VTOY_PLUGIN_SYNTAX_ERROR", "1");
+        grub_env_export("VTOY_PLUGIN_SYNTAX_ERROR");
+        
         debug("Failed to parse json string %d\n", ret);
         grub_free(buf);
         return 1;
@@ -1601,6 +1601,7 @@ grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, ch
     int i = 0;
     int ret = 0;
     char *buf = NULL;
+    char key[128];
     grub_file_t file;
     VTOY_JSON *node = NULL;
     VTOY_JSON *json = NULL;
@@ -1643,9 +1644,10 @@ grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, ch
         goto end;
     }
 
+    grub_snprintf(key, sizeof(key), "%s_%s", args[1], VTOY_DUAL_MODE_SUFFIX);
     for (node = json->pstChild; node; node = node->pstNext)
     {
-        if (grub_strcmp(node->pcName, args[1]) == 0)
+        if (grub_strcmp(node->pcName, args[1]) == 0 || grub_strcmp(node->pcName, key) == 0)
         {
             break;
         }

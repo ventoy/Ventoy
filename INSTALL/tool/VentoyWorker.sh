@@ -63,7 +63,11 @@ if ! [ -b "$DISK" ]; then
 fi
 
 if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
-    vterr "$DISK is a partition, please use the whole disk"
+    vterr  "$DISK is a partition, please use the whole disk."
+    echo   "For example:"
+    vterr  "    sudo sh Ventoy2Disk.sh -i /dev/sdX1 <=== This is wrong"
+    vtinfo "    sudo sh Ventoy2Disk.sh -i /dev/sdX  <=== This is right"
+    echo ""
     exit 1
 fi
 

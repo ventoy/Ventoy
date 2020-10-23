@@ -52,6 +52,12 @@
 
 #define VTOY_WARNING  "!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!"
 
+#ifdef GRUB_MACHINE_EFI
+#define VTOY_DUAL_MODE_SUFFIX "uefi"
+#else
+#define VTOY_DUAL_MODE_SUFFIX "legacy"
+#endif
+
 typedef struct ventoy_initrd_ctx
 {
     const char *path_prefix;
