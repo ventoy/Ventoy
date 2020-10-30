@@ -403,17 +403,6 @@ STATIC VOID ventoy_warn_invalid_device(VOID)
     }
 
     flag = TRUE;
-    gST->ConOut->ClearScreen(gST->ConOut);
-    gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n");
-    gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n");
-    gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n\r\n\r\n");
-
-    gST->ConOut->OutputString(gST->ConOut, L"This is NOT a standard Ventoy device and is NOT officially supported.\r\n\r\n");
-    gST->ConOut->OutputString(gST->ConOut, L"You should follow the official instructions in https://www.ventoy.net\r\n");
-    
-    gST->ConOut->OutputString(gST->ConOut, L"\r\n\r\nWill continue to boot after 15 seconds ...... ");
-
-    sleep(15);
 }
 #else
 STATIC VOID ventoy_warn_invalid_device(VOID)
