@@ -1784,8 +1784,6 @@ static int ventoy_set_default_menu(void)
                 pos = def + 1;
             }
 
-            pos = def + 1;
-
             while ((end = grub_strchr(pos, '/')) != NULL)
             {
                 *end = 0;                
