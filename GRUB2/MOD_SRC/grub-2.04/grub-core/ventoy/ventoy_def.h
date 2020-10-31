@@ -770,6 +770,17 @@ typedef struct menu_class
     struct menu_class *next;
 }menu_class;
 
+#define vtoy_max_replace_file_size  (2 * 1024 * 1024)
+typedef struct conf_replace
+{
+    int pathlen;
+    char isopath[256];
+    char orgconf[256];
+    char newconf[256];
+
+    struct conf_replace *next;
+}conf_replace;
+
 typedef struct injection_config
 {
     int pathlen;
@@ -806,6 +817,11 @@ extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
 extern int g_plugin_image_list;
 extern ventoy_gpt_info *g_ventoy_part_info;
+extern grub_uint64_t g_conf_replace_offset;
+extern conf_replace *g_conf_replace_node;
+extern grub_uint8_t *g_conf_replace_new_buf;
+extern int g_conf_replace_new_len;
+extern int g_conf_replace_new_len_align;
 
 #define ventoy_unix_fill_virt(new_data, new_len) \
 { \
@@ -838,6 +854,7 @@ const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);
 const char * ventoy_plugin_get_menu_class(int type, const char *name);
 int ventoy_plugin_check_memdisk(const char *isopath);
 int ventoy_plugin_get_image_list_index(int type, const char *name);
+conf_replace * ventoy_plugin_find_conf_replace(const char *iso);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);

@@ -47,6 +47,7 @@ static menu_class *g_menu_class_head = NULL;
 static injection_config *g_injection_head = NULL;
 static auto_memdisk *g_auto_memdisk_head = NULL;
 static image_list *g_image_list_head = NULL;
+static conf_replace *g_conf_replace_head = NULL;
 
 static int ventoy_plugin_control_check(VTOY_JSON *json, const char *isodisk)
 {
@@ -1020,6 +1021,146 @@ static int ventoy_plugin_menuclass_check(VTOY_JSON *json, const char *isodisk)
     return 0;
 }
 
+static int ventoy_plugin_conf_replace_entry(VTOY_JSON *json, const char *isodisk)
+{
+    const char *isof = NULL;
+    const char *orgf = NULL;
+    const char *newf = NULL;
+    VTOY_JSON *pNode = NULL;
+    conf_replace *tail = NULL;
+    conf_replace *node = NULL;
+    conf_replace *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_conf_replace_head)
+    {
+        for (node = g_conf_replace_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_conf_replace_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        isof = vtoy_json_get_string_ex(pNode->pstChild, "iso");
+        orgf = vtoy_json_get_string_ex(pNode->pstChild, "org");
+        newf = vtoy_json_get_string_ex(pNode->pstChild, "new");
+        if (isof && orgf && newf && isof[0] == '/' && orgf[0] == '/' && newf[0] == '/')
+        {
+            node = grub_zalloc(sizeof(conf_replace));
+            if (node)
+            {
+                node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", isof);
+                grub_snprintf(node->orgconf, sizeof(node->orgconf), "%s", orgf);
+                grub_snprintf(node->newconf, sizeof(node->newconf), "%s", newf);
+
+                if (g_conf_replace_head)
+                {
+                    tail->next = node;
+                }
+                else
+                {
+                    g_conf_replace_head = node;
+                }
+                tail = node;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_conf_replace_check(VTOY_JSON *json, const char *isodisk)
+{
+    const char *isof = NULL;
+    const char *orgf = NULL;
+    const char *newf = NULL;
+    VTOY_JSON *pNode = NULL;
+    grub_file_t file = NULL;
+    char cmd[256];
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        grub_printf("Not array %d\n", json->enDataType);
+        return 1;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        isof = vtoy_json_get_string_ex(pNode->pstChild, "iso");
+        orgf = vtoy_json_get_string_ex(pNode->pstChild, "org");
+        newf = vtoy_json_get_string_ex(pNode->pstChild, "new");
+        if (isof && orgf && newf && isof[0] == '/' && orgf[0] == '/' && newf[0] == '/')
+        {
+            if (ventoy_check_file_exist("%s%s", isodisk, isof))
+            {
+                grub_printf("iso:<%s> [OK]\n", isof);
+                
+                grub_snprintf(cmd, sizeof(cmd), "loopback vtisocheck %s%s", isodisk, isof);
+                grub_script_execute_sourcecode(cmd);
+
+                file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(vtisocheck)/%s", orgf);
+                if (file)
+                {
+                    if (grub_strcmp(file->fs->name, "iso9660") == 0)
+                    {
+                        grub_printf("org:<%s> [OK]\n", orgf);
+                    }
+                    else
+                    {
+                        grub_printf("org:<%s> [Exist But NOT ISO9660]\n", orgf);
+                    }
+                    grub_file_close(file);
+                }
+                else
+                {
+                    grub_printf("org:<%s> [NOT Exist]\n", orgf);
+                }
+                
+                grub_script_execute_sourcecode("loopback -d vtisocheck");
+            }
+            else
+            {
+                grub_printf("iso:<%s> [NOT Exist]\n", isof);
+                grub_printf("org:<%s>\n", orgf);
+            }
+
+            file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", isodisk, newf);
+            if (file)
+            {
+                if (file->size > vtoy_max_replace_file_size)
+                {
+                    grub_printf("new:<%s> [Too Big %lu] \n", newf, (ulong)file->size);
+                }
+                else
+                {
+                    grub_printf("new:<%s> [OK]\n", newf);                    
+                }
+                grub_file_close(file);
+            }
+            else
+            {
+                grub_printf("new:<%s> [NOT Exist]\n", newf);   
+            }
+            grub_printf("\n");
+        }
+    }
+
+    return 0;
+}
+
 static int ventoy_plugin_auto_memdisk_entry(VTOY_JSON *json, const char *isodisk)
 {
     VTOY_JSON *pNode = NULL;
@@ -1191,6 +1332,7 @@ static plugin_entry g_plugin_entries[] =
     { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check },
     { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check },
     { "image_list", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
+    { "conf_replace", ventoy_plugin_conf_replace_entry, ventoy_plugin_conf_replace_check },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -1594,6 +1736,29 @@ int ventoy_plugin_get_image_list_index(int type, const char *name)
     }
 
     return 0;
+}
+
+conf_replace * ventoy_plugin_find_conf_replace(const char *iso)
+{
+    int len;
+    conf_replace *node;
+
+    if (!g_conf_replace_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(iso);
+    
+    for (node = g_conf_replace_head; node; node = node->next)
+    {
+        if (node->pathlen == len && grub_strncmp(iso, node->isopath, len) == 0)
+        {
+            return node;
+        }
+    }
+    
+    return NULL;
 }
 
 grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, char **args)

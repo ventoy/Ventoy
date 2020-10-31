@@ -333,6 +333,7 @@ end:
 static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
 {
     int i = 0;
+    int dollar = 0;
     grub_file_t file = NULL;
     char *buf = NULL;
     char *start = NULL;
@@ -388,13 +389,18 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
             {
                 break;
             }
-            
+
+            dollar = 0;
             for (i = 0; i < 255 && (0 == ventoy_is_word_end(*start)); i++)
             {
                 img->name[i] = *start++;
+                if (img->name[i] == '$')
+                {
+                    dollar = 1;
+                }
             }
 
-            if (ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
+            if (dollar == 1 || ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
             {
                 grub_free(img);
             }
@@ -625,9 +631,30 @@ int ventoy_cpio_newc_fill_head(void *buf, int filesize, const void *filedata, co
     return headlen;
 }
 
+static grub_uint32_t ventoy_linux_get_virt_chunk_count(void)
+{
+    grub_uint32_t count = g_valid_initrd_count;
+    
+    if (g_conf_replace_offset > 0)
+    {
+        count++;
+    }
+    
+    return count;
+}
+
 static grub_uint32_t ventoy_linux_get_virt_chunk_size(void)
 {
-    return (sizeof(ventoy_virt_chunk) + g_ventoy_cpio_size) * g_valid_initrd_count;
+    grub_uint32_t size;
+    
+    size = (sizeof(ventoy_virt_chunk) + g_ventoy_cpio_size) * g_valid_initrd_count;
+    
+    if (g_conf_replace_offset > 0)
+    {
+        size += sizeof(ventoy_virt_chunk) + g_conf_replace_new_len_align;
+    }
+
+    return size;
 }
 
 static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_head *chain)
@@ -646,7 +673,7 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
     sector = (isosize + 2047) / 2048;
     cpio_secs = g_ventoy_cpio_size / 2048;
 
-    offset = g_valid_initrd_count * sizeof(ventoy_virt_chunk);
+    offset = ventoy_linux_get_virt_chunk_count() * sizeof(ventoy_virt_chunk);
     cur = (ventoy_virt_chunk *)override;
 
     for (node = g_initrd_img_list; node; node = node->next)
@@ -682,12 +709,51 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
         cur++;
     }
 
+    if (g_conf_replace_offset > 0)
+    {
+        cpio_secs = g_conf_replace_new_len_align / 2048;
+    
+        cur->mem_sector_start   = sector;
+        cur->mem_sector_end     = cur->mem_sector_start + cpio_secs;
+        cur->mem_sector_offset  = offset;
+        cur->remap_sector_start = 0;
+        cur->remap_sector_end   = 0;
+        cur->org_sector_start   = 0;
+
+        grub_memcpy(override + offset, g_conf_replace_new_buf, g_conf_replace_new_len);
+
+        chain->virt_img_size_in_bytes += g_conf_replace_new_len_align;
+
+        offset += g_conf_replace_new_len_align;
+        sector += cpio_secs;
+        cur++;
+    }
+
     return;
+}
+
+static grub_uint32_t ventoy_linux_get_override_chunk_count(void)
+{
+    grub_uint32_t count = g_valid_initrd_count;
+    
+    if (g_conf_replace_offset > 0)
+    {
+        count++;
+    }
+    
+    return count;
 }
 
 static grub_uint32_t ventoy_linux_get_override_chunk_size(void)
 {
-    return sizeof(ventoy_override_chunk) * g_valid_initrd_count;
+    int count = g_valid_initrd_count;
+    
+    if (g_conf_replace_offset > 0)
+    {
+        count++;
+    }
+
+    return sizeof(ventoy_override_chunk) * count;
 }
 
 static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *override)
@@ -697,6 +763,8 @@ static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *ove
     grub_uint32_t newlen;
     grub_uint64_t sector;
     ventoy_override_chunk *cur;
+    ventoy_iso9660_override *dirent;
+    ventoy_udf_override *udf;
 
     sector = (isosize + 2047) / 2048;
 
@@ -712,12 +780,12 @@ static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *ove
         mod = newlen % 4; 
         if (mod > 0)
         {
-            newlen += 4 - mod;
+            newlen += 4 - mod; /* cpio must align with 4 */
         }
 
         if (node->iso_type == 0)
         {
-            ventoy_iso9660_override *dirent = (ventoy_iso9660_override *)node->override_data;
+            dirent = (ventoy_iso9660_override *)node->override_data;
 
             node->override_length   = sizeof(ventoy_iso9660_override);
             dirent->first_sector    = (grub_uint32_t)sector;
@@ -729,7 +797,7 @@ static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *ove
         }
         else
         {
-            ventoy_udf_override *udf = (ventoy_udf_override *)node->override_data;
+            udf = (ventoy_udf_override *)node->override_data;
             
             node->override_length = sizeof(ventoy_udf_override);
             udf->length   = newlen;
@@ -744,6 +812,23 @@ static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *ove
         cur++;
     }
 
+    if (g_conf_replace_offset > 0)
+    {        
+        cur->img_offset = g_conf_replace_offset;
+        cur->override_size = sizeof(ventoy_iso9660_override);
+
+        newlen = (grub_uint32_t)(g_conf_replace_new_len);
+
+        dirent = (ventoy_iso9660_override *)cur->override_data;
+        dirent->first_sector    = (grub_uint32_t)sector;
+        dirent->size            = newlen;
+        dirent->first_sector_be = grub_swap_bytes32(dirent->first_sector);
+        dirent->size_be         = grub_swap_bytes32(dirent->size);
+
+        sector += (dirent->size + 2047) / 2048;
+        cur++;
+    }
+    
     return;
 }
 
@@ -1241,7 +1326,9 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
     grub_uint64_t isosize = 0;
     grub_uint32_t boot_catlog = 0;
     grub_uint32_t img_chunk_size = 0;
+    grub_uint32_t override_count = 0;
     grub_uint32_t override_size = 0;
+    grub_uint32_t virt_chunk_count = 0;
     grub_uint32_t virt_chunk_size = 0;
     grub_file_t file;
     grub_disk_t disk;
@@ -1294,6 +1381,9 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
     }
     
     img_chunk_size = g_img_chunk_list.cur_chunk * sizeof(ventoy_img_chunk);
+
+    override_count = ventoy_linux_get_override_chunk_count();
+    virt_chunk_count = ventoy_linux_get_virt_chunk_count();
     
     if (ventoy_compatible)
     {
@@ -1360,20 +1450,21 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
         return 0;
     }
 
-    if (g_valid_initrd_count == 0)
+    /* part 4: override chunk */
+    if (override_count > 0)
     {
-        return 0;
+        chain->override_chunk_offset = chain->img_chunk_offset + img_chunk_size;
+        chain->override_chunk_num = override_count;
+        ventoy_linux_fill_override_data(isosize, (char *)chain + chain->override_chunk_offset);        
     }
 
-    /* part 4: override chunk */
-    chain->override_chunk_offset = chain->img_chunk_offset + img_chunk_size;
-    chain->override_chunk_num = g_valid_initrd_count;
-    ventoy_linux_fill_override_data(isosize, (char *)chain + chain->override_chunk_offset);
-
     /* part 5: virt chunk */
-    chain->virt_chunk_offset = chain->override_chunk_offset + override_size;
-    chain->virt_chunk_num = g_valid_initrd_count;
-    ventoy_linux_fill_virt_data(isosize, chain);
+    if (virt_chunk_count > 0)
+    {        
+        chain->virt_chunk_offset = chain->override_chunk_offset + override_size;
+        chain->virt_chunk_num = virt_chunk_count;
+        ventoy_linux_fill_virt_data(isosize, chain);
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
