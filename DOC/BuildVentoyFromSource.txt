@@ -3,7 +3,7 @@
 1. Compile Enviroment
 ==========================================
     My build envrioment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
-    Because Ventoy is based on many open source projects, so the envrioment is important. I suggest you test it on a virtual machine first.
+    Because Ventoy is based on many open source projects, so the environment is important. I suggest you test it on a virtual machine first.
 
 1.1 Install CentOS 7.8
     I use CentOS-7-x86_64-Everything-2003.iso and select Minimal install
