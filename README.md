@@ -16,31 +16,32 @@ You can copy many iso files at a time and ventoy will give you a boot menu to se
 Both Legacy BIOS and UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
-550+ ISO files are tested. 90%+ distros in distrowatch.com supported. <br/>
+560+ ISO files are tested. 90%+ distros in distrowatch.com supported. <br/>
 </h4>
 
 # Features
 * 100% open source
 * Simple to use
 * Fast (limited only by the speed of copying iso file)
-* Directly boot from ISO/WIM/IMG/VHD(x)/EFI file, no extraction needed
-* Legacy + UEFI supported in the same way
-* UEFI Secure Boot supported (since 1.0.07+)
-* Persistence supported (since 1.0.11+)
+* Can be installed in USB/Local Disk/SSD/NVMe/SD Card
+* Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
+* No need to be continuous in disk for ISO/IMG files
 * MBR and GPT partition style supported (1.0.15+)
-* WIM files boot supported (Legacy + UEFI) (1.0.12+)
-* IMG files boot supported (Legacy + UEFI) (1.0.19+)
-* Auto installation supported (1.0.09+)
-* File injection supported (1.0.16+)
+* Legacy + UEFI supported in the same way
+* UEFI Secure Boot supported (1.0.07+)
+* Persistence supported (1.0.11+)
+* Windows/Linux auto installation supported (1.0.09+)
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
-* Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...), 550+ iso files tested
+* Most type of OS supported, 560+ iso files tested
+* Linux vDisk boot supported
 * Not only boot but also complete installation process
 * ISO files can be listed in List mode/TreeView mode
-* Linux vDisk boot supported (vdi/vhd/raw)
 * "Ventoy Compatible" concept
 * Plugin Framework
-* Menu Alias/Menu Style/Customized Menu supported
+* Injection files to runtime enviroment
+* Boot configuration file dynamically replacement
+* Highly customizable theme and menu
 * USB drive write-protected support
 * USB normal use unaffected
 * Data nondestructive during version upgrade
