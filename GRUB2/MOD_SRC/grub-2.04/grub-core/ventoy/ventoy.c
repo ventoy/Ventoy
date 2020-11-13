@@ -1639,15 +1639,14 @@ int ventoy_check_device_result(int ret)
     grub_env_set("VTOY_CHKDEV_RESULT_STRING", buf);
     grub_env_export("VTOY_CHKDEV_RESULT_STRING");
 
-    if (ret & 0x1000)
+    if (ret)
     {
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n\n\n");
         
-        grub_printf("Unsatisfied conditions detected for Ventoy.\n\n");
-        grub_printf("This is NOT a standard Ventoy device and is NOT officially supported.\n\n");
-        grub_printf("Recommend to follow the instructions in https://www.ventoy.net to use Ventoy.\n");
+        grub_printf("This is NOT a standard Ventoy device and is NOT supported.\n\n");
+        grub_printf("You should follow the instructions in https://www.ventoy.net to use Ventoy.\n");
         
         grub_printf("\n\nWill exit after 10 seconds ...... ");
         grub_refresh();
@@ -3522,7 +3521,7 @@ static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int arg
         ret = ventoy_check_device(dev);
         grub_device_close(dev);
 
-        if (ret & 0x1000)
+        if (ret)
         {
             grub_exit();            
         }

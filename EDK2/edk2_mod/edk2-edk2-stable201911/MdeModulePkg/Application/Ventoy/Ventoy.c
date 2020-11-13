@@ -408,12 +408,12 @@ STATIC VOID ventoy_warn_invalid_device(VOID)
     gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n");
     gST->ConOut->OutputString(gST->ConOut, VTOY_WARNING L"\r\n\r\n\r\n");
 
-    gST->ConOut->OutputString(gST->ConOut, L"This is NOT a standard Ventoy device and is NOT officially supported.\r\n\r\n");
+    gST->ConOut->OutputString(gST->ConOut, L"This is NOT a standard Ventoy device and is NOT supported.\r\n\r\n");
     gST->ConOut->OutputString(gST->ConOut, L"You should follow the official instructions in https://www.ventoy.net\r\n");
     
-    gST->ConOut->OutputString(gST->ConOut, L"\r\n\r\nWill continue to boot after 15 seconds ...... ");
+    gST->ConOut->OutputString(gST->ConOut, L"\r\n\r\nWill exit after 10 seconds ...... ");
 
-    sleep(15);
+    sleep(10);
 }
 #else
 STATIC VOID ventoy_warn_invalid_device(VOID)
@@ -718,6 +718,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     if (pEnv[0] != '0' || pEnv[1] != 0)
     {
         ventoy_warn_invalid_device();
+        return EFI_INVALID_PARAMETER;
     }
     
     g_file_replace_list = &pGrubParam->file_replace;
