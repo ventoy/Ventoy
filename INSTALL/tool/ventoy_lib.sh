@@ -265,7 +265,7 @@ w
 EOF
     fi
    
-    udevadm trigger >/dev/null 2>&1
+    udevadm trigger --name-match=$DISK >/dev/null 2>&1
     partprobe >/dev/null 2>&1
     sleep 3
     echo "Done"
@@ -362,7 +362,7 @@ format_ventoy_disk_gpt() {
     $vtoygpt -f $DISK
     sync
 
-    udevadm trigger >/dev/null 2>&1
+    udevadm trigger --name-match=$DISK >/dev/null 2>&1
     partprobe >/dev/null 2>&1
     sleep 3
     echo "Done"

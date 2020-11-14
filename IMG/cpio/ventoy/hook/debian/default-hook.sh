@@ -72,5 +72,8 @@ if [ -f /mod.img ] && [ -f /mod/fs/cramfs.ko ]; then
     $BUSYBOX_PATH/rmmod cramfs
 fi
 
-
+#for siduction-patience-nox-
+if [ -f /scripts/fll ]; then
+    $SED  "/unset FINGERED/a\\echo '/dev/mapper/ventoy';return;"  -i /scripts/fll
+fi
 

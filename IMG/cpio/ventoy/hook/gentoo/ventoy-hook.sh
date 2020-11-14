@@ -21,6 +21,9 @@
 
 if $GREP -q kaspersky /proc/version; then
     $SED "/sysresccd_stage1_normal[^(]*$/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/disk_hook.sh"  -i /init
+    if [ -f /ventoy/ventoy_persistent_map ]; then
+        $SED "/sysresccd_parsecmdline[^(]*$/a\ BACKSTORE_CMD='LABEL=casper-rw,noloop'"  -i /init
+    fi
 elif [ -d /etc/udev/rules.d ] || [ -d /lib/udev/rules.d ]; then    
     ventoy_systemd_udevd_work_around
     ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
