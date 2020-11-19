@@ -26,6 +26,32 @@ if [ -f $VTOY_PATH/autoinstall ]; then
     fi
 fi
 
+if $BUSYBOX_PATH/ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
+    if [ -f /linuxrc.config ]; then
+        vtKerVer=$($BUSYBOX_PATH/uname -r)
+        ventoy_check_insmod /modules/loop.ko
+        ventoy_check_insmod /modules/squashfs.ko
+        
+        ventoy_check_mount /parts/00_lib /modules
+        ventoy_check_insmod /modules/lib/modules/$vtKerVer/initrd/isofs.ko
+        $BUSYBOX_PATH/umount /modules
+    
+        for vtDud in $($BUSYBOX_PATH/ls $VTOY_PATH/ventoy_dud*); do
+            $BUSYBOX_PATH/mkdir -p ${vtDud%.*}_mnt
+            if $BUSYBOX_PATH/mount $vtDud ${vtDud%.*}_mnt > /dev/null 2>&1; then
+                $BUSYBOX_PATH/cp -a ${vtDud%.*}_mnt  ${vtDud%.*}_data
+                $BUSYBOX_PATH/umount ${vtDud%.*}_mnt
+                echo "dud: file://${vtDud%.*}_data" >> /linuxrc.config
+            else
+                echo "mount $vtDud failed" >> $VTLOG
+            fi
+        done
+        
+        $BUSYBOX_PATH/rmmod isofs >> $VTLOG 2>&1
+        $BUSYBOX_PATH/rmmod squashfs >> $VTLOG 2>&1
+        $BUSYBOX_PATH/rmmod loop >> $VTLOG 2>&1
+    fi
+fi
 
 #echo "Exec: /bin/sh $VTOY_PATH/hook/suse/cdrom-hook.sh" >> /info-ventoy
 #echo "install: hd:/?device=/dev/mapper/ventoy" >> /info-ventoy

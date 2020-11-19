@@ -42,10 +42,17 @@ fi
 
 echo "VTKS=$VTKS" >> $VTLOG
 
+if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
+    for vtDud in $(ls $VTOY_PATH/ventoy_dud*); do
+        vtInstDD="$vtInstDD inst.dd=file:$vtDud"
+    done
+fi
+echo "vtInstDD=$vtInstDD" >> $VTLOG
+
 if $GREP -q 'root=live' /proc/cmdline; then
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS $vtInstDD#" -i /lib/dracut-lib.sh
 else
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS $vtInstDD#" -i /lib/dracut-lib.sh
 fi
 
 ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh

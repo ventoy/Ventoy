@@ -41,6 +41,7 @@ GRUB_MOD_LICENSE ("GPLv3+");
 
 static char g_iso_disk_name[128];
 static install_template *g_install_template_head = NULL;
+static dud *g_dud_head = NULL;
 static persistence_config *g_persistence_head = NULL;
 static menu_alias *g_menu_alias_head = NULL;
 static menu_class *g_menu_class_head = NULL;
@@ -582,6 +583,110 @@ static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk
                     }
                     
                     g_install_template_head = node;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_dud_check(VTOY_JSON *json, const char *isodisk)
+{
+    int pathnum = 0;
+    const char *iso = NULL;
+    VTOY_JSON *pNode = NULL;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        grub_printf("Not array type %d\n", json->enDataType);
+        return 1;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        if (pNode->enDataType != JSON_TYPE_OBJECT)
+        {
+            grub_printf("NOT object type\n");
+        }
+    
+        iso = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (iso)
+        {
+            if (0 == ventoy_plugin_check_path(isodisk, iso))
+            {
+                grub_printf("image: %s [OK]\n", iso);
+                ventoy_plugin_check_fullpath(pNode->pstChild, isodisk, "dud", &pathnum);
+            }
+            else
+            {
+                grub_printf("image: %s [FAIL]\n", iso);
+            }
+        }
+        else
+        {
+            grub_printf("image not found\n");
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_dud_entry(VTOY_JSON *json, const char *isodisk)
+{
+    int pathnum = 0;
+    const char *iso = NULL;
+    VTOY_JSON *pNode = NULL;
+    dud *node = NULL;
+    dud *next = NULL;
+    file_fullpath *dudpath = NULL;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_dud_head)
+    {
+        for (node = g_dud_head; node; node = next)
+        {
+            next = node->next;
+            grub_check_free(node->dudpath);
+            grub_free(node);
+        }
+
+        g_dud_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        iso = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (iso && iso[0] == '/')
+        {
+            if (0 == ventoy_plugin_parse_fullpath(pNode->pstChild, isodisk, "dud", &dudpath, &pathnum))
+            {
+                node = grub_zalloc(sizeof(dud));
+                if (node)
+                {
+                    node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", iso);
+                    node->dudpath = dudpath;
+                    node->dudnum = pathnum;
+                    node->files = grub_zalloc(sizeof(dudfile) * pathnum);
+
+                    if (node->files)
+                    {
+                        if (g_dud_head)
+                        {
+                            node->next = g_dud_head;
+                        }
+                        
+                        g_dud_head = node;
+                    }
+                    else
+                    {
+                        grub_free(node);
+                    }
                 }
             }
         }
@@ -1333,6 +1438,7 @@ static plugin_entry g_plugin_entries[] =
     { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check },
     { "image_list", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
     { "conf_replace", ventoy_plugin_conf_replace_entry, ventoy_plugin_conf_replace_check },
+    { "dud", ventoy_plugin_dud_entry, ventoy_plugin_dud_check },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -1761,6 +1867,59 @@ conf_replace * ventoy_plugin_find_conf_replace(const char *iso)
     return NULL;
 }
 
+dud * ventoy_plugin_find_dud(const char *iso)
+{
+    int len;
+    dud *node;
+
+    if (!g_dud_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(iso);
+    for (node = g_dud_head; node; node = node->next)
+    {
+        if (node->pathlen == len && grub_strncmp(iso, node->isopath, len) == 0)
+        {
+            return node;
+        }
+    }
+    
+    return NULL;
+}
+
+int ventoy_plugin_load_dud(dud *node, const char *isopart)
+{
+    int i;
+    char *buf;
+    grub_file_t file;
+
+    for (i = 0; i < node->dudnum; i++)
+    {
+        if (node->files[i].size > 0)
+        {
+            debug("file %d has been loaded\n", i);
+            continue;
+        }
+    
+        file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", isopart, node->dudpath[i].path);
+        if (file)
+        {
+            buf = grub_malloc(file->size);
+            if (buf)
+            {
+                grub_file_read(file, buf, file->size);            
+                node->files[i].size = (int)file->size;
+                node->files[i].buf = buf;                
+            }
+            grub_file_close(file);
+        }
+    }
+
+    return 0;
+}
+
 grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i = 0;
@@ -1782,6 +1941,7 @@ grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, ch
     if (!file)
     {
         grub_printf("Plugin json file /ventoy/ventoy.json does NOT exist.\n");
+        grub_printf("Attention: directory name and filename are both case-sensitive.\n");
         goto end;
     }
 

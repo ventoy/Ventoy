@@ -9,6 +9,7 @@ print_usage() {
     echo '   -i  install ventoy to sdX (fail if disk already installed with ventoy)'
     echo '   -I  force install ventoy to sdX (no matter installed or not)'
     echo '   -u  update ventoy in sdX'
+    echo '   -l  list Ventoy information in sdX'
     echo ''
     echo '  OPTION: (optional)'
     echo '   -r SIZE_MB  preserve some space at the bottom of the disk (only for install)'
@@ -29,6 +30,8 @@ while [ -n "$1" ]; do
         FORCE="Y"
     elif [ "$1" = "-u" ]; then
         MODE="update"
+    elif [ "$1" = "-l" ]; then
+        MODE="list"
     elif [ "$1" = "-s" ]; then
         SECUREBOOT="YES"
     elif [ "$1" = "-g" ]; then
@@ -42,7 +45,7 @@ while [ -n "$1" ]; do
         RESERVE_SIZE_MB=$1
     elif [ "$1" = "-V" ] || [ "$1" = "--version" ]; then
         exit 0
-    elif [ "$1" == "-h" ] || [ "$1" = "--help" ]; then
+    elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
         print_usage
         exit 0
     else
@@ -76,7 +79,7 @@ if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
     exit 1
 fi
 
-if [ -n "$RESERVE_SPACE" ]; then
+if [ -n "$RESERVE_SPACE" -a "$MODE" = "install" ]; then
     if echo $RESERVE_SIZE_MB | grep -q '^[0-9][0-9]*$'; then
         vtdebug "User will reserve $RESERVE_SIZE_MB MB disk space"
     else
@@ -102,6 +105,36 @@ if check_tool_work_ok; then
 else
     vterr "Some tools can not run in current system. Please check log.txt for detail."
     exit 1
+fi
+
+if [ "$MODE" = "list" ]; then
+    version=$(get_disk_ventoy_version $DISK)
+    if [ $? -eq 0 ]; then
+        echo "Ventoy Version in Disk: $version"
+        
+        vtPart1Type=$(dd if=$DISK bs=1 count=1 skip=450 status=none | hexdump -n1 -e  '1/1 "%02X"')
+        if [ "$vtPart1Type" = "EE" ]; then            
+            echo "Disk Partition Style  : GPT"
+        else
+            echo "Disk Partition Style  : MBR"
+        fi
+        
+        vtPART2=$(get_disk_part_name $DISK 2)        
+        rm -rf ./tmpmntp2 && mkdir ./tmpmntp2
+        mount $vtPART2 ./tmpmntp2 > /dev/null 2>&1
+
+        if [ -e ./tmpmntp2/EFI/BOOT/MokManager.efi ]; then
+            echo "Secure Boot Support   : YES"
+        else
+            echo "Secure Boot Support   : NO"
+        fi        
+        umount ./tmpmntp2 > /dev/null 2>&1
+        rm -rf ./tmpmntp2
+    else
+        echo "Ventoy Version: NA"
+    fi
+    echo ""
+    exit 0
 fi
 
 #check mountpoint
@@ -345,7 +378,7 @@ else
     SHORT_PART2=${PART2#/dev/}
     part2_start=$(cat /sys/class/block/$SHORT_PART2/start)
     
-    PART1_TYPE=$(dd if=$DISK bs=1 count=1 skip=450 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+    PART1_TYPE=$(dd if=$DISK bs=1 count=1 skip=450 status=none | hexdump -n1 -e  '1/1 "%02X"')
     
     if [ "$PART1_TYPE" = "EE" ]; then
         vtdebug "This is GPT partition style ..."        
@@ -355,8 +388,8 @@ else
         vtdebug "This is MBR partition style ..."
         dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
     
-        PART1_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=446 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
-        PART2_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=462 status=none | ./tool/hexdump -n1 -e  '1/1 "%02X"')
+        PART1_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=446 status=none | hexdump -n1 -e  '1/1 "%02X"')
+        PART2_ACTIVE=$(dd if=$DISK bs=1 count=1 skip=462 status=none | hexdump -n1 -e  '1/1 "%02X"')
         
         vtdebug "PART1_ACTIVE=$PART1_ACTIVE  PART2_ACTIVE=$PART2_ACTIVE"
         if [ "$PART1_ACTIVE" = "00" ] && [ "$PART2_ACTIVE" = "80" ]; then

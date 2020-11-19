@@ -508,6 +508,7 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
 grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_dump_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
 
 VTOY_JSON *vtoy_json_find_item
@@ -731,6 +732,24 @@ typedef struct install_template
     struct install_template *next;
 }install_template;
 
+typedef struct dudfile
+{
+    int size;
+    char *buf;
+}dudfile;
+
+typedef struct dud
+{
+    int pathlen;
+    char isopath[256];
+
+    int dudnum;
+    file_fullpath *dudpath;
+    dudfile *files;
+
+    struct dud *next;
+}dud;
+
 typedef struct persistence_config
 {
     int pathlen;
@@ -855,6 +874,8 @@ const char * ventoy_plugin_get_menu_class(int type, const char *name);
 int ventoy_plugin_check_memdisk(const char *isopath);
 int ventoy_plugin_get_image_list_index(int type, const char *name);
 conf_replace * ventoy_plugin_find_conf_replace(const char *iso);
+dud * ventoy_plugin_find_dud(const char *iso);
+int ventoy_plugin_load_dud(dud *node, const char *isopart);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);

@@ -1044,11 +1044,15 @@ grub_err_t ventoy_cmd_cpio_busybox_64(grub_extcmd_context_t ctxt, int argc, char
 
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int i;
     int rc;
+    char *pos = NULL;
     char *template_file = NULL;
     char *template_buf = NULL;
     char *persistent_buf = NULL;
     char *injection_buf = NULL;
+    dud *dudnode = NULL;
+    char tmpname[128];
     const char *injection_file = NULL;
     grub_uint8_t *buf = NULL;
     grub_uint32_t mod;
@@ -1059,6 +1063,7 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     grub_uint32_t template_size = 0;
     grub_uint32_t persistent_size = 0;
     grub_uint32_t injection_size = 0;
+    grub_uint32_t dud_size = 0;
     grub_file_t file;
     grub_file_t tmpfile;
     ventoy_img_chunk_list chunk_list;
@@ -1152,11 +1157,30 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
         debug("injection not configed %s\n", args[1]);
     }
 
-    g_ventoy_cpio_buf = grub_malloc(file->size + 4096 + template_size + persistent_size + injection_size + img_chunk_size);
+    dudnode = ventoy_plugin_find_dud(args[1]);
+    if (dudnode)
+    {
+        debug("dud file: <%d>\n", dudnode->dudnum);
+        ventoy_plugin_load_dud(dudnode, args[2]);
+        for (i = 0; i < dudnode->dudnum; i++)
+        {
+            if (dudnode->files[i].size > 0)
+            {
+                dud_size += dudnode->files[i].size + sizeof(cpio_newc_header);                
+            }
+        }
+    }
+    else
+    {
+        debug("dud not configed %s\n", args[1]);
+    }
+
+    g_ventoy_cpio_buf = grub_malloc(file->size + 40960 + template_size + 
+        persistent_size + injection_size + dud_size + img_chunk_size);
     if (NULL == g_ventoy_cpio_buf)
     {
         grub_file_close(file);
-        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't alloc memory %llu\n", file->size + 4096 + img_chunk_size); 
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't alloc memory %llu\n", file->size);
     }
 
     grub_file_read(file, g_ventoy_cpio_buf, file->size);
@@ -1196,6 +1220,18 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
 
         grub_free(injection_buf);
         injection_buf = NULL;
+    }
+
+    if (dud_size > 0)
+    {
+        for (i = 0; i < dudnode->dudnum; i++)
+        {
+            pos = grub_strrchr(dudnode->dudpath[i].path, '.');
+            grub_snprintf(tmpname, sizeof(tmpname), "ventoy/ventoy_dud%d%s", i, (pos ? pos : ".iso"));
+            dud_size = dudnode->files[i].size;
+            headlen = ventoy_cpio_newc_fill_head(buf, dud_size, dudnode->files[i].buf, tmpname);
+            buf += headlen + ventoy_align(dud_size, 4);
+        }
     }
 
     /* step2: insert os param to cpio */

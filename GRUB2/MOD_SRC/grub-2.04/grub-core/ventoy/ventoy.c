@@ -1111,24 +1111,11 @@ void ventoy_swap_img(img_info *img1, img_info *img2)
 
 static int ventoy_img_name_valid(const char *filename, grub_size_t namelen)
 {
-    grub_size_t i;
-
+    (void)namelen;
+    
     if (g_filt_dot_underscore_file && filename[0] == '.' && filename[1] == '_')
     {
         return 0;
-    }
-
-    for (i = 0; i < namelen; i++)
-    {
-        if (filename[i] == ' ' || filename[i] == '\t')
-        {
-            return 0;
-        }
-
-        if ((grub_uint8_t)(filename[i]) >= 127)
-        {
-            return 0;
-        }
     }
 
     return 1;
@@ -1150,7 +1137,7 @@ static int ventoy_check_ignore_flag(const char *filename, const struct grub_dirh
 
 static int ventoy_colect_img_files(const char *filename, const struct grub_dirhook_info *info, void *data)
 {
-    int i = 0;
+    //int i = 0;
     int type = 0;
     int ignore = 0;
     int index = 0;
@@ -1297,15 +1284,6 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
             img->plugin_list_index = index;
             grub_snprintf(img->name, sizeof(img->name), "%s", filename);
 
-            for (i = 0; i < (int)len; i++)
-            {
-                if (filename[i] == ' ' || filename[i] == '\t' || (0 == grub_isprint(filename[i])))
-                {
-                    img->name[i] = '*';
-                    img->unsupport = 1;
-                }
-            }
-            
             img->pathlen = grub_snprintf(img->path, sizeof(img->path), "%s%s", node->dir, img->name);
 
             img->size = info->size;
@@ -4001,6 +3979,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_windows_locate_wim_patch", ventoy_cmd_locate_wim_patch, 0, NULL, "", "", NULL },
     { "vt_windows_count_wim_patch", ventoy_cmd_wim_patch_count, 0, NULL, "", "", NULL },
     { "vt_dump_wim_patch", ventoy_cmd_dump_wim_patch, 0, NULL, "", "", NULL },
+    { "vt_wim_check_bootable", ventoy_cmd_wim_check_bootable, 0, NULL, "", "", NULL },
     { "vt_wim_chain_data", ventoy_cmd_wim_chain_data, 0, NULL, "", "", NULL },
 
     { "vt_add_replace_file", ventoy_cmd_add_replace_file, 0, NULL, "", "", NULL },

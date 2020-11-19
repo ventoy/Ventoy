@@ -1542,6 +1542,41 @@ static int ventoy_get_wim_chunklist(const char *filename, ventoy_img_chunk_list 
     return 0;
 }
 
+grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint32_t boot_index;
+    grub_file_t file = NULL;
+    wim_header *wimhdr = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+
+    wimhdr = grub_zalloc(sizeof(wim_header));
+    if (!wimhdr)
+    {
+        return 1;
+    }
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        grub_free(wimhdr);
+        return 1;
+    }
+
+    grub_file_read(file, wimhdr, sizeof(wim_header));
+    grub_file_close(file);
+    boot_index = wimhdr->boot_index;
+    grub_free(wimhdr);
+
+    if (boot_index == 0)
+    {
+        return 1;
+    }
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     grub_uint32_t i = 0;
