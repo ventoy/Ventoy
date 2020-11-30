@@ -192,7 +192,7 @@ if [ "$MODE" = "install" ]; then
     fi
     
     disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size)
-    disk_size_gb=$(expr $disk_sector_num / 2097152)
+    disk_size_gb=$(($disk_sector_num / 2097152))
 
     if [ $disk_sector_num -gt 4294967296 ] && [ -z "$VTGPT" ]; then
         vterr "$DISK is over 2TB size, MBR will not work on it."
@@ -200,8 +200,8 @@ if [ "$MODE" = "install" ]; then
     fi
 
     if [ -n "$RESERVE_SPACE" ]; then
-        sum_size_mb=$(expr $RESERVE_SIZE_MB + $VENTOY_PART_SIZE_MB)
-        reserve_sector_num=$(expr $sum_size_mb \* 2048)
+        sum_size_mb=$(($RESERVE_SIZE_MB + $VENTOY_PART_SIZE_MB))
+        reserve_sector_num=$(($sum_size_mb \* 2048))
         
         if [ $disk_sector_num -le $reserve_sector_num ]; then
             vterr "Can't reserve $RESERVE_SIZE_MB MB space from $DISK"

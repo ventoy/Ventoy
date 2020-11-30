@@ -15,7 +15,7 @@ ventoy_true() {
 }
 
 ventoy_is_linux64() {
-    if uname -a | egrep -q 'x86_64|amd64'; then
+    if uname -a | grep -e -q 'x86_64|amd64'; then
         ventoy_true
         return
     fi
@@ -204,14 +204,14 @@ format_ventoy_disk_mbr() {
     part1_start_sector=2048 
     
     if [ $reserve_mb -gt 0 ]; then
-        reserve_sector_num=$(expr $reserve_mb \* 2048)
-        part1_end_sector=$(expr $sector_num - $reserve_sector_num - $VENTOY_SECTOR_NUM - 1)
+        reserve_sector_num=$(($reserve_mb \* 2048))
+        part1_end_sector=$(( $sector_num - $reserve_sector_num - $VENTOY_SECTOR_NUM - 1))
     else
-        part1_end_sector=$(expr $sector_num - $VENTOY_SECTOR_NUM - 1)
+        part1_end_sector=$(($sector_num - $VENTOY_SECTOR_NUM - 1))
     fi
     
-    part2_start_sector=$(expr $part1_end_sector + 1)
-    part2_end_sector=$(expr $part2_start_sector + $VENTOY_SECTOR_NUM - 1)
+    part2_start_sector=$(($part1_end_sector + 1))
+    part2_end_sector=$(($part2_start_sector + $VENTOY_SECTOR_NUM - 1))
 
     export part2_start_sector
 
@@ -319,14 +319,14 @@ format_ventoy_disk_gpt() {
     part1_start_sector=2048 
     
     if [ $reserve_mb -gt 0 ]; then
-        reserve_sector_num=$(expr $reserve_mb \* 2048 + 33)
-        part1_end_sector=$(expr $sector_num - $reserve_sector_num - $VENTOY_SECTOR_NUM - 1)
+        reserve_sector_num=$(($reserve_mb \* 2048 + 33))
+        part1_end_sector=$(($sector_num - $reserve_sector_num - $VENTOY_SECTOR_NUM - 1))
     else
-        part1_end_sector=$(expr $sector_num - $VENTOY_SECTOR_NUM - 34)
+        part1_end_sector=$(($sector_num - $VENTOY_SECTOR_NUM - 34))
     fi
     
-    part2_start_sector=$(expr $part1_end_sector + 1)
-    part2_end_sector=$(expr $part2_start_sector + $VENTOY_SECTOR_NUM - 1)
+    part2_start_sector=$(($part1_end_sector + 1))
+    part2_end_sector=$(($part2_start_sector + $VENTOY_SECTOR_NUM - 1))
 
     export part2_start_sector
 

@@ -539,7 +539,7 @@ ventoy_create_dev_ventoy_part() {
             blkdev_num=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy${vtPartid} | $SED 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
             $BUSYBOX_PATH/mknod -m 0666 /dev/ventoy${vtPartid} b $blkdev_num
             
-            vtPartid=$(expr $vtPartid + 1)
+            vtPartid=$(($vtPartid + 1))
         done        
     fi
 }
