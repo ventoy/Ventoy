@@ -479,7 +479,7 @@ LOCAL(stop):
 	jmp	LOCAL(stop)
 
 ventoy_uuid:	.ascii  "XXXXXXXXXXXXXXXX"
-notification_string:	.asciz "GR"
+notification_string:	.asciz "VT"
 geometry_error_string:	.asciz "Ge"
 hd_probe_error_string:	.asciz "HD"
 read_error_string:	.asciz "Rd"
