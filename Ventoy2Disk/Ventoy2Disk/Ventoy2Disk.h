@@ -116,6 +116,18 @@ typedef struct VTOY_GPT_INFO
     VTOY_GPT_PART_TBL PartTbl[128];
 }VTOY_GPT_INFO;
 
+
+typedef struct ventoy_secure_data
+{
+    UINT8 magic1[16];     /* VENTOY_GUID */
+    UINT8 diskuuid[16];
+    UINT8 Checksum[16];
+    UINT8 adminSHA256[32];
+    UINT8 reserved[4000];
+    UINT8 magic2[16];     /* VENTOY_GUID */
+}ventoy_secure_data;
+
+
 #pragma pack()
 
 #define VENTOY_MAX_PHY_DRIVE  128
@@ -138,6 +150,8 @@ typedef struct PHY_DRIVE_INFO
 
     CHAR VentoyVersion[32];
 
+    BOOL SecureBootSupport;
+    MBR_HEAD MBR;
 }PHY_DRIVE_INFO;
 
 typedef enum PROGRESS_POINT
@@ -186,7 +200,7 @@ int GetRegDwordValue(HKEY Key, LPCSTR SubKey, LPCSTR ValueName, DWORD *pValue);
 int GetPhysicalDriveCount(void);
 int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount);
 int GetPhyDriveByLogicalDrive(int DriveLetter);
-int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen);
+int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen, BOOL *pSecureBoot);
 int Ventoy2DiskInit(void);
 int Ventoy2DiskDestroy(void);
 PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id);

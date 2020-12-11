@@ -70,6 +70,10 @@ ventoy_get_debian_distro() {
         echo 'vyos'; return
     fi
     
+    if $GREP -q 'kylin' /proc/version; then
+        echo 'kylin'; return
+    fi
+    
     echo 'default'
 }
 

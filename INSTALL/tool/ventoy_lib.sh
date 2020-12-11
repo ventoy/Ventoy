@@ -14,14 +14,6 @@ ventoy_true() {
     [ "1" = "1" ]
 }
 
-ventoy_is_linux64() {
-    if uname -a | egrep -q 'x86_64|amd64'; then
-        ventoy_true
-        return
-    fi
-    
-    ventoy_false
-}
 
 vtinfo() {
     echo -e "\033[32m$*\033[0m"
@@ -40,17 +32,25 @@ vtdebug() {
     echo "$*" >> ./log.txt
 }
 
-check_tool_work_ok() {
-    
-    if ventoy_is_linux64; then
-        vtdebug "This is linux 64"
-        mkexfatfs=mkexfatfs_64
-        vtoyfat=vtoyfat_64
+vtoy_gen_uuid() {
+    if  uuid -F BIN > /dev/null 2>&1; then
+        uuid -F BIN
+    elif uuidgen -V > /dev/null 2>&1; then
+        a=$(uuidgen | sed 's/-//g')
+        echo -en "\x${a:0:2}\x${a:2:2}\x${a:4:2}\x${a:6:2}\x${a:8:2}\x${a:10:2}\x${a:12:2}\x${a:14:2}\x${a:16:2}\x${a:18:2}\x${a:20:2}\x${a:22:2}\x${a:24:2}\x${a:26:2}\x${a:28:2}\x${a:30:2}"        
+    elif python -V > /dev/null 2>&1; then
+        a=$(python -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')
+        echo -en "\x${a:0:2}\x${a:2:2}\x${a:4:2}\x${a:6:2}\x${a:8:2}\x${a:10:2}\x${a:12:2}\x${a:14:2}\x${a:16:2}\x${a:18:2}\x${a:20:2}\x${a:22:2}\x${a:24:2}\x${a:26:2}\x${a:28:2}\x${a:30:2}"
+    elif [ -e /dev/urandom ]; then
+        dd if=/dev/urandom bs=1 count=16 status=none
     else
-        vtdebug "This is linux 32"
-        mkexfatfs=mkexfatfs_32
-        vtoyfat=vtoyfat_32
+        datestr=$(date +%N%N%N%N%N)
+        a=${datestr:0:32}
+        echo -en "\x${a:0:2}\x${a:2:2}\x${a:4:2}\x${a:6:2}\x${a:8:2}\x${a:10:2}\x${a:12:2}\x${a:14:2}\x${a:16:2}\x${a:18:2}\x${a:20:2}\x${a:22:2}\x${a:24:2}\x${a:26:2}\x${a:28:2}\x${a:30:2}"
     fi
+}
+
+check_tool_work_ok() {
     
     if echo 1 | hexdump > /dev/null; then
         vtdebug "hexdump test ok ..."
@@ -60,18 +60,18 @@ check_tool_work_ok() {
         return
     fi
    
-    if ./tool/$mkexfatfs -V > /dev/null; then
-        vtdebug "$mkexfatfs test ok ..."
+    if mkexfatfs -V > /dev/null; then
+        vtdebug "mkexfatfs test ok ..."
     else
-        vtdebug "$mkexfatfs test fail ..."
+        vtdebug "mkexfatfs test fail ..."
         ventoy_false
         return
     fi
     
-    if ./tool/$vtoyfat -T; then
-        vtdebug "$vtoyfat test ok ..."
+    if vtoyfat -T; then
+        vtdebug "vtoyfat test ok ..."
     else
-        vtdebug "$vtoyfat test fail ..."
+        vtdebug "vtoyfat test fail ..."
         ventoy_false
         return
     fi
@@ -165,6 +165,17 @@ is_disk_contains_ventoy() {
     ventoy_true
 }
 
+check_disk_secure_boot() {
+    if ! is_disk_contains_ventoy $1; then
+        ventoy_false
+        return
+    fi
+    
+    PART2=$(get_disk_part_name $1 2)    
+    
+    vtoyfat -s $PART2
+}
+
 get_disk_ventoy_version() {
 
     if ! is_disk_contains_ventoy $1; then
@@ -174,13 +185,7 @@ get_disk_ventoy_version() {
     
     PART2=$(get_disk_part_name $1 2)    
     
-    if ventoy_is_linux64; then
-        cmd=./tool/vtoyfat_64
-    else
-        cmd=./tool/vtoyfat_32
-    fi
-    
-    ParseVer=$($cmd $PART2)
+    ParseVer=$(vtoyfat $PART2)
     if [ $? -eq 0 ]; then
         vtdebug "Ventoy version in $PART2 is $ParseVer"
         echo $ParseVer
@@ -342,24 +347,23 @@ format_ventoy_disk_gpt() {
     echo "Create partitions on $DISK by $PARTTOOL in GPT style ..."
     
     vtdebug "format disk by parted ..."
+    
+    if [ "$TOOLDIR" != "aarch64" ]; then
+        vt_set_efi_type="set 2 msftdata on"
+    fi    
+    
     parted -a none --script $DISK \
         mklabel gpt \
         unit s \
         mkpart Ventoy ntfs $part1_start_sector $part1_end_sector \
         mkpart VTOYEFI fat16 $part2_start_sector $part2_end_sector \
-        set 2 msftdata on \
+        $vt_set_efi_type \
         set 2 hidden on \
         quit
-        
+
     sync
     
-    if ventoy_is_linux64; then
-        vtoygpt=./tool/vtoygpt_64
-    else
-        vtoygpt=./tool/vtoygpt_32
-    fi
-
-    $vtoygpt -f $DISK
+    vtoygpt -f $DISK
     sync
 
     udevadm trigger --name-match=$DISK >/dev/null 2>&1

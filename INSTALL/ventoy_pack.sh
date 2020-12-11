@@ -61,7 +61,9 @@ cp -a ./tool/ENROLL_THIS_KEY_IN_MOKMANAGER.cer $tmpmnt/
 
 
 mkdir -p $tmpmnt/tool
-cp -a ./tool/mount*     $tmpmnt/tool/
+cp -a ./tool/i386/mount.exfat-fuse     $tmpmnt/tool/mount.exfat-fuse_i386
+cp -a ./tool/x86_64/mount.exfat-fuse   $tmpmnt/tool/mount.exfat-fuse_x86_64
+cp -a ./tool/aarch64/mount.exfat-fuse  $tmpmnt/tool/mount.exfat-fuse_aarch64
 
 rm -f $tmpmnt/grub/i386-pc/*.img
 
@@ -96,16 +98,18 @@ rm -f ventoy-${curver}-linux.tar.gz
 
 
 CurDir=$PWD
-cd $tmpdir/tool
 
-for file in $(ls); do
-    if [ "$file" != "xzcat" ] && [ "$file" != "ventoy_lib.sh" ]; then
-        xz --check=crc32 $file
-    fi
+for d in i386 x86_64 aarch64; do
+    cd $tmpdir/tool/$d
+    for file in $(ls); do
+        if [ "$file" != "xzcat" ]; then
+            xz --check=crc32 $file
+        fi
+    done
+    cd $CurDir
 done
 
 #chmod 
-cd $CurDir
 find $tmpdir/ -type d -exec chmod 755 "{}" +
 find $tmpdir/ -type f -exec chmod 644 "{}" +
 chmod +x $tmpdir/Ventoy2Disk.sh

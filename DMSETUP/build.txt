@@ -47,3 +47,18 @@ https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
 
 
 
+
+======================== Build for arm64 dmsetup =========================
+https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
+1. extract device mapper source code
+2. ./configure CC=aarch64-linux-gcc --target=arm --host=x86_64-linux-gnu --disable-nls  --disable-selinux --disable-shared  --enable-static_link
+3. modify include/configure.h file
+   --- delete the line with "#define malloc rpl_malloc"
+4. make
+5. aarch64-linux-strip dmsetup/dmsetup.static
+6. get dmsetup/dmsetup.static as the dmsetupaa64 binary file
+
+
+
+
+

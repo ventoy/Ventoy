@@ -31,7 +31,8 @@
     https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911     ===>  /home/Ventoy-master/EDK2/edk2-edk2-stable201911.zip
     https://codeload.github.com/relan/exfat/zip/v1.3.0                   ===>  /home/Ventoy-master/ExFAT/exfat-1.3.0.zip
     https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9           ===>  /home/Ventoy-master/ExFAT/libfuse-fuse-2.9.9.zip
-
+    https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz           ===>  /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
+    https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2 ===> /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2
 
 
 ==========================================
@@ -81,7 +82,7 @@
     cd /home/Ventoy-master/VtoyTool
     sh build.sh
 
-4.8 == Build vtoyfat ==
+4.8 == Build vtoyfat ==    
     cd /home/Ventoy-master/vtoyfat/fat_io_lib
     sh buildlib.sh
     cd /home/Ventoy-master/vtoyfat
@@ -144,7 +145,7 @@
 4.18 IMG/cpio/ventoy/busybox/64h
   https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
   https://busybox.net/downloads/busybox-1.32.0.tar.bz2
-  use BUSYBOX/64h.config and uclibc to build busybox-1.32
+  use BUSYBOX/x86_64_ash.config and uclibc to build busybox-1.32
 
 4.19 == Build lunzip32/lunzip64 ==
   http://mirror.yongbok.net/nongnu/lzip/lunzip/lunzip-1.11.tar.gz
@@ -152,6 +153,11 @@
   ./configure --disable-nls CC='diet gcc -nostdinc'
   make
   strip --strip-all lunzip
+  
+  #aarch64
+  ./configure --disable-nls CC='aarch64-buildroot-linux-uclibc-gcc -static'
+  make
+  aarch64-buildroot-linux-uclibc-strip --strip-all lunzip
 
 
 
@@ -181,11 +187,11 @@
   https://busybox.net/downloads/binaries/1.27.1-i686   busybox_XZ
   SHA-256: f6cdb6293680424c29b89bde0685ca27f455166c9b302cd6082ef90681456291  
 
-5.6 INSTALL/tool/xzcat
+5.6 INSTALL/tool/i386/xzcat
   https://busybox.net/downloads/binaries/1.30.0-i686/   busybox_XZCAT
   SHA-256: 7399db642c2beaf52a16ab5264ffc55cfd1ff5699a524f63e5d48edf84e20f44  
   
-5.7 INSTALL/tool/hexdump
+5.7 INSTALL/tool/i386/hexdump
   https://busybox.net/downloads/binaries/1.30.0-i686/   busybox_HEXDUMP
   SHA-256: cde08b6a2cf5ad914f05203e18e3f7c2ed6060a63604e3d75536f19b55e8e0af  
 

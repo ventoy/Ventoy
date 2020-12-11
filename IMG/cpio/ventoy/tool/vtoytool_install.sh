@@ -19,46 +19,67 @@
 
 echo "#### install vtoytool #####" >> $VTLOG
 
-if ! [ -e $BUSYBOX_PATH/ar ]; then
-    $BUSYBOX_PATH/ln -s $VTOY_PATH/tool/ar $BUSYBOX_PATH/ar
-fi
-
-for vtdir in $(ls $VTOY_PATH/tool/vtoytool/); do
-    echo "try $VTOY_PATH/tool/vtoytool/$vtdir/ ..." >> $VTLOG
-    if $VTOY_PATH/tool/vtoytool/$vtdir/vtoytool_64 --install 2>>$VTLOG; then
-        echo "vtoytool_64 OK" >> $VTLOG
-        break
-    fi
-    
-    if $VTOY_PATH/tool/vtoytool/$vtdir/vtoytool_32 --install 2>>$VTLOG; then
-        echo "vtoytool_32 OK" >> $VTLOG
-        break
+for app in ar inotifyd; do
+    if [ -e $BUSYBOX_PATH/$app ]; then
+        $BUSYBOX_PATH/rm -f $VTOY_PATH/tool/$app
+        $BUSYBOX_PATH/ln -s $BUSYBOX_PATH/$app $VTOY_PATH/tool/$app
+    else
+        $BUSYBOX_PATH/ln -s $VTOY_PATH/tool/$app $BUSYBOX_PATH/$app
     fi
 done
 
-if $VTOY_PATH/tool/vtoy_fuse_iso_64 -t 2>>$VTLOG; then
-    echo "use vtoy_fuse_iso_64" >>$VTLOG
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_64  $VTOY_PATH/tool/vtoy_fuse_iso
+
+if $GREP -q aarch64 $VTOY_PATH/ventoy_arch; then
+    for vtdir in $(ls $VTOY_PATH/tool/vtoytool/); do
+        echo "try $VTOY_PATH/tool/vtoytool/$vtdir/ ..." >> $VTLOG
+        if $VTOY_PATH/tool/vtoytool/$vtdir/vtoytool_aa64 --install 2>>$VTLOG; then
+            echo "vtoytool_aa64 OK" >> $VTLOG
+            break
+        fi        
+    done
+    
+    $BUSYBOX_PATH/rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/lz4cataa64 $VTOY_PATH/tool/lz4cat
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
+    
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_aa64  $VTOY_PATH/tool/vtoy_fuse_iso
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_aa64  $VTOY_PATH/tool/vtoy_unsquashfs    
 else
-    echo "use vtoy_fuse_iso_32" >>$VTLOG    
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_32 $VTOY_PATH/tool/vtoy_fuse_iso
-fi
+    
+    if $GREP -q x86_64 $VTOY_PATH/ventoy_arch; then
+        $BUSYBOX_PATH/rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/lz4cat64  $VTOY_PATH/tool/lz4cat
+        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
+    fi
 
-if $VTOY_PATH/tool/unsquashfs_64 -t 2>>$VTLOG; then
-    echo "use unsquashfs_64" >>$VTLOG
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_64  $VTOY_PATH/tool/vtoy_unsquashfs
-else
-    echo "use unsquashfs_32" >>$VTLOG    
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_32 $VTOY_PATH/tool/vtoy_unsquashfs
-fi
+    for vtdir in $(ls $VTOY_PATH/tool/vtoytool/); do
+        echo "try $VTOY_PATH/tool/vtoytool/$vtdir/ ..." >> $VTLOG
+        if $VTOY_PATH/tool/vtoytool/$vtdir/vtoytool_64 --install 2>>$VTLOG; then
+            echo "vtoytool_64 OK" >> $VTLOG
+            break
+        fi
+        
+        if $VTOY_PATH/tool/vtoytool/$vtdir/vtoytool_32 --install 2>>$VTLOG; then
+            echo "vtoytool_32 OK" >> $VTLOG
+            break
+        fi
+    done
+    
+    if $VTOY_PATH/tool/vtoy_fuse_iso_64 -t 2>>$VTLOG; then
+        echo "use vtoy_fuse_iso_64" >>$VTLOG
+        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_64  $VTOY_PATH/tool/vtoy_fuse_iso
+    else
+        echo "use vtoy_fuse_iso_32" >>$VTLOG    
+        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_32 $VTOY_PATH/tool/vtoy_fuse_iso
+    fi
 
-
-
-if $VTOY_PATH/tool/unsquashfs_64 -t 2>>$VTLOG; then
-    echo "use unsquashfs_64" >>$VTLOG
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_64  $VTOY_PATH/tool/vtoy_unsquashfs
-else
-    echo "use unsquashfs_32" >>$VTLOG    
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_32 $VTOY_PATH/tool/vtoy_unsquashfs
+    if $VTOY_PATH/tool/unsquashfs_64 -t 2>>$VTLOG; then
+        echo "use unsquashfs_64" >>$VTLOG
+        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_64  $VTOY_PATH/tool/vtoy_unsquashfs
+    else
+        echo "use unsquashfs_32" >>$VTLOG    
+        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_32 $VTOY_PATH/tool/vtoy_unsquashfs
+    fi
+    
 fi
 

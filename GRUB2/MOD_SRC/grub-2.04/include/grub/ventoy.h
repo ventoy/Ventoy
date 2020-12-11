@@ -21,7 +21,7 @@
 #ifndef __VENTOY_H__
 #define __VENTOY_H__
 
-#define COMPILE_ASSERT(expr)  extern char __compile_assert[(expr) ? 1 : -1]
+#define COMPILE_ASSERT(a, expr)  extern char __compile_assert##a[(expr) ? 1 : -1]
 
 #define VENTOY_COMPATIBLE_STR      "VENTOY COMPATIBLE"
 #define VENTOY_COMPATIBLE_STR_LEN  17
@@ -139,11 +139,23 @@ typedef struct ventoy_windows_data
 }ventoy_windows_data;
 
 
+typedef struct ventoy_secure_data
+{
+    grub_uint8_t magic1[16];     /* VENTOY_GUID */
+    grub_uint8_t diskuuid[16];   
+    grub_uint8_t Checksum[16];    
+    grub_uint8_t adminSHA256[32];
+    grub_uint8_t reserved[4000];
+    grub_uint8_t magic2[16];     /* VENTOY_GUID */
+}ventoy_secure_data;
+
+
 
 #pragma pack()
 
 // compile assert check : sizeof(ventoy_os_param) must be 512
-COMPILE_ASSERT(sizeof(ventoy_os_param) == 512);
+COMPILE_ASSERT(1,sizeof(ventoy_os_param) == 512);
+COMPILE_ASSERT(2,sizeof(ventoy_secure_data) == 4096);
 
 
 
@@ -241,7 +253,6 @@ typedef struct ventoy_grub_param
 }ventoy_grub_param;
 
 #pragma pack()
-
 
 int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);

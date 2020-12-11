@@ -26,6 +26,8 @@ fi
 
 if uname -a | egrep -q 'x86_64|amd64'; then
     name=unsquashfs_64
+elif uname -a | egrep -q 'aarch64'; then
+    name=unsquashfs_aa64
 else
     name=unsquashfs_32
 fi

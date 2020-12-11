@@ -37,6 +37,20 @@ static int vtoy_disk_read(uint32 sector, uint8 *buffer, uint32 sector_count)
     return 1;
 }
 
+static int check_secure_boot(void)
+{
+    void *flfile = NULL;
+    
+    flfile = fl_fopen("/EFI/BOOT/grubx64_real.efi", "rb");
+    if (flfile)
+    {
+        fl_fclose(flfile);
+        return 0;
+    }
+    
+    return 1;
+}
+
 static int get_ventoy_version(void)
 {
     int rc = 1;
@@ -91,11 +105,14 @@ static int get_ventoy_version(void)
 
 int main(int argc, char **argv)
 {
+    int op = 0;
     int rc = 1;
+    char *disk;
 
-    if (argc != 2)
+    if (argc != 2 && argc != 3)
     {   
-        printf("Usage: vtoyfat /dev/sdb \n");
+        printf("Usage: vtoyfat /dev/sdbs \n");
+        printf("Usage: vtoyfat -s /dev/sdbs \n");
         return 1;
     }
     
@@ -104,10 +121,17 @@ int main(int argc, char **argv)
         return 0;
     }
     
-    g_disk_fd = open(argv[1], O_RDONLY);
+    disk = argv[1];
+    if (argv[1][0] == '-' && argv[1][1] == 's')
+    {
+        op = 1;
+        disk = argv[2];
+    } 
+    
+    g_disk_fd = open(disk, O_RDONLY);
     if (g_disk_fd < 0)
     {
-        printf("Failed to open %s\n", argv[1]);
+        printf("Failed to open %s\n", disk);
         return 1;
     }
 
@@ -115,7 +139,14 @@ int main(int argc, char **argv)
 
     if (0 == fl_attach_media(vtoy_disk_read, NULL))
     {
-        rc = get_ventoy_version();
+        if (op == 0)
+        {
+            rc = get_ventoy_version();
+        }
+        else
+        {
+            rc = check_secure_boot();
+        }        
     }
 
     fl_shutdown();

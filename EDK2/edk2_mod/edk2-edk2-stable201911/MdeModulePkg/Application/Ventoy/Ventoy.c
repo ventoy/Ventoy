@@ -39,6 +39,7 @@
 BOOLEAN gDebugPrint = FALSE;
 BOOLEAN gDotEfiBoot = FALSE;
 BOOLEAN gLoadIsoEfi = FALSE;
+BOOLEAN gIsoUdf = FALSE;
 ventoy_ram_disk g_ramdisk_param;
 ventoy_chain_head *g_chain;
 ventoy_img_chunk *g_chunk;
@@ -56,6 +57,7 @@ ventoy_grub_param_file_replace *g_file_replace_list = NULL;
 ventoy_efi_file_replace g_efi_file_replace;
 
 CONST CHAR16 gIso9660EfiDriverPath[] = ISO9660_EFI_DRIVER_PATH;
+CONST CHAR16 gUdfEfiDriverPath[] = UDF_EFI_DRIVER_PATH;
 
 BOOLEAN g_fix_windows_1st_cdrom_issue = FALSE;
 
@@ -69,10 +71,28 @@ CONST CHAR16 *gEfiBootFileName[] =
 {
     L"@",
     EFI_REMOVABLE_MEDIA_FILE_NAME,
+#if   defined (MDE_CPU_IA32)
+    L"\\EFI\\BOOT\\GRUBIA32.EFI",
+    L"\\EFI\\BOOT\\BOOTia32.EFI",
+    L"\\EFI\\BOOT\\bootia32.efi",
+    L"\\efi\\boot\\bootia32.efi",
+#elif defined (MDE_CPU_X64)
     L"\\EFI\\BOOT\\GRUBX64.EFI",
     L"\\EFI\\BOOT\\BOOTx64.EFI",
     L"\\EFI\\BOOT\\bootx64.efi",
     L"\\efi\\boot\\bootx64.efi",
+#elif defined (MDE_CPU_ARM)
+    L"\\EFI\\BOOT\\GRUBARM.EFI",
+    L"\\EFI\\BOOT\\BOOTarm.EFI",
+    L"\\EFI\\BOOT\\bootarm.efi",
+    L"\\efi\\boot\\bootarm.efi",
+#elif defined (MDE_CPU_AARCH64)
+    L"\\EFI\\BOOT\\GRUBAA64.EFI",
+    L"\\EFI\\BOOT\\BOOTaa64.EFI",
+    L"\\EFI\\BOOT\\bootaa64.efi",
+    L"\\efi\\boot\\bootaa64.efi",
+#endif
+    
 };
 
 VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...)
@@ -608,12 +628,23 @@ STATIC EFI_STATUS EFIAPI ventoy_load_isoefi_driver(IN EFI_HANDLE ImageHandle)
     EFI_HANDLE Image = NULL;
     EFI_STATUS Status = EFI_SUCCESS;
     CHAR16 LogVar[4] = L"5";
-            
-    Status = ventoy_load_image(ImageHandle, gBlockData.pDiskFsDevPath, 
-                               gIso9660EfiDriverPath, 
-                               sizeof(gIso9660EfiDriverPath), 
-                               &Image);
-    debug("load iso efi driver status:%r", Status);
+
+    if (gIsoUdf)
+    {
+        Status = ventoy_load_image(ImageHandle, gBlockData.pDiskFsDevPath, 
+                                   gUdfEfiDriverPath, 
+                                   sizeof(gUdfEfiDriverPath), 
+                                   &Image);
+        debug("load iso UDF efi driver status:%r", Status);
+    }
+    else
+    {
+        Status = ventoy_load_image(ImageHandle, gBlockData.pDiskFsDevPath, 
+                                   gIso9660EfiDriverPath, 
+                                   sizeof(gIso9660EfiDriverPath), 
+                                   &Image);
+        debug("load iso 9660 efi driver status:%r", Status);        
+    }
 
     if (gDebugPrint)
     {
@@ -671,6 +702,11 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     if (StrStr(pCmdLine, L"isoefi=on"))
     {
         gLoadIsoEfi = TRUE;
+    }
+    
+    if (StrStr(pCmdLine, L"iso_udf"))
+    {
+        gIsoUdf = TRUE;
     }
 
     pPos = StrStr(pCmdLine, L"FirstTry=@");

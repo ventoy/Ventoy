@@ -1,0 +1,20 @@
+======== Build busybox 1.32 for aarch64 ======== 
+
+ARCH=arm64 CROSS_COMPILE=aarch64-linux- make defconfig
+ARCH=arm64 CROSS_COMPILE=aarch64-linux- make menuconfig 
+----> enable static build
+----> enable ar
+----> enable inotifyd
+
+
+ARCH=arm64 CROSS_COMPILE=aarch64-linux- make 
+
+
+
+
+ARCH=arm64 CROSS_COMPILE=aarch64-linux- make allnoconfig 
+
+
+======== use mini-native-x86_64 uclibc to build ash/hexdump/busybox for x86_64 ==========
+
+

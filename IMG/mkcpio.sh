@@ -21,8 +21,10 @@ cp -a $VENTOY_PATH/SQUASHFS/unsquashfs_* tool/
 cp -a $VENTOY_PATH/FUSEISO/vtoy_fuse_iso_* tool/
 cp -a $VENTOY_PATH/VtoyTool/vtoytool tool/
 cp -a $VENTOY_PATH/VBLADE/vblade-master/vblade_* tool/
+
 cp -a $VENTOY_PATH/LZIP/lunzip32 tool/
 cp -a $VENTOY_PATH/LZIP/lunzip64 tool/
+cp -a $VENTOY_PATH/LZIP/lunzipaa64 tool/
 
 
 chmod -R 777 ./tool

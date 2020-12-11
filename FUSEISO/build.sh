@@ -11,6 +11,10 @@ else
     opt=-lrt
 fi
 
+#
+# use mini-native-x86_64 UCLIBC to build for x86_64
+#
+
 export C_INCLUDE_PATH=$LIBFUSE_DIR/include
 
 rm -f $name

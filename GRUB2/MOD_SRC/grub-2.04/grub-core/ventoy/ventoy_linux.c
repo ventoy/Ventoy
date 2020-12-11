@@ -740,6 +740,11 @@ static grub_uint32_t ventoy_linux_get_override_chunk_count(void)
     {
         count++;
     }
+
+    if (g_svd_replace_offset > 0)
+    {
+        count++;
+    }
     
     return count;
 }
@@ -749,6 +754,11 @@ static grub_uint32_t ventoy_linux_get_override_chunk_size(void)
     int count = g_valid_initrd_count;
     
     if (g_conf_replace_offset > 0)
+    {
+        count++;
+    }
+
+    if (g_svd_replace_offset > 0)
     {
         count++;
     }
@@ -829,6 +839,14 @@ static void ventoy_linux_fill_override_data(    grub_uint64_t isosize, void *ove
         cur++;
     }
     
+    if (g_svd_replace_offset > 0)
+    {        
+        cur->img_offset = g_svd_replace_offset;
+        cur->override_size = 1;
+        cur->override_data[0] = 0xFF;
+        cur++;
+    }
+
     return;
 }
 
@@ -995,12 +1013,15 @@ grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-static int ventoy_cpio_busybox64(cpio_newc_header *head)
+static int ventoy_cpio_busybox64(cpio_newc_header *head, const char *file)
 {
     char *name;
     int namelen;
     int offset;
     int count = 0;
+    char filepath[128];
+
+    grub_snprintf(filepath, sizeof(filepath), "ventoy/busybox/%s", file);
     
     name = (char *)(head + 1);
     while (name[0] && count < 2)
@@ -1010,7 +1031,7 @@ static int ventoy_cpio_busybox64(cpio_newc_header *head)
             grub_memcpy(name, "ventoy/busybox/32h", 18);
             count++;
         }
-        else if (grub_strcmp(name, "ventoy/busybox/64h") == 0)
+        else if (grub_strcmp(name, filepath) == 0)
         {
             grub_memcpy(name, "ventoy/busybox/ash", 18);
             count++;
@@ -1037,10 +1058,48 @@ grub_err_t ventoy_cmd_cpio_busybox_64(grub_extcmd_context_t ctxt, int argc, char
     (void)args;
 
     debug("ventoy_cmd_busybox_64 %d\n", argc);
-    ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf);
+    ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf, args[0]);
     return 0;
 }
 
+grub_err_t ventoy_cmd_skip_svd(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    grub_file_t file;
+    char buf[16];
+    
+    (void)ctxt;
+    (void)argc;
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't open file %s\n", args[0]); 
+    }
+
+    for (i = 0; i < 10; i++)
+    {
+        buf[0] = 0;
+        grub_file_seek(file, (17 + i) * 2048);
+        grub_file_read(file, buf, 16);
+
+        if (buf[0] == 2 && grub_strncmp(buf + 1, "CD001", 5) == 0)
+        {
+            debug("Find SVD at VD %d\n", i);
+            g_svd_replace_offset = (17 + i) * 2048;
+            break;
+        }
+    }
+
+    if (i >= 10)
+    {
+        debug("SVD not found %d\n", (int)g_svd_replace_offset);
+    }
+
+    grub_file_close(file);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
 
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args)
 {
@@ -1258,7 +1317,12 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     if (grub_strcmp(args[3], "busybox=64") == 0)
     {
         debug("cpio busybox proc %s\n", args[3]);
-        ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf);
+        ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf, "64h");
+    }
+    else if (grub_strcmp(args[3], "busybox=a64") == 0)
+    {
+        debug("cpio busybox proc %s\n", args[3]);
+        ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf, "a64");
     }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);

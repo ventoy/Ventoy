@@ -10,16 +10,26 @@ if [ -f ./ventoy/version ]; then
     curver=$(cat ./ventoy/version) 
 fi
 
+OLDDIR=$(pwd)
+
+if uname -a | egrep -q 'aarch64|arm64'; then
+    export TOOLDIR=aarch64
+elif uname -a | egrep -q 'x86_64|amd64'; then
+    export TOOLDIR=x86_64
+else
+    export TOOLDIR=i386
+fi
+export PATH=./tool/$TOOLDIR:$PATH
+
+
 echo ''
 echo '**********************************************'
-echo "      Ventoy: $curver"
+echo "      Ventoy: $curver  $TOOLDIR"
 echo "      longpanda admin@ventoy.net"
 echo "      https://www.ventoy.net"
 echo '**********************************************'
 echo ''
 
-OLDDIR=$(pwd)
-PATH=./tool:$PATH
 
 if ! [ -f ./boot/boot.img ]; then
     if [ -d ./grub ]; then
@@ -30,30 +40,30 @@ if ! [ -f ./boot/boot.img ]; then
     exit 1
 fi
 
-echo "############# Ventoy2Disk $* ################" >> ./log.txt
+echo "############# Ventoy2Disk $* [$TOOLDIR] ################" >> ./log.txt
 date >> ./log.txt
 
 #decompress tool
-if [ -f ./tool/VentoyWorker.sh ]; then
+if [ -f ./tool/$TOOLDIR/ash ]; then
     echo "no need to decompress tools" >> ./log.txt
 else
-    cd tool
+    cd ./tool/$TOOLDIR
     
-    if [ -f ./xzcat ]; then
-        chmod +x ./xzcat
-    fi
+    [ -f ./xzcat ] && chmod +x ./xzcat
     
     for file in $(ls *.xz); do
         xzcat $file > ${file%.xz}
-        chmod +x ${file%.xz}
+        [ -f ./$file ] && rm -f ./$file
     done
-    cd ../
+    cd $OLDDIR
+    
+    chmod +x -R ./tool/$TOOLDIR
 fi
 
 if [ -f /bin/bash ]; then
-    bash ./tool/VentoyWorker.sh $*
+    /bin/bash ./tool/VentoyWorker.sh $*
 else
-    ./tool/ash ./tool/VentoyWorker.sh $*
+    ash ./tool/VentoyWorker.sh $*
 fi
 
 if [ -n "$OLDDIR" ]; then 

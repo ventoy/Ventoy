@@ -798,10 +798,11 @@ static int VentoyFatDiskRead(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
 }
 
 
-int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen)
+int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen, BOOL *pSecureBoot)
 {
     int rc = 0;
     HANDLE hDrive;
+    void *flfile;
 
     hDrive = GetPhysicalHandle(pDriveInfo->PhyDrive, FALSE, FALSE, FALSE);
     if (hDrive == INVALID_HANDLE_VALUE)
@@ -831,6 +832,13 @@ int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSe
     if (rc == 0)
     {
         Log("VentoyVerInPhyDrive %d is <%s>...", pDriveInfo->PhyDrive, VerBuf);
+
+        flfile = fl_fopen("/EFI/BOOT/grubx64_real.efi", "rb");
+        if (flfile)
+        {
+            *pSecureBoot = TRUE;
+            fl_fclose(flfile);
+        }
     }
 
     fl_shutdown();
@@ -962,6 +970,50 @@ int VentoyProcSecureBoot(BOOL SecureBoot)
 				free(filebuf);
 			}
 		}
+
+        file = fl_fopen("/EFI/BOOT/grubia32_real.efi", "rb");
+        Log("Open ventoy efi file %p ", file);
+        if (file)
+        {
+            fl_fseek(file, 0, SEEK_END);
+            size = (int)fl_ftell(file);
+            fl_fseek(file, 0, SEEK_SET);
+
+            Log("ventoy efi file size %d ...", size);
+
+            filebuf = (char *)malloc(size);
+            if (filebuf)
+            {
+                fl_fread(filebuf, 1, size, file);
+            }
+
+            fl_fclose(file);
+
+            Log("Now delete all efi files ...");
+            fl_remove("/EFI/BOOT/BOOTIA32.EFI");
+            fl_remove("/EFI/BOOT/grubia32.efi");
+            fl_remove("/EFI/BOOT/grubia32_real.efi");
+            fl_remove("/EFI/BOOT/mmia32.efi");            
+
+            file = fl_fopen("/EFI/BOOT/BOOTIA32.EFI", "wb");
+            Log("Open bootia32 efi file %p ", file);
+            if (file)
+            {
+                if (filebuf)
+                {
+                    fl_fwrite(filebuf, 1, size, file);
+                }
+
+                fl_fflush(file);
+                fl_fclose(file);
+            }
+
+            if (filebuf)
+            {
+                free(filebuf);
+            }
+        }
+
 	}
 	else
 	{
@@ -1627,6 +1679,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
         }
 
         Log("Write GPT Info OK ...");
+        memcpy(&(pPhyDrive->MBR), &MBR, 512);
     }
     else
     {
@@ -1637,8 +1690,8 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
             goto End;
         }
         Log("Write MBR OK ...");
+        memcpy(&(pPhyDrive->MBR), &MBR, 512);
     }
-    
 
     //Refresh Drive Layout
     DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
@@ -1719,6 +1772,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
     MBR_HEAD BootImg;
     MBR_HEAD MBR;
     VTOY_GPT_INFO *pGptInfo = NULL;
+    UINT8 ReservedData[4096];
 
     Log("UpdateVentoy2PhyDrive %s PhyDrive%d <<%s %s %dGB>>",
         pPhyDrive->PartStyle ? "GPT" : "MBR", pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId,
@@ -1770,6 +1824,10 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
         ReservedMB = (pPhyDrive->SizeInBytes / 512 - (StartSector + VENTOY_EFI_PART_SIZE / 512)) / 2048;
         Log("MBR Reserved Disk Space:%llu MB", (ULONGLONG)ReservedMB);
     }
+
+    //Read Reserved Data
+    SetFilePointer(hDrive, 512 * 2040, NULL, FILE_BEGIN);
+    ReadFile(hDrive, ReservedData, sizeof(ReservedData), &dwSize, NULL);
 
     GetLettersBelongPhyDrive(pPhyDrive->PhyDrive, DriveLetters, sizeof(DriveLetters));
 
@@ -1894,6 +1952,11 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
         rc = 1;
         goto End;
     }
+
+    //write reserved data
+    SetFilePointer(hDrive, 512 * 2040, NULL, FILE_BEGIN);    
+    bRet = WriteFile(hDrive, ReservedData, sizeof(ReservedData), &dwSize, NULL);
+    Log("Write resv data ret:%u dwSize:%u Error:%u", bRet, dwSize, LASTERR);
 
     // Boot Image
     VentoyGetLocalBootImg(&BootImg);

@@ -22,7 +22,13 @@ ar -rc libfat_io_32.a *.o
 rm -f *.o
 
 
+aarch64-linux-gnu-gcc -O2 -D_FILE_OFFSET_BITS=64 fat*.c -c
+ar -rc libfat_io_aa64.a *.o
+rm -f *.o
+
+
 cd -
+
 
 mkdir lib
 mkdir include

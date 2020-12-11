@@ -161,10 +161,19 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
             {
                 MapLba = (Sector - pchunk->img_start_sector) * 4 + pchunk->disk_start_sector;
             }
-            else
+            else if (g_chain->disk_sector_size == 1024)
             {
-                MapLba = (Sector - pchunk->img_start_sector) * 2048 / g_chain->disk_sector_size + pchunk->disk_start_sector;
+                MapLba = (Sector - pchunk->img_start_sector) * 2 + pchunk->disk_start_sector;
             }
+            else if (g_chain->disk_sector_size == 2048)
+            {
+                MapLba = (Sector - pchunk->img_start_sector) + pchunk->disk_start_sector;
+            }
+            else if (g_chain->disk_sector_size == 4096)
+            {
+                MapLba = ((Sector - pchunk->img_start_sector) >> 1) + pchunk->disk_start_sector;
+            }
+            
 
             secLeft = pchunk->img_end_sector + 1 - Sector;
             secRead = (Count < secLeft) ? Count : secLeft;
@@ -277,10 +286,19 @@ STATIC EFI_STATUS EFIAPI ventoy_write_iso_sector
             {
                 MapLba = (Sector - pchunk->img_start_sector) * 4 + pchunk->disk_start_sector;
             }
-            else
+            else if (g_chain->disk_sector_size == 1024)
             {
-                MapLba = (Sector - pchunk->img_start_sector) * 2048 / g_chain->disk_sector_size + pchunk->disk_start_sector;
+                MapLba = (Sector - pchunk->img_start_sector) * 2 + pchunk->disk_start_sector;
             }
+            else if (g_chain->disk_sector_size == 2048)
+            {
+                MapLba = (Sector - pchunk->img_start_sector) + pchunk->disk_start_sector;
+            }
+            else if (g_chain->disk_sector_size == 4096)
+            {
+                MapLba = ((Sector - pchunk->img_start_sector) >> 1) + pchunk->disk_start_sector;
+            }
+
 
             secLeft = pchunk->img_end_sector + 1 - Sector;
             secRead = (Count < secLeft) ? Count : secLeft;

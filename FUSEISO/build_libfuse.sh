@@ -7,6 +7,8 @@
 #
 #
 
+#  use mini-native-x86_64 UCLIBC to build for x86_64
+
 
 CUR="$PWD"
 LIBFUSE_DIR=$CUR/LIBFUSE

@@ -32,6 +32,7 @@
 #include <grub/datetime.h>
 #include <grub/i18n.h>
 #include <grub/net.h>
+#include <grub/crypto.h>
 #include <grub/time.h>
 #include <grub/font.h>
 #include <grub/ventoy.h>
@@ -39,9 +40,13 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+char g_arch_mode_suffix[64];
 static char g_iso_disk_name[128];
+static grub_uint8_t g_boot_pwd = 0;
+static grub_uint8_t g_boot_sha256[32];
 static install_template *g_install_template_head = NULL;
 static dud *g_dud_head = NULL;
+static vtoy_password *g_pwd_head = NULL;
 static persistence_config *g_persistence_head = NULL;
 static menu_alias *g_menu_alias_head = NULL;
 static menu_class *g_menu_class_head = NULL;
@@ -687,6 +692,173 @@ static int ventoy_plugin_dud_entry(VTOY_JSON *json, const char *isodisk)
                     {
                         grub_free(node);
                     }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_pwd_entry(VTOY_JSON *json, const char *isodisk)
+{
+    int i = 0;
+    int len = 0;
+    const char *iso = NULL;
+    const char *pwd = NULL;
+    VTOY_JSON *pNode = NULL;
+    VTOY_JSON *pCNode = NULL;
+    vtoy_password *node = NULL;
+    vtoy_password *tail = NULL;
+    vtoy_password *next = NULL;
+    char bytes[3];
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_OBJECT)
+    {
+        debug("Not object %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_pwd_head)
+    {
+        for (node = g_pwd_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_pwd_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        if (pNode->pcName && grub_strcmp("bootpwd", pNode->pcName) == 0)
+        {
+            len = (int)grub_strlen(pNode->unData.pcStrVal);
+            if (len == 64)
+            {
+                g_boot_pwd = 1;
+                for (i = 0; i < 32; i++)
+                {
+                    bytes[0] = pNode->unData.pcStrVal[i * 2];
+                    bytes[1] = pNode->unData.pcStrVal[i * 2 + 1];
+                    bytes[2] = 0;
+                    g_boot_sha256[i] = (grub_uint8_t)grub_strtoul(bytes, NULL, 16);
+                }
+            }
+        }
+        else if (pNode->pcName && grub_strcmp("menupwd", pNode->pcName) == 0)
+        {
+            for (pCNode = pNode->pstChild; pCNode; pCNode = pCNode->pstNext)
+            {
+                if (pCNode->enDataType != JSON_TYPE_OBJECT)
+                {
+                    continue;
+                }
+
+                iso = vtoy_json_get_string_ex(pCNode->pstChild, "file");
+                pwd = vtoy_json_get_string_ex(pCNode->pstChild, "pwd");
+                if (iso && pwd && iso[0] == '/')
+                {
+                    node = grub_zalloc(sizeof(vtoy_password));
+                    if (node)
+                    {
+                        node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", iso);
+                        len = (int)grub_strlen(pwd);
+                        if (len != 64)
+                        {
+                            grub_free(node);
+                            continue;
+                        }
+                        
+                        for (i = 0; i < 32; i++)
+                        {
+                            bytes[0] = pwd[i * 2];
+                            bytes[1] = pwd[i * 2 + 1];
+                            bytes[2] = 0;
+                            node->sha256[i] = (grub_uint8_t)grub_strtoul(bytes, NULL, 16);
+                        }
+
+                        if (g_pwd_head)
+                        {
+                            tail->next = node;
+                        }
+                        else
+                        {
+                            g_pwd_head = node;
+                        }
+                        tail = node;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_pwd_check(VTOY_JSON *json, const char *isodisk)
+{
+    int len = 0;
+    const char *iso = NULL;
+    const char *pwd = NULL;
+    VTOY_JSON *pNode = NULL;
+    VTOY_JSON *pCNode = NULL;
+
+    if (json->enDataType != JSON_TYPE_OBJECT)
+    {
+        grub_printf("Not object %d\n", json->enDataType);
+        return 0;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        if (pNode->pcName && grub_strcmp("bootpwd", pNode->pcName) == 0)
+        {
+            len = (int)grub_strlen(pNode->unData.pcStrVal);
+            if (len != 64)
+            {
+                grub_printf("Invalid bootpwd len :%d\n", len);
+            }
+            else
+            {
+                grub_printf("bootpwd:<%s>\n", pNode->unData.pcStrVal);                                
+            }
+        }
+        else if (pNode->pcName && grub_strcmp("menupwd", pNode->pcName) == 0)
+        {
+            for (pCNode = pNode->pstChild; pCNode; pCNode = pCNode->pstNext)
+            {
+                if (pCNode->enDataType != JSON_TYPE_OBJECT)
+                {
+                    grub_printf("Not object %d\n", pCNode->enDataType);
+                    continue;
+                }
+
+                iso = vtoy_json_get_string_ex(pCNode->pstChild, "file");
+                if (iso)
+                {
+                    if (0 == ventoy_plugin_check_path(isodisk, iso))
+                    {
+                        pwd = vtoy_json_get_string_ex(pCNode->pstChild, "pwd");
+
+                        len = (int)grub_strlen(pwd);
+                        if (len != 64)
+                        {
+                            grub_printf("Invalid sha256 len <%d>\n", len);
+                        }
+                        else
+                        {
+                            grub_printf("file:<%s> [OK]\n", iso);
+                            grub_printf("pwd:<%s>\n\n", pwd);
+                        }
+                    }
+                }
+                else
+                {
+                    grub_printf("No file found\n");
                 }
             }
         }
@@ -1439,6 +1611,7 @@ static plugin_entry g_plugin_entries[] =
     { "image_list", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
     { "conf_replace", ventoy_plugin_conf_replace_entry, ventoy_plugin_conf_replace_check },
     { "dud", ventoy_plugin_dud_entry, ventoy_plugin_dud_check },
+    { "password", ventoy_plugin_pwd_entry, ventoy_plugin_pwd_check },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -1453,7 +1626,7 @@ static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
     {
         for (i = 0; i < (int)ARRAY_SIZE(g_plugin_entries); i++)
         {
-            grub_snprintf(key, sizeof(key), "%s_%s", g_plugin_entries[i].key, VTOY_DUAL_MODE_SUFFIX);
+            grub_snprintf(key, sizeof(key), "%s_%s", g_plugin_entries[i].key, g_arch_mode_suffix);
             if (grub_strcmp(g_plugin_entries[i].key, cur->pcName) == 0 || grub_strcmp(key, cur->pcName) == 0)
             {
                 debug("Plugin entry for %s\n", g_plugin_entries[i].key);
@@ -1478,7 +1651,7 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     (void)ctxt;
     (void)argc;
 
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s/ventoy/ventoy.json", args[0]);
+    file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "%s/ventoy/ventoy.json", args[0]);
     if (!file)
     {
         return GRUB_ERR_NONE;
@@ -1521,6 +1694,18 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     vtoy_json_destroy(json);
 
     grub_free(buf);
+
+    if (g_boot_pwd)
+    {
+        grub_printf("\n\n\n\n");
+        if (ventoy_check_password(g_boot_sha256, 3))
+        {
+            grub_printf("\n!!! Password check failed, will exit after 5 seconds. !!!\n");
+            grub_refresh();
+            grub_sleep(5);
+            grub_exit();
+        }
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -1920,6 +2105,86 @@ int ventoy_plugin_load_dud(dud *node, const char *isopart)
     return 0;
 }
 
+static const grub_uint8_t * ventoy_plugin_get_password(const char *isopath)
+{
+    int len;
+    vtoy_password *node = NULL;
+
+    if ((!g_pwd_head) || (!isopath))
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(isopath);    
+    for (node = g_pwd_head; node; node = node->next)
+    {
+        if (node->pathlen == len && grub_strncmp(isopath, node->isopath, len) == 0)
+        {
+            return node->sha256;
+        }
+    }
+
+    return NULL;
+}
+
+int ventoy_check_password(const grub_uint8_t *pwdsha256, int retry)
+{
+    char input[128];
+    grub_uint8_t sha256[32];
+
+    while (retry--)
+    {
+        grub_memset(input, 0, sizeof(input));
+
+        grub_printf("Enter password: ");
+        grub_refresh();
+        grub_password_get(input, sizeof(input));
+        
+        grub_crypto_hash(GRUB_MD_SHA256, sha256, input, grub_strlen(input));
+
+        if (grub_memcmp(pwdsha256, sha256, 32) == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            grub_printf("Invalid password!\n\n");
+            grub_refresh();
+        }
+    }
+
+    return 1;
+}
+
+grub_err_t ventoy_cmd_check_password(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int ret;
+    const grub_uint8_t *sha256 = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+
+    sha256 = ventoy_plugin_get_password(args[0]);
+    if (sha256)
+    {
+        if (0 == ventoy_check_password(sha256, 1))
+        {
+            ret = 1;
+        }
+        else
+        {
+            ret = 0;
+        }
+    }
+    else
+    {
+        ret = 1;
+    }
+
+    grub_errno = 0;
+    return ret;
+}
+
 grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i = 0;
@@ -1937,7 +2202,7 @@ grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, ch
         return 0;
     }
 
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s/ventoy/ventoy.json", args[0]);
+    file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "%s/ventoy/ventoy.json", args[0]);
     if (!file)
     {
         grub_printf("Plugin json file /ventoy/ventoy.json does NOT exist.\n");
@@ -1969,7 +2234,7 @@ grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, ch
         goto end;
     }
 
-    grub_snprintf(key, sizeof(key), "%s_%s", args[1], VTOY_DUAL_MODE_SUFFIX);
+    grub_snprintf(key, sizeof(key), "%s_%s", args[1], g_arch_mode_suffix);
     for (node = json->pstChild; node; node = node->pstNext)
     {
         if (grub_strcmp(node->pcName, args[1]) == 0 || grub_strcmp(node->pcName, key) == 0)
