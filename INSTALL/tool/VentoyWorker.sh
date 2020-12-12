@@ -422,7 +422,8 @@ else
     dd status=none conv=fsync if=${DISK} skip=2040 bs=512 count=8 of=./rsvdata.bin
 
     if [ "$PART1_TYPE" = "EE" ]; then
-        vtdebug "This is GPT partition style ..."        
+        vtdebug "This is GPT partition style ..."    
+        echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92
         xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
         echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
     else

@@ -31,12 +31,13 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 * UEFI Secure Boot supported (1.0.07+)
 * Persistence supported (1.0.11+)
 * Windows/Linux auto installation supported (1.0.09+)
+* FAT32/exFAT/NTFS/UDF/XFS/Ext2(3)(4) supported for main partition
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
 * Most type of OS supported, 580+ iso files tested
 * Linux vDisk boot supported
 * Not only boot but also complete installation process
-* Menu can be switched between List mode and TreeView mode dynamically
+* Menu dynamically switchable between List/TreeView mode
 * "Ventoy Compatible" concept
 * Plugin Framework
 * Injection files to runtime enviroment

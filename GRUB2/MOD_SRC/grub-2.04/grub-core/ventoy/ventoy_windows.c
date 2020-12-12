@@ -1492,7 +1492,7 @@ static grub_uint32_t ventoy_get_wim_iso_offset(const char *filepath)
     grub_file_t file;
     char cmdbuf[128];
     
-    grub_snprintf(cmdbuf, sizeof(cmdbuf), "loopback wimiso %s", filepath);
+    grub_snprintf(cmdbuf, sizeof(cmdbuf), "loopback wimiso \"%s\"", filepath);
     grub_script_execute_sourcecode(cmdbuf);
 
     file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", "(wimiso)/boot/boot.wim");

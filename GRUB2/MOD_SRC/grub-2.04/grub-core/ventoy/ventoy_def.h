@@ -52,6 +52,11 @@
 
 #define VTOY_WARNING  "!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!"
 
+#define VTOY_PLAT_I386_UEFI     0x49413332
+#define VTOY_PLAT_ARM64_UEFI    0x41413634
+#define VTOY_PLAT_X86_64_UEFI   0x55454649
+#define VTOY_PLAT_X86_LEGACY    0x42494f53
+
 #define VTOY_PWD_CORRUPTED(err) \
 {\
     grub_printf("\n\n Password corrupted, will reboot after 5 seconds.\n\n"); \
@@ -830,14 +835,28 @@ typedef struct image_list
     struct image_list *next;
 }image_list;
 
+#define VTOY_PASSWORD_NONE       0
+#define VTOY_PASSWORD_TXT        1
+#define VTOY_PASSWORD_MD5        2
+#define VTOY_PASSWORD_SALT_MD5   3
+
 typedef struct vtoy_password
+{
+    int type;
+    char text[128];
+    char salt[64];
+    grub_uint8_t md5[16];
+}vtoy_password;
+
+typedef struct menu_password
 {
     int pathlen;
     char isopath[256];
-    grub_uint8_t sha256[32];
 
-    struct vtoy_password *next;
-}vtoy_password;
+    vtoy_password password;
+
+    struct menu_password *next;
+}menu_password;
 
 extern int g_ventoy_menu_esc;
 extern int g_ventoy_suppress_esc;
@@ -914,7 +933,7 @@ grub_err_t ventoy_cmd_load_vhdboot(grub_extcmd_context_t ctxt, int argc, char **
 grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char **args);
-int ventoy_check_password(const grub_uint8_t *pwdsha256, int retry);
+int ventoy_check_password(const vtoy_password *pwd, int retry);
 
 #endif /* __VENTOY_DEF_H__ */
 

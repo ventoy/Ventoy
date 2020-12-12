@@ -42,6 +42,7 @@
 #include <grub/video.h>
 #include <grub/acpi.h>
 #include <grub/charset.h>
+#include <grub/crypto.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 
@@ -59,6 +60,7 @@ int g_sort_case_sensitive = 0;
 int g_tree_view_menu_style = 0;
 static grub_file_t g_old_file;
 static int g_ventoy_last_entry_back;
+static grub_uint32_t g_ventoy_plat_data;
 
 char g_iso_path[256];
 char g_img_swap_tmp_buf[1024];
@@ -973,7 +975,7 @@ static grub_err_t ventoy_cmd_check_compatible(grub_extcmd_context_t ctxt, int ar
 
     for (i = 0; i < (int)ARRAY_SIZE(files); i++)
     {
-        grub_snprintf(buf, sizeof(buf) - 1, "[ -e %s/%s ]", args[0], files[i]);
+        grub_snprintf(buf, sizeof(buf) - 1, "[ -e \"%s/%s\" ]", args[0], files[i]);
         if (0 == grub_script_execute_sourcecode(buf))
         {
             debug("file %s exist, ventoy_compatible YES\n", buf);
@@ -1351,6 +1353,32 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
     return 0;
 }
 
+static int ventoy_arch_mode_init(void)
+{
+    #ifdef GRUB_MACHINE_EFI
+    if (grub_strcmp(GRUB_TARGET_CPU, "i386") == 0)
+    {
+        g_ventoy_plat_data = VTOY_PLAT_I386_UEFI;
+        grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "ia32");
+    }
+    else if (grub_strcmp(GRUB_TARGET_CPU, "arm64") == 0)
+    {
+        g_ventoy_plat_data = VTOY_PLAT_ARM64_UEFI;
+        grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "aa64");
+    }
+    else
+    {
+        g_ventoy_plat_data = VTOY_PLAT_X86_64_UEFI;
+        grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "uefi");
+    }
+#else
+    g_ventoy_plat_data = VTOY_PLAT_X86_LEGACY;
+    grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "legacy");
+#endif
+
+    return 0;
+}
+
 int ventoy_fill_data(grub_uint32_t buflen, char *buffer)
 {
     int len = GRUB_UINT_MAX;
@@ -1402,11 +1430,7 @@ int ventoy_fill_data(grub_uint32_t buflen, char *buffer)
 
     grub_memcpy(guidstr, &guid, sizeof(guid));
 
-    #if defined (GRUB_MACHINE_EFI)
-    puint2[0] = grub_swap_bytes32(0x55454649);
-    #else
-    puint2[0] = grub_swap_bytes32(0x42494f53);
-    #endif
+    puint2[0] = grub_swap_bytes32(g_ventoy_plat_data);    
 
     /* Easter egg :) It will be appreciated if you reserve it, but NOT mandatory. */
     #pragma GCC diagnostic push
@@ -1425,6 +1449,55 @@ int ventoy_fill_data(grub_uint32_t buflen, char *buffer)
     ventoy_set_env(name, guidstr);
 
     return len;
+}
+
+int ventoy_check_password(const vtoy_password *pwd, int retry)
+{
+    int offset;
+    char input[256];
+    grub_uint8_t md5[16];
+
+    while (retry--)
+    {
+        grub_memset(input, 0, sizeof(input));
+
+        grub_printf("Enter password: ");
+        grub_refresh();
+        
+        if (pwd->type == VTOY_PASSWORD_TXT)
+        {
+            grub_password_get(input, 128);
+            if (grub_strcmp(pwd->text, input) == 0)
+            {
+                return 0;
+            }
+        }
+        else if (pwd->type == VTOY_PASSWORD_MD5)
+        {
+            grub_password_get(input, 128);
+            grub_crypto_hash(GRUB_MD_MD5, md5, input, grub_strlen(input));
+            if (grub_memcmp(pwd->md5, md5, 16) == 0)
+            {
+                return 0;
+            }
+        }
+        else if (pwd->type == VTOY_PASSWORD_SALT_MD5)
+        {
+            offset = (int)grub_snprintf(input, 128, "%s", pwd->salt);
+            grub_password_get(input + offset, 128);
+            
+            grub_crypto_hash(GRUB_MD_MD5, md5, input, grub_strlen(input));
+            if (grub_memcmp(pwd->md5, md5, 16) == 0)
+            {
+                return 0;
+            }
+        }
+        
+        grub_printf("Invalid password!\n\n");
+        grub_refresh();
+    }
+
+    return 1;
 }
 
 static img_info * ventoy_get_min_iso(img_iterator_node *node)
@@ -3771,14 +3844,14 @@ int ventoy_is_file_exist(const char *fmt, ...)
     char *pos = NULL;
     char buf[256] = {0};
 
-    grub_snprintf(buf, sizeof(buf), "%s", "[ -f ");
-    pos = buf + 5;
+    grub_snprintf(buf, sizeof(buf), "%s", "[ -f \"");
+    pos = buf + 6;
 
     va_start (ap, fmt);
     len = grub_vsnprintf(pos, 255, fmt, ap);
     va_end (ap);
 
-    grub_strncpy(pos + len, " ]", 2);
+    grub_strncpy(pos + len, "\" ]", 3);
 
     debug("script exec %s\n", buf);
 
@@ -3797,14 +3870,14 @@ int ventoy_is_dir_exist(const char *fmt, ...)
     char *pos = NULL;
     char buf[256] = {0};
 
-    grub_snprintf(buf, sizeof(buf), "%s", "[ -d ");
-    pos = buf + 5;
+    grub_snprintf(buf, sizeof(buf), "%s", "[ -d \"");
+    pos = buf + 6;
 
     va_start (ap, fmt);
     len = grub_vsnprintf(pos, 255, fmt, ap);
     va_end (ap);
 
-    grub_strncpy(pos + len, " ]", 2);
+    grub_strncpy(pos + len, "\" ]", 3);
 
     debug("script exec %s\n", buf);
 
@@ -3961,23 +4034,8 @@ GRUB_MOD_INIT(ventoy)
     cmd_para *cur = NULL;
 
     ventoy_env_init();
-    
-#ifdef GRUB_MACHINE_EFI
-    if (grub_strcmp(GRUB_TARGET_CPU, "i386") == 0)
-    {
-        grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "ia32");
-    }
-    else if (grub_strcmp(GRUB_TARGET_CPU, "arm64") == 0)
-    {
-        grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "aa64");
-    }
-    else
-    {
-        grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "uefi");
-    }
-#else
-    grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "legacy");
-#endif
+
+    ventoy_arch_mode_init();
     
     for (i = 0; i < ARRAY_SIZE(ventoy_cmds); i++)
     {
