@@ -382,7 +382,7 @@ BOOL IsVentoyLogicalDrive(CHAR DriveLetter)
 }
 
 
-int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table)
+int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table)
 {
     BYTE Head;
     BYTE Sector;
@@ -473,7 +473,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
     //Part1
     PartStartSector = VENTOY_PART1_START_SECTOR;
 	PartSectorCount = DiskSectorCount - ReservedSector - VENTOY_EFI_PART_SIZE / 512 - PartStartSector;
-    VentoyFillLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
+    VentoyFillMBRLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
 
     pMBR->PartTbl[0].Active = 0x80; // bootable
     pMBR->PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
@@ -481,7 +481,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
     //Part2
     PartStartSector += PartSectorCount;
     PartSectorCount = VENTOY_EFI_PART_SIZE / 512;
-    VentoyFillLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
+    VentoyFillMBRLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
 
     pMBR->PartTbl[1].Active = 0x00; 
     pMBR->PartTbl[1].FsFlag = 0xEF; // EFI System Partition
@@ -538,6 +538,45 @@ static int VentoyFillProtectMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
     return 0;
 }
 
+int VentoyFillWholeGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
+{
+    UINT64 Part1SectorCount = 0;
+    UINT64 DiskSectorCount = DiskSizeBytes / 512;
+    VTOY_GPT_HDR *Head = &pInfo->Head;
+    VTOY_GPT_PART_TBL *Table = pInfo->PartTbl;
+    static GUID WindowsDataPartType = { 0xebd0a0a2, 0xb9e5, 0x4433, { 0x87, 0xc0, 0x68, 0xb6, 0xb7, 0x26, 0x99, 0xc7 } };
+
+    VentoyFillProtectMBR(DiskSizeBytes, &pInfo->MBR);
+
+    Part1SectorCount = DiskSectorCount - 33 - 2048;
+
+    memcpy(Head->Signature, "EFI PART", 8);
+    Head->Version[2] = 0x01;
+    Head->Length = 92;
+    Head->Crc = 0;
+    Head->EfiStartLBA = 1;
+    Head->EfiBackupLBA = DiskSectorCount - 1;
+    Head->PartAreaStartLBA = 34;
+    Head->PartAreaEndLBA = DiskSectorCount - 34;
+    CoCreateGuid(&Head->DiskGuid);
+    Head->PartTblStartLBA = 2;
+    Head->PartTblTotNum = 128;
+    Head->PartTblEntryLen = 128;
+
+
+    memcpy(&(Table[0].PartType), &WindowsDataPartType, sizeof(GUID));
+    CoCreateGuid(&(Table[0].PartGuid));
+    Table[0].StartLBA = 2048;
+    Table[0].LastLBA = 2048 + Part1SectorCount - 1;
+    Table[0].Attr = 0;
+    memcpy(Table[0].Name, L"Data", 4 * 2);
+
+    //Update CRC
+    Head->PartTblCrc = VentoyCrc32(Table, sizeof(pInfo->PartTbl));
+    Head->Crc = VentoyCrc32(Head, Head->Length);
+
+    return 0;
+}
 
 int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
 {

@@ -153,6 +153,8 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 		}
 
 		*Part2StartSector = pGpt->PartTbl[1].StartLBA;
+
+        memcpy(pMBR, &(pGpt->MBR), sizeof(MBR_HEAD));
 	}
 	else
 	{
@@ -188,9 +190,10 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 		}
 
 		*Part2StartSector = MBR.PartTbl[1].StartSectorId;
+
+        memcpy(pMBR, &MBR, sizeof(MBR_HEAD));
 	}
 
-	memcpy(pMBR, &MBR, sizeof(MBR_HEAD));
     Log("PhysicalDrive%d is ventoy disk", PhyDrive);
     return TRUE;
 }

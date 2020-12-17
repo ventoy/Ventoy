@@ -289,7 +289,7 @@ out:
 }
 
 
-static DWORD GetVentoyVolumeName(int PhyDrive, UINT32 StartSectorId, CHAR *NameBuf, UINT32 BufLen, BOOL DelSlash)
+static DWORD GetVentoyVolumeName(int PhyDrive, UINT64 StartSectorId, CHAR *NameBuf, UINT32 BufLen, BOOL DelSlash)
 {
     size_t len;
     BOOL bRet;
@@ -304,7 +304,7 @@ static DWORD GetVentoyVolumeName(int PhyDrive, UINT32 StartSectorId, CHAR *NameB
 
     PartOffset = 512ULL * StartSectorId;
 
-	Log("GetVentoyVolumeName PhyDrive %d SectorStart:%u PartOffset:%llu", PhyDrive, StartSectorId, (ULONGLONG)PartOffset);
+	Log("GetVentoyVolumeName PhyDrive %d SectorStart:%llu PartOffset:%llu", PhyDrive, (ULONGLONG)StartSectorId, (ULONGLONG)PartOffset);
 
     hVolume = FindFirstVolumeA(VolumeName, sizeof(VolumeName));
     if (hVolume == INVALID_HANDLE_VALUE)
@@ -1401,18 +1401,18 @@ int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLett
         goto End;
     }
 
-    // clear first and last 1MB space
-    pTmpBuf = malloc(SIZE_1MB);
+    // clear first and last 2MB space
+    pTmpBuf = malloc(SIZE_2MB);
     if (!pTmpBuf)
     {
         Log("Failed to alloc memory.");
         rc = 1;
         goto End;
     }
-    memset(pTmpBuf, 0, SIZE_1MB);   
+    memset(pTmpBuf, 0, SIZE_2MB);
 
     SET_FILE_POS(512);
-    bRet = WriteFile(hDrive, pTmpBuf, SIZE_1MB - 512, &dwSize, NULL);
+    bRet = WriteFile(hDrive, pTmpBuf, SIZE_2MB - 512, &dwSize, NULL);
     Log("Write fisrt 1MB ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
     if (!bRet)
     {
@@ -1420,8 +1420,8 @@ int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLett
         goto End;
     }
 
-    SET_FILE_POS(SIZE_1MB);
-    bRet = WriteFile(hDrive, pTmpBuf, SIZE_1MB, &dwSize, NULL);
+    SET_FILE_POS(pPhyDrive->SizeInBytes - SIZE_2MB);
+    bRet = WriteFile(hDrive, pTmpBuf, SIZE_2MB, &dwSize, NULL);
     Log("Write 2nd 1MB ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
     if (!bRet)
     {
@@ -1430,30 +1430,71 @@ int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLett
     }
 
     SET_FILE_POS(0);
-    bRet = ReadFile(hDrive, &MBR, sizeof(MBR), &dwSize, NULL);
-    Log("Read MBR ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
-    if (!bRet)
+
+    if (pPhyDrive->SizeInBytes > 2199023255552ULL)
     {
-        rc = 1;
-        goto End;
+        VTOY_GPT_INFO *pGptInfo;
+        VTOY_GPT_HDR BackupHead;
+        LARGE_INTEGER liCurrentPosition;
+
+        pGptInfo = (VTOY_GPT_INFO *)pTmpBuf;
+
+        VentoyFillWholeGpt(pPhyDrive->SizeInBytes, pGptInfo);
+
+        SET_FILE_POS(pPhyDrive->SizeInBytes - 512);
+        VentoyFillBackupGptHead(pGptInfo, &BackupHead);
+        if (!WriteFile(hDrive, &BackupHead, sizeof(VTOY_GPT_HDR), &dwSize, NULL))
+        {
+            rc = 1;
+            Log("Write GPT Backup Head Failed, dwSize:%u (%u) ErrCode:%u", dwSize, sizeof(VTOY_GPT_INFO), GetLastError());
+            goto End;
+        }
+
+        SET_FILE_POS(pPhyDrive->SizeInBytes - 512 * 33);
+        if (!WriteFile(hDrive, pGptInfo->PartTbl, sizeof(pGptInfo->PartTbl), &dwSize, NULL))
+        {
+            rc = 1;
+            Log("Write GPT Backup Part Table Failed, dwSize:%u (%u) ErrCode:%u", dwSize, sizeof(VTOY_GPT_INFO), GetLastError());
+            goto End;
+        }
+
+        SET_FILE_POS(0);
+        if (!WriteFile(hDrive, pGptInfo, sizeof(VTOY_GPT_INFO), &dwSize, NULL))
+        {
+            rc = 1;
+            Log("Write GPT Info Failed, dwSize:%u (%u) ErrCode:%u", dwSize, sizeof(VTOY_GPT_INFO), GetLastError());
+            goto End;
+        }
+
+        Log("Write GPT Info OK ...");
     }
-
-    //clear boot code and partition table (reserved disk signature)
-    memset(MBR.BootCode, 0, 440);
-    memset(MBR.PartTbl, 0, sizeof(MBR.PartTbl));
-
-    VentoyFillLocation(pPhyDrive->SizeInBytes, 2048, (UINT32)(pPhyDrive->SizeInBytes / 512 - 2048), MBR.PartTbl);
-
-    MBR.PartTbl[0].Active = 0x00; // bootable
-    MBR.PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
-
-    SET_FILE_POS(0);
-    bRet = WriteFile(hDrive, &MBR, 512, &dwSize, NULL);
-    Log("Write MBR ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
-    if (!bRet)
+    else
     {
-        rc = 1;
-        goto End;
+        bRet = ReadFile(hDrive, &MBR, sizeof(MBR), &dwSize, NULL);
+        Log("Read MBR ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
+        if (!bRet)
+        {
+            rc = 1;
+            goto End;
+        }
+
+        //clear boot code and partition table (reserved disk signature)
+        memset(MBR.BootCode, 0, 440);
+        memset(MBR.PartTbl, 0, sizeof(MBR.PartTbl));
+
+        VentoyFillMBRLocation(pPhyDrive->SizeInBytes, 2048, (UINT32)(pPhyDrive->SizeInBytes / 512 - 2048), MBR.PartTbl);
+
+        MBR.PartTbl[0].Active = 0x00; // bootable
+        MBR.PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
+
+        SET_FILE_POS(0);
+        bRet = WriteFile(hDrive, &MBR, 512, &dwSize, NULL);
+        Log("Write MBR ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
+        if (!bRet)
+        {
+            rc = 1;
+            goto End;
+        }
     }
 
     Log("Clear Ventoy successfully finished");
@@ -1490,7 +1531,7 @@ End:
         if (state != 1)
         {
             Log("need to mount ventoy part1...");
-            if (0 == GetVentoyVolumeName(pPhyDrive->PhyDrive, MBR.PartTbl[0].StartSectorId, DriveLetters, sizeof(DriveLetters), FALSE))
+            if (0 == GetVentoyVolumeName(pPhyDrive->PhyDrive, 2048, DriveLetters, sizeof(DriveLetters), FALSE))
             {
                 DriveName[0] = MountDrive;
                 bRet = SetVolumeMountPointA(DriveName, DriveLetters);
@@ -1528,6 +1569,10 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     CHAR DriveLetters[MAX_PATH] = { 0 };
     MBR_HEAD MBR;
     VTOY_GPT_INFO *pGptInfo = NULL;
+    UINT64 Part1StartSector = 0;
+    UINT64 Part1SectorCount = 0;
+    UINT64 Part2StartSector = 0;
+
 
     Log("InstallVentoy2PhyDrive %s PhyDrive%d <<%s %s %dGB>>",
         PartStyle ? "GPT" : "MBR", pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId,
@@ -1541,10 +1586,19 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
 
     PROGRESS_BAR_SET_POS(PT_LOCK_FOR_CLEAN);
 
-    VentoyFillMBR(pPhyDrive->SizeInBytes, &MBR, PartStyle);//also used to format 1st partition in GPT mode
     if (PartStyle)
     {
         VentoyFillGpt(pPhyDrive->SizeInBytes, pGptInfo);
+        Part1StartSector = pGptInfo->PartTbl[0].StartLBA;
+        Part1SectorCount = pGptInfo->PartTbl[0].LastLBA - Part1StartSector + 1;
+        Part2StartSector = pGptInfo->PartTbl[1].StartLBA;
+    }
+    else
+    {
+        VentoyFillMBR(pPhyDrive->SizeInBytes, &MBR, PartStyle);
+        Part1StartSector = MBR.PartTbl[0].StartSectorId;
+        Part1SectorCount = MBR.PartTbl[0].SectorCount;
+        Part2StartSector = MBR.PartTbl[1].StartSectorId;
     }
 
     Log("Lock disk for clean ............................. ");
@@ -1608,7 +1662,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     //Refresh Drive Layout
     DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
 
-    disk_io_set_param(hDrive, MBR.PartTbl[0].StartSectorId + MBR.PartTbl[0].SectorCount);
+    disk_io_set_param(hDrive, Part1StartSector + Part1SectorCount);// include the 2048 sector gap
 
     PROGRESS_BAR_SET_POS(PT_FORMAT_PART1);
 
@@ -1626,9 +1680,12 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
         goto End;
     }
 
+    
+
     PROGRESS_BAR_SET_POS(PT_FORMAT_PART2);
     Log("Writing part2 FAT img ...");
-    if (0 != FormatPart2Fat(hDrive, MBR.PartTbl[1].StartSectorId))
+    
+    if (0 != FormatPart2Fat(hDrive, Part2StartSector))
     {
         Log("FormatPart2Fat failed.");
         rc = 1;
@@ -1679,7 +1736,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
         }
 
         Log("Write GPT Info OK ...");
-        memcpy(&(pPhyDrive->MBR), &MBR, 512);
+        memcpy(&(pPhyDrive->MBR), &(pGptInfo->MBR), 512);
     }
     else
     {
@@ -1728,7 +1785,8 @@ End:
         if (state != 1)
         {
             Log("need to mount ventoy part1...");
-            if (0 == GetVentoyVolumeName(pPhyDrive->PhyDrive, MBR.PartTbl[0].StartSectorId, DriveLetters, sizeof(DriveLetters), FALSE))
+            
+            if (0 == GetVentoyVolumeName(pPhyDrive->PhyDrive, Part1StartSector, DriveLetters, sizeof(DriveLetters), FALSE))
             {
                 DriveName[0] = MountDrive;
                 bRet = SetVolumeMountPointA(DriveName, DriveLetters);
@@ -1872,7 +1930,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive)
 
     Log("Lock volume for update .......................... ");
     hVolume = INVALID_HANDLE_VALUE;
-	Status = GetVentoyVolumeName(pPhyDrive->PhyDrive, (UINT32)StartSector, DriveLetters, sizeof(DriveLetters), TRUE);
+	Status = GetVentoyVolumeName(pPhyDrive->PhyDrive, StartSector, DriveLetters, sizeof(DriveLetters), TRUE);
     if (ERROR_SUCCESS == Status)
     {
         Log("Now lock and dismount volume <%s>", DriveLetters);

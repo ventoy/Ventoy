@@ -475,9 +475,9 @@ static const char* const VolumeStr[FF_VOLUMES] = {FF_VOLUME_STRS};	/* Pre-define
 #endif
 
 #if FF_LBA64
-#if FF_MIN_GPT > 0x100000000
-#error Wrong FF_MIN_GPT setting
-#endif
+//#if FF_MIN_GPT > 0x100000000
+//#error Wrong FF_MIN_GPT setting
+//#endif
 static const BYTE GUID_MS_Basic[16] = {0xA2,0xA0,0xD0,0xEB,0xE5,0xB9,0x33,0x44,0x87,0xC0,0x68,0xB6,0xB7,0x26,0x99,0xC7};
 #endif
 
@@ -5983,10 +5983,10 @@ FRESULT f_mkfs (
 			if (sz_vol >= 0x4000000) sz_au = 256;	/* >= 64Ms */
 		}
 		b_fat = b_vol + 32;										/* FAT start at offset 32 */
-		sz_fat = (DWORD)((sz_vol / sz_au + 2) * 4 + ss - 1) / ss;	/* Number of FAT sectors */
+		sz_fat = (DWORD)(((sz_vol / sz_au + 2) * 4 + ss - 1) / ss);	/* Number of FAT sectors */
 		b_data = (b_fat + sz_fat + sz_blk - 1) & ~((LBA_t)sz_blk - 1);	/* Align data area to the erase block boundary */
 		if (b_data - b_vol >= sz_vol / 2) LEAVE_MKFS(FR_MKFS_ABORTED);	/* Too small volume? */
-		n_clst = (DWORD)(sz_vol - (b_data - b_vol)) / sz_au;	/* Number of clusters */
+		n_clst = (DWORD)((sz_vol - (b_data - b_vol)) / sz_au);	/* Number of clusters */
 		if (n_clst <16) LEAVE_MKFS(FR_MKFS_ABORTED);			/* Too few clusters? */
 		if (n_clst > MAX_EXFAT) LEAVE_MKFS(FR_MKFS_ABORTED);	/* Too many clusters? */
 

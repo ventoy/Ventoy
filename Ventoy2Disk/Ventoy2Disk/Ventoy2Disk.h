@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #define SIZE_1MB                    (1024 * 1024)
+#define SIZE_2MB                    (2048 * 1024)
 #define VENTOY_EFI_PART_SIZE	    (32 * SIZE_1MB)
 #define VENTOY_PART1_START_SECTOR    2048
 
@@ -208,6 +209,7 @@ int ParseCmdLineOption(LPSTR lpCmdLine);
 int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
 int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive);
 int VentoyFillBackupGptHead(VTOY_GPT_INFO *pInfo, VTOY_GPT_HDR *pHead);
+int VentoyFillWholeGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo);
 void SetProgressBarPos(int Pos);
 int ReadWholeFileToBuf(const CHAR *FileName, int ExtLen, void **Bufer, int *BufLen);
 int INIT unxz(unsigned char *in, int in_size,
@@ -219,7 +221,7 @@ void disk_io_set_param(HANDLE Handle, UINT64 SectorCount);
 INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 int GetReservedSpaceInMB(void);
 int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive);
-int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
+int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
 int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter);
 UINT32 VentoyCrc32(void *Buffer, UINT32 Length);
 
