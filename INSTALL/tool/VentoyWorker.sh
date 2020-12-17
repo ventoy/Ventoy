@@ -15,12 +15,12 @@ print_usage() {
     echo '   -r SIZE_MB  preserve some space at the bottom of the disk (only for install)'
     echo '   -s/-S       enable/disable secure boot support (default is disabled)'
     echo '   -g          use GPT partition style, default is MBR (only for install)'
-    echo '   -L          Label of the 1st exfat partition (default is ventoy)'
+    echo '   -L          Label of the 1st exfat partition (default is Ventoy)'
     echo ''
 }
 
 
-VTNEW_LABEL='ventoy'
+VTNEW_LABEL='Ventoy'
 RESERVE_SIZE_MB=0
 while [ -n "$1" ]; do
     if [ "$1" = "-i" ]; then
