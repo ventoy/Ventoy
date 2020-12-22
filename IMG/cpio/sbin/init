@@ -47,8 +47,8 @@ if [ -e $BUSYBOX_PATH/32h ]; then
         if [ -s $BUSYBOX_PATH/busybox ]; then
             $BUSYBOX_PATH/vtchmod64 $BUSYBOX_PATH/busybox
         else
-            $BUSYBOX_PATH/xzminidec64_uclibc < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
-            $BUSYBOX_PATH/vtchmod64_uclibc $BUSYBOX_PATH/busybox
+            $BUSYBOX_PATH/xzminidec64_musl < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
+            $BUSYBOX_PATH/vtchmod64_musl $BUSYBOX_PATH/busybox
         fi
     fi
 else

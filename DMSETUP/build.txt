@@ -36,20 +36,16 @@ build for 32bit, static linked with dietlibc
 
 
 ======================== Build for 64bit dmsetup =========================
-https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
 1. extract device mapper source code
-2. extract mini-native-x86_64.tar.bz2
-3. chroot to mini-native-x86_64
-3. ./configure --disable-nls  --disable-selinux --disable-shared  --enable-static_link
+2. ./configure --disable-nls  --disable-selinux --disable-shared  --enable-static_link CC='gcc -specs /usr/local/musl/lib/musl-gcc.specs'
+3. touch include/linux/limits.h include/linux/types.h   
+   echo '#include <sys/mount.h>' > include/linux/fs.h
 4. make
-5. strip dmsetup/dmsetup.static
+5. strip --strip-all dmsetup/dmsetup.static
 6. get dmsetup/dmsetup.static as the dmsetup64 binary file
 
 
-
-
 ======================== Build for arm64 dmsetup =========================
-https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
 1. extract device mapper source code
 2. ./configure CC=aarch64-linux-gcc --target=arm --host=x86_64-linux-gnu --disable-nls  --disable-selinux --disable-shared  --enable-static_link
 3. modify include/configure.h file

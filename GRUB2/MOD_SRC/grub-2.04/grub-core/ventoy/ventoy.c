@@ -1709,6 +1709,7 @@ int ventoy_check_device_result(int ret)
 
 int ventoy_check_device(grub_device_t dev)
 {
+    int workaround = 0;
     grub_file_t file;
     grub_uint64_t offset;
     char devname[64];
@@ -1726,11 +1727,29 @@ int ventoy_check_device(grub_device_t dev)
         0 == ventoy_check_file_exist("(%s,2)/grub/localboot.cfg", dev->disk->name) ||
         0 == ventoy_check_file_exist("(%s,2)/tool/mount.exfat-fuse_aarch64", dev->disk->name))
     {
-        return ventoy_check_device_result(2 | 0x1000);
+        #ifndef GRUB_MACHINE_EFI
+        if (0 == ventoy_check_file_exist("(ventoydisk)/ventoy/ventoy.cpio", dev->disk->name) ||
+            0 == ventoy_check_file_exist("(ventoydisk)/grub/localboot.cfg", dev->disk->name) ||
+            0 == ventoy_check_file_exist("(ventoydisk)/tool/mount.exfat-fuse_aarch64", dev->disk->name))
+        {
+            return ventoy_check_device_result(2 | 0x1000);
+        }
+        else
+        {
+            workaround = 1;
+        }
+        #endif
     }
 
     /* We must have partition 2 */
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(%s,2)/ventoy/ventoy.cpio", dev->disk->name);
+    if (workaround)
+    {
+        file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", "(ventoydisk)/ventoy/ventoy.cpio");
+    }
+    else
+    {
+        file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(%s,2)/ventoy/ventoy.cpio", dev->disk->name);        
+    }
     if (!file)
     {
         return ventoy_check_device_result(3 | 0x1000);
@@ -1748,37 +1767,55 @@ int ventoy_check_device(grub_device_t dev)
         return ventoy_check_device_result(5);
     }
 
-    offset = partition->start + partition->len;
-    partition = file->device->disk->partition;
-    if ((partition->number != 1) || (partition->len != 65536) || (offset != partition->start))
+    if (workaround)
     {
-        grub_file_close(file);
-        return ventoy_check_device_result(6);
+        ventoy_part_table *PartTbl = g_ventoy_part_info->MBR.PartTbl;
+        if (PartTbl[1].StartSectorId != PartTbl[0].StartSectorId + PartTbl[0].SectorCount ||
+            PartTbl[1].SectorCount != 65536)
+        {
+            grub_file_close(file);
+            return ventoy_check_device_result(6);
+        }
     }
+    else
+    {
+        offset = partition->start + partition->len;
+        partition = file->device->disk->partition;
+        if ((partition->number != 1) || (partition->len != 65536) || (offset != partition->start))
+        {
+            grub_file_close(file);
+            return ventoy_check_device_result(7);
+        }
+    }
+
     grub_file_close(file);
 
-    grub_snprintf(devname, sizeof(devname), "%s,2", dev->disk->name);
-    dev2 = grub_device_open(devname);
-    if (!dev2)
+    if (workaround == 0)
     {
-        return ventoy_check_device_result(7);
-    }
+        grub_snprintf(devname, sizeof(devname), "%s,2", dev->disk->name);
+        dev2 = grub_device_open(devname);
+        if (!dev2)
+        {
+            return ventoy_check_device_result(8);
+        }
 
-    fs = grub_fs_probe(dev2);
-    if (!fs)
-    {
-        grub_device_close(dev2);
-        return ventoy_check_device_result(8);
-    }
+        fs = grub_fs_probe(dev2);
+        if (!fs)
+        {
+            grub_device_close(dev2);
+            return ventoy_check_device_result(9);
+        }
 
-    fs->fs_label(dev2, &label);
-    if ((!label) || grub_strncmp("VTOYEFI", label, 7))
-    {
-        grub_device_close(dev2);
-        return ventoy_check_device_result(9);
-    }
+        fs->fs_label(dev2, &label);
+        if ((!label) || grub_strncmp("VTOYEFI", label, 7))
+        {
+            grub_device_close(dev2);
+            return ventoy_check_device_result(10);
+        }
 
-    grub_device_close(dev2);    
+        grub_device_close(dev2);    
+    }
+    
     return ventoy_check_device_result(0);
 }
 

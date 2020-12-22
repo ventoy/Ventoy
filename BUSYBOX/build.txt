@@ -1,20 +1,36 @@
-======== Build busybox 1.32 for aarch64 ======== 
+======== How to build ash/hexdump/xzcat for aarch64 ======== 
+#How to get ash.config/hexdump.cofig/xzcat.config
+#ARCH=arm64 CROSS_COMPILE=aarch64-linux- make allnoconfig
+#ARCH=arm64 CROSS_COMPILE=aarch64-linux- make menuconfig 
+#----> enable static build
+#----> enable xzcat
+#get aarch64_xzcat.config
 
-ARCH=arm64 CROSS_COMPILE=aarch64-linux- make defconfig
-ARCH=arm64 CROSS_COMPILE=aarch64-linux- make menuconfig 
-----> enable static build
-----> enable ar
-----> enable inotifyd
-
-
+tar xf busybox-1.32.0.tar.bz2
+cd busybox-1.32.0
+copy aarch64_xzcat.config as .config
 ARCH=arm64 CROSS_COMPILE=aarch64-linux- make 
+rename ./busybox to xzcat
 
 
 
+======== How to build ash/hexdump/xzcat for x86_64 ==========
+#How to get ash.config/hexdump.cofig/xzcat.config
+#make allnoconfig
+#make menuconfig 
+#----> enable static build
+#----> enable xzcat
+#get x86_64_xzcat.config
 
-ARCH=arm64 CROSS_COMPILE=aarch64-linux- make allnoconfig 
 
+tar xf busybox-1.32.0.tar.bz2
+cd busybox-1.32.0
+copy x86_64_xzcat.config as .config
+modify Makefile
+CC		= gcc -specs "/usr/local/musl/lib/musl-gcc.specs"
+MODFLAGS	= -DMODULE -specs "/usr/local/musl/lib/musl-gcc.specs"
+make
+rename ./busybox to xzcat
 
-======== use mini-native-x86_64 uclibc to build ash/hexdump/busybox for x86_64 ==========
 
 

@@ -27,12 +27,26 @@
 2.2 Download third-part source code
     
     https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz                    ===>  /home/Ventoy-master/DOC/dietlibc-0.34.tar.xz
+    https://musl.libc.org/releases/musl-1.2.1.tar.gz                     ===>  /home/Ventoy-master/DOC/musl-1.2.1.tar.gz
     https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz                        ===>  /home/Ventoy-master/GRUB2/grub-2.04.tar.xz
     https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911     ===>  /home/Ventoy-master/EDK2/edk2-edk2-stable201911.zip
     https://codeload.github.com/relan/exfat/zip/v1.3.0                   ===>  /home/Ventoy-master/ExFAT/exfat-1.3.0.zip
     https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9           ===>  /home/Ventoy-master/ExFAT/libfuse-fuse-2.9.9.zip
     https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz           ===>  /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
     https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2 ===> /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2
+
+2.3 Prepare third-part tools
+    cd /home/Ventoy-master/DOC/
+    tar xf musl-1.2.1.tar.gz
+    cd musl-1.2.1
+    ./configure && make install
+
+    tar xf /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz  -C /opt
+    tar xf /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2  -C /opt
+
+2.4 Set PATH envrioment
+    export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin
+    better to add this line to /root/.bashrc and relogin as root
 
 
 ==========================================
