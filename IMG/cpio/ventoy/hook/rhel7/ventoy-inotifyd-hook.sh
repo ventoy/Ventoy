@@ -39,7 +39,17 @@ if is_inotify_ventoy_part $3; then
     fi
 
     vtlog "find ventoy partition ..."
-    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
+    
+    vtReplaceOpt=noreplace
+    
+    if $GREP -q el8 /proc/version && [ -f /etc/system-release ]; then
+        vtRhel8Ver=$($SED "s#.*8\.\([0-9]*\).*#\1#" /etc/system-release)
+        if [ $vtRhel8Ver -ge 3 ]; then
+            vtReplaceOpt=""
+        fi
+    fi
+    
+    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 $vtReplaceOpt
     
     blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
     vtDM=$(ventoy_find_dm_id ${blkdev_num})
