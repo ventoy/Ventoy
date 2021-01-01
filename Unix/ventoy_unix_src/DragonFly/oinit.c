@@ -157,20 +157,31 @@ static void ventoy_init(char **argv_orig)
     vdebug("[VTOY] step 7: switch root ...\n");
 	error = chdir("/new_root");
 	if (error)
-		goto chroot_failed;
+	{
+	    printf("[VTOY] chdir /new_root failed %d\n", error);
+	    goto chroot_failed;
+    }
 
 	error = chroot_kernel("/new_root");
 	if (error)
-		goto chroot_failed;
+	{
+	    printf("[VTOY] chroot_kernel /new_root failed %d\n", error);
+	    goto chroot_failed;
+    }
 
 	error = chroot("/new_root");
 	if (error)
-		goto chroot_failed;
+    {
+        printf("[VTOY] chroot /new_root failed %d\n", error);
+        goto chroot_failed;
+    }
 
+    vdebug("[VTOY] step 8: now run /sbin/init ...\n");
 	execv("/sbin/init", __DECONST(char **, argv_orig));
 
 	/* We failed to exec /sbin/init in the chroot, sleep forever */
 chroot_failed:
+    printf("[VTOY] ################### DEAD ################\n");
 	while(1) {
 		sleep(3);
 	};

@@ -173,9 +173,13 @@ int prepare_dmtable(void)
     fread(&desc, 1, sizeof(desc), fIn);
     
     vdebug("[VTOY] disksize:%lu part1size:%lu chunkcount:%u\n", desc.disk_size, desc.part1_size, desc.img_chunk_count);
-
-    find_disk_by_size(desc.part1_size, NULL, &count, disk);
-    vdebug("[VTOY] find disk by part1 size: %d %s\n", count, disk);
+    
+    for (i = 0; count <= 0 && i < 10; i++)
+    {
+        sleep(2);
+        find_disk_by_size(desc.part1_size, NULL, &count, disk);
+        vdebug("[VTOY] find disk by part1 size, i=%d, count=%d, %s\n", i, count, disk);
+    }
 
     if (count == 0)
     {
