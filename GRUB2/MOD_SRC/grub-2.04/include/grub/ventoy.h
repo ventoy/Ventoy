@@ -149,8 +149,6 @@ typedef struct ventoy_secure_data
     grub_uint8_t magic2[16];     /* VENTOY_GUID */
 }ventoy_secure_data;
 
-
-
 #pragma pack()
 
 // compile assert check : sizeof(ventoy_os_param) must be 512
@@ -187,6 +185,18 @@ typedef struct ventoy_chain_head
     grub_uint32_t virt_chunk_offset;
     grub_uint32_t virt_chunk_num;
 }ventoy_chain_head;
+
+typedef struct ventoy_image_desc
+{
+    grub_uint64_t disk_size;
+    grub_uint64_t part1_size;
+    grub_uint8_t  disk_uuid[16];
+    grub_uint8_t  disk_signature[4];
+    grub_uint32_t img_chunk_count;
+    /* ventoy_img_chunk list */
+}ventoy_image_desc;
+
+
 
 typedef struct ventoy_img_chunk
 {

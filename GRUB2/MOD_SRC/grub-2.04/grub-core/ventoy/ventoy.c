@@ -43,8 +43,10 @@
 #include <grub/acpi.h>
 #include <grub/charset.h>
 #include <grub/crypto.h>
+#include <grub/lib/crc.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
+#include "miniz.h"
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
@@ -105,6 +107,7 @@ int g_conf_replace_new_len = 0;
 int g_conf_replace_new_len_align = 0;
 
 ventoy_gpt_info *g_ventoy_part_info = NULL;
+grub_uint64_t g_ventoy_disk_size = 0;
 
 static char *g_tree_script_buf = NULL;
 static int g_tree_script_pos = 0;
@@ -3437,6 +3440,22 @@ static grub_err_t ventoy_cmd_pop_last_entry(grub_extcmd_context_t ctxt, int argc
     return 0;
 }
 
+grub_uint64_t ventoy_get_part1_size(ventoy_gpt_info *gpt)
+{
+    grub_uint64_t sectors;
+    
+    if (grub_strncmp(gpt->Head.Signature, "EFI PART", 8) == 0)
+    {
+        sectors = gpt->PartTbl[0].LastLBA + 1 - gpt->PartTbl[0].StartLBA;
+    }
+    else
+    {
+        sectors = gpt->MBR.PartTbl[0].SectorCount;
+    }
+
+    return sectors * 512;
+}
+
 static int ventoy_lib_module_callback(const char *filename, const struct grub_dirhook_info *info, void *data)
 {
     const char *pos = filename + 1;
@@ -3538,6 +3557,8 @@ static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int arg
         debug("Failed to open disk %s\n", args[0]);
         return 1;
     }
+
+    g_ventoy_disk_size = disk->total_sectors * (1U << disk->log_sector_size);
 
     grub_disk_read(disk, 0, 0, sizeof(ventoy_gpt_info), g_ventoy_part_info);
     grub_disk_close(disk);
@@ -3926,6 +3947,47 @@ int ventoy_is_dir_exist(const char *fmt, ...)
     return 0;
 }
 
+int ventoy_gzip_compress(void *mem_in, int mem_in_len, void *mem_out, int mem_out_len)
+{
+	mz_stream s;
+    grub_uint8_t *outbuf;
+    grub_uint8_t gzHdr[10] = 
+    {
+		0x1F, 0x8B,	/* magic */
+		8,		    /* z method */
+		0,		    /* flags */
+		0,0,0,0,	/* mtime */
+		4,		    /* xfl */
+		3,		    /* OS */
+	};
+
+	grub_memset(&s, 0, sizeof(mz_stream));
+
+    mz_deflateInit2(&s, 1, MZ_DEFLATED, -MZ_DEFAULT_WINDOW_BITS, 6, MZ_DEFAULT_STRATEGY);
+    
+    outbuf = (grub_uint8_t *)mem_out;
+
+    mem_out_len -= sizeof(gzHdr) + 8;
+    grub_memcpy(outbuf, gzHdr, sizeof(gzHdr));
+    outbuf += sizeof(gzHdr);
+
+    s.avail_in = mem_in_len;
+    s.next_in = mem_in;
+
+    s.avail_out = mem_out_len;
+    s.next_out = outbuf;
+
+    mz_deflate(&s, MZ_FINISH);
+
+    mz_deflateEnd(&s);
+
+    outbuf += s.total_out;
+    *(grub_uint32_t *)outbuf = grub_getcrc32c(0, outbuf, s.total_out);
+    *(grub_uint32_t *)(outbuf + 4) = (grub_uint32_t)(s.total_out);
+
+    return s.total_out + sizeof(gzHdr) + 8;    
+}
+
 static int ventoy_env_init(void)
 {
     char buf[64];
@@ -4055,6 +4117,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_unix_reset", ventoy_cmd_unix_reset, 0, NULL, "", "", NULL },
     { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
     { "vt_unix_replace_ko", ventoy_cmd_unix_replace_ko, 0, NULL, "", "", NULL },
+    { "vt_unix_fill_image_desc", ventoy_cmd_unix_fill_image_desc, 0, NULL, "", "", NULL },
+    { "vt_unix_gzip_new_ko", ventoy_cmd_unix_gzip_newko, 0, NULL, "", "", NULL },
     { "vt_unix_chain_data", ventoy_cmd_unix_chain_data, 0, NULL, "", "", NULL },
 
     { "vt_img_hook_root", ventoy_cmd_img_hook_root, 0, NULL, "", "", NULL },
