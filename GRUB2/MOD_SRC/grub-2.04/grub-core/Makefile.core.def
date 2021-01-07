@@ -1601,6 +1601,11 @@ module = {
 };
 
 module = {
+    name = setkey;
+    common = term/setkey.c;
+};
+
+module = {
   name = hello;
   common = hello/hello.c;
 };
