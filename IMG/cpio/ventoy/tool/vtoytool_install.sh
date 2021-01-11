@@ -38,20 +38,9 @@ if $GREP -q aarch64 $VTOY_PATH/ventoy_arch; then
         fi        
     done
     
-    $BUSYBOX_PATH/rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/lz4cataa64 $VTOY_PATH/tool/lz4cat
-    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
-    
     $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_aa64  $VTOY_PATH/tool/vtoy_fuse_iso
     $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_aa64  $VTOY_PATH/tool/vtoy_unsquashfs    
 else
-    
-    if $GREP -q x86_64 $VTOY_PATH/ventoy_arch; then
-        $BUSYBOX_PATH/rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
-        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/lz4cat64  $VTOY_PATH/tool/lz4cat
-        $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
-    fi
-
     for vtdir in $(ls $VTOY_PATH/tool/vtoytool/); do
         echo "try $VTOY_PATH/tool/vtoytool/$vtdir/ ..." >> $VTLOG
         if $VTOY_PATH/tool/vtoytool/$vtdir/vtoytool_64 --install 2>>$VTLOG; then

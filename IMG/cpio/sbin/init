@@ -98,12 +98,21 @@ if [ -e $BUSYBOX_PATH/32h ]; then
         ln -s $BUSYBOX_PATH/xzminidecaa64 $BUSYBOX_PATH/xzminidec
         ln -s $VTOY_PATH/tool/dmsetupaa64 $VTOY_PATH/tool/dmsetup
         ln -s $VTOY_PATH/tool/lunzipaa64 $VTOY_PATH/tool/lunzip
+        
+        rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+        ln -s $VTOY_PATH/tool/lz4cataa64 $VTOY_PATH/tool/lz4cat
+        ln -s $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
+        
     else
         echo "Use x86_64 busybox toolkit ..." >>$VTLOG
         echo x86_64 > $VTOY_PATH/ventoy_arch
         ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
         ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
         ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
+        
+        rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+        ln -s $VTOY_PATH/tool/lz4cat64 $VTOY_PATH/tool/lz4cat
+        ln -s $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
     fi
 else
     echo "Use i386 busybox toolkit ..." >>$VTLOG
