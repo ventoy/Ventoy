@@ -1,4 +1,5 @@
 videotest: font video gfxmenu
+setkey: extcmd
 odc: archelp
 loopback: extcmd
 macho:

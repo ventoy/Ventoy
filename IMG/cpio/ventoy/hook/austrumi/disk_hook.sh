@@ -21,11 +21,17 @@
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-wait_for_usb_disk_ready
-
 vtdiskname=$(get_ventoy_disk_name)
 if [ "$vtdiskname" = "unknown" ]; then
     vtlog "ventoy disk not found"
+    PATH=$VTPATH_OLD
+    exit 0
+fi
+
+if check_usb_disk_ready "$vtdiskname"; then
+    vtlog "check_usb_disk_ready ok"
+else
+    vtlog "check_usb_disk_ready error"
     PATH=$VTPATH_OLD
     exit 0
 fi

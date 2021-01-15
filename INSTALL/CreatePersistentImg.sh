@@ -3,13 +3,15 @@
 size=1024
 fstype=ext4
 label=casper-rw
+config=''
 
 print_usage() {
-    echo 'Usage:  CreatePersistentImg.sh [ -s size ] [ -t fstype ] [ -l LABEL ]'
+    echo 'Usage:  CreatePersistentImg.sh [ -s size ] [ -t fstype ] [ -l LABEL ] [ -c CFG ]'
     echo '  OPTION: (optional)'
     echo '   -s size in MB, default is 1024'
     echo '   -t filesystem type, default is ext4  ext2/ext3/ext4/xfs are supported now'
     echo '   -l label, default is casper-rw'
+    echo '   -c configfile name inside the persistence file. File content is "/ union"'
     echo ''
 }
 
@@ -23,6 +25,9 @@ while [ -n "$1" ]; do
     elif [ "$1" = "-l" ]; then
         shift
         label=$1
+    elif [ "$1" = "-c" ]; then
+        shift
+        config=$1
     elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
         print_usage
         exit 0
@@ -76,5 +81,18 @@ mkfs -t $fstype $fsopt -L $label $freeloop
 
 sync
 
-losetup -d $freeloop
+if [ -n "$config" ]; then
+    if [ -d ./persist_tmp_mnt ]; then
+        rm -rf ./persist_tmp_mnt
+    fi
+    
+    mkdir ./persist_tmp_mnt
+    if mount $freeloop ./persist_tmp_mnt; then
+        echo '/ union' > ./persist_tmp_mnt/$config
+        sync
+        umount ./persist_tmp_mnt
+    fi
+    rm -rf ./persist_tmp_mnt
+fi
 
+losetup -d $freeloop
