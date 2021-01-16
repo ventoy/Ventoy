@@ -21,7 +21,9 @@
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
+mkdir -p /pup_new/mnt/sdz
+mv $VTOY_PATH/360Disk /pup_new/mnt/sdz/
+[ -f /pup_new/root/scripts/cd_plugin ] && echo "/root/scripts/cd_plugin sdz" >> /pup_new/etc/rc.d/rc.local
 
 PATH=$VTPATH_OLD
 
-set_ventoy_hook_finish

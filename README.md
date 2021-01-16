@@ -30,7 +30,8 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 * x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI supported
 * UEFI Secure Boot supported (1.0.07+)
 * Persistence supported (1.0.11+)
-* Windows/Linux auto installation supported (1.0.09+)
+* Windows auto installation supported (1.0.09+)
+* RHEL7/8/CentOS/7/8/SUSE/Ubuntu Server/Debian ... auto installation supported (1.0.09+)
 * FAT32/exFAT/NTFS/UDF/XFS/Ext2(3)(4) supported for main partition
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI

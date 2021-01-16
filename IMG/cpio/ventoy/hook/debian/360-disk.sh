@@ -47,8 +47,8 @@ mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
 
 rm -f /puppy.sfs
 echo -e "\n\\033[1;35mCopying to ram ...\\033[0;39m" > /dev/console
-[ -e $VTOY_PATH/mnt/iso/360Disk/puppy.sfs ] && cp -a $VTOY_PATH/mnt/iso/360Disk/puppy.sfs /puppy.sfs
-[ -d $VTOY_PATH/mnt/iso/360Disk/addsw ] && cp -a $VTOY_PATH/mnt/iso/360Disk/addsw /
+[ -d $VTOY_PATH/mnt/iso/360Disk ] && cp -a $VTOY_PATH/mnt/iso/360Disk  $VTOY_PATH/
+[ -e $VTOY_PATH/360Disk/puppy.sfs ] && mv $VTOY_PATH/360Disk/puppy.sfs   /puppy.sfs
 
 umount $VTOY_PATH/mnt/iso
 umount $VTOY_PATH/mnt/fuse
