@@ -17,21 +17,11 @@
 # 
 #************************************************************************************
 
-if $GREP -q '^ *HAVE_PARTS=' /init; then
-    $SED '1 apmedia=usbhd'  -i /init
-    $SED "/^ *HAVE_PARTS=/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/puppy-disk.sh"  -i /init
-    $SED "/^ *HAVE_PARTS=/a\ HAVE_PARTS='ventoy|iso9660'"  -i /init
-fi
+. /ventoy/hook/ventoy-hook-lib.sh
 
-#360UDisk
-if [ -e /360anim ]; then    
-    $BUSYBOX_PATH/touch /puppy.sfs 
-    $SED "/if *.*flag-usb-ready/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/360-disk.sh"  -i /init
-    $SED "/^exec *switch_root/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/360-switch-root.sh"  -i /init    
-fi
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-if [ -f /DISTRO_SPECS ]; then
-    if ! [ -d /dev ]; then
-        $BUSYBOX_PATH/mkdir /dev
-    fi
-fi
+
+PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish

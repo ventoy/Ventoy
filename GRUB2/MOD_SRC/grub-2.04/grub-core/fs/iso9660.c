@@ -735,6 +735,8 @@ grub_iso9660_iterate_dir (grub_fshelp_node_t dir,
 	  {
 	    if ((dirent.flags & FLAG_TYPE) == FLAG_TYPE_DIR)
 	      ctx.type = GRUB_FSHELP_DIR;
+        else if ((dirent.flags & FLAG_TYPE) == 3)
+          ctx.type = GRUB_FSHELP_DIR;
 	    else
 	      ctx.type = GRUB_FSHELP_REG;
 	  }

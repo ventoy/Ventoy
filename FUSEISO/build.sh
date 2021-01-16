@@ -12,13 +12,15 @@ else
 fi
 
 #
-# use mini-native-x86_64 UCLIBC to build for x86_64
+# use musl-c to build for x86_64
 #
 
 export C_INCLUDE_PATH=$LIBFUSE_DIR/include
 
 rm -f $name
-gcc -static -O2 -D_FILE_OFFSET_BITS=64  vtoy_fuse_iso.c -o $name $LIBFUSE_DIR/lib/libfuse.a  -lpthread -ldl $opt
+gcc -specs "/usr/local/musl/lib/musl-gcc.specs" -static -O2 -D_FILE_OFFSET_BITS=64  vtoy_fuse_iso.c $LIBFUSE_DIR/lib/libfuse.a  -o  $name
+
+strip --strip-all $name
 
 if [ -e $name ]; then
    echo -e "\n############### SUCCESS $name ##################\n"
