@@ -32,6 +32,7 @@
 *save_env: loadenv
 *search: search
 *serial: serial
+*setkey: setkey
 *sha1sum: hashsum
 *sha256sum: hashsum
 *sha512sum: hashsum

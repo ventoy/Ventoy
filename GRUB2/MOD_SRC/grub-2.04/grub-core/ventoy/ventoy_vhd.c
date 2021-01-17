@@ -342,8 +342,10 @@ static int ventoy_raw_trim_head(grub_uint64_t offset)
 grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i;
+    int altboot = 0;
     int offset = -1;
     grub_file_t file;
+    grub_uint8_t data = 0;
     vhd_footer_t vhdfoot;
     VDIPREHEADER vdihdr;
     char type[16] = {0};
@@ -427,12 +429,27 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
                     if (grub_memcmp(gpt->PartTbl[i].PartType, "Hah!IdontNeedEFI", 16) == 0)
                     {
                         debug("part %d is grub_bios part\n", i);
+                        altboot = 1;
                         grub_env_set(args[3], "1");
                         break;
                     }
                     else if (gpt->PartTbl[i].LastLBA == 0)
                     {
                         break;
+                    }
+                }
+            }
+
+            if (!altboot)
+            {
+                if (gpt->MBR.BootCode[92] == 0x22)
+                {
+                    grub_file_seek(file, offset + 17908);
+                    grub_file_read(file, &data, 1);
+                    if (data == 0x23)
+                    {
+                        altboot = 1;
+                        grub_env_set(args[3], "1");                        
                     }
                 }
             }
@@ -447,6 +464,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
                 if (gpt->MBR.PartTbl[i].FsFlag == 0xEF)
                 {
                     debug("part %d is esp part in MBR mode\n", i);
+                    altboot = 1;
                     grub_env_set(args[3], "1");
                     break;
                 }

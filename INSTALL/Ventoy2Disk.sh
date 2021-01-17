@@ -1,5 +1,7 @@
 #!/bin/sh
 
+OLDDIR=$(pwd)
+
 if ! [ -f ./tool/ventoy_lib.sh ]; then
     if [ -f ${0%Ventoy2Disk.sh}/tool/ventoy_lib.sh ]; then
         cd ${0%Ventoy2Disk.sh}    
@@ -9,8 +11,6 @@ fi
 if [ -f ./ventoy/version ]; then
     curver=$(cat ./ventoy/version) 
 fi
-
-OLDDIR=$(pwd)
 
 if uname -a | egrep -q 'aarch64|arm64'; then
     export TOOLDIR=aarch64
@@ -53,9 +53,10 @@ else
     
     for file in $(ls *.xz); do
         xzcat $file > ${file%.xz}
+        [ -f ./${file%.xz} ] && chmod +x ./${file%.xz}
         [ -f ./$file ] && rm -f ./$file
     done
-    cd $OLDDIR
+    cd ../../
     
     chmod +x -R ./tool/$TOOLDIR
 fi
@@ -67,7 +68,8 @@ else
 fi
 
 if [ -n "$OLDDIR" ]; then 
-    cd $OLDDIR
+    CURDIR=$(pwd)
+    if [ "$CURDIR" != "$OLDDIR" ]; then
+        cd "$OLDDIR"
+    fi
 fi
-
-

@@ -484,8 +484,7 @@ static int vtoy_check_device(ventoy_os_param *param, const char *device)
     debug("param->vtoy_disk_size=%llu size=%llu\n", 
         (unsigned long long)param->vtoy_disk_size, (unsigned long long)size);
 
-    if ((param->vtoy_disk_size == size || param->vtoy_disk_size == size + 512) && 
-        memcmp(vtguid, param->vtoy_disk_guid, 16) == 0 &&
+    if (memcmp(vtguid, param->vtoy_disk_guid, 16) == 0 &&
         memcmp(vtsig, param->vtoy_disk_signature, 4) == 0)
     {
         debug("<%s> is right ventoy disk\n", device);
@@ -563,8 +562,20 @@ int vtoydump_main(int argc, char **argv)
     rc = vtoy_os_param_from_file(filename, param);
     if (rc)
     {
-        debug("ventoy os param not found %d\n", rc);
-        goto end;
+        debug("ventoy os param not found %d %d\n", rc, ENOENT);
+        if (ENOENT == rc)
+        {
+            debug("now try with file %s\n", "/ventoy/ventoy_os_param");
+            rc = vtoy_os_param_from_file("/ventoy/ventoy_os_param", param);
+            if (rc)
+            {
+                goto end;
+            }
+        }
+        else
+        {
+            goto end;            
+        }        
     }
 
     if (verbose)

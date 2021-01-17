@@ -43,6 +43,7 @@ ventoy_os_install_dmsetup_by_unsquashfs() {
     vtoy_unsquashfs -d $VTOY_PATH/sqfs -n -q -e $VTOY_PATH/fsextract $VTOY_PATH/fsdisk
 
     if ! [ -e $VTOY_PATH/sqfs${dmModPath} ]; then
+        rm -rf $VTOY_PATH/sqfs
         dmModPath="/lib/modules/$vtKerVer/kernel/drivers/md/dm-mod.$vtKoPo"
         echo $dmModPath > $VTOY_PATH/fsextract
         vtoy_unsquashfs -d $VTOY_PATH/sqfs -n -q -e $VTOY_PATH/fsextract $VTOY_PATH/fsdisk

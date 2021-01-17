@@ -31,5 +31,13 @@ make -j 16
 sh install.sh  uefi
 
 
+#build for IA32 EFI
+make distclean
+./autogen.sh
+./configure --target=i386 --with-platform=efi  --prefix=$VT_GRUB_DIR/INSTALL/
+make -j 16
+sh install.sh  i386efi
+
+
 cd ../../
 

@@ -19,6 +19,6 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$SED "/^ *mdev *-s/a $BUSYBOX_PATH/sh $VTOY_PATH/hook/austrumi/disk_hook.sh" -i /init
+$SED "/find_usb *(/a $BUSYBOX_PATH/sh $VTOY_PATH/hook/austrumi/disk_hook.sh" -i /init
 $SED "s/BOOT_TYPE=livecd/BOOT_TYPE=usb/g" -i /init
 

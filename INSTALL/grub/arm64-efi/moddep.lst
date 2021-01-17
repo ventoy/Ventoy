@@ -1,4 +1,5 @@
 videotest: font video gfxmenu
+setkey: extcmd
 odc: archelp
 loopback: extcmd
 macho:
@@ -92,7 +93,7 @@ terminal:
 div:
 crypto:
 part_bsd: part_msdos
-ventoy: ext2 fshelp font crypto gcry_md5 exfat udf extcmd normal video gcry_sha1 iso9660
+ventoy: ext2 fshelp btrfs font crypto gcry_md5 exfat udf extcmd normal video gcry_sha1 iso9660
 gcry_sha512: crypto
 password: crypto normal
 fshelp:

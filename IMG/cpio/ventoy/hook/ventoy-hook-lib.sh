@@ -102,6 +102,16 @@ wait_for_usb_disk_ready() {
 	done
 }
 
+check_usb_disk_ready() {
+    if echo $1 | $EGREP -q "nvme|mmc"; then
+        vtpart2=${1}p2
+    else
+        vtpart2=${1}2
+    fi
+    
+    [ -e "${vtpart2}" ]
+}
+
 is_ventoy_disk() {
     if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$1"; then
         $BUSYBOX_PATH/true

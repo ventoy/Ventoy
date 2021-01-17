@@ -126,6 +126,7 @@ fi
 
 if [ -n "$VT_BUS_USB" ]; then
     vtlog "$1 is USB device"
+    echo /dev/$1 > /ventoy/list-devices-usb-part
 else
     vtlog "$1 is NOT USB device (bus $ID_BUS)"
     

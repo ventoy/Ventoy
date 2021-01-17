@@ -33,7 +33,7 @@ fi
 
 ./makeconf.sh
 
-./configure --prefix="$LIBFUSE_DIR"
+./configure --prefix="$LIBFUSE_DIR" CFLAGS='-specs /usr/local/musl/lib/musl-gcc.specs'
 make -j 16
 make install
 cd ..

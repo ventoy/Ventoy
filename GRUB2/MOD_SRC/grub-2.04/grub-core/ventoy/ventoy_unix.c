@@ -235,6 +235,21 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
     return pos;
 }
 
+static int ventoy_dragonfly_append_conf(char *buf, const char *isopath)
+{
+    int pos = 0;
+
+    debug("ventoy_dragonfly_append_conf %s\n", isopath);
+
+    vtoy_ssprintf(buf, pos, "tmpfs_load=\"%s\"\n", "YES");
+    vtoy_ssprintf(buf, pos, "dm_target_linear_load=\"%s\"\n", "YES");
+    vtoy_ssprintf(buf, pos, "initrd.img_load=\"%s\"\n", "YES");
+    vtoy_ssprintf(buf, pos, "initrd.img_type=\"%s\"\n", "md_image");
+    vtoy_ssprintf(buf, pos, "vfs.root.mountfrom=\"%s\"\n", "ufs:md0s0");
+
+    return pos;
+}
+
 grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
@@ -431,6 +446,10 @@ grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, ch
     {
         g_conf_new_len += ventoy_freebsd_append_conf(data + file->size, args[1]);
     }
+    else if (grub_strcmp(args[0], "DragonFly") == 0)
+    {
+        g_conf_new_len += ventoy_dragonfly_append_conf(data + file->size, args[1]);
+    }
     
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -474,6 +493,7 @@ grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char
     data = grub_malloc(file->size);
     if (!data)
     {
+        debug("Failed to alloc memory for new ko %d\n", (int)file->size);
         grub_file_close(file);    
         return 1;
     }
@@ -484,6 +504,105 @@ grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char
     g_mod_new_data = data;
     g_mod_new_len = (int)file->size;
     
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_unix_fill_image_desc(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    grub_uint8_t *byte;
+    grub_uint32_t memsize;
+    ventoy_image_desc *desc;
+    grub_uint8_t flag[32] = {
+        0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF
+    };
+
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    debug("ventoy_cmd_unix_fill_image_desc %p\n", g_mod_new_data);
+
+    if (!g_mod_new_data)
+    {
+        goto end;
+    }
+
+    byte = (grub_uint8_t *)g_mod_new_data;
+    for (i = 0; i < g_mod_new_len - 32; i += 16)
+    {
+        if (byte[i] == 0xFF && byte[i + 1] == 0xEE)
+        {
+            if (grub_memcmp(flag, byte + i, 32) == 0)
+            {
+                debug("Find position flag at %d(0x%x)\n", i, i);
+                break;                
+            }
+        }
+    }
+
+    if (i >= g_mod_new_len - 32)
+    {
+        debug("Failed to find position flag %d\n", i);
+        goto end;
+    }
+
+    desc = (ventoy_image_desc *)(byte + i);
+    desc->disk_size = g_ventoy_disk_size;
+    desc->part1_size = ventoy_get_part1_size(g_ventoy_part_info);
+    grub_memcpy(desc->disk_uuid, g_ventoy_part_info->MBR.BootCode + 0x180, 16);
+    grub_memcpy(desc->disk_signature, g_ventoy_part_info->MBR.BootCode + 0x1B8, 4);
+
+    desc->img_chunk_count = g_img_chunk_list.cur_chunk;
+    memsize = g_img_chunk_list.cur_chunk * sizeof(ventoy_img_chunk);
+
+    debug("image chunk count:%u  memsize:%u\n", desc->img_chunk_count, memsize);
+
+    if (memsize >= VTOY_SIZE_1MB * 8)
+    {
+        grub_printf("image chunk count:%u  memsize:%u too big\n", desc->img_chunk_count, memsize);
+        goto end;
+    }
+
+    grub_memcpy(desc + 1, g_img_chunk_list.chunk, memsize);
+
+end:
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_unix_gzip_newko(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int newlen;
+    grub_uint8_t *buf;
+
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    debug("ventoy_cmd_unix_gzip_newko %p\n", g_mod_new_data);
+
+    if (!g_mod_new_data)
+    {
+        goto end;
+    }
+
+    buf = grub_malloc(g_mod_new_len);
+    if (!buf)
+    {
+        goto end;
+    }
+
+    newlen = ventoy_gzip_compress(g_mod_new_data, g_mod_new_len, buf, g_mod_new_len);
+
+    grub_free(g_mod_new_data);
+
+    debug("gzip org len:%d  newlen:%d\n", g_mod_new_len, newlen);
+
+    g_mod_new_data = (char *)buf;
+    g_mod_new_len = newlen;
+
+end:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 

@@ -23,7 +23,12 @@ elif $GREP -q '\[ "$FILTERED_LIST" \]' /init; then
     $SED '/\[ "$FILTERED_LIST" \]/i\    FILTERED_LIST="/dev/mapper/ventoy $FILTERED_LIST"' -i /init
 fi
 
-$SED -i "/_search_for_boot_device_/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/antix-disk.sh" /init
+if $GREP -q '_search_for_boot_device_' /init; then
+    $SED -i "/_search_for_boot_device_/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/antix-disk.sh" /init
+elif $GREP -q 'FILTERED_LIST=.*ventoy' /init; then
+    $SED -i "/FILTERED_LIST=.*ventoy/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/antix-disk.sh" /init
+fi
+
 
 if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
     $SED 's#for param in $cmdline#for param in persist_all $cmdline#g' -i /init

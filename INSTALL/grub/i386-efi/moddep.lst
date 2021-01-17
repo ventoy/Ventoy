@@ -1,4 +1,5 @@
 videotest: font video gfxmenu
+setkey: extcmd
 odc: archelp
 loopback: extcmd
 macho:
@@ -119,7 +120,7 @@ ehci: cs5536 usb boot
 crypto:
 part_bsd: part_msdos
 cs5536:
-ventoy: ext2 fshelp font crypto gcry_md5 exfat udf extcmd normal video gcry_sha1 iso9660
+ventoy: ext2 fshelp btrfs font crypto gcry_md5 exfat udf extcmd normal video gcry_sha1 iso9660
 gcry_sha512: crypto
 password: crypto normal
 fshelp:
