@@ -122,16 +122,16 @@ if [ "$MODE" = "list" ]; then
         fi
         
         vtPART2=$(get_disk_part_name $DISK 2)        
-        rm -rf ./tmpmntp2 && mkdir ./tmpmntp2
-        mount $vtPART2 ./tmpmntp2 > /dev/null 2>&1
+        # avoid destroy of EFI in case of failed umount
+        tmpmntp2=$(mktemp -d)
+        mount $vtPART2 $tmpmntp2
 
-        if [ -e ./tmpmntp2/EFI/BOOT/MokManager.efi ]; then
+        if [ -e $tmpmntp2/EFI/BOOT/MokManager.efi ]; then
             echo "Secure Boot Support   : YES"
         else
             echo "Secure Boot Support   : NO"
         fi        
-        umount ./tmpmntp2 > /dev/null 2>&1
-        rm -rf ./tmpmntp2
+        umount $tmpmntp2 && rmdir $tmpmntp2
     else
         echo "Ventoy Version: NA"
     fi
