@@ -16,7 +16,7 @@ You can copy many image files at a time and ventoy will give you a boot menu to 
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI and ARM64 UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
-600+ ISO files are tested. 90%+ distros in distrowatch.com supported. <br/>
+610+ ISO files are tested. 90%+ distros in distrowatch.com supported. <br/>
 </h4>
 
 # Features
@@ -35,7 +35,7 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 * FAT32/exFAT/NTFS/UDF/XFS/Ext2(3)(4) supported for main partition
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
-* Most type of OS supported, 600+ iso files tested
+* Most type of OS supported, 610+ iso files tested
 * Linux vDisk boot supported
 * Not only boot but also complete installation process
 * Menu dynamically switchable between List/TreeView mode
