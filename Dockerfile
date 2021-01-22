@@ -8,10 +8,9 @@ RUN yum -y install \
         iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
 
 CMD cd /ventoy \
-    && wget -P DOC/ https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz \
-    && wget -P GRUB2/ https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz \
-    && wget -O EDK2/edk2-edk2-stable201911.zip https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911 \
-    && wget -O ExFAT/exfat-1.3.0.zip https://codeload.github.com/relan/exfat/zip/v1.3.0 \
-    && wget -O ExFAT/libfuse-fuse-2.9.9.zip https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9 \
+    && curl -L https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz > DOC/dietlibc-0.34.tar.xz \
+    && curl -L https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz > GRUB2/grub-2.04.tar.xz \
+    && curl -L https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911 > EDK2/edk2-edk2-stable201911.zip \
+    && curl -L https://codeload.github.com/relan/exfat/zip/v1.3.0 > ExFAT/exfat-1.3.0.zip \
+    && curl -L https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9 > ExFAT/libfuse-fuse-2.9.9.zip \
     && cd INSTALL && ls -la && sh all_in_one.sh
-
