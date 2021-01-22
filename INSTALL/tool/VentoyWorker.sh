@@ -325,8 +325,8 @@ if [ "$MODE" = "install" ]; then
         mkdir ./tmp_mnt
         
         vtdebug "mounting part2 ...."
-        for tt in 1 2 3; do
-            if mount ${PART2} ./tmp_mnt; then
+        for tt in 1 2 3 4 5; do            
+            if mount ${PART2} ./tmp_mnt > /dev/null 2>&1; then
                 vtdebug "mounting part2 success"
                 break
             fi
@@ -334,7 +334,7 @@ if [ "$MODE" = "install" ]; then
             mtpnt=$(grep "^${PART2}" /proc/mounts | awk '{print $2}')
             if [ -n "$mtpnt" ]; then
                 umount $mtpnt >/dev/null 2>&1
-            fi
+            fi    
             sleep 2
         done
         
@@ -445,13 +445,15 @@ else
     if [ "$SECUREBOOT" != "YES" ]; then
         mkdir ./tmp_mnt
         
-        vtdebug "mounting part2 ...."
-        for tt in 1 2 3; do
-            if mount ${PART2} ./tmp_mnt; then
+        vtdebug "mounting part2 ...."        
+        for tt in 1 2 3 4 5; do            
+            if mount ${PART2} ./tmp_mnt > /dev/null 2>&1; then
                 vtdebug "mounting part2 success"
                 break
+            else
+                vtdebug "mounting part2 failed, now wait and retry..."
             fi
-            sleep 2
+            sleep 2            
         done
         
         rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
@@ -466,7 +468,7 @@ else
         
         
         for tt in 1 2 3; do
-            if umount ./tmp_mnt; then
+            if umount ./tmp_mnt > /dev/null 2>&1; then
                 vtdebug "umount part2 success"
                 rm -rf ./tmp_mnt
                 break
