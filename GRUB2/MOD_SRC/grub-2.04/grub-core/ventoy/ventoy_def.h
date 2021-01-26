@@ -867,7 +867,11 @@ extern int g_ventoy_iso_uefi_drv;
 extern int g_ventoy_case_insensitive;
 extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
+
+#define VENTOY_IMG_WHITE_LIST   1
+#define VENTOY_IMG_BLACK_LIST   2
 extern int g_plugin_image_list;
+
 extern ventoy_gpt_info *g_ventoy_part_info;
 extern grub_uint64_t g_conf_replace_offset;
 extern grub_uint64_t g_svd_replace_offset;

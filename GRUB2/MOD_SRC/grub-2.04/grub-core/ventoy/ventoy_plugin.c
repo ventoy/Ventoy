@@ -1625,7 +1625,14 @@ static int ventoy_plugin_image_list_entry(VTOY_JSON *json, const char *isodisk)
         g_image_list_head = NULL;
     }
 
-    g_plugin_image_list = 1;
+    if (grub_strcmp(json->pcName, "image_blacklist") == 0)
+    {
+        g_plugin_image_list = VENTOY_IMG_BLACK_LIST;
+    }
+    else
+    {
+        g_plugin_image_list = VENTOY_IMG_WHITE_LIST;
+    }
 
     for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
     {
@@ -1693,6 +1700,7 @@ static plugin_entry g_plugin_entries[] =
     { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check },
     { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check },
     { "image_list", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
+    { "image_blacklist", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
     { "conf_replace", ventoy_plugin_conf_replace_entry, ventoy_plugin_conf_replace_check },
     { "dud", ventoy_plugin_dud_entry, ventoy_plugin_dud_check },
     { "password", ventoy_plugin_pwd_entry, ventoy_plugin_pwd_check },

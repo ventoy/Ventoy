@@ -1031,7 +1031,7 @@ int ventoy_cmp_img(img_info *img1, img_info *img2)
     int c1 = 0;
     int c2 = 0;
 
-    if (g_plugin_image_list)
+    if (g_plugin_image_list == VENTOY_IMG_WHITE_LIST)
     {
         return (img1->plugin_list_index - img2->plugin_list_index);
     }
@@ -1069,7 +1069,7 @@ static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
     int c1 = 0;
     int c2 = 0;
 
-    if (g_plugin_image_list)
+    if (g_plugin_image_list == VENTOY_IMG_WHITE_LIST)
     {
         return (node1->plugin_list_index - node2->plugin_list_index);
     }
@@ -1173,7 +1173,7 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
             return 0;
         }
 
-        if (g_plugin_image_list)
+        if (g_plugin_image_list == VENTOY_IMG_WHITE_LIST)
         {
             grub_snprintf(g_img_swap_tmp_buf, sizeof(g_img_swap_tmp_buf), "%s%s/", node->dir, filename);
             index = ventoy_plugin_get_image_list_index(vtoy_class_directory, g_img_swap_tmp_buf);
@@ -1275,9 +1275,14 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
         {
             grub_snprintf(g_img_swap_tmp_buf, sizeof(g_img_swap_tmp_buf), "%s%s", node->dir, filename);
             index = ventoy_plugin_get_image_list_index(vtoy_class_image_file, g_img_swap_tmp_buf);
-            if (index == 0)
+            if (VENTOY_IMG_WHITE_LIST == g_plugin_image_list && index == 0)
             {
                 debug("File %s not found in image_list plugin config...\n", g_img_swap_tmp_buf);
+                return 0; 
+            }
+            else if (VENTOY_IMG_BLACK_LIST == g_plugin_image_list && index > 0)
+            {
+                debug("File %s found in image_blacklist plugin config...\n", g_img_swap_tmp_buf);
                 return 0; 
             }
         }
