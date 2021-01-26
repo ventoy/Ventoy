@@ -71,7 +71,10 @@ CONST CHAR16 *gEfiBootFileName[] =
 
 UINT8 *g_disk_buf_addr = NULL;
 UINT64 g_disk_buf_size = 0;
-        
+
+STATIC EFI_GET_VARIABLE g_org_get_variable = NULL;
+STATIC EFI_EXIT_BOOT_SERVICES g_org_exit_boot_service = NULL;
+
 VOID EFIAPI VDiskDebug(IN CONST CHAR8  *Format, ...)
 {
     VA_LIST  Marker;
@@ -217,6 +220,54 @@ STATIC EFI_STATUS vdisk_patch_vdisk_path(CHAR16 *pos)
     return 0;    
 }
 
+EFI_STATUS EFIAPI vdisk_get_variable_wrapper
+(
+    IN     CHAR16                      *VariableName,
+    IN     EFI_GUID                    *VendorGuid,
+    OUT    UINT32                      *Attributes,    OPTIONAL
+    IN OUT UINTN                       *DataSize,
+    OUT    VOID                        *Data           OPTIONAL
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    
+    Status = g_org_get_variable(VariableName, VendorGuid, Attributes, DataSize, Data);
+    if (StrCmp(VariableName, L"SecureBoot") == 0)
+    {
+        if ((*DataSize == 1) && Data)
+        {
+            *(UINT8 *)Data = 0;
+        }
+    }
+
+    return Status;
+}
+
+EFI_STATUS EFIAPI vdisk_exit_boot_service_wrapper
+(
+    IN  EFI_HANDLE                   ImageHandle,
+    IN  UINTN                        MapKey
+)
+{
+    return g_org_exit_boot_service(ImageHandle, MapKey);
+}
+
+STATIC EFI_STATUS EFIAPI vdisk_disable_secure_boot(IN EFI_HANDLE ImageHandle)
+{
+    /* step1: wrapper security protocol. */
+    /* Do we still need it since we have been loaded ? */
+    
+    
+    /* step2: fake SecureBoot variable */
+    g_org_exit_boot_service = gBS->ExitBootServices;
+    gBS->ExitBootServices = vdisk_exit_boot_service_wrapper;
+    
+    g_org_get_variable = gRT->GetVariable;
+    gRT->GetVariable = vdisk_get_variable_wrapper;
+
+    return EFI_SUCCESS;
+}
+
 STATIC EFI_STATUS EFIAPI vdisk_parse_cmdline(IN EFI_HANDLE ImageHandle)
 {   
     CHAR16 *Pos = NULL;
@@ -253,6 +304,11 @@ STATIC EFI_STATUS EFIAPI vdisk_parse_cmdline(IN EFI_HANDLE ImageHandle)
     vdisk_decompress_vdisk(pImageInfo);
 
     vdisk_patch_vdisk_path(Pos + 6);
+
+    if (StrStr(pCmdLine, L"secureboot=off"))
+    {
+        vdisk_disable_secure_boot(ImageHandle);
+    }
 
     FreePool(pCmdLine);
     return EFI_SUCCESS;
