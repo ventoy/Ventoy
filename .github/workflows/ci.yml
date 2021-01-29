@@ -20,7 +20,7 @@ jobs:
         name: ventoy-windows
         path: INSTALL/ventoy-*windows*
     - uses: actions/upload-artifact@v2
-        with:
+      with:
         name: ventoy-linux
         path: INSTALL/ventoy-*linux*
     - uses: actions/upload-artifact@v2
