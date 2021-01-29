@@ -17,13 +17,8 @@ tar -xvf grub-2.04.tar.xz -C ./SRC/
 
 cd ./SRC/grub-2.04
 
-# build for Legacy BIOS 
-./autogen.sh
-./configure  --prefix=$VT_GRUB_DIR/INSTALL/
-make -j 16
-sh install.sh
 
-# build for UEFI
+# build for x86_64-efi
 make distclean
 ./autogen.sh
 ./configure  --with-platform=efi --prefix=$VT_GRUB_DIR/INSTALL/
@@ -31,12 +26,39 @@ make -j 16
 sh install.sh  uefi
 
 
-#build for IA32 EFI
+#build for i386-efi
 make distclean
 ./autogen.sh
 ./configure --target=i386 --with-platform=efi  --prefix=$VT_GRUB_DIR/INSTALL/
 make -j 16
 sh install.sh  i386efi
+
+
+
+#build for arm64 EFI
+PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin
+make distclean
+./autogen.sh
+./configure  --prefix=$VT_GRUB_DIR/INSTALL/ \
+--target=aarch64 --with-platform=efi \
+--host=x86_64-linux-gnu  \
+HOST_CC=x86_64-linux-gnu-gcc \
+BUILD_CC=gcc \
+TARGET_CC=aarch64-linux-gnu-gcc   \
+TARGET_OBJCOPY=aarch64-linux-gnu-objcopy \
+TARGET_STRIP=aarch64-linux-gnu-strip TARGET_NM=aarch64-linux-gnu-nm \
+TARGET_RANLIB=aarch64-linux-gnu-ranlib
+make -j 16
+sh install.sh arm64
+
+
+
+# build for i386-pc
+./autogen.sh
+./configure  --prefix=$VT_GRUB_DIR/INSTALL/
+make -j 16
+sh install.sh
+
 
 
 cd ../../

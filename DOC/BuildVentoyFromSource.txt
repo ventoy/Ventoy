@@ -3,7 +3,7 @@
 1. Compile Enviroment
 ==========================================
     My build envrioment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
-    Because Ventoy is based on many open source projects, so the environment is important. I suggest you test it on a virtual machine first.
+    Because Ventoy is based on many open source projects, so the environment is important. I suggest you test it on a virtual machine firstly.
 
 1.1 Install CentOS 7.8
     I use CentOS-7-x86_64-Everything-2003.iso and select Minimal install
@@ -14,7 +14,7 @@
         mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
         flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
-        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso
     
 
 
@@ -22,9 +22,9 @@
 2. Download Source Code
 ==========================================
 2.1 Download Ventoy source code from github and decompress it. 
-    Next I assume that you have unzipped the code into the /home directory (check /home/Ventoy-master/README.md file for the directory level).
+    Next I assume that you have unzipped the code into the /home directory (check /home/Ventoy-master/README.md file for the directory layout).
     
-2.2 Download third-part source code
+2.2 Download third-part source code and tool
     
     https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz                    ===>  /home/Ventoy-master/DOC/dietlibc-0.34.tar.xz
     https://musl.libc.org/releases/musl-1.2.1.tar.gz                     ===>  /home/Ventoy-master/DOC/musl-1.2.1.tar.gz
@@ -52,19 +52,21 @@
 ==========================================
 3. All in one script
 ==========================================
-    I have made the whole build process in all_in_one.sh, you can run this script to build and pack ventoy.
+    I have made a all_in_one.sh, you can run this script to build and pack ventoy.
     If you want to compile a certain part separately, you can continue to refer to the later chapters of this text.
     
     cd /home/Ventoy-master/INSTALL
     sh all_in_one.sh
 
-    It should be noted that, some part of Ventoy has 32bit&64bit version (like 4.9 4.10 4.11 follows)
-    all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit verison. You should create a 32bit CentOS environment and build them.
-    Fortunately these parts are few modified, you only need to build once or you can directly use the binary I have built.
+    It should be noted that:
+    1. Only grub2/EDK2/IPXE will be recompiled in all_in_one.sh. Other part contains the binaries and are few modified, so will no be recompiled everytime.
+       You can rebuild these parts separately if you want.
+       
+    2. some part of Ventoy has 32bit&64bit version (like 4.9 4.10 4.11 follows)
+       all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit verison. You should create a 32bit CentOS environment and build them.
+       Fortunately these parts are few modified, you only need to build once or you can directly use the binary I have built.
 
     Besides, after a fully compile and pack, you can only build the part you modified (for example grub2) and run ventoy_pack.sh to generate the package.
-
-
 
 ==========================================
 4. Build every part of Ventoy

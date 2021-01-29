@@ -14,24 +14,29 @@ sh buildipxe.sh || exit 1
 cd $VTOY_PATH/EDK2
 sh buildedk.sh || exit 1
 
-cd $VTOY_PATH/VtoyTool
-sh build.sh || exit 1
-
-cd $VTOY_PATH/vtoyfat/fat_io_lib
-sh buildlib.sh
-
-cd $VTOY_PATH/vtoyfat
-sh build.sh || exit 1
-
-cd $VTOY_PATH/vtoygpt
-sh build.sh || exit 1
-
-cd $VTOY_PATH/FUSEISO
-sh build_libfuse.sh
-sh build.sh
 
 
+#
 # We almost rarely modifiy these code, so no need to build them everytime
+# If you want to rebuild them, just uncomment them.
+#
+
+#cd $VTOY_PATH/VtoyTool
+#sh build.sh || exit 1
+
+#cd $VTOY_PATH/vtoyfat/fat_io_lib
+#sh buildlib.sh
+
+#cd $VTOY_PATH/vtoyfat
+#sh build.sh || exit 1
+
+#cd $VTOY_PATH/vtoygpt
+#sh build.sh || exit 1
+
+#cd $VTOY_PATH/FUSEISO
+#sh build_libfuse.sh
+#sh build.sh
+
 
 # cd $VTOY_PATH/ExFAT
 # sh buidlibfuse.sh || exit 1
