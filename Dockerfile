@@ -5,13 +5,13 @@ RUN yum -y install \
         mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
         flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
-        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso
 
 CMD cd /ventoy \
     && wget -P DOC/ https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz \
+    && wget -P DOC/ https://musl.libc.org/releases/musl-1.2.1.tar.gz \
     && wget -P GRUB2/ https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz \
     && wget -O EDK2/edk2-edk2-stable201911.zip https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911 \
-    && wget -O ExFAT/exfat-1.3.0.zip https://codeload.github.com/relan/exfat/zip/v1.3.0 \
-    && wget -O ExFAT/libfuse-fuse-2.9.9.zip https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9 \
-    && cd INSTALL && ls -la && sh all_in_one.sh
-
+    && wget -P /opt/ https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz  \
+    && wget -P /opt/ https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2  \
+    && cd INSTALL && ls -la && sh all_in_one.sh CI

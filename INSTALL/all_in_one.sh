@@ -3,7 +3,10 @@
 VTOY_PATH=$PWD/..
 
 cd $VTOY_PATH/DOC
-sh installdietlibc.sh
+sh prepare_env.sh
+
+export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin
+
 
 cd $VTOY_PATH/GRUB2
 sh buildgrub.sh || exit 1
@@ -58,6 +61,12 @@ sh buildedk.sh || exit 1
 # sh build.sh
 
 cd $VTOY_PATH/INSTALL
+
+if [ "$1" = "CI" ]; then
+    Ver=$(date +%m%d%H%M)
+    sed "s/VENTOY_VERSION=.*/VENTOY_VERSION=$Ver/"  -i ./grub/grub.cfg
+fi
+
 sh ventoy_pack.sh || exit 1
 
 echo -e '\n============== SUCCESS ==================\n'

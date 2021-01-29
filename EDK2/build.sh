@@ -38,7 +38,6 @@ rm -f $DST_PATH3
 source ./edksetup.sh
 
 if [ "$EDKARCH" = "AARCH64" ]; then    
-    PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin \
     GCC48_AARCH64_PREFIX=aarch64-linux-gnu- \
     build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48
 else
