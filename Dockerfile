@@ -14,4 +14,4 @@ CMD cd /ventoy \
     && wget -O EDK2/edk2-edk2-stable201911.zip https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911 \
     && wget -P /opt/ https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz  \
     && wget -P /opt/ https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2  \
-    && cd INSTALL && ls -la && sh all_in_one.sh CI
+    && cd INSTALL && ls -la && sh all_in_one.sh CI > DOC/build.log 2>&1

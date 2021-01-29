@@ -64,7 +64,7 @@ cd $VTOY_PATH/INSTALL
 
 if [ "$1" = "CI" ]; then
     Ver=$(date +%m%d%H%M)
-    sed "s/VENTOY_VERSION=.*/VENTOY_VERSION=$Ver/"  -i ./grub/grub.cfg
+    sed "s/VENTOY_VERSION=.*/VENTOY_VERSION=\"$Ver\"/"  -i ./grub/grub.cfg
 fi
 
 sh ventoy_pack.sh || exit 1

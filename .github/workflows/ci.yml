@@ -27,4 +27,7 @@ jobs:
       with:
         name: ventoy-livecd
         path: INSTALL/ventoy-*livecd*
-
+    - uses: actions/upload-artifact@v2
+      with:
+        name: build-log
+        path: DOC/build.log
