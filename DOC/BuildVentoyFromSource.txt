@@ -35,6 +35,17 @@
     https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz           ===>  /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
     https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2 ===> /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2
 
+    http://www.tinycorelinux.net/11.x/x86/release/distribution_files/vmlinuz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/vmlinuz
+    http://www.tinycorelinux.net/11.x/x86/release/distribution_files/core.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/core.gz
+    http://www.tinycorelinux.net/11.x/x86/release/distribution_files/modules.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/modules.gz
+    http://distro.ibiblio.org/tinycorelinux/11.x/x86/tcz/glib2.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/glib2.tcz
+    http://distro.ibiblio.org/tinycorelinux/11.x/x86/tcz/libffi.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/libffi.tcz
+    http://distro.ibiblio.org/tinycorelinux/11.x/x86/tcz/liblvm2.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/liblvm2.tcz
+    http://distro.ibiblio.org/tinycorelinux/11.x/x86/tcz/ncursesw.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/ncursesw.tcz
+    http://distro.ibiblio.org/tinycorelinux/11.x/x86/tcz/parted.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/parted.tcz
+    http://distro.ibiblio.org/tinycorelinux/11.x/x86/tcz/readline.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/readline.tcz
+    http://distro.ibiblio.org/tinycorelinux/11.x/x86/tcz/udev-lib.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/udev-lib.tcz
+
 2.3 Prepare third-part tools
     cd /home/Ventoy-master/DOC/
     tar xf musl-1.2.1.tar.gz
