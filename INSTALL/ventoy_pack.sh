@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if [ "$1" = "CI" ]; then
+    OPT=''
+else
+    OPT='-a'
+fi
+
 dos2unix -q ./tool/ventoy_lib.sh
 dos2unix -q ./tool/VentoyWorker.sh
 
@@ -49,21 +55,21 @@ mount ${LOOP}p2  $tmpmnt
 mkdir -p $tmpmnt/grub
 
 # First copy grub.cfg file, to make it locate at front of the part2
-cp -a ./grub/grub.cfg     $tmpmnt/grub/
+cp $OPT ./grub/grub.cfg     $tmpmnt/grub/
 
 ls -1 ./grub/ | grep -v 'grub\.cfg' | while read line; do
-    cp -a ./grub/$line $tmpmnt/grub/
+    cp $OPT ./grub/$line $tmpmnt/grub/
 done
 
-cp -a ./ventoy   $tmpmnt/
-cp -a ./EFI   $tmpmnt/
-cp -a ./tool/ENROLL_THIS_KEY_IN_MOKMANAGER.cer $tmpmnt/
+cp $OPT ./ventoy   $tmpmnt/
+cp $OPT ./EFI   $tmpmnt/
+cp $OPT ./tool/ENROLL_THIS_KEY_IN_MOKMANAGER.cer $tmpmnt/
 
 
 mkdir -p $tmpmnt/tool
-cp -a ./tool/i386/mount.exfat-fuse     $tmpmnt/tool/mount.exfat-fuse_i386
-cp -a ./tool/x86_64/mount.exfat-fuse   $tmpmnt/tool/mount.exfat-fuse_x86_64
-cp -a ./tool/aarch64/mount.exfat-fuse  $tmpmnt/tool/mount.exfat-fuse_aarch64
+cp $OPT ./tool/i386/mount.exfat-fuse     $tmpmnt/tool/mount.exfat-fuse_i386
+cp $OPT ./tool/x86_64/mount.exfat-fuse   $tmpmnt/tool/mount.exfat-fuse_x86_64
+cp $OPT ./tool/aarch64/mount.exfat-fuse  $tmpmnt/tool/mount.exfat-fuse_aarch64
 
 rm -f $tmpmnt/grub/i386-pc/*.img
 
@@ -79,12 +85,12 @@ dd if=$LOOP of=$tmpdir/boot/boot.img bs=1 count=512  status=none
 dd if=$LOOP of=$tmpdir/boot/core.img bs=512 count=2047 skip=1 status=none
 xz --check=crc32 $tmpdir/boot/core.img
 
-cp -a ./tool $tmpdir/
+cp $OPT ./tool $tmpdir/
 rm -f $tmpdir/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
-cp -a Ventoy2Disk.sh $tmpdir/
-cp -a README $tmpdir/
-cp -a plugin $tmpdir/
-cp -a CreatePersistentImg.sh $tmpdir/
+cp $OPT Ventoy2Disk.sh $tmpdir/
+cp $OPT README $tmpdir/
+cp $OPT plugin $tmpdir/
+cp $OPT CreatePersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
 dos2unix -q $tmpdir/CreatePersistentImg.sh
 
@@ -120,8 +126,8 @@ tar -czvf ventoy-${curver}-linux.tar.gz $tmpdir
 
 
 rm -f ventoy-${curver}-windows.zip
-cp -a Ventoy2Disk*.exe $tmpdir/
-cp -a $LANG_DIR/languages.ini $tmpdir/ventoy/
+cp $OPT Ventoy2Disk*.exe $tmpdir/
+cp $OPT $LANG_DIR/languages.ini $tmpdir/ventoy/
 rm -rf $tmpdir/tool
 rm -f $tmpdir/*.sh
 rm -f $tmpdir/README
@@ -132,6 +138,11 @@ zip -r ventoy-${curver}-windows.zip $tmpdir/
 rm -rf $tmpdir
 
 cd ../LiveCD
+if [ "$1" = "CI" ]; then
+    echo "=============== run docker_ci.sh ==============="
+    sh docker_ci.sh
+fi
+echo "=============== run livecd.sh ==============="
 sh livecd.sh
 cd $CurDir
 

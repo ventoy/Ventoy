@@ -2,7 +2,7 @@
 
 rm -rf ipxe-3fe683e
 
-tar -xvf ipxe_org_code/ipxe-3fe683e.tar.bz2 -C ./
+tar -xf ipxe_org_code/ipxe-3fe683e.tar.bz2 -C ./
 
 rm -rf ./ipxe-3fe683e/src/bin
 rm -rf ./ipxe-3fe683e/src/drivers
@@ -11,6 +11,7 @@ rm -rf ./ipxe-3fe683e/src/drivers
 
 cd ipxe-3fe683e/src
 
+echo '========= build IPXE =========='
 sh build.sh
 
 cd ../../

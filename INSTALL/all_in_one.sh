@@ -67,6 +67,6 @@ if [ "$1" = "CI" ]; then
     sed "s/VENTOY_VERSION=.*/VENTOY_VERSION=\"$Ver\"/"  -i ./grub/grub.cfg
 fi
 
-sh ventoy_pack.sh || exit 1
+sh ventoy_pack.sh $1 || exit 1
 
 echo -e '\n============== SUCCESS ==================\n'

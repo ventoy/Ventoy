@@ -17,10 +17,25 @@ fi
 rm -rf ISO_TMP
 cp -a ISO ISO_TMP
 
-cp -a VTOY VTOY_TMP && cd VTOY_TMP
+cp -a VTOY VTOY_TMP 
+
+ls -la
+if ! [ -d ISO_TMP ]; then
+    echo "Copy ISO_TMP failed"
+    exit 1
+fi
+
+if ! [ -d VTOY_TMP ]; then
+    echo "Copy VTOY_TMP failed"
+    exit 1
+fi
+
+mkdir -p ISO_TMP/EFI/ventoy
+cd VTOY_TMP
+
 gcc -O2 -m32 ./ventoy/disksize.c -o ./ventoy/disksize
 rm -f ./ventoy/disksize.c
-find . | cpio  -o -H newc | gzip -9 > ../ISO_TMP/EFI/ventoy/ventoy.gz
+find . | cpio  -o -H newc | gzip -c -9 > ../ISO_TMP/EFI/ventoy/ventoy.gz
 cd .. && rm -rf VTOY_TMP
 
 
