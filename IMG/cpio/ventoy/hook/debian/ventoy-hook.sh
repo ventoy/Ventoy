@@ -74,6 +74,14 @@ ventoy_get_debian_distro() {
         echo 'kylin'; return
     fi
     
+    if [ -f /scripts/00-ver ]; then
+        if $GREP -q 'Bliss-OS' /scripts/00-ver; then
+            echo 'bliss'; return
+        fi
+    fi
+    
+    
+    
     echo 'default'
 }
 
