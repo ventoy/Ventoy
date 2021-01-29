@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$1" = "CI" ]; then
-    OPT=''
+    OPT='-dR'
 else
     OPT='-a'
 fi
@@ -140,10 +140,10 @@ rm -rf $tmpdir
 cd ../LiveCD
 if [ "$1" = "CI" ]; then
     echo "=============== run docker_ci.sh ==============="
-    sh docker_ci.sh
+    sh docker_ci.sh $1
 fi
 echo "=============== run livecd.sh ==============="
-sh livecd.sh
+sh livecd.sh $1
 cd $CurDir
 
 mv ../LiveCD/ventoy*.iso ./

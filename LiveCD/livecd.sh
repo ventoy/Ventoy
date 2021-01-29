@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "$1" = "CI" ]; then
+    OPT='-dR'
+else
+    OPT='-a'
+fi
+
 VENTOY_PATH=$PWD/../
 
 if ! [ -f $VENTOY_PATH/INSTALL/grub/grub.cfg ]; then
@@ -15,9 +21,9 @@ if ! [ -e $VENTOY_PATH/INSTALL/ventoy-${version}-linux.tar.gz ]; then
 fi
 
 rm -rf ISO_TMP
-cp -a ISO ISO_TMP
+cp $OPT ISO ISO_TMP
 
-cp -a VTOY VTOY_TMP 
+cp $OPT VTOY VTOY_TMP 
 
 ls -la
 if ! [ -d ISO_TMP ]; then
@@ -39,9 +45,9 @@ find . | cpio  -o -H newc | gzip -c -9 > ../ISO_TMP/EFI/ventoy/ventoy.gz
 cd .. && rm -rf VTOY_TMP
 
 
-cp -a $VENTOY_PATH/INSTALL/ventoy-${version}-linux.tar.gz ISO_TMP/EFI/ventoy/
-cp -a GRUB/cdrom.img ISO_TMP/EFI/boot/
-cp -a GRUB/bootx64.efi ISO_TMP/EFI/boot/
+cp $OPT $VENTOY_PATH/INSTALL/ventoy-${version}-linux.tar.gz ISO_TMP/EFI/ventoy/
+cp $OPT GRUB/cdrom.img ISO_TMP/EFI/boot/
+cp $OPT GRUB/bootx64.efi ISO_TMP/EFI/boot/
 
 
 rm -rf efimnt
@@ -52,11 +58,11 @@ dd if=/dev/zero of=efi.img bs=1M count=2
 mkfs.vfat efi.img
 mount efi.img efimnt
 mkdir -p efimnt/EFI/boot
-cp -a GRUB/bootx64.efi efimnt/EFI/boot/
+cp $OPT GRUB/bootx64.efi efimnt/EFI/boot/
 umount efimnt
 
 sync
-cp -a efi.img ISO_TMP/EFI/boot/
+cp $OPT efi.img ISO_TMP/EFI/boot/
 
 rm -rf efimnt
 rm -f efi.img
