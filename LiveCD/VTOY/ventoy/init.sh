@@ -9,4 +9,6 @@ done
 sleep 5
 
 echo "sh /ventoy/profile.sh" >> /root/.profile
+
+ln -s /lib /lib64
 exec /init

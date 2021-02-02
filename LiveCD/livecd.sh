@@ -39,7 +39,8 @@ fi
 mkdir -p ISO_TMP/EFI/ventoy
 cd VTOY_TMP
 
-gcc -O2 -m32 ./ventoy/disksize.c -o ./ventoy/disksize
+gcc -O2 ./ventoy/disksize.c -o ./ventoy/disksize
+
 rm -f ./ventoy/disksize.c
 find . | cpio  -o -H newc | gzip -c -9 > ../ISO_TMP/EFI/ventoy/ventoy.gz
 cd .. && rm -rf VTOY_TMP
