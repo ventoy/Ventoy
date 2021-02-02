@@ -58,8 +58,9 @@ sh install.sh arm64
 
 # build for i386-pc
 echo '======== build grub2 for i386-pc ==============='
+make distclean
 ./autogen.sh
-./configure  --prefix=$VT_GRUB_DIR/INSTALL/
+./configure --target=i386 --with-platform=pc --prefix=$VT_GRUB_DIR/INSTALL/
 make -j 16
 sh install.sh
 
