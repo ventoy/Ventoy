@@ -2,20 +2,28 @@
 
 VTOY_PATH=$PWD/..
 
+LOG=$VTOY_PATH/DOC/build.log
+
+[ -f $LOG ] && rm -f $LOG
+
 cd $VTOY_PATH/DOC
-sh prepare_env.sh
+echo "prepare_env ..."
+sh prepare_env.sh >> $LOG 2>&1
 
 export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin
 
 
+echo "build grub2 ..."
 cd $VTOY_PATH/GRUB2
-sh buildgrub.sh || exit 1
+sh buildgrub.sh >> $LOG 2>&1 || exit 1
 
+echo "build ipxe ..."
 cd $VTOY_PATH/IPXE
-sh buildipxe.sh || exit 1
+sh buildipxe.sh >> $LOG 2>&1 || exit 1
 
+echo "build edk2 ..."
 cd $VTOY_PATH/EDK2
-sh buildedk.sh || exit 1
+sh buildedk.sh >> $LOG 2>&1 || exit 1
 
 
 
@@ -67,6 +75,7 @@ if [ "$1" = "CI" ]; then
     sed "s/VENTOY_VERSION=.*/VENTOY_VERSION=\"$Ver\"/"  -i ./grub/grub.cfg
 fi
 
-sh ventoy_pack.sh $1 || exit 1
+echo "packing ventoy-$Ver ..."
+sh ventoy_pack.sh $1 >> $LOG 2>&1 || exit 1
 
 echo -e '\n============== SUCCESS ==================\n'

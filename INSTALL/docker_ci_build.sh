@@ -11,4 +11,4 @@ wget -q -P /opt/ https://releases.linaro.org/components/toolchain/binaries/7.4-2
 wget -q -P /opt/ https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2
 
 
-sh all_in_one.sh CI > $VTOY_PATH/DOC/build.log 2>&1
+sh all_in_one.sh CI
