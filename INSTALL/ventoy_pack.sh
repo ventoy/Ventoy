@@ -40,9 +40,7 @@ done
 
 format_ventoy_disk_mbr 0 $LOOP fdisk
 
-pwd
-ls -lah ./grub/i386-pc/
-$GRUB_DIR/sbin/grub-bios-setup --verbose --skip-fs-probe  --directory="./grub/i386-pc"  $LOOP
+$GRUB_DIR/sbin/grub-bios-setup  --skip-fs-probe  --directory="./grub/i386-pc"  $LOOP
 
 curver=$(get_ventoy_version_from_cfg ./grub/grub.cfg)
 

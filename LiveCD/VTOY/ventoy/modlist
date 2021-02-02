@@ -12,8 +12,6 @@ sisusbvga
 usb251xb
 pi3usb30532
 usb-otg-fsm
-usb-conn-gpio
-ulpi
 ums-realtek
 xhci-hcd
 xhci-pci
