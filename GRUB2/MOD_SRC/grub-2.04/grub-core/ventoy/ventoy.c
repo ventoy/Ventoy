@@ -2266,6 +2266,7 @@ int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
     int i;
     int x86count = 0;
     grub_uint8_t buf[512];
+    grub_uint8_t parttype[] = { 0x04, 0x06, 0x0B, 0x0C };
 
     grub_file_seek(file, sector * 2048);
     grub_file_read(file, buf, sizeof(buf));
@@ -2293,6 +2294,18 @@ int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
         {
             debug("0x9100 assume %s efi eltorito offset %d 0x%02x\n", file->name, i, buf[i]);
             return 1;
+        }
+    }
+
+    if (x86count && buf[32] == 0x88 && buf[33] == 0x04)
+    {
+        for (i = 0; i < (int)(ARRAY_SIZE(parttype)); i++)
+        {
+            if (buf[36] == parttype[i])
+            {
+                debug("hard disk image assume %s efi eltorito, part type 0x%x\n", file->name, buf[36]);
+                return 1;
+            }
         }
     }
 
