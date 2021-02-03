@@ -163,6 +163,8 @@ typedef struct ventoy_iso9660_vd
     grub_uint8_t res;
     char sys[32];
     char vol[32];
+    grub_uint8_t res2[8];
+    grub_uint32_t space;
 }ventoy_iso9660_vd;
 
 #pragma pack()

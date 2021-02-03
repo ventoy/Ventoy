@@ -534,6 +534,26 @@ static grub_err_t ventoy_cmd_incr(grub_extcmd_context_t ctxt, int argc, char **a
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_mod(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    long value1 = 0;
+    long value2 = 0;
+    char buf[32];
+    
+    if (argc != 3)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s {Int} {Int} {Variable}", cmd_raw_name);
+    }
+
+    value1 = grub_strtol(args[0], NULL, 10);
+    value2 = grub_strtol(args[1], NULL, 10);
+
+    grub_snprintf(buf, sizeof(buf), "%ld", (value1 % value2));
+    grub_env_set(args[2], buf);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 static grub_err_t ventoy_cmd_file_size(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc = 1;
@@ -3236,14 +3256,15 @@ static grub_err_t ventoy_cmd_parse_volume(grub_extcmd_context_t ctxt, int argc, 
     int len;
     grub_file_t file;
     char buf[64];
+    grub_uint64_t size;
     ventoy_iso9660_vd pvd;
         
     (void)ctxt;
     (void)argc;
 
-    if (argc != 3)
+    if (argc != 4)
     {
-        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s sysid volid \n", cmd_raw_name); 
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s sysid volid space \n", cmd_raw_name); 
     }
 
     file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
@@ -3269,6 +3290,11 @@ static grub_err_t ventoy_cmd_parse_volume(grub_extcmd_context_t ctxt, int argc, 
     grub_memcpy(buf, pvd.vol, sizeof(pvd.vol));
     ventoy_set_env(args[2], buf);
 
+    size = pvd.space;
+    size *= 2048;
+    grub_snprintf(buf, sizeof(buf), "%llu", (ulonglong)size);
+    ventoy_set_env(args[3], buf);
+    
 end:
     grub_file_close(file);
     
@@ -4050,6 +4076,7 @@ static int ventoy_env_init(void)
 static cmd_para ventoy_cmds[] = 
 {
     { "vt_incr",  ventoy_cmd_incr,  0, NULL, "{Var} {INT}",   "Increase integer variable",    NULL },
+    { "vt_mod",  ventoy_cmd_mod,  0, NULL, "{Int} {Int} {Var}",   "mod integer variable",    NULL },
     { "vt_strstr",  ventoy_cmd_strstr,  0, NULL, "",   "",    NULL },
     { "vt_str_begin",  ventoy_cmd_strbegin,  0, NULL, "",   "",    NULL },
     { "vt_debug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
