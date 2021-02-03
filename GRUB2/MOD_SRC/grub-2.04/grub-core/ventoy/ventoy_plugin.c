@@ -49,6 +49,7 @@ static menu_password *g_pwd_head = NULL;
 static persistence_config *g_persistence_head = NULL;
 static menu_alias *g_menu_alias_head = NULL;
 static menu_class *g_menu_class_head = NULL;
+static custom_boot *g_custom_boot_head = NULL;
 static injection_config *g_injection_head = NULL;
 static auto_memdisk *g_auto_memdisk_head = NULL;
 static image_list *g_image_list_head = NULL;
@@ -1382,6 +1383,124 @@ static int ventoy_plugin_menuclass_check(VTOY_JSON *json, const char *isodisk)
     return 0;
 }
 
+static int ventoy_plugin_custom_boot_entry(VTOY_JSON *json, const char *isodisk)
+{
+    int type;
+    int len;
+    const char *key = NULL;
+    const char *cfg = NULL;
+    VTOY_JSON *pNode = NULL;
+    custom_boot *tail = NULL;
+    custom_boot *node = NULL;
+    custom_boot *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        debug("Not array %d\n", json->enDataType);
+        return 0;
+    }
+
+    if (g_custom_boot_head)
+    {
+        for (node = g_custom_boot_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_custom_boot_head = NULL;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        type = vtoy_custom_boot_image_file;
+        key = vtoy_json_get_string_ex(pNode->pstChild, "file");
+        if (!key)
+        {
+            key = vtoy_json_get_string_ex(pNode->pstChild, "dir");
+            type = vtoy_custom_boot_directory;
+        }
+        
+        cfg = vtoy_json_get_string_ex(pNode->pstChild, "vcfg");
+        if (key && cfg)
+        {
+            node = grub_zalloc(sizeof(custom_boot));
+            if (node)
+            {
+                node->type = type;
+                node->pathlen = grub_snprintf(node->path, sizeof(node->path), "%s", key);
+                len = (int)grub_snprintf(node->cfg, sizeof(node->cfg), "%s", cfg);
+
+                if (len >= 5 && grub_strncmp(node->cfg + len - 5, ".vcfg", 5) == 0)
+                {
+                    if (g_custom_boot_head)
+                    {
+                        tail->next = node;
+                    }
+                    else
+                    {
+                        g_custom_boot_head = node;
+                    }
+                    tail = node;
+                }
+                else
+                {
+                    grub_free(node);
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_custom_boot_check(VTOY_JSON *json, const char *isodisk)
+{
+    int type;
+    int len;
+    const char *key = NULL;
+    const char *cfg = NULL;
+    VTOY_JSON *pNode = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_ARRAY)
+    {
+        grub_printf("Not array %d\n", json->enDataType);
+        return 1;
+    }
+
+    for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        type = vtoy_custom_boot_image_file;
+        key = vtoy_json_get_string_ex(pNode->pstChild, "file");
+        if (!key)
+        {
+            key = vtoy_json_get_string_ex(pNode->pstChild, "dir"); 
+            type = vtoy_custom_boot_directory;
+        }
+        
+        cfg = vtoy_json_get_string_ex(pNode->pstChild, "vcfg");
+        len = (int)grub_strlen(cfg);
+        if (key && cfg)
+        {
+            if (len < 5 || grub_strncmp(cfg + len - 5, ".vcfg", 5))
+            {
+                grub_printf("<%s> does not have \".vcfg\" suffix\n\n", cfg);
+            }
+            else
+            {
+                grub_printf("%s: <%s>\n", (type == vtoy_custom_boot_directory) ? "dir" : "file",  key);
+                grub_printf("vcfg: <%s>\n\n", cfg);                
+            }
+        }
+    }
+
+    return 0;
+}
+
 static int ventoy_plugin_conf_replace_entry(VTOY_JSON *json, const char *isodisk)
 {
     const char *isof = NULL;
@@ -1704,6 +1823,7 @@ static plugin_entry g_plugin_entries[] =
     { "conf_replace", ventoy_plugin_conf_replace_entry, ventoy_plugin_conf_replace_check },
     { "dud", ventoy_plugin_dud_entry, ventoy_plugin_dud_check },
     { "password", ventoy_plugin_pwd_entry, ventoy_plugin_pwd_check },
+    { "custom_boot", ventoy_plugin_custom_boot_entry, ventoy_plugin_custom_boot_check },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
@@ -2063,6 +2183,96 @@ const char * ventoy_plugin_get_menu_class(int type, const char *name)
     }
 
     return NULL;
+}
+
+int ventoy_plugin_add_custom_boot(const char *vcfgpath)
+{
+    int len;
+    custom_boot *node = NULL;
+    
+    node = grub_zalloc(sizeof(custom_boot));
+    if (node)
+    {
+        node->type = vtoy_custom_boot_image_file;
+        node->pathlen = grub_snprintf(node->path, sizeof(node->path), "%s", vcfgpath);
+        grub_snprintf(node->cfg, sizeof(node->cfg), "%s", vcfgpath);
+
+        /* .vcfg */
+        len = node->pathlen - 5;
+        node->path[len] = 0;
+        node->pathlen = len;
+
+        if (g_custom_boot_head)
+        {
+            node->next = g_custom_boot_head;
+        }
+        g_custom_boot_head = node;
+    }
+    
+    return 0;
+}
+
+const char * ventoy_plugin_get_custom_boot(const char *isopath)
+{
+    int i;
+    int len;
+    custom_boot *node = NULL;
+
+    if (!g_custom_boot_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(isopath);
+    
+    for (node = g_custom_boot_head; node; node = node->next)
+    {
+        if (node->type == vtoy_custom_boot_image_file)
+        {
+            if (node->pathlen == len && grub_strncmp(isopath, node->path, len) == 0)
+            {
+                return node->cfg;                
+            }
+        }
+        else
+        {
+            if (node->pathlen < len && isopath[node->pathlen] == '/' && 
+                grub_strncmp(isopath, node->path, node->pathlen) == 0)
+            {
+                for (i = node->pathlen + 1; i < len; i++)
+                {
+                    if (isopath[i] == '/')
+                    {
+                        break;
+                    }
+                }
+
+                if (i >= len)
+                {
+                    return node->cfg;                
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+grub_err_t ventoy_cmd_dump_custom_boot(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    custom_boot *node = NULL;
+
+    (void)argc;
+    (void)ctxt;
+    (void)args;
+
+    for (node = g_custom_boot_head; node; node = node->next)
+    {
+        grub_printf("[%s] <%s>:<%s>\n", (node->type == vtoy_custom_boot_directory) ? "dir" : "file", 
+            node->path, node->cfg);
+    }
+
+    return 0;
 }
 
 int ventoy_plugin_check_memdisk(const char *isopath)

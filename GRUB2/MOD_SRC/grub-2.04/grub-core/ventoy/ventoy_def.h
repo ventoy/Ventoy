@@ -801,6 +801,19 @@ typedef struct menu_class
     struct menu_class *next;
 }menu_class;
 
+#define vtoy_custom_boot_image_file  0
+#define vtoy_custom_boot_directory   1
+
+typedef struct custom_boot
+{
+    int  type;
+    int  pathlen;
+    char path[256];
+    char cfg[256];
+
+    struct custom_boot *next;
+}custom_boot;
+
 #define vtoy_max_replace_file_size  (2 * 1024 * 1024)
 typedef struct conf_replace
 {
@@ -945,6 +958,9 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
 int ventoy_check_password(const vtoy_password *pwd, int retry);
 int ventoy_gzip_compress(void *mem_in, int mem_in_len, void *mem_out, int mem_out_len);
 grub_uint64_t ventoy_get_part1_size(ventoy_gpt_info *gpt);
+int ventoy_plugin_add_custom_boot(const char *vcfgpath);
+const char * ventoy_plugin_get_custom_boot(const char *isopath);
+grub_err_t ventoy_cmd_dump_custom_boot(grub_extcmd_context_t ctxt, int argc, char **args);
 
 #endif /* __VENTOY_DEF_H__ */
 

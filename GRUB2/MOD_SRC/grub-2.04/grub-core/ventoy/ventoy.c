@@ -1160,7 +1160,7 @@ static int ventoy_check_ignore_flag(const char *filename, const struct grub_dirh
     return 0;
 }
 
-static int ventoy_colect_img_files(const char *filename, const struct grub_dirhook_info *info, void *data)
+static int ventoy_collect_img_files(const char *filename, const struct grub_dirhook_info *info, void *data)
 {
     //int i = 0;
     int type = 0;
@@ -1280,6 +1280,15 @@ static int ventoy_colect_img_files(const char *filename, const struct grub_dirho
         else if (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vtoy"))
         {
             type = img_type_vtoy;
+        }
+        else if (len >= 9 && 0 == grub_strcasecmp(filename + len - 5, ".vcfg"))
+        {
+            if (filename[len - 9] == '.' || (len >= 10 && filename[len - 10] == '.'))
+            {
+                grub_snprintf(g_img_swap_tmp_buf, sizeof(g_img_swap_tmp_buf), "%s%s", node->dir, filename);
+                ventoy_plugin_add_custom_boot(g_img_swap_tmp_buf);
+            }
+            return 0;
         }
         else
         {
@@ -2027,7 +2036,7 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
 
     for (node = &g_img_iterator_head; node; node = node->next)
     {
-        fs->fs_dir(dev, node->dir, ventoy_colect_img_files, node);        
+        fs->fs_dir(dev, node->dir, ventoy_collect_img_files, node);        
     }
 
     strdata = ventoy_get_env("VTOY_TREE_VIEW_MENU_STYLE");
@@ -3637,6 +3646,31 @@ static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int arg
     return 0;
 }
 
+static grub_err_t ventoy_cmd_check_custom_boot(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int ret = 1;
+    const char *vcfg = NULL;
+
+    (void)argc;
+    (void)ctxt;
+
+    vcfg = ventoy_plugin_get_custom_boot(args[0]);
+    if (vcfg)
+    {
+        debug("custom boot <%s>:<%s>\n", args[0], vcfg);
+        grub_env_set(args[1], vcfg);
+        ret = 0;
+    }
+    else
+    {
+        debug("custom boot <%s>:<NOT FOUND>\n", args[0]);
+    }
+
+    grub_errno = 0;
+    return ret;
+}
+
+
 static grub_err_t ventoy_cmd_part_exist(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int id;
@@ -3825,6 +3859,36 @@ static grub_err_t ventoy_cmd_basename(grub_extcmd_context_t ctxt, int argc, char
     {
         *end = c;
     }
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_basefile(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    int len;
+    const char *buf;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        debug("ventoy_cmd_basefile, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    buf = args[0];
+    len = (int)grub_strlen(buf);
+    for (i = len; i > 0; i--)
+    {
+        if (buf[i - 1] == '/')
+        {
+            grub_env_set(args[1], buf + i);
+            return 0;
+        }
+    }
+
+    grub_env_set(args[1], buf);
 
     return 0;
 }
@@ -4096,6 +4160,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_patch_vhdboot", ventoy_cmd_patch_vhdboot, 0, NULL, "", "", NULL },
     { "vt_raw_chain_data", ventoy_cmd_raw_chain_data, 0, NULL, "", "", NULL },
     { "vt_get_vtoy_type", ventoy_cmd_get_vtoy_type, 0, NULL, "", "", NULL },
+    { "vt_check_custom_boot", ventoy_cmd_check_custom_boot, 0, NULL, "", "", NULL },
+    { "vt_dump_custom_boot", ventoy_cmd_dump_custom_boot, 0, NULL, "", "", NULL },
 
     { "vt_skip_svd", ventoy_cmd_skip_svd, 0, NULL, "", "", NULL },
     { "vt_cpio_busybox64", ventoy_cmd_cpio_busybox_64, 0, NULL, "", "", NULL },
@@ -4110,6 +4176,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_get_fs_label", ventoy_cmd_get_fs_label, 0, NULL, "", "", NULL },
     { "vt_fs_enum_1st_file", ventoy_cmd_fs_enum_1st_file, 0, NULL, "", "", NULL },
     { "vt_file_basename", ventoy_cmd_basename, 0, NULL, "", "", NULL },    
+    { "vt_file_basefile", ventoy_cmd_basefile, 0, NULL, "", "", NULL },    
     { "vt_enum_video_mode", ventoy_cmd_enum_video_mode, 0, NULL, "", "", NULL },    
     { "vt_get_video_mode", ventoy_cmd_get_video_mode, 0, NULL, "", "", NULL },    
     { "vt_update_cur_video_mode", vt_cmd_update_cur_video_mode, 0, NULL, "", "", NULL },    
