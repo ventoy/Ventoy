@@ -19,22 +19,43 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
+if is_ventoy_hook_finished; then
     exit 0
 fi
 
+vtlog "####### $0 $* ########"
+
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+
+wait_for_usb_disk_ready
+
+vtdiskname=$(get_ventoy_disk_name)
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    PATH=$VTPATH_OLD
+    exit 0
+fi
+
+if echo $vtdiskname | egrep -q "nvme.*p[0-9]$|mmc.*p[0-9]$"; then
+    vPart="${vtdiskname}p2"    
+else
+    vPart="${vtdiskname}2"
+fi
+
 # TinyCore linux distro doesn't contain dmsetup, we use aoe here
-sudo $BUSYBOX_PATH/modprobe aoe aoe_iflist=lo
+sudo modprobe aoe aoe_iflist=lo
 if [ -e /sys/module/aoe ]; then
     VBLADE_BIN=$(ventoy_get_vblade_bin)
-    sudo $VBLADE_BIN -r -f $VTOY_PATH/ventoy_image_map 9 0 lo "/dev/${1:0:-1}" &
+    
+    sudo nohup $VBLADE_BIN -r -f $VTOY_PATH/ventoy_image_map 9 0 lo "$vtdiskname" > /dev/null & 
+    sleep 2
 
     while ! [ -b /dev/etherd/e9.0 ]; do
         vtlog 'Wait for /dev/etherd/e9.0 ....'
-        $SLEEP 0.1
+        sleep 2
     done
 
-    sudo $BUSYBOX_PATH/cp -a /dev/etherd/e9.0  "/dev/$1"
+    sudo cp -a /dev/etherd/e9.0  "$vPart"
 
     ventoy_find_bin_run rebuildfstab
 else
@@ -42,4 +63,6 @@ else
 fi
 
 # OK finish
+PATH=$VTPATH_OLD
+
 set_ventoy_hook_finish

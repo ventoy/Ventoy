@@ -19,6 +19,5 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-ventoy_systemd_udevd_work_around
-
-ventoy_add_udev_rule_with_name "$VTOY_PATH/hook/tinycore/udev_disk_hook.sh %k" "90-ventoy.rules"
+$SED "/\[.*-n.*WAITUSB/i\WAITUSB=10" -i /etc/init.d/tc-config
+$SED "/\[.*-n.*AOE/i\$VTOY_PATH/hook/tinycore/ventoy-disk.sh" -i /etc/init.d/tc-config
