@@ -36,6 +36,7 @@
 #include <grub/misc.h>
 #include <grub/kernel.h>
 #ifdef GRUB_MACHINE_EFI
+#include <grub/efi/api.h>
 #include <grub/efi/efi.h>
 #endif
 #include <grub/time.h>
@@ -3370,6 +3371,36 @@ static grub_err_t ventoy_cmd_img_unhook_root(grub_extcmd_context_t ctxt, int arg
     return 0;
 }
 
+#ifdef GRUB_MACHINE_EFI
+static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int ret = 1;
+    grub_uint8_t *var;
+    grub_size_t size;
+    grub_efi_guid_t global = GRUB_EFI_GLOBAL_VARIABLE_GUID;
+
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    var = grub_efi_get_variable("SecureBoot", &global, &size);
+    if (var && *var == 1)
+    {
+        return 0;
+    }
+    
+    return ret;
+}
+#else
+static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+    return 1;
+}
+#endif
+
 static grub_err_t ventoy_cmd_acpi_param(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i;
@@ -4249,6 +4280,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_img_hook_root", ventoy_cmd_img_hook_root, 0, NULL, "", "", NULL },
     { "vt_img_unhook_root", ventoy_cmd_img_unhook_root, 0, NULL, "", "", NULL },
     { "vt_acpi_param", ventoy_cmd_acpi_param, 0, NULL, "", "", NULL },
+    { "vt_check_secureboot_var", ventoy_cmd_check_secureboot_var, 0, NULL, "", "", NULL },
 
 };
 
