@@ -123,6 +123,10 @@ static int g_video_mode_max = 0;
 static int g_video_mode_num = 0;
 static ventoy_video_mode *g_video_mode_list = NULL;
 
+static int g_enumerate_time_checked = 0;
+static grub_uint64_t g_enumerate_start_time_ms;
+static grub_uint64_t g_enumerate_finish_time_ms;
+
 static const char *g_menu_class[] = 
 {
     "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg", "vtoyvhd", "vtoyvtoy"
@@ -1174,6 +1178,18 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
     img_iterator_node *new_node;
     img_iterator_node *node = (img_iterator_node *)data;
 
+    if (g_enumerate_time_checked == 0)
+    {
+        g_enumerate_finish_time_ms = grub_get_time_ms();
+        if ((g_enumerate_finish_time_ms - g_enumerate_start_time_ms) >= 3000)
+        {
+            grub_cls();
+            grub_printf("\n\n Ventoy scanning files, please wait...\n");
+            grub_refresh();
+            g_enumerate_time_checked = 1;
+        }        
+    }
+
     len = grub_strlen(filename);
     
     if (info->dir)
@@ -1967,6 +1983,8 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     {
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Must clear image before list");
     }
+
+    g_enumerate_start_time_ms = grub_get_time_ms();
 
     strdata = ventoy_get_env("VTOY_FILT_DOT_UNDERSCORE_FILE");
     if (strdata && strdata[0] == '1' && strdata[1] == 0)
