@@ -541,8 +541,8 @@ static grub_err_t ventoy_cmd_incr(grub_extcmd_context_t ctxt, int argc, char **a
 
 static grub_err_t ventoy_cmd_mod(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    long value1 = 0;
-    long value2 = 0;
+    ulonglong value1 = 0;
+    ulonglong value2 = 0;
     char buf[32];
     
     if (argc != 3)
@@ -550,10 +550,10 @@ static grub_err_t ventoy_cmd_mod(grub_extcmd_context_t ctxt, int argc, char **ar
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s {Int} {Int} {Variable}", cmd_raw_name);
     }
 
-    value1 = grub_strtol(args[0], NULL, 10);
-    value2 = grub_strtol(args[1], NULL, 10);
+    value1 = grub_strtoull(args[0], NULL, 10);
+    value2 = grub_strtoull(args[1], NULL, 10);
 
-    grub_snprintf(buf, sizeof(buf), "%ld", (value1 % value2));
+    grub_snprintf(buf, sizeof(buf), "%llu", (value1 % value2));
     grub_env_set(args[2], buf);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
