@@ -23,7 +23,7 @@ echo '======== build grub2 for x86_64-efi ==============='
 make distclean
 ./autogen.sh
 ./configure  --with-platform=efi --prefix=$VT_GRUB_DIR/INSTALL/
-make -j 16
+make -j 16 || exit 1
 sh install.sh  uefi
 
 
@@ -32,7 +32,7 @@ echo '======== build grub2 for i386-efi ==============='
 make distclean
 ./autogen.sh
 ./configure --target=i386 --with-platform=efi  --prefix=$VT_GRUB_DIR/INSTALL/
-make -j 16
+make -j 16 || exit 1
 sh install.sh  i386efi
 
 
@@ -51,7 +51,7 @@ TARGET_CC=aarch64-linux-gnu-gcc   \
 TARGET_OBJCOPY=aarch64-linux-gnu-objcopy \
 TARGET_STRIP=aarch64-linux-gnu-strip TARGET_NM=aarch64-linux-gnu-nm \
 TARGET_RANLIB=aarch64-linux-gnu-ranlib
-make -j 16
+make -j 16 || exit 1
 sh install.sh arm64
 
 
@@ -61,7 +61,7 @@ echo '======== build grub2 for i386-pc ==============='
 make distclean
 ./autogen.sh
 ./configure --target=i386 --with-platform=pc --prefix=$VT_GRUB_DIR/INSTALL/
-make -j 16
+make -j 16 || exit 1
 sh install.sh
 
 
