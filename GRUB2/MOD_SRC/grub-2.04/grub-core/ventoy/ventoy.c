@@ -553,7 +553,7 @@ static grub_err_t ventoy_cmd_mod(grub_extcmd_context_t ctxt, int argc, char **ar
     value1 = grub_strtoull(args[0], NULL, 10);
     value2 = grub_strtoull(args[1], NULL, 10);
 
-    grub_snprintf(buf, sizeof(buf), "%llu", (value1 % value2));
+    grub_snprintf(buf, sizeof(buf), "%llu", (value1 & (value2 - 1)));
     grub_env_set(args[2], buf);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
