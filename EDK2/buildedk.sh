@@ -2,7 +2,7 @@
 
 rm -rf edk2-edk2-stable201911
 
-unzip edk2-edk2-stable201911.zip
+unzip edk2-edk2-stable201911.zip > /dev/null
 
 /bin/cp -a ./edk2_mod/edk2-edk2-stable201911  ./
 

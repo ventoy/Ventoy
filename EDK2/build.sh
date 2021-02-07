@@ -35,6 +35,7 @@ rm -f $DST_PATH2
 rm -f $VTEFI_PATH3
 [ -d ../../VDiskChain ] && rm -f $DST_PATH3
 
+unset WORKSPACE
 source ./edksetup.sh
 
 if [ "$EDKARCH" = "AARCH64" ]; then    
