@@ -88,7 +88,7 @@ get_disk_part_name() {
         echo ${DISK}p${2}
     elif echo $DISK | grep -q "/dev/nvme[0-9][0-9]*n[0-9]"; then
         echo ${DISK}p${2}
-    elif echo $DISK | grep -q "/dev/mmcblk[0-9]"; then
+    elif echo $DISK | egrep -q "/dev/(mmcblk|nbd)[0-9]"; then
         echo ${DISK}p${2}
     else
         echo ${DISK}${2}

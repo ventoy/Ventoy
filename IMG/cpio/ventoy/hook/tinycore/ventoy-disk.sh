@@ -36,7 +36,7 @@ if [ "$vtdiskname" = "unknown" ]; then
     exit 0
 fi
 
-if echo $vtdiskname | egrep -q "nvme.*p[0-9]$|mmc.*p[0-9]$"; then
+if echo $vtdiskname | egrep -q "(nvme|mmc|nbd).*p[0-9]$"; then
     vPart="${vtdiskname}p2"    
 else
     vPart="${vtdiskname}2"

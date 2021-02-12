@@ -20,7 +20,7 @@ get_disk_size() {
 enum_disk() {
     id=1
     rm -f /device.list
-    ls /sys/block/ | egrep 'd[a-z]|nvme|mmc' | while read dev; do
+    ls /sys/block/ | egrep 'd[a-z]|nvme|mmc|nbd' | while read dev; do
         if ! [ -b /dev/$dev ]; then
             continue
         fi
