@@ -41,7 +41,7 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 * Menu dynamically switchable between List/TreeView mode
 * "Ventoy Compatible" concept
 * Plugin Framework
-* Injection files to runtime enviroment
+* Injection files to runtime environment
 * Boot configuration file dynamically replacement
 * Highly customizable theme and menu
 * USB drive write-protected support

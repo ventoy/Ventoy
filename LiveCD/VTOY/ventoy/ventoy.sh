@@ -180,7 +180,7 @@ vline=$(printf "*              Ventoy LiveCD %6s              *\r\n" "$VTVER")
 info "$vline"
 info "**************************************************"
 echo ""
-info "Scaning devices ......"
+info "Scanning devices ......"
 sleep 5
 
 enum_disk

@@ -19,7 +19,7 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-# Just for KVM test enviroment
+# Just for KVM test environment
 $BUSYBOX_PATH/modprobe virtio_blk 2>/dev/null
 $BUSYBOX_PATH/modprobe virtio_pci 2>/dev/null
 
