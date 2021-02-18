@@ -75,8 +75,8 @@ fi
 if [ -e /sys/class/block/${DISK#/dev/}/start ]; then
     vterr  "$DISK is a partition, please use the whole disk."
     echo   "For example:"
-    vterr  "    sudo sh Ventoy2Disk.sh -i /dev/sdX1 <=== This is wrong"
-    vtinfo "    sudo sh Ventoy2Disk.sh -i /dev/sdX  <=== This is right"
+    vterr  "    sudo sh Ventoy2Disk.sh -i /dev/sdb1 <=== This is wrong"
+    vtinfo "    sudo sh Ventoy2Disk.sh -i /dev/sdb  <=== This is right"
     echo ""
     exit 1
 fi
@@ -88,15 +88,6 @@ if [ -n "$RESERVE_SPACE" -a "$MODE" = "install" ]; then
         vterr "$RESERVE_SIZE_MB is invalid for reserved space"
         exit 1
     fi
-fi
-
-#check access 
-if dd if="$DISK" of=/dev/null bs=1 count=1 >/dev/null 2>&1; then
-    vtdebug "root permission check ok ..."
-else
-    vterr "Failed to access $DISK, maybe root privilege is needed!"
-    echo ''
-    exit 1
 fi
 
 vtdebug "MODE=$MODE FORCE=$FORCE RESERVE_SPACE=$RESERVE_SPACE RESERVE_SIZE_MB=$RESERVE_SIZE_MB"
@@ -152,6 +143,16 @@ if swapon --help 2>&1 | grep -q '^ \-s,'; then
         exit 1
     fi
 fi
+
+#check access 
+if dd if="$DISK" of=/dev/null bs=1 count=1 >/dev/null 2>&1; then
+    vtdebug "root permission check ok ..."
+else
+    vterr "Failed to access $DISK, maybe root privilege is needed!"
+    echo ''
+    exit 1
+fi
+
 
 #check tmp_mnt directory
 if [ -d ./tmp_mnt ]; then
