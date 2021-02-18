@@ -507,7 +507,7 @@ static int vtoydm_print_linear_table(const char *img_map_file, const char *diskn
                (sector_start << 2), disk_sector_num, 
                diskname, (unsigned long long)chunk[i].disk_start_sector);
         #else
-        if (strstr(diskname, "nvme") || strstr(diskname, "mmc"))
+        if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
         {
             printf("%u %u linear %sp1 %llu\n", 
                (sector_start << 2), disk_sector_num, 
