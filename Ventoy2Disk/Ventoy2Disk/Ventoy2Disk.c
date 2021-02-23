@@ -316,20 +316,39 @@ PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id)
 int SortPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 {
 	DWORD i, j;
+	BOOL flag;
 	PHY_DRIVE_INFO TmpDriveInfo;
 
 	for (i = 0; i < DriveCount; i++)
 	{
 		for (j = i + 1; j < DriveCount; j++)
 		{
+			flag = FALSE;
+
 			if (pDriveList[i].BusType == BusTypeUsb && pDriveList[j].BusType == BusTypeUsb)
 			{
 				if (pDriveList[i].RemovableMedia == FALSE && pDriveList[j].RemovableMedia == TRUE)
 				{
-					memcpy(&TmpDriveInfo, pDriveList + i, sizeof(PHY_DRIVE_INFO));
-					memcpy(pDriveList + i, pDriveList + j, sizeof(PHY_DRIVE_INFO));
-					memcpy(pDriveList + j, &TmpDriveInfo, sizeof(PHY_DRIVE_INFO));
+					flag = TRUE;
 				}
+			}
+			else if (pDriveList[j].BusType == BusTypeUsb)
+			{
+				flag = TRUE;
+			}
+			else
+			{
+				if (pDriveList[j].PhyDrive < pDriveList[i].PhyDrive)
+				{
+					flag = TRUE;
+				}
+			}
+
+			if (flag)
+			{
+				memcpy(&TmpDriveInfo, pDriveList + i, sizeof(PHY_DRIVE_INFO));
+				memcpy(pDriveList + i, pDriveList + j, sizeof(PHY_DRIVE_INFO));
+				memcpy(pDriveList + j, &TmpDriveInfo, sizeof(PHY_DRIVE_INFO));
 			}
 		}
 	}
