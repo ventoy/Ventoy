@@ -183,6 +183,7 @@ extern int g_ForceOperation;
 extern HWND g_ProgressBarHwnd;
 extern HFONT g_language_normal_font;
 extern HFONT g_language_bold_font;
+extern int g_FilterUSB;
 
 void Log(const char *Fmt, ...);
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...);
@@ -220,6 +221,7 @@ int INIT unxz(unsigned char *in, int in_size,
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount);
 INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 int GetReservedSpaceInMB(void);
+int IsPartNeed4KBAlign(void);
 int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive);
 int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
 int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter);

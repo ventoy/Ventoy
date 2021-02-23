@@ -468,6 +468,17 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
         ReservedSector += 33; // backup GPT part table
     }
 
+    // check aligned with 4KB
+    if (IsPartNeed4KBAlign())
+    {
+        UINT64 sectors = DiskSizeBytes / 512;
+        if (sectors % 8)
+        {
+            Log("Disk need to align with 4KB %u", (UINT32)(sectors % 8));
+            ReservedSector += (UINT32)(sectors % 8);
+        }
+    }
+
 	Log("ReservedSector: %u", ReservedSector);
 
     //Part1
@@ -596,6 +607,16 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
     if (ReservedValue > 0)
     {
         ReservedSector += ReservedValue * 2048;
+    }
+
+    // check aligned with 4KB
+    if (IsPartNeed4KBAlign())
+    {
+        if (DiskSectorCount % 8)
+        {
+            Log("Disk need to align with 4KB %u", (UINT32)(DiskSectorCount % 8));
+            ReservedSector += (DiskSectorCount % 8);
+        }
     }
 
     Part1SectorCount = DiskSectorCount - ReservedSector - (VENTOY_EFI_PART_SIZE / 512) - 2048;
@@ -745,6 +766,11 @@ int GetHumanReadableGBSize(UINT64 SizeBytes)
     int Pow2 = 1;
     double Delta;
     double GB = SizeBytes * 1.0 / 1000 / 1000 / 1000;
+
+    if ((SizeBytes % 1073741824) == 0)
+    {
+        return (int)(SizeBytes / 1073741824);
+    }
 
     for (i = 0; i < 12; i++)
     {

@@ -26,7 +26,7 @@
 PHY_DRIVE_INFO *g_PhyDriveList = NULL;
 DWORD g_PhyDriveCount = 0;
 static int g_FilterRemovable = 0;
-static int g_FilterUSB = 1;
+int g_FilterUSB = 1;
 int g_ForceOperation = 1;
 
 int ParseCmdLineOption(LPSTR lpCmdLine)
@@ -152,6 +152,23 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 			return FALSE;
 		}
 
+        if (pGpt->PartTbl[0].StartLBA != 2048)
+        {
+            Log("Part1 not match %llu", pGpt->PartTbl[0].StartLBA);
+            return FALSE;
+        }
+
+        PartSectorCount = VENTOY_EFI_PART_SIZE / 512;
+
+        if (pGpt->PartTbl[1].StartLBA != pGpt->PartTbl[0].LastLBA + 1 ||
+            (UINT32)(pGpt->PartTbl[1].LastLBA + 1 - pGpt->PartTbl[1].StartLBA) != PartSectorCount)
+        {
+            Log("Part2 not match [%llu %llu] [%llu %llu]",
+                pGpt->PartTbl[0].StartLBA, pGpt->PartTbl[0].LastLBA,
+                pGpt->PartTbl[1].StartLBA, pGpt->PartTbl[1].LastLBA);
+            return FALSE;
+        }
+
 		*Part2StartSector = pGpt->PartTbl[1].StartLBA;
 
         memcpy(pMBR, &(pGpt->MBR), sizeof(MBR_HEAD));
@@ -185,7 +202,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
             if (MBR.PartTbl[2].Active != 0x80 && MBR.PartTbl[3].Active != 0x80)
             {
                 Log("Part3 and Part4 are both NOT active 0x%x 0x%x", MBR.PartTbl[2].Active, MBR.PartTbl[3].Active);
-                return FALSE;
+                //return FALSE;
             }
 		}
 
