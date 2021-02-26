@@ -17,6 +17,10 @@ Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX
 Please refer https://www.ventoy.net/en/doc_start.html for details.   
 
 
+========== VentoyWeb.sh ===============
+sudo sh VentoyWeb.sh 
+Normally, it will popup a web browser window. 
+If not you can open your browser and visit http://127.0.0.1:24680
 
 
 
