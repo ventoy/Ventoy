@@ -97,6 +97,11 @@ if [ -f ./tool/$TOOLDIR/V2DServer.xz ]; then
     chmod +x ./tool/$TOOLDIR/V2DServer
 fi
 
+
+V2DServer "$HOST" "$PORT" &
+wID=$!
+sleep 1
+
 vtVer=$(cat ventoy/version)
 echo ""
 echo "==============================================================="
@@ -112,7 +117,7 @@ echo ""
 echo "################## Press Ctrl + C to exit #####################"
 echo ""
 
-V2DServer "$HOST" "$PORT"
+wait $wID
 
 if [ -n "$OLDDIR" ]; then 
     CURDIR=$(pwd)

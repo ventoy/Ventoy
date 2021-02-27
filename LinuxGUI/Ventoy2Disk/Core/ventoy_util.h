@@ -46,7 +46,7 @@ int unxz(unsigned char *in, int in_size,
 int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen);
 const char * ventoy_get_local_version(void);
 int ventoy_fill_gpt(uint64_t size, uint64_t reserve, int align4k, VTOY_GPT_INFO *gpt);
-int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, int PartStyle, MBR_HEAD *pMBR);
+int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, MBR_HEAD *pMBR);
 
 #endif /* __VENTOY_UTIL_H__ */
 

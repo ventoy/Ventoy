@@ -63,7 +63,7 @@
 
 // Include support for formatting disks (1 / 0)?
 #ifndef FATFS_INC_FORMAT_SUPPORT
-    #define FATFS_INC_FORMAT_SUPPORT        1
+    #define FATFS_INC_FORMAT_SUPPORT        0
 #endif
 
 // Sector size used
@@ -71,15 +71,8 @@
 
 // Printf output (directory listing / debug)
 #ifndef FAT_PRINTF
-    // Don't include stdio, but there is a printf function available
-    #ifdef FAT_PRINTF_NOINC_STDIO
-        extern int printf(const char* ctrl1, ... );
-        #define FAT_PRINTF(a)               printf a
-    // Include stdio to use printf
-    #else
-        #include <stdio.h>
-        #define FAT_PRINTF(a)               printf a
-    #endif
+    void ventoy_syslog_printf(const char *Fmt, ...);
+    #define FAT_PRINTF(a) ventoy_syslog_printf a
 #endif
 
 // Time/Date support requires time.h

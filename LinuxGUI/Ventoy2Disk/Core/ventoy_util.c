@@ -347,6 +347,7 @@ static int ventoy_fill_gpt_partname(uint16_t Name[36], const char *asciiName)
 int ventoy_fill_gpt(uint64_t size, uint64_t reserve, int align4k, VTOY_GPT_INFO *gpt)
 {
     uint64_t ReservedSector = 33;
+    uint64_t ModSectorCount = 0;
     uint64_t Part1SectorCount = 0;
     uint64_t DiskSectorCount = size / 512;
     VTOY_GPT_HDR *Head = &gpt->Head;
@@ -362,17 +363,27 @@ int ventoy_fill_gpt(uint64_t size, uint64_t reserve, int align4k, VTOY_GPT_INFO 
         ReservedSector += reserve / 512;
     }
 
+    Part1SectorCount = DiskSectorCount - ReservedSector - (VTOYEFI_PART_BYTES / 512) - 2048;
+
+    ModSectorCount = (Part1SectorCount % 8);
+    if (ModSectorCount)
+    {
+        vlog("Part1SectorCount:%llu is not aligned by 4KB (%llu)\n", (_ull)Part1SectorCount, (_ull)ModSectorCount);
+    }
+
     // check aligned with 4KB
     if (align4k)
     {
-        if (DiskSectorCount % 8)
+        if (ModSectorCount)
         {
-            vdebug("Disk need to align with 4KB %u\n", (uint32_t)(DiskSectorCount % 8));
-            ReservedSector += (DiskSectorCount % 8);
+            vdebug("Disk need to align with 4KB %u\n", (uint32_t)ModSectorCount);
+            Part1SectorCount -= ModSectorCount;
+        }
+        else
+        {
+            vdebug("no need to align with 4KB\n");
         }
     }
-
-    Part1SectorCount = DiskSectorCount - ReservedSector - (VTOYEFI_PART_BYTES / 512) - 2048;
 
     memcpy(Head->Signature, "EFI PART", 8);
     Head->Version[2] = 0x01;
@@ -461,7 +472,7 @@ int VentoyFillMBRLocation(uint64_t DiskSizeInBytes, uint32_t StartSectorId, uint
     return 0;
 }
 
-int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, int PartStyle, MBR_HEAD *pMBR)
+int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, MBR_HEAD *pMBR)
 {
     ventoy_guid Guid;
     uint32_t DiskSignature;
@@ -498,11 +509,6 @@ int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, int PartStyle,
 		ReservedSector = (uint32_t)(reserve / 512);
 	}
 
-    if (PartStyle)
-    {
-        ReservedSector += 33; // backup GPT part table
-    }
-
     // check aligned with 4KB
     if (align4k)
     {
@@ -512,11 +518,14 @@ int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, int PartStyle,
             vlog("Disk need to align with 4KB %u\n", (uint32_t)(sectors % 8));
             ReservedSector += (uint32_t)(sectors % 8);
         }
+        else
+        {
+            vdebug("no need to align with 4KB\n");
+        }
     }
 
 	vlog("ReservedSector: %u\n", ReservedSector);
 
-    
     //Part1
     PartStartSector = VTOYIMG_PART_START_SECTOR;
 	PartSectorCount = DiskSectorCount - ReservedSector - VTOYEFI_PART_BYTES / 512 - PartStartSector;

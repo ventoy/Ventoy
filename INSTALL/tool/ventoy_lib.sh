@@ -97,6 +97,14 @@ get_disk_part_name() {
     fi
 }
 
+check_umount_disk() {
+    DiskOrPart="$1"
+    grep "^${DiskOrPart}" /proc/mounts | while read mtline; do
+        mtpnt=$(echo $mtline | awk '{print $2}')
+        vtdebug "Trying to umount $mtpnt ..."
+        umount $mtpnt >/dev/null 2>&1
+    done
+}
 
 get_ventoy_version_from_cfg() {
     if grep -q 'set.*VENTOY_VERSION=' $1; then
@@ -218,6 +226,14 @@ format_ventoy_disk_mbr() {
     fi
     
     part2_start_sector=$(expr $part1_end_sector + 1)
+    
+    modsector=$(expr $part2_start_sector % 8)
+    if [ $modsector -gt 0 ]; then
+        vtdebug "modsector:$modsector need to be aligned with 4KB"
+        part1_end_sector=$(expr $part1_end_sector - $modsector)
+        part2_start_sector=$(expr $part1_end_sector + 1)
+    fi
+    
     part2_end_sector=$(expr $part2_start_sector + $VENTOY_SECTOR_NUM - 1)
 
     export part2_start_sector
@@ -302,6 +318,8 @@ EOF
 
     echo "create efi fat fs $PART2 ..."
     for i in 0 1 2 3 4 5 6 7 8 9; do
+        check_umount_disk "$PART2"
+
         if mkfs.vfat -F 16 -n VTOYEFI $PART2; then
             echo 'success'
             break
@@ -333,6 +351,14 @@ format_ventoy_disk_gpt() {
     fi
     
     part2_start_sector=$(expr $part1_end_sector + 1)
+    
+    modsector=$(expr $part2_start_sector % 8)
+    if [ $modsector -gt 0 ]; then
+        vtdebug "modsector:$modsector need to be aligned with 4KB"
+        part1_end_sector=$(expr $part1_end_sector - $modsector)
+        part2_start_sector=$(expr $part1_end_sector + 1)
+    fi
+    
     part2_end_sector=$(expr $part2_start_sector + $VENTOY_SECTOR_NUM - 1)
 
     export part2_start_sector
@@ -397,7 +423,10 @@ format_ventoy_disk_gpt() {
     fi
 
     echo "create efi fat fs $PART2 ..."
+    
     for i in 0 1 2 3 4 5 6 7 8 9; do
+        check_umount_disk "$PART2"
+        
         if mkfs.vfat -F 16 -n VTOYEFI $PART2; then
             echo 'success'
             break

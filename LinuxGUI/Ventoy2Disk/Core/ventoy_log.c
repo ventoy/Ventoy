@@ -80,6 +80,34 @@ void ventoy_syslog_newline(int level, const char *Fmt, ...)
     pthread_mutex_unlock(&g_log_mutex);
 }
 
+void ventoy_syslog_printf(const char *Fmt, ...)
+{
+    char log[512];
+    va_list arg;
+    time_t stamp;
+    struct tm ttm;
+    FILE *fp;
+    
+    time(&stamp);
+    localtime_r(&stamp, &ttm);
+
+    va_start(arg, Fmt);
+    vsnprintf(log, 512, Fmt, arg);
+    va_end(arg);
+
+    pthread_mutex_lock(&g_log_mutex);
+    fp = fopen(VTOY_LOG_FILE, "a+");
+    if (fp)
+    {
+        fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
+           ttm.tm_year, ttm.tm_mon, ttm.tm_mday,
+           ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
+           log);
+        fclose(fp);
+    }
+    pthread_mutex_unlock(&g_log_mutex);
+}
+
 void ventoy_syslog(int level, const char *Fmt, ...)
 {
     char log[512];

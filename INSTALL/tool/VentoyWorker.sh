@@ -125,11 +125,7 @@ if [ "$MODE" = "list" ]; then
 fi
 
 #check mountpoint
-grep "^$DISK" /proc/mounts | while read mtline; do
-    mtpnt=$(echo $mtline | awk '{print $2}')
-    vtdebug "Trying to umount $mtpnt ..."
-    umount $mtpnt >/dev/null 2>&1
-done
+check_umount_disk "$DISK"
 
 if grep "$DISK" /proc/mounts; then
     vterr "$DISK is already mounted, please umount it first!"
@@ -299,6 +295,9 @@ if [ "$MODE" = "install" ]; then
         xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
     
+    # check and umount
+    check_umount_disk "$DISK"
+    
     xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
     
     #test UUID
@@ -317,10 +316,7 @@ if [ "$MODE" = "install" ]; then
     vtinfo "esp partition processing ..."
     
     sleep 1
-    mtpnt=$(grep "^${PART2}" /proc/mounts | awk '{print $2}')
-    if [ -n "$mtpnt" ]; then
-        umount $mtpnt >/dev/null 2>&1
-    fi
+    check_umount_disk "$DISK"    
     
     if [ "$SECUREBOOT" != "YES" ]; then        
         mkdir ./tmp_mnt
@@ -332,10 +328,7 @@ if [ "$MODE" = "install" ]; then
                 break
             fi
             
-            mtpnt=$(grep "^${PART2}" /proc/mounts | awk '{print $2}')
-            if [ -n "$mtpnt" ]; then
-                umount $mtpnt >/dev/null 2>&1
-            fi    
+            check_umount_disk "$DISK"            
             sleep 2
         done
         
@@ -348,6 +341,8 @@ if [ "$MODE" = "install" ]; then
         rm -f ./tmp_mnt/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
         mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
         mv ./tmp_mnt/EFI/BOOT/grubia32_real.efi  ./tmp_mnt/EFI/BOOT/BOOTIA32.EFI
+        
+        sync
         
         for tt in 1 2 3; do
             if umount ./tmp_mnt; then
@@ -439,15 +434,19 @@ else
     dd status=none conv=fsync if=./rsvdata.bin seek=2040 bs=512 count=8 of=${DISK}
     rm -f ./rsvdata.bin
 
+    check_umount_disk "$DISK"
+    
     xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
 
     sync
-    
+
     if [ "$SECUREBOOT" != "YES" ]; then
         mkdir ./tmp_mnt
         
         vtdebug "mounting part2 ...."        
-        for tt in 1 2 3 4 5; do            
+        for tt in 1 2 3 4 5; do
+            check_umount_disk "$DISK"
+
             if mount ${PART2} ./tmp_mnt > /dev/null 2>&1; then
                 vtdebug "mounting part2 success"
                 break
@@ -467,6 +466,7 @@ else
         mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
         mv ./tmp_mnt/EFI/BOOT/grubia32_real.efi  ./tmp_mnt/EFI/BOOT/BOOTIA32.EFI
         
+        sync
         
         for tt in 1 2 3; do
             if umount ./tmp_mnt > /dev/null 2>&1; then

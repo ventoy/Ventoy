@@ -5,9 +5,9 @@ build_func() {
     toolDir=$3
     
     XXFLAG='-std=gnu99 -D_FILE_OFFSET_BITS=64'
-    XXLIB="./Ventoy2Disk/Lib/fat_io_lib/lib/libfat_io_${libsuffix}.a"
+    XXLIB=""
     
-    echo "CC=$1 libsuffix=$libsuffix"    
+    echo "CC=$1 libsuffix=$libsuffix toolDir=$toolDir"    
     
     $1 $XXFLAG -c -Wall -Wextra -Wshadow -Wformat-security -Winit-self \
         -Wmissing-prototypes -O2 -DLINUX \
@@ -29,6 +29,7 @@ build_func() {
         -I./Ventoy2Disk/Lib/xz-embedded/userspace \
         -I ./Ventoy2Disk/Lib/exfat/src/libexfat \
         -I ./Ventoy2Disk/Lib/exfat/src/mkfs \
+        -I ./Ventoy2Disk/Lib/fat_io_lib \
         \
         -L ./Ventoy2Disk/Lib/fat_io_lib/lib \
         Ventoy2Disk/*.c \
@@ -37,6 +38,7 @@ build_func() {
         Ventoy2Disk/Lib/xz-embedded/linux/lib/decompress_unxz.c \
         Ventoy2Disk/Lib/exfat/src/libexfat/*.c \
         Ventoy2Disk/Lib/exfat/src/mkfs/*.c \
+        Ventoy2Disk/Lib/fat_io_lib/*.c \
         $XXLIB \
         -l pthread \
         ./civetweb.o \

@@ -330,6 +330,7 @@ static int fatlib_is_secure_boot_enable(void)
     flfile = fl_fopen("/EFI/BOOT/grubx64_real.efi", "rb");
     if (flfile)
     {
+        vlog("/EFI/BOOT/grubx64_real.efi find, secure boot in enabled\n");
         fl_fclose(flfile);
         return 1;
     }
@@ -504,7 +505,10 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
         goto end;
     }
 
-    vdebug("now check secure boot ...\n");
+    vdebug("ventoy partition layout check OK: [%llu %llu] [%llu %llu]\n", 
+               part1_start_sector, part1_sector_count, part2_start_sector, part2_sector_count);
+
+    vdebug("now check secure boot for %s ...\n", info->disk_path);
 
     g_fatlib_media_fd = fd;
     g_fatlib_media_offset = part2_start_sector;
@@ -546,7 +550,7 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
 
     rc = 0;
 end:
-    close(fd);
+    vtoy_safe_close_fd(fd);
     return rc;
 }
 

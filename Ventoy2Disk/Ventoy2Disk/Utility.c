@@ -592,6 +592,7 @@ int VentoyFillWholeGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
 int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
 {
     INT64 ReservedValue = 0;
+    UINT64 ModSectorCount = 0;
     UINT64 ReservedSector = 33;
     UINT64 Part1SectorCount = 0;
     UINT64 DiskSectorCount = DiskSizeBytes / 512;
@@ -609,17 +610,27 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
         ReservedSector += ReservedValue * 2048;
     }
 
+    Part1SectorCount = DiskSectorCount - ReservedSector - (VENTOY_EFI_PART_SIZE / 512) - 2048;
+
+    ModSectorCount = (Part1SectorCount % 8);
+    if (ModSectorCount)
+    {
+        Log("Part1SectorCount:%llu is not aligned by 4KB (%llu)", (ULONGLONG)Part1SectorCount, (ULONGLONG)ModSectorCount);
+    }
+
     // check aligned with 4KB
     if (IsPartNeed4KBAlign())
     {
-        if (DiskSectorCount % 8)
+        if (ModSectorCount)
         {
-            Log("Disk need to align with 4KB %u", (UINT32)(DiskSectorCount % 8));
-            ReservedSector += (DiskSectorCount % 8);
+            Log("Disk need to align with 4KB %u", (UINT32)ModSectorCount);
+            Part1SectorCount -= ModSectorCount;
+        }
+        else
+        {
+            Log("no need to align with 4KB");
         }
     }
-
-    Part1SectorCount = DiskSectorCount - ReservedSector - (VENTOY_EFI_PART_SIZE / 512) - 2048;
 
     memcpy(Head->Signature, "EFI PART", 8);
     Head->Version[2] = 0x01;

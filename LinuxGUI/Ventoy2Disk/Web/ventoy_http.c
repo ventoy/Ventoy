@@ -346,6 +346,8 @@ static int ventoy_clean_disk(int fd, uint64_t size)
     len = write(fd, buf, zerolen);
     vdebug("write disk at off:%llu writelen:%lld datalen:%d\n", (_ull)offset, (_ll)len, zerolen);
 
+    fsync(fd);
+
     free(buf);
     return 0;
 }
@@ -800,7 +802,7 @@ static void * ventoy_install_thread(void *data)
     else
     {
         vdebug("Fill MBR part table\n");
-        ventoy_fill_mbr(disk->size_in_byte, thread->reserveBytes, thread->align4kb, 0, &MBR);
+        ventoy_fill_mbr(disk->size_in_byte, thread->reserveBytes, thread->align4kb, &MBR);
         Part1StartSector = MBR.PartTbl[0].StartSectorId;
         Part1SectorCount = MBR.PartTbl[0].SectorCount;
         Part2StartSector = MBR.PartTbl[1].StartSectorId;
