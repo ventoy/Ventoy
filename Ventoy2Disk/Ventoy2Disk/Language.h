@@ -125,4 +125,13 @@ const TCHAR * GetString(enum STR_ID ID);
 
 #define _G(a) GetString(a)
 
+typedef enum UNICODE_ICON
+{
+    UNICODE_LOCK = 0,
+    UNICODE_BUTT
+}UNICODE_ICON;
+
+const UINT16 * GetUnicodeIcon(icon);
+#define _UICON(i) GetUnicodeIcon(i)
+
 #endif

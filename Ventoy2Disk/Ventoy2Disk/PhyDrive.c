@@ -1693,7 +1693,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     }
 
     PROGRESS_BAR_SET_POS(PT_WRITE_STG1_IMG);
-    Log("Writting Boot Image ............................. ");
+    Log("Writing Boot Image ............................. ");
     if (WriteGrubStage1ToPhyDrive(hDrive, PartStyle) != 0)
     {
         Log("WriteGrubStage1ToPhyDrive failed.");
@@ -1702,7 +1702,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     }
 
     PROGRESS_BAR_SET_POS(PT_WRITE_PART_TABLE);
-    Log("Writting Partition Table ........................ ");
+    Log("Writing Partition Table ........................ ");
     SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
 
     if (PartStyle)

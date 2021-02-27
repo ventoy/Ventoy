@@ -6,9 +6,9 @@ print_usage() {
     
     echo 'Usage:  Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX'
     echo '  CMD:'
-    echo '   -i  install ventoy to sdX (fail if disk already installed with ventoy)'
-    echo '   -I  force install ventoy to sdX (no matter installed or not)'
-    echo '   -u  update ventoy in sdX'
+    echo '   -i  install Ventoy to sdX (fails if disk already installed with Ventoy)'
+    echo '   -I  force install Ventoy to sdX (no matter installed or not)'
+    echo '   -u  update Ventoy in sdX'
     echo '   -l  list Ventoy information in sdX'
     echo ''
     echo '  OPTION: (optional)'
@@ -96,7 +96,7 @@ vtdebug "MODE=$MODE FORCE=$FORCE RESERVE_SPACE=$RESERVE_SPACE RESERVE_SIZE_MB=$R
 if check_tool_work_ok; then
     vtdebug "check tool work ok"
 else
-    vterr "Some tools can not run in current system. Please check log.txt for detail."
+    vterr "Some tools can not run on current system. Please check log.txt for details."
     exit 1
 fi
 
@@ -160,14 +160,14 @@ if [ -d ./tmp_mnt ]; then
     umount ./tmp_mnt >/dev/null 2>&1
     rm -rf ./tmp_mnt
     if [ -d ./tmp_mnt ]; then
-        vterr "tmp_mnt directory exit, please delete it first."
+        vterr "tmp_mnt directory exits, please delete it first."
         exit 1
     fi
 fi
 
 
 if [ "$MODE" = "install" ]; then
-    vtdebug "install ventoy ..."
+    vtdebug "install Ventoy ..."
 
     if [ -n "$VTGPT" ]; then
         if parted -v > /dev/null 2>&1; then
@@ -193,7 +193,7 @@ if [ "$MODE" = "install" ]; then
         if [ -z "$FORCE" ]; then
             vtwarn "$DISK already contains a Ventoy with version $version"
             vtwarn "Use -u option to do a safe upgrade operation."
-            vtwarn "OR if you really want to reinstall ventoy to $DISK, please use -I option."
+            vtwarn "OR if you really want to reinstall Ventoy to $DISK, please use -I option."
             vtwarn ""
             exit 1
         fi
@@ -366,11 +366,11 @@ if [ "$MODE" = "install" ]; then
     echo ""
     
 else
-    vtdebug "update ventoy ..."
+    vtdebug "update Ventoy ..."
     
     oldver=$(get_disk_ventoy_version $DISK)
     if [ $? -ne 0 ]; then
-        vtwarn "$DISK does not contain ventoy or data corupted"
+        vtwarn "$DISK does not contain Ventoy or data corrupted"
         echo ""
         vtwarn "Please use -i option if you want to install ventoy to $DISK"
         echo ""
@@ -481,7 +481,7 @@ else
     fi
 
     echo ""
-    vtinfo "Update Ventoy to $DISK successfully finished."
+    vtinfo "Update Ventoy on $DISK successfully finished."
     echo ""
     
 fi

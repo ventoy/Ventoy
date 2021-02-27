@@ -101,8 +101,8 @@ vtVer=$(cat ventoy/version)
 echo ""
 echo "==============================================================="
 if [ "$LANG" = "zh_CN.UTF-8" ]; then
-    echo "  Ventoy Server $vtVer 已经启动 ..."
-    echo "  请打开浏览器，访问 http://${HOST}:${PORT}"
+    echo "  Ventoy Server $vtVer 宸茬粡鍚姩 ..."
+    echo "  璇锋墦寮�娴忚鍣紝璁块棶 http://${HOST}:${PORT}"
 else
     echo "  Ventoy Server $vtVer is running ..."
     echo "  Please open your browser and visit http://${HOST}:${PORT}"

@@ -231,6 +231,6 @@ UINT32 VentoyCrc32(void *Buffer, UINT32 Length);
     liCurrentPosition.QuadPart = pos; \
     SetFilePointerEx(hDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN)\
 
-#define SECURE_ICON_STRING "*"
+#define SECURE_ICON_STRING _UICON(UNICODE_LOCK)
 
 #endif
