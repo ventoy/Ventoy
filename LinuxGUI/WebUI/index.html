@@ -198,7 +198,7 @@
                 
                         <div class="form-group" style="width:520px;">
                             <div class="col-sm-6" style="float:left; width:350px;">
-                                <input type="number" min="1" class="form-control" id="vtoy_preserve_space" style="font-family: couriew new;font-size: 14px;"/>                                
+                                <input type="text" maxlength="14" class="form-control" id="vtoy_preserve_space" style="font-family: couriew new;font-size: 14px;"/>                                
                             </div>
                             <div class="col-sm-6" style="float:left; width:150px;">
                                 <select id="vtoy_space_unit_dropbox" class="form-control valid vtoyselect2" aria-invalid="false">
@@ -381,7 +381,17 @@
         $('h3#vtoy_local_ver_title').text(vtoy_cur_language.STR_LOCAL_VER);
         $('h3#vtoy_dev_ver_title').text(vtoy_cur_language.STR_DISK_VER);
         $('span#vtoy_status_title').text(vtoy_cur_language.STR_STATUS);
-        $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE);
+        
+        if ($('#vtoy_preserve_space_checkbox').is(':checked')) {
+            var valx = $('#vtoy_preserve_space').val();
+            if ($('#vtoy_space_unit_dropbox').val() > 0) {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'MB ]');
+            } else {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'GB ]');
+            }
+        } else {
+            $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE);
+        }
         
         $('span#vtoy_menu_secure_boot').text(vtoy_cur_language.STR_MENU_SECURE_BOOT);
         $('span#vtoy_menu_part_style').text(vtoy_cur_language.STR_MENU_PART_STYLE);
@@ -525,7 +535,28 @@
         $('#vtoy_set_part_cfg_modal').modal({backdrop: 'static', keyboard: false});
     }
     
-    $("#vtoy_modal_btn_ok").click(function(){  
+    $("#vtoy_modal_btn_ok").click(function(){
+        if ($('#vtoy_preserve_space_checkbox').is(':checked')) {
+            var valx = $('#vtoy_preserve_space').val();
+            if (valx.length > 14) {
+                ventoy_display_alert('error', vtoy_cur_language.STR_SPACE_VAL_INVALID);
+                return;
+            }
+            
+            var regPat = /^\d+$/;
+            if (!(regPat.test(valx))) {
+                ventoy_display_alert('error', vtoy_cur_language.STR_SPACE_VAL_INVALID);
+                return;
+            }
+            
+            if ($('#vtoy_space_unit_dropbox').val() > 0) {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'MB ]');
+            } else {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'GB ]');
+            }
+        } else {
+            $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE);
+        }
         $("#vtoy_set_part_cfg_modal").modal('hide');
     });
     
@@ -749,6 +780,11 @@
         
         if ($('#vtoy_preserve_space_checkbox').is(':checked')) {
             var valx = $('#vtoy_preserve_space').val();
+            if (valx.length > 14) {
+                ventoy_display_alert('error', vtoy_cur_language.STR_SPACE_VAL_INVALID);
+                return;
+            }
+
             if (valx > 0) {
                 if ($('#vtoy_space_unit_dropbox').val() > 0) {
                     reserve = valx * 1024 * 1024;

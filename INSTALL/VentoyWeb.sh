@@ -5,7 +5,6 @@ print_usage() {
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -p PORT     http server PORT (default is 24680)'
-    echo "   -n          don't start web browser"
     echo '   -h          print this help'
     echo ''
 }
@@ -14,37 +13,6 @@ print_err() {
     echo ""
     echo "$*"
     echo ""
-}
-
-check_option() {
-    app="$1"
-    $app --help 2>&1 | grep -q "$2"
-}
-
-get_user() {
-    name=$(logname)
-    if [ -n "$name" -a "$name" != "root" ]; then
-        echo $name; return
-    fi
-    
-    name=${HOME#/home/}
-    if [ -n "$name" -a "$name" != "root" ]; then
-        echo $name; return
-    fi
-}
-
-chromium_proc() {
-    app="$1"
-    
-    url="http://${HOST}:${PORT}/index.html"
-    
-    if check_option "$app" '[-][-]app='; then
-        su $VUSER -c "$app --app=$url >> $LOGFILE 2>&1"
-    elif check_option "$app" '[-][-]new[-]window='; then
-        su $VUSER -c "$app --new-window $url >> $LOGFILE 2>&1"
-    else
-        su $VUSER -c "$app $url >> $LOGFILE 2>&1"
-    fi
 }
 
 uid=$(id -u)
@@ -87,8 +55,6 @@ while [ -n "$1" ]; do
     if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
         print_usage
         exit 0
-    elif [ "$1" = "-n" ]; then
-        NOWEB=1
     elif [ "$1" = "-H" ]; then
         shift
         if echo $1 | grep -q '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*'; then
@@ -116,19 +82,14 @@ if ps -ef | grep "V2DServer.*$HOST.*$PORT" | grep -q -v grep; then
     exit 1
 fi
 
-VUSER=$(get_user)
 LOGFILE=log.txt
 #delete the log.txt if it's more than 8MB
 if [ -f $LOGFILE ]; then
     logsize=$(stat -c '%s' $LOGFILE)
     if [ $logsize -gt 8388608 ]; then
         rm -f $LOGFILE
-        su $VUSER -c "touch $LOGFILE"
     fi
-else
-    su $VUSER -c "touch $LOGFILE"
 fi
-
 
 
 if [ -f ./tool/$TOOLDIR/V2DServer.xz ]; then
@@ -136,43 +97,22 @@ if [ -f ./tool/$TOOLDIR/V2DServer.xz ]; then
     chmod +x ./tool/$TOOLDIR/V2DServer
 fi
 
-V2DServer "$HOST" "$PORT" &
-
 vtVer=$(cat ventoy/version)
 echo ""
-echo "=================================================================="
-echo "  Ventoy Server $vtVer is running at http://${HOST}:${PORT} ..."
-echo "=================================================================="
-echo ""
-echo "################ Press Ctrl + C to exit ######################"
-echo ""
-
-if [ "$NOWEB" = "1" ]; then
-    echo "Please open your web browser and visit http://${HOST}:${PORT}"
+echo "==============================================================="
+if [ "$LANG" = "zh_CN.UTF-8" ]; then
+    echo "  Ventoy Server $vtVer 已经启动 ..."
+    echo "  请打开浏览器，访问 http://${HOST}:${PORT}"
 else
-    if which -a google-chrome-stable >> $LOGFILE 2>&1; then    
-        chromium_proc google-chrome-stable
-    elif which -a google-chrome >> $LOGFILE 2>&1; then    
-        chromium_proc google-chrome
-    elif which -a chrome >> $LOGFILE 2>&1; then    
-        chromium_proc chrome
-    elif which -a browser >> $LOGFILE 2>&1; then        
-        chromium_proc browser        
-    elif which -a firefox >> $LOGFILE 2>&1; then
-        su $VUSER -c "firefox --no-remote \"http://${HOST}:${PORT}/index.html\""
-    else
-        echo "Please open your web browser and visit http://${HOST}:${PORT}"
-    fi
+    echo "  Ventoy Server $vtVer is running ..."
+    echo "  Please open your browser and visit http://${HOST}:${PORT}"
 fi
+echo "==============================================================="
+echo ""
+echo "################## Press Ctrl + C to exit #####################"
+echo ""
 
-if ps -ef | grep "V2DServer.*$HOST.*$PORT" | grep -q -v grep; then
-    echo ""
-else
-    print_err "Ventoy Server Error! Please check log.txt."
-fi
-
-wait $!
-
+V2DServer "$HOST" "$PORT"
 
 if [ -n "$OLDDIR" ]; then 
     CURDIR=$(pwd)
