@@ -23,9 +23,9 @@ fi
 
 OLDDIR=$(pwd)
 
-if uname -a | egrep -q 'aarch64|arm64'; then
+if uname -m | egrep -q 'aarch64|arm64'; then
     TOOLDIR=aarch64
-elif uname -a | egrep -q 'x86_64|amd64'; then
+elif uname -m | egrep -q 'x86_64|amd64'; then
     TOOLDIR=x86_64
 else
     TOOLDIR=i386
