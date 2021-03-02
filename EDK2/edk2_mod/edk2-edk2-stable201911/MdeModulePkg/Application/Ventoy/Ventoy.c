@@ -37,6 +37,7 @@
 #include <Ventoy.h>
 
 BOOLEAN gDebugPrint = FALSE;
+BOOLEAN gBootFallBack = FALSE;
 BOOLEAN gDotEfiBoot = FALSE;
 BOOLEAN gLoadIsoEfi = FALSE;
 BOOLEAN gIsoUdf = FALSE;
@@ -696,6 +697,11 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         gDebugPrint = TRUE;
     }
     
+    if (StrStr(pCmdLine, L"fallback"))
+    {
+        gBootFallBack = TRUE;
+    }
+    
     if (StrStr(pCmdLine, L"dotefi"))
     {
         gDotEfiBoot = TRUE;
@@ -1035,7 +1041,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
             }
         
             debug("Fs not found, now wait and retry...");
-            sleep(2);
+            sleep(1);
         }
     }
 
@@ -1135,7 +1141,7 @@ EFI_STATUS EFIAPI VentoyEfiMain
         ventoy_clean_env();
     }
 
-    if (FALSE == gDotEfiBoot)
+    if (FALSE == gDotEfiBoot && FALSE == gBootFallBack)
     {
         if (EFI_NOT_FOUND == Status)
         {

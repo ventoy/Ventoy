@@ -88,7 +88,6 @@ static int ventoy_linux_argc = 0;
 static char **ventoy_linux_args = NULL;
 static int ventoy_extra_initrd_num = 0;
 static char *ventoy_extra_initrd_list[256];
-
 static grub_err_t
 grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)), int argc, char *argv[]);
 
@@ -544,14 +543,10 @@ static int ventoy_bootopt_hook(int argc, char *argv[])
         return 0;
     }
 
-    for (i = 0; i < argc; i++)
+    /* the 1st parameter is BOOT_IMAGE=xxxx */
+    if (argc > 0 && 0 == ventoy_boot_opt_filter(argv[0]))
     {
-        if (ventoy_boot_opt_filter(argv[i]))
-        {
-            continue;
-        }
-
-        ventoy_linux_args[count++] = grub_strdup(argv[i]);
+        ventoy_linux_args[count++] = grub_strdup(argv[0]);
     }
 
     for (i = 0; i < ventoy_linux_argc; i++)
@@ -621,6 +616,17 @@ static int ventoy_bootopt_hook(int argc, char *argv[])
         {
             count++;            
         }
+    }
+
+    /* We have processed the 1st parameter before, so start from 1 */
+    for (i = 1; i < argc; i++)
+    {
+        if (ventoy_boot_opt_filter(argv[i]))
+        {
+            continue;
+        }
+
+        ventoy_linux_args[count++] = grub_strdup(argv[i]);
     }
 
     if (ventoy_debug)

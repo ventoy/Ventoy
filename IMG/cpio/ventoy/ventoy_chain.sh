@@ -37,7 +37,6 @@ for i in $vtcmdline; do
     fi
 done
 
-
 ####################################################################
 #                                                                  #
 # Step 2 : Do OS specific hook                                     #
