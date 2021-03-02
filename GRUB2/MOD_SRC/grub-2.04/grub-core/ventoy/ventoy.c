@@ -74,6 +74,7 @@ int g_ventoy_img_count = 0;
 
 grub_device_t g_enum_dev = NULL;
 grub_fs_t g_enum_fs = NULL;
+int g_img_max_search_level = -1;
 img_iterator_node g_img_iterator_head;
 img_iterator_node *g_img_iterator_tail = NULL;
 
@@ -1194,6 +1195,11 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
     
     if (info->dir)
     {
+        if (node->level + 1 > g_img_max_search_level)
+        {
+            return 0;
+        }
+    
         if ((len == 1 && filename[0] == '.') ||
             (len == 2 && filename[0] == '.' && filename[1] == '.'))
         {
@@ -1224,6 +1230,7 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
         new_node = grub_zalloc(sizeof(img_iterator_node));
         if (new_node)
         {
+            new_node->level = node->level + 1;
             new_node->plugin_list_index = index;
             new_node->dirlen = grub_snprintf(new_node->dir, sizeof(new_node->dir), "%s%s/", node->dir, filename);
 
@@ -2053,6 +2060,16 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     }
 
     g_img_iterator_head.tail = &tail;
+
+    if (g_img_max_search_level < 0)
+    {
+        g_img_max_search_level = GRUB_INT_MAX;
+        strdata = ventoy_get_env("VTOY_MAX_SEARCH_LEVEL");
+        if (strdata && ventoy_is_decimal(strdata))
+        {
+            g_img_max_search_level = (int)grub_strtoul(strdata, NULL, 10);
+        }
+    }
 
     for (node = &g_img_iterator_head; node; node = node->next)
     {

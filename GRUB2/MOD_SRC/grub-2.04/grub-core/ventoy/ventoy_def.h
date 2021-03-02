@@ -205,6 +205,7 @@ typedef struct img_iterator_node
     img_info **tail;
     char dir[400];
     int dirlen;
+    int level;
     int isocnt;
     int done;
     int select;
