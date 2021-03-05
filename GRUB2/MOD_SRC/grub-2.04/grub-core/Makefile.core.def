@@ -100,6 +100,10 @@ kernel = {
   emu_cppflags = '$(CPPFLAGS_GNULIB)';
   arm_uboot_ldflags       = '-Wl,-r,-d';
   arm_uboot_stripflags    = '--strip-unneeded -K start -R .note -R .comment -R .note.gnu.gold-version';
+
+  mips64_efi_ldflags          = '-Wl,-r,-d';
+  mips64_efi_stripflags       = '--strip-unneeded -K start -R .note -R .comment -R .note.gnu.gold-version -R .eh_frame -R .MIPS.abiflags';
+
   arm_coreboot_ldflags       = '-Wl,-r,-d';
   arm_coreboot_stripflags    = '--strip-unneeded -K start -R .note -R .comment -R .note.gnu.gold-version';
 
@@ -114,6 +118,7 @@ kernel = {
   i386_coreboot_startup = kern/i386/coreboot/startup.S;
   i386_multiboot_startup = kern/i386/coreboot/startup.S;
   mips_startup = kern/mips/startup.S;
+  mips64_efi_startup = kern/mips64/efi/startup.S;
   sparc64_ieee1275_startup = kern/sparc64/ieee1275/crt0.S;
   powerpc_ieee1275_startup = kern/powerpc/ieee1275/startup.S;
   arm_uboot_startup = kern/arm/startup.S;
@@ -309,6 +314,15 @@ kernel = {
   extra_dist = video/sm712_init.c;
   extra_dist = video/sis315_init.c;
   mips_loongson = commands/keylayouts.c;
+
+  mips64 = kern/mips64/init.c;
+  mips64 = kern/mips64/dl.c;
+  mips64 = kern/mips64/cache.S;
+  mips64 = kern/generic/rtc_get_time_ms.c;
+  mips64_efi = kern/mips64/efi/init.c;
+  mips64_efi = kern/mips64/efi/loongson.c;
+  mips64_efi = lib/mips64/efi/loongson.c;
+  mips64_efi = lib/mips64/efi/loongson_asm.S;
 
   powerpc_ieee1275 = kern/powerpc/cache.S;
   powerpc_ieee1275 = kern/powerpc/dl.c;
@@ -828,6 +842,7 @@ module = {
   enable = sparc64_ieee1275;
   enable = powerpc_ieee1275;
   enable = mips_arc;
+  enable = mips64_efi;
   enable = ia64_efi;
   enable = arm_efi;
   enable = arm64_efi;
@@ -1667,6 +1682,8 @@ module = {
   efi = lib/efi/relocator.c;
   mips = lib/mips/relocator_asm.S;
   mips = lib/mips/relocator.c;
+  mips64 = lib/mips64/relocator_asm.S;
+  mips64 = lib/mips64/relocator.c;
   powerpc = lib/powerpc/relocator_asm.S;
   powerpc = lib/powerpc/relocator.c;
   xen = lib/xen/relocator.c;
@@ -1679,6 +1696,7 @@ module = {
   extra_dist = kern/powerpc/cache_flush.S;
 
   enable = mips;
+  enable = mips64;
   enable = powerpc;
   enable = x86;
   enable = i386_xen_pvh;
@@ -1809,6 +1827,7 @@ module = {
   i386_pc = lib/i386/pc/vesa_modes_table.c;
   i386_xen_pvh = lib/i386/pc/vesa_modes_table.c;
   mips = loader/mips/linux.c;
+  mips64 = loader/mips64/linux.c;
   powerpc_ieee1275 = loader/powerpc/ieee1275/linux.c;
   sparc64_ieee1275 = loader/sparc64/ieee1275/linux.c;
   ia64_efi = loader/ia64/efi/linux.c;
@@ -1915,6 +1934,7 @@ module = {
   enable = riscv32_efi;
   enable = riscv64_efi;
   enable = mips;
+  enable = mips64_efi;
 };
 
 module = {

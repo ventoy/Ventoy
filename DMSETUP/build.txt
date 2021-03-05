@@ -55,6 +55,16 @@ build for 32bit, static linked with dietlibc
 6. get dmsetup/dmsetup.static as the dmsetupaa64 binary file
 
 
+======================== Build for mips64 dmsetup =========================
+1. extract device mapper source code
+2. ./configure CC="mips64el-linux-musl-gcc -mips64r2 -mabi=64" --target=mips --host=x86_64-linux-gnu --disable-nls  --disable-selinux --disable-shared  --enable-static_link
+3. modify include/configure.h file
+   --- delete the line with "#define malloc rpl_malloc"
+4. make
+5. mips64el-linux-musl-strip dmsetup/dmsetup.static
+6. get dmsetup/dmsetup.static as the dmsetupm64e binary file
+
+
 
 
 

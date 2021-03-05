@@ -55,6 +55,23 @@ make -j 16 || exit 1
 sh install.sh arm64
 
 
+#build for mips64el EFI
+#http://ftp.loongnix.org/os/loongnix-server/1.7/os/Source/SPackages/grub2-2.02-0.40.lns7.14.loongnix.src.rpm
+make distclean
+./autogen.sh
+./configure  --prefix=/home/share/Ventoy/GRUB2/INSTALL/ \
+--target=mips64el --with-platform=efi \
+--host=x86_64-linux-gnu  \
+HOST_CC=x86_64-linux-gnu-gcc \
+BUILD_CC=gcc \
+TARGET_CC="mips-linux-gnu-gcc -mabi=64 -Wno-error=cast-align -Wno-error=misleading-indentation" \
+TARGET_OBJCOPY=mips-linux-gnu-objcopy \
+TARGET_STRIP=mips-linux-gnu-strip TARGET_NM=mips-linux-gnu-nm \
+TARGET_RANLIB=mips-linux-gnu-ranlib
+make -j 16 || exit 1
+sh install.sh mips64el
+
+
 
 # build for i386-pc
 echo '======== build grub2 for i386-pc ==============='

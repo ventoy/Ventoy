@@ -36,20 +36,34 @@ export SED=$BUSYBOX_PATH/sed
 export SLEEP=$BUSYBOX_PATH/sleep
 export HEAD=$BUSYBOX_PATH/head
 
-if [ -e $BUSYBOX_PATH/32h ]; then
-    if [ -e $BUSYBOX_PATH/64h ]; then
-        #this is arm64
-        $BUSYBOX_PATH/xzminidecaa64 < $BUSYBOX_PATH/busyboxaa64.xz > $BUSYBOX_PATH/busybox
-        $BUSYBOX_PATH/vtchmodaa64 $BUSYBOX_PATH/busybox
+if [ -e $BUSYBOX_PATH/busyboxaa64.xz ]; then
+    export VTOY_ARCH=aarch64
+elif [ -e $BUSYBOX_PATH/busyboxm64e.xz ]; then
+    export VTOY_ARCH=mips64el
+else
+    if [ -e $BUSYBOX_PATH/32h ]; then
+        export VTOY_ARCH=x86_64
     else
-        #this is x86_64
-        $BUSYBOX_PATH/xzminidec64 < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox
-        if [ -s $BUSYBOX_PATH/busybox ]; then
-            $BUSYBOX_PATH/vtchmod64 $BUSYBOX_PATH/busybox
-        else
-            $BUSYBOX_PATH/xzminidec64_musl < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
-            $BUSYBOX_PATH/vtchmod64_musl $BUSYBOX_PATH/busybox
-        fi
+        export VTOY_ARCH=i386
+    fi
+fi
+
+echo $VTOY_ARCH > $VTOY_PATH/ventoy_arch
+
+
+if [ "$VTOY_ARCH" = "aarch64" ]; then
+    $BUSYBOX_PATH/xzminidecaa64 < $BUSYBOX_PATH/busyboxaa64.xz > $BUSYBOX_PATH/busybox
+    $BUSYBOX_PATH/vtchmodaa64 $BUSYBOX_PATH/busybox
+elif [ "$VTOY_ARCH" = "mips64el" ]; then
+    $BUSYBOX_PATH/xzminidecm64e < $BUSYBOX_PATH/busyboxm64e.xz > $BUSYBOX_PATH/busybox
+    $BUSYBOX_PATH/vtchmodm64e $BUSYBOX_PATH/busybox
+elif [ "$VTOY_ARCH" = "x86_64" ]; then
+    $BUSYBOX_PATH/xzminidec64 < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox
+    if [ -s $BUSYBOX_PATH/busybox ]; then
+        $BUSYBOX_PATH/vtchmod64 $BUSYBOX_PATH/busybox
+    else
+        $BUSYBOX_PATH/xzminidec64_musl < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
+        $BUSYBOX_PATH/vtchmod64_musl $BUSYBOX_PATH/busybox
     fi
 else
     $BUSYBOX_PATH/xzminidec32 < $BUSYBOX_PATH/busybox32.xz > $BUSYBOX_PATH/busybox
@@ -91,35 +105,47 @@ else
     xz -d -c loop.cpio.xz | cpio -idm 2>>$VTLOG
 fi
 
-if [ -e $BUSYBOX_PATH/32h ]; then
-    if [ -e $BUSYBOX_PATH/64h ]; then
-        echo "Use ARM64 busybox toolkit ..." >>$VTLOG
-        echo aarch64 > $VTOY_PATH/ventoy_arch
-        ln -s $BUSYBOX_PATH/xzminidecaa64 $BUSYBOX_PATH/xzminidec
-        ln -s $VTOY_PATH/tool/dmsetupaa64 $VTOY_PATH/tool/dmsetup
-        ln -s $VTOY_PATH/tool/lunzipaa64 $VTOY_PATH/tool/lunzip
-        
-        rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
-        ln -s $VTOY_PATH/tool/lz4cataa64 $VTOY_PATH/tool/lz4cat
-        ln -s $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
-        
-    else
-        echo "Use x86_64 busybox toolkit ..." >>$VTLOG
-        echo x86_64 > $VTOY_PATH/ventoy_arch
-        ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
-        ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
-        ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
-        
-        rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
-        ln -s $VTOY_PATH/tool/lz4cat64 $VTOY_PATH/tool/lz4cat
-        ln -s $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
-    fi
-else
+
+if [ "$VTOY_ARCH" = "x86_64" ]; then
+    echo "Use x86_64 busybox toolkit ..." >>$VTLOG
+    ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
+    ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
+    ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
+    
+    rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+    ln -s $VTOY_PATH/tool/lz4cat64 $VTOY_PATH/tool/lz4cat
+    ln -s $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
+elif [ "$VTOY_ARCH" = "i386" ]; then
     echo "Use i386 busybox toolkit ..." >>$VTLOG
-    echo i386 > $VTOY_PATH/ventoy_arch
     ln -s $BUSYBOX_PATH/xzminidec32 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup32 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzip32 $VTOY_PATH/tool/lunzip
+
+elif [ "$VTOY_ARCH" = "mips64el" ]; then
+    echo "Use MIPS64 busybox toolkit ..." >>$VTLOG
+    ln -s $BUSYBOX_PATH/xzminidecm64e $BUSYBOX_PATH/xzminidec
+    ln -s $VTOY_PATH/tool/dmsetupm64e $VTOY_PATH/tool/dmsetup
+    
+    # TBD
+    #ln -s $VTOY_PATH/tool/lunzipm64e $VTOY_PATH/tool/lunzip
+    
+    rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+    ln -s $VTOY_PATH/tool/lz4catm64e $VTOY_PATH/tool/lz4cat
+    
+    # TBD
+    #ln -s $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
+
+elif [ "$VTOY_ARCH" = "aarch64" ]; then
+    echo "Use ARM64 busybox toolkit ..." >>$VTLOG
+    ln -s $BUSYBOX_PATH/xzminidecaa64 $BUSYBOX_PATH/xzminidec
+    ln -s $VTOY_PATH/tool/dmsetupaa64 $VTOY_PATH/tool/dmsetup
+    ln -s $VTOY_PATH/tool/lunzipaa64 $VTOY_PATH/tool/lunzip
+    
+    rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+    ln -s $VTOY_PATH/tool/lz4cataa64 $VTOY_PATH/tool/lz4cat
+    ln -s $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
+else
+    echo "Unknown busybox toolkit ..." >>$VTLOG
 fi
 
 rm -f *.xz

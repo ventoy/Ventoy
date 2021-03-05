@@ -1124,6 +1124,7 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     grub_uint32_t injection_size = 0;
     grub_uint32_t dud_size = 0;
     grub_file_t file;
+    grub_file_t archfile;
     grub_file_t tmpfile;
     ventoy_img_chunk_list chunk_list;
 
@@ -1142,11 +1143,20 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
 
     img_chunk_size = g_img_chunk_list.cur_chunk * sizeof(ventoy_img_chunk);
 
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s/%s", args[0], VTOY_COMM_CPIO);
     if (!file)
     {
-        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't open file %s\n", args[0]); 
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't open file %s/%s\n", args[0], VTOY_COMM_CPIO); 
     }
+
+    archfile = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s/%s", args[0], VTOY_ARCH_CPIO);
+    if (!archfile)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't open file %s/%s\n", args[0], VTOY_ARCH_CPIO);
+        grub_file_close(file);
+    }
+
+    debug("load %s %s success\n", VTOY_COMM_CPIO, VTOY_ARCH_CPIO);
 
     if (g_ventoy_cpio_buf)
     {
@@ -1234,17 +1244,24 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
         debug("dud not configed %s\n", args[1]);
     }
 
-    g_ventoy_cpio_buf = grub_malloc(file->size + 40960 + template_size + 
+    g_ventoy_cpio_buf = grub_malloc(file->size + archfile->size + 40960 + template_size + 
         persistent_size + injection_size + dud_size + img_chunk_size);
     if (NULL == g_ventoy_cpio_buf)
     {
         grub_file_close(file);
+        grub_file_close(archfile);
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't alloc memory %llu\n", file->size);
     }
 
     grub_file_read(file, g_ventoy_cpio_buf, file->size);
-
     buf = (grub_uint8_t *)(g_ventoy_cpio_buf + file->size - 4);
+    while (*((grub_uint32_t *)buf) != 0x37303730)
+    {
+        buf -= 4;
+    }
+
+    grub_file_read(archfile, buf, archfile->size);
+    buf += (archfile->size - 4);
     while (*((grub_uint32_t *)buf) != 0x37303730)
     {
         buf -= 4;
@@ -1313,6 +1330,7 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     ventoy_cpio_newc_fill_head(g_ventoy_initrd_head, 0, NULL, "initrd000.xx");
 
     grub_file_close(file);
+    grub_file_close(archfile);
 
     if (grub_strcmp(args[3], "busybox=64") == 0)
     {
@@ -1323,6 +1341,11 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
     {
         debug("cpio busybox proc %s\n", args[3]);
         ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf, "a64");
+    }
+    else if (grub_strcmp(args[3], "busybox=m64") == 0)
+    {
+        debug("cpio busybox proc %s\n", args[3]);
+        ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf, "m64");
     }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);

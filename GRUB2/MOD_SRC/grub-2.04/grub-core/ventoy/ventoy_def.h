@@ -56,6 +56,16 @@
 #define VTOY_PLAT_ARM64_UEFI    0x41413634
 #define VTOY_PLAT_X86_64_UEFI   0x55454649
 #define VTOY_PLAT_X86_LEGACY    0x42494f53
+#define VTOY_PLAT_MIPS_UEFI     0x4D495053
+
+#define VTOY_COMM_CPIO  "ventoy.cpio"
+#if defined(__arm__) || defined(__aarch64__)
+#define VTOY_ARCH_CPIO  "ventoy_arm64.cpio"
+#elif defined(__mips__)
+#define VTOY_ARCH_CPIO  "ventoy_mips64.cpio"
+#else
+#define VTOY_ARCH_CPIO  "ventoy_x86.cpio"
+#endif
 
 #define VTOY_PWD_CORRUPTED(err) \
 {\

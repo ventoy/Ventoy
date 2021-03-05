@@ -1427,6 +1427,11 @@ static int ventoy_arch_mode_init(void)
         g_ventoy_plat_data = VTOY_PLAT_ARM64_UEFI;
         grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "aa64");
     }
+    else if (grub_strcmp(GRUB_TARGET_CPU, "mips64el") == 0)
+    {
+        g_ventoy_plat_data = VTOY_PLAT_MIPS_UEFI;
+        grub_snprintf(g_arch_mode_suffix, sizeof(g_arch_mode_suffix), "%s", "mips");
+    }
     else
     {
         g_ventoy_plat_data = VTOY_PLAT_X86_64_UEFI;

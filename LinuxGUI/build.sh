@@ -48,6 +48,8 @@ build_func() {
     
     if [ "$libsuffix" = "aa64" ]; then
         aarch64-linux-gnu-strip V2D$libsuffix
+    elif [ "$libsuffix" = "m64e" ]; then
+        mips-linux-gnu-strip V2D$libsuffix
     else
         strip V2D$libsuffix
     fi
@@ -59,5 +61,6 @@ build_func() {
 build_func "gcc" '64' 'x86_64'
 build_func "gcc -m32" '32' 'i386'
 build_func "aarch64-linux-gnu-gcc" 'aa64' 'aarch64'
+build_func "mips-linux-gnu-gcc -mips64r2 -mabi=64" 'm64e' 'mips64el'
 
 

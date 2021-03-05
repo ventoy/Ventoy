@@ -34,17 +34,13 @@
     https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9           ===>  /home/Ventoy-master/ExFAT/libfuse-fuse-2.9.9.zip
     https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz           ===>  /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
     https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2 ===> /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2
+    http://ftp.loongnix.org/toolchain/gcc/release/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz ===> /opt/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
+    https://github.com/ventoy/musl-cross-make/releases/download/latest/output.tar.bz2 ===> /opt/output.tar.bz2
+
 
     http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/vmlinuz64 ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/vmlinuz64
     http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/corepure64.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/corepure64.gz
-    http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/modules64.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/modules64.gz
-    http://distro.ibiblio.org/tinycorelinux/11.x/x86_64/tcz/glib2.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/glib2.tcz
-    http://distro.ibiblio.org/tinycorelinux/11.x/x86_64/tcz/libffi.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/libffi.tcz
-    http://distro.ibiblio.org/tinycorelinux/11.x/x86_64/tcz/liblvm2.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/liblvm2.tcz
-    http://distro.ibiblio.org/tinycorelinux/11.x/x86_64/tcz/ncursesw.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/ncursesw.tcz
-    http://distro.ibiblio.org/tinycorelinux/11.x/x86_64/tcz/parted.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/parted.tcz
-    http://distro.ibiblio.org/tinycorelinux/11.x/x86_64/tcz/readline.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/readline.tcz
-    http://distro.ibiblio.org/tinycorelinux/11.x/x86_64/tcz/udev-lib.tcz /home/Ventoy-master/LiveCD/VTOY/ventoy/tcz/udev-lib.tcz
+    http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/modules64.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/modules64.gz    
 
 2.3 Prepare third-part tools
     cd /home/Ventoy-master/DOC/
@@ -54,9 +50,12 @@
 
     tar xf /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz  -C /opt
     tar xf /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2  -C /opt
+    tar xf /opt/output.tar.bz2  -C /opt
+    mv /opt/output /opt/mips64el-linux-musl-gcc730
+    
 
 2.4 Set PATH envrioment
-    export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin
+    export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin:/opt/mips64el-linux-musl-gcc730/bin
     better to add this line to /root/.bashrc and relogin as root
 
 
