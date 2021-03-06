@@ -13,10 +13,10 @@
 Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files. <br/>
 With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
 You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
-x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI and ARM64 UEFI are supported in the same way.<br/>
+x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
-610+ ISO files are tested. 90%+ distros in distrowatch.com supported. <br/>
+620+ ISO files are tested. 90%+ distros in distrowatch.com supported. <br/>
 </h4>
 
 # Features
@@ -27,8 +27,8 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 * Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
 * No need to be continuous in disk for ISO/IMG files
 * MBR and GPT partition style supported (1.0.15+)
-* x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI supported
-* UEFI Secure Boot supported (1.0.07+)
+* x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI, MIPS64EL UEFI supported
+* IA32/x86_64 UEFI Secure Boot supported (1.0.07+)
 * Persistence supported (1.0.11+)
 * Windows auto installation supported (1.0.09+)
 * RHEL7/8/CentOS/7/8/SUSE/Ubuntu Server/Debian ... auto installation supported (1.0.09+)
