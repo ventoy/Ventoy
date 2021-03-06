@@ -171,7 +171,7 @@
     </style>
 </head>
 
-<body style="overflow:hidden">
+<body style="overflow:hidden;">
     <div class="wrapper" >
         <!-- Content Wrapper. Contains page content -->
         <div id='vtoy_main_div' style='width:540px; position:absolute;'>
@@ -580,11 +580,16 @@
     }
         
     function ResizeWindow() {
-        //console.log(window.screen.width + ' [x1] ' + window.screen.height);        
+        //console.log(window.screen.availWidth + ' [x1] ' + window.screen.availHeight);        
         //console.log(vtoy_app_width + ' [x2] ' + vtoy_app_height);
-        //console.log((window.screen.width - vtoy_app_width) / 2 + ' [x3] ' + (window.screen.height - vtoy_app_height) / 2);        
-        window.moveTo((window.screen.width - vtoy_app_width) / 2, (window.screen.height - vtoy_app_height) / 2);
-        window.resizeTo(vtoy_app_width, vtoy_app_height);
+        //console.log((window.screen.availWidth - vtoy_app_width) / 2 + ' [x3] ' + (window.screen.availHeight - vtoy_app_height) / 2);        
+        
+        window.onresize = function() { };
+        
+        window.resizeTo(vtoy_app_width, vtoy_app_height);        
+        window.moveTo((window.screen.availWidth - vtoy_app_width) / 2, (window.screen.availHeight - vtoy_app_height) / 2);
+        
+        window.onresize = ResizeWindow;
     }
 
     function MoveMainDivToCenter() {
@@ -1012,9 +1017,6 @@
     $('#vtoy_part_align_4kb').prop("checked", true);
     
     if (vtoy_chrome_app_mode) {
-        window.onresize = function() {
-            ResizeWindow();
-        }
         ResizeWindow();
     } else {
         $('#vtoy_main_div').css("border", '2px solid #f4f4f4');

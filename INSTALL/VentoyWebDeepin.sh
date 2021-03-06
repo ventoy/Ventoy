@@ -1,7 +1,7 @@
 #!/bin/sh
 
 print_usage() {    
-    echo 'Usage:  VentoyWeb.sh [ OPTION ]'   
+    echo 'Usage:  VentoyWebDeepin.sh [ OPTION ]'   
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -p PORT     http server PORT (default is 24680)'
@@ -15,10 +15,23 @@ print_err() {
     echo ""
 }
 
+
+get_user() {
+    name=$(logname)
+    if [ -n "$name" -a "$name" != "root" ]; then
+        echo $name; return
+    fi
+    
+    name=${HOME#/home/}
+    if [ -n "$name" -a "$name" != "root" ]; then
+        echo $name; return
+    fi
+}
+
+
 uid=$(id -u)
 if [ $uid -ne 0 ]; then
-    print_err "Please use sudo or run the script as root."
-    exit 1
+    exec sudo sh $0 $*
 fi
 
 OLDDIR=$(pwd)
@@ -34,8 +47,8 @@ else
 fi
 
 if [ ! -f ./tool/$TOOLDIR/V2DServer ]; then
-    if [ -f ${0%VentoyWeb.sh}/tool/$TOOLDIR/V2DServer ]; then
-        cd ${0%VentoyWeb.sh}
+    if [ -f ${0%VentoyWebDeepin.sh}/tool/$TOOLDIR/V2DServer ]; then
+        cd ${0%VentoyWebDeepin.sh}
     fi
 fi
 
@@ -43,7 +56,7 @@ PATH=./tool/$TOOLDIR:$PATH
 
 if [ ! -f ./boot/boot.img ]; then
     if [ -d ./grub ]; then
-        echo "Don't run VentoyWeb.sh here, please download the released install package, and run the script in it."
+        echo "Don't run VentoyWebDeepin.sh here, please download the released install package, and run the script in it."
     else
         echo "Please run under the correct directory!" 
     fi
@@ -84,7 +97,15 @@ if ps -ef | grep "V2DServer.*$HOST.*$PORT" | grep -q -v grep; then
     exit 1
 fi
 
+VUSER=$(get_user)
+
 LOGFILE=log.txt
+if [ -e $LOGFILE ]; then
+    chown $VUSER $LOGFILE
+else
+    su $VUSER -c "touch $LOGFILE"
+fi
+
 #delete the log.txt if it's more than 8MB
 if [ -f $LOGFILE ]; then
     logsize=$(stat -c '%s' $LOGFILE)
@@ -99,27 +120,69 @@ if [ -f ./tool/$TOOLDIR/V2DServer.xz ]; then
     chmod +x ./tool/$TOOLDIR/V2DServer
 fi
 
+rm -rf ./*_VTMPDIR
+vtWebTmpDir=$(mktemp -d -p ./ --suffix=_VTMPDIR)
+chown $VUSER $vtWebTmpDir
+
 
 V2DServer "$HOST" "$PORT" &
-wID=$!
+V2DPid=$!
 sleep 1
+
+su $VUSER -c "browser --window-size=550,400 --app=\"http://${HOST}:${PORT}/index.html?chrome-app\"  --user-data-dir=$vtWebTmpDir >> $LOGFILE 2>&1" &
+WebPid=$!
+
+
+vtoy_trap_exit() {
+
+    [ -d /proc/$V2DPid ] && kill -2 $V2DPid
+    [ -d /proc/$WebPid ] && kill -9 $WebPid
+
+    while [ -n "1" ]; do
+        curPid=$(ps -ef | grep -m1 "$vtWebTmpDir" | egrep -v '\sgrep\s' | awk '{print $2}')
+        if [ -z "$curPid" ]; then
+            break
+        fi
+        
+        if [ -d /proc/$curPid ]; then
+            kill -9 $curPid
+        fi
+    done
+
+    [ -d $vtWebTmpDir ] && rm -rf $vtWebTmpDir
+
+    if [ -n "$OLDDIR" ]; then 
+        CURDIR=$(pwd)
+        if [ "$CURDIR" != "$OLDDIR" ]; then
+            cd "$OLDDIR"
+        fi
+    fi
+
+    exit 1
+}
+
+trap vtoy_trap_exit HUP INT QUIT TSTP
+sleep 1
+
 
 vtVer=$(cat ventoy/version)
 echo ""
-echo "==============================================================="
+echo "=================================================="
 if [ "$LANG" = "zh_CN.UTF-8" ]; then
     echo "  Ventoy Server $vtVer 已经启动 ..."
-    echo "  请打开浏览器，访问 http://${HOST}:${PORT}"
 else
     echo "  Ventoy Server $vtVer is running ..."
-    echo "  Please open your browser and visit http://${HOST}:${PORT}"
 fi
-echo "==============================================================="
+echo "=================================================="
 echo ""
-echo "################## Press Ctrl + C to exit #####################"
+echo "########### Press Ctrl + C to exit ###############"
 echo ""
 
-wait $wID
+wait $WebPid
+
+[ -d /proc/$V2DPid ] && kill -2 $V2DPid
+
+[ -d $vtWebTmpDir ] && rm -rf $vtWebTmpDir
 
 if [ -n "$OLDDIR" ]; then 
     CURDIR=$(pwd)

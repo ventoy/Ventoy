@@ -59,7 +59,11 @@ else
         vtlog "vtLABEL is $vtLABEL from cmdline"
     fi
     
-    ln -s /dev/$vtDM "/dev/disk/by-label/$vtLABEL"
+    if [ -e "/dev/disk/by-label/$vtLABEL" ]; then
+        vtlog "/dev/disk/by-label/$vtLABEL already exist"
+    else
+        ln -s /dev/$vtDM "/dev/disk/by-label/$vtLABEL"
+    fi
 fi 
 
 # OK finish

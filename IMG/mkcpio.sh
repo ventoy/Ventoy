@@ -142,6 +142,12 @@ rm -rf cpio_tmp
 
 echo '======== SUCCESS ============='
 
-rm -f $VENTOY_PATH/INSTALL/ventoy/ventoy*.cpio
-cp -a ventoy*.cpio $VENTOY_PATH/INSTALL/ventoy/
+rm -f $VENTOY_PATH/INSTALL/ventoy/ventoy.cpio
+rm -f $VENTOY_PATH/INSTALL/ventoy/ventoy_x86.cpio
+rm -f $VENTOY_PATH/INSTALL/ventoy/ventoy_arm64.cpio
+rm -f $VENTOY_PATH/INSTALL/ventoy/ventoy_mips64.cpio
+cp -a ventoy.cpio $VENTOY_PATH/INSTALL/ventoy/
+cp -a ventoy_x86.cpio $VENTOY_PATH/INSTALL/ventoy/
+cp -a ventoy_arm64.cpio $VENTOY_PATH/INSTALL/ventoy/
+cp -a ventoy_mips64.cpio $VENTOY_PATH/INSTALL/ventoy/
 
