@@ -315,6 +315,8 @@ ventoy_get_os_type() {
     if [ -f /DISTRO_SPECS ]; then
         if $GREP -q '[Pp]uppy' /DISTRO_SPECS; then
             echo 'debian'; return
+        elif $GREP -q 'veket' /DISTRO_SPECS; then
+            echo 'debian'; return
         fi
     fi
     

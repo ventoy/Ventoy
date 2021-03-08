@@ -28,6 +28,12 @@ ventoy_get_debian_distro() {
         fi
     fi
     
+    if [ -e /DISTRO_SPECS ]; then
+        if $GREP -q veket /DISTRO_SPECS; then
+            echo 'veket'; return
+        fi
+    fi
+    
     if [ -e /init ]; then
         if $GREP -q PUPPYSFS /init; then
             if $GREP -q VEKETSFS /init; then
