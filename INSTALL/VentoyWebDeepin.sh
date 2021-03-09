@@ -28,6 +28,13 @@ get_user() {
     fi
 }
 
+get_browser_cmd() {
+    if uos-browser --version > /dev/null 2>&1; then
+        echo "uos-browser"; return
+    else
+        echo "browser"
+    fi    
+}
 
 uid=$(id -u)
 if [ $uid -ne 0 ]; then
@@ -101,7 +108,11 @@ VUSER=$(get_user)
 
 LOGFILE=log.txt
 if [ -e $LOGFILE ]; then
-    chown $VUSER $LOGFILE
+    LogGroup=$(stat -c '%G' $LOGFILE)
+    if [ "$LogGroup" = "root" ]; then
+        rm -f $LOGFILE
+        su $VUSER -c "touch $LOGFILE"
+    fi
 else
     su $VUSER -c "touch $LOGFILE"
 fi
@@ -121,15 +132,14 @@ if [ -f ./tool/$TOOLDIR/V2DServer.xz ]; then
 fi
 
 rm -rf ./*_VTMPDIR
-vtWebTmpDir=$(mktemp -d -p ./ --suffix=_VTMPDIR)
-chown $VUSER $vtWebTmpDir
-
+vtWebTmpDir=$(su $VUSER -c "mktemp -d -p ./ --suffix=_VTMPDIR")
 
 V2DServer "$HOST" "$PORT" &
 V2DPid=$!
 sleep 1
 
-su $VUSER -c "browser --window-size=550,400 --app=\"http://${HOST}:${PORT}/index.html?chrome-app\"  --user-data-dir=$vtWebTmpDir >> $LOGFILE 2>&1" &
+browsercmd=$(get_browser_cmd)
+su $VUSER -c "$browsercmd --window-size=550,400 --app=\"http://${HOST}:${PORT}/index.html?chrome-app\"  --user-data-dir=$vtWebTmpDir >> $LOGFILE 2>&1" &
 WebPid=$!
 
 

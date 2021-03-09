@@ -304,6 +304,7 @@ static int ventoy_boot_opt_filter(char *opt)
 static int ventoy_bootopt_hook(int argc, char *argv[])
 {
     int i;
+    int TmpIdx;
     int count = 0;
     const char *env;
     char c;
@@ -317,10 +318,20 @@ static int ventoy_bootopt_hook(int argc, char *argv[])
         return 0;
     }
 
-    /* the 1st parameter is BOOT_IMAGE=xxxx */
-    if (argc > 0 && 0 == ventoy_boot_opt_filter(argv[0]))
+    /* To avoid --- parameter, we split two parts */
+    for (TmpIdx = 0; TmpIdx < argc; TmpIdx++)
     {
-        ventoy_linux_args[count++] = grub_strdup(argv[0]);
+        if (ventoy_boot_opt_filter(argv[TmpIdx]))
+        {
+            continue;
+        }
+
+        if (grub_strncmp(argv[TmpIdx], "--", 2) == 0)
+        {
+            break;
+        }
+
+        ventoy_linux_args[count++] = grub_strdup(argv[TmpIdx]);
     }
 
     for (i = 0; i < ventoy_linux_argc; i++)
@@ -392,15 +403,15 @@ static int ventoy_bootopt_hook(int argc, char *argv[])
         }
     }
 
-    /* We have processed the 1st parameter before, so start from 1 */
-    for (i = 1; i < argc; i++)
+    while (TmpIdx < argc)
     {
-        if (ventoy_boot_opt_filter(argv[i]))
+        if (ventoy_boot_opt_filter(argv[TmpIdx]))
         {
             continue;
         }
 
-        ventoy_linux_args[count++] = grub_strdup(argv[i]);
+        ventoy_linux_args[count++] = grub_strdup(argv[TmpIdx]);
+        TmpIdx++;
     }
 
     if (ventoy_debug)

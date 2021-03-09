@@ -232,6 +232,12 @@ static int ventoy_is_possible_blkdev(const char *name)
     {
         return 0;
     }
+    
+    /* /dev/zramX */
+    if (name[0] == 'z' && name[1] == 'r' && name[2] == 'a' && name[3] == 'm')
+    {
+        return 0;
+    }
 
     /* /dev/loopX */
     if (name[0] == 'l' && name[1] == 'o' && name[2] == 'o' && name[3] == 'p')
