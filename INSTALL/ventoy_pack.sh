@@ -8,6 +8,8 @@ fi
 
 dos2unix -q ./tool/ventoy_lib.sh
 dos2unix -q ./tool/VentoyWorker.sh
+dos2unix -q ./tool/WebDeepin.sh
+dos2unix -q ./tool/WebUos.sh
 
 . ./tool/ventoy_lib.sh
 
