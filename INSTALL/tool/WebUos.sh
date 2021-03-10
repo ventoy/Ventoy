@@ -16,11 +16,26 @@ if [ -f ./tool/$TOOLDIR/V2DServer.xz ]; then
     chmod +x ./tool/$TOOLDIR/V2DServer
 fi
 
-rm -rf ./*_VTMPDIR
-vtWebTmpDir=$(mktemp -d -p ./ --suffix=_VTMPDIR)
-
 V2DServer "$HOST" "$PORT" &
 V2DPid=$!
+sleep 1
+
+
+vtoy_trap_exit() {
+
+    [ -d /proc/$V2DPid ] && kill -2 $V2DPid
+
+    if [ -n "$OLDDIR" ]; then 
+        CURDIR=$(pwd)
+        if [ "$CURDIR" != "$OLDDIR" ]; then
+            cd "$OLDDIR"
+        fi
+    fi
+
+    exit 1
+}
+
+trap vtoy_trap_exit HUP INT QUIT TSTP
 sleep 1
 
 
@@ -37,11 +52,13 @@ echo ""
 echo "########### Press Ctrl + C to exit ###############"
 echo ""
 
-
-uos-browser --window-size=550,400 --app="http://${HOST}:${PORT}/index.html?chrome-app"  --user-data-dir=$vtWebTmpDir >> $LOGFILE 2>&1
+if [ "$VERBOSE" = "1" ]; then
+    uos-browser --window-size=550,400 --app="http://${HOST}:${PORT}/index.html?chrome-app"
+else
+    uos-browser --window-size=550,400 --app="http://${HOST}:${PORT}/index.html?chrome-app" > /dev/null 2>&1
+fi
 
 [ -d /proc/$V2DPid ] && kill -2 $V2DPid
-[ -d $vtWebTmpDir ] && rm -rf $vtWebTmpDir
 
 if [ -n "$OLDDIR" ]; then 
     CURDIR=$(pwd)

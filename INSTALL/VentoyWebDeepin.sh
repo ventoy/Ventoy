@@ -1,11 +1,16 @@
 #!/bin/sh
 
+if echo "$*" | grep -q '[-]v'; then
+    set -x
+fi
+
 print_usage() {    
     echo 'Usage:  VentoyWebDeepin.sh [ OPTION ]'   
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -p PORT     http server PORT (default is 24680)'
     echo '   -h          print this help'
+    echo '   -v          print verbose info'
     echo ''
 }
 
@@ -68,6 +73,8 @@ while [ -n "$1" ]; do
     if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
         print_usage
         exit 0
+    elif [ "$1" = "-v" ]; then
+        VERBOSE=1
     elif [ "$1" = "-H" ]; then
         shift
         if echo $1 | grep -q '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*'; then
