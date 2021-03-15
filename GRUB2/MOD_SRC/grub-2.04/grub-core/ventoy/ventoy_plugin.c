@@ -1744,7 +1744,7 @@ static int ventoy_plugin_image_list_entry(VTOY_JSON *json, const char *isodisk)
         g_image_list_head = NULL;
     }
 
-    if (grub_strcmp(json->pcName, "image_blacklist") == 0)
+    if (grub_strncmp(json->pcName, "image_blacklist", 15) == 0)
     {
         g_plugin_image_list = VENTOY_IMG_BLACK_LIST;
     }

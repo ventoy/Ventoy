@@ -1335,7 +1335,7 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
             }
             else if (VENTOY_IMG_BLACK_LIST == g_plugin_image_list && index > 0)
             {
-                debug("File %s found in image_blacklist plugin config...\n", g_img_swap_tmp_buf);
+                debug("File %s found in image_blacklist plugin config %d ...\n", g_img_swap_tmp_buf, index);
                 return 0; 
             }
         }
