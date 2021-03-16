@@ -76,6 +76,20 @@
     return (err);\
 }
 
+typedef enum VTOY_FILE_FLT
+{
+    VTOY_FILE_FLT_ISO = 0, /* .iso */
+    VTOY_FILE_FLT_WIM,     /* .wim */
+    VTOY_FILE_FLT_EFI,     /* .efi */
+    VTOY_FILE_FLT_IMG,     /* .img */
+    VTOY_FILE_FLT_VHD,     /* .vhd(x) */
+    VTOY_FILE_FLT_VTOY,    /* .vtoy */
+    
+    VTOY_FILE_FLT_BUTT
+}VTOY_FILE_FLT;
+
+#define FILE_FLT(type) (0 == g_vtoy_file_flt[VTOY_FILE_FLT_##type])
+
 typedef struct ventoy_initrd_ctx
 {
     const char *path_prefix;

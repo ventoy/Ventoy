@@ -127,6 +127,7 @@ static ventoy_video_mode *g_video_mode_list = NULL;
 static int g_enumerate_time_checked = 0;
 static grub_uint64_t g_enumerate_start_time_ms;
 static grub_uint64_t g_enumerate_finish_time_ms;
+static int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
 
 static const char *g_menu_class[] = 
 {
@@ -231,6 +232,17 @@ static grub_ssize_t ventoy_fs_read(grub_file_t file, char *buf, grub_size_t len)
 {
     grub_memcpy(buf, (char *)file->data + file->offset, len);
     return len;
+}
+
+static int ventoy_control_get_flag(const char *key)
+{
+    const char *val = ventoy_get_env(key);
+    
+    if (val && val[0] == '1' && val[1] == 0)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 static grub_err_t ventoy_fs_close(grub_file_t file)
@@ -1270,26 +1282,26 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
             return 0;
         }
 
-        if (0 == grub_strcasecmp(filename + len - 4, ".iso"))
+        if (FILE_FLT(ISO) && 0 == grub_strcasecmp(filename + len - 4, ".iso"))
         {
             type = img_type_iso;
         }
-        else if (g_wimboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".wim")))
+        else if (FILE_FLT(WIM) && g_wimboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".wim")))
         {
             type = img_type_wim;
         }
-        else if (g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") || 
-                    (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vhdx"))))
+        else if (FILE_FLT(VHD) && g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") || 
+                (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vhdx"))))
         {
             type = img_type_vhd;
         }
         #ifdef GRUB_MACHINE_EFI
-        else if (0 == grub_strcasecmp(filename + len - 4, ".efi"))
+        else if (FILE_FLT(EFI) && 0 == grub_strcasecmp(filename + len - 4, ".efi"))
         {
             type = img_type_efi;
         }
         #endif
-        else if (0 == grub_strcasecmp(filename + len - 4, ".img"))
+        else if (FILE_FLT(IMG) && 0 == grub_strcasecmp(filename + len - 4, ".img"))
         {
             if (len == 18 && grub_strncmp(filename, "ventoy_", 7) == 0)
             {
@@ -1301,7 +1313,7 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
             }
             type = img_type_img;
         }
-        else if (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vtoy"))
+        else if (FILE_FLT(VTOY) && len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vtoy"))
         {
             type = img_type_vtoy;
         }
@@ -2075,6 +2087,13 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
             g_img_max_search_level = (int)grub_strtoul(strdata, NULL, 10);
         }
     }
+
+    g_vtoy_file_flt[VTOY_FILE_FLT_ISO]  = ventoy_control_get_flag("VTOY_FILE_FLT_ISO");
+    g_vtoy_file_flt[VTOY_FILE_FLT_WIM]  = ventoy_control_get_flag("VTOY_FILE_FLT_WIM");
+    g_vtoy_file_flt[VTOY_FILE_FLT_EFI]  = ventoy_control_get_flag("VTOY_FILE_FLT_EFI");
+    g_vtoy_file_flt[VTOY_FILE_FLT_IMG]  = ventoy_control_get_flag("VTOY_FILE_FLT_IMG");
+    g_vtoy_file_flt[VTOY_FILE_FLT_VHD]  = ventoy_control_get_flag("VTOY_FILE_FLT_VHD");
+    g_vtoy_file_flt[VTOY_FILE_FLT_VTOY] = ventoy_control_get_flag("VTOY_FILE_FLT_VTOY");
 
     for (node = &g_img_iterator_head; node; node = node->next)
     {
