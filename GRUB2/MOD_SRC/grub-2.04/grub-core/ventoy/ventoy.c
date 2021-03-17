@@ -1774,7 +1774,7 @@ int ventoy_check_device_result(int ret)
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n\n\n");
         
-        grub_printf("This is NOT a standard Ventoy device and is NOT supported.\n\n");
+        grub_printf("This is NOT a standard Ventoy device and is NOT supported (0x%x).\n\n", ret);
         grub_printf("You should follow the instructions in https://www.ventoy.net to use Ventoy.\n");
         
         grub_printf("\n\nWill exit after 10 seconds ...... ");
