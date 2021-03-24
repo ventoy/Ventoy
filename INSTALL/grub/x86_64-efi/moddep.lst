@@ -1,7 +1,7 @@
 videotest: font video gfxmenu
-setkey: extcmd
 odc: archelp
 loopback: extcmd
+setkey: extcmd
 macho:
 gcry_des: crypto
 memrw: extcmd
