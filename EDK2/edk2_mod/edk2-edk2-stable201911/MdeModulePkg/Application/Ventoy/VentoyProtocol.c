@@ -438,6 +438,8 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     UINT32 j = 0;
     UINT32 lbacount = 0;
     UINT32 secNum = 0;
+    UINT32 TmpNum = 0;
+    UINT64 VirtSec = 0;
     UINT64 offset = 0;
     EFI_LBA curlba = 0;
     EFI_LBA lastlba = 0;
@@ -460,6 +462,22 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     if (offset + BufferSize <= g_chain->real_img_size_in_bytes)
     {
         return ventoy_read_iso_sector(Lba, secNum, Buffer);
+    }
+    else if (offset < g_chain->real_img_size_in_bytes)
+    {
+        TmpNum = (g_chain->real_img_size_in_bytes - offset) / 2048;
+        ventoy_read_iso_sector(Lba, TmpNum, Buffer);
+
+        Lba += TmpNum;
+        secNum -= TmpNum;
+        Buffer = (UINT8 *)Buffer + (g_chain->real_img_size_in_bytes - offset);
+        offset = Lba * 2048;
+    }
+
+    VirtSec = g_chain->virt_img_size_in_bytes / 2048;    
+    if (Lba + secNum > VirtSec)
+    {
+        secNum = VirtSec - Lba;
     }
 
     if (secNum > g_sector_flag_num)

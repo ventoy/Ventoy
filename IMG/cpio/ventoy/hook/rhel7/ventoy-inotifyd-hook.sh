@@ -46,7 +46,9 @@ if is_inotify_ventoy_part $3; then
         vtRhel8Ver=$($SED "s#.*8\.\([0-9]*\).*#\1#" /etc/system-release)
         if [ $vtRhel8Ver -ge 3 ]; then
             vtReplaceOpt=""
-        fi
+        elif $GREP -q "Stream" /etc/system-release; then            
+            vtReplaceOpt=""
+        fi        
     fi
     
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 $vtReplaceOpt
