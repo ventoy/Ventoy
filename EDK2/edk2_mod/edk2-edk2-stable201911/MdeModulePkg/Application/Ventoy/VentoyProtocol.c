@@ -474,8 +474,12 @@ EFI_STATUS EFIAPI ventoy_block_io_read
         offset = Lba * 2048;
     }
 
-    VirtSec = g_chain->virt_img_size_in_bytes / 2048;    
-    if (Lba + secNum > VirtSec)
+    VirtSec = g_chain->virt_img_size_in_bytes / 2048;
+    if (Lba >= VirtSec)
+    {
+        return EFI_SUCCESS;
+    }
+    else if (Lba + secNum > VirtSec)
     {
         secNum = VirtSec - Lba;
     }

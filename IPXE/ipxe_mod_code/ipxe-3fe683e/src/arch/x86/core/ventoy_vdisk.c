@@ -402,6 +402,19 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
 
     if (g_hddmode)
     {
+        #if 0
+        /* need to check ?? */
+        lastlba = g_chain->virt_img_size_in_bytes / 512;
+        if (lba < lastlba)
+        {
+            if (lba + count > lastlba)
+            {
+                count = lastlba - lba;
+            }
+            ventoy_vdisk_read_real_hdd(lba, count, buffer);
+        }
+        #endif
+        
         ventoy_vdisk_read_real_hdd(lba, count, buffer);
         ix86->regs.dl = sandev->drive;
         return 0;
@@ -435,7 +448,15 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
     }
 
     VirtSec = g_chain->virt_img_size_in_bytes / 2048;    
-    if (lba + count > VirtSec)
+    if (lba >= VirtSec)
+    {
+        /* fix for grub4dos Inconsistent data read from error */
+        memset((void *)(buffer + (count - 1) * 2048), 0, 2048);
+        
+        ix86->regs.dl = sandev->drive;
+        return 0;
+    }
+    else if (lba + count > VirtSec)
     {
         count = VirtSec - lba;
     }

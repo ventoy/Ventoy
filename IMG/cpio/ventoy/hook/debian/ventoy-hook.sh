@@ -86,6 +86,9 @@ ventoy_get_debian_distro() {
         fi
     fi
     
+    if [ -e /opt/kerio ]; then
+        echo 'kerio'; return
+    fi
     
     
     echo 'default'
