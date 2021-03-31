@@ -19,7 +19,13 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$SED "/mount.*devtmpfs/a $BUSYBOX_PATH/sh $VTOY_PATH/hook/wifislax/disk_hook.sh" -i /linuxrc
+if [ -e /linuxrc ]; then
+    INITFILE=/linuxrc
+elif [ -e /init ]; then
+    INITFILE=/init
+fi
+
+$SED "/mount.*devtmpfs/a $BUSYBOX_PATH/sh $VTOY_PATH/hook/wifislax/disk_hook.sh" -i $INITFILE
 
 #replace original blkid
 $BUSYBOX_PATH/rm -f /usr/bin/blkid

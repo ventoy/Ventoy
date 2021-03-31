@@ -140,6 +140,7 @@
   <ItemGroup>
     <Image Include="res\icon2.ico" />
     <Image Include="Res\refresh.ico" />
+    <Image Include="Res\secure.ico" />
     <Image Include="Res\ventoy.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

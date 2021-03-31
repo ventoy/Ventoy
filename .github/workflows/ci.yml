@@ -5,6 +5,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,10 +17,17 @@ jobs:
       run: docker-compose up
     - uses: actions/upload-artifact@v2
       with:
+        name: ventoy-windows
+        path: INSTALL/ventoy-*windows*
+    - uses: actions/upload-artifact@v2
+      with:
         name: ventoy-linux
         path: INSTALL/ventoy-*linux*
     - uses: actions/upload-artifact@v2
       with:
-        name: ventoy-windows
-        path: INSTALL/ventoy-*windows*
-
+        name: ventoy-livecd
+        path: INSTALL/ventoy-*livecd*
+    - uses: actions/upload-artifact@v2
+      with:
+        name: xxx-build-log
+        path: DOC/build.log

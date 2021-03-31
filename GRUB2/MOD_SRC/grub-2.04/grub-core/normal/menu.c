@@ -42,6 +42,7 @@ int g_ventoy_last_entry = -1;
 int g_ventoy_suppress_esc = 0;
 int g_ventoy_menu_esc = 0;
 int g_ventoy_fn_mutex = 0;
+int g_ventoy_terminal_output = 0;
 
 /* Time to delay after displaying an error message about a default/fallback
    entry failing to boot.  */
@@ -871,15 +872,18 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             }
             break;
         case GRUB_TERM_KEY_F7:
-        case '7':
-            cmdstr = grub_env_get("VTOY_F7_CMD");
-            if (cmdstr)
+            menu_fini ();
+            if (g_ventoy_terminal_output == 0)
             {
-                menu_fini ();
-                grub_script_execute_sourcecode(cmdstr);
-                goto refresh;
+                grub_script_execute_sourcecode("terminal_output console");
+                g_ventoy_terminal_output = 1;
             }
-            break;
+            else
+            {
+                grub_script_execute_sourcecode("terminal_output gfxterm");
+                g_ventoy_terminal_output = 0;
+            }
+            goto refresh;
         case GRUB_TERM_KEY_F1:
         case '1':
             menu_fini ();
@@ -969,19 +973,28 @@ static struct grub_menu_execute_callback execution_callback =
 static grub_err_t
 show_menu (grub_menu_t menu, int nested, int autobooted)
 {
+    const char *def;    
+    def = grub_env_get("VTOY_DEFAULT_IMAGE");
+    
   while (1)
     {
       int boot_entry;
       grub_menu_entry_t e;
       int auto_boot;
-
+      
       boot_entry = run_menu (menu, nested, &auto_boot);
       if (boot_entry < 0)
 	break;
 
-      g_ventoy_last_entry = boot_entry;
-      if (g_ventoy_menu_esc)
-          break;
+      if (auto_boot && def && grub_strcmp(def, "VTOY_EXIT") == 0) {
+          grub_exit();
+      }
+
+      if (autobooted == 0 && auto_boot == 0) {
+          g_ventoy_last_entry = boot_entry;
+          if (g_ventoy_menu_esc)
+              break;          
+      }
 
       e = grub_menu_get_entry (menu, boot_entry);
       if (! e)

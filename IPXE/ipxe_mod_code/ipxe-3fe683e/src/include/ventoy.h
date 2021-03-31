@@ -187,6 +187,7 @@ typedef struct ventoy_sector_flag
 
 extern int g_debug;
 extern int g_hddmode;
+extern int g_bios_disk80;
 extern char *g_cmdline_copy;
 extern void *g_initrd_addr;
 extern size_t g_initrd_len;

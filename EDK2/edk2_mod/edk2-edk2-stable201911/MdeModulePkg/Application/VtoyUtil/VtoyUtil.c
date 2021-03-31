@@ -79,6 +79,14 @@ STATIC EFI_STATUS ParseCmdline(IN EFI_HANDLE ImageHandle)
     SetMem(pCmdLine, pImageInfo->LoadOptionsSize + 4, 0);
     CopyMem(pCmdLine, pImageInfo->LoadOptions, pImageInfo->LoadOptionsSize);
 
+    if (StrStr(pCmdLine, L"vtoyefitest"))
+    {
+        gST->ConOut->OutputString(gST->ConOut, L"\r\n##########################");
+        gST->ConOut->OutputString(gST->ConOut, L"\r\n#########  VTOY  #########");
+        gST->ConOut->OutputString(gST->ConOut, L"\r\n##########################");
+        return EFI_SUCCESS;
+    }
+    
     if (StrStr(pCmdLine, L"debug"))
     {
         gVtoyDebugPrint = TRUE;
@@ -100,8 +108,9 @@ STATIC EFI_STATUS ParseCmdline(IN EFI_HANDLE ImageHandle)
     }
 
     gCurFeature = pPos + StrLen(L"feature=");
-
+    
     gCmdLine = pCmdLine;
+    
     return EFI_SUCCESS;
 }
 
@@ -116,7 +125,7 @@ EFI_STATUS EFIAPI VtoyUtilEfiMain
     
     ParseCmdline(ImageHandle);
 
-    for (i = 0; i < ARRAY_SIZE(gFeatureList); i++)
+    for (i = 0; gCurFeature && i < ARRAY_SIZE(gFeatureList); i++)
     {
         Len = StrLen(gFeatureList[i].Cmd);
         if (StrnCmp(gFeatureList[i].Cmd, gCurFeature, Len) == 0)
@@ -127,8 +136,11 @@ EFI_STATUS EFIAPI VtoyUtilEfiMain
         }
     }
 
-    FreePool(gCmdLine);
-    gCmdLine = NULL;
+    if (gCmdLine)
+    {
+        FreePool(gCmdLine);
+        gCmdLine = NULL;        
+    }
 
     return EFI_SUCCESS;
 }

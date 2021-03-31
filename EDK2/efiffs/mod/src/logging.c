@@ -70,10 +70,10 @@ SetLogging(VOID)
 	CHAR16 LogVar[4];
 	UINTN i, LogVarSize = sizeof(LogVar);
 
-    i = LogVarSize;
+    	i = LogVarSize;
 	Status = RT->GetVariable(L"FS_NAME_NOCASE", &ShellVariable, NULL, &i, LogVar);
-    if (Status == EFI_SUCCESS)
-        g_fs_name_nocase = 1;
+    	if (Status == EFI_SUCCESS)
+        	g_fs_name_nocase = 1;
 
 	Status = RT->GetVariable(L"FS_LOGGING", &ShellVariable, NULL, &LogVarSize, LogVar);
 	if (Status == EFI_SUCCESS)

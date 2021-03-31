@@ -11,10 +11,29 @@ build for 32bit, static linked with dietlibc
 3. install dietc libc (just make && make install)
 4. export PATH=$PATH:/opt/diet/bin
 
-======== Build Step ======== 
+======== Build i386 Step ======== 
 1. extract zstd source code
 2. cd programs
 3. diet -Os gcc -pipe -nostdinc         -falign-loops=32 -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.c -c -o ../lib/decompress/zstd_decompress.o
    diet -Os gcc -pipe -nostdinc           -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.o ../lib/decompress/huf_decompress.c ../lib/common/entropy_common.c ../lib/common/fse_decompress.c ../lib/common/xxhash.c ../lib/common/zstd_common.c ../lib/compress/zstd_compress.c ../lib/compress/fse_compress.c ../lib/compress/huf_compress.c ../lib/legacy/zstd_v01.c ../lib/legacy/zstd_v02.c ../lib/legacy/zstd_v03.c ../lib/legacy/zstd_v04.c ../lib/legacy/zstd_v05.c ../lib/legacy/zstd_v06.c ../lib/legacy/zstd_v07.c ../lib/dictBuilder/divsufsort.c ../lib/dictBuilder/zdict.c zstdcli.c fileio.c bench.c datagen.c dibio.c -o zstd
 4. strip --strip-all zstd
 5. rename zstd to zstdcat
+
+
+======== Build x86_64 Step ======== 
+1. extract zstd source code
+2. cd programs
+3. /opt/diet64/bin/diet -Os gcc -pipe -nostdinc         -falign-loops=32 -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.c -c -o ../lib/decompress/zstd_decompress.o
+   /opt/diet64/bin/diet -Os gcc -pipe -nostdinc           -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.o ../lib/decompress/huf_decompress.c ../lib/common/entropy_common.c ../lib/common/fse_decompress.c ../lib/common/xxhash.c ../lib/common/zstd_common.c ../lib/compress/zstd_compress.c ../lib/compress/fse_compress.c ../lib/compress/huf_compress.c ../lib/legacy/zstd_v01.c ../lib/legacy/zstd_v02.c ../lib/legacy/zstd_v03.c ../lib/legacy/zstd_v04.c ../lib/legacy/zstd_v05.c ../lib/legacy/zstd_v06.c ../lib/legacy/zstd_v07.c ../lib/dictBuilder/divsufsort.c ../lib/dictBuilder/zdict.c zstdcli.c fileio.c bench.c datagen.c dibio.c -o zstd
+4. strip --strip-all zstd
+5. rename zstd to zstdcat
+
+
+======== Build ARM64 Step ======== 
+1. extract zstd source code
+2. cd programs
+3. aarch64-linux-gcc  -static   -falign-loops=32 -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.c -c -o ../lib/decompress/zstd_decompress.o
+   aarch64-linux-gcc    -static      -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.o ../lib/decompress/huf_decompress.c ../lib/common/entropy_common.c ../lib/common/fse_decompress.c ../lib/common/xxhash.c ../lib/common/zstd_common.c ../lib/compress/zstd_compress.c ../lib/compress/fse_compress.c ../lib/compress/huf_compress.c ../lib/legacy/zstd_v01.c ../lib/legacy/zstd_v02.c ../lib/legacy/zstd_v03.c ../lib/legacy/zstd_v04.c ../lib/legacy/zstd_v05.c ../lib/legacy/zstd_v06.c ../lib/legacy/zstd_v07.c ../lib/dictBuilder/divsufsort.c ../lib/dictBuilder/zdict.c zstdcli.c fileio.c bench.c datagen.c dibio.c -o zstd
+4. aarch64-linux-strip --strip-all zstd
+5. rename zstd to zstdcat
+

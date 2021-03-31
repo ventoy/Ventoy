@@ -1425,7 +1425,7 @@ unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
     
 	if (g_hddmode)
     {
-        natural_drive = num_drives | 0x80;
+        natural_drive = g_bios_disk80 ? 0x80 : (num_drives | 0x80);
     }
     else
     {

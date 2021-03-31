@@ -26,7 +26,7 @@
 PHY_DRIVE_INFO *g_PhyDriveList = NULL;
 DWORD g_PhyDriveCount = 0;
 static int g_FilterRemovable = 0;
-static int g_FilterUSB = 1;
+int g_FilterUSB = 1;
 int g_ForceOperation = 1;
 
 int ParseCmdLineOption(LPSTR lpCmdLine)
@@ -152,7 +152,26 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 			return FALSE;
 		}
 
+        if (pGpt->PartTbl[0].StartLBA != 2048)
+        {
+            Log("Part1 not match %llu", pGpt->PartTbl[0].StartLBA);
+            return FALSE;
+        }
+
+        PartSectorCount = VENTOY_EFI_PART_SIZE / 512;
+
+        if (pGpt->PartTbl[1].StartLBA != pGpt->PartTbl[0].LastLBA + 1 ||
+            (UINT32)(pGpt->PartTbl[1].LastLBA + 1 - pGpt->PartTbl[1].StartLBA) != PartSectorCount)
+        {
+            Log("Part2 not match [%llu %llu] [%llu %llu]",
+                pGpt->PartTbl[0].StartLBA, pGpt->PartTbl[0].LastLBA,
+                pGpt->PartTbl[1].StartLBA, pGpt->PartTbl[1].LastLBA);
+            return FALSE;
+        }
+
 		*Part2StartSector = pGpt->PartTbl[1].StartLBA;
+
+        memcpy(pMBR, &(pGpt->MBR), sizeof(MBR_HEAD));
 	}
 	else
 	{
@@ -183,14 +202,15 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
             if (MBR.PartTbl[2].Active != 0x80 && MBR.PartTbl[3].Active != 0x80)
             {
                 Log("Part3 and Part4 are both NOT active 0x%x 0x%x", MBR.PartTbl[2].Active, MBR.PartTbl[3].Active);
-                return FALSE;
+                //return FALSE;
             }
 		}
 
 		*Part2StartSector = MBR.PartTbl[1].StartSectorId;
+
+        memcpy(pMBR, &MBR, sizeof(MBR_HEAD));
 	}
 
-	memcpy(pMBR, &MBR, sizeof(MBR_HEAD));
     Log("PhysicalDrive%d is ventoy disk", PhyDrive);
     return TRUE;
 }
@@ -231,13 +251,6 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
         CurDrive->Id = -1;
         memset(CurDrive->DriveLetters, 0, sizeof(CurDrive->DriveLetters));
 
-        // Too big for MBR
-        if (CurDrive->SizeInBytes > 2199023255552ULL)
-        {
-            Log("<%s %s> is filtered for too big for MBR.", CurDrive->VendorId, CurDrive->ProductId);
-            continue;
-        }
-
         if (g_FilterRemovable && (!CurDrive->RemovableMedia))
         {
             Log("<%s %s> is filtered for not removable.", CurDrive->VendorId, CurDrive->ProductId);
@@ -266,8 +279,10 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 
 		if (IsVentoyPhyDrive(CurDrive->PhyDrive, CurDrive->SizeInBytes, &MBR, &Part2StartSector))
         {
+            memcpy(&(CurDrive->MBR), &MBR, sizeof(MBR));
             CurDrive->PartStyle = (MBR.PartTbl[0].FsFlag == 0xEE) ? 1 : 0;
-			GetVentoyVerInPhyDrive(CurDrive, Part2StartSector, CurDrive->VentoyVersion, sizeof(CurDrive->VentoyVersion));
+            GetVentoyVerInPhyDrive(CurDrive, Part2StartSector, CurDrive->VentoyVersion, sizeof(CurDrive->VentoyVersion), &(CurDrive->SecureBootSupport));
+            Log("PhyDrive %d is Ventoy Disk ver:%s SecureBoot:%u", CurDrive->PhyDrive, CurDrive->VentoyVersion, CurDrive->SecureBootSupport);
         }
     }
 
@@ -301,20 +316,39 @@ PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id)
 int SortPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 {
 	DWORD i, j;
+	BOOL flag;
 	PHY_DRIVE_INFO TmpDriveInfo;
 
 	for (i = 0; i < DriveCount; i++)
 	{
 		for (j = i + 1; j < DriveCount; j++)
 		{
+			flag = FALSE;
+
 			if (pDriveList[i].BusType == BusTypeUsb && pDriveList[j].BusType == BusTypeUsb)
 			{
 				if (pDriveList[i].RemovableMedia == FALSE && pDriveList[j].RemovableMedia == TRUE)
 				{
-					memcpy(&TmpDriveInfo, pDriveList + i, sizeof(PHY_DRIVE_INFO));
-					memcpy(pDriveList + i, pDriveList + j, sizeof(PHY_DRIVE_INFO));
-					memcpy(pDriveList + j, &TmpDriveInfo, sizeof(PHY_DRIVE_INFO));
+					flag = TRUE;
 				}
+			}
+			else if (pDriveList[j].BusType == BusTypeUsb)
+			{
+				flag = TRUE;
+			}
+			else
+			{
+				if (pDriveList[j].PhyDrive < pDriveList[i].PhyDrive)
+				{
+					flag = TRUE;
+				}
+			}
+
+			if (flag)
+			{
+				memcpy(&TmpDriveInfo, pDriveList + i, sizeof(PHY_DRIVE_INFO));
+				memcpy(pDriveList + i, pDriveList + j, sizeof(PHY_DRIVE_INFO));
+				memcpy(pDriveList + j, &TmpDriveInfo, sizeof(PHY_DRIVE_INFO));
 			}
 		}
 	}

@@ -28,6 +28,12 @@ ventoy_get_debian_distro() {
         fi
     fi
     
+    if [ -e /DISTRO_SPECS ]; then
+        if $GREP -q veket /DISTRO_SPECS; then
+            echo 'veket'; return
+        fi
+    fi
+    
     if [ -e /init ]; then
         if $GREP -q PUPPYSFS /init; then
             if $GREP -q VEKETSFS /init; then
@@ -69,6 +75,21 @@ ventoy_get_debian_distro() {
     if $GREP -q 'vyos' /proc/version; then
         echo 'vyos'; return
     fi
+    
+    if $GREP -q 'kylin' /proc/version; then
+        echo 'kylin'; return
+    fi
+    
+    if [ -f /scripts/00-ver ]; then
+        if $GREP -q 'Bliss-OS' /scripts/00-ver; then
+            echo 'bliss'; return
+        fi
+    fi
+    
+    if [ -e /opt/kerio ]; then
+        echo 'kerio'; return
+    fi
+    
     
     echo 'default'
 }

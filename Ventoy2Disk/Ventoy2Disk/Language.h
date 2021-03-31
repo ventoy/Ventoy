@@ -63,6 +63,14 @@ typedef enum STR_ID
     STR_MENU_PART_STYLE, //29
 	STR_DISK_2TB_MBR_ERROR,//30
 
+    STR_SHOW_ALL_DEV, //31
+    STR_PART_ALIGN_4KB, //32
+    STR_WEB_COMMUNICATION_ERR, //33
+    STR_WEB_REMOTE_ABNORMAL, //34
+    STR_WEB_REQUEST_TIMEOUT, //35
+    STR_WEB_SERVICE_UNAVAILABLE, //36
+    STR_WEB_TOKEN_MISMATCH, //37
+    STR_WEB_SERVICE_BUSY, //38
 
 	STR_ID_MAX
 }STR_ID;
@@ -75,6 +83,7 @@ extern BOOL g_SecureBoot;
 #define VTOY_MENU_PART_STYLE      0xA003
 #define VTOY_MENU_PART_MBR        0xA004
 #define VTOY_MENU_PART_GPT        0xA005
+#define VTOY_MENU_ALL_DEV        0xA006
 
 
 typedef enum OPT_SUBMENU
@@ -83,6 +92,7 @@ typedef enum OPT_SUBMENU
     OPT_SUBMENU_PART_STYLE,
     OPT_SUBMENU_PART_CFG,
     OPT_SUBMENU_CLEAR,
+    OPT_SUBMENU_ALL_DEV,
 
     OPT_SUBMENU_MAX
 }OPT_SUBMENU;
@@ -114,5 +124,14 @@ extern VENTOY_LANGUAGE *g_cur_lang_data;
 const TCHAR * GetString(enum STR_ID ID);
 
 #define _G(a) GetString(a)
+
+typedef enum UNICODE_ICON
+{
+    UNICODE_LOCK = 0,
+    UNICODE_BUTT
+}UNICODE_ICON;
+
+const UINT16 * GetUnicodeIcon(icon);
+#define _UICON(i) GetUnicodeIcon(i)
 
 #endif

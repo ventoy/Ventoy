@@ -110,4 +110,14 @@ ventoy_set_loop_inotify_script() {
     echo $VTOY_PATH/loop/$1 > $VTOY_PATH/inotifyd-loop-script.txt
 }
 
+ventoy_check_insmod() {
+    if [ -e $1 ]; then
+        $BUSYBOX_PATH/insmod $1
+    fi
+}
 
+ventoy_check_mount() {
+    if [ -e $1 ]; then
+        $BUSYBOX_PATH/mount $1 $2
+    fi
+}

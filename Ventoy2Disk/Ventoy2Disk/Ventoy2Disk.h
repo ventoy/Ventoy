@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #define SIZE_1MB                    (1024 * 1024)
+#define SIZE_2MB                    (2048 * 1024)
 #define VENTOY_EFI_PART_SIZE	    (32 * SIZE_1MB)
 #define VENTOY_PART1_START_SECTOR    2048
 
@@ -116,6 +117,18 @@ typedef struct VTOY_GPT_INFO
     VTOY_GPT_PART_TBL PartTbl[128];
 }VTOY_GPT_INFO;
 
+
+typedef struct ventoy_secure_data
+{
+    UINT8 magic1[16];     /* VENTOY_GUID */
+    UINT8 diskuuid[16];
+    UINT8 Checksum[16];
+    UINT8 adminSHA256[32];
+    UINT8 reserved[4000];
+    UINT8 magic2[16];     /* VENTOY_GUID */
+}ventoy_secure_data;
+
+
 #pragma pack()
 
 #define VENTOY_MAX_PHY_DRIVE  128
@@ -138,6 +151,8 @@ typedef struct PHY_DRIVE_INFO
 
     CHAR VentoyVersion[32];
 
+    BOOL SecureBootSupport;
+    MBR_HEAD MBR;
 }PHY_DRIVE_INFO;
 
 typedef enum PROGRESS_POINT
@@ -168,6 +183,7 @@ extern int g_ForceOperation;
 extern HWND g_ProgressBarHwnd;
 extern HFONT g_language_normal_font;
 extern HFONT g_language_bold_font;
+extern int g_FilterUSB;
 
 void Log(const char *Fmt, ...);
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...);
@@ -186,7 +202,7 @@ int GetRegDwordValue(HKEY Key, LPCSTR SubKey, LPCSTR ValueName, DWORD *pValue);
 int GetPhysicalDriveCount(void);
 int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount);
 int GetPhyDriveByLogicalDrive(int DriveLetter);
-int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen);
+int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen, BOOL *pSecureBoot);
 int Ventoy2DiskInit(void);
 int Ventoy2DiskDestroy(void);
 PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id);
@@ -194,6 +210,7 @@ int ParseCmdLineOption(LPSTR lpCmdLine);
 int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
 int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive);
 int VentoyFillBackupGptHead(VTOY_GPT_INFO *pInfo, VTOY_GPT_HDR *pHead);
+int VentoyFillWholeGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo);
 void SetProgressBarPos(int Pos);
 int ReadWholeFileToBuf(const CHAR *FileName, int ExtLen, void **Bufer, int *BufLen);
 int INIT unxz(unsigned char *in, int in_size,
@@ -204,8 +221,9 @@ int INIT unxz(unsigned char *in, int in_size,
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount);
 INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 int GetReservedSpaceInMB(void);
+int IsPartNeed4KBAlign(void);
 int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive);
-int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
+int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
 int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter);
 UINT32 VentoyCrc32(void *Buffer, UINT32 Length);
 
@@ -213,5 +231,6 @@ UINT32 VentoyCrc32(void *Buffer, UINT32 Length);
     liCurrentPosition.QuadPart = pos; \
     SetFilePointerEx(hDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN)\
 
+#define SECURE_ICON_STRING _UICON(UNICODE_LOCK)
 
 #endif

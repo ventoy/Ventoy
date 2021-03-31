@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ "$1" = "CI" ]; then
+    OPT='-dR'
+else
+    OPT='-a'
+fi
+
 VENTOY_PATH=$PWD/../
 
 if ! [ -f $VENTOY_PATH/INSTALL/grub/grub.cfg ]; then
@@ -17,10 +23,28 @@ fi
 rm -rf ISO_TMP
 cp -a ISO ISO_TMP
 
-cp -a VTOY VTOY_TMP && cd VTOY_TMP
-gcc -O2 -m32 ./ventoy/disksize.c -o ./ventoy/disksize
+cp -a VTOY VTOY_TMP 
+
+ls -la
+if ! [ -d ISO_TMP ]; then
+    echo "Copy ISO_TMP failed"
+    exit 1
+fi
+
+if ! [ -d VTOY_TMP ]; then
+    echo "Copy VTOY_TMP failed"
+    exit 1
+fi
+
+mkdir -p ISO_TMP/EFI/ventoy
+cd VTOY_TMP
+
+gcc -O2 ./ventoy/disksize.c -o ./ventoy/disksize
+
 rm -f ./ventoy/disksize.c
-find . | cpio  -o -H newc | gzip -9 > ../ISO_TMP/EFI/ventoy/ventoy.gz
+
+chmod +x ./ventoy/*.sh
+find . | cpio  -o -H newc | gzip -c -9 > ../ISO_TMP/EFI/ventoy/ventoy.gz
 cd .. && rm -rf VTOY_TMP
 
 
@@ -37,7 +61,7 @@ dd if=/dev/zero of=efi.img bs=1M count=2
 mkfs.vfat efi.img
 mount efi.img efimnt
 mkdir -p efimnt/EFI/boot
-cp -a GRUB/bootx64.efi efimnt/EFI/boot/
+cp $OPT GRUB/bootx64.efi efimnt/EFI/boot/
 umount efimnt
 
 sync

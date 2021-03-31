@@ -26,6 +26,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 
 int g_debug = 0;
 int g_hddmode = 0;
+int g_bios_disk80 = 0;
 char *g_cmdline_copy;
 void *g_initrd_addr;
 size_t g_initrd_len;
@@ -385,6 +386,7 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
     uint32_t lbacount = 0;
     unsigned long lastbuffer;
     uint64_t readend;
+    uint64_t VirtSec;
     ventoy_virt_chunk *node;
     ventoy_sector_flag *cur_flag;
     ventoy_sector_flag *sector_flag = g_sector_flag;
@@ -400,6 +402,19 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
 
     if (g_hddmode)
     {
+        #if 0
+        /* need to check ?? */
+        lastlba = g_chain->virt_img_size_in_bytes / 512;
+        if (lba < lastlba)
+        {
+            if (lba + count > lastlba)
+            {
+                count = lastlba - lba;
+            }
+            ventoy_vdisk_read_real_hdd(lba, count, buffer);
+        }
+        #endif
+        
         ventoy_vdisk_read_real_hdd(lba, count, buffer);
         ix86->regs.dl = sandev->drive;
         return 0;
@@ -417,6 +432,33 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
         ventoy_vdisk_read_real(lba, count, buffer);
         ix86->regs.dl = sandev->drive;
         return 0;
+    }
+    else if ((lba * 2048) < g_chain->real_img_size_in_bytes)
+    {
+        /* fix for grub4dos Inconsistent data read from error */
+        memset((void *)(buffer + (count - 1) * 2048), 0, 2048);
+        
+        count = (g_chain->real_img_size_in_bytes / 2048) - lba;
+        ventoy_vdisk_read_real(lba, count, buffer);
+        ix86->regs.dl = sandev->drive;
+
+        lba += count;
+        buffer += count * 2048;
+        count = (readend - g_chain->real_img_size_in_bytes) / 2048;
+    }
+
+    VirtSec = g_chain->virt_img_size_in_bytes / 2048;    
+    if (lba >= VirtSec)
+    {
+        /* fix for grub4dos Inconsistent data read from error */
+        memset((void *)(buffer + (count - 1) * 2048), 0, 2048);
+        
+        ix86->regs.dl = sandev->drive;
+        return 0;
+    }
+    else if (lba + count > VirtSec)
+    {
+        count = VirtSec - lba;
     }
 
     if (count > sizeof(g_sector_flag))
@@ -696,6 +738,11 @@ int ventoy_boot_vdisk(void *data)
     if (strstr(g_cmdline_copy, "sector512"))
     {
         g_hddmode = 1;
+    }
+    
+    if (strstr(g_cmdline_copy, "bios80"))
+    {
+        g_bios_disk80 = 1;
     }
 
     g_chain = (ventoy_chain_head *)g_initrd_addr;

@@ -287,18 +287,52 @@ End:
 	return rc;
 }
 
+static int IsUTF8Encode(const char *src)
+{
+    int i;
+    const UCHAR *Byte = (const UCHAR *)src;
+
+    for (i = 0; i < MAX_PATH && Byte[i]; i++)
+    {
+        if (Byte[i] > 127)
+        {
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+static int Utf8ToUtf16(const char* src, WCHAR * dst)
+{
+    int size = MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, 0);
+    return MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, size + 1);
+}
+
 static BOOL IsPathExist(BOOL Dir, const char *Fmt, ...)
 {
 	va_list Arg;
 	HANDLE hFile;
 	DWORD Attr;
-	CHAR FilePath[MAX_PATH];
+    int UTF8 = 0;
+	CHAR FilePathA[MAX_PATH];
+	WCHAR FilePathW[MAX_PATH];
 
 	va_start(Arg, Fmt);
-	vsnprintf_s(FilePath, sizeof(FilePath), sizeof(FilePath), Fmt, Arg);
+	vsnprintf_s(FilePathA, sizeof(FilePathA), sizeof(FilePathA), Fmt, Arg);
 	va_end(Arg);
 
-	hFile = CreateFileA(FilePath, FILE_READ_EA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    UTF8 = IsUTF8Encode(FilePathA);
+
+    if (UTF8)
+    {
+        Utf8ToUtf16(FilePathA, FilePathW);
+        hFile = CreateFileW(FilePathW, FILE_READ_EA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    }
+    else
+    {
+        hFile = CreateFileA(FilePathA, FILE_READ_EA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    }
 	if (INVALID_HANDLE_VALUE == hFile)
 	{
 		return FALSE;
@@ -306,8 +340,15 @@ static BOOL IsPathExist(BOOL Dir, const char *Fmt, ...)
 
 	CloseHandle(hFile);
 
-	Attr = GetFileAttributesA(FilePath);
-
+    if (UTF8)
+    {
+        Attr = GetFileAttributesW(FilePathW);
+    }
+    else
+    {
+        Attr = GetFileAttributesA(FilePathA);
+    }
+	
 	if (Dir)
 	{
 		if ((Attr & FILE_ATTRIBUTE_DIRECTORY) == 0)
@@ -395,7 +436,14 @@ int VentoyMountISOByAPI(const char *IsoPath)
 
 	Log("VentoyMountISOByAPI <%s>", IsoPath);
 
-	MultiByteToWideChar(CP_ACP, 0, IsoPath, (int)strlen(IsoPath), wFilePath, (int)(sizeof(wFilePath) / sizeof(WCHAR)));
+    if (IsUTF8Encode(IsoPath))
+    {
+        MultiByteToWideChar(CP_UTF8, 0, IsoPath, (int)strlen(IsoPath), wFilePath, (int)(sizeof(wFilePath) / sizeof(WCHAR)));
+    }
+    else
+    {
+        MultiByteToWideChar(CP_ACP, 0, IsoPath, (int)strlen(IsoPath), wFilePath, (int)(sizeof(wFilePath) / sizeof(WCHAR)));
+    }
 
 	memset(&StorageType, 0, sizeof(StorageType));
 	memset(&OpenParameters, 0, sizeof(OpenParameters));
@@ -570,6 +618,7 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 	DWORD dwBytes;
 	HANDLE hDrive;
 	CHAR PhyPath[MAX_PATH];
+	WCHAR PhyPathW[MAX_PATH];
 	STARTUPINFOA Si;
 	PROCESS_INFORMATION Pi;
 	GET_LENGTH_INFORMATION LengthInfo;
@@ -577,7 +626,16 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 	Log("VentoyMountISOByImdisk %s", IsoPath);
 
 	sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", PhyDrive);
-	hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    if (IsUTF8Encode(PhyPath))
+    {
+        Utf8ToUtf16(PhyPath, PhyPathW);
+        hDrive = CreateFileW(PhyPathW, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    }
+    else
+    {
+        hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    }
+    
 	if (hDrive == INVALID_HANDLE_VALUE)
 	{
 		Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
@@ -941,6 +999,11 @@ static int VentoyHook(ventoy_os_param *param)
 	CHAR IsoPath[MAX_PATH];
 
 	Log("Logical Drives=0x%x Path:<%s>", Drives, param->vtoy_img_path);
+
+    if (IsUTF8Encode(param->vtoy_img_path))
+    {
+        Log("This file is UTF8 encoding\n");
+    }
 
 	while (Drives)
 	{

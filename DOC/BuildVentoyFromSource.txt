@@ -3,7 +3,7 @@
 1. Compile Enviroment
 ==========================================
     My build envrioment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
-    Because Ventoy is based on many open source projects, so the envrioment is important. I suggest you test it on a virtual machine first.
+    Because Ventoy is based on many open source projects, so the environment is important. I suggest you test it on a virtual machine firstly.
 
 1.1 Install CentOS 7.8
     I use CentOS-7-x86_64-Everything-2003.iso and select Minimal install
@@ -14,7 +14,7 @@
         mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
         flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
-        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso
     
 
 
@@ -22,34 +22,61 @@
 2. Download Source Code
 ==========================================
 2.1 Download Ventoy source code from github and decompress it. 
-    Next I assume that you have unzipped the code into the /home directory (check /home/Ventoy-master/README.md file for the directory level).
+    Next I assume that you have unzipped the code into the /home directory (check /home/Ventoy-master/README.md file for the directory layout).
     
-2.2 Download third-part source code
+2.2 Download third-part source code and tool
     
     https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz                    ===>  /home/Ventoy-master/DOC/dietlibc-0.34.tar.xz
+    https://musl.libc.org/releases/musl-1.2.1.tar.gz                     ===>  /home/Ventoy-master/DOC/musl-1.2.1.tar.gz
     https://ftp.gnu.org/gnu/grub/grub-2.04.tar.xz                        ===>  /home/Ventoy-master/GRUB2/grub-2.04.tar.xz
     https://codeload.github.com/tianocore/edk2/zip/edk2-stable201911     ===>  /home/Ventoy-master/EDK2/edk2-edk2-stable201911.zip
     https://codeload.github.com/relan/exfat/zip/v1.3.0                   ===>  /home/Ventoy-master/ExFAT/exfat-1.3.0.zip
     https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9           ===>  /home/Ventoy-master/ExFAT/libfuse-fuse-2.9.9.zip
+    https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz           ===>  /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
+    https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2 ===> /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2
+    http://ftp.loongnix.org/toolchain/gcc/release/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz ===> /opt/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
+    https://github.com/ventoy/musl-cross-make/releases/download/latest/output.tar.bz2 ===> /opt/output.tar.bz2
 
+
+    http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/vmlinuz64 ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/vmlinuz64
+    http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/corepure64.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/corepure64.gz
+    http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/modules64.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/modules64.gz    
+
+2.3 Prepare third-part tools
+    cd /home/Ventoy-master/DOC/
+    tar xf musl-1.2.1.tar.gz
+    cd musl-1.2.1
+    ./configure && make install
+
+    tar xf /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz  -C /opt
+    tar xf /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2  -C /opt
+    tar xf /opt/output.tar.bz2  -C /opt
+    mv /opt/output /opt/mips64el-linux-musl-gcc730
+    
+
+2.4 Set PATH envrioment
+    export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin:/opt/mips64el-linux-musl-gcc730/bin
+    better to add this line to /root/.bashrc and relogin as root
 
 
 ==========================================
 3. All in one script
 ==========================================
-    I have made the whole build process in all_in_one.sh, you can run this script to build and pack ventoy.
+    I have made a all_in_one.sh, you can run this script to build and pack ventoy.
     If you want to compile a certain part separately, you can continue to refer to the later chapters of this text.
     
     cd /home/Ventoy-master/INSTALL
     sh all_in_one.sh
 
-    It should be noted that, some part of Ventoy has 32bit&64bit version (like 4.9 4.10 4.11 follows)
-    all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit verison. You should create a 32bit CentOS environment and build them.
-    Fortunately these parts are few modified, you only need to build once or you can directly use the binary I have built.
+    It should be noted that:
+    1. Only grub2/EDK2/IPXE will be recompiled in all_in_one.sh. Other part contains the binaries and are few modified, so will no be recompiled everytime.
+       You can rebuild these parts separately if you want.
+       
+    2. some part of Ventoy has 32bit&64bit version (like 4.9 4.10 4.11 follows)
+       all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit verison. You should create a 32bit CentOS environment and build them.
+       Fortunately these parts are few modified, you only need to build once or you can directly use the binary I have built.
 
     Besides, after a fully compile and pack, you can only build the part you modified (for example grub2) and run ventoy_pack.sh to generate the package.
-
-
 
 ==========================================
 4. Build every part of Ventoy
@@ -81,7 +108,7 @@
     cd /home/Ventoy-master/VtoyTool
     sh build.sh
 
-4.8 == Build vtoyfat ==
+4.8 == Build vtoyfat ==    
     cd /home/Ventoy-master/vtoyfat/fat_io_lib
     sh buildlib.sh
     cd /home/Ventoy-master/vtoyfat
@@ -144,7 +171,7 @@
 4.18 IMG/cpio/ventoy/busybox/64h
   https://www.uclibc.org/downloads/binaries/0.9.30.1/mini-native-x86_64.tar.bz2
   https://busybox.net/downloads/busybox-1.32.0.tar.bz2
-  use BUSYBOX/64h.config and uclibc to build busybox-1.32
+  use BUSYBOX/x86_64_ash.config and uclibc to build busybox-1.32
 
 4.19 == Build lunzip32/lunzip64 ==
   http://mirror.yongbok.net/nongnu/lzip/lunzip/lunzip-1.11.tar.gz
@@ -152,6 +179,11 @@
   ./configure --disable-nls CC='diet gcc -nostdinc'
   make
   strip --strip-all lunzip
+  
+  #aarch64
+  ./configure --disable-nls CC='aarch64-buildroot-linux-uclibc-gcc -static'
+  make
+  aarch64-buildroot-linux-uclibc-strip --strip-all lunzip
 
 
 
@@ -181,11 +213,11 @@
   https://busybox.net/downloads/binaries/1.27.1-i686   busybox_XZ
   SHA-256: f6cdb6293680424c29b89bde0685ca27f455166c9b302cd6082ef90681456291  
 
-5.6 INSTALL/tool/xzcat
+5.6 INSTALL/tool/i386/xzcat
   https://busybox.net/downloads/binaries/1.30.0-i686/   busybox_XZCAT
   SHA-256: 7399db642c2beaf52a16ab5264ffc55cfd1ff5699a524f63e5d48edf84e20f44  
   
-5.7 INSTALL/tool/hexdump
+5.7 INSTALL/tool/i386/hexdump
   https://busybox.net/downloads/binaries/1.30.0-i686/   busybox_HEXDUMP
   SHA-256: cde08b6a2cf5ad914f05203e18e3f7c2ed6060a63604e3d75536f19b55e8e0af  
 

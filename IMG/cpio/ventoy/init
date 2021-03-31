@@ -43,7 +43,7 @@ echo "kenel cmdline=$vtcmdline" >>$VTLOG
 
 #break here for debug
 if [ "$VTOY_BREAK_LEVEL" = "01" ] || [ "$VTOY_BREAK_LEVEL" = "11" ]; then
-    sleep 5
+    sleep 5    
     echo -e "\n\n\033[32m ################################################# \033[0m"
     echo -e "\033[32m ################ VENTOY DEBUG ################### \033[0m"
     echo -e "\033[32m ################################################# \033[0m \n"

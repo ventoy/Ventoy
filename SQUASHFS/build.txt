@@ -1,0 +1,19 @@
+Build 32&64 unsquashfs tool with gzip/xz/lzma/lz4/lzo/zstd format
+
+======== zlib ===============
+yum install zlib zlib-static
+
+======== liblzma ============
+github liblzma-master
+./configure --prefix=xxx --disable-xz --disable-xzdec --disable-lzmadec --disable-lzmainfo --enable-small
+make && make install
+
+======== squashfs ========
+squashfs4.4.tar.gz
+do some modify:
+1. delete -lm and implement log10 
+2. static link zlib/liblzma
+3. make unsquashfs
+
+
+========= Build for aarch64 the same steps but in a arm64 machine =============

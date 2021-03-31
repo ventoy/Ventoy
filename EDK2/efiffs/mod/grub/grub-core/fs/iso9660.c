@@ -743,8 +743,8 @@ grub_iso9660_iterate_dir (grub_fshelp_node_t dir,
 	if (!ctx.filename && dirent.namelen == 1 && name[0] == 1)
 	  ctx.filename = (char *) "..";
 
-    if (g_fs_name_nocase)
-        ctx.type |= GRUB_FSHELP_CASE_INSENSITIVE;
+    	if (g_fs_name_nocase)
+          ctx.type |= GRUB_FSHELP_CASE_INSENSITIVE;
 
 	/* The filename was not stored in a rock ridge entry.  Read it
 	   from the iso9660 filesystem.  */

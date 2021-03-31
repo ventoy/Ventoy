@@ -37,7 +37,6 @@ for i in $vtcmdline; do
     fi
 done
 
-
 ####################################################################
 #                                                                  #
 # Step 2 : Do OS specific hook                                     #
@@ -152,6 +151,8 @@ ventoy_get_os_type() {
             echo 'debian'; return
         elif $GREP -q 'Solus' /etc/os-release; then
             echo 'rhel7'; return
+        elif $GREP -q 'openEuler' /etc/os-release; then
+            echo 'openEuler'; return
         fi
     fi
     
@@ -303,6 +304,26 @@ ventoy_get_os_type() {
     
     if $GREP -q 'blackPanther' /proc/version; then
         echo 'blackPanther'; return
+    fi
+    
+    if $GREP -q 'primeos' /proc/version; then
+        echo 'primeos'; return
+    fi
+    
+    if $GREP -q 'austrumi' /proc/version; then
+        echo 'austrumi'; return
+    fi
+    
+    if [ -f /DISTRO_SPECS ]; then
+        if $GREP -q '[Pp]uppy' /DISTRO_SPECS; then
+            echo 'debian'; return
+        elif $GREP -q 'veket' /DISTRO_SPECS; then
+            echo 'debian'; return
+        fi
+    fi
+    
+    if [ -f /etc/openEuler-release ]; then
+        echo "openEuler"; return
     fi
     
     echo "default"

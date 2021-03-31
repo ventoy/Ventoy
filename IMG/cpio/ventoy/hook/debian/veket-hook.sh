@@ -20,3 +20,10 @@
 $SED '1 apmedia=usbhd'  -i /init
 $SED "/^ *HAVE_PARTS=/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/veket-disk.sh"  -i /init
 $SED "/^ *HAVE_PARTS=/a\ HAVE_PARTS='ventoy|iso9660'"  -i /init
+
+if [ -d /dev ]; then
+    [ -e /dev/null ] || $BUSYBOX_PATH/mknod /dev/null c 1 3
+else
+    $BUSYBOX_PATH/mkdir /dev
+    $BUSYBOX_PATH/mknod /dev/null c 1 3
+fi
