@@ -14,7 +14,8 @@ export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/op
 
 echo "build grub2 ..."
 cd $VTOY_PATH/GRUB2
-sh buildgrub.sh >> $LOG 2>&1 || exit 1
+#sh buildgrub.sh >> $LOG 2>&1 || exit 1
+sh buildgrub.sh
 
 echo "build ipxe ..."
 cd $VTOY_PATH/IPXE
