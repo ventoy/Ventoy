@@ -3461,6 +3461,35 @@ static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, in
 }
 #endif
 
+static grub_err_t ventoy_cmd_clear_key(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    int ret;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    for (i = 0; i < 500; i++)
+    {
+        ret = grub_getkey_noblock();
+        if (ret == GRUB_TERM_NO_KEY)
+        {
+            break;
+        }
+    }
+
+    if (i >= 500)
+    {
+        grub_cls();
+        grub_printf("\n\n Still have key input after clear.\n");
+        grub_refresh();
+        grub_sleep(5);
+    }
+    
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_acpi_param(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i;
@@ -4341,6 +4370,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_img_unhook_root", ventoy_cmd_img_unhook_root, 0, NULL, "", "", NULL },
     { "vt_acpi_param", ventoy_cmd_acpi_param, 0, NULL, "", "", NULL },
     { "vt_check_secureboot_var", ventoy_cmd_check_secureboot_var, 0, NULL, "", "", NULL },
+    { "vt_clear_key", ventoy_cmd_clear_key, 0, NULL, "", "", NULL },
 
 };
 
