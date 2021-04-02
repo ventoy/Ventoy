@@ -860,7 +860,14 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
     }
 
     security = (wim_security_header *)decompress_data;
-    rootdir = (wim_directory_entry *)(decompress_data + ((security->len + 7) & 0xFFFFFFF8U));
+    if (security->len > 0)
+    {
+        rootdir = (wim_directory_entry *)(decompress_data + ((security->len + 7) & 0xFFFFFFF8U));
+    }
+    else
+    {
+        rootdir = (wim_directory_entry *)(decompress_data + 8);
+    }
 
     /* search winpeshl.exe dirent entry */
     search = search_replace_wim_dirent(decompress_data, rootdir);
