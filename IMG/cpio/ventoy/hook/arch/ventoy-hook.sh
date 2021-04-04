@@ -61,3 +61,7 @@ else
 
     ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k"
 fi
+
+if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
+    $SED "1 aexport cow_label=vtoycow" -i /init 
+fi
