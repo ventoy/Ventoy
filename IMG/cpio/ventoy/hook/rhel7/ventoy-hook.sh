@@ -40,7 +40,25 @@ else
     done
 fi
 
-echo "VTKS=$VTKS" >> $VTLOG
+if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
+    VTOVERLAY="rd.live.overlay=/dev/dm-1:/vtoyoverlayfs/overlayfs"
+    
+    if [ -e /sbin/dmsquash-live-root ]; then
+        echo "patch /sbin/dmsquash-live-root for persistent ..." >> $VTLOG
+        $SED "/mount.*devspec.*\/run\/initramfs\/overlayfs/a . /ventoy/hook/rhel7/ventoy-overlay.sh" -i /sbin/dmsquash-live-root
+    fi
+    
+    #close selinux
+    $BUSYBOX_PATH/mkdir -p $VTOY_PATH/selinuxfs
+    if $BUSYBOX_PATH/mount -t selinuxfs selinuxfs $VTOY_PATH/selinuxfs; then
+        echo 1 > $VTOY_PATH/selinuxfs/disable
+        $BUSYBOX_PATH/umount $VTOY_PATH/selinuxfs
+    fi    
+    $BUSYBOX_PATH/rm -rf $VTOY_PATH/selinuxfs
+fi
+
+
+echo "VTKS=$VTKS  VTOVERLAY=$VTOVERLAY" >> $VTLOG
 
 if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
     for vtDud in $(ls $VTOY_PATH/ventoy_dud*); do
@@ -50,9 +68,9 @@ fi
 echo "vtInstDD=$vtInstDD" >> $VTLOG
 
 if $GREP -q 'root=live' /proc/cmdline; then
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS $vtInstDD#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
 else
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS $vtInstDD#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
 fi
 
 ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh
