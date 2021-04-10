@@ -636,6 +636,21 @@ static wim_lookup_entry * ventoy_find_meta_entry(wim_header *header, wim_lookup_
     return NULL;
 }
 
+static grub_uint64_t ventoy_get_stream_len(wim_directory_entry *dir)
+{
+    grub_uint16_t i;
+    grub_uint64_t offset = 0;
+    wim_stream_entry *stream = (wim_stream_entry *)((char *)dir + dir->len);
+
+    for (i = 0; i < dir->streams; i++)
+    {
+        offset += stream->len;
+        stream = (wim_stream_entry *)((char *)stream + stream->len);
+    }
+
+    return offset;
+}
+
 static int ventoy_update_all_hash(wim_patch *patch, void *meta_data, wim_directory_entry *dir)
 {
     if ((meta_data == NULL) || (dir == NULL))
@@ -660,8 +675,15 @@ static int ventoy_update_all_hash(wim_patch *patch, void *meta_data, wim_directo
         {
             ventoy_update_all_hash(patch, meta_data, (wim_directory_entry *)((char *)meta_data + dir->subdir));
         }
-    
-        dir = (wim_directory_entry *)((char *)dir + dir->len);
+
+        if (dir->streams)
+        {
+            dir = (wim_directory_entry *)((char *)dir + dir->len + ventoy_get_stream_len(dir));
+        }
+        else
+        {
+            dir = (wim_directory_entry *)((char *)dir + dir->len);            
+        }
     } while (dir->len >= sizeof(wim_directory_entry));
 
     return 0;

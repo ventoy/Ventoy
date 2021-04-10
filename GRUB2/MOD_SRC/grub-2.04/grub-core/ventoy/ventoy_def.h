@@ -390,6 +390,15 @@ typedef struct wim_security_header
     grub_uint32_t count; /* Number of entries */
 }wim_security_header;
 
+typedef struct wim_stream_entry 
+{
+    grub_uint64_t len;
+    grub_uint64_t unused1;
+    wim_hash hash;
+    grub_uint16_t name_len;
+    /* name */
+}wim_stream_entry;
+
 /* Directory entry */
 typedef struct wim_directory_entry 
 {
