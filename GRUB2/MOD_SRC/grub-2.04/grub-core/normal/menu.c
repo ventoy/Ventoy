@@ -37,6 +37,7 @@
 int g_ventoy_menu_refresh = 0;
 int g_ventoy_memdisk_mode = 0;
 int g_ventoy_iso_raw = 0;
+int g_ventoy_grub2_mode = 0;
 int g_ventoy_iso_uefi_drv = 0;
 int g_ventoy_last_entry = -1;
 int g_ventoy_suppress_esc = 0;
@@ -894,6 +895,12 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
         case (GRUB_TERM_CTRL | 'i'):
             menu_fini ();
             g_ventoy_iso_raw = 1 - g_ventoy_iso_raw;
+            g_ventoy_menu_refresh = 1;
+            goto refresh;
+            
+        case (GRUB_TERM_CTRL | 'r'):
+            menu_fini ();
+            g_ventoy_grub2_mode = 1 - g_ventoy_grub2_mode;
             g_ventoy_menu_refresh = 1;
             goto refresh;
             

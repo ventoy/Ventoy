@@ -3023,6 +3023,10 @@ static grub_err_t ventoy_cmd_check_mode(grub_extcmd_context_t ctxt, int argc, ch
     {
         return g_ventoy_iso_uefi_drv ? 0 : 1;
     }
+    else if (args[0][0] == '3')
+    {
+        return g_ventoy_grub2_mode ? 0 : 1;
+    }
 
     return 1;
 }
