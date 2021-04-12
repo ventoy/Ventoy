@@ -19,40 +19,11 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if is_ventoy_hook_finished; then
-    exit 0
-fi
+vtlog "##### $0 $* ..."
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-if is_inotify_ventoy_part $3; then
-
-    vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
-
-    vtlog "find ventoy partition ..."
-    
-    #vtReplaceOpt=noreplace
-    
-    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 
-    
-    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    vtDM=$(ventoy_find_dm_id ${blkdev_num})
-
-    if [ "$vtDM" = "dm-0" ]; then
-        vtlog "This is dm-0, OK ..."
-    else
-        vtlog "####### This is $vtDM ####### this is abnormal ..."
-        ventoy_swap_device /dev/dm-0 /dev/$vtDM
-    fi
-    
-    if [ -e /sbin/anaconda-diskroot ]; then
-        vtlog "set anaconda-diskroot ..."
-        /sbin/anaconda-diskroot /dev/dm-0    
-    fi
-    
-    set_ventoy_hook_finish
-else
-    vtlog "##### INOTIFYD: $2/$3 is created (NO) ..."
-fi
+repodev=$(ls $VTOY_PATH/dev_backup*)
+echo "inst.repo=hd:/dev/${repodev#*dev_backup_}" >> /sysroot/etc/cmdline
 
 PATH=$VTPATH_OLD

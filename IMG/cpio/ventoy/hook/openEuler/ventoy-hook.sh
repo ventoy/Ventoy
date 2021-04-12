@@ -19,9 +19,6 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-#ventoy_systemd_udevd_work_around
-#ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
-
 if [ -f $VTOY_PATH/autoinstall ]; then
     VTKS="inst.ks=file:$VTOY_PATH/autoinstall"
 else
@@ -40,7 +37,25 @@ else
     done
 fi
 
-echo "VTKS=$VTKS" >> $VTLOG
+if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
+    VTOVERLAY="rd.live.overlay=/dev/dm-1:/vtoyoverlayfs/overlayfs"
+    
+    if [ -e /sbin/dmsquash-live-root ]; then
+        echo "patch /sbin/dmsquash-live-root for persistent ..." >> $VTLOG
+        $SED "/mount.*devspec.*\/run\/initramfs\/overlayfs/a . /ventoy/hook/openEuler/ventoy-overlay.sh" -i /sbin/dmsquash-live-root
+    fi
+    
+    #close selinux
+    $BUSYBOX_PATH/mkdir -p $VTOY_PATH/selinuxfs
+    if $BUSYBOX_PATH/mount -t selinuxfs selinuxfs $VTOY_PATH/selinuxfs; then
+        echo 1 > $VTOY_PATH/selinuxfs/disable
+        $BUSYBOX_PATH/umount $VTOY_PATH/selinuxfs
+    fi    
+    $BUSYBOX_PATH/rm -rf $VTOY_PATH/selinuxfs
+fi
+
+
+echo "VTKS=$VTKS  VTOVERLAY=$VTOVERLAY" >> $VTLOG
 
 if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
     for vtDud in $(ls $VTOY_PATH/ventoy_dud*); do
@@ -49,11 +64,7 @@ if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
 fi
 echo "vtInstDD=$vtInstDD" >> $VTLOG
 
-if $GREP -q 'root=live' /proc/cmdline; then
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS $vtInstDD#" -i /lib/dracut-lib.sh
-else
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS $vtInstDD#" -i /lib/dracut-lib.sh
-fi
+$SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS $vtInstDD#" -i /lib/dracut-lib.sh
 
 ventoy_set_inotify_script  openEuler/ventoy-inotifyd-hook.sh
 
@@ -66,14 +77,15 @@ fi
 
 $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/${vtPriority}-ventoy-inotifyd-start.sh
 $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-timeout.sh /lib/dracut/hooks/initqueue/timeout/${vtPriority}-ventoy-timeout.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-repo.sh /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh
 
-if [ -e /sbin/dmsquash-live-root ]; then
+if [ -f /sbin/dmsquash-live-root ]; then
     echo "patch /sbin/dmsquash-live-root ..." >> $VTLOG
     $SED "1 a $BUSYBOX_PATH/sh $VTOY_PATH/hook/openEuler/ventoy-make-link.sh" -i /sbin/dmsquash-live-root
 fi
 
 # suppress write protected mount warning
-if [ -e /usr/sbin/anaconda-diskroot ]; then
+if [ -f /usr/sbin/anaconda-diskroot ]; then
     $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
 fi
 
