@@ -2229,6 +2229,42 @@ static grub_err_t ventoy_cmd_img_name(grub_extcmd_context_t ctxt, int argc, char
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_ext_select_img_path(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len = 0;
+    char id[32] = {0};
+    img_info *cur = g_ventoy_img_list;
+
+    (void)ctxt;
+    
+    if (argc != 1)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s {var}", cmd_raw_name);
+    }
+
+    len = (int)grub_strlen(args[0]);
+
+    while (cur)
+    {
+        if (len == cur->pathlen && 0 == grub_strcmp(args[0], cur->path))
+        {
+            break;
+        }
+        cur = cur->next;
+    }
+
+    if (!cur)
+    {
+        return grub_error(GRUB_ERR_BAD_ARGUMENT, "No such image");
+    }
+
+    grub_snprintf(id, sizeof(id), "VID_%d", cur->id);
+    grub_env_set("chosen", id);
+    grub_env_export("chosen");
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int img_id = 0;
@@ -4255,6 +4291,8 @@ static int ventoy_env_init(void)
         grub_snprintf(buf, sizeof(buf), "%p", g_grub_param);
         grub_env_set("env_param", buf);
         grub_env_set("ventoy_env_param", buf);
+
+        grub_env_export("env_param");
         grub_env_export("ventoy_env_param");
     }
 
@@ -4277,6 +4315,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_clear_img", ventoy_cmd_clear_img, 0, NULL, "", "clear image list", NULL },
     { "vt_img_name", ventoy_cmd_img_name, 0, NULL, "{imageID} {var}", "get image name", NULL },
     { "vt_chosen_img_path", ventoy_cmd_chosen_img_path, 0, NULL, "{var}", "get chosen img path", NULL },
+    { "vt_ext_select_img_path", ventoy_cmd_ext_select_img_path, 0, NULL, "{var}", "select chosen img path", NULL },
     { "vt_img_sector", ventoy_cmd_img_sector, 0, NULL, "{imageName}", "", NULL },
     { "vt_dump_img_sector", ventoy_cmd_dump_img_sector, 0, NULL, "", "", NULL },
     { "vt_load_wimboot", ventoy_cmd_load_wimboot, 0, NULL, "", "", NULL },
