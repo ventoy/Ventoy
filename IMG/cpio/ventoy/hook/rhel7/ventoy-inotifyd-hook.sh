@@ -41,14 +41,8 @@ if is_inotify_ventoy_part $3; then
     vtlog "find ventoy partition ..."
     
     vtReplaceOpt=noreplace
-    
-    if $GREP -q el8 /proc/version && [ -f /etc/system-release ]; then
-        vtRhel8Ver=$($SED "s#.*8\.\([0-9]*\).*#\1#" /etc/system-release)
-        if [ $vtRhel8Ver -ge 3 ]; then
-            vtReplaceOpt=""
-        elif $GREP -q "Stream" /etc/system-release; then            
-            vtReplaceOpt=""
-        fi        
+    if [ -f /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh ]; then
+        vtReplaceOpt=""
     fi
     
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 $vtReplaceOpt
