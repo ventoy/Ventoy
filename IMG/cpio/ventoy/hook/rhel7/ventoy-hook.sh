@@ -87,7 +87,7 @@ $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-timeout.sh /lib/dracut/hooks/in
 
 vtNeedRepo=
 if [ -f /etc/system-release ]; then
-    if $GREP -q 'RED OS' /etc/system-release ]; then
+    if $GREP -q 'RED OS' /etc/system-release; then
         vtNeedRepo="yes"
     fi
 fi
