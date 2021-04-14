@@ -435,43 +435,6 @@ static int vtoy_printf_iso_path(ventoy_os_param *param)
     return 0;
 }
 
-static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
-{
-    int   cnt = 0;
-    char *path = param->vtoy_img_path;
-    const char *fs;
-
-    cnt = vtoy_find_disk_by_size(param->vtoy_disk_size, diskname);
-    if (cnt > 1)
-    {
-        cnt = vtoy_find_disk_by_guid(param, diskname);
-    }
-    else if (cnt == 0)
-    {
-        cnt = vtoy_find_disk_by_guid(param, diskname);
-        debug("find 0 disk by size, try with guid cnt=%d...\n", cnt);
-    }
-
-    if (param->vtoy_disk_part_type < ventoy_fs_max)
-    {
-        fs = g_ventoy_fs[param->vtoy_disk_part_type];
-    }
-    else
-    {
-        fs = "unknown";
-    }
-
-    if (1 == cnt)
-    {
-        printf("/dev/%s#%s#%s\n", diskname, fs, path);
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
-}
-
 static int vtoy_check_device(ventoy_os_param *param, const char *device)
 {
     unsigned long long size; 
@@ -495,6 +458,47 @@ static int vtoy_check_device(ventoy_os_param *param, const char *device)
     else
     {
         debug("<%s> is NOT right ventoy disk\n", device);
+        return 1;
+    }
+}
+
+static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
+{
+    int   cnt = 0;
+    char *path = param->vtoy_img_path;
+    const char *fs;
+
+    cnt = vtoy_find_disk_by_size(param->vtoy_disk_size, diskname);
+    debug("find disk by size %llu, cnt=%d...\n", (unsigned long long)param->vtoy_disk_size, cnt);
+    if (1 == cnt)
+    {
+        if (vtoy_check_device(param, diskname) != 0)
+        {
+            cnt = 0;
+        }
+    }
+    else
+    {
+        cnt = vtoy_find_disk_by_guid(param, diskname);
+        debug("find disk by guid cnt=%d...\n", cnt);
+    }
+    
+    if (param->vtoy_disk_part_type < ventoy_fs_max)
+    {
+        fs = g_ventoy_fs[param->vtoy_disk_part_type];
+    }
+    else
+    {
+        fs = "unknown";
+    }
+
+    if (1 == cnt)
+    {
+        printf("/dev/%s#%s#%s\n", diskname, fs, path);
+        return 0;
+    }
+    else
+    {
         return 1;
     }
 }
