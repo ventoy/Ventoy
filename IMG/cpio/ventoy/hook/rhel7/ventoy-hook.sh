@@ -45,7 +45,8 @@ if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
     
     if [ -e /sbin/dmsquash-live-root ]; then
         echo "patch /sbin/dmsquash-live-root for persistent ..." >> $VTLOG
-        $SED "/mount.*devspec.*\/run\/initramfs\/overlayfs/a . /ventoy/hook/rhel7/ventoy-overlay.sh" -i /sbin/dmsquash-live-root
+        $SED "/mount.*devspec.*\/run\/initramfs\/overlayfs/a . /ventoy/hook/rhel7/ventoy-overlay.sh" -i /sbin/dmsquash-live-root        
+        $SED "s/osmin.img/osmin.imgxxxx/g" -i /sbin/dmsquash-live-root
     fi
     
     #close selinux
