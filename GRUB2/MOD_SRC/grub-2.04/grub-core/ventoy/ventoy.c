@@ -4402,6 +4402,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_parse_iso_create_date", ventoy_cmd_parse_create_date, 0, NULL, "", "", NULL },
     { "vt_parse_freenas_ver", ventoy_cmd_parse_freenas_ver, 0, NULL, "", "", NULL },
     { "vt_unix_parse_freebsd_ver", ventoy_cmd_unix_freebsd_ver, 0, NULL, "", "", NULL },
+    { "vt_unix_parse_freebsd_ver_elf", ventoy_cmd_unix_freebsd_ver_elf, 0, NULL, "", "", NULL },
     { "vt_unix_reset", ventoy_cmd_unix_reset, 0, NULL, "", "", NULL },
     { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
     { "vt_unix_replace_ko", ventoy_cmd_unix_replace_ko, 0, NULL, "", "", NULL },

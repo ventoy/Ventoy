@@ -33,6 +33,8 @@
 #include <grub/i18n.h>
 #include <grub/net.h>
 #include <grub/time.h>
+#include <grub/elf.h>
+#include <grub/elfload.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 
@@ -379,6 +381,174 @@ grub_err_t ventoy_cmd_unix_freebsd_ver(grub_extcmd_context_t ctxt, int argc, cha
 
     grub_free(buf);
     grub_file_close(file);
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_unix_freebsd_ver_elf(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int j;
+    int k;
+    grub_elf_t elf = NULL;
+    grub_off_t offset = 0;
+    grub_uint32_t len = 0;
+    char *str = NULL;
+    char *data = NULL;
+    void *hdr = NULL;
+    char ver[64] = {0};
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (argc != 3)
+    {
+        debug("Invalid argc %d\n", argc);
+        return 1;
+    }
+
+    data = grub_zalloc(8192);
+    if (!data)
+    {
+        goto out;
+    }
+
+    elf = grub_elf_open(args[0], GRUB_FILE_TYPE_LINUX_INITRD);
+    if (!elf)
+    {
+        debug("Failed to open file %s\n", args[0]);
+        goto out;
+    }
+
+    if (args[1][0] == '6')
+    {
+        Elf64_Ehdr *e = &(elf->ehdr.ehdr64);
+        Elf64_Shdr *h;
+        Elf64_Shdr *s;
+        Elf64_Shdr *t;
+        Elf64_Half i;
+        
+        h = hdr = grub_zalloc(e->e_shnum * e->e_shentsize);
+        if (!h)
+        {
+            goto out;
+        }
+
+        debug("read section header %u %u %u\n", e->e_shnum, e->e_shentsize, e->e_shstrndx);
+        grub_file_seek(elf->file, e->e_shoff);
+        grub_file_read(elf->file, h, e->e_shnum * e->e_shentsize);
+
+        s = (Elf64_Shdr *)((char *)h + e->e_shstrndx * e->e_shentsize);        
+        str = grub_malloc(s->sh_size + 1);
+        if (!str)
+        {
+            goto out;
+        }
+        str[s->sh_size] = 0;
+
+        debug("read string table %u %u\n", (grub_uint32_t)s->sh_offset, (grub_uint32_t)s->sh_size);
+        grub_file_seek(elf->file, s->sh_offset);
+        grub_file_read(elf->file, str, s->sh_size);
+
+        for (t = h, i = 0; i < e->e_shnum; i++)
+        {
+            if (grub_strcmp(str + t->sh_name, ".data") == 0)
+            {
+                offset = t->sh_offset;
+                len = t->sh_size;
+                debug("find .data section at %u %u\n", (grub_uint32_t)offset, len);
+                break;
+            }
+            t = (Elf64_Shdr *)((char *)t + e->e_shentsize);
+        }
+    }
+    else
+    {
+        Elf32_Ehdr *e = &(elf->ehdr.ehdr32);
+        Elf32_Shdr *h;
+        Elf32_Shdr *s;
+        Elf32_Shdr *t;
+        Elf32_Half i;
+        
+        h = hdr = grub_zalloc(e->e_shnum * e->e_shentsize);
+        if (!h)
+        {
+            goto out;
+        }
+
+        debug("read section header %u %u %u\n", e->e_shnum, e->e_shentsize, e->e_shstrndx);
+        grub_file_seek(elf->file, e->e_shoff);
+        grub_file_read(elf->file, h, e->e_shnum * e->e_shentsize);
+
+        s = (Elf32_Shdr *)((char *)h + e->e_shstrndx * e->e_shentsize);        
+        str = grub_malloc(s->sh_size + 1);
+        if (!str)
+        {
+            goto out;
+        }
+        str[s->sh_size] = 0;
+
+        debug("read string table %u %u\n", (grub_uint32_t)s->sh_offset, (grub_uint32_t)s->sh_size);
+        grub_file_seek(elf->file, s->sh_offset);
+        grub_file_read(elf->file, str, s->sh_size);
+
+        for (t = h, i = 0; i < e->e_shnum; i++)
+        {
+            if (grub_strcmp(str + t->sh_name, ".data") == 0)
+            {
+                offset = t->sh_offset;
+                len = t->sh_size;
+                debug("find .data section at %u %u\n", (grub_uint32_t)offset, len);
+                break;
+            }
+            t = (Elf32_Shdr *)((char *)t + e->e_shentsize);
+        }
+    }
+
+    if (offset == 0 || len == 0)
+    {
+        debug(".data section not found %s\n", args[0]);
+        goto out;
+    }
+
+    grub_file_seek(elf->file, offset + len - 8192);
+    grub_file_read(elf->file, data, 8192);
+
+    for (j = 0; j < 8192 - 12; j++)
+    {
+        if (grub_strncmp(data + j, "@(#)FreeBSD ", 12) == 0)
+        {
+            for (k = j + 12; k < 8192; k++)
+            {
+                if (0 == grub_isdigit(data[k]) && data[k] != '.')
+                {
+                    data[k] = 0;
+                    break;
+                }
+            }
+        
+            grub_snprintf(ver, sizeof(ver), "%s", data + j + 12);
+            break;
+        }
+    }
+
+    if (ver[0])
+    {
+        k = (int)grub_strtoul(ver, NULL, 10);
+        debug("freebsd version:<%s> <%d.x>\n", ver, k);
+        grub_snprintf(ver, sizeof(ver), "%d.x", k);
+        ventoy_set_env(args[2], ver);
+    }
+    else
+    {
+        debug("freebsd version:<%s>\n", "NOT FOUND");
+    }
+
+out:
+    grub_check_free(str);
+    grub_check_free(hdr);
+    grub_check_free(data);
+    check_free(elf, grub_elf_close);
     
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
