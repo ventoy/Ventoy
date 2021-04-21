@@ -27,6 +27,10 @@ sh mkcpio.sh
 sh mkloopex.sh
 cd -
 
+cd ../Unix
+sh pack_unix.sh
+cd -
+
 cd ../LinuxGUI
 sh language.sh || exit 1
 sh build.sh
