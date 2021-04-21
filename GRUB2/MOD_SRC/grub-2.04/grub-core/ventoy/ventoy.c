@@ -2503,6 +2503,7 @@ int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, 
 {
     grub_uint32_t i = 0;
     grub_uint64_t total = 0;
+    grub_uint64_t fileblk = 0;
     ventoy_img_chunk *chunk = NULL;
 
     for (i = 0; i < chunklist->cur_chunk; i++)
@@ -2518,9 +2519,17 @@ int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, 
         total += chunk->disk_end_sector + 1 - chunk->disk_start_sector;
     }
 
-    if (total != ((file->size + 511) / 512))
+    fileblk = (file->size + 511) / 512;
+
+    if (total != fileblk)
     {
-        debug("Invalid total: %llu %llu\n", (ulonglong)total, (ulonglong)((file->size + 511) / 512));
+        debug("Invalid total: %llu %llu\n", (ulonglong)total, (ulonglong)fileblk);
+        if ((file->size % 512) && (total + 1 == fileblk))
+        {
+            debug("maybe img file to be processed.\n");
+            return 0;
+        }
+        
         return 1;
     }
 
@@ -3501,6 +3510,84 @@ static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, in
 }
 #endif
 
+static grub_err_t ventoy_cmd_img_check_range(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    int ret = 1;
+    grub_file_t file;
+    grub_uint64_t FileSectors = 0;
+    ventoy_gpt_info *gpt = NULL;
+    ventoy_part_table *pt = NULL;
+    grub_uint8_t zeroguid[16] = {0};
+    
+    (void)ctxt;
+    (void)argc;
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (!file)
+    {
+        debug("failed to open file %s\n", args[0]);
+        return 1;
+    }
+
+    if (file->size % 512)
+    {
+        debug("unaligned file size: %llu\n", (ulonglong)file->size);
+        goto out;
+    }
+
+    gpt = grub_zalloc(sizeof(ventoy_gpt_info));
+    if (!gpt)
+    {
+        goto out;
+    }
+
+    FileSectors = file->size / 512;
+
+    grub_file_read(file, gpt, sizeof(ventoy_gpt_info));
+    if (grub_strncmp(gpt->Head.Signature, "EFI PART", 8) == 0)
+    {
+        debug("This is EFI partition table\n");
+
+        for (i = 0; i < 128; i++)
+        {
+            if (grub_memcmp(gpt->PartTbl[i].PartGuid, zeroguid, 16))
+            {
+                if (FileSectors < gpt->PartTbl[i].LastLBA)
+                {
+                    debug("out of range: part[%d] LastLBA:%llu FileSectors:%llu\n", i, 
+                        (ulonglong)gpt->PartTbl[i].LastLBA, (ulonglong)FileSectors);
+                    goto out;
+                }
+            }
+        }
+    }
+    else
+    {
+        debug("This is MBR partition table\n");
+
+        for (i = 0; i < 4; i++)
+        {
+            pt = gpt->MBR.PartTbl + i;
+            if (FileSectors < pt->StartSectorId + pt->SectorCount)
+            {
+                debug("out of range: part[%d] LastLBA:%llu FileSectors:%llu\n", i, 
+                       (ulonglong)(pt->StartSectorId + pt->SectorCount), 
+                       (ulonglong)FileSectors);
+                goto out;
+            }
+        }
+    }
+    
+    ret = 0;
+    
+out:
+    grub_file_close(file);
+    grub_check_free(gpt);
+    grub_errno = GRUB_ERR_NONE;
+    return ret;
+}
+
 static grub_err_t ventoy_cmd_clear_key(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i;
@@ -3876,6 +3963,8 @@ static grub_err_t ventoy_cmd_get_fs_label(grub_extcmd_context_t ctxt, int argc, 
     
     (void)ctxt;
 
+    debug("get fs label for %s\n", args[0]);
+
     if (argc != 2)
     {
         debug("ventoy_cmd_get_fs_label, invalid param num %d\n", argc);
@@ -3897,19 +3986,20 @@ static grub_err_t ventoy_cmd_get_fs_label(grub_extcmd_context_t ctxt, int argc, 
     }
 
     fs = grub_fs_probe(dev);
-    if (!fs)
+    if (NULL == fs || NULL == fs->fs_label)
     {
-        debug("grub_fs_probe failed, %s\n", device_name);
+        debug("grub_fs_probe failed, %s %p %p\n", device_name, fs, fs->fs_label);
         goto end;
     }
 
     fs->fs_label(dev, &label);
     if (label)
     {
+        debug("label=<%s>\n", label);
         ventoy_set_env(args[1], label);
         grub_free(label);
     }
-    
+
     rc = 0;
     
 end:
@@ -4415,6 +4505,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_acpi_param", ventoy_cmd_acpi_param, 0, NULL, "", "", NULL },
     { "vt_check_secureboot_var", ventoy_cmd_check_secureboot_var, 0, NULL, "", "", NULL },
     { "vt_clear_key", ventoy_cmd_clear_key, 0, NULL, "", "", NULL },
+    { "vt_img_check_range", ventoy_cmd_img_check_range, 0, NULL, "", "", NULL },
 
 };
 

@@ -19,12 +19,39 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$BUSYBOX_PATH/mkdir /sys
-$BUSYBOX_PATH/mount -t proc proc /proc
-$BUSYBOX_PATH/mount -t sysfs sys /sys
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-$BUSYBOX_PATH/mdev -s
+wrt_insmod() {
+    kbit=$1
+    kv=$(uname -r)
+    
+    echo "insmod $kv $kbit" >> $VTOY_PATH/log
+    
+    [ -f /ventoy_openwrt/$kv/$kbit/dax.ko ] && insmod /ventoy_openwrt/$kv/$kbit/dax.ko > /dev/null 2>&1
+    [ -f /ventoy_openwrt/$kv/$kbit/dm-mod.ko ] && insmod /ventoy_openwrt/$kv/$kbit/dm-mod.ko > /dev/null 2>&1
+}
 
-#$BUSYBOX_PATH/sh $VTOY_PATH/loop/openwrt/ventoy-disk.sh
 
-exec $BUSYBOX_PATH/sh
+mkdir /sys
+mount -t sysfs sys /sys
+mdev -s
+
+
+if [ -f /ventoy_openwrt.xz ]; then
+    tar xf /ventoy_openwrt.xz -C /
+    rm -f  /ventoy_openwrt.xz
+fi
+
+
+if uname -m | egrep -q "amd64|x86_64"; then
+    wrt_insmod 64
+else
+    wrt_insmod generic    
+    if lsmod | grep -q 'dm-mod'; then
+        echo "insmod generic failed" >> $VTOY_PATH/log
+    else
+        wrt_insmod legacy
+    fi
+fi
+
+sh $VTOY_PATH/loop/openwrt/ventoy-disk.sh

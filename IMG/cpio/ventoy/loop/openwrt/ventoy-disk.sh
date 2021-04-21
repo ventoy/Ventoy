@@ -45,6 +45,9 @@ echo -n $vtDM > /ventoy/vtDM
 ventoy_create_dev_ventoy_part
 mdev -s
 
+mkdir /ventoy_rdroot
+mount /dev/ventoy2 /ventoy_rdroot
+
 PATH=$VTPATH_OLD
 
 set_ventoy_hook_finish

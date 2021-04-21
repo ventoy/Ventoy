@@ -284,7 +284,7 @@ extern char g_arch_mode_suffix[64];
 
 extern int g_ventoy_debug;
 void ventoy_debug(const char *fmt, ...);
-#define debug(fmt, ...) if (g_ventoy_debug) ventoy_debug("[VTOY]: "fmt, __VA_ARGS__)
+#define debug(fmt, args...) if (g_ventoy_debug) ventoy_debug("[VTOY]: "fmt, ##args)
 
 #define vtoy_ssprintf(buf, pos, fmt, ...) \
     pos += grub_snprintf(buf + pos, VTOY_MAX_SCRIPT_BUF - pos, fmt, __VA_ARGS__)
