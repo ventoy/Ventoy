@@ -527,7 +527,8 @@ typedef struct plugin_entry
     ventoy_plugin_check_pf checkfunc;
 }plugin_entry;
 
-
+int ventoy_strcmp(const char *pattern, const char *str);
+int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n);
 void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param);
 grub_err_t ventoy_cmd_isolinux_initrd_collect(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_grub_initrd_collect(grub_extcmd_context_t ctxt, int argc, char **args);

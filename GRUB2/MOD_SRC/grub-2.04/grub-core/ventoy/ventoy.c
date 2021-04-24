@@ -148,6 +148,38 @@ void ventoy_debug(const char *fmt, ...)
     va_end (args);
 }
 
+int ventoy_strcmp(const char *pattern, const char *str)
+{
+    while (*pattern && *str)
+    {
+        if ((*pattern != *str) && (*pattern != '*'))
+            break;
+
+        pattern++;
+        str++;
+    }
+
+    return (int)(grub_uint8_t)*pattern - (int)(grub_uint8_t)*str;
+}
+
+int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n)
+{
+    if (n == 0)
+        return 0;
+
+    while (*pattern && *str && --n)
+    {
+        if ((*pattern != *str) && (*pattern != '*'))
+            break;
+
+        pattern++;
+        str++;
+    }
+
+    return (int)(grub_uint8_t)*pattern - (int)(grub_uint8_t)*str;
+}
+
+
 void ventoy_debug_dump_guid(const char *prefix, grub_uint8_t *guid)
 {
     int i;
