@@ -1436,7 +1436,7 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
             g_ventoy_img_count++;
 
             img->alias = ventoy_plugin_get_menu_alias(vtoy_alias_image_file, img->path);
-            img->class = ventoy_plugin_get_menu_class(vtoy_class_image_file, img->name);
+            img->class = ventoy_plugin_get_menu_class(vtoy_class_image_file, img->name, img->path);
             if (!img->class)
             {
                 img->class = g_menu_class[type];
@@ -1695,7 +1695,7 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
     else
     {
         node->dir[node->dirlen - 1] = 0;
-        dir_class = ventoy_plugin_get_menu_class(vtoy_class_directory, node->dir);
+        dir_class = ventoy_plugin_get_menu_class(vtoy_class_directory, node->dir, node->dir);
         if (!dir_class)
         {
             dir_class = "vtoydir";

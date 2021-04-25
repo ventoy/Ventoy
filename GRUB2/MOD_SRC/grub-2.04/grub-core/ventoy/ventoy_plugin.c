@@ -1305,6 +1305,7 @@ static int ventoy_plugin_injection_entry(VTOY_JSON *json, const char *isodisk)
 static int ventoy_plugin_menuclass_entry(VTOY_JSON *json, const char *isodisk)
 {
     int type;
+    int parent = 0;
     const char *key = NULL;
     const char *class = NULL;
     VTOY_JSON *pNode = NULL;
@@ -1333,12 +1334,21 @@ static int ventoy_plugin_menuclass_entry(VTOY_JSON *json, const char *isodisk)
 
     for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
     {
+        parent = 0;
         type = vtoy_class_image_file;
         key = vtoy_json_get_string_ex(pNode->pstChild, "key");
         if (!key)
         {
-            key = vtoy_json_get_string_ex(pNode->pstChild, "dir");
-            type = vtoy_class_directory;
+            key = vtoy_json_get_string_ex(pNode->pstChild, "parent");
+            if (key)
+            {
+                parent = 1;
+            }
+            else
+            {
+                key = vtoy_json_get_string_ex(pNode->pstChild, "dir");
+                type = vtoy_class_directory;
+            }
         }
         
         class = vtoy_json_get_string_ex(pNode->pstChild, "class");
@@ -1348,6 +1358,7 @@ static int ventoy_plugin_menuclass_entry(VTOY_JSON *json, const char *isodisk)
             if (node)
             {
                 node->type = type;
+                node->parent = parent;
                 node->patlen = grub_snprintf(node->pattern, sizeof(node->pattern), "%s", key);
                 grub_snprintf(node->class, sizeof(node->class), "%s", class);
 
@@ -1369,7 +1380,7 @@ static int ventoy_plugin_menuclass_entry(VTOY_JSON *json, const char *isodisk)
 
 static int ventoy_plugin_menuclass_check(VTOY_JSON *json, const char *isodisk)
 {
-    int type;
+    const char *name = NULL;
     const char *key = NULL;
     const char *class = NULL;
     VTOY_JSON *pNode = NULL;
@@ -1384,18 +1395,23 @@ static int ventoy_plugin_menuclass_check(VTOY_JSON *json, const char *isodisk)
 
     for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
     {
-        type = vtoy_class_image_file;
+        name = "key";
         key = vtoy_json_get_string_ex(pNode->pstChild, "key");
         if (!key)
         {
-            key = vtoy_json_get_string_ex(pNode->pstChild, "dir"); 
-            type = vtoy_class_directory;
+            name = "parent";
+            key = vtoy_json_get_string_ex(pNode->pstChild, "parent");
+            if (!key)
+            {
+                name = "dir";       
+                key = vtoy_json_get_string_ex(pNode->pstChild, "dir"); 
+            }
         }
         
         class = vtoy_json_get_string_ex(pNode->pstChild, "class");
         if (key && class)
         {
-            grub_printf("%s: <%s>\n", (type == vtoy_class_directory) ? "dir" : "key",  key);
+            grub_printf("%s: <%s>\n", name,  key);
             grub_printf("class: <%s>\n\n", class);
         }
     }
@@ -2182,7 +2198,7 @@ const char * ventoy_plugin_get_menu_alias(int type, const char *isopath)
     return NULL;
 }
 
-const char * ventoy_plugin_get_menu_class(int type, const char *name)
+const char * ventoy_plugin_get_menu_class(int type, const char *name, const char *path)
 {
     int len;
     menu_class *node = NULL;
@@ -2191,21 +2207,38 @@ const char * ventoy_plugin_get_menu_class(int type, const char *name)
     {
         return NULL;
     }
-
-    len = (int)grub_strlen(name);
     
     if (vtoy_class_image_file == type)
     {
         for (node = g_menu_class_head; node; node = node->next)
         {
-            if (node->type == type && node->patlen <= len && grub_strstr(name, node->pattern))
+            if (node->type != type)
             {
-                return node->class;
+                continue;
+            }
+
+            if (node->parent)
+            {
+                len = (int)grub_strlen(path);
+                if ((node->patlen < len) && (path[node->patlen] == '/') &&
+                    (grub_strncmp(path, node->pattern, node->patlen) == 0))
+                {
+                    return node->class;
+                }
+            }
+            else
+            {
+                len = (int)grub_strlen(name);
+                if ((node->patlen < len) && grub_strstr(name, node->pattern))
+                {
+                    return node->class;
+                }
             }
         }
     }
     else
     {
+        len = (int)grub_strlen(name);
         for (node = g_menu_class_head; node; node = node->next)
         {
             if (node->type == type && node->patlen == len && grub_strncmp(name, node->pattern, len) == 0)

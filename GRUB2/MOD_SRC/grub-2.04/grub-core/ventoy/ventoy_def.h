@@ -830,6 +830,7 @@ typedef struct menu_class
 {
     int  type;
     int  patlen;
+    int  parent;
     char pattern[256];
     char class[64];
 
@@ -960,7 +961,7 @@ int ventoy_fill_windows_rtdata(void *buf, char *isopath);
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);
 const char * ventoy_plugin_get_injection(const char *isopath);
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);
-const char * ventoy_plugin_get_menu_class(int type, const char *name);
+const char * ventoy_plugin_get_menu_class(int type, const char *name, const char *path);
 int ventoy_plugin_check_memdisk(const char *isopath);
 int ventoy_plugin_get_image_list_index(int type, const char *name);
 conf_replace * ventoy_plugin_find_conf_replace(const char *iso);
