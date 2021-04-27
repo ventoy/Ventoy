@@ -153,10 +153,9 @@ ventoy_get_os_type() {
             echo 'rhel7'; return
         elif $GREP -q 'openEuler' /etc/os-release; then
             echo 'openEuler'; return
-	elif $GREP -q 'fuyu' /etc/os-release; then
+        elif $GREP -q 'fuyu' /etc/os-release; then
             echo 'openEuler'; return	
         fi
-
     fi
     
     if $BUSYBOX_PATH/dmesg | $GREP -q -m1 "Xen:"; then
