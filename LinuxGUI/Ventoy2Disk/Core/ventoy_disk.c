@@ -514,6 +514,8 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
     vdebug("ventoy partition layout check OK: [%llu %llu] [%llu %llu]\n", 
                part1_start_sector, part1_sector_count, part2_start_sector, part2_sector_count);
 
+    vtoy->ventoy_valid = 1;
+
     vdebug("now check secure boot for %s ...\n", info->disk_path);
 
     g_fatlib_media_fd = fd;
@@ -526,7 +528,6 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
         if (ret == 0 && vtoy->ventoy_ver[0])
         {
             vtoy->secure_boot_flag = fatlib_is_secure_boot_enable();            
-            vtoy->ventoy_valid = 1;
         }
         else
         {
@@ -541,6 +542,11 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
     fl_shutdown();
     g_fatlib_media_fd = -1;
     g_fatlib_media_offset = 0;
+
+    if (vtoy->ventoy_ver[0] == 0)
+    {
+        vtoy->ventoy_ver[0] = '?';
+    }
 
     if (0 == vtoy->ventoy_valid)
     {
