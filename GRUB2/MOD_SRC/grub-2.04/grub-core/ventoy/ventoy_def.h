@@ -140,6 +140,7 @@ typedef struct cpio_newc_header
 typedef int (*grub_char_check_func)(int c);
 #define ventoy_is_decimal(str)  ventoy_string_check(str, grub_isdigit)
 
+#define OFFSET_OF(TYPE, MEMBER) ((grub_size_t) &((TYPE *)0)->MEMBER)
 
 #pragma pack(1)
 typedef struct ventoy_patch_vhd
@@ -932,6 +933,8 @@ extern grub_uint8_t *g_conf_replace_new_buf;
 extern int g_conf_replace_new_len;
 extern int g_conf_replace_new_len_align;
 extern grub_uint64_t g_ventoy_disk_size;
+extern grub_uint64_t g_ventoy_disk_part_size[2];
+extern grub_uint32_t g_ventoy_plat_data;
 
 #define ventoy_unix_fill_virt(new_data, new_len) \
 { \
@@ -949,12 +952,16 @@ extern grub_uint64_t g_ventoy_disk_size;
     chain->virt_img_size_in_bytes += data_secs * 2048; \
 }
 
+#define ventoy_syscall0(name) grub_##name()
+#define ventoy_syscall1(name, a) grub_##name(a)
+
 char * ventoy_get_line(char *start);
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
 char * ventoy_plugin_get_cur_install_template(const char *isopath);
 install_template * ventoy_plugin_find_install_template(const char *isopath);
 persistence_config * ventoy_plugin_find_persistent(const char *isopath);
+grub_uint64_t ventoy_get_vtoy_partsize(int part);
 void ventoy_plugin_dump_injection(void);
 void ventoy_plugin_dump_auto_install(void);
 int ventoy_fill_windows_rtdata(void *buf, char *isopath);
@@ -994,11 +1001,16 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
 grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char **args);
 int ventoy_check_password(const vtoy_password *pwd, int retry);
-int ventoy_gzip_compress(void *mem_in, int mem_in_len, void *mem_out, int mem_out_len);
-grub_uint64_t ventoy_get_part1_size(ventoy_gpt_info *gpt);
 int ventoy_plugin_add_custom_boot(const char *vcfgpath);
 const char * ventoy_plugin_get_custom_boot(const char *isopath);
 grub_err_t ventoy_cmd_dump_custom_boot(grub_extcmd_context_t ctxt, int argc, char **args);
+int ventoy_gzip_compress(void *mem_in, int mem_in_len, void *mem_out, int mem_out_len);
+int ventoy_load_part_table(const char *diskname);
+int ventoy_env_init(void);
+int ventoy_register_all_cmd(void);
+int ventoy_unregister_all_cmd(void);
+
+#define VTOY_CMD_CHECK(a) if (33554432 != g_ventoy_disk_part_size[a]) ventoy_syscall0(exit)
 
 #endif /* __VENTOY_DEF_H__ */
 

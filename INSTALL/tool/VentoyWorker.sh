@@ -365,11 +365,15 @@ else
     
     oldver=$(get_disk_ventoy_version $DISK)
     if [ $? -ne 0 ]; then
-        vtwarn "$DISK does not contain Ventoy or data corrupted"
-        echo ""
-        vtwarn "Please use -i option if you want to install ventoy to $DISK"
-        echo ""
-        exit 1
+        if is_disk_contains_ventoy $DISK; then
+            oldver="Unknown"
+        else
+            vtwarn "$DISK does not contain Ventoy or data corrupted"
+            echo ""
+            vtwarn "Please use -i option if you want to install ventoy to $DISK"
+            echo ""
+            exit 1
+        fi
     fi
 
     #reserve secure boot option

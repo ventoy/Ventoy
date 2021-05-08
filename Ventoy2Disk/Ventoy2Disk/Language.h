@@ -101,12 +101,18 @@ typedef enum OPT_SUBMENU
 #define VTOY_MENU_LANGUAGE_BEGIN  0xB000
 
 
-#define VENTOY_LANGUAGE_INI  TEXT(".\\ventoy\\languages.ini")
+#define VENTOY_LANGUAGE_INI     TEXT(".\\ventoy\\languages.ini")
+#define VENTOY_LANGUAGE_JSON    TEXT(".\\ventoy\\languages.json")
+#define VENTOY_LANGUAGE_INI_A   ".\\ventoy\\languages.ini"
+#define VENTOY_LANGUAGE_JSON_A  ".\\ventoy\\languages.json"
+
 #define VENTOY_CFG_INI     TEXT(".\\Ventoy2Disk.ini")
 #define VENTOY_CFG_INI_A   ".\\Ventoy2Disk.ini"
 #define VENTOY_MAX_LANGUAGE	 200
 
 #define GET_INI_STRING(Section, Key, Buf) GetPrivateProfileString(Section, Key, TEXT("#"), Buf, sizeof(Buf), VENTOY_LANGUAGE_INI)
+
+
 
 typedef struct VENTOY_LANGUAGE
 {

@@ -720,7 +720,7 @@ grub_err_t ventoy_cmd_unix_fill_image_desc(grub_extcmd_context_t ctxt, int argc,
 
     desc = (ventoy_image_desc *)(byte + i);
     desc->disk_size = g_ventoy_disk_size;
-    desc->part1_size = ventoy_get_part1_size(g_ventoy_part_info);
+    desc->part1_size = g_ventoy_disk_part_size[0];
     grub_memcpy(desc->disk_uuid, g_ventoy_part_info->MBR.BootCode + 0x180, 16);
     grub_memcpy(desc->disk_signature, g_ventoy_part_info->MBR.BootCode + 0x1B8, 4);
 

@@ -464,10 +464,13 @@ static int vtoy_check_device(ventoy_os_param *param, const char *device)
 
 static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
 {
-    int   cnt = 0;
+    int fd, size;
+    int cnt = 0;
     char *path = param->vtoy_img_path;
     const char *fs;
-
+    char diskpath[256] = {0};
+    char sizebuf[64] = {0};
+    
     cnt = vtoy_find_disk_by_size(param->vtoy_disk_size, diskname);
     debug("find disk by size %llu, cnt=%d...\n", (unsigned long long)param->vtoy_disk_size, cnt);
     if (1 == cnt)
@@ -494,6 +497,37 @@ static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
 
     if (1 == cnt)
     {
+        if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
+        {
+            snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%sp2/size", diskname);
+        }
+        else
+        {
+            snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%s2/size", diskname);
+        }
+
+        if (access(diskpath, F_OK) >= 0)
+        {
+            debug("get part size from sysfs for %s\n", diskpath);
+
+            fd = open(diskpath, O_RDONLY | O_BINARY);
+            if (fd >= 0)
+            {
+                read(fd, sizebuf, sizeof(sizebuf));
+                size = (int)strtoull(sizebuf, NULL, 10);
+                close(fd);
+                if ((size != (64 * 1024)) && (size != (8 * 1024)))
+                {
+                    debug("sizebuf=<%s> size=%d\n", sizebuf, size);
+                    return 1;
+                }
+            }
+        }
+        else
+        {
+            debug("%s not exist \n", diskpath);
+        }
+
         printf("/dev/%s#%s#%s\n", diskname, fs, path);
         return 0;
     }

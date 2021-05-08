@@ -148,7 +148,7 @@ typedef struct PHY_DRIVE_INFO
     STORAGE_BUS_TYPE BusType;
 
     CHAR DriveLetters[64];
-
+   
     CHAR VentoyVersion[32];
 
     BOOL SecureBootSupport;

@@ -1,0 +1,17 @@
+
+File encoding: UTF-8
+
+language name must in the format: "Language-XXX (YYY)"
+    1. Language- fixed 9 characters
+    2. XXX: name in English
+    3. a space (ASCII: 0x20)
+    4. a left brace (ASCII: 0x28)
+    5. YYY: name in the specified language
+    6. a right brace (ASCII: 0x29)
+
+string translation:
+      all the String Define
+      #@ will be replaced with \r\n
+
+All the languages will be sorted by the name
+

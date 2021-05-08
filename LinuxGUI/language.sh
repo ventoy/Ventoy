@@ -1,35 +1,17 @@
 #!/bin/bash
 
-echo "generating languages.js ..."
+VTOY_PATH=$PWD/../
 
-iconv -f utf-16 -t utf-8 ../LANGUAGES/languages.ini  | egrep -v '=STR|^;' | egrep  'Language-|STR_' > languages.js
+echo "checking languages.json ..."
+sh $VTOY_PATH/LANGUAGES/check.sh $VTOY_PATH || exit 1
+
+echo "generating languages.json ..."
+
+echo "var vtoy_language_data = " > languages.js
+cat $VTOY_PATH/LANGUAGES/languages.json  >> languages.js
+echo ";" >> languages.js
 
 dos2unix languages.js
-
-sed 's/\(STR_.*\)=/"\1":/g' -i languages.js
-
-sed "s/: *'/:\"/g" -i languages.js
-
-sed "s/'\s*$/\",/g" -i languages.js
-
-sed 's/\[Language-\(.*\)\].*/"STR_XXX":""},{"name":"\1",/g' -i languages.js
-
-sed "1s/.*\},/var vtoy_language_data = \[/" -i languages.js
-
-sed 's/\("STR_WEB_COMMUNICATION_ERR"[^,]*\)/\1,/g' -i languages.js
-sed 's/,,/,/g' -i languages.js
-
-CNT=$(grep -v -c ',$' languages.js)
-
-if [ $CNT -gt 0 ]; then
-    echo "====== FAILED ========="
-    grep -v -n ',$' languages.js
-    exit 1
-fi
-
-
-echo '"STR_XXX":""}' >> languages.js
-echo '];' >> languages.js
 
 rm -f WebUI/static/js/languages.js
 mv languages.js WebUI/static/js/

@@ -110,6 +110,7 @@
     <ClCompile Include="process.c" />
     <ClCompile Include="Utility.c" />
     <ClCompile Include="Ventoy2Disk.c" />
+    <ClCompile Include="VentoyJson.c" />
     <ClCompile Include="WinDialog.c" />
     <ClCompile Include="xz-embedded-20130513\linux\lib\decompress_unxz.c" />
   </ItemGroup>
@@ -133,6 +134,7 @@
     <ClInclude Include="process.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Ventoy2Disk.h" />
+    <ClInclude Include="VentoyJson.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Ventoy2Disk.rc" />
