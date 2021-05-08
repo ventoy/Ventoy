@@ -150,9 +150,12 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
 
 static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, int *index)
 {
+    int i;
     int ret = 1;
+    grub_uint64_t start;
     grub_file_t file = NULL;
     grub_disk_t disk = NULL;
+    grub_uint8_t zeroguid[16] = {0};
 
     file = grub_file_open(filename, VENTOY_FILE_TYPE);
     if (!file)
@@ -165,9 +168,38 @@ static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, i
     {
         goto end;
     }
-    
-    *index = file->device->disk->partition->index;
+
     grub_disk_read(disk, 0, 0, sizeof(ventoy_gpt_info), gpt);
+
+    start = file->device->disk->partition->start;
+
+    if (grub_memcmp(gpt->Head.Signature, "EFI PART", 8) == 0)
+    {
+        debug("GPT part start: %llu\n", (ulonglong)start);
+        for (i = 0; i < 128; i++)
+        {
+            if (grub_memcmp(gpt->PartTbl[i].PartGuid, zeroguid, 16))
+            {
+                if (start == gpt->PartTbl[i].StartLBA)
+                {
+                    *index = i;
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        debug("MBR part start: %llu\n", (ulonglong)start);
+        for (i = 0; i < 4; i++)
+        {
+            if ((grub_uint32_t)start == gpt->MBR.PartTbl[i].StartSectorId)
+            {
+                *index = i;
+                break;
+            }
+        }
+    }    
 
     ret = 0;
 
