@@ -543,7 +543,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
     }
 
     grub_env_set(args[1], type);
-    debug("<%s> vtoy type: <%s> ", args[0], type);
+    debug("<%s> vtoy type: <%s> offset:%d\n", args[0], type, offset);
     
     if (offset >= 0)
     {
@@ -598,6 +598,14 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
                         altboot = 1;
                         grub_env_set(args[3], "1");                        
                     }
+                    else
+                    {
+                        debug("offset data=0x%x\n", data);
+                    }
+                }
+                else
+                {
+                    debug("BootCode: 0x%x\n", gpt->MBR.BootCode[92]);
                 }
             }
         }
