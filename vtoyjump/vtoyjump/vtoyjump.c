@@ -1105,6 +1105,64 @@ const char * GetFileNameInPath(const char *fullpath)
 	return fullpath;
 }
 
+int VentoyJumpWimboot(INT argc, CHAR **argv, CHAR *LunchFile)
+{
+    int rc = 1;
+    char *buf = NULL;
+    DWORD size = 0;
+    DWORD Pos;
+
+#ifdef VTOY_32
+    g_64bit_system = FALSE;
+#else
+    g_64bit_system = TRUE;
+#endif
+    
+    Log("VentoyJumpWimboot 64bit:%u", g_64bit_system);
+
+    sprintf_s(LunchFile, MAX_PATH, "X:\\setup.exe");
+
+    ReadWholeFile2Buf("wimboot.data", &buf, &size);
+    Log("wimboot.data size:%d", size);
+
+    memcpy(&g_os_param, buf, sizeof(ventoy_os_param));
+    memcpy(&g_windows_data, buf + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));
+    memcpy(g_os_param_reserved, g_os_param.vtoy_reserved, sizeof(g_os_param_reserved));
+
+    if (g_os_param_reserved[0] == 1)
+    {
+        Log("break here for debug .....");
+        goto End;
+    }
+
+    // convert / to \\   
+    for (Pos = 0; Pos < sizeof(g_os_param.vtoy_img_path) && g_os_param.vtoy_img_path[Pos]; Pos++)
+    {
+        if (g_os_param.vtoy_img_path[Pos] == '/')
+        {
+            g_os_param.vtoy_img_path[Pos] = '\\';
+        }
+    }
+
+    if (g_os_param_reserved[0] == 2)
+    {
+        Log("skip hook for debug .....");
+        rc = 0;
+        goto End;
+    }
+
+    rc = VentoyHook(&g_os_param);
+
+End:
+
+    if (buf)
+    {
+        free(buf);
+    }
+
+    return rc;
+}
+
 int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 {
 	int rc = 1;
@@ -1241,7 +1299,15 @@ int main(int argc, char **argv)
     GetStartupInfoA(&Si);
 
     memset(LunchFile, 0, sizeof(LunchFile));
-    rc = VentoyJump(argc, argv, LunchFile);
+
+    if (strstr(argv[0], "vtoyjump.exe"))
+    {
+        rc = VentoyJumpWimboot(argc, argv, LunchFile);
+    }
+    else
+    {
+        rc = VentoyJump(argc, argv, LunchFile);
+    }
 
     if (g_os_param_reserved[0] == 3)
     {
@@ -1250,11 +1316,17 @@ int main(int argc, char **argv)
     }
     else
     {
-        Si.dwFlags |= STARTF_USESHOWWINDOW;
-        Si.wShowWindow = SW_HIDE;
+        if (NULL == strstr(LunchFile, "setup.exe"))
+        {
+            Log("Not setup.exe, hide windows.");
+            Si.dwFlags |= STARTF_USESHOWWINDOW;
+            Si.wShowWindow = SW_HIDE;
+        }
+        
         Log("Ventoy jump %s ...", rc == 0 ? "success" : "failed");
     }
-
+    
+    Log("Now launch <%s> ...", LunchFile);
 	CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
 
     while (rc)

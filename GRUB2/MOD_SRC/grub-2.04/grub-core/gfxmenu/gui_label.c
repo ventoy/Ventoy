@@ -29,6 +29,7 @@
 extern int g_ventoy_memdisk_mode;
 extern int g_ventoy_iso_raw;
 extern int g_ventoy_grub2_mode;
+extern int g_ventoy_wimboot_mode;
 extern int g_ventoy_iso_uefi_drv;
 
 static const char *align_options[] =
@@ -208,6 +209,9 @@ label_set_property (void *vself, const char *name, const char *value)
        }
        else if (grub_strcmp (value, "@VTOY_GRUB2_MODE@") == 0) {
             value = g_ventoy_grub2_mode ? grub_env_get("VTOY_GRUB2_MODE_STR") : " ";
+       }
+       else if (grub_strcmp (value, "@VTOY_WIMBOOT_MODE@") == 0) {
+            value = g_ventoy_wimboot_mode ? grub_env_get("VTOY_WIMBOOT_MODE_STR") : " ";
        }
        else if (grub_strcmp (value, "@VTOY_ISO_UEFI_DRV@") == 0) {
             value = g_ventoy_iso_uefi_drv ? grub_env_get("VTOY_ISO_UEFI_DRV_STR") : " ";

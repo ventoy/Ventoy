@@ -79,6 +79,14 @@ terminal-box: "terminal_box_*.png"
 }
 
 + hbox{ 
+    left = 30%+200
+    top = 95%-25
+    width = 10%
+    height = 25
+    + label {text = "@VTOY_WIMBOOT_MODE@" color = "red" align = "left"} 
+}
+
++ hbox{ 
     left = 90%
     top = 55 
     width = 10%

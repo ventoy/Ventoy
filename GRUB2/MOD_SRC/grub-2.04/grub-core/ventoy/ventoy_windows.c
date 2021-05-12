@@ -1330,6 +1330,54 @@ end:
     return rc;
 }
 
+grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint32_t size = 0;
+    const char *addr = NULL;
+    ventoy_chain_head *chain = NULL;
+    ventoy_os_param *param = NULL;
+    char envbuf[64];
+
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    addr = grub_env_get("vtoy_chain_mem_addr");
+    if (!addr)
+    {
+        debug("Failed to find vtoy_chain_mem_addr\n");
+        return 1;
+    }
+
+    chain = (ventoy_chain_head *)(void *)grub_strtoul(addr, NULL, 16);
+
+    if (grub_memcmp(&g_ventoy_guid, &chain->os_param.guid, 16) != 0)
+    {
+        debug("os_param.guid not match\n");
+        return 1;
+    }
+
+    size = sizeof(ventoy_os_param) + sizeof(ventoy_windows_data);
+    param = (ventoy_os_param *)grub_zalloc(size);
+    if (!param)
+    {
+        return 1;
+    }
+
+    grub_memcpy(param, &chain->os_param, sizeof(ventoy_os_param));
+    ventoy_fill_windows_rtdata(param + 1, param->vtoy_img_path);
+
+    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)param);
+    grub_env_set("vtoy_wimboot_mem_addr", envbuf);
+    debug("vtoy_wimboot_mem_addr: %s\n", envbuf);
+    
+    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
+    grub_env_set("vtoy_wimboot_mem_size", envbuf);
+    debug("vtoy_wimboot_mem_size: %s\n", envbuf);
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int unknown_image = 0;
