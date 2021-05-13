@@ -314,6 +314,90 @@ static int ventoy_is_pe64(grub_uint8_t *buffer)
     return 0;
 }
 
+grub_err_t ventoy_cmd_is_pe64(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int ret = 1;
+    grub_file_t file;
+    grub_uint8_t buf[512];
+    
+    (void)ctxt;
+    (void)argc;
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        return 1;
+    }
+
+    grub_memset(buf, 0, 512);
+    grub_file_read(file, buf, 512);
+    if (ventoy_is_pe64(buf))
+    {
+        debug("%s is PE64\n", args[0]);
+        ret = 0;
+    }
+    else
+    {
+        debug("%s is PE32\n", args[0]);
+    }
+    grub_file_close(file);
+
+    return ret;
+}
+
+grub_err_t ventoy_cmd_sel_wimboot(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int size;
+    char *buf = NULL;
+    char configfile[128];
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    debug("select wimboot argc:%d\n", argc);
+
+    buf = (char *)grub_malloc(8192);
+    if (!buf)
+    {
+        return 0;
+    }
+
+    size = (int)grub_snprintf(buf, 8192, 
+        "menuentry \"Windows Setup (32-bit)\" {\n"
+        "    set vtoy_wimboot_sel=32\n"
+        "}\n"
+        "menuentry \"Windows Setup (64-bit)\" {\n"
+        "    set vtoy_wimboot_sel=64\n"
+        "}\n"
+        );
+    buf[size] = 0;
+
+    g_ventoy_menu_esc = 1;
+    g_ventoy_suppress_esc = 1;
+
+    grub_snprintf(configfile, sizeof(configfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)buf, size);
+    grub_script_execute_sourcecode(configfile);
+    
+    g_ventoy_menu_esc = 0;
+    g_ventoy_suppress_esc = 0;
+
+    grub_free(buf);
+
+    if (g_ventoy_last_entry == 0)
+    {
+        debug("last entry=%d %s=32\n", g_ventoy_last_entry, args[0]);
+        grub_env_set(args[0], "32");
+    }
+    else
+    {
+        debug("last entry=%d %s=64\n", g_ventoy_last_entry, args[0]);
+        grub_env_set(args[0], "64");
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     wim_patch *next = NULL;
@@ -1808,5 +1892,31 @@ grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     grub_file_close(file);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+int ventoy_chain_file_size(const char *path)
+{
+    int size;
+    grub_file_t file;
+
+    file = grub_file_open(path, VENTOY_FILE_TYPE);
+    size = (int)(file->size);
+
+    grub_file_close(file);
+    
+    return size;
+}
+
+int ventoy_chain_file_read(const char *path, int offset, int len, void *buf)
+{
+    int size;
+    grub_file_t file;
+
+    file = grub_file_open(path, VENTOY_FILE_TYPE);
+    grub_file_seek(file, offset);
+    size = grub_file_read(file, buf, len);
+    grub_file_close(file);
+    
+    return size;
 }
 

@@ -127,6 +127,8 @@ static grub_uint64_t g_enumerate_start_time_ms;
 static grub_uint64_t g_enumerate_finish_time_ms;
 static int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
 
+static const char *g_vtoy_winpeshl_ini = "[LaunchApps]\r\nvtoyjump.exe";
+
 static const char *g_menu_class[] = 
 {
     "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg", "vtoyvhd", "vtoyvtoy"
@@ -1020,7 +1022,7 @@ static grub_err_t ventoy_cmd_concat_efi_iso(grub_extcmd_context_t ctxt, int argc
     data = (char *)grub_efi_allocate_iso_buf(totlen);
 #else
     data = (char *)grub_malloc(totlen);
-#endif   
+#endif  
 
     ventoy_fill_os_param(file, (ventoy_os_param *)data);
 
@@ -1048,36 +1050,52 @@ static grub_err_t ventoy_cmd_load_file_to_mem(grub_extcmd_context_t ctxt, int ar
     char value[32];
     char *buf = NULL;
     grub_file_t file;
+    enum grub_file_type type;
     
     (void)ctxt;
     (void)argc;
     (void)args;
 
-    if (argc != 2)
+    if (argc != 3)
     {
         return rc;
     }
 
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
+    if (grub_strcmp(args[0], "nodecompress") == 0)
+    {
+        type = VENTOY_FILE_TYPE;
+    }
+    else
+    {
+        type = GRUB_FILE_TYPE_LINUX_INITRD;
+    }
+
+    file = ventoy_grub_file_open(type, "%s", args[1]);
     if (file == NULL)
     {
-        debug("failed to open file <%s>\n", args[0]);
+        debug("failed to open file <%s>\n", args[1]);
         return 1;
     }
 
 #ifdef GRUB_MACHINE_EFI
-    buf = (char *)grub_efi_allocate_iso_buf(file->size);
+    buf = (char *)grub_efi_allocate_chain_buf(file->size);
 #else
     buf = (char *)grub_malloc(file->size);
 #endif   
 
+    if (!buf)
+    {
+        grub_file_close(file);
+        return 1;
+    }
+
     grub_file_read(file, buf, file->size);
 
-    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
+    grub_snprintf(name, sizeof(name), "%s_addr", args[2]);
     grub_snprintf(value, sizeof(value), "0x%llx", (unsigned long long)(unsigned long)buf);
     grub_env_set(name, value);
     
-    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
+    grub_snprintf(name, sizeof(name), "%s_size", args[2]);
     grub_snprintf(value, sizeof(value), "%llu", (unsigned long long)file->size);
     grub_env_set(name, value);
 
@@ -4349,6 +4367,23 @@ int ventoy_env_init(void)
         grub_env_export("ventoy_env_param");
     }
 
+    grub_snprintf(buf, sizeof(buf), "0x%lx", (ulong)g_vtoy_winpeshl_ini);
+    grub_env_set("vtoy_winpeshl_ini_addr", buf);
+
+    grub_snprintf(buf, sizeof(buf), "%d", (int)grub_strlen(g_vtoy_winpeshl_ini));
+    grub_env_set("vtoy_winpeshl_ini_size", buf);
+
+    grub_env_export("vtoy_winpeshl_ini_addr");
+    grub_env_export("vtoy_winpeshl_ini_size");
+
+    grub_snprintf(buf, sizeof(buf), "0x%lx", (ulong)ventoy_chain_file_size);
+    grub_env_set("vtoy_chain_file_size", buf);
+    grub_env_export("vtoy_chain_file_size");
+
+    grub_snprintf(buf, sizeof(buf), "0x%lx", (ulong)ventoy_chain_file_read);
+    grub_env_set("vtoy_chain_file_read", buf);
+    grub_env_export("vtoy_chain_file_read");
+
     return 0;
 }
 
@@ -4470,6 +4505,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_secureboot_var", ventoy_cmd_check_secureboot_var, 0, NULL, "", "", NULL },
     { "vt_clear_key", ventoy_cmd_clear_key, 0, NULL, "", "", NULL },
     { "vt_img_check_range", ventoy_cmd_img_check_range, 0, NULL, "", "", NULL },
+    { "vt_is_pe64", ventoy_cmd_is_pe64, 0, NULL, "", "", NULL },
+    { "vt_sel_wimboot", ventoy_cmd_sel_wimboot, 0, NULL, "", "", NULL },
 
 };
 
@@ -4484,6 +4521,7 @@ int ventoy_register_all_cmd(void)
         cur->cmd = grub_register_extcmd(cur->name, cur->func, cur->flags, 
                                         cur->summary, cur->description, cur->parser);
     }
+
     return 0;
 }
 

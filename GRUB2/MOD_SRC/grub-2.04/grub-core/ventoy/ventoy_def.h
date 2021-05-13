@@ -554,11 +554,13 @@ int ventoy_is_dir_exist(const char *fmt, ...);
 int ventoy_fill_data(grub_uint32_t buflen, char *buffer);
 grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_is_pe64(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_dump_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_sel_wimboot(grub_extcmd_context_t ctxt, int argc, char **args);
 
 VTOY_JSON *vtoy_json_find_item
 (
@@ -1011,6 +1013,8 @@ int ventoy_load_part_table(const char *diskname);
 int ventoy_env_init(void);
 int ventoy_register_all_cmd(void);
 int ventoy_unregister_all_cmd(void);
+int ventoy_chain_file_size(const char *path);
+int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
 
 #define VTOY_CMD_CHECK(a) if (33554432 != g_ventoy_disk_part_size[a]) ventoy_syscall0(exit)
 

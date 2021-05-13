@@ -964,3 +964,20 @@ void * grub_efi_allocate_iso_buf(grub_uint64_t size)
     
     return (void *)(unsigned long)address;
 }
+
+void * grub_efi_allocate_chain_buf(grub_uint64_t size)
+{
+    grub_efi_boot_services_t *b;
+    grub_efi_status_t status;
+    grub_efi_physical_address_t address = 0;
+    grub_efi_uintn_t pages = GRUB_EFI_BYTES_TO_PAGES(size);
+
+    b = grub_efi_system_table->boot_services;
+    status = efi_call_4 (b->allocate_pages, GRUB_EFI_ALLOCATE_ANY_PAGES, GRUB_EFI_LOADER_DATA, pages, &address);
+    if (status != GRUB_EFI_SUCCESS)
+    {
+        return NULL;
+    }
+    
+    return (void *)(unsigned long)address;
+}

@@ -1118,7 +1118,7 @@ int VentoyJumpWimboot(INT argc, CHAR **argv, CHAR *LunchFile)
     g_64bit_system = TRUE;
 #endif
     
-    Log("VentoyJumpWimboot 64bit:%u", g_64bit_system);
+    Log("VentoyJumpWimboot %dbit", g_64bit_system ? 64 : 32);
 
     sprintf_s(LunchFile, MAX_PATH, "X:\\setup.exe");
 
@@ -1187,6 +1187,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	}
 	
 	g_64bit_system = IsPe64(Buffer);
+    Log("VentoyJump %dbit", g_64bit_system ? 64 : 32);
 
 	if (!IsPathExist(TRUE, "ventoy"))
 	{
