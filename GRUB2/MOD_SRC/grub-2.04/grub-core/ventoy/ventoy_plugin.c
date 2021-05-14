@@ -43,6 +43,7 @@ GRUB_MOD_LICENSE ("GPLv3+");
 char g_arch_mode_suffix[64];
 static char g_iso_disk_name[128];
 static vtoy_password g_boot_pwd;
+static vtoy_password g_file_type_pwd[img_type_max];
 static install_template *g_install_template_head = NULL;
 static dud *g_dud_head = NULL;
 static menu_password *g_pwd_head = NULL;
@@ -809,8 +810,26 @@ static int ventoy_plugin_parse_pwdstr(char *pwdstr, vtoy_password *pwd)
     return 0;
 }
 
+static int ventoy_plugin_get_pwd_type(const char *pwd)
+{
+    int i;
+    char pwdtype[64];
+
+    for (i = 0; pwd && i < (int)ARRAY_SIZE(g_menu_prefix); i++)
+    {
+        grub_snprintf(pwdtype, sizeof(pwdtype), "%spwd", g_menu_prefix[i]);
+        if (grub_strcmp(pwdtype, pwd) == 0)
+        {
+            return img_type_start + i; 
+        }
+    }
+    
+    return -1;
+}
+
 static int ventoy_plugin_pwd_entry(VTOY_JSON *json, const char *isodisk)
 {
+    int type = -1;
     const char *iso = NULL;
     const char *pwd = NULL;
     VTOY_JSON *pNode = NULL;
@@ -843,6 +862,10 @@ static int ventoy_plugin_pwd_entry(VTOY_JSON *json, const char *isodisk)
         if (pNode->pcName && grub_strcmp("bootpwd", pNode->pcName) == 0)
         {
             ventoy_plugin_parse_pwdstr(pNode->unData.pcStrVal, &g_boot_pwd);
+        }
+        else if ((type = ventoy_plugin_get_pwd_type(pNode->pcName)) >= 0)
+        {
+            ventoy_plugin_parse_pwdstr(pNode->unData.pcStrVal, g_file_type_pwd + type);
         }
         else if (pNode->pcName && grub_strcmp("menupwd", pNode->pcName) == 0)
         {
@@ -888,6 +911,7 @@ static int ventoy_plugin_pwd_entry(VTOY_JSON *json, const char *isodisk)
 
 static int ventoy_plugin_pwd_check(VTOY_JSON *json, const char *isodisk)
 {
+    int type = -1;
     char *pos = NULL;
     const char *iso = NULL;
     const char *pwd = NULL;
@@ -911,6 +935,17 @@ static int ventoy_plugin_pwd_check(VTOY_JSON *json, const char *isodisk)
             else
             {
                 grub_printf("Invalid bootpwd.\n");
+            }
+        }
+        else if ((type = ventoy_plugin_get_pwd_type(pNode->pcName)) >= 0)
+        {
+            if (0 == ventoy_plugin_parse_pwdstr(pNode->unData.pcStrVal, NULL))
+            {
+                grub_printf("%s:<%s>\n", pNode->pcName, pNode->unData.pcStrVal);
+            }
+            else
+            {
+                grub_printf("Invalid pwd <%s>\n", pNode->unData.pcStrVal);
             }
         }
         else if (pNode->pcName && grub_strcmp("menupwd", pNode->pcName) == 0)
@@ -2475,20 +2510,45 @@ int ventoy_plugin_load_dud(dud *node, const char *isopart)
 
 static const vtoy_password * ventoy_plugin_get_password(const char *isopath)
 {
+    int i;
     int len;
+    const char *pos = NULL;
     menu_password *node = NULL;
 
-    if ((!g_pwd_head) || (!isopath))
+    if (!isopath)
     {
         return NULL;
     }
 
-    len = (int)grub_strlen(isopath);    
-    for (node = g_pwd_head; node; node = node->next)
+    if (g_pwd_head)
     {
-        if (node->pathlen == len && ventoy_strncmp(node->isopath, isopath, len) == 0)
+        len = (int)grub_strlen(isopath);    
+        for (node = g_pwd_head; node; node = node->next)
         {
-            return &(node->password);
+            if (node->pathlen == len && ventoy_strncmp(node->isopath, isopath, len) == 0)
+            {
+                return &(node->password);
+            }
+        }
+    }
+
+    while (*isopath)
+    {
+        if (*isopath == '.')
+        {
+            pos = isopath;
+        }
+        isopath++;
+    }
+
+    if (pos)
+    {
+        for (i = 0; i < (int)ARRAY_SIZE(g_menu_prefix); i++)
+        {
+            if (g_file_type_pwd[i].type && 0 == grub_strcasecmp(pos + 1, g_menu_prefix[i]))
+            {
+                return g_file_type_pwd + i;
+            }
         }
     }
 

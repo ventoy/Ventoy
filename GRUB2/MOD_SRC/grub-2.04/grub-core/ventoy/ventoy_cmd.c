@@ -134,7 +134,7 @@ static const char *g_menu_class[] =
     "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg", "vtoyvhd", "vtoyvtoy"
 };
     
-static const char *g_menu_prefix[] = 
+const char *g_menu_prefix[img_type_max] = 
 {
     "iso", "wim", "efi", "img", "vhd", "vtoy"
 };

@@ -194,12 +194,14 @@ typedef struct ventoy_iso9660_vd
 
 #pragma pack()
 
-#define img_type_iso  0
-#define img_type_wim  1
-#define img_type_efi  2
-#define img_type_img  3
-#define img_type_vhd  4
-#define img_type_vtoy 5
+#define img_type_start 0
+#define img_type_iso   0
+#define img_type_wim   1
+#define img_type_efi   2
+#define img_type_img   3
+#define img_type_vhd   4
+#define img_type_vtoy  5
+#define img_type_max   6
 
 typedef struct img_info
 {
@@ -282,6 +284,7 @@ extern ventoy_img_chunk_list g_img_chunk_list;
 extern ventoy_img_chunk_list g_wimiso_chunk_list;
 extern char *g_wimiso_path;
 extern char g_arch_mode_suffix[64];
+extern const char *g_menu_prefix[img_type_max];
 
 extern int g_ventoy_debug;
 void ventoy_debug(const char *fmt, ...);
