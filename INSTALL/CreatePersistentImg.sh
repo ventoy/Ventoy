@@ -4,6 +4,7 @@ size=1024
 fstype=ext4
 label=casper-rw
 config=''
+outputfile=persistence.dat
 
 print_usage() {
     echo 'Usage:  CreatePersistentImg.sh [ -s size ] [ -t fstype ] [ -l LABEL ] [ -c CFG ]'
@@ -12,6 +13,7 @@ print_usage() {
     echo '   -t filesystem type, default is ext4  ext2/ext3/ext4/xfs are supported now'
     echo '   -l label, default is casper-rw'
     echo '   -c configfile name inside the persistence file. File content is "/ union"'
+    echo '   -o outputfile name, default is persistence.dat'
     echo ''
 }
 
@@ -28,6 +30,9 @@ while [ -n "$1" ]; do
     elif [ "$1" = "-c" ]; then
         shift
         config=$1
+    elif [ "$1" = "-o" ]; then
+        shift
+        outputfile=$1
     elif [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
         print_usage
         exit 0
@@ -69,13 +74,17 @@ else
     exit 1
 fi
 
+if [ "$outputdir" != "persistence.dat" ]; then
+    mkdir -p "$(dirname "$outputfile")"
+fi
+
 # 00->ff avoid sparse file
-dd if=/dev/zero  bs=1M count=$size | tr '\000' '\377' > persistence.dat
+dd if=/dev/zero  bs=1M count=$size | tr '\000' '\377' > "$outputfile"
 sync
 
 freeloop=$(losetup -f)
 
-losetup $freeloop persistence.dat
+losetup $freeloop "$outputfile"
 
 mkfs -t $fstype $fsopt -L $label $freeloop 
 
