@@ -906,8 +906,12 @@ typedef struct vtoy_password
     grub_uint8_t md5[16];
 }vtoy_password;
 
+#define vtoy_menu_pwd_file   0
+#define vtoy_menu_pwd_parent 1
+
 typedef struct menu_password
 {
+    int type;
     int pathlen;
     char isopath[256];
 

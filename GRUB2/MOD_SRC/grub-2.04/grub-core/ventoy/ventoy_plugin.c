@@ -876,13 +876,21 @@ static int ventoy_plugin_pwd_entry(VTOY_JSON *json, const char *isodisk)
                     continue;
                 }
 
+                type = vtoy_menu_pwd_file;
                 iso = vtoy_json_get_string_ex(pCNode->pstChild, "file");
+                if (!iso)
+                {
+                    type = vtoy_menu_pwd_parent;
+                    iso = vtoy_json_get_string_ex(pCNode->pstChild, "parent");                    
+                }                
+                
                 pwd = vtoy_json_get_string_ex(pCNode->pstChild, "pwd");
                 if (iso && pwd && iso[0] == '/')
                 {
                     node = grub_zalloc(sizeof(menu_password));
                     if (node)
                     {
+                        node->type = type;
                         node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", iso);
 
                         if (ventoy_plugin_parse_pwdstr((char *)pwd, &(node->password)))
@@ -959,8 +967,7 @@ static int ventoy_plugin_pwd_check(VTOY_JSON *json, const char *isodisk)
                     continue;
                 }
 
-                iso = vtoy_json_get_string_ex(pCNode->pstChild, "file");
-                if (iso)
+                if ((iso = vtoy_json_get_string_ex(pCNode->pstChild, "file")) != NULL)
                 {
                     pos = grub_strchr(iso, '*');
                     if (pos || 0 == ventoy_plugin_check_path(isodisk, iso))
@@ -970,6 +977,26 @@ static int ventoy_plugin_pwd_check(VTOY_JSON *json, const char *isodisk)
                         if (0 == ventoy_plugin_parse_pwdstr((char *)pwd, NULL))
                         {
                             grub_printf("file:<%s> [%s]\n", iso, (pos ? "*" : "OK"));
+                            grub_printf("pwd:<%s>\n\n", pwd);
+                        }
+                        else
+                        {
+                            grub_printf("Invalid password for <%s>\n", iso);
+                        }
+                    }
+                    else
+                    {
+                        grub_printf("<%s%s> not found\n", isodisk, iso);
+                    }
+                }
+                else if ((iso = vtoy_json_get_string_ex(pCNode->pstChild, "parent")) != NULL)
+                {
+                    if (ventoy_is_dir_exist("%s%s", isodisk, iso))
+                    {
+                        pwd = vtoy_json_get_string_ex(pCNode->pstChild, "pwd");
+                        if (0 == ventoy_plugin_parse_pwdstr((char *)pwd, NULL))
+                        {
+                            grub_printf("dir:<%s> [%s]\n", iso, (pos ? "*" : "OK"));
                             grub_printf("pwd:<%s>\n\n", pwd);
                         }
                         else
@@ -2525,9 +2552,24 @@ static const vtoy_password * ventoy_plugin_get_password(const char *isopath)
         len = (int)grub_strlen(isopath);    
         for (node = g_pwd_head; node; node = node->next)
         {
-            if (node->pathlen == len && ventoy_strncmp(node->isopath, isopath, len) == 0)
+            if (node->type == vtoy_menu_pwd_file)
             {
-                return &(node->password);
+                if (node->pathlen == len && ventoy_strncmp(node->isopath, isopath, len) == 0)
+                {
+                    return &(node->password);
+                }
+            }
+        }
+
+        for (node = g_pwd_head; node; node = node->next)
+        {   
+            if (node->type == vtoy_menu_pwd_parent)
+            {
+                if (node->pathlen < len && (isopath[node->pathlen] == '/') &&
+                    ventoy_strncmp(node->isopath, isopath, node->pathlen) == 0)
+                {
+                    return &(node->password);
+                }
             }
         }
     }
