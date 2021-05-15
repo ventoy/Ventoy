@@ -29,6 +29,8 @@
 
 #define VTOY_SIZE_1GB     1073741824
 #define VTOY_SIZE_1MB     (1024 * 1024)
+#define VTOY_SIZE_2MB     (2 * 1024 * 1024)
+#define VTOY_SIZE_4MB     (4 * 1024 * 1024)
 #define VTOY_SIZE_512KB   (512 * 1024)
 #define VTOY_SIZE_1KB     1024
 
@@ -564,6 +566,9 @@ grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char 
 grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_dump_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_sel_wimboot(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_set_wim_prompt(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_ssize_t ventoy_load_file_with_prompt(grub_file_t file, void *buf, grub_ssize_t size);
+int ventoy_need_prompt_load_file(void);
 
 VTOY_JSON *vtoy_json_find_item
 (

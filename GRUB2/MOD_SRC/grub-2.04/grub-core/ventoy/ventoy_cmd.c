@@ -139,6 +139,9 @@ const char *g_menu_prefix[img_type_max] =
     "iso", "wim", "efi", "img", "vhd", "vtoy"
 };
 
+static int g_vtoy_load_prompt = 0;
+static char g_vtoy_prompt_msg[64];
+
 static int ventoy_get_fs_type(const char *fs)
 {
     if (NULL == fs)
@@ -1043,6 +1046,61 @@ static grub_err_t ventoy_cmd_concat_efi_iso(grub_extcmd_context_t ctxt, int argc
     return 0;
 }
 
+grub_err_t ventoy_cmd_set_wim_prompt(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    g_vtoy_load_prompt = 0;
+    grub_memset(g_vtoy_prompt_msg, 0, sizeof(g_vtoy_prompt_msg));
+    
+    if (argc == 2 && args[0][0] == '1')
+    {
+        g_vtoy_load_prompt = 1;
+        grub_snprintf(g_vtoy_prompt_msg, sizeof(g_vtoy_prompt_msg), "%s", args[1]);
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+int ventoy_need_prompt_load_file(void)
+{
+    return g_vtoy_load_prompt;
+}
+
+grub_ssize_t ventoy_load_file_with_prompt(grub_file_t file, void *buf, grub_ssize_t size)
+{
+    grub_uint64_t ro = 0;
+    grub_uint64_t div = 0;
+    grub_ssize_t left = size;
+    char *cur = (char *)buf;
+
+    grub_printf("\r%s   1%%    ", g_vtoy_prompt_msg); 
+    grub_refresh();
+
+    while (left >= VTOY_SIZE_2MB)
+    {
+        grub_file_read(file, cur, VTOY_SIZE_2MB);
+        cur += VTOY_SIZE_2MB;
+        left -= VTOY_SIZE_2MB;
+
+        div = grub_divmod64((grub_uint64_t)((size - left) * 100), (grub_uint64_t)size, &ro);
+        grub_printf("\r%s   %d%%    ", g_vtoy_prompt_msg, (int)div);
+        grub_refresh();  
+    }
+
+    if (left > 0)
+    {
+        grub_file_read(file, cur, left);
+    }
+
+    grub_printf("\r%s   100%%     \n", g_vtoy_prompt_msg);
+    grub_refresh(); 
+
+    return size;
+}
+
 static grub_err_t ventoy_cmd_load_file_to_mem(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc = 1;
@@ -1089,7 +1147,14 @@ static grub_err_t ventoy_cmd_load_file_to_mem(grub_extcmd_context_t ctxt, int ar
         return 1;
     }
 
-    grub_file_read(file, buf, file->size);
+    if (g_vtoy_load_prompt)
+    {
+         ventoy_load_file_with_prompt(file, buf, file->size);
+    }
+    else
+    {
+        grub_file_read(file, buf, file->size);
+    }
 
     grub_snprintf(name, sizeof(name), "%s_addr", args[2]);
     grub_snprintf(value, sizeof(value), "0x%llx", (unsigned long long)(unsigned long)buf);
@@ -4507,6 +4572,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_img_check_range", ventoy_cmd_img_check_range, 0, NULL, "", "", NULL },
     { "vt_is_pe64", ventoy_cmd_is_pe64, 0, NULL, "", "", NULL },
     { "vt_sel_wimboot", ventoy_cmd_sel_wimboot, 0, NULL, "", "", NULL },
+    { "vt_set_wim_load_prompt", ventoy_cmd_set_wim_prompt, 0, NULL, "", "", NULL },
 
 };
 
