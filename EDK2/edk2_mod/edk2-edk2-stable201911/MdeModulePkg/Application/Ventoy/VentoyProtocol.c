@@ -148,7 +148,7 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
     ventoy_override_chunk *pOverride = g_override_chunk;
     EFI_BLOCK_IO_PROTOCOL *pRawBlockIo = gBlockData.pRawBlockIo;
     
-    debug("read iso sector %lu  count %u", Sector, Count);
+    debug("read iso sector %lu count %u Buffer:%p Align:%u", Sector, Count, Buffer, pRawBlockIo->Media->IoAlign);
 
     ReadStart = Sector * 2048;
     ReadEnd = (Sector + Count) * 2048;
@@ -173,7 +173,6 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
             {
                 MapLba = ((Sector - pchunk->img_start_sector) >> 1) + pchunk->disk_start_sector;
             }
-            
 
             secLeft = pchunk->img_end_sector + 1 - Sector;
             secRead = (Count < secLeft) ? Count : secLeft;
@@ -182,7 +181,7 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
                                      MapLba, secRead * 2048, pCurBuf);
             if (EFI_ERROR(Status))
             {
-                debug("Raw disk read block failed %r LBA:%lu Count:%u", Status, MapLba, secRead);
+                debug("Raw disk read block failed %r LBA:%lu Count:%u %p", Status, MapLba, secRead, pCurBuf);
                 return Status;
             }
 
@@ -425,7 +424,7 @@ end:
     return Lba;
 }
 
-EFI_STATUS EFIAPI ventoy_block_io_read 
+EFI_STATUS EFIAPI ventoy_block_io_read_real 
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
     IN UINT32                          MediaId,
@@ -447,7 +446,7 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     ventoy_sector_flag *cur_flag;
     ventoy_virt_chunk *node;
     
-    //debug("### ventoy_block_io_read sector:%u count:%u", (UINT32)Lba, (UINT32)BufferSize / 2048);
+    debug("### block_io_read_real sector:%u count:%u Buffer:%p", (UINT32)Lba, (UINT32)BufferSize / 2048, Buffer);
 
     secNum = BufferSize / 2048;
 
@@ -549,6 +548,42 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     }
 
 	return EFI_SUCCESS;
+}
+
+EFI_STATUS EFIAPI ventoy_block_io_read
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    OUT VOID                          *Buffer
+) 
+{
+    UINT32 IoAlign = 0;
+    VOID *NewBuf = NULL;
+    EFI_STATUS Status = EFI_OUT_OF_RESOURCES;
+
+    if (gBlockData.pRawBlockIo && gBlockData.pRawBlockIo->Media)
+    {
+        IoAlign = gBlockData.pRawBlockIo->Media->IoAlign;
+    }
+
+    if ((IoAlign == 0) || (((UINTN) Buffer & (IoAlign - 1)) == 0))
+    {
+        Status = ventoy_block_io_read_real(This, MediaId, Lba, BufferSize, Buffer);
+    }
+    else
+    {
+        NewBuf = AllocatePages(EFI_SIZE_TO_PAGES(BufferSize + IoAlign));
+        if (NewBuf)
+        {
+            Status = ventoy_block_io_read_real(This, MediaId, Lba, BufferSize, NewBuf);
+            CopyMem(Buffer, NewBuf, BufferSize);
+            FreePages(NewBuf, EFI_SIZE_TO_PAGES(BufferSize + IoAlign));
+        }
+    }
+
+    return Status;
 }
 
 EFI_STATUS EFIAPI ventoy_block_io_write 
@@ -720,7 +755,7 @@ EFI_STATUS EFIAPI ventoy_block_io_read_512
     UINT8 *CurBuf = NULL;
     EFI_STATUS Status = EFI_SUCCESS;
 
-    debug("ventoy_block_io_read_512 %lu %lu\n", Lba, BufferSize / 512);
+    debug("ventoy_block_io_read_512 %lu %lu Buffer:%p\n", Lba, BufferSize / 512, Buffer);
 
     CurBuf = (UINT8 *)Buffer;
 
