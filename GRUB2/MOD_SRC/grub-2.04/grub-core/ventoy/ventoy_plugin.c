@@ -499,8 +499,7 @@ static int ventoy_plugin_auto_install_check(VTOY_JSON *json, const char *isodisk
             grub_printf("NOT object type\n");
         }
     
-        iso = vtoy_json_get_string_ex(pNode->pstChild, "image");
-        if (iso)
+        if ((iso = vtoy_json_get_string_ex(pNode->pstChild, "image")) != NULL)
         {
             pos = grub_strchr(iso, '*');
             if (pos || 0 == ventoy_plugin_check_path(isodisk, iso))
@@ -525,6 +524,30 @@ static int ventoy_plugin_auto_install_check(VTOY_JSON *json, const char *isodisk
                 grub_printf("image: %s [FAIL]\n", iso);
             }
         }
+        else if ((iso = vtoy_json_get_string_ex(pNode->pstChild, "parent")) != NULL)
+        {
+            if (ventoy_is_dir_exist("%s%s", isodisk, iso))
+            {
+                grub_printf("parent: %s [OK]\n", iso);
+                ventoy_plugin_check_fullpath(pNode->pstChild, isodisk, "template", &pathnum);
+                
+                if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "autosel", &autosel))
+                {
+                    if (autosel >= 0 && autosel <= pathnum)
+                    {
+                        grub_printf("autosel: %d [OK]\n", autosel);
+                    }
+                    else
+                    {
+                        grub_printf("autosel: %d [FAIL]\n", autosel);
+                    }
+                }
+            }
+            else
+            {
+                grub_printf("parent: %s [FAIL]\n", iso);
+            }
+        }
         else
         {
             grub_printf("image not found\n");
@@ -536,6 +559,7 @@ static int ventoy_plugin_auto_install_check(VTOY_JSON *json, const char *isodisk
 
 static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk)
 {
+    int type = 0;
     int pathnum = 0;
     int autosel = 0;
     const char *iso = NULL;
@@ -564,7 +588,14 @@ static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk
 
     for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
     {
+        type = auto_install_type_file;
         iso = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (!iso)
+        {
+            type = auto_install_type_parent;
+            iso = vtoy_json_get_string_ex(pNode->pstChild, "parent");
+        }
+        
         if (iso && iso[0] == '/')
         {
             if (0 == ventoy_plugin_parse_fullpath(pNode->pstChild, isodisk, "template", &templatepath, &pathnum))
@@ -572,6 +603,7 @@ static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk
                 node = grub_zalloc(sizeof(install_template));
                 if (node)
                 {
+                    node->type = type;
                     node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", iso);
                     node->templatepath = templatepath;
                     node->templatenum = pathnum;
@@ -1269,6 +1301,7 @@ static int ventoy_plugin_menualias_entry(VTOY_JSON *json, const char *isodisk)
 
 static int ventoy_plugin_injection_check(VTOY_JSON *json, const char *isodisk)
 {
+    int type = 0;
     const char *path = NULL;
     const char *archive = NULL;
     VTOY_JSON *pNode = NULL;
@@ -1283,11 +1316,17 @@ static int ventoy_plugin_injection_check(VTOY_JSON *json, const char *isodisk)
 
     for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
     {
+        type = injection_type_file;
         path = vtoy_json_get_string_ex(pNode->pstChild, "image");
         if (!path)
         {
-            grub_printf("image not found\n");
-            continue;
+            type = injection_type_parent;
+            path = vtoy_json_get_string_ex(pNode->pstChild, "parent");
+            if (!path)
+            {
+                grub_printf("image/parent not found\n");
+                continue;
+            }
         }
 
         archive = vtoy_json_get_string_ex(pNode->pstChild, "archive");
@@ -1297,13 +1336,21 @@ static int ventoy_plugin_injection_check(VTOY_JSON *json, const char *isodisk)
             continue;
         }
 
-        if (grub_strchr(path, '*'))
+        if (type == injection_type_file)
         {
-            grub_printf("image: <%s> [*]\n", path);
+            if (grub_strchr(path, '*'))
+            {
+                grub_printf("image: <%s> [*]\n", path);
+            }
+            else
+            {
+                grub_printf("image: <%s> [%s]\n", path, ventoy_check_file_exist("%s%s", isodisk, path) ? "OK" : "NOT EXIST");            
+            }
         }
         else
         {
-            grub_printf("image: <%s> [%s]\n", path, ventoy_check_file_exist("%s%s", isodisk, path) ? "OK" : "NOT EXIST");            
+            grub_printf("parent: <%s> [%s]\n", path, 
+                ventoy_is_dir_exist("%s%s", isodisk, path) ? "OK" : "NOT EXIST");
         }
 
         grub_printf("archive: <%s> [%s]\n\n", archive, ventoy_check_file_exist("%s%s", isodisk, archive) ? "OK" : "NOT EXIST");
@@ -1314,6 +1361,7 @@ static int ventoy_plugin_injection_check(VTOY_JSON *json, const char *isodisk)
 
 static int ventoy_plugin_injection_entry(VTOY_JSON *json, const char *isodisk)
 {
+    int type = 0;
     const char *path = NULL;
     const char *archive = NULL;
     VTOY_JSON *pNode = NULL;
@@ -1341,13 +1389,21 @@ static int ventoy_plugin_injection_entry(VTOY_JSON *json, const char *isodisk)
 
     for (pNode = json->pstChild; pNode; pNode = pNode->pstNext)
     {
+        type = injection_type_file;
         path = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (!path)
+        {
+            type = injection_type_parent;
+            path = vtoy_json_get_string_ex(pNode->pstChild, "parent");
+        }
+        
         archive = vtoy_json_get_string_ex(pNode->pstChild, "archive");
         if (path && path[0] == '/' && archive && archive[0] == '/')
         {
             node = grub_zalloc(sizeof(injection_config));
             if (node)
             {
+                node->type = type;
                 node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", path);
                 grub_snprintf(node->archive, sizeof(node->archive), "%s", archive);
 
@@ -2039,7 +2095,7 @@ void ventoy_plugin_dump_injection(void)
 
     for (node = g_injection_head; node; node = node->next)
     {
-        grub_printf("\nIMAGE:<%s>\n", node->isopath);
+        grub_printf("\n%s:<%s>\n", (node->type == injection_type_file) ? "IMAGE" : "PARENT", node->isopath);
         grub_printf("ARCHIVE:<%s>\n", node->archive);
     }
 
@@ -2054,7 +2110,9 @@ void ventoy_plugin_dump_auto_install(void)
 
     for (node = g_install_template_head; node; node = node->next)
     {
-        grub_printf("\nIMAGE:<%s> <%d>\n", node->isopath, node->templatenum);
+        grub_printf("\n%s:<%s> <%d>\n", 
+            (node->type == auto_install_type_file) ? "IMAGE" : "PARENT",
+            node->isopath, node->templatenum);
         for (i = 0; i < node->templatenum; i++)
         {
             grub_printf("SCRIPT %d:<%s>\n", i, node->templatepath[i].path);            
@@ -2107,9 +2165,24 @@ install_template * ventoy_plugin_find_install_template(const char *isopath)
     len = (int)grub_strlen(isopath);
     for (node = g_install_template_head; node; node = node->next)
     {
-        if (node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
+        if (node->type == auto_install_type_file)
         {
-            return node;
+            if (node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
+            {
+                return node;
+            }
+        }
+    }
+    
+    for (node = g_install_template_head; node; node = node->next)
+    {
+        if (node->type == auto_install_type_parent)
+        {
+            if (node->pathlen < len && (isopath[node->pathlen] == '/') &&
+                ventoy_strncmp(node->isopath, isopath, node->pathlen) == 0)
+            {
+                return node;
+            }
         }
     }
 
@@ -2228,9 +2301,24 @@ const char * ventoy_plugin_get_injection(const char *isopath)
     len = (int)grub_strlen(isopath);
     for (node = g_injection_head; node; node = node->next)
     {
-        if (node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
+        if (node->type == injection_type_file)
         {
-            return node->archive;
+            if (node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
+            {
+                return node->archive;
+            }
+        }
+    }
+    
+    for (node = g_injection_head; node; node = node->next)
+    {
+        if (node->type == injection_type_parent)
+        {
+            if (node->pathlen < len && isopath[node->pathlen] == '/' &&
+                ventoy_strncmp(node->isopath, isopath, node->pathlen) == 0)
+            {
+                return node->archive;
+            }
         }
     }
 

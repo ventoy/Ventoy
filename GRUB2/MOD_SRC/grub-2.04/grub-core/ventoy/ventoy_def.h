@@ -778,8 +778,11 @@ typedef struct file_fullpath
     char path[256];
 }file_fullpath;
 
+#define auto_install_type_file   0
+#define auto_install_type_parent 1
 typedef struct install_template
 {
+    int type;
     int pathlen;
     char isopath[256];
 
@@ -873,8 +876,11 @@ typedef struct conf_replace
     struct conf_replace *next;
 }conf_replace;
 
+#define injection_type_file   0
+#define injection_type_parent 1
 typedef struct injection_config
 {
+    int type;
     int pathlen;
     char isopath[256];
     char archive[256];
