@@ -56,6 +56,27 @@ static auto_memdisk *g_auto_memdisk_head = NULL;
 static image_list *g_image_list_head = NULL;
 static conf_replace *g_conf_replace_head = NULL;
 
+static int ventoy_plugin_is_parent(const char *pat, int patlen, const char *isopath)
+{
+    if (patlen > 1)
+    {
+        if (isopath[patlen] == '/' && ventoy_strncmp(pat, isopath, patlen) == 0 &&
+            grub_strchr(isopath + patlen + 1, '/') == NULL)
+        {
+            return 1;
+        }
+    }
+    else
+    {
+        if (pat[0] == '/' && grub_strchr(isopath + 1, '/') == NULL)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 static int ventoy_plugin_control_check(VTOY_JSON *json, const char *isodisk)
 {
     int rc = 0;
@@ -2178,8 +2199,7 @@ install_template * ventoy_plugin_find_install_template(const char *isopath)
     {
         if (node->type == auto_install_type_parent)
         {
-            if (node->pathlen < len && (isopath[node->pathlen] == '/') &&
-                ventoy_strncmp(node->isopath, isopath, node->pathlen) == 0)
+            if (node->pathlen < len && ventoy_plugin_is_parent(node->isopath, node->pathlen, isopath))
             {
                 return node;
             }
@@ -2314,8 +2334,7 @@ const char * ventoy_plugin_get_injection(const char *isopath)
     {
         if (node->type == injection_type_parent)
         {
-            if (node->pathlen < len && isopath[node->pathlen] == '/' &&
-                ventoy_strncmp(node->isopath, isopath, node->pathlen) == 0)
+            if (node->pathlen < len && ventoy_plugin_is_parent(node->isopath, node->pathlen, isopath))
             {
                 return node->archive;
             }
@@ -2350,13 +2369,17 @@ const char * ventoy_plugin_get_menu_alias(int type, const char *isopath)
 
 const char * ventoy_plugin_get_menu_class(int type, const char *name, const char *path)
 {
-    int len;
+    int namelen;
+    int pathlen;
     menu_class *node = NULL;
 
     if (!g_menu_class_head)
     {
         return NULL;
     }
+    
+    namelen = (int)grub_strlen(name); 
+    pathlen = (int)grub_strlen(path); 
     
     if (vtoy_class_image_file == type)
     {
@@ -2369,17 +2392,14 @@ const char * ventoy_plugin_get_menu_class(int type, const char *name, const char
 
             if (node->parent)
             {
-                len = (int)grub_strlen(path);
-                if ((node->patlen < len) && (path[node->patlen] == '/') &&
-                    (grub_strncmp(path, node->pattern, node->patlen) == 0))
+                if ((node->patlen < pathlen) && ventoy_plugin_is_parent(node->pattern, node->patlen, path))
                 {
                     return node->class;
                 }
             }
             else
             {
-                len = (int)grub_strlen(name);
-                if ((node->patlen < len) && grub_strstr(name, node->pattern))
+                if ((node->patlen < namelen) && grub_strstr(name, node->pattern))
                 {
                     return node->class;
                 }
@@ -2388,10 +2408,9 @@ const char * ventoy_plugin_get_menu_class(int type, const char *name, const char
     }
     else
     {
-        len = (int)grub_strlen(name);
         for (node = g_menu_class_head; node; node = node->next)
         {
-            if (node->type == type && node->patlen == len && grub_strncmp(name, node->pattern, len) == 0)
+            if (node->type == type && node->patlen == namelen && grub_strncmp(name, node->pattern, namelen) == 0)
             {
                 return node->class;
             }
@@ -2653,8 +2672,7 @@ static const vtoy_password * ventoy_plugin_get_password(const char *isopath)
         {   
             if (node->type == vtoy_menu_pwd_parent)
             {
-                if (node->pathlen < len && (isopath[node->pathlen] == '/') &&
-                    ventoy_strncmp(node->isopath, isopath, node->pathlen) == 0)
+                if (node->pathlen < len && ventoy_plugin_is_parent(node->isopath, node->pathlen, isopath))
                 {
                     return &(node->password);
                 }
