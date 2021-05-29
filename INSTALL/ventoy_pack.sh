@@ -106,11 +106,13 @@ cp $OPT VentoyWebDeepin.sh $tmpdir/
 cp $OPT README $tmpdir/
 cp $OPT plugin $tmpdir/
 cp $OPT CreatePersistentImg.sh $tmpdir/
+cp $OPT ExtendPersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
 dos2unix -q $tmpdir/VentoyWeb.sh
 dos2unix -q $tmpdir/VentoyWebDeepin.sh
 #dos2unix -q $tmpdir/Ventoy.desktop
 dos2unix -q $tmpdir/CreatePersistentImg.sh
+dos2unix -q $tmpdir/ExtendPersistentImg.sh
 
 cp $OPT ../LinuxGUI/WebUI $tmpdir/
 sed 's/.*SCRIPT_DEL_THIS \(.*\)/\1/g' -i $tmpdir/WebUI/index.html

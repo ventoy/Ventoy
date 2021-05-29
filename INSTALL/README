@@ -38,5 +38,12 @@ Please refer https://www.ventoy.net/en/plugin_persistence.html for details.
 
 
 
+========== ExtendPersistentImg.sh ===============
+sudo sh ExtendPersistentImg.sh  file size   
+For example:
+sh ExtendPersistentImg.sh persistence.dat 2048  ---->  Extend persistence.dat by 2048MB
+That is to say, persistence.dat file will grow to 3GB size (assume that it is 1GB size before extend)
+
+Please refer https://www.ventoy.net/en/plugin_persistence.html for details.
 
 

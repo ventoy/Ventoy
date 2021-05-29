@@ -68,7 +68,7 @@ gfxterm_background: video_colors bitmap_scale gfxterm extcmd video bitmap
 search_fs_uuid:
 gcry_dsa: pgp mpi
 keystatus: extcmd
-linux: verifiers boot fdt
+linux: ventoy verifiers boot fdt
 geli: cryptodisk crypto gcry_sha512 pbkdf2 gcry_sha256
 cmdline_cat_test: font functional_test normal procfs video_fb
 part_sun:
@@ -93,7 +93,7 @@ terminal:
 div:
 crypto:
 part_bsd: part_msdos
-ventoy: elf fshelp ext2 btrfs font crypto gcry_md5 exfat udf extcmd normal video gcry_sha1 iso9660
+ventoy: elf fshelp ext2 btrfs font crypto gcry_md5 exfat udf extcmd datetime div normal video gcry_sha1 iso9660
 gcry_sha512: crypto
 password: crypto normal
 fshelp:

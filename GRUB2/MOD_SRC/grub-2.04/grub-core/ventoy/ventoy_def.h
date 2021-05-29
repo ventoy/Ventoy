@@ -778,6 +778,12 @@ typedef struct file_fullpath
     char path[256];
 }file_fullpath;
 
+typedef struct theme_list
+{
+    file_fullpath theme;
+    struct theme_list *next;
+}theme_list;
+
 #define auto_install_type_file   0
 #define auto_install_type_parent 1
 typedef struct install_template
@@ -999,6 +1005,7 @@ int ventoy_plugin_load_dud(dud *node, const char *isopart);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);
+grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_check_password(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_linux_get_main_initrd_index(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -1035,6 +1042,10 @@ int ventoy_chain_file_size(const char *path);
 int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
 
 #define VTOY_CMD_CHECK(a) if (33554432 != g_ventoy_disk_part_size[a]) ventoy_syscall0(exit)
+
+#define vtoy_theme_random_boot_second  0
+#define vtoy_theme_random_boot_day     1
+#define vtoy_theme_random_boot_month   2
 
 #endif /* __VENTOY_DEF_H__ */
 

@@ -4573,6 +4573,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_is_pe64", ventoy_cmd_is_pe64, 0, NULL, "", "", NULL },
     { "vt_sel_wimboot", ventoy_cmd_sel_wimboot, 0, NULL, "", "", NULL },
     { "vt_set_wim_load_prompt", ventoy_cmd_set_wim_prompt, 0, NULL, "", "", NULL },
+    { "vt_set_theme", ventoy_cmd_set_theme, 0, NULL, "", "", NULL },
 
 };
 

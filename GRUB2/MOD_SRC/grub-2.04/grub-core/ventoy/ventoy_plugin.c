@@ -56,6 +56,11 @@ static auto_memdisk *g_auto_memdisk_head = NULL;
 static image_list *g_image_list_head = NULL;
 static conf_replace *g_conf_replace_head = NULL;
 
+static int g_theme_num = 0;
+static theme_list *g_theme_head = NULL;
+static int g_theme_random = vtoy_theme_random_boot_second;
+static char g_theme_single_file[256];
+
 static int ventoy_plugin_is_parent(const char *pat, int patlen, const char *isopath)
 {
     if (patlen > 1)
@@ -177,6 +182,38 @@ static int ventoy_plugin_theme_check(VTOY_JSON *json, const char *isodisk)
             return 1;
         }
     }
+    else
+    {
+        node = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "file");
+        if (node)
+        {
+            for (node = node->pstChild; node; node = node->pstNext)
+            {
+                value = node->unData.pcStrVal;
+                grub_printf("file: %s\n", value);
+                if (value[0] == '/')
+                {
+                    exist = ventoy_is_file_exist("%s%s", isodisk, value);
+                }
+                else
+                {
+                    exist = ventoy_is_file_exist("%s/ventoy/%s", isodisk, value);
+                }
+
+                if (exist == 0)
+                {
+                    grub_printf("Theme file %s does NOT exist\n", value);
+                    return 1;
+                }
+            }
+
+            value = vtoy_json_get_string_ex(json->pstChild, "random");
+            if (value)
+            {
+                grub_printf("random: %s\n", value);
+            }
+        }
+    }
     
     value = vtoy_json_get_string_ex(json->pstChild, "gfxmode");
     if (value)
@@ -244,8 +281,10 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
 {
     const char *value;
     char filepath[256];
-    VTOY_JSON *node;
-    
+    VTOY_JSON *node = NULL;
+    theme_list *tail = NULL;
+    theme_list *themenode = NULL;
+
     value = vtoy_json_get_string_ex(json->pstChild, "file");
     if (value)
     {
@@ -258,7 +297,7 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
             grub_snprintf(filepath, sizeof(filepath), "%s/ventoy/%s", isodisk, value);
         }
         
-        if (ventoy_is_file_exist(filepath) == 0)
+        if (ventoy_check_file_exist(filepath) == 0)
         {
             debug("Theme file %s does not exist\n", filepath);
             return 0;
@@ -266,6 +305,65 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
 
         debug("vtoy_theme %s\n", filepath);
         grub_env_set("vtoy_theme", filepath);
+        grub_snprintf(g_theme_single_file, sizeof(g_theme_single_file), "%s", filepath);
+    }
+    else
+    {
+        node = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "file");
+        if (node)
+        {
+            for (node = node->pstChild; node; node = node->pstNext)
+            {
+                value = node->unData.pcStrVal;
+                if (value[0] == '/')
+                {
+                    grub_snprintf(filepath, sizeof(filepath), "%s%s", isodisk, value);
+                }
+                else
+                {
+                    grub_snprintf(filepath, sizeof(filepath), "%s/ventoy/%s", isodisk, value);
+                }
+
+                if (ventoy_check_file_exist(filepath) == 0)
+                {
+                    continue;
+                }
+
+                themenode = grub_zalloc(sizeof(theme_list));
+                if (themenode)
+                {
+                    grub_snprintf(themenode->theme.path, sizeof(themenode->theme.path), "%s", filepath);
+                    if (g_theme_head)
+                    {
+                        tail->next = themenode;
+                    }
+                    else
+                    {
+                        g_theme_head = themenode;
+                    }
+                    tail = themenode;
+                    g_theme_num++;
+                }
+            }
+
+            grub_env_set("vtoy_theme", "random");
+            value = vtoy_json_get_string_ex(json->pstChild, "random");
+            if (value)
+            {
+                if (grub_strcmp(value, "boot_second") == 0)
+                {
+                    g_theme_random = vtoy_theme_random_boot_second;
+                }
+                else if (grub_strcmp(value, "boot_day") == 0)
+                {
+                    g_theme_random = vtoy_theme_random_boot_day;
+                }
+                else if (grub_strcmp(value, "boot_month") == 0)
+                {
+                    g_theme_random = vtoy_theme_random_boot_month;
+                }
+            }
+        }
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "gfxmode");
@@ -2815,4 +2913,63 @@ end:
 
     return 0;
 }
+
+grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint32_t i = 0;
+    grub_uint32_t mod = 0;
+    theme_list *node = g_theme_head;
+    struct grub_datetime datetime;
+    
+    (void)argc;
+    (void)args;
+    (void)ctxt;
+
+    if (g_theme_single_file[0])
+    {
+        debug("single theme %s\n", g_theme_single_file);
+        grub_env_set("theme", g_theme_single_file);
+        goto end;
+    }
+
+    debug("g_theme_num = %d\n", g_theme_num);
+    
+    if (g_theme_num == 0)
+    {
+        goto end;
+    }
+
+    grub_memset(&datetime, 0, sizeof(datetime));
+    grub_get_datetime(&datetime);
+
+    if (g_theme_random == vtoy_theme_random_boot_second)
+    {
+        grub_divmod32((grub_uint32_t)datetime.second, (grub_uint32_t)g_theme_num, &mod);
+    }
+    else if (g_theme_random == vtoy_theme_random_boot_day)
+    {
+        grub_divmod32((grub_uint32_t)datetime.day, (grub_uint32_t)g_theme_num, &mod);
+    }
+    else if (g_theme_random == vtoy_theme_random_boot_month)
+    {
+        grub_divmod32((grub_uint32_t)datetime.month, (grub_uint32_t)g_theme_num, &mod);
+    }
+
+    debug("%04d/%02d/%02d %02d:%02d:%02d radom:%d mod:%d\n",
+          datetime.year, datetime.month, datetime.day,
+          datetime.hour, datetime.minute, datetime.second,
+          g_theme_random, mod);
+
+    for (i = 0; i < mod && node; i++)
+    {
+        node = node->next;
+    }
+
+    debug("random theme %s\n", node->theme.path);
+    grub_env_set("theme", node->theme.path);
+
+end:
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 
