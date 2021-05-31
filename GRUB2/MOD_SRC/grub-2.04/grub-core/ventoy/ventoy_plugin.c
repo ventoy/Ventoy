@@ -2488,16 +2488,25 @@ const char * ventoy_plugin_get_menu_class(int type, const char *name, const char
                 continue;
             }
 
-            if (node->parent)
+            if (node->parent == 0)
             {
-                if ((node->patlen < pathlen) && ventoy_plugin_is_parent(node->pattern, node->patlen, path))
+                if ((node->patlen < namelen) && grub_strstr(name, node->pattern))
                 {
                     return node->class;
                 }
             }
-            else
+        }
+        
+        for (node = g_menu_class_head; node; node = node->next)
+        {
+            if (node->type != type)
             {
-                if ((node->patlen < namelen) && grub_strstr(name, node->pattern))
+                continue;
+            }
+
+            if (node->parent)
+            {
+                if ((node->patlen < pathlen) && ventoy_plugin_is_parent(node->pattern, node->patlen, path))
                 {
                     return node->class;
                 }
