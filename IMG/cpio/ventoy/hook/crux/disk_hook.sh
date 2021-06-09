@@ -31,10 +31,11 @@ done
 
 ventoy_extract_vtloopex ${vtdiskname}2  crux
 
+
+vtKver=$(uname -r)
 vtLoopExDir=$VTOY_PATH/vtloopex/crux/vtloopex
-$BUSYBOX_PATH/xz -d  $vtLoopExDir/dm-mod/$(uname -r)/64/dax.ko.xz
-$BUSYBOX_PATH/xz -d  $vtLoopExDir/dm-mod/$(uname -r)/64/dm-mod.ko.xz
-$BUSYBOX_PATH/insmod $vtLoopExDir/dm-mod/$(uname -r)/64/dax.ko
-$BUSYBOX_PATH/insmod $vtLoopExDir/dm-mod/$(uname -r)/64/dm-mod.ko
+
+ventoy_check_install_module_xz $vtLoopExDir/dm-mod/$vtKver/64/dax.ko
+ventoy_check_install_module_xz $vtLoopExDir/dm-mod/$vtKver/64/dm-mod.ko
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"

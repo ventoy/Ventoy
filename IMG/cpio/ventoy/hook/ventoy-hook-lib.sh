@@ -610,3 +610,10 @@ ventoy_extract_vtloopex() {
     
     cd $vtCurPwd
 }
+
+ventoy_check_install_module_xz() {
+    if [ -f "${1}.xz" ]; then
+        $BUSYBOX_PATH/xz -d  "${1}.xz"
+        $BUSYBOX_PATH/insmod "$1"
+    fi
+}
