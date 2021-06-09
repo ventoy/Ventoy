@@ -304,7 +304,7 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
         }
 
         debug("vtoy_theme %s\n", filepath);
-        grub_env_set("vtoy_theme", filepath);
+        ventoy_env_export("vtoy_theme", filepath);
         grub_snprintf(g_theme_single_file, sizeof(g_theme_single_file), "%s", filepath);
     }
     else
@@ -346,7 +346,7 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
                 }
             }
 
-            grub_env_set("vtoy_theme", "random");
+            ventoy_env_export("vtoy_theme", "random");
             value = vtoy_json_get_string_ex(json->pstChild, "random");
             if (value)
             {
@@ -370,39 +370,39 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     if (value)
     {
         debug("vtoy_gfxmode %s\n", value);
-        grub_env_set("vtoy_gfxmode", value);
+        ventoy_env_export("vtoy_gfxmode", value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "display_mode");
     if (value)
     {
         debug("display_mode %s\n", value);
-        grub_env_set("vtoy_display_mode", value);
+        ventoy_env_export("vtoy_display_mode", value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "serial_param");
     if (value)
     {
         debug("serial_param %s\n", value);
-        grub_env_set("vtoy_serial_param", value);
+        ventoy_env_export("vtoy_serial_param", value);
     }
 
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_left");
     if (value)
     {
-        grub_env_set("VTLE_LFT", value);
+        ventoy_env_export("VTLE_LFT", value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_top");
     if (value)
     {
-        grub_env_set("VTLE_TOP", value);
+        ventoy_env_export("VTLE_TOP", value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_color");
     if (value)
     {
-        grub_env_set("VTLE_CLR", value);
+        ventoy_env_export("VTLE_CLR", value);
     }
 
     node = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "fonts");

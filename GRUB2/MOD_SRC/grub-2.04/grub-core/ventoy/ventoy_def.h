@@ -1047,5 +1047,11 @@ int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
 #define vtoy_theme_random_boot_day     1
 #define vtoy_theme_random_boot_month   2
 
+#define ventoy_env_export(env, name) \
+{\
+    grub_env_set((env), (name));\
+    grub_env_export(env);\
+}
+
 #endif /* __VENTOY_DEF_H__ */
 
