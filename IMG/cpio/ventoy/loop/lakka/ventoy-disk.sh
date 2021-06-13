@@ -34,14 +34,18 @@ else
     vtBit=32
 fi
 
-if [ -f $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dax.ko.xz ]; then
-    xz -d $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dax.ko.xz
-    insmod $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dax.ko
-fi
+if grep -q "device-mapper" /proc/devices; then
+    vtlog "device-mapper enabled by system"
+else
+    if [ -f $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dax.ko.xz ]; then
+        xz -d $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dax.ko.xz
+        insmod $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dax.ko
+    fi
 
-if [ -f $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko.xz ]; then
-    xz -d $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko.xz
-    insmod $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko
+    if [ -f $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko.xz ]; then
+        xz -d $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko.xz
+        insmod $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko
+    fi
 fi
 
 wait_for_usb_disk_ready
