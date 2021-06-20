@@ -27,9 +27,9 @@ vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-for i in $(ls /sys/block/); do
+for i in $(ls /sys/class/block/); do
     if ! [ -e /dev/$i ]; then
-        blkdev_num=$(sed 's/:/ /g' /sys/block/$i/dev)
+        blkdev_num=$(sed 's/:/ /g' /sys/class/block/$i/dev)
         vtlog "mknod -m 0666 /dev/$i b $blkdev_num"
         mknod -m 0666 /dev/$i b $blkdev_num
     fi
