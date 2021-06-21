@@ -244,7 +244,7 @@ int DumpGptInfo(VTOY_GPT_INFO *pGptInfo)
     return 0;
 }
 
-#define VENTOY_EFI_PART_ATTR   0x8000000000000001ULL
+#define VENTOY_EFI_PART_ATTR   0xC000000000000001ULL
 
 int main(int argc, const char **argv)
 {

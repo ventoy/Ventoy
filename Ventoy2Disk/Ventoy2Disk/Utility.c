@@ -659,7 +659,7 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
     CoCreateGuid(&(Table[1].PartGuid));
     Table[1].StartLBA = Table[0].LastLBA + 1;
     Table[1].LastLBA = Table[1].StartLBA + VENTOY_EFI_PART_SIZE / 512 - 1;
-    Table[1].Attr = 0x8000000000000001ULL;
+    Table[1].Attr = 0xC000000000000001ULL;
     memcpy(Table[1].Name, L"VTOYEFI", 7 * 2);
 
 #if 0
