@@ -4204,8 +4204,18 @@ static int ventoy_fs_enum_1st_file(const char *filename, const struct grub_dirho
     return 0;
 }
 
+static int ventoy_fs_enum_1st_dir(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    if (info->dir && filename && filename[0] != '.')
+    {
+        grub_snprintf((char *)data, 256, "%s", filename);
+        return 1;
+    }
 
-static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int argc, char **args)
+    return 0;
+}
+
+static grub_err_t ventoy_fs_enum_1st_child(int argc, char **args, grub_fs_dir_hook_t hook)
 {
     int rc = 1;
     char *device_name = NULL;
@@ -4213,11 +4223,9 @@ static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int ar
     grub_fs_t fs = NULL;
     char name[256] ={0};
     
-    (void)ctxt;
-
     if (argc != 3)
     {
-        debug("ventoy_cmd_fs_enum_1st_file, invalid param num %d\n", argc);
+        debug("ventoy_fs_enum_1st_child, invalid param num %d\n", argc);
         return 1;
     }
 
@@ -4242,7 +4250,7 @@ static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int ar
         goto end;
     }
 
-    fs->fs_dir(dev, args[1], ventoy_fs_enum_1st_file, name);
+    fs->fs_dir(dev, args[1], hook, name);
     if (name[0])
     {
         ventoy_set_env(args[2], name);
@@ -4256,6 +4264,18 @@ end:
     check_free(dev, grub_device_close);
     
     return rc;
+}
+
+static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    return ventoy_fs_enum_1st_child(argc, args, ventoy_fs_enum_1st_file);
+}
+
+static grub_err_t ventoy_cmd_fs_enum_1st_dir(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    return ventoy_fs_enum_1st_child(argc, args, ventoy_fs_enum_1st_dir);
 }
 
 static grub_err_t ventoy_cmd_basename(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -4491,6 +4511,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_part_exist", ventoy_cmd_part_exist, 0, NULL, "", "", NULL },
     { "vt_get_fs_label", ventoy_cmd_get_fs_label, 0, NULL, "", "", NULL },
     { "vt_fs_enum_1st_file", ventoy_cmd_fs_enum_1st_file, 0, NULL, "", "", NULL },
+    { "vt_fs_enum_1st_dir", ventoy_cmd_fs_enum_1st_dir, 0, NULL, "", "", NULL },
     { "vt_file_basename", ventoy_cmd_basename, 0, NULL, "", "", NULL },    
     { "vt_file_basefile", ventoy_cmd_basefile, 0, NULL, "", "", NULL },    
     { "vt_enum_video_mode", ventoy_cmd_enum_video_mode, 0, NULL, "", "", NULL },    
