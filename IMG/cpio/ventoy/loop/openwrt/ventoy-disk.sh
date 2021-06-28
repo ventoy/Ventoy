@@ -27,6 +27,15 @@ vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
+check_mkdev_node() {
+    for i in $(ls /sys/class/block/); do
+        if ! [ -e /dev/$i ]; then
+            blkdev_num=$(sed 's/:/ /g' /sys/class/block/$i/dev)
+            vtlog "mknod -m 0666 /dev/$i b $blkdev_num"
+            mknod -m 0666 /dev/$i b $blkdev_num
+        fi
+    done
+}
 
 check_insmod() {
     if [ -f "$1" ]; then
@@ -80,15 +89,21 @@ insmod_dm_mod() {
 
 insmod_dm_mod
 
-for i in $(ls /sys/class/block/); do
-    if ! [ -e /dev/$i ]; then
-        blkdev_num=$(sed 's/:/ /g' /sys/class/block/$i/dev)
-        vtlog "mknod -m 0666 /dev/$i b $blkdev_num"
-        mknod -m 0666 /dev/$i b $blkdev_num
-    fi
+check_mkdev_node
+sleep 1
+
+while [ -n "Y" ]; do
+    vtusb_disk=$(get_ventoy_disk_name)
+    if check_usb_disk_ready "$vtusb_disk"; then
+        vtlog "get_ventoy_disk_name $vtusb_disk ready"
+        break;
+    else
+        vtlog "get_ventoy_disk_name $vtusb_disk not ready"
+        sleep 2
+        check_mkdev_node
+    fi    
 done
 
-wait_for_usb_disk_ready
 
 vtdiskname=$(get_ventoy_disk_name)
 if [ "$vtdiskname" = "unknown" ]; then
@@ -105,6 +120,8 @@ echo -n $vtDM > /ventoy/vtDM
 
 ventoy_create_dev_ventoy_part
 mdev -s
+check_mkdev_node
+
 
 mkdir /ventoy_rdroot
 mount /dev/ventoy2 /ventoy_rdroot
