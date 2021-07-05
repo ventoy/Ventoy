@@ -1,0 +1,27 @@
+name: Common Issue
+description: Report a common issue
+title: "[Issue]: "
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue report!
+  - type: checkboxes
+    id: faq
+    attributes:
+      label: Official FAQ
+      description: Have you checked the official at [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) ?
+      options:
+        - label: I have checked the official FAQ. 
+          required: true  
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Details about the issue
+      description: Tell me what problem you have.
+      value: "issue"
+    validations:
+      required: true
+
