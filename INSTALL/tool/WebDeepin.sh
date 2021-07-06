@@ -3,6 +3,18 @@
 LOGFILE=log.txt
 VUSER=$(get_user)
 
+if which browser >/dev/null 2>&1; then
+    :
+else
+    if [ "$LANG" = "zh_CN.UTF-8" ]; then
+        echo "  Built-in browser not found in the system, please use VentoyWeb.sh ..."
+    else
+        echo "  未找到系统内置的 browser （卸载了？）请使用 VentoyWeb.sh ..."
+    fi
+    exit 1
+fi
+
+
 if [ -e $LOGFILE ]; then
     chown $VUSER $LOGFILE
 else
