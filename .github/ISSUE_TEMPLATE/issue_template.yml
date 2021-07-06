@@ -1,19 +1,18 @@
-name: Bug Report
-description: File a bug report
+name: Issue Report
+description: File an issue report
 title: "[Bug]: "
-labels: [bug, triage]
 assignees:
   - octocat
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out this issue report!
   - type: checkboxes
     id: faq
     attributes:
       label: Official FAQ
-      description: Have you checked the official at [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) ?
+      description: Have you checked the official FAQ at [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) ?
       options:
         - label: I have checked the official FAQ. 
           required: true
