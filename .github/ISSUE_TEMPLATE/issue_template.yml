@@ -1,6 +1,6 @@
 name: Issue Report
 description: File an issue report
-title: "[Bug]: "
+title: "[issue]: "
 assignees:
   - octocat
 body:
