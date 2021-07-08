@@ -16,7 +16,8 @@ You can copy many image files at a time and ventoy will give you a boot menu to 
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
-700+ ISO files are tested. 90%+ distros in distrowatch.com supported. <br/>
+  700+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported. <br/>
+<br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
 </h4>
 
 # Features
