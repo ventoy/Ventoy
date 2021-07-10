@@ -44,6 +44,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"خطأ في الاتصال: الخدمة غير متوفرة",
         "STR_WEB_TOKEN_MISMATCH":"تم تحديث حالة البرنامج الخفي ، يرجى إعادة المحاولة لاحقًا.",
         "STR_WEB_SERVICE_BUSY":"الخدمة مشغولة ، يرجى إعادة المحاولة لاحقًا.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -91,6 +95,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"통신 오류: 서비스를 사용할 수 없음",
         "STR_WEB_TOKEN_MISMATCH":"데몬 상태가 업데이트되었습니다. 나중에 다시 시도하십시오.",
         "STR_WEB_SERVICE_BUSY":"서비스가 사용 중입니다. 나중에 다시 시도하십시오.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -138,6 +146,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"通信失败：服务不可用",
         "STR_WEB_TOKEN_MISMATCH":"后台服务状态更新，请稍后重试",
         "STR_WEB_SERVICE_BUSY":"后台服务正忙，请稍后重试",
+        "STR_MENU_VTSI_CREATE":"创建 VTSI 文件",
+        "STR_VTSI_CREATE_TIP":"本操作不会向设备中写入数据，而只会生成一个 VTSI 文件#@是否继续？",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI 文件创建成功，你可以使用Rufus(3.15+)将其写入对应设备，从而完成Ventoy的安装",
+        "STR_VTSI_CREATE_FAILED":"VTSI 文件创建失败",
         "STRXXX":""
     },
     {
@@ -185,6 +197,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -232,6 +248,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"خطای ارتباطی: سرویس موجود نیست",
         "STR_WEB_TOKEN_MISMATCH":"وضعیت Daemon به روز شد ، لطفاً بعداً دوباره امتحان کنید.",
         "STR_WEB_SERVICE_BUSY":"سرویس شلوغ است ، لطفاً بعداً دوباره امتحان کنید.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -279,6 +299,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Błąd komunikacji: usługa niedostępna",
         "STR_WEB_TOKEN_MISMATCH":"Stan daemona został zaktualizowany, spróbuj ponownie później.",
         "STR_WEB_SERVICE_BUSY":"Usługa jest zajęta, spróbuj ponownie później.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -326,6 +350,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Erro de comunicação: Serviço indisponível",
         "STR_WEB_TOKEN_MISMATCH":"Status daemon atualizado, por favor, tente novamente mais tarde.",
         "STR_WEB_SERVICE_BUSY":"O serviço está ocupado, por favor, tente novamente mais tarde.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -373,6 +401,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Iletişim hatası: Uzaktan web erişim hizmeti erişilemez durumda",
         "STR_WEB_TOKEN_MISMATCH":"Daemon durumu güncellendi,lütfen daha sonra tekrar deneyiniz.",
         "STR_WEB_SERVICE_BUSY":"Hizmet meşgul, lütfen daha sonra tekrar deneyin.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -420,6 +452,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Kommunikationsfehler: Dienst nicht verfügbar",
         "STR_WEB_TOKEN_MISMATCH":"Daemon-Status aktualisiert, bitte später erneut versuchen.",
         "STR_WEB_SERVICE_BUSY":"Dienst ist ausgelastet, bitte später erneut versuchen.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -467,6 +503,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Error de comunicacion : servici pas disponible",
         "STR_WEB_TOKEN_MISMATCH":"Estat del Daemon actualizat, tornatz ensajar mai tard.",
         "STR_WEB_SERVICE_BUSY":"Lo servici es ocupat, tornatz ensajar mai tard.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -514,6 +554,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Erreur de communication : service inaccessible",
         "STR_WEB_TOKEN_MISMATCH":"Statut du démon mis à jour, veuillez réessayer plus tard.",
         "STR_WEB_SERVICE_BUSY":"Service surchargé, veuillez réessayer plus tard.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -561,6 +605,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -608,6 +656,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Error de comunicación: Servicio No Disponible",
         "STR_WEB_TOKEN_MISMATCH":" Estado del daemon actualizado, por favor reintenta más tarde.",
         "STR_WEB_SERVICE_BUSY":" El servicio está ocupado, por favor reintenta más tarde.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -655,6 +707,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Ошибка связи: Служба недоступна",
         "STR_WEB_TOKEN_MISMATCH":"Статус демона обновлен. Повторите попытку позже.",
         "STR_WEB_SERVICE_BUSY":"Служба занята, повторите попытку позже.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -702,6 +758,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -749,6 +809,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -796,6 +860,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communicatiefout: service niet beschikbaar",
         "STR_WEB_TOKEN_MISMATCH":"Daemon-status bijgewerkt, probeer het later opnieuw.",
         "STR_WEB_SERVICE_BUSY":"Service is bezet, probeer het later opnieuw.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -843,6 +911,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -890,6 +962,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"デーモンのステータスが更新されました。しばらくしてから再試行してください。",
         "STR_WEB_SERVICE_BUSY":"サービスがビジーです。後で再試行してください。",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -937,6 +1013,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -984,6 +1064,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1031,6 +1115,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1078,6 +1166,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"通信錯誤: 服務不可用",
         "STR_WEB_TOKEN_MISMATCH":"服務狀態已更新",
         "STR_WEB_SERVICE_BUSY":"服務正忙，請稍後重試",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1125,6 +1217,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Greška u komunikaciji: Servis nije dostupan",
         "STR_WEB_TOKEN_MISMATCH":"Status demona ažuriran, pokušajte ponovo kasnije.",
         "STR_WEB_SERVICE_BUSY":"Servis je zauzet, pokušajte ponovo kasnije.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1172,6 +1268,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Комуникациона грешка: Сервис је недоступан",
         "STR_WEB_TOKEN_MISMATCH":"Статус демона ажуриран, покушајте поново касније.",
         "STR_WEB_SERVICE_BUSY":"Севис је заузет, покушајте поново касније.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1219,6 +1319,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1266,6 +1370,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Kommunikasjonsfeil: Tjeneste utilgjengelig",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status er oppdatert, vennligst prøv igjen senere.",
         "STR_WEB_SERVICE_BUSY":"Tjenesten er opptatt, vennligst prøv igjen senere.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1313,6 +1421,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Lỗi giao tiếp: Dịch vụ không sẵn có",
         "STR_WEB_TOKEN_MISMATCH":"Đã cập nhật trạng thái Daemon, vui lòng thử lại sau.",
         "STR_WEB_SERVICE_BUSY":"Dịch vụ bận, vui lòng thử lại sau.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1360,6 +1472,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1407,6 +1523,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Комуникациска грешка: Недостапен сервис",
         "STR_WEB_TOKEN_MISMATCH":"Ажуриран статус на даемонот, молиме обидете се подоцна.",
         "STR_WEB_SERVICE_BUSY":"Сервисот е зафатен, молиме обидете се подоцна.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1454,6 +1574,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1501,6 +1625,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1548,6 +1676,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Communication error: Service Unavailable",
         "STR_WEB_TOKEN_MISMATCH":"Daemon status updated, please retry later.",
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1595,6 +1727,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Помилка зв'язку: Служба недоступна",
         "STR_WEB_TOKEN_MISMATCH":"Статус демона оновлено. Повторіть спробу пізніше.",
         "STR_WEB_SERVICE_BUSY":"Служба зайнята, повторіть спробу пізніше.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1642,6 +1778,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Σφάλμα επικοινωνίας: υπηρεσία μη διαθέσιμη",
         "STR_WEB_TOKEN_MISMATCH":"Η κατάσταση του δαίμονα επικαιροποιήθηκε. Παρακαλώ δοκιμάστε αργότερα.",
         "STR_WEB_SERVICE_BUSY":"Η υπηρεσία είναι απασχολημένη. Παρακαλώ δοκιμάστε αργότερα.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1689,6 +1829,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Kommunikationsfel: Tjänsten är inte tillgänglig",
         "STR_WEB_TOKEN_MISMATCH":"Daemon-status uppdaterad. Försök igen senare.",
         "STR_WEB_SERVICE_BUSY":"Tjänster är upptagen. Försök igen senare.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
     {
@@ -1736,6 +1880,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Napaka v komunikaciji: storitev ni na voljo",
         "STR_WEB_TOKEN_MISMATCH":"Zahteva storitve je potekla, prosim poskusite kasneje.",
         "STR_WEB_SERVICE_BUSY":"Storitev je zasedena, prosim poskusite kasneje.",
+        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
+        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     }
 ]

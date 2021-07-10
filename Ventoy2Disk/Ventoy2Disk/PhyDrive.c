@@ -1268,7 +1268,6 @@ static int FormatPart1exFAT(UINT64 DiskSizeBytes)
 {
     MKFS_PARM Option;
     FRESULT Ret;
-    FATFS fs;
 
     Option.fmt = FM_EXFAT;
     Option.n_fat = 1;
@@ -1289,28 +1288,10 @@ static int FormatPart1exFAT(UINT64 DiskSizeBytes)
     Log("Formatting Part1 exFAT ...");
 
     Ret = f_mkfs(TEXT("0:"), &Option, 0, 8 * 1024 * 1024);
-
     if (FR_OK == Ret)
     {
         Log("Formatting Part1 exFAT success");
-
-        Ret = f_mount(&fs, TEXT("0:"), 1);
-        Log("mount part %d", Ret);
-
-        if (FR_OK == Ret)
-        {
-            Ret = f_setlabel(TEXT("Ventoy"));
-            Log("f_setlabel %d", Ret);
-
-            Ret = f_mount(0, TEXT("0:"), 1);
-            Log("umount part %d", Ret);
-            return 0;
-        }
-        else
-        {
-            Log("mount exfat failed %d", Ret);
-            return 1;
-        }
+        return 0;
     }
     else
     {
@@ -1556,6 +1537,225 @@ End:
     return rc;
 }
 
+int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
+{
+    int i;
+    int rc = 1;
+    int Len = 0;
+    int dataLen = 0;
+    UINT size = 0;
+    UINT segnum = 0;
+    UINT32 chksum = 0;
+    UINT64 data_offset = 0;
+    UINT64 Part2StartSector = 0;
+    UINT64 Part1StartSector = 0;
+    UINT64 Part1SectorCount = 0;
+    UINT8 *pData = NULL;    
+    UINT8 *pBkGptPartTbl = NULL;
+    BYTE *ImgBuf = NULL;
+    MBR_HEAD *pMBR = NULL;
+    VTSI_FOOTER *pImgFooter = NULL;
+    VTSI_SEGMENT *pSegment = NULL;
+    VTOY_GPT_INFO *pGptInfo = NULL;
+    VTOY_GPT_HDR *pBkGptHdr = NULL;
+    FILE *fp = NULL;
+
+    Log("InstallVentoy2FileImage %s PhyDrive%d <<%s %s %dGB>>",
+        PartStyle ? "GPT" : "MBR", pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId,
+        GetHumanReadableGBSize(pPhyDrive->SizeInBytes));
+
+    PROGRESS_BAR_SET_POS(PT_LOCK_FOR_CLEAN);
+
+    size = SIZE_1MB + VENTOY_EFI_PART_SIZE + 33 * 512 + VTSI_IMG_MAX_SEG * sizeof(VTSI_SEGMENT) + sizeof(VTSI_FOOTER);
+
+    pData = (UINT8 *)malloc(size);
+    if (!pData)
+    {
+        Log("malloc image buffer failed %d.", size);
+        goto End;
+    }
+
+    pImgFooter = (VTSI_FOOTER *)(pData + size - sizeof(VTSI_FOOTER));
+    pSegment = (VTSI_SEGMENT *)((UINT8 *)pImgFooter - VTSI_IMG_MAX_SEG * sizeof(VTSI_SEGMENT));
+    memset(pImgFooter, 0, sizeof(VTSI_FOOTER));
+    memset(pSegment, 0, VTSI_IMG_MAX_SEG * sizeof(VTSI_SEGMENT));
+
+    PROGRESS_BAR_SET_POS(PT_WRITE_VENTOY_START);
+
+    Log("Writing Boot Image ............................. ");
+    if (ReadWholeFileToBuf(VENTOY_FILE_STG1_IMG, 0, (void **)&ImgBuf, &Len))
+    {
+        Log("Failed to read stage1 img");
+        goto End;
+    }
+
+    unxz(ImgBuf, Len, NULL, NULL, pData, &dataLen, unxz_error);
+    SAFE_FREE(ImgBuf);
+
+    if (PartStyle)
+    {
+        pGptInfo = (VTOY_GPT_INFO *)pData;
+        memset(pGptInfo, 0, sizeof(VTOY_GPT_INFO));
+        VentoyFillGpt(pPhyDrive->SizeInBytes, pGptInfo);
+
+        pBkGptPartTbl = pData + SIZE_1MB + VENTOY_EFI_PART_SIZE;
+        memset(pBkGptPartTbl, 0, 33 * 512);
+
+        memcpy(pBkGptPartTbl, pGptInfo->PartTbl, 32 * 512);
+        pBkGptHdr = (VTOY_GPT_HDR *)(pBkGptPartTbl + 32 * 512);
+        VentoyFillBackupGptHead(pGptInfo, pBkGptHdr);
+
+        Part1StartSector = pGptInfo->PartTbl[0].StartLBA;
+        Part1SectorCount = pGptInfo->PartTbl[0].LastLBA - Part1StartSector + 1;
+        Part2StartSector = pGptInfo->PartTbl[1].StartLBA;
+
+        Log("Write GPT Info OK ...");
+    }
+    else
+    {
+        pMBR = (MBR_HEAD *)pData;
+        VentoyFillMBR(pPhyDrive->SizeInBytes, pMBR, PartStyle);
+        Part1StartSector = pMBR->PartTbl[0].StartSectorId;
+        Part1SectorCount = pMBR->PartTbl[0].SectorCount;
+        Part2StartSector = pMBR->PartTbl[1].StartSectorId;
+
+        Log("Write MBR OK ...");
+    }
+
+    Log("Writing EFI part Image ............................. ");
+    rc = ReadWholeFileToBuf(VENTOY_FILE_DISK_IMG, 0, (void **)&ImgBuf, &Len);
+    if (rc)
+    {
+        Log("Failed to read img file %p %u", ImgBuf, Len);
+        goto End;
+    }
+
+    PROGRESS_BAR_SET_POS(PT_WRITE_VENTOY_START + 28);
+    memset(g_part_img_buf, 0, sizeof(g_part_img_buf));
+    unxz(ImgBuf, Len, NULL, NULL, pData + SIZE_1MB, &dataLen, unxz_error);
+    if (dataLen == Len)
+    {
+        Log("decompress finished success");
+        g_part_img_buf[0] = pData + SIZE_1MB;
+
+        VentoyProcSecureBoot(g_SecureBoot);
+    }
+    else
+    {
+        Log("decompress finished failed");
+        goto End;
+    }
+
+    fopen_s(&fp, "VentoySparseImg.vtsi", "wb+");
+    if (!fp)
+    {
+        Log("Failed to create Ventoy img file");
+        goto End;
+    }
+
+    Log("Writing stage1 data ............................. ");
+    fwrite(pData, 1, SIZE_1MB, fp);
+    pSegment[0].disk_start_sector = 0;
+    pSegment[0].sector_num = SIZE_1MB / 512;
+    pSegment[0].data_offset = data_offset;
+    data_offset += pSegment[0].sector_num * 512;
+
+    disk_io_set_param(INVALID_HANDLE_VALUE, Part1StartSector + Part1SectorCount);// include the 2048 sector gap
+    disk_io_set_imghook(fp, pSegment + 1, VTSI_IMG_MAX_SEG - 1, data_offset);
+
+    Log("Formatting part1 exFAT ...");
+    if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
+    {
+        Log("FormatPart1exFAT failed.");
+        disk_io_reset_imghook(&segnum, &data_offset);
+        goto End;
+    }
+
+    disk_io_reset_imghook(&segnum, &data_offset);
+    segnum++;
+
+    Log("current segment number:%d dataoff:%ld", segnum, (long)data_offset);
+
+    //write data
+    Log("Writing part2 data ............................. ");
+    fwrite(pData + SIZE_1MB, 1, VENTOY_EFI_PART_SIZE, fp);
+    pSegment[segnum].disk_start_sector = Part2StartSector;
+    pSegment[segnum].sector_num = VENTOY_EFI_PART_SIZE / 512;
+    pSegment[segnum].data_offset = data_offset;
+    data_offset += pSegment[segnum].sector_num * 512;
+    segnum++;
+
+    if (PartStyle)
+    {
+        Log("Writing backup gpt table ............................. ");
+        fwrite(pBkGptPartTbl, 1, 33 * 512, fp);
+        pSegment[segnum].disk_start_sector = pPhyDrive->SizeInBytes / 512 - 33;
+        pSegment[segnum].sector_num = 33;
+        pSegment[segnum].data_offset = data_offset;
+        data_offset += pSegment[segnum].sector_num * 512;
+        segnum++;
+    }
+
+    Log("Writing segment metadata ............................. ");
+
+    for (i = 0; i < (int)segnum; i++)
+    {
+        Log("SEG[%d]:  PhySector:%llu SectorNum:%llu DataOffset:%llu(sector:%llu)", i, pSegment[i].disk_start_sector, pSegment[i].sector_num,
+            pSegment[i].data_offset, pSegment[i].data_offset / 512);
+    }
+
+    dataLen = segnum * sizeof(VTSI_SEGMENT);
+    fwrite(pSegment, 1, dataLen, fp);
+
+    if (dataLen % 512)
+    {
+        //pData + SIZE_1MB - 8192 is a temp data buffer with zero
+        fwrite(pData + SIZE_1MB - 8192, 1, 512 - (dataLen % 512), fp);
+    }
+
+    //Fill footer
+    pImgFooter->magic = VTSI_IMG_MAGIC;
+    pImgFooter->version = 1;
+    pImgFooter->disk_size = pPhyDrive->SizeInBytes;
+    memcpy(&pImgFooter->disk_signature, pPhyDrive->MBR.BootCode + 0x1b8, 4);
+    pImgFooter->segment_num = segnum;
+    pImgFooter->segment_offset = data_offset;
+
+    for (i = 0, chksum = 0; i < (int)(segnum * sizeof(VTSI_SEGMENT)); i++)
+    {
+        chksum += *((UINT8 *)pSegment + i);
+    }
+    pImgFooter->segment_chksum = ~chksum;
+
+    for (i = 0, chksum = 0; i < sizeof(VTSI_FOOTER); i++)
+    {
+        chksum += *((UINT8 *)pImgFooter + i);
+    }
+    pImgFooter->foot_chksum = ~chksum;
+
+    Log("Writing footer segnum(%u)  segoffset(%llu) ......................", segnum, data_offset);
+    Log("disk_size=%llu disk_signature=%lx segment_offset=%llu", pImgFooter->disk_size, pImgFooter->disk_signature, pImgFooter->segment_offset);
+
+    fwrite(pImgFooter, 1, sizeof(VTSI_FOOTER), fp);
+    fclose(fp);
+
+    Log("Writing Ventoy image file finished, the file size should be %llu .", data_offset + 512 + ((dataLen + 511) / 512 * 512));
+
+    rc = 0;
+
+End:
+
+    PROGRESS_BAR_SET_POS(PT_MOUNT_VOLUME);
+
+    Log("retcode:%d\n", rc);
+
+    SAFE_FREE(pData);
+    SAFE_FREE(ImgBuf);
+    
+    return rc;
+}
+
+
 int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
 {
     int i;
@@ -1572,7 +1772,6 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     UINT64 Part1StartSector = 0;
     UINT64 Part1SectorCount = 0;
     UINT64 Part2StartSector = 0;
-
 
     Log("InstallVentoy2PhyDrive %s PhyDrive%d <<%s %s %dGB>>",
         PartStyle ? "GPT" : "MBR", pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId,
@@ -1679,8 +1878,6 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
         rc = 1;
         goto End;
     }
-
-    
 
     PROGRESS_BAR_SET_POS(PT_FORMAT_PART2);
     Log("Writing part2 FAT img ...");
