@@ -882,7 +882,14 @@ static int ventoy_update_before_chain(ventoy_os_param *param, char *isopath)
         grub_crypto_hash(GRUB_MD_SHA1, wim_data->bin_hash.sha1, wim_data->jump_bin_data, wim_data->bin_raw_len);
 
         security = (wim_security_header *)wim_data->new_meta_data;
-        rootdir = (wim_directory_entry *)(wim_data->new_meta_data + ((security->len + 7) & 0xFFFFFFF8U));
+        if (security->len > 0)
+        {
+            rootdir = (wim_directory_entry *)(wim_data->new_meta_data + ((security->len + 7) & 0xFFFFFFF8U));
+        }
+        else
+        {
+            rootdir = (wim_directory_entry *)(wim_data->new_meta_data + 8);
+        }
 
         /* update all winpeshl.exe dirent entry's hash */
         ventoy_update_all_hash(node, wim_data->new_meta_data, rootdir);
@@ -1167,7 +1174,48 @@ static void ventoy_windows_fill_override_data_iso9660(    grub_uint64_t isosize,
     return;
 }
 
-static void ventoy_windows_fill_override_data_udf(    grub_uint64_t isosize, void *override)
+static int ventoy_windows_fill_udf_short_ad(grub_file_t isofile, grub_uint32_t curpos, 
+    wim_tail *wim_data, grub_uint32_t new_wim_size)
+{
+    int i;
+    grub_uint32_t total = 0;
+    grub_uint32_t left_size = 0;
+    ventoy_udf_override *udf = NULL;
+    ventoy_udf_override tmp[4];
+    
+    grub_memset(tmp, 0, sizeof(tmp));
+    grub_file_seek(isofile, wim_data->override_offset);
+    grub_file_read(isofile, tmp, sizeof(tmp));
+
+    left_size = new_wim_size;
+    udf = (ventoy_udf_override *)wim_data->override_data;
+
+    for (i = 0; i < 4; i++)
+    {
+        total += tmp[i].length;
+        if (total >= wim_data->wim_raw_size)
+        {
+            udf->length   = left_size;
+            udf->position = curpos;
+            return 0;
+        }
+        else
+        {
+            udf->length   = tmp[i].length;
+            udf->position = curpos;
+        }
+
+        left_size -= tmp[i].length;
+        curpos += udf->length / 2048;
+        udf++;
+        wim_data->override_len += sizeof(ventoy_udf_override);
+    }
+
+    debug("######## Too many udf ad ######\n");
+    return 1;
+}
+
+static void ventoy_windows_fill_override_data_udf(grub_file_t isofile, void *override)
 {
     grub_uint32_t data32;
     grub_uint64_t data64;
@@ -1178,9 +1226,8 @@ static void ventoy_windows_fill_override_data_udf(    grub_uint64_t isosize, voi
     ventoy_override_chunk *cur;
     wim_patch *node = NULL;
     wim_tail *wim_data = NULL;
-    ventoy_udf_override *udf = NULL;
 
-    sector = (isosize + 2047) / 2048;
+    sector = (isofile->size + 2047) / 2048;
 
     cur = (ventoy_override_chunk *)override;
     
@@ -1190,7 +1237,7 @@ static void ventoy_windows_fill_override_data_udf(    grub_uint64_t isosize, voi
         cur++;
     }
 
-    debug("ventoy_windows_fill_override_data_udf %lu\n", (ulong)isosize);
+    debug("ventoy_windows_fill_override_data_udf %lu\n", (ulong)isofile->size);
 
     for (node = g_wim_patch_head; node; node = node->next)
     {
@@ -1231,13 +1278,11 @@ static void ventoy_windows_fill_override_data_udf(    grub_uint64_t isosize, voi
         data64 = new_wim_size;
         grub_memcpy(cur->override_data, &(data64), 8);
 
-        udf = (ventoy_udf_override *)wim_data->override_data;
-        udf->length   = new_wim_size;
-        udf->position = (grub_uint32_t)sector - udf_start_block;
+        /* override 3: position and length in extend data */
+        ventoy_windows_fill_udf_short_ad(isofile, (grub_uint32_t)sector - udf_start_block, wim_data, new_wim_size);
 
         sector += (new_wim_size / 2048);
-
-        /* override 3: position and length in extend data */
+        
         cur++;
         cur->img_offset = wim_data->override_offset;
         cur->override_size = wim_data->override_len;
@@ -1631,7 +1676,7 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
     }
     else
     {
-        ventoy_windows_fill_override_data_udf(isosize, (char *)chain + chain->override_chunk_offset);        
+        ventoy_windows_fill_override_data_udf(file, (char *)chain + chain->override_chunk_offset);        
     }
 
     /* part 5: virt chunk */
