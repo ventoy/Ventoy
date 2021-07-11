@@ -7,6 +7,7 @@
   <img src="https://img.shields.io/github/license/ventoy/Ventoy?style=for-the-badge">
   <img src="https://img.shields.io/github/stars/ventoy/Ventoy?style=for-the-badge">
   <img src="https://img.shields.io/github/downloads/ventoy/Ventoy/total.svg?style=for-the-badge">
+  <img src="https://img.shields.io/github/workflow/status/ventoy/Ventoy/Ventoy%20CI?label=actions&logo=github&style=for-the-badge">
 </p>
 
 <h4 align="left">
