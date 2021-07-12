@@ -1,0 +1,7 @@
+This is simple, i hope stable gui for Ventoy for Linux.
+
+To install pyqt5, run:(https://doc.bccnsoft.com/docs/PyQt5/installation.html)
+
+sudo apt-get install python3-pyqt5
+
+#panickingkernel
