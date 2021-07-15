@@ -69,7 +69,7 @@ hash_file (grub_file_t file, const gcry_md_spec_t *hash, void *result)
   grub_uint64_t total = 0;
   void *context;
   grub_uint8_t *readbuf;
-#define BUF_SIZE 4096
+#define BUF_SIZE 1024 * 1024
   readbuf = grub_malloc (BUF_SIZE);
   if (!readbuf)
     return grub_errno;
