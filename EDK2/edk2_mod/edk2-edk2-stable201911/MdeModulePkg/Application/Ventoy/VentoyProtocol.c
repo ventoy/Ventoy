@@ -483,6 +483,8 @@ EFI_STATUS EFIAPI ventoy_block_io_read_real
         secNum = VirtSec - Lba;
     }
 
+    debug("XXX block_io_read_real sector:%u count:%u Buffer:%p", (UINT32)Lba, (UINT32)BufferSize / 2048, Buffer);
+
     if (secNum > g_sector_flag_num)
     {
         cur_flag = AllocatePool(secNum * sizeof(ventoy_sector_flag));

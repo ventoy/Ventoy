@@ -548,6 +548,8 @@ static int ventoy_read_resource(grub_file_t fp, wim_header *wimhdr, wim_resource
     chunk_num = (head->raw_size + WIM_CHUNK_LEN - 1) / WIM_CHUNK_LEN;
     cur_offset = (chunk_num - 1) * 4;
     chunk_offset = (grub_uint32_t *)buffer_compress;
+
+    //debug("%llu %llu chunk_num=%lu", (ulonglong)head->size_in_wim, (ulonglong)head->raw_size, chunk_num);
     
     cur_dst = buffer_decompress;
     
@@ -600,9 +602,11 @@ static int ventoy_read_resource(grub_file_t fp, wim_header *wimhdr, wim_resource
             decompress_len = (int)lzx_decompress(buffer_compress + cur_offset, head->size_in_wim - cur_offset, cur_dst);
         }
     }
-    
+
     cur_dst += decompress_len;
     total_decompress += decompress_len;
+    
+    //debug("last chunk_size:%u decompresslen:%d tot:%d\n", last_chunk_size, decompress_len, total_decompress);
 
     if (cur_dst != buffer_decompress + head->raw_size)
     {
@@ -656,25 +660,31 @@ static wim_directory_entry * search_full_wim_dirent
 
 static wim_directory_entry * search_replace_wim_dirent(void *meta_data, wim_directory_entry *dir)
 {
-    wim_directory_entry *wim_dirent = NULL;
+    wim_directory_entry *wim_dirent1 = NULL;
+    wim_directory_entry *wim_dirent2 = NULL;
+    const char *pecmd_path[] = { "Windows", "System32", "pecmd.exe", NULL };
+    const char *wpeinit_path[] = { "Windows", "System32", "wpeinit.exe", NULL };
     const char *winpeshl_path[] = { "Windows", "System32", "winpeshl.exe", NULL };
-    //const char *native_path[] = { "Windows", "System32", "native.exe", NULL };
 
-    wim_dirent = search_full_wim_dirent(meta_data, dir, winpeshl_path);
-    debug("search winpeshl.exe %p\n", wim_dirent);
-    if (wim_dirent)
+    wim_dirent1 = search_full_wim_dirent(meta_data, dir, pecmd_path);
+    debug("search pecmd.exe %p\n", wim_dirent1);
+    if (wim_dirent1)
     {
-        return wim_dirent;
+        wim_dirent2 = search_full_wim_dirent(meta_data, dir, wpeinit_path);
+        debug("search wpeinit.exe %p\n", wim_dirent1);
+        if (wim_dirent2)
+        {
+            return wim_dirent2;
+        }
+        return wim_dirent1;
     }
 
-    #if 0
-    wim_dirent = search_full_wim_dirent(meta_data, dir, native_path);
-    debug("search native.exe %p\n", wim_dirent);
-    if (wim_dirent)
+    wim_dirent1 = search_full_wim_dirent(meta_data, dir, winpeshl_path);
+    debug("search winpeshl.exe %p\n", wim_dirent1);
+    if (wim_dirent1)
     {
-        return wim_dirent;
+        return wim_dirent1;
     }
-    #endif
 
     return NULL;
 }
