@@ -9,22 +9,26 @@
   <img src="https://img.shields.io/github/downloads/ventoy/Ventoy/total.svg?style=for-the-badge">
 </p>
 
-<h4 align="left">
-Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files. <br/>
-With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
-You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
-x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
-Both MBR and GPT partition style are supported in the same way.<br/>
-Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
-  700+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported. <br/>
-<br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
-</h4>
+**Ventoy is an open source tool to create bootable USB drives for ISO/WIM/IMG/VHD(x)/EFI files.**
+
+
+With Ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.\
+You can copy many image files at a time and Ventoy will give you a boot menu to select them.\
+x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.
+
+Both MBR and GPT partition style are supported.\
+Most types of OSes are supported too (Windows/WinPE/Linux/Unix/VMWare/Xen/etc.)
+
+700+ ISO files have been tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported. <br/>
+
+Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
+
 
 # Features
 * 100% open source
 * Simple to use
 * Fast (limited only by the speed of copying iso file)
-* Can be installed in USB/Local Disk/SSD/NVMe/SD Card
+* Can be installed to USB/Local Disk/SSD/NVMe/SD Card
 * Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
 * No need to be continuous in disk for ISO/IMG files
 * MBR and GPT partition style supported (1.0.15+)
@@ -47,19 +51,19 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 * Highly customizable theme and menu
 * USB drive write-protected support
 * USB normal use unaffected
-* Data nondestructive during version upgrade
+* Data is untouched when upgrading
 * No need to update Ventoy when a new distro is released
 
 ![avatar](https://www.ventoy.net/static/img/screen/screen_uefi.png)
 
 
 # Installation Instructions
-See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detail
+See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for full details
 
-# Compile Instructions
+# Compilation Instructions
 Please refer to [BuildVentoyFromSource.txt](https://github.com/ventoy/Ventoy/blob/master/DOC/BuildVentoyFromSource.txt)
 
-# Document
+# Documentation
 Title | Link
 -|-
 **Install & Update** | [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html)
@@ -85,6 +89,7 @@ Title | Link
 **Disk Layout GPT** | [https://www.ventoy.net/en/doc_disk_layout_gpt.html](https://www.ventoy.net/en/doc_disk_layout_gpt.html)  
 **Search Configuration** | [https://www.ventoy.net/en/doc_search_path.html](https://www.ventoy.net/en/doc_search_path.html)
 
+For more documentation, please see Ventoy's official website.
 
 # FAQ
 See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for detail
