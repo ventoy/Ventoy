@@ -83,6 +83,7 @@ check_tool_work_ok() {
 
 get_disk_part_name() {
     DISK=$1
+    [ ! -L "$DISK" ] || DISK=$(realpath -- "$DISK")
     
     if echo $DISK | grep -q "/dev/loop"; then
         echo ${DISK}p${2}
