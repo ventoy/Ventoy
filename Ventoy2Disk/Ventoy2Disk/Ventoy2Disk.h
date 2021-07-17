@@ -290,4 +290,8 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
 void disk_io_set_imghook(FILE *fp, VTSI_SEGMENT *segment, int maxseg, UINT64 data_offset);
 void disk_io_reset_imghook(int *psegnum, UINT64 *pDataOffset);
 
+
+#define VTSI_SUPPORT 0
+
+
 #endif
