@@ -57,7 +57,7 @@ Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
 See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detail
 
 # Compile Instructions
-Please refer to [BuildVentoyFromSource.txt](https://github.com/ventoy/Ventoy/blob/master/DOC/BuildVentoyFromSource.txt)
+Please refer to [BuildVentoyFromSource.txt](DOC/BuildVentoyFromSource.txt)
 
 # Document
 Title | Link
