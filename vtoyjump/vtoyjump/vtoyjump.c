@@ -1555,6 +1555,17 @@ int main(int argc, char **argv)
 	Log("######## VentoyJump ##########");
 	Log("argc = %d argv[0] = <%s>", argc, argv[0]);
 
+    //special process for some WinPE
+    if (_stricmp(argv[0], "WPEINIT.EXE") == 0)
+    {
+        GetCurrentDirectoryA(sizeof(CurDir), CurDir);
+        if (_stricmp(CurDir, "X:\\") == 0)
+        {
+            Log("Set current directory to system32");
+            SetCurrentDirectoryA("X:\\Windows\\System32");
+        }
+    }
+
 	if (Pos && *Pos == 0)
 	{
 		Log("Old current directory = <%s>", CurDir);
