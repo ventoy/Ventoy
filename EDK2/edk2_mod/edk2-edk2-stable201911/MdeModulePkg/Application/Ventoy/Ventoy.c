@@ -363,10 +363,22 @@ EFI_HANDLE EFIAPI ventoy_get_parent_handle(IN EFI_DEVICE_PATH_PROTOCOL *pDevPath
     return Handle;
 }
 
+STATIC ventoy_ram_disk g_backup_ramdisk_param;
+STATIC ventoy_os_param g_backup_os_param_var;
+
+
 EFI_STATUS EFIAPI ventoy_save_ramdisk_param(VOID)
 {
+    UINTN DataSize;
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
+
+    DataSize = sizeof(g_backup_ramdisk_param);
+    Status = gRT->GetVariable(L"VentoyRamDisk", &VarGuid, NULL, &DataSize, &g_backup_ramdisk_param);
+    if (!EFI_ERROR(Status))
+    {
+        debug("find previous ramdisk variable <%llu>", g_backup_ramdisk_param.DiskSize);
+    }
     
     Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
@@ -380,21 +392,38 @@ EFI_STATUS EFIAPI ventoy_delete_ramdisk_param(VOID)
 {
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
-    
-    Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+
+    if (g_backup_ramdisk_param.DiskSize > 0 && g_backup_ramdisk_param.PhyAddr > 0)
+    {
+        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
+                  sizeof(g_backup_ramdisk_param), &g_backup_ramdisk_param);
+        debug("resotre ramdisk variable %r", Status);
+    }
+    else
+    {
+        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   0, NULL);
-    debug("delete efi variable %r", Status);
+        debug("delete ramdisk variable %r", Status);
+    }
 
     return Status;
 }
 
-
 EFI_STATUS EFIAPI ventoy_save_variable(VOID)
 {
+    UINTN DataSize;
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
-    
+
+    DataSize = sizeof(g_backup_os_param_var);
+    Status = gRT->GetVariable(L"VentoyOsParam", &VarGuid, NULL, &DataSize, &g_backup_os_param_var);
+    if (!EFI_ERROR(Status))
+    {
+        debug("find previous efi variable <%a>", g_backup_os_param_var.vtoy_img_path);
+    }
+
     Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_chain->os_param), &(g_chain->os_param));
@@ -407,11 +436,21 @@ EFI_STATUS EFIAPI ventoy_delete_variable(VOID)
 {
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
-    
-    Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
+
+    if (0 == CompareMem(&(g_backup_os_param_var.guid), &VarGuid, sizeof(EFI_GUID)))
+    {
+        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
+                  sizeof(g_backup_os_param_var), &(g_backup_os_param_var));
+        debug("restore efi variable %r", Status);
+    }
+    else
+    {
+        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   0, NULL);
-    debug("delete efi variable %r", Status);
+        debug("delete efi variable %r", Status);
+    }
 
     return Status;
 }

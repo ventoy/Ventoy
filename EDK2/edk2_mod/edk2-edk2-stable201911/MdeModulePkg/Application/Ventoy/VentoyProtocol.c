@@ -624,26 +624,77 @@ EFI_STATUS EFIAPI ventoy_block_io_flush(IN EFI_BLOCK_IO_PROTOCOL *This)
 	return EFI_SUCCESS;
 }
 
+STATIC UINTN ventoy_get_current_device_path_id(VOID)
+{
+    UINTN i = 0;
+    UINTN Count = 0;
+    UINTN NameLen = 0;
+    UINTN MaxId = 0;
+    UINTN CurId = 0;
+    BOOLEAN Find = FALSE;
+    EFI_HANDLE *Handles = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_DEVICE_PATH_PROTOCOL *DevicePath = NULL;
+    VENDOR_DEVICE_PATH *venPath = NULL;
+    
+    NameLen = StrSize(L"ventoy_xxx");
+    
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiDevicePathProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return 0;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
+        if (EFI_ERROR(Status))
+        {
+            continue;
+        }
+
+        if (DevicePath->Type == HARDWARE_DEVICE_PATH && DevicePath->SubType == HW_VENDOR_DP)
+        {
+            venPath = (VENDOR_DEVICE_PATH *)DevicePath;
+            if (CompareGuid(&venPath->Guid, &gVtoyBlockDevicePathGuid))
+            {
+                CurId = StrDecimalToUintn((CHAR16 *)(venPath + 1) + StrLen(L"ventoy_"));
+                MaxId = MAX(MaxId, CurId);
+                Find = TRUE;
+            }
+        }
+    }
+
+    FreePool(Handles);
+
+    return Find ? (MaxId + 1) : 0;
+}
 
 EFI_STATUS EFIAPI ventoy_fill_device_path(VOID)
 {
+    UINTN CurVtoyDpId = 0;
     UINTN NameLen = 0;
     UINT8 TmpBuf[128] = {0};
     VENDOR_DEVICE_PATH *venPath = NULL;
+    CHAR16 VtoyDpName[32];
+
+    CurVtoyDpId = ventoy_get_current_device_path_id();
+    UnicodeSPrintAsciiFormat(VtoyDpName, sizeof(VtoyDpName), "ventoy_%03lu", CurVtoyDpId);
 
     venPath = (VENDOR_DEVICE_PATH *)TmpBuf;
-    NameLen = StrSize(VTOY_BLOCK_DEVICE_PATH_NAME);
+    NameLen = StrSize(VtoyDpName);
     venPath->Header.Type = HARDWARE_DEVICE_PATH;
     venPath->Header.SubType = HW_VENDOR_DP;
     venPath->Header.Length[0] = sizeof(VENDOR_DEVICE_PATH) + NameLen;
     venPath->Header.Length[1] = 0;
     CopyMem(&venPath->Guid, &gVtoyBlockDevicePathGuid, sizeof(EFI_GUID));
-    CopyMem(venPath + 1, VTOY_BLOCK_DEVICE_PATH_NAME, NameLen);
+    CopyMem(venPath + 1, VtoyDpName, NameLen);
     
     gBlockData.Path = AppendDevicePathNode(NULL, (EFI_DEVICE_PATH_PROTOCOL *)TmpBuf);
     gBlockData.DevicePathCompareLen = sizeof(VENDOR_DEVICE_PATH) + NameLen;
 
-    debug("gBlockData.Path=<%s>\n", ConvertDevicePathToText(gBlockData.Path, FALSE, FALSE));
+    debug("gBlockData.Path=<%lu><%s>\n", CurVtoyDpId, ConvertDevicePathToText(gBlockData.Path, FALSE, FALSE));
 
     return EFI_SUCCESS;
 }

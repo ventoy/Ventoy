@@ -169,7 +169,6 @@ typedef struct ventoy_virt_chunk
 	{ 0x37b87ac6, 0xc180, 0x4583, { 0xa7, 0x05, 0x41, 0x4d, 0xa8, 0xf7, 0x7e, 0xd2 }}
 
 
-#define VTOY_BLOCK_DEVICE_PATH_NAME  L"ventoy"
 
 #if   defined (MDE_CPU_IA32)
   #define VENTOY_UEFI_DESC   L"IA32 UEFI"
