@@ -34,6 +34,7 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/RamDisk.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Protocol/DriverBinding.h>
 #include <Ventoy.h>
 
 BOOLEAN gDebugPrint = FALSE;
@@ -1085,6 +1086,8 @@ EFI_STATUS EFIAPI VentoyEfiMain
         return Status;
     }
 
+    ventoy_disable_ex_filesystem();
+
     if (gMemdiskMode)
     {
         g_ramdisk_param.PhyAddr = (UINT64)(UINTN)g_iso_data_buf;
@@ -1158,6 +1161,8 @@ EFI_STATUS EFIAPI VentoyEfiMain
     {
         grub_env_set("vtoy_dotefi_retry", "YES");            
     }
+
+    ventoy_enable_ex_filesystem();
 
     return EFI_SUCCESS;
 }

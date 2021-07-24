@@ -34,6 +34,7 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/RamDisk.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Protocol/DriverBinding.h>
 #include <Ventoy.h>
 
 UINT8 *g_iso_data_buf = NULL;
@@ -72,6 +73,9 @@ STATIC EFI_LOCATE_HANDLE g_org_locate_handle = NULL;
 STATIC UINT8 g_sector_buf[2048];
 STATIC EFI_BLOCK_READ g_sector_2048_read = NULL;
 STATIC EFI_BLOCK_WRITE g_sector_2048_write = NULL;
+
+STATIC UINTN g_DriverBindWrapperCnt = 0;
+STATIC DRIVER_BIND_WRAPPER g_DriverBindWrapperList[MAX_DRIVER_BIND_WRAPPER];
 
 BOOLEAN ventoy_is_cdrom_dp_exist(VOID)
 {
@@ -672,11 +676,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
             continue;
         }
 
-        Status = Name2Protocol->GetDriverName(Name2Protocol, "en", &DriverName);
-        if (EFI_ERROR(Status) || NULL == DriverName)
-        {
-            continue;
-        }
+        VENTOY_GET_COMPONENT_NAME(Name2Protocol, DriverName);
 
         if (StrStr(DriverName, DrvName))
         {
@@ -714,11 +714,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
             continue;
         }
 
-        Status = NameProtocol->GetDriverName(NameProtocol, "en", &DriverName);
-        if (EFI_ERROR(Status))
-        {
-            continue;
-        }
+        VENTOY_GET_COMPONENT_NAME(NameProtocol, DriverName);
 
         if (StrStr(DriverName, DrvName))
         {
@@ -741,6 +737,229 @@ end:
     FreePool(Handles);
     
     return Status;
+}
+
+
+STATIC BOOLEAN ventoy_filesystem_need_wrapper(IN CONST CHAR16 *DrvName)
+{
+    UINTN i;
+    CHAR16 UpperDrvName[256];
+
+    StrCpyS(UpperDrvName, 256, DrvName);
+
+    for (i = 0; i < 256 && UpperDrvName[i]; i++)
+    {
+        if (UpperDrvName[i] >= 'a' && UpperDrvName[i] <= 'z')
+        {
+            UpperDrvName[i] = 'A' + (UpperDrvName[i] - 'a');
+        }
+    }
+
+    /*
+     * suppress some file system drivers 
+     *  1. rEFInd File System Driver
+     *
+     */
+    
+    if (StrStr(UpperDrvName, L"ISO9660") || StrStr(UpperDrvName, L"UDF"))
+    {
+        return TRUE;
+    }
+
+    if (StrStr(UpperDrvName, L"REFIND") && StrStr(UpperDrvName, L"FILE SYSTEM"))
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+STATIC VOID ventoy_add_filesystem_wrapper
+(
+    IN EFI_DRIVER_BINDING_PROTOCOL *DriverBindProtocol, 
+    IN CONST CHAR16 *DriverName
+)
+{
+    UINTN j;
+
+    if (g_DriverBindWrapperCnt >= MAX_DRIVER_BIND_WRAPPER)
+    {
+        debug("driver binding wrapper overflow %lu", g_DriverBindWrapperCnt);
+        return;
+    }
+
+    if (!ventoy_filesystem_need_wrapper(DriverName))
+    {
+        return;
+    }
+
+    for (j = 0; j < g_DriverBindWrapperCnt; j++)
+    {
+        if (g_DriverBindWrapperList[j].DriverBinding == DriverBindProtocol)
+        {
+            debug("Duplicate driverbinding <%s> %p %lu %lu", DriverName, DriverBindProtocol, j, g_DriverBindWrapperCnt);
+            break;
+        }
+    }
+
+    if (j >= g_DriverBindWrapperCnt)
+    {
+        g_DriverBindWrapperList[g_DriverBindWrapperCnt].DriverBinding = DriverBindProtocol;
+        g_DriverBindWrapperList[g_DriverBindWrapperCnt].pfOldSupport = DriverBindProtocol->Supported;
+        g_DriverBindWrapperCnt++;
+        debug("Add driverbinding <%s> %p %lu", DriverName, DriverBindProtocol, g_DriverBindWrapperCnt);
+    }
+}
+
+STATIC EFI_STATUS ventoy_find_filesystem_driverbind(VOID)
+{
+    UINTN i = 0;
+    UINTN Count = 0;
+    CHAR16 *DriverName = NULL;
+    EFI_HANDLE *Handles = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_COMPONENT_NAME_PROTOCOL *NameProtocol = NULL;
+    EFI_COMPONENT_NAME2_PROTOCOL *Name2Protocol = NULL;
+    EFI_DRIVER_BINDING_PROTOCOL *DriverBindProtocol = NULL;
+    
+    debug("ventoy_find_filesystem_driverbind...");
+
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentName2ProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return Status;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiComponentName2ProtocolGuid, (VOID **)&Name2Protocol);
+        if (EFI_ERROR(Status))
+        {
+            continue;
+        }
+
+        VENTOY_GET_COMPONENT_NAME(Name2Protocol, DriverName);
+
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDriverBindingProtocolGuid, (VOID **)&DriverBindProtocol);
+        if (EFI_ERROR(Status))
+        {
+            debug("### 2 No DriverBind <%s> <%r>", DriverName, Status);
+            continue;
+        }
+
+        ventoy_add_filesystem_wrapper(DriverBindProtocol, DriverName);
+    }
+
+    Count = 0;
+    FreePool(Handles);
+    Handles = NULL;
+
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentNameProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return Status;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiComponentNameProtocolGuid, (VOID **)&NameProtocol);
+        if (EFI_ERROR(Status))
+        {
+            debug();
+            continue;
+        }
+
+        VENTOY_GET_COMPONENT_NAME(NameProtocol, DriverName);
+
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDriverBindingProtocolGuid, (VOID **)&DriverBindProtocol);
+        if (EFI_ERROR(Status))
+        {
+            debug("### 1 No DriverBind <%s> <%r>", DriverName, Status);
+            continue;
+        }
+
+        ventoy_add_filesystem_wrapper(DriverBindProtocol, DriverName);
+    }
+
+    FreePool(Handles);
+    
+    return EFI_SUCCESS;
+}
+
+STATIC EFI_STATUS EFIAPI ventoy_wrapper_driver_bind_support
+(
+    IN EFI_DRIVER_BINDING_PROTOCOL            *This,
+    IN EFI_HANDLE                              ControllerHandle,
+    IN EFI_DEVICE_PATH_PROTOCOL               *RemainingDevicePath OPTIONAL
+)
+{
+    UINTN i;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_DEVICE_PATH_PROTOCOL *DevicePath = NULL;
+    EFI_DRIVER_BINDING_SUPPORTED pfOldSupport = NULL;
+
+    for (i = 0; i < g_DriverBindWrapperCnt; i++)
+    {
+        if (g_DriverBindWrapperList[i].DriverBinding == This)
+        {
+            pfOldSupport = g_DriverBindWrapperList[i].pfOldSupport;
+            break;
+        }
+    }
+
+    debug("ventoy_wrapper_driver_bind_support %lu %p", i, pfOldSupport);
+
+    if (!pfOldSupport)
+    {
+        return EFI_UNSUPPORTED;
+    }
+
+    Status = gBS->HandleProtocol(ControllerHandle, &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
+    if (EFI_ERROR(Status))
+    {
+        goto out;
+    }
+
+    if (0 == CompareMem(gBlockData.Path, DevicePath, gBlockData.DevicePathCompareLen))
+    {
+        debug("return EFI_UNSUPPORTED for ventoy");
+        return EFI_UNSUPPORTED;
+    }
+
+out:
+    return pfOldSupport(This, ControllerHandle, RemainingDevicePath);
+}
+
+EFI_STATUS ventoy_disable_ex_filesystem(VOID)
+{
+    UINTN i;
+
+    ventoy_find_filesystem_driverbind();
+
+    for (i = 0; i < g_DriverBindWrapperCnt; i++)
+    {
+        g_DriverBindWrapperList[i].DriverBinding->Supported = ventoy_wrapper_driver_bind_support;
+    }
+
+    debug("Wrapper Ex Driver Binding %lu", g_DriverBindWrapperCnt);
+    ventoy_debug_pause();
+    
+    return EFI_SUCCESS;
+}
+
+EFI_STATUS ventoy_enable_ex_filesystem(VOID)
+{
+    UINTN i;
+
+    for (i = 0; i < g_DriverBindWrapperCnt; i++)
+    {
+        g_DriverBindWrapperList[i].DriverBinding->Supported = g_DriverBindWrapperList[i].pfOldSupport;
+    }
+    g_DriverBindWrapperCnt = 0;
+
+    return EFI_SUCCESS;
 }
 
 EFI_STATUS EFIAPI ventoy_block_io_read_512
