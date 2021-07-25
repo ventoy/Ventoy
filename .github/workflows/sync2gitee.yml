@@ -11,6 +11,7 @@ on:
 jobs:
   run:
     name: Sync-GitHub-to-Gitee
+    if: ${{ github.repository_owner == 'ventoy' }}
     runs-on: ubuntu-latest
     steps:
     - name: Mirror the Github repos to Gitee.
