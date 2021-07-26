@@ -1421,7 +1421,7 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Lỗi giao tiếp: Dịch vụ không sẵn có",
         "STR_WEB_TOKEN_MISMATCH":"Đã cập nhật trạng thái Daemon, vui lòng thử lại sau.",
         "STR_WEB_SERVICE_BUSY":"Dịch vụ bận, vui lòng thử lại sau.",
-		"STR_MENU_VTSI_CREATE":"Tạo tệp VTSI",
+	"STR_MENU_VTSI_CREATE":"Tạo tệp VTSI",
         "STR_VTSI_CREATE_TIP":"Lần này sẽ không ghi vào thiết bị, chỉ tạo một tệp VTSI#@Bạn muốn tiếp tục?",
         "STR_VTSI_CREATE_SUCCESS":"Tạo tệp VTSI thành công!#@Để hoàn thành cài đặt Ventoy, bạn có thể dùng Rufus(3.15+) để khi tệp này vào thiết bị.",
         "STR_VTSI_CREATE_FAILED":"Tạo tệp VTSI đã gặp lỗi.",
