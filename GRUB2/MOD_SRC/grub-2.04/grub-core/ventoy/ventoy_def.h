@@ -533,6 +533,17 @@ typedef struct plugin_entry
     ventoy_plugin_check_pf checkfunc;
 }plugin_entry;
 
+typedef struct replace_fs_dir
+{
+    grub_device_t dev;
+    grub_fs_t fs;
+    char fullpath[512];
+    char initrd[512];
+    int curpos;
+    int dircnt;
+    int filecnt;
+}replace_fs_dir;
+
 int ventoy_strcmp(const char *pattern, const char *str);
 int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n);
 void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param);
