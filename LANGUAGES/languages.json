@@ -186,7 +186,7 @@
         "STR_SPACE_VAL_INVALID":"Invalid value for reserved space",
         "STR_MENU_CLEAR":"Clear Ventoy",
         "STR_CLEAR_SUCCESS":"Ventoy has been successfully removed from the device.",
-        "STR_CLEAR_FAILED":"An error occurred when clear Ventoy from disk. You can replug the USB and try again. Check log.txt for detail.",
+        "STR_CLEAR_FAILED":"An error occurred when clearing Ventoy from disk. You can replug the USB and try again. Check log.txt for details.",
         "STR_MENU_PART_STYLE":"Partition Style",
         "STR_DISK_2TB_MBR_ERROR":"Please select GPT for disk over 2TB",
         "STR_SHOW_ALL_DEV":"Show All Devices",
