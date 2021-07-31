@@ -1,0 +1,85 @@
+name: Issue Report
+description: File an issue report
+title: "[issue]: "
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue report!
+  - type: checkboxes
+    id: faq
+    attributes:
+      label: Official FAQ
+      description: Have you checked the official FAQ at [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) ?
+      options:
+        - label: I have checked the official FAQ. 
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: Ventoy Version
+      description: What version of ventoy are you running?
+      placeholder: 1.0.47
+    validations:
+      required: true
+  - type: dropdown
+    id: latestrelease
+    attributes:
+      label: What about latest release
+      description: Have you tried with the latest release of Ventoy?
+      options:
+        - Yes. I have tried the latest release, but the bug still exist.
+        - No. I didn't try the latest release.
+    validations:
+      required: true
+  - type: dropdown
+    id: bios
+    attributes:
+      label: BIOS Mode
+      description: In which BIOS mode did you find the bug?
+      options:
+        - Legacy BIOS Mode
+        - UEFI Mode
+        - Both
+    validations:
+      required: true
+  - type: dropdown
+    id: partstyle
+    attributes:
+      label: Partition Style
+      description: Which partition style did you select when you install Ventoy?
+      options:
+        - MBR
+        - GPT
+    validations:
+      required: true
+  - type: input
+    id: capacity
+    attributes:
+      label: Disk Capacity
+      description: What is the capacity of the disk installed with Ventoy?
+      placeholder: 32GB
+    validations:
+      required: true
+  - type: dropdown
+    id: checksum
+    attributes:
+      label: Image file checksum (if applicable)
+      description: Have you checked the image file in Ventoy's menu as [https://www.ventoy.net/en/faq.html#faq_boot_checksum](https://www.ventoy.net/en/faq.html#faq_boot_checksum) ?
+      options:
+        - Yes.
+        - No.        
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Tell me what happened. It's highly recommended to include some photo or video about the bug.
+      placeholder: Tell us what you see!
+      value: "A bug happened!"
+    validations:
+      required: true
+

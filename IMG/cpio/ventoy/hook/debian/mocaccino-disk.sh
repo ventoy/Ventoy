@@ -17,12 +17,31 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
+
+if is_ventoy_hook_finished; then
+    exit 0
+fi
+
+vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-mkdir /sys
-mount -t sysfs sys /sys
-mdev -s
+wait_for_usb_disk_ready
 
-sh $VTOY_PATH/loop/openwrt/ventoy-disk.sh
+vtdiskname=$(get_ventoy_disk_name)
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    PATH=$VTPATH_OLD
+    exit 0
+fi
+
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
+
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
+vtlog "/dev/$vtDM"
+
+PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish

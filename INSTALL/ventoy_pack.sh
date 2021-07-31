@@ -146,6 +146,7 @@ chmod +x $tmpdir/VentoyWeb.sh
 chmod +x $tmpdir/VentoyWebDeepin.sh
 #chmod +x $tmpdir/Ventoy.desktop
 chmod +x $tmpdir/CreatePersistentImg.sh
+chmod +x $tmpdir/ExtendPersistentImg.sh
 
 tar -czvf ventoy-${curver}-linux.tar.gz $tmpdir
 

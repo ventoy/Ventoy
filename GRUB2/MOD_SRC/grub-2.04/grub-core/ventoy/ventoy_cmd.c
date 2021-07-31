@@ -3148,6 +3148,22 @@ static grub_err_t ventoy_cmd_add_replace_file(grub_extcmd_context_t ctxt, int ar
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_get_replace_file_cnt(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    char buf[32];
+    ventoy_grub_param_file_replace *replace = &(g_grub_param->file_replace);
+    
+    (void)ctxt;
+
+    if (argc >= 1)
+    {
+        grub_snprintf(buf, sizeof(buf), "%u", replace->old_name_cnt);
+        grub_env_set(args[0], buf);        
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 static grub_err_t ventoy_cmd_dump_menu(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
@@ -4204,8 +4220,18 @@ static int ventoy_fs_enum_1st_file(const char *filename, const struct grub_dirho
     return 0;
 }
 
+static int ventoy_fs_enum_1st_dir(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    if (info->dir && filename && filename[0] != '.')
+    {
+        grub_snprintf((char *)data, 256, "%s", filename);
+        return 1;
+    }
 
-static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int argc, char **args)
+    return 0;
+}
+
+static grub_err_t ventoy_fs_enum_1st_child(int argc, char **args, grub_fs_dir_hook_t hook)
 {
     int rc = 1;
     char *device_name = NULL;
@@ -4213,11 +4239,9 @@ static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int ar
     grub_fs_t fs = NULL;
     char name[256] ={0};
     
-    (void)ctxt;
-
     if (argc != 3)
     {
-        debug("ventoy_cmd_fs_enum_1st_file, invalid param num %d\n", argc);
+        debug("ventoy_fs_enum_1st_child, invalid param num %d\n", argc);
         return 1;
     }
 
@@ -4242,7 +4266,7 @@ static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int ar
         goto end;
     }
 
-    fs->fs_dir(dev, args[1], ventoy_fs_enum_1st_file, name);
+    fs->fs_dir(dev, args[1], hook, name);
     if (name[0])
     {
         ventoy_set_env(args[2], name);
@@ -4256,6 +4280,18 @@ end:
     check_free(dev, grub_device_close);
     
     return rc;
+}
+
+static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    return ventoy_fs_enum_1st_child(argc, args, ventoy_fs_enum_1st_file);
+}
+
+static grub_err_t ventoy_cmd_fs_enum_1st_dir(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    return ventoy_fs_enum_1st_child(argc, args, ventoy_fs_enum_1st_dir);
 }
 
 static grub_err_t ventoy_cmd_basename(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -4405,6 +4441,194 @@ static grub_err_t ventoy_cmd_get_video_mode(grub_extcmd_context_t ctxt, int argc
     VENTOY_CMD_RETURN(0);
 }
 
+static grub_err_t ventoy_cmd_get_efivdisk_offset(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint32_t i;
+    grub_uint32_t loadsector = 0;
+    grub_file_t file;
+    char value[32];
+    grub_uint32_t boot_catlog = 0;
+    grub_uint8_t buf[512];
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        debug("ventoy_cmd_get_efivdisk_offset, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        debug("failed to open %s\n", args[0]);
+        return 1;
+    }
+
+    boot_catlog = ventoy_get_iso_boot_catlog(file);
+    if (boot_catlog == 0)
+    {
+        debug("No bootcatlog found\n");
+        grub_file_close(file);
+        return 1;
+    }
+
+    grub_memset(buf, 0, sizeof(buf));
+    grub_file_seek(file, boot_catlog * 2048);
+    grub_file_read(file, buf, sizeof(buf));
+    grub_file_close(file);
+
+    for (i = 0; i < sizeof(buf); i += 32)
+    {
+        if ((buf[i] == 0 || buf[i] == 0x90 || buf[i] == 0x91) && buf[i + 1] == 0xEF)
+        {
+            if (buf[i + 32] == 0x88)
+            {
+                loadsector = *(grub_uint32_t *)(buf + i + 32 + 8);
+                grub_snprintf(value, sizeof(value), "%u", loadsector * 4); //change to sector size 512
+                break;
+            }
+        }
+    }
+
+    if (loadsector == 0)
+    {
+        debug("No EFI eltorito info found\n");
+        return 1;
+    }
+
+    debug("ventoy_cmd_get_efivdisk_offset <%s>\n", value);
+    grub_env_set(args[1], value);
+    VENTOY_CMD_RETURN(0);
+}
+
+static int ventoy_collect_replace_initrd(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    int curpos;
+    int printlen;
+    grub_size_t len;
+    replace_fs_dir *pfsdir = (replace_fs_dir *)data;
+
+    if (pfsdir->initrd[0])
+    {
+        return 1;
+    }
+
+    curpos = pfsdir->curpos;
+    len = grub_strlen(filename);
+    
+    if (info->dir)
+    {
+        if ((len == 1 && filename[0] == '.') ||
+            (len == 2 && filename[0] == '.' && filename[1] == '.'))
+        {
+            return 0;
+        }
+
+        //debug("#### [DIR] <%s> <%s>\n", pfsdir->fullpath, filename);
+        pfsdir->dircnt++;
+        
+        printlen = grub_snprintf(pfsdir->fullpath + curpos, 512 - curpos, "%s/", filename);
+        pfsdir->curpos = curpos + printlen;
+        pfsdir->fs->fs_dir(pfsdir->dev, pfsdir->fullpath, ventoy_collect_replace_initrd, pfsdir);
+        pfsdir->curpos = curpos;
+        pfsdir->fullpath[curpos] = 0;
+    }
+    else
+    {
+        //debug("#### [FILE] <%s> <%s>\n", pfsdir->fullpath, filename);
+        pfsdir->filecnt++;
+        
+        /* We consider the xxx.img file bigger than 32MB is the initramfs file */
+        if (len > 4 && grub_strncmp(filename + len - 4, ".img", 4) == 0)
+        {
+            if (info->size > 32 * VTOY_SIZE_1MB)
+            {
+                grub_snprintf(pfsdir->initrd, sizeof(pfsdir->initrd), "%s%s", pfsdir->fullpath, filename);
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_search_replace_initrd(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    char *pos = NULL;
+    char *device_name = NULL;
+    grub_device_t dev = NULL;
+    grub_fs_t fs = NULL;
+    replace_fs_dir *pfsdir = NULL;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        debug("ventoy_cmd_search_replace_initrd, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    pfsdir = grub_zalloc(sizeof(replace_fs_dir));
+    if (!pfsdir)
+    {
+        return 1;
+    }
+
+    device_name = grub_file_get_device_name(args[0]);
+    if (!device_name)
+    {
+        goto fail;
+    }
+
+    dev = grub_device_open(device_name);
+    if (!dev)
+    {
+        goto fail;        
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        goto fail;
+    }
+
+    pfsdir->dev = dev;
+    pfsdir->fs = fs;
+    pfsdir->curpos = 1;
+    pfsdir->fullpath[0] = '/';
+    fs->fs_dir(dev, "/", ventoy_collect_replace_initrd, pfsdir);
+
+    if (pfsdir->initrd[0])
+    {
+        debug("Replace initrd <%s> <%d %d>\n", pfsdir->initrd, pfsdir->dircnt, pfsdir->filecnt);
+
+        for (i = 0; i < (int)sizeof(pfsdir->initrd) && pfsdir->initrd[i]; i++)
+        {
+            if (pfsdir->initrd[i] == '/')
+            {
+                pfsdir->initrd[i] = '\\';
+            }
+        }
+
+        pos = (pfsdir->initrd[0] == '\\') ? pfsdir->initrd + 1 : pfsdir->initrd;
+        grub_env_set(args[1], pos);
+    }
+    else
+    {
+        debug("Replace initrd NOT found <%s> <%d %d>\n", args[0], pfsdir->dircnt, pfsdir->filecnt);
+    }
+
+fail:
+    
+    grub_check_free(pfsdir);
+    grub_check_free(device_name);
+    check_free(dev, grub_device_close);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -4491,6 +4715,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_part_exist", ventoy_cmd_part_exist, 0, NULL, "", "", NULL },
     { "vt_get_fs_label", ventoy_cmd_get_fs_label, 0, NULL, "", "", NULL },
     { "vt_fs_enum_1st_file", ventoy_cmd_fs_enum_1st_file, 0, NULL, "", "", NULL },
+    { "vt_fs_enum_1st_dir", ventoy_cmd_fs_enum_1st_dir, 0, NULL, "", "", NULL },
     { "vt_file_basename", ventoy_cmd_basename, 0, NULL, "", "", NULL },    
     { "vt_file_basefile", ventoy_cmd_basefile, 0, NULL, "", "", NULL },    
     { "vt_enum_video_mode", ventoy_cmd_enum_video_mode, 0, NULL, "", "", NULL },    
@@ -4539,6 +4764,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_wim_chain_data", ventoy_cmd_wim_chain_data, 0, NULL, "", "", NULL },
 
     { "vt_add_replace_file", ventoy_cmd_add_replace_file, 0, NULL, "", "", NULL },
+    { "vt_get_replace_file_cnt", ventoy_cmd_get_replace_file_cnt, 0, NULL, "", "", NULL },
     { "vt_test_block_list", ventoy_cmd_test_block_list, 0, NULL, "", "", NULL },
     { "vt_file_exist_nocase", ventoy_cmd_file_exist_nocase, 0, NULL, "", "", NULL },
 
@@ -4575,6 +4801,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_set_wim_load_prompt", ventoy_cmd_set_wim_prompt, 0, NULL, "", "", NULL },
     { "vt_set_theme", ventoy_cmd_set_theme, 0, NULL, "", "", NULL },
 
+    { "vt_get_efi_vdisk_offset", ventoy_cmd_get_efivdisk_offset, 0, NULL, "", "", NULL },
+    { "vt_search_replace_initrd", ventoy_cmd_search_replace_initrd, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

@@ -17,12 +17,4 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
-
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
-
-mkdir /sys
-mount -t sysfs sys /sys
-mdev -s
-
-sh $VTOY_PATH/loop/openwrt/ventoy-disk.sh
+$SED "/mount_system *$/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/mocaccino-disk.sh"  -i /loader
