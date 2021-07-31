@@ -401,10 +401,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Iletişim hatası: Uzaktan web erişim hizmeti erişilemez durumda",
         "STR_WEB_TOKEN_MISMATCH":"Daemon durumu güncellendi,lütfen daha sonra tekrar deneyiniz.",
         "STR_WEB_SERVICE_BUSY":"Hizmet meşgul, lütfen daha sonra tekrar deneyin.",
-        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
-        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
-        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_VTSI_CREATE":"VTSI dosyası oluştur",
+        "STR_VTSI_CREATE_TIP":"Şu an cihaza yazılmayacak,sadece bir VTSI dosyası oluşturulacak#@Devam edilsin mi?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI dosyası başarılı bi şekilde oluşturuldu!#@Ventoy un cihaza kurulumunu tamamlamak için Rufus(3.15+) programını kullanabilirsiniz.",
+        "STR_VTSI_CREATE_FAILED":"VTSI dosyası oluşturma Başarısız!",
         "STRXXX":""
     },
     {
