@@ -46,7 +46,7 @@
         "STR_WEB_SERVICE_BUSY":"الخدمة مشغولة ، يرجى إعادة المحاولة لاحقًا.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -97,7 +97,7 @@
         "STR_WEB_SERVICE_BUSY":"서비스가 사용 중입니다. 나중에 다시 시도하십시오.",
         "STR_MENU_VTSI_CREATE":"VTSI 파일 생성",
         "STR_VTSI_CREATE_TIP":"이번에는 장치에 쓰지 않고 VTSI 파일#@만 생성합니다.#@계속하시겠습니까?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI 파일이 성공적으로 생성되었습니다!#@Rufus(3.15+)를 사용하여 장치에 기록하여 Ventoy 설치를 완료할 수 있습니다.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI 파일이 성공적으로 생성되었습니다!#@Rufus(3.15Beta+)를 사용하여 장치에 기록하여 Ventoy 설치를 완료할 수 있습니다.",
         "STR_VTSI_CREATE_FAILED":"VTSI 파일을 생성하지 못했습니다.",
         "STRXXX":""
     },
@@ -148,7 +148,7 @@
         "STR_WEB_SERVICE_BUSY":"后台服务正忙，请稍后重试",
         "STR_MENU_VTSI_CREATE":"创建 VTSI 文件",
         "STR_VTSI_CREATE_TIP":"本操作不会向设备中写入数据，而只会生成一个 VTSI 文件#@是否继续？",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI 文件创建成功，你可以使用Rufus(3.15+)将其写入对应设备，从而完成Ventoy的安装",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI 文件创建成功，你可以使用Rufus(3.15Beta+)将其写入对应设备，从而完成Ventoy的安装",
         "STR_VTSI_CREATE_FAILED":"VTSI 文件创建失败",
         "STRXXX":""
     },
@@ -199,7 +199,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -250,7 +250,7 @@
         "STR_WEB_SERVICE_BUSY":"سرویس شلوغ است ، لطفاً بعداً دوباره امتحان کنید.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -301,7 +301,7 @@
         "STR_WEB_SERVICE_BUSY":"Usługa jest zajęta, spróbuj ponownie później.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -352,7 +352,7 @@
         "STR_WEB_SERVICE_BUSY":"O serviço está ocupado, por favor, tente novamente mais tarde.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -403,7 +403,7 @@
         "STR_WEB_SERVICE_BUSY":"Hizmet meşgul, lütfen daha sonra tekrar deneyin.",
         "STR_MENU_VTSI_CREATE":"VTSI dosyası oluştur",
         "STR_VTSI_CREATE_TIP":"Şu an cihaza yazılmayacak,sadece bir VTSI dosyası oluşturulacak#@Devam edilsin mi?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI dosyası başarılı bi şekilde oluşturuldu!#@Ventoy un cihaza kurulumunu tamamlamak için Rufus(3.15+) programını kullanabilirsiniz.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI dosyası başarılı bi şekilde oluşturuldu!#@Ventoy un cihaza kurulumunu tamamlamak için Rufus(3.15Beta+) programını kullanabilirsiniz.",
         "STR_VTSI_CREATE_FAILED":"VTSI dosyası oluşturma Başarısız!",
         "STRXXX":""
     },
@@ -454,7 +454,7 @@
         "STR_WEB_SERVICE_BUSY":"Dienst ist ausgelastet, bitte später erneut versuchen.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -505,7 +505,7 @@
         "STR_WEB_SERVICE_BUSY":"Lo servici es ocupat, tornatz ensajar mai tard.",
         "STR_MENU_VTSI_CREATE":"Generar lo fichièr VTSI",
         "STR_VTSI_CREATE_TIP":"Aqueste còp cap d’escritura al disc, generacion del fichiet VTSI sonque#@Contunhar ?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Fracàs de la creacion del fichièr VTSI.",
         "STRXXX":""
     },
@@ -556,7 +556,7 @@
         "STR_WEB_SERVICE_BUSY":"Service surchargé, veuillez réessayer plus tard.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -607,7 +607,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -658,7 +658,7 @@
         "STR_WEB_SERVICE_BUSY":" El servicio está ocupado, por favor reintenta más tarde.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -709,7 +709,7 @@
         "STR_WEB_SERVICE_BUSY":"Служба занята, повторите попытку позже.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -760,7 +760,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -811,7 +811,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -862,7 +862,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is bezet, probeer het later opnieuw.",
         "STR_MENU_VTSI_CREATE":"VTSI-bestand genereren",
         "STR_VTSI_CREATE_TIP":"Deze keer wordt er niet naar het apparaat geschreven, maar wordt er alleen een VTSI-bestand gegenereerd#@Doorgaan?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI-bestand met succes aangemaakt!#@U kunt Rufus(3.15+) gebruiken om het bestand naar het apparaat te schrijven om de installatie van Ventoy te voltooien.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI-bestand met succes aangemaakt!#@U kunt Rufus(3.15Beta+) gebruiken om het bestand naar het apparaat te schrijven om de installatie van Ventoy te voltooien.",
         "STR_VTSI_CREATE_FAILED":"Aanmaken van VTSI-bestand mislukt.",
         "STRXXX":""
     },
@@ -913,7 +913,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -964,7 +964,7 @@
         "STR_WEB_SERVICE_BUSY":"サービスがビジーです。後で再試行してください。",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1015,7 +1015,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1066,7 +1066,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1117,7 +1117,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1168,7 +1168,7 @@
         "STR_WEB_SERVICE_BUSY":"服務正忙，請稍後重試",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1219,7 +1219,7 @@
         "STR_WEB_SERVICE_BUSY":"Servis je zauzet, pokušajte ponovo kasnije.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1270,7 +1270,7 @@
         "STR_WEB_SERVICE_BUSY":"Севис је заузет, покушајте поново касније.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1321,7 +1321,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1372,7 +1372,7 @@
         "STR_WEB_SERVICE_BUSY":"Tjenesten er opptatt, vennligst prøv igjen senere.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1423,7 +1423,7 @@
         "STR_WEB_SERVICE_BUSY":"Dịch vụ bận, vui lòng thử lại sau.",
 	"STR_MENU_VTSI_CREATE":"Tạo tệp VTSI",
         "STR_VTSI_CREATE_TIP":"Lần này sẽ không ghi vào thiết bị, chỉ tạo một tệp VTSI#@Bạn muốn tiếp tục?",
-        "STR_VTSI_CREATE_SUCCESS":"Tạo tệp VTSI thành công!#@Để hoàn thành cài đặt Ventoy, bạn có thể dùng Rufus(3.15+) để khi tệp này vào thiết bị.",
+        "STR_VTSI_CREATE_SUCCESS":"Tạo tệp VTSI thành công!#@Để hoàn thành cài đặt Ventoy, bạn có thể dùng Rufus(3.15Beta+) để khi tệp này vào thiết bị.",
         "STR_VTSI_CREATE_FAILED":"Tạo tệp VTSI đã gặp lỗi.",
         "STRXXX":""
     },
@@ -1474,7 +1474,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1525,7 +1525,7 @@
         "STR_WEB_SERVICE_BUSY":"Сервисот е зафатен, молиме обидете се подоцна.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1576,7 +1576,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1627,7 +1627,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1678,7 +1678,7 @@
         "STR_WEB_SERVICE_BUSY":"Service is busy, please retry later.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1729,7 +1729,7 @@
         "STR_WEB_SERVICE_BUSY":"Служба зайнята, повторіть спробу пізніше.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1780,7 +1780,7 @@
         "STR_WEB_SERVICE_BUSY":"Η υπηρεσία είναι απασχολημένη. Παρακαλώ δοκιμάστε αργότερα.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1831,7 +1831,7 @@
         "STR_WEB_SERVICE_BUSY":"Tjänster är upptagen. Försök igen senare.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     },
@@ -1882,7 +1882,7 @@
         "STR_WEB_SERVICE_BUSY":"Storitev je zasedena, prosim poskusite kasneje.",
         "STR_MENU_VTSI_CREATE":"Generate VTSI File",
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
         "STRXXX":""
     }

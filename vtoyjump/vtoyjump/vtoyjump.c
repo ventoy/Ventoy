@@ -1623,7 +1623,7 @@ int main(int argc, char **argv)
     //sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
     CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
 
-    for (i = 0; rc && i < 10; i++)
+    for (i = 0; rc && i < 1800; i++)
     {
         Log("Ventoy hook failed, now wait and retry ...");
         Sleep(1000);

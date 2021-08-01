@@ -21,9 +21,6 @@ Please refer https://www.ventoy.net/en/doc_start.html for details.
 1. sudo sh VentoyWeb.sh 
 2. open your browser and visit http://127.0.0.1:24680
 
-========== VentoyWebDeepin.sh ===============
-1. sudo sh VentoyWebDeepin.sh 
-
 
 ========== CreatePersistentImg.sh ===============
 

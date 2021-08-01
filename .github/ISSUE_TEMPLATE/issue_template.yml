@@ -21,7 +21,7 @@ body:
     attributes:
       label: Ventoy Version
       description: What version of ventoy are you running?
-      placeholder: 1.0.47
+      placeholder: 1.0.48
     validations:
       required: true
   - type: dropdown
@@ -71,6 +71,14 @@ body:
       options:
         - Yes.
         - No.        
+    validations:
+      required: false
+  - type: input
+    id: link
+    attributes:
+      label: Image file download link (if applicable)
+      description: What is the image file download link?
+      placeholder: https://xxx
     validations:
       required: false
   - type: textarea

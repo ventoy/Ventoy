@@ -230,18 +230,23 @@ BOOL DeletePartitions(DWORD DriveIndex, BOOL OnlyPart2)
                         Log("* Partition %d (offset: %lld, size: %llu)", prop_array[i].ulPartitionNumber,
                             prop_array[i].ullOffset, (ULONGLONG)prop_array[i].ullSize);
 
-                        if (OnlyPart2 && prop_array[i].ullOffset == 2048*512)
+                        if (OnlyPart2)
                         {
-                            Log("Skip this partition...");
-                            continue;
+                            if (prop_array[i].ullOffset == 2048 * 512 || prop_array[i].ullSize != 32 * 1024 * 1024)
+                            {
+                                Log("Skip this partition...");
+                                continue;
+                            }
                         }
-
 
                         hr = IVdsAdvancedDisk_DeletePartition(pAdvancedDisk, prop_array[i].ullOffset, TRUE, TRUE);
                         if (hr != S_OK) {
                             r = FALSE;
                             VDS_SET_ERROR(hr);
                             Log("Could not delete partitions: %u", LASTERR);
+                        }
+                        else {
+                            Log("Delete this partitions success");
                         }
                     }
                     r = TRUE;
@@ -1592,8 +1597,14 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     unxz(ImgBuf, Len, NULL, NULL, pData, &dataLen, unxz_error);
     SAFE_FREE(ImgBuf);
 
+    Log("decompress %s len:%d", VENTOY_FILE_STG1_IMG, dataLen);
+
     if (PartStyle)
     {
+        pData[500] = 35;//update blocklist
+        memmove(pData + 34 * 512, pData, SIZE_1MB - 512 * 34);
+        memset(pData, 0, 34 * 512);
+
         pGptInfo = (VTOY_GPT_INFO *)pData;
         memset(pGptInfo, 0, sizeof(VTOY_GPT_INFO));
         VentoyFillGpt(pPhyDrive->SizeInBytes, pGptInfo);
@@ -1613,6 +1624,9 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     }
     else
     {
+        memmove(pData + 512, pData, SIZE_1MB - 512);
+        memset(pData, 0, 512);
+
         pMBR = (MBR_HEAD *)pData;
         VentoyFillMBR(pPhyDrive->SizeInBytes, pMBR, PartStyle);
         Part1StartSector = pMBR->PartTbl[0].StartSectorId;
@@ -1654,7 +1668,9 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     }
 
     Log("Writing stage1 data ............................. ");
+
     fwrite(pData, 1, SIZE_1MB, fp);
+
     pSegment[0].disk_start_sector = 0;
     pSegment[0].sector_num = SIZE_1MB / 512;
     pSegment[0].data_offset = data_offset;
