@@ -41,25 +41,26 @@ void Log(const char *Fmt, ...)
 	FILE *File = NULL;
 	SYSTEMTIME Sys;
 	char szBuf[1024];
+    DWORD PID = GetCurrentProcessId();
 
 	GetLocalTime(&Sys);
 	Len += sprintf_s(szBuf, sizeof(szBuf),
-		"[%4d/%02d/%02d %02d:%02d:%02d.%03d] ",
+		"[%4d/%02d/%02d %02d:%02d:%02d.%03d] [%u] ",
 		Sys.wYear, Sys.wMonth, Sys.wDay,
 		Sys.wHour, Sys.wMinute, Sys.wSecond,
-		Sys.wMilliseconds);
+        Sys.wMilliseconds, PID);
 
 	va_start(Arg, Fmt);
 	Len += vsnprintf_s(szBuf + Len, sizeof(szBuf)-Len, sizeof(szBuf)-Len, Fmt, Arg);
 	va_end(Arg);
 
-	fopen_s(&File, "ventoy.log", "a+");
-	if (File)
-	{
-		fwrite(szBuf, 1, Len, File);
-		fwrite("\n", 1, 1, File);
-		fclose(File);
-	}
+    fopen_s(&File, "ventoy.log", "a+");
+    if (File)
+    {
+        fwrite(szBuf, 1, Len, File);
+        fwrite("\n", 1, 1, File);
+        fclose(File);
+    }
 }
 
 
@@ -1410,159 +1411,43 @@ End:
 	return rc;
 }
 
-static int GetPecmdParam(const char *argv, char *CallParamBuf, DWORD BufLen)
-{
-    HKEY hKey;
-    LSTATUS Ret;
-    DWORD dw;
-    DWORD Type;
-    CHAR *Pos = NULL;
-    CHAR CallParam[256] = { 0 };
-    CHAR FileName[MAX_PATH];
-
-    Log("GetPecmdParam <%s>", argv);
-
-    *CallParamBuf = 0;
-
-    strcpy_s(FileName, sizeof(FileName), argv);
-    for (dw = 0, Pos = FileName; *Pos; Pos++)
-    {
-        dw++;
-        *Pos = toupper(*Pos);
-    }
-
-    Log("dw=%lu argv=<%s>", dw, FileName);
-
-    if (dw >= 9 && strcmp(FileName + dw - 9, "PECMD.EXE") == 0)
-    {
-        Log("Get parameters for pecmd.exe");
-        Ret = RegCreateKeyEx(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dw);
-        if (ERROR_SUCCESS == Ret)
-        {
-            memset(FileName, 0, sizeof(FileName));
-            dw = sizeof(FileName);
-            Ret = RegQueryValueEx(hKey, "CmdLine", NULL, &Type, FileName, &dw);
-            if (ERROR_SUCCESS == Ret && Type == REG_SZ)
-            {
-                strcpy_s(CallParam, sizeof(CallParam), FileName);
-                Log("CmdLine:<%s>", CallParam);
-
-                if (_strnicmp(CallParam, "PECMD.EXE", 9) == 0)
-                {
-                    Pos = CallParam + 9;
-                    if (*Pos == ' ' || *Pos == '\t')
-                    {
-                        Pos++;
-                    }
-                }
-                else
-                {
-                    Pos = CallParam;
-                }
-
-                Log("CmdLine2:<%s>", Pos);
-                sprintf_s(CallParamBuf, BufLen, " %s", Pos);
-            }
-            else
-            {
-                Log("Failed to RegQueryValueEx %lu %lu", Ret, Type);
-            }
-
-            RegCloseKey(hKey);
-            return 1;
-        }
-        else
-        {
-            Log("Failed to create reg key %lu", Ret);
-        }
-    }
-    else
-    {
-        Log("This is NOT pecmd.exe");
-    }
-
-    return 0;
-}
-
-static int GetWpeInitParam(char **argv, int argc, char *CallParamBuf, DWORD BufLen)
-{
-    int i;
-    DWORD dw;
-    CHAR *Pos = NULL;
-    CHAR FileName[MAX_PATH];
-
-    Log("GetWpeInitParam argc=%d", argc);
-
-    *CallParamBuf = 0;
-
-    strcpy_s(FileName, sizeof(FileName), argv[0]);
-    for (dw = 0, Pos = FileName; *Pos; Pos++)
-    {
-        dw++;
-        *Pos = toupper(*Pos);
-    }
-
-    Log("dw=%lu argv=<%s>", dw, FileName);
-
-    if (dw >= 11 && strcmp(FileName + dw - 11, "WPEINIT.EXE") == 0)
-    {
-        Log("Get parameters for WPEINIT.EXE");
-        for (i = 1; i < argc; i++)
-        {
-            strcat_s(CallParamBuf, BufLen, " ");
-            strcat_s(CallParamBuf, BufLen, argv[i]);
-        }
-
-        return 1;
-    }
-    else
-    {
-        Log("This is NOT wpeinit.exe");
-    }
-    
-    return 0;
-}
-
-
 int main(int argc, char **argv)
 {
     int i = 0;
     int rc = 0;
-	CHAR *Pos = NULL;
-	CHAR CurDir[MAX_PATH];
-	CHAR LunchFile[MAX_PATH];
+    CHAR *Pos = NULL;
+    CHAR CurDir[MAX_PATH];
+    CHAR LunchFile[MAX_PATH];
     CHAR CallParam[1024] = { 0 };
-	STARTUPINFOA Si;
-	PROCESS_INFORMATION Pi;
+    STARTUPINFOA Si;
+    PROCESS_INFORMATION Pi;
 
-	if (argv[0] && argv[0][0] && argv[0][1] == ':')
-	{
-		GetCurrentDirectoryA(sizeof(CurDir), CurDir);
-
-		strcpy_s(LunchFile, sizeof(LunchFile), argv[0]);
-		Pos = (char *)GetFileNameInPath(LunchFile);
-
-		strcat_s(CurDir, sizeof(CurDir), "\\");
-		strcat_s(CurDir, sizeof(CurDir), Pos);
-		
-		if (_stricmp(argv[0], CurDir) != 0)
-		{
-			*Pos = 0;
-			SetCurrentDirectoryA(LunchFile);
-		}
-	}
-
-	Log("######## VentoyJump ##########");
-	Log("argc = %d argv[0] = <%s>", argc, argv[0]);
-
-    //special process for some WinPE
-    if (_stricmp(argv[0], "WPEINIT.EXE") == 0)
+    if (argv[0] && argv[0][0] && argv[0][1] == ':')
     {
         GetCurrentDirectoryA(sizeof(CurDir), CurDir);
-        if (_stricmp(CurDir, "X:\\") == 0)
+
+        strcpy_s(LunchFile, sizeof(LunchFile), argv[0]);
+        Pos = (char *)GetFileNameInPath(LunchFile);
+
+        strcat_s(CurDir, sizeof(CurDir), "\\");
+        strcat_s(CurDir, sizeof(CurDir), Pos);
+
+        if (_stricmp(argv[0], CurDir) != 0)
         {
-            Log("Set current directory to system32");
-            SetCurrentDirectoryA("X:\\Windows\\System32");
+            *Pos = 0;
+            SetCurrentDirectoryA(LunchFile);
+        }
+    }
+
+    Log("######## VentoyJump ##########");
+    Log("argc = %d", argc);
+    for (i = 0; i < argc; i++)
+    {
+        Log("argv[%d]=<%s>", i, argv[i]);
+        if (i > 0)
+        {
+            strcat_s(CallParam, sizeof(CallParam), " ");
+            strcat_s(CallParam, sizeof(CallParam), argv[i]);
         }
     }
 
@@ -1576,11 +1461,6 @@ int main(int argc, char **argv)
 		GetCurrentDirectoryA(sizeof(CurDir), CurDir);
 		Log("Current directory = <%s>", CurDir);
 	}
-
-    if (0 == GetWpeInitParam(argv, argc, CallParam, sizeof(CallParam)))
-    {
-        GetPecmdParam(argv[0], CallParam, sizeof(CallParam));
-    }
 
     GetStartupInfoA(&Si);
 
@@ -1596,6 +1476,14 @@ int main(int argc, char **argv)
     }
 
     Log("LunchFile=<%s> CallParam=<%s>", LunchFile, CallParam);
+
+    if (_stricmp(argv[0], "PECMD.EXE") == 0 && _stricmp(LunchFile, "ventoy\\PECMD.EXE") == 0)
+    {
+        MoveFileA("PECMD.EXE", "PECMD_BACK.EXE");
+        MoveFileA("ventoy\\PECMD.EXE", "PECMD.EXE");
+        sprintf_s(LunchFile, sizeof(LunchFile), "%s", "PECMD.EXE");
+        Log("Move original PECMD.EXE <%s>", LunchFile);
+    }
 
     if (g_os_param_reserved[0] == 3)
     {

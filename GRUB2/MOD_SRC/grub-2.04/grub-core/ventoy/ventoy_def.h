@@ -69,6 +69,9 @@
 #define VTOY_ARCH_CPIO  "ventoy_x86.cpio"
 #endif
 
+#define ventoy_varg_4(arg) arg[0], arg[1], arg[2], arg[3]
+#define ventoy_varg_8(arg) arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7]
+
 #define VTOY_PWD_CORRUPTED(err) \
 {\
     grub_printf("\n\n Password corrupted, will reboot after 5 seconds.\n\n"); \

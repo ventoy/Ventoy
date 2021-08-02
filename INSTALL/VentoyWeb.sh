@@ -45,6 +45,7 @@ if [ ! -f ./boot/boot.img ]; then
     if [ -d ./grub ]; then
         echo "Don't run VentoyWeb.sh here, please download the released install package, and run the script in it."
     else
+        echo "Current directory is $PWD"
         echo "Please run under the correct directory!" 
     fi
     exit 1
