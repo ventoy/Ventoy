@@ -333,7 +333,9 @@ end:
 static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
 {
     int i = 0;
+    int len = 0;
     int dollar = 0;
+    int quotation = 0;
     grub_file_t file = NULL;
     char *buf = NULL;
     char *start = NULL;
@@ -382,6 +384,12 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
             start++;
         }
 
+        if (*start == '"')
+        {
+            quotation = 1;
+            start++;
+        }
+
         while (*start)
         {
             img = grub_zalloc(sizeof(initrd_info));
@@ -398,6 +406,16 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
                 {
                     dollar = 1;
                 }
+            }
+
+            if (quotation)
+            {
+                len = (int)grub_strlen(img->name);
+                if (len > 2 && img->name[len - 1] == '"')
+                {
+                    img->name[len - 1] = 0;
+                }
+                debug("Remove quotation <%s>\n", img->name);
             }
 
             if (dollar == 1 || ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
