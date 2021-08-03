@@ -33,6 +33,12 @@ static ventoy_windows_data g_windows_data;
 static UINT8 g_os_param_reserved[32];
 static BOOL g_64bit_system = FALSE;
 static ventoy_guid g_ventoy_guid = VENTOY_GUID;
+static HANDLE g_vtoylog_mutex = NULL;
+static HANDLE g_vtoyins_mutex = NULL;
+
+#define VTOY_PID_FILE "X:\\Windows\\System32\\pidventoy"
+#define MUTEX_LOCK(hmutex)  if (hmutex != NULL) LockStatus = WaitForSingleObject(hmutex, INFINITE)
+#define MUTEX_UNLOCK(hmutex)  if (hmutex != NULL && WAIT_OBJECT_0 == LockStatus) ReleaseMutex(hmutex)
 
 void Log(const char *Fmt, ...)
 {
@@ -41,6 +47,7 @@ void Log(const char *Fmt, ...)
 	FILE *File = NULL;
 	SYSTEMTIME Sys;
 	char szBuf[1024];
+    DWORD LockStatus = 0;
     DWORD PID = GetCurrentProcessId();
 
 	GetLocalTime(&Sys);
@@ -54,6 +61,8 @@ void Log(const char *Fmt, ...)
 	Len += vsnprintf_s(szBuf + Len, sizeof(szBuf)-Len, sizeof(szBuf)-Len, Fmt, Arg);
 	va_end(Arg);
 
+    MUTEX_LOCK(g_vtoylog_mutex);
+
     fopen_s(&File, "ventoy.log", "a+");
     if (File)
     {
@@ -61,6 +70,8 @@ void Log(const char *Fmt, ...)
         fwrite("\n", 1, 1, File);
         fclose(File);
     }
+
+    MUTEX_UNLOCK(g_vtoylog_mutex);
 }
 
 
@@ -1305,12 +1316,33 @@ End:
     return rc;
 }
 
+static int ventoy_check_create_directory(void)
+{
+    if (IsDirExist("ventoy"))
+    {
+        Log("ventoy directory already exist");
+    }
+    else
+    {
+        Log("ventoy directory not exist, now create it.");
+        if (!CreateDirectoryA("ventoy", NULL))
+        {
+            Log("Failed to create ventoy directory err:%u", GetLastError());
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 {
 	int rc = 1;
+    int stat = 0;
 	DWORD Pos;
 	DWORD PeStart;
     DWORD FileSize;
+    DWORD LockStatus = 0;
 	BYTE *Buffer = NULL; 
 	CHAR ExeFileName[MAX_PATH];
 
@@ -1331,19 +1363,14 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	g_64bit_system = IsPe64(Buffer);
     Log("VentoyJump %dbit", g_64bit_system ? 64 : 32);
 
-    if (IsDirExist("ventoy"))
+    MUTEX_LOCK(g_vtoyins_mutex);
+    stat = ventoy_check_create_directory();
+    MUTEX_UNLOCK(g_vtoyins_mutex);
+
+    if (stat != 0)
     {
-        Log("ventoy directory already exist");
+        goto End;
     }
-    else
-	{
-        Log("ventoy directory not exist, now create it.");
-		if (!CreateDirectoryA("ventoy", NULL))
-		{
-			Log("Failed to create ventoy directory err:%u", GetLastError());
-			goto End;
-		}
-	}
 
 	for (PeStart = 0; PeStart < FileSize; PeStart += 16)
 	{
@@ -1374,14 +1401,18 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 			PeStart += sizeof(ventoy_os_param) + sizeof(ventoy_windows_data);
 			sprintf_s(LunchFile, MAX_PATH, "ventoy\\%s", GetFileNameInPath(ExeFileName));
 
+            MUTEX_LOCK(g_vtoyins_mutex);
             if (IsFileExist("%s", LunchFile))
             {
-                Log("vtoyjump multiple call...");
+                Log("vtoyjump multiple call ...");
                 rc = 0;
+                MUTEX_UNLOCK(g_vtoyins_mutex);
                 goto End;
             }
 
 			SaveBuffer2File(LunchFile, Buffer + PeStart, FileSize - PeStart);
+            MUTEX_UNLOCK(g_vtoyins_mutex);
+
 			break;
 		}
 	}
@@ -1411,16 +1442,75 @@ End:
 	return rc;
 }
 
+
+
+static int ventoy_append_process_id(const char *pidfile)
+{
+    DWORD PID = 0;
+    FILE *fp = NULL;
+
+    PID = GetCurrentProcessId();
+
+    fopen_s(&fp, pidfile, "a+");
+    if (!fp)
+    {
+        return 1;
+    }
+
+    fprintf_s(fp, "%u\n", PID);
+
+    fclose(fp);
+    return 0;
+}
+
+static int ventoy_get_instance_id(const char *pidfile)
+{
+    int instance = 0;
+    FILE *fp = NULL;
+    char line[256];
+
+    fopen_s(&fp, pidfile, "r");
+    if (!fp)
+    {
+        return 1;
+    }
+
+    while (fgets(line, sizeof(line), fp))
+    {
+        instance++;
+    }
+
+    fclose(fp);
+    return instance + 1;
+}
+
 int main(int argc, char **argv)
 {
     int i = 0;
     int rc = 0;
+    int id = 0;
     CHAR *Pos = NULL;
     CHAR CurDir[MAX_PATH];
     CHAR LunchFile[MAX_PATH];
     CHAR CallParam[1024] = { 0 };
+    DWORD LockStatus = 0;
     STARTUPINFOA Si;
     PROCESS_INFORMATION Pi;
+
+    g_vtoylog_mutex = CreateMutexA(NULL, FALSE, "VTOYLOG_LOCK");
+    g_vtoyins_mutex = CreateMutexA(NULL, FALSE, "VTOYINS_LOCK");
+
+    MUTEX_LOCK(g_vtoyins_mutex);
+    if (IsFileExist(VTOY_PID_FILE))
+    {
+        id = ventoy_get_instance_id(VTOY_PID_FILE);
+    }
+    else
+    {
+        id = 1;
+    }
+    ventoy_append_process_id(VTOY_PID_FILE);
+    MUTEX_UNLOCK(g_vtoyins_mutex);
 
     if (argv[0] && argv[0][0] && argv[0][1] == ':')
     {
@@ -1439,7 +1529,7 @@ int main(int argc, char **argv)
         }
     }
 
-    Log("######## VentoyJump ##########");
+    Log("######## VentoyJump [%d] ##########", id);
     Log("argc = %d", argc);
     for (i = 0; i < argc; i++)
     {
@@ -1475,14 +1565,27 @@ int main(int argc, char **argv)
         rc = VentoyJump(argc, argv, LunchFile);
     }
 
-    Log("LunchFile=<%s> CallParam=<%s>", LunchFile, CallParam);
+    Log("id=%d LunchFile=<%s> CallParam=<%s>", id, LunchFile, CallParam);
 
-    if (_stricmp(argv[0], "PECMD.EXE") == 0 && _stricmp(LunchFile, "ventoy\\PECMD.EXE") == 0)
+    if (id == 1 && _stricmp(argv[0], "PECMD.EXE") == 0 && _stricmp(LunchFile, "ventoy\\PECMD.EXE") == 0)
     {
-        MoveFileA("PECMD.EXE", "PECMD_BACK.EXE");
-        MoveFileA("ventoy\\PECMD.EXE", "PECMD.EXE");
-        sprintf_s(LunchFile, sizeof(LunchFile), "%s", "PECMD.EXE");
-        Log("Move original PECMD.EXE <%s>", LunchFile);
+        MUTEX_LOCK(g_vtoyins_mutex);
+        id = ventoy_get_instance_id(VTOY_PID_FILE);
+        MUTEX_UNLOCK(g_vtoyins_mutex);
+
+        Log("Current instance id is: %d", id);
+
+        if (id == 2)
+        {
+            MoveFileA("PECMD.EXE", "PECMD_BACK.EXE");
+            CopyFileA("ventoy\\PECMD.EXE", "PECMD.EXE", TRUE);            
+            sprintf_s(LunchFile, sizeof(LunchFile), "%s", "PECMD.EXE");
+            Log("Move original PECMD.EXE <%s>", LunchFile);
+        }
+        else
+        {
+            Log("%d instance started, don't move PECMD.EXE", id);
+        }
     }
 
     if (g_os_param_reserved[0] == 3)
