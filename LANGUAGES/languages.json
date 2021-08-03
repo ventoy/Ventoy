@@ -1523,10 +1523,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Комуникациска грешка: Недостапен сервис",
         "STR_WEB_TOKEN_MISMATCH":"Ажуриран статус на даемонот, молиме обидете се подоцна.",
         "STR_WEB_SERVICE_BUSY":"Сервисот е зафатен, молиме обидете се подоцна.",
-        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
-        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
-        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_VTSI_CREATE":"Генерирај VTSI датотека",
+        "STR_VTSI_CREATE_TIP":"Овој пат ништо нема да се запише на уредот туку само ќе се генерира VTSI датотека#@Продолжи?",
+        "STR_VTSI_CREATE_SUCCESS":"Успешно креирана VTSI датотека!#@Можете да го користите Rufus(3.15Beta+) за да ја запишете на уредот како и да ја комплетирате инсталацијата на Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"Креирањето на VTSI датотека е неуспешно.",
         "STRXXX":""
     },
     {
