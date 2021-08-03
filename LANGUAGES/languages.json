@@ -639,7 +639,7 @@
         "STR_MENU_OPTION":"Opción",
         "STR_MENU_SECURE_BOOT":"Soporte De Arranque Seguro",
         "STR_MENU_PART_CFG":"Configuración De Partición",
-        "STR_BTN_OK":"ACEPTAR",
+        "STR_BTN_OK":"Aceptar",
         "STR_BTN_CANCEL":"Cancelar",
         "STR_PRESERVE_SPACE":"Preservar algo de espacio al final del dispositivo",
         "STR_SPACE_VAL_INVALID":"Valor inválido para espacio reservado",
@@ -656,10 +656,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Error de comunicación: Servicio No Disponible",
         "STR_WEB_TOKEN_MISMATCH":" Estado del daemon actualizado, por favor reintenta más tarde.",
         "STR_WEB_SERVICE_BUSY":" El servicio está ocupado, por favor reintenta más tarde.",
-        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
-        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15Beta+) to write it to the device so as to complete the installation of Ventoy.",
-        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_VTSI_CREATE":"Generar Archivo VTSI",
+        "STR_VTSI_CREATE_TIP":"Esta vez no se escribirá al dispositivo, pero solo generará un archivo VTSI#@¿Continuar?",
+        "STR_VTSI_CREATE_SUCCESS":"¡Archivo VTSI creado exitosamente!#@Puedes usar Rufus(3.15Beta+) para escribirlo al dispositivo a fin de completar la instalación de Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"Fallo en el archivo VTSI creado.",
         "STRXXX":""
     },
     {
