@@ -1406,6 +1406,16 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
 
     debug("## ventoy_wrapper_file_open <%s> ", Name);
 
+    if ((Mode & EFI_FILE_MODE_WRITE) > 0 && StrCmp(Name, L"\\loader\\random-seed") == 0)
+    {
+        if (gDebugPrint)
+        {
+            debug("## ventoy_wrapper_file_open return NOT_FOUND for random-seed %lx", Mode);
+            sleep(3);
+        }
+        return EFI_NOT_FOUND;
+    }
+
     Status = g_original_fopen(This, New, Name, Mode, Attributes);
     if (EFI_ERROR(Status))
     {
