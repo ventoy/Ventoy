@@ -36,3 +36,7 @@ else
 fi
 
 /ventoy/busybox/sh /ventoy/hook/suse/udev_disk_hook.sh "${vtpart2#/dev/}"
+
+if $GREP -q 'mediacheck=1' /proc/cmdline; then   
+    ventoy_copy_device_mapper "${vtdiskname}"
+fi
