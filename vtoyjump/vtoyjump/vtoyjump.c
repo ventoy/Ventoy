@@ -772,23 +772,13 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 	HANDLE hDrive;
 	CHAR PhyPath[MAX_PATH];
 	WCHAR PhyPathW[MAX_PATH];
-	STARTUPINFOA Si;
 	PROCESS_INFORMATION Pi;
 	GET_LENGTH_INFORMATION LengthInfo;
 
 	Log("VentoyMountISOByImdisk %s", IsoPath);
 
 	sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", PhyDrive);
-    if (IsUTF8Encode(PhyPath))
-    {
-        Utf8ToUtf16(PhyPath, PhyPathW);
-        hDrive = CreateFileW(PhyPathW, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
-    }
-    else
-    {
-        hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
-    }
-    
+    hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 	if (hDrive == INVALID_HANDLE_VALUE)
 	{
 		Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
@@ -832,16 +822,33 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 			rc = 0;
 
 			Letter = GetMountLogicalDrive();
-            sprintf_s(PhyPath, sizeof(PhyPath), "ventoy\\imdisk.exe -a -o ro -f %s -m %C:", IsoPath, Letter);
+            sprintf_s(PhyPath, sizeof(PhyPath), "ventoy\\imdisk.exe -a -o ro -f \"%s\" -m %C:", IsoPath, Letter);
+            Log("mount iso to %C: use imdisk cmd <%s>", Letter, PhyPath);
 
-			Log("mount iso to %C: use imdisk cmd <%s>", Letter, PhyPath);
+            if (IsUTF8Encode(IsoPath))
+            {
+                STARTUPINFOW Si;
+                GetStartupInfoW(&Si);
+                Si.dwFlags |= STARTF_USESHOWWINDOW;
+                Si.wShowWindow = SW_HIDE;
 
-            GetStartupInfoA(&Si);
+                Utf8ToUtf16(PhyPath, PhyPathW);
+                CreateProcessW(NULL, PhyPathW, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
 
-            Si.dwFlags |= STARTF_USESHOWWINDOW;
-            Si.wShowWindow = SW_HIDE;
+                Log("This is UTF8 encoding");
+            }
+            else
+            {
+                STARTUPINFOA Si;
+                GetStartupInfoA(&Si);
+                Si.dwFlags |= STARTF_USESHOWWINDOW;
+                Si.wShowWindow = SW_HIDE;
 
-			CreateProcessA(NULL, PhyPath, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+                CreateProcessA(NULL, PhyPath, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+                Log("This is ANSI encoding");
+            }
+
 			WaitForSingleObject(Pi.hProcess, INFINITE);
 		}
 	}
@@ -1529,7 +1536,12 @@ int main(int argc, char **argv)
         }
     }
 
-    Log("######## VentoyJump [%d] ##########", id);
+#ifdef VTOY_32
+    Log("######## VentoyJump 32bit [%d] ##########", id);
+#else
+    Log("######## VentoyJump 64bit [%d] ##########", id);
+#endif
+
     Log("argc = %d", argc);
     for (i = 0; i < argc; i++)
     {
@@ -1611,7 +1623,12 @@ int main(int argc, char **argv)
     
     Log("Now launch <%s> ...", LunchFile);
 
-    //sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
+    if (g_os_param_reserved[0] == 4)
+    {
+        Log("Open cmd for debug ...");
+        sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
+    }
+
     CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
 
     for (i = 0; rc && i < 1800; i++)
