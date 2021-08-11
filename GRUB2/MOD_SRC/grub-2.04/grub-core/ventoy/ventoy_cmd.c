@@ -1221,6 +1221,23 @@ static grub_err_t ventoy_cmd_load_img_memdisk(grub_extcmd_context_t ctxt, int ar
     return rc;
 }
 
+static grub_err_t ventoy_cmd_iso9660_is_joliet(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+    
+    if (grub_iso9660_is_joliet())
+    {
+        debug("This time has joliet process\n");
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
 static grub_err_t ventoy_cmd_iso9660_nojoliet(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
@@ -4736,6 +4753,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_select_conf_replace", ventoy_select_conf_replace, 0, NULL, "", "", NULL },
 
     { "vt_iso9660_nojoliet", ventoy_cmd_iso9660_nojoliet, 0, NULL, "", "", NULL },
+    { "vt_iso9660_isjoliet", ventoy_cmd_iso9660_is_joliet, 0, NULL, "", "", NULL },
     { "vt_is_udf", ventoy_cmd_is_udf, 0, NULL, "", "", NULL },
     { "vt_file_size", ventoy_cmd_file_size, 0, NULL, "", "", NULL },
     { "vt_load_file_to_mem", ventoy_cmd_load_file_to_mem, 0, NULL, "", "", NULL },
