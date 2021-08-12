@@ -809,11 +809,6 @@ STATIC BOOLEAN ventoy_filesystem_need_wrapper(IN CONST CHAR16 *DrvName)
      *
      */
     
-    if (StrStr(UpperDrvName, L"ISO9660") || StrStr(UpperDrvName, L"UDF"))
-    {
-        return TRUE;
-    }
-
     if (StrStr(UpperDrvName, L"REFIND") && StrStr(UpperDrvName, L"FILE SYSTEM"))
     {
         return TRUE;
