@@ -910,7 +910,6 @@ STATIC EFI_STATUS ventoy_find_filesystem_driverbind(VOID)
         Status = gBS->HandleProtocol(Handles[i], &gEfiComponentNameProtocolGuid, (VOID **)&NameProtocol);
         if (EFI_ERROR(Status))
         {
-            debug();
             continue;
         }
 

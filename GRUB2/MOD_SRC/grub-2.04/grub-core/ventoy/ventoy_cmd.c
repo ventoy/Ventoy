@@ -127,6 +127,9 @@ static grub_uint64_t g_enumerate_start_time_ms;
 static grub_uint64_t g_enumerate_finish_time_ms;
 static int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
 
+static int g_pager_flag = 0;
+static char g_old_pager[32];
+
 static const char *g_vtoy_winpeshl_ini = "[LaunchApps]\r\nvtoyjump.exe";
 
 static const char *g_menu_class[] = 
@@ -4646,6 +4649,52 @@ fail:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_push_pager(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    const char *pager = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    pager = grub_env_get("pager");
+    if (NULL == pager)
+    {
+        g_pager_flag = 1;
+        grub_env_set("pager", "1");
+    }
+    else if (pager[0] == '1')
+    {
+        g_pager_flag = 0;
+    }
+    else
+    {
+        grub_snprintf(g_old_pager, sizeof(g_old_pager), "%s", pager);
+        g_pager_flag = 2;
+        grub_env_set("pager", "1");
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t ventoy_cmd_pop_pager(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (g_pager_flag == 1)
+    {
+        grub_env_unset("pager");
+    }
+    else if (g_pager_flag == 2)
+    {
+        grub_env_set("pager", g_old_pager);
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -4821,6 +4870,8 @@ static cmd_para ventoy_cmds[] =
 
     { "vt_get_efi_vdisk_offset", ventoy_cmd_get_efivdisk_offset, 0, NULL, "", "", NULL },
     { "vt_search_replace_initrd", ventoy_cmd_search_replace_initrd, 0, NULL, "", "", NULL },
+    { "vt_push_pager", ventoy_cmd_push_pager, 0, NULL, "", "", NULL },
+    { "vt_pop_pager", ventoy_cmd_pop_pager, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)
