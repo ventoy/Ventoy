@@ -36,6 +36,13 @@ static ventoy_guid g_ventoy_guid = VENTOY_GUID;
 static HANDLE g_vtoylog_mutex = NULL;
 static HANDLE g_vtoyins_mutex = NULL;
 
+//Unicode "CmdLine"
+static BOOL g_PecmdHasCmdLine = FALSE;
+static UCHAR g_aucCmdLineHex[] = 
+{
+    0x43, 0x00, 0x6D, 0x00, 0x64, 0x00, 0x4C, 0x00, 0x69, 0x00, 0x6E, 0x00, 0x65, 0x00
+};
+
 #define VTOY_PID_FILE "X:\\Windows\\System32\\pidventoy"
 #define MUTEX_LOCK(hmutex)  if (hmutex != NULL) LockStatus = WaitForSingleObject(hmutex, INFINITE)
 #define MUTEX_UNLOCK(hmutex)  if (hmutex != NULL && WAIT_OBJECT_0 == LockStatus) ReleaseMutex(hmutex)
@@ -1342,6 +1349,24 @@ static int ventoy_check_create_directory(void)
     return 0;
 }
 
+static BOOL VentoyFindCmdLineStr(BYTE *buf, DWORD size)
+{
+    DWORD i = 0;
+    UINT32 uiDataChk;
+    UINT32 uiDataHex = *(UINT32 *)(g_aucCmdLineHex);
+
+    for (i = 0; i < size - sizeof(g_aucCmdLineHex); i += 16)
+    {
+        uiDataChk = *(UINT32 *)(buf + i);
+        if (uiDataChk == uiDataHex && memcmp(buf + i, g_aucCmdLineHex, sizeof(g_aucCmdLineHex)) == 0)
+        {
+            return TRUE;
+        }
+    }
+    
+    return FALSE;
+}
+
 int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 {
 	int rc = 1;
@@ -1420,6 +1445,13 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 			SaveBuffer2File(LunchFile, Buffer + PeStart, FileSize - PeStart);
             MUTEX_UNLOCK(g_vtoyins_mutex);
 
+        #ifdef VTOY_REJUMP_SUPPORTED
+            if (_stricmp(LunchFile, "ventoy\\PECMD.EXE") == 0)
+            {
+                g_PecmdHasCmdLine = VentoyFindCmdLineStr(Buffer + PeStart, FileSize - PeStart);
+            }
+        #endif
+
 			break;
 		}
 	}
@@ -1496,6 +1528,7 @@ int main(int argc, char **argv)
     int i = 0;
     int rc = 0;
     int id = 0;
+    BOOL ReJump = FALSE;
     CHAR *Pos = NULL;
     CHAR CurDir[MAX_PATH];
     CHAR LunchFile[MAX_PATH];
@@ -1504,6 +1537,27 @@ int main(int argc, char **argv)
     STARTUPINFOA Si;
     PROCESS_INFORMATION Pi;
 
+#ifdef VTOY_REJUMP_SUPPORTED
+    if (argv[0] && strcmp(argv[0], "ventoy\\WinLogon.exe") == 0)
+    {
+        GetStartupInfoA(&Si);
+        Si.dwFlags |= STARTF_USESHOWWINDOW;
+        Si.wShowWindow = SW_HIDE;
+
+        sprintf_s(LunchFile, sizeof(LunchFile), "PECMD.EXE");
+        for (i = 1; i < argc; i++)
+        {
+            strcat_s(LunchFile, sizeof(LunchFile), " ");
+            strcat_s(LunchFile, sizeof(LunchFile), argv[i]);
+        }
+
+        CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+        WaitForSingleObject(Pi.hProcess, INFINITE);
+        return 0;
+    }
+#endif
+
+    g_PecmdHasCmdLine = 0;
     g_vtoylog_mutex = CreateMutexA(NULL, FALSE, "VTOYLOG_LOCK");
     g_vtoyins_mutex = CreateMutexA(NULL, FALSE, "VTOYINS_LOCK");
 
@@ -1589,6 +1643,14 @@ int main(int argc, char **argv)
 
         if (id == 2)
         {
+            #ifdef VTOY_REJUMP_SUPPORTED
+            if (g_PecmdHasCmdLine)
+            {
+                ReJump = TRUE;
+                CopyFileA("PECMD.EXE", "ventoy\\WinLogon.exe", TRUE);
+            }
+            #endif
+
             MoveFileA("PECMD.EXE", "PECMD_BACK.EXE");
             CopyFileA("ventoy\\PECMD.EXE", "PECMD.EXE", TRUE);            
             sprintf_s(LunchFile, sizeof(LunchFile), "%s", "PECMD.EXE");
@@ -1628,6 +1690,23 @@ int main(int argc, char **argv)
         Log("Open cmd for debug ...");
         sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
     }
+
+#ifdef VTOY_REJUMP_SUPPORTED
+    if (ReJump)
+    {
+        sprintf_s(CallParam, sizeof(CallParam), "ventoy\\WinLogon.exe%s", LunchFile + strlen("PECMD.EXE"));
+        Log("Now rejump to pecmd.exe <%s> ...", CallParam);
+
+        CreateProcessA(NULL, CallParam, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+        Log("Wait rejump process...");
+        WaitForSingleObject(Pi.hProcess, INFINITE);
+        Log("rejump finished");
+        return 0;
+    }
+#else
+    (void)ReJump;
+#endif
 
     CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
 
