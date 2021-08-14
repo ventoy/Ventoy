@@ -1459,9 +1459,9 @@ grub_err_t ventoy_cmd_trailer_cpio(grub_extcmd_context_t ctxt, int argc, char **
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-
 grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int len = 0;
     int ventoy_compatible = 0;
     grub_uint32_t size = 0;
     grub_uint64_t isosize = 0;
@@ -1511,13 +1511,21 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
     }
     else
     {
-        if (ventoy_is_efi_os())
+        len = (int)grub_strlen(args[0]);
+        if (len >= 4 && 0 == grub_strcasecmp(args[0] + len - 4, ".img"))
         {
-            grub_env_set("LoadIsoEfiDriver", "on");
+            debug("boot catlog %u for img file\n", boot_catlog);
         }
         else
         {
-            return grub_error(GRUB_ERR_BAD_ARGUMENT, "File %s is not bootable", args[0]);
+            if (ventoy_is_efi_os())
+            {
+                grub_env_set("LoadIsoEfiDriver", "on");
+            }
+            else
+            {
+                return grub_error(GRUB_ERR_BAD_ARGUMENT, "File %s is not bootable", args[0]);
+            }
         }
     }
     
