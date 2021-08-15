@@ -713,7 +713,7 @@ static BOOL Is2K10PE(void)
 	memset(szLine, 0, sizeof(szLine));
 	while (fgets(szLine, sizeof(szLine) - 1, fp))
 	{
-		if (strstr(szLine, "\\2k10\\"))
+		if (strstr(szLine, "2k10\\"))
 		{
 			bRet = TRUE;
 			break;
