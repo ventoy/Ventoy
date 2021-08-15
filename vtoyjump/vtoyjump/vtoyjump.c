@@ -698,11 +698,44 @@ static int VentoyFatDiskRead(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
 	return 1;
 }
 
+static BOOL Is2K10PE(void)
+{
+	BOOL bRet = FALSE;
+	FILE *fp = NULL;
+	CHAR szLine[1024];
+
+	fopen_s(&fp, "X:\\Windows\\System32\\PECMD.INI", "r");
+	if (!fp)
+	{
+		return FALSE;
+	}
+
+	memset(szLine, 0, sizeof(szLine));
+	while (fgets(szLine, sizeof(szLine) - 1, fp))
+	{
+		if (strstr(szLine, "\\2k10\\"))
+		{
+			bRet = TRUE;
+			break;
+		}
+	}
+
+	fclose(fp);
+	return bRet;
+}
+
 static CHAR GetMountLogicalDrive(void)
 {
 	CHAR Letter = 'Y';
 	DWORD Drives;
 	DWORD Mask = 0x1000000;
+
+	// fixed use M as mountpoint for 2K10 PE
+	if (Is2K10PE())
+	{
+		Log("Use M: for 2K10 PE");
+		return 'M';
+	}
 
 	Drives = GetLogicalDrives();
     Log("Drives=0x%x", Drives);
@@ -770,19 +803,67 @@ UINT64 GetVentoyEfiPartStartSector(HANDLE hDrive)
 	return StartSector;
 }
 
+static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe)
+{
+	CHAR Letter;
+	CHAR Cmdline[512];
+	WCHAR CmdlineW[512];
+	PROCESS_INFORMATION Pi;
+
+	Log("VentoyRunImdisk <%s> <%s>", IsoPath, imdiskexe);
+
+	Letter = GetMountLogicalDrive();
+	sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o ro -f \"%s\" -m %C:", imdiskexe, IsoPath, Letter);
+	Log("mount iso to %C: use imdisk cmd <%s>", Letter, Cmdline);
+
+	if (IsUTF8Encode(IsoPath))
+	{
+		STARTUPINFOW Si;
+		GetStartupInfoW(&Si);
+		Si.dwFlags |= STARTF_USESHOWWINDOW;
+		Si.wShowWindow = SW_HIDE;
+
+		Utf8ToUtf16(Cmdline, CmdlineW);
+		CreateProcessW(NULL, CmdlineW, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+		Log("This is UTF8 encoding");
+	}
+	else
+	{
+		STARTUPINFOA Si;
+		GetStartupInfoA(&Si);
+		Si.dwFlags |= STARTF_USESHOWWINDOW;
+		Si.wShowWindow = SW_HIDE;
+
+		CreateProcessA(NULL, Cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+		Log("This is ANSI encoding");
+	}
+
+	Log("Wait for imdisk process ...");
+	WaitForSingleObject(Pi.hProcess, INFINITE);
+	Log("imdisk process finished");
+
+	return 0;
+}
+
 int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 {
 	int rc = 1;
 	BOOL bRet;
-	CHAR Letter;
 	DWORD dwBytes;
 	HANDLE hDrive;
 	CHAR PhyPath[MAX_PATH];
-	WCHAR PhyPathW[MAX_PATH];
-	PROCESS_INFORMATION Pi;
 	GET_LENGTH_INFORMATION LengthInfo;
 
 	Log("VentoyMountISOByImdisk %s", IsoPath);
+
+	if (IsFileExist("X:\\Windows\\System32\\imdisk.exe"))
+	{
+		Log("imdisk.exe exist, use it directly...");
+		VentoyRunImdisk(IsoPath, "imdisk.exe");
+		return 0;
+	}
 
 	sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", PhyDrive);
     hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
@@ -826,37 +907,8 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 
 		if (LoadNtDriver(PhyPath) == 0)
 		{
+			VentoyRunImdisk(IsoPath, "ventoy\\imdisk.exe");
 			rc = 0;
-
-			Letter = GetMountLogicalDrive();
-            sprintf_s(PhyPath, sizeof(PhyPath), "ventoy\\imdisk.exe -a -o ro -f \"%s\" -m %C:", IsoPath, Letter);
-            Log("mount iso to %C: use imdisk cmd <%s>", Letter, PhyPath);
-
-            if (IsUTF8Encode(IsoPath))
-            {
-                STARTUPINFOW Si;
-                GetStartupInfoW(&Si);
-                Si.dwFlags |= STARTF_USESHOWWINDOW;
-                Si.wShowWindow = SW_HIDE;
-
-                Utf8ToUtf16(PhyPath, PhyPathW);
-                CreateProcessW(NULL, PhyPathW, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
-
-                Log("This is UTF8 encoding");
-            }
-            else
-            {
-                STARTUPINFOA Si;
-                GetStartupInfoA(&Si);
-                Si.dwFlags |= STARTF_USESHOWWINDOW;
-                Si.wShowWindow = SW_HIDE;
-
-                CreateProcessA(NULL, PhyPath, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
-
-                Log("This is ANSI encoding");
-            }
-
-			WaitForSingleObject(Pi.hProcess, INFINITE);
 		}
 	}
 	fl_shutdown();
