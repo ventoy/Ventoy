@@ -1138,14 +1138,15 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
     {
         gBlockData.Media.BlockSize = 512;
         gBlockData.Media.LastBlock = ImgSize / 512 - 1;
+        gBlockData.Media.ReadOnly = FALSE;
     }
     else
     {
         gBlockData.Media.BlockSize = 2048;
         gBlockData.Media.LastBlock = ImgSize / 2048 - 1;        
+        gBlockData.Media.ReadOnly = TRUE;
     }
     
-    gBlockData.Media.ReadOnly = TRUE;
     gBlockData.Media.MediaPresent = 1;
     gBlockData.Media.LogicalBlocksPerPhysicalBlock = 1;
 

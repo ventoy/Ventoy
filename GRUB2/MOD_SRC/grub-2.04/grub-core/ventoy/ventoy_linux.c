@@ -1501,20 +1501,20 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
 
     isosize = file->size;
 
-    boot_catlog = ventoy_get_iso_boot_catlog(file);
-    if (boot_catlog)
+    len = (int)grub_strlen(args[0]);
+    if (len >= 4 && 0 == grub_strcasecmp(args[0] + len - 4, ".img"))
     {
-        if (ventoy_is_efi_os() && (!ventoy_has_efi_eltorito(file, boot_catlog)))
-        {
-            grub_env_set("LoadIsoEfiDriver", "on");
-        }
+        debug("boot catlog %u for img file\n", boot_catlog);
     }
     else
     {
-        len = (int)grub_strlen(args[0]);
-        if (len >= 4 && 0 == grub_strcasecmp(args[0] + len - 4, ".img"))
+        boot_catlog = ventoy_get_iso_boot_catlog(file);
+        if (boot_catlog)
         {
-            debug("boot catlog %u for img file\n", boot_catlog);
+            if (ventoy_is_efi_os() && (!ventoy_has_efi_eltorito(file, boot_catlog)))
+            {
+                grub_env_set("LoadIsoEfiDriver", "on");
+            }
         }
         else
         {
