@@ -44,7 +44,38 @@ STATIC grub_env_printf_pf g_env_printf = NULL;
 STATIC VtoyUtilFeature gFeatureList[] = 
 {
     { L"fix_windows_mmap", FixWindowsMemhole },
+    { L"show_efi_drivers", ShowEfiDrivers    },
 };
+
+EFI_STATUS VtoyGetComponentName(IN UINTN Ver, IN VOID *Protocol, OUT CHAR16 **DriverName)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    CHAR16 *DrvName = NULL;
+    EFI_COMPONENT_NAME_PROTOCOL *NameProtocol = NULL;
+    EFI_COMPONENT_NAME2_PROTOCOL *Name2Protocol = NULL;
+
+    if (1 == Ver)
+    {
+        NameProtocol = (EFI_COMPONENT_NAME_PROTOCOL *)Protocol;
+        Status = NameProtocol->GetDriverName(Protocol, "en", &DrvName);
+        if (EFI_ERROR(Status) || NULL == DrvName)
+        {
+            Status = NameProtocol->GetDriverName(Protocol, "eng", &DrvName);
+        }
+    }
+    else
+    {
+        Name2Protocol = (EFI_COMPONENT_NAME2_PROTOCOL *)Protocol;
+        Status = Name2Protocol->GetDriverName(Protocol, "en", &DrvName);
+        if (EFI_ERROR(Status) || NULL == DrvName)
+        {
+            Status = Name2Protocol->GetDriverName(Protocol, "eng", &DrvName);
+        }
+    }
+
+    *DriverName = DrvName;
+    return Status;
+}
 
 VOID EFIAPI VtoyUtilDebug(IN CONST CHAR8  *Format, ...)
 {

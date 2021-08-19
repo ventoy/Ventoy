@@ -412,7 +412,7 @@ int ventoy_fill_gpt(uint64_t size, uint64_t reserve, int align4k, VTOY_GPT_INFO 
     ventoy_gen_preudo_uuid(&(Table[1].PartGuid));
     Table[1].StartLBA = Table[0].LastLBA + 1;
     Table[1].LastLBA = Table[1].StartLBA + VTOYEFI_PART_BYTES / 512 - 1;
-    Table[1].Attr = 0x8000000000000001ULL;
+    Table[1].Attr = 0xC000000000000001ULL;
     ventoy_fill_gpt_partname(Table[1].Name, "VTOYEFI");
 
 #if 0

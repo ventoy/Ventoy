@@ -333,7 +333,9 @@ end:
 static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
 {
     int i = 0;
+    int len = 0;
     int dollar = 0;
+    int quotation = 0;
     grub_file_t file = NULL;
     char *buf = NULL;
     char *start = NULL;
@@ -382,6 +384,12 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
             start++;
         }
 
+        if (*start == '"')
+        {
+            quotation = 1;
+            start++;
+        }
+
         while (*start)
         {
             img = grub_zalloc(sizeof(initrd_info));
@@ -398,6 +406,16 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
                 {
                     dollar = 1;
                 }
+            }
+
+            if (quotation)
+            {
+                len = (int)grub_strlen(img->name);
+                if (len > 2 && img->name[len - 1] == '"')
+                {
+                    img->name[len - 1] = 0;
+                }
+                debug("Remove quotation <%s>\n", img->name);
             }
 
             if (dollar == 1 || ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
@@ -1441,9 +1459,9 @@ grub_err_t ventoy_cmd_trailer_cpio(grub_extcmd_context_t ctxt, int argc, char **
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-
 grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int len = 0;
     int ventoy_compatible = 0;
     grub_uint32_t size = 0;
     grub_uint64_t isosize = 0;
@@ -1483,23 +1501,31 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
 
     isosize = file->size;
 
-    boot_catlog = ventoy_get_iso_boot_catlog(file);
-    if (boot_catlog)
+    len = (int)grub_strlen(args[0]);
+    if (len >= 4 && 0 == grub_strcasecmp(args[0] + len - 4, ".img"))
     {
-        if (ventoy_is_efi_os() && (!ventoy_has_efi_eltorito(file, boot_catlog)))
-        {
-            grub_env_set("LoadIsoEfiDriver", "on");
-        }
+        debug("boot catlog %u for img file\n", boot_catlog);
     }
     else
     {
-        if (ventoy_is_efi_os())
+        boot_catlog = ventoy_get_iso_boot_catlog(file);
+        if (boot_catlog)
         {
-            grub_env_set("LoadIsoEfiDriver", "on");
+            if (ventoy_is_efi_os() && (!ventoy_has_efi_eltorito(file, boot_catlog)))
+            {
+                grub_env_set("LoadIsoEfiDriver", "on");
+            }
         }
         else
         {
-            return grub_error(GRUB_ERR_BAD_ARGUMENT, "File %s is not bootable", args[0]);
+            if (ventoy_is_efi_os())
+            {
+                grub_env_set("LoadIsoEfiDriver", "on");
+            }
+            else
+            {
+                return grub_error(GRUB_ERR_BAD_ARGUMENT, "File %s is not bootable", args[0]);
+            }
         }
     }
     

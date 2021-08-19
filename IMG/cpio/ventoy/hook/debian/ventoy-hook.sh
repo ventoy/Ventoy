@@ -90,6 +90,9 @@ ventoy_get_debian_distro() {
         echo 'kerio'; return
     fi
     
+    if $GREP -q 'mocaccino' /proc/version; then
+        echo 'mocaccino'; return
+    fi
     
     echo 'default'
 }

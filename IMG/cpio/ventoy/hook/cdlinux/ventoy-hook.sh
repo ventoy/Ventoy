@@ -36,6 +36,10 @@ done
 $BUSYBOX_PATH/umount /vtmnt && $BUSYBOX_PATH/rm -rf /vtmnt
 $BUSYBOX_PATH/cp -a /ventoy /ventoy_rdroot
 
+if [ -f /etc/default/cdlinux ]; then
+    echo "CDL_WAIT=60" >> /etc/default/cdlinux
+fi
+
 echo 'echo "CDL_DEV=/dev/mapper/ventoy" >>"$VAR_FILE"' >> /ventoy_rdroot/etc/rc.d/rc.var
 
 ventoy_set_rule_dir_prefix /ventoy_rdroot

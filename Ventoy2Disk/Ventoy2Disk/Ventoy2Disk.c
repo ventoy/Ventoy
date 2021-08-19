@@ -28,6 +28,7 @@ DWORD g_PhyDriveCount = 0;
 static int g_FilterRemovable = 0;
 int g_FilterUSB = 1;
 int g_ForceOperation = 1;
+int g_WriteImage = 0;
 
 int ParseCmdLineOption(LPSTR lpCmdLine)
 {

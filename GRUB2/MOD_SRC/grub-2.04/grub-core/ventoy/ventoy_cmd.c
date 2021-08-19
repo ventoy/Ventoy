@@ -127,6 +127,9 @@ static grub_uint64_t g_enumerate_start_time_ms;
 static grub_uint64_t g_enumerate_finish_time_ms;
 static int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
 
+static int g_pager_flag = 0;
+static char g_old_pager[32];
+
 static const char *g_vtoy_winpeshl_ini = "[LaunchApps]\r\nvtoyjump.exe";
 
 static const char *g_menu_class[] = 
@@ -141,6 +144,8 @@ const char *g_menu_prefix[img_type_max] =
 
 static int g_vtoy_load_prompt = 0;
 static char g_vtoy_prompt_msg[64];
+
+static char g_json_case_mis_path[32];
 
 static int ventoy_get_fs_type(const char *fs)
 {
@@ -1219,6 +1224,23 @@ static grub_err_t ventoy_cmd_load_img_memdisk(grub_extcmd_context_t ctxt, int ar
     rc = 0;
     
     return rc;
+}
+
+static grub_err_t ventoy_cmd_iso9660_is_joliet(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+    
+    if (grub_iso9660_is_joliet())
+    {
+        debug("This time has joliet process\n");
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 static grub_err_t ventoy_cmd_iso9660_nojoliet(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -3148,6 +3170,22 @@ static grub_err_t ventoy_cmd_add_replace_file(grub_extcmd_context_t ctxt, int ar
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_get_replace_file_cnt(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    char buf[32];
+    ventoy_grub_param_file_replace *replace = &(g_grub_param->file_replace);
+    
+    (void)ctxt;
+
+    if (argc >= 1)
+    {
+        grub_snprintf(buf, sizeof(buf), "%u", replace->old_name_cnt);
+        grub_env_set(args[0], buf);        
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 static grub_err_t ventoy_cmd_dump_menu(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
@@ -4204,8 +4242,18 @@ static int ventoy_fs_enum_1st_file(const char *filename, const struct grub_dirho
     return 0;
 }
 
+static int ventoy_fs_enum_1st_dir(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    if (info->dir && filename && filename[0] != '.')
+    {
+        grub_snprintf((char *)data, 256, "%s", filename);
+        return 1;
+    }
 
-static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int argc, char **args)
+    return 0;
+}
+
+static grub_err_t ventoy_fs_enum_1st_child(int argc, char **args, grub_fs_dir_hook_t hook)
 {
     int rc = 1;
     char *device_name = NULL;
@@ -4213,11 +4261,9 @@ static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int ar
     grub_fs_t fs = NULL;
     char name[256] ={0};
     
-    (void)ctxt;
-
     if (argc != 3)
     {
-        debug("ventoy_cmd_fs_enum_1st_file, invalid param num %d\n", argc);
+        debug("ventoy_fs_enum_1st_child, invalid param num %d\n", argc);
         return 1;
     }
 
@@ -4242,7 +4288,7 @@ static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int ar
         goto end;
     }
 
-    fs->fs_dir(dev, args[1], ventoy_fs_enum_1st_file, name);
+    fs->fs_dir(dev, args[1], hook, name);
     if (name[0])
     {
         ventoy_set_env(args[2], name);
@@ -4256,6 +4302,18 @@ end:
     check_free(dev, grub_device_close);
     
     return rc;
+}
+
+static grub_err_t ventoy_cmd_fs_enum_1st_file(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    return ventoy_fs_enum_1st_child(argc, args, ventoy_fs_enum_1st_file);
+}
+
+static grub_err_t ventoy_cmd_fs_enum_1st_dir(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    return ventoy_fs_enum_1st_child(argc, args, ventoy_fs_enum_1st_dir);
 }
 
 static grub_err_t ventoy_cmd_basename(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -4405,6 +4463,335 @@ static grub_err_t ventoy_cmd_get_video_mode(grub_extcmd_context_t ctxt, int argc
     VENTOY_CMD_RETURN(0);
 }
 
+static grub_err_t ventoy_cmd_get_efivdisk_offset(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint32_t i;
+    grub_uint32_t loadsector = 0;
+    grub_file_t file;
+    char value[32];
+    grub_uint32_t boot_catlog = 0;
+    grub_uint8_t buf[512];
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        debug("ventoy_cmd_get_efivdisk_offset, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        debug("failed to open %s\n", args[0]);
+        return 1;
+    }
+
+    boot_catlog = ventoy_get_iso_boot_catlog(file);
+    if (boot_catlog == 0)
+    {
+        debug("No bootcatlog found\n");
+        grub_file_close(file);
+        return 1;
+    }
+
+    grub_memset(buf, 0, sizeof(buf));
+    grub_file_seek(file, boot_catlog * 2048);
+    grub_file_read(file, buf, sizeof(buf));
+    grub_file_close(file);
+
+    for (i = 0; i < sizeof(buf); i += 32)
+    {
+        if ((buf[i] == 0 || buf[i] == 0x90 || buf[i] == 0x91) && buf[i + 1] == 0xEF)
+        {
+            if (buf[i + 32] == 0x88)
+            {
+                loadsector = *(grub_uint32_t *)(buf + i + 32 + 8);
+                grub_snprintf(value, sizeof(value), "%u", loadsector * 4); //change to sector size 512
+                break;
+            }
+        }
+    }
+
+    if (loadsector == 0)
+    {
+        debug("No EFI eltorito info found\n");
+        return 1;
+    }
+
+    debug("ventoy_cmd_get_efivdisk_offset <%s>\n", value);
+    grub_env_set(args[1], value);
+    VENTOY_CMD_RETURN(0);
+}
+
+static int ventoy_collect_replace_initrd(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    int curpos;
+    int printlen;
+    grub_size_t len;
+    replace_fs_dir *pfsdir = (replace_fs_dir *)data;
+
+    if (pfsdir->initrd[0])
+    {
+        return 1;
+    }
+
+    curpos = pfsdir->curpos;
+    len = grub_strlen(filename);
+    
+    if (info->dir)
+    {
+        if ((len == 1 && filename[0] == '.') ||
+            (len == 2 && filename[0] == '.' && filename[1] == '.'))
+        {
+            return 0;
+        }
+
+        //debug("#### [DIR] <%s> <%s>\n", pfsdir->fullpath, filename);
+        pfsdir->dircnt++;
+        
+        printlen = grub_snprintf(pfsdir->fullpath + curpos, 512 - curpos, "%s/", filename);
+        pfsdir->curpos = curpos + printlen;
+        pfsdir->fs->fs_dir(pfsdir->dev, pfsdir->fullpath, ventoy_collect_replace_initrd, pfsdir);
+        pfsdir->curpos = curpos;
+        pfsdir->fullpath[curpos] = 0;
+    }
+    else
+    {
+        //debug("#### [FILE] <%s> <%s>\n", pfsdir->fullpath, filename);
+        pfsdir->filecnt++;
+        
+        /* We consider the xxx.img file bigger than 32MB is the initramfs file */
+        if (len > 4 && grub_strncmp(filename + len - 4, ".img", 4) == 0)
+        {
+            if (info->size > 32 * VTOY_SIZE_1MB)
+            {
+                grub_snprintf(pfsdir->initrd, sizeof(pfsdir->initrd), "%s%s", pfsdir->fullpath, filename);
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_search_replace_initrd(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    char *pos = NULL;
+    char *device_name = NULL;
+    grub_device_t dev = NULL;
+    grub_fs_t fs = NULL;
+    replace_fs_dir *pfsdir = NULL;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        debug("ventoy_cmd_search_replace_initrd, invalid param num %d\n", argc);
+        return 1;
+    }
+
+    pfsdir = grub_zalloc(sizeof(replace_fs_dir));
+    if (!pfsdir)
+    {
+        return 1;
+    }
+
+    device_name = grub_file_get_device_name(args[0]);
+    if (!device_name)
+    {
+        goto fail;
+    }
+
+    dev = grub_device_open(device_name);
+    if (!dev)
+    {
+        goto fail;        
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        goto fail;
+    }
+
+    pfsdir->dev = dev;
+    pfsdir->fs = fs;
+    pfsdir->curpos = 1;
+    pfsdir->fullpath[0] = '/';
+    fs->fs_dir(dev, "/", ventoy_collect_replace_initrd, pfsdir);
+
+    if (pfsdir->initrd[0])
+    {
+        debug("Replace initrd <%s> <%d %d>\n", pfsdir->initrd, pfsdir->dircnt, pfsdir->filecnt);
+
+        for (i = 0; i < (int)sizeof(pfsdir->initrd) && pfsdir->initrd[i]; i++)
+        {
+            if (pfsdir->initrd[i] == '/')
+            {
+                pfsdir->initrd[i] = '\\';
+            }
+        }
+
+        pos = (pfsdir->initrd[0] == '\\') ? pfsdir->initrd + 1 : pfsdir->initrd;
+        grub_env_set(args[1], pos);
+    }
+    else
+    {
+        debug("Replace initrd NOT found <%s> <%d %d>\n", args[0], pfsdir->dircnt, pfsdir->filecnt);
+    }
+
+fail:
+    
+    grub_check_free(pfsdir);
+    grub_check_free(device_name);
+    check_free(dev, grub_device_close);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t ventoy_cmd_push_pager(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    const char *pager = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    pager = grub_env_get("pager");
+    if (NULL == pager)
+    {
+        g_pager_flag = 1;
+        grub_env_set("pager", "1");
+    }
+    else if (pager[0] == '1')
+    {
+        g_pager_flag = 0;
+    }
+    else
+    {
+        grub_snprintf(g_old_pager, sizeof(g_old_pager), "%s", pager);
+        g_pager_flag = 2;
+        grub_env_set("pager", "1");
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t ventoy_cmd_pop_pager(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (g_pager_flag == 1)
+    {
+        grub_env_unset("pager");
+    }
+    else if (g_pager_flag == 2)
+    {
+        grub_env_set("pager", g_old_pager);
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static int ventoy_chk_case_file(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    if (g_json_case_mis_path[0])
+    {
+        return 1;
+    }
+
+    if (0 == info->dir && grub_strncasecmp(filename, "ventoy.json", 11) == 0)
+    {
+        grub_snprintf(g_json_case_mis_path, 32, "%s/%s", (char *)data, filename);
+        return 1;
+    }
+    return 0;
+}
+
+static int ventoy_chk_case_dir(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    char path[16];
+    chk_case_fs_dir *fs_dir = (chk_case_fs_dir *)data;
+
+    if (g_json_case_mis_path[0])
+    {
+        return 1;
+    }
+
+    if (info->dir && (filename[0] == 'v' || filename[0] == 'V'))
+    {
+        if (grub_strncasecmp(filename, "ventoy", 6) == 0)
+        {
+            grub_snprintf(path, sizeof(path), "/%s", filename);
+            fs_dir->fs->fs_dir(fs_dir->dev, path, ventoy_chk_case_file, path);
+            if (g_json_case_mis_path[0])
+            {
+                return 1;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_chk_json_pathcase(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int fstype = 0;
+    char *device_name = NULL;
+    grub_device_t dev = NULL;
+    grub_fs_t fs = NULL;
+    chk_case_fs_dir fs_dir;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    device_name = grub_file_get_device_name(args[0]);
+    if (!device_name)
+    {
+        goto out;
+    }
+
+    dev = grub_device_open(device_name);
+    if (!dev)
+    {
+        goto out;
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        goto out;
+    }
+
+    fstype = ventoy_get_fs_type(fs->name);
+    if (fstype == ventoy_fs_fat || fstype == ventoy_fs_exfat || fstype >= ventoy_fs_max)
+    {
+        goto out;
+    }
+
+    g_json_case_mis_path[0] = 0;
+    fs_dir.dev = dev;
+    fs_dir.fs = fs;
+    fs->fs_dir(dev, "/", ventoy_chk_case_dir, &fs_dir);
+
+    if (g_json_case_mis_path[0])
+    {
+        grub_env_set("VTOY_PLUGIN_PATH_CASE_MISMATCH", g_json_case_mis_path);
+    }
+
+out:
+
+    grub_check_free(device_name);
+    check_free(dev, grub_device_close);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -4491,6 +4878,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_part_exist", ventoy_cmd_part_exist, 0, NULL, "", "", NULL },
     { "vt_get_fs_label", ventoy_cmd_get_fs_label, 0, NULL, "", "", NULL },
     { "vt_fs_enum_1st_file", ventoy_cmd_fs_enum_1st_file, 0, NULL, "", "", NULL },
+    { "vt_fs_enum_1st_dir", ventoy_cmd_fs_enum_1st_dir, 0, NULL, "", "", NULL },
     { "vt_file_basename", ventoy_cmd_basename, 0, NULL, "", "", NULL },    
     { "vt_file_basefile", ventoy_cmd_basefile, 0, NULL, "", "", NULL },    
     { "vt_enum_video_mode", ventoy_cmd_enum_video_mode, 0, NULL, "", "", NULL },    
@@ -4511,6 +4899,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_select_conf_replace", ventoy_select_conf_replace, 0, NULL, "", "", NULL },
 
     { "vt_iso9660_nojoliet", ventoy_cmd_iso9660_nojoliet, 0, NULL, "", "", NULL },
+    { "vt_iso9660_isjoliet", ventoy_cmd_iso9660_is_joliet, 0, NULL, "", "", NULL },
     { "vt_is_udf", ventoy_cmd_is_udf, 0, NULL, "", "", NULL },
     { "vt_file_size", ventoy_cmd_file_size, 0, NULL, "", "", NULL },
     { "vt_load_file_to_mem", ventoy_cmd_load_file_to_mem, 0, NULL, "", "", NULL },
@@ -4539,6 +4928,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_wim_chain_data", ventoy_cmd_wim_chain_data, 0, NULL, "", "", NULL },
 
     { "vt_add_replace_file", ventoy_cmd_add_replace_file, 0, NULL, "", "", NULL },
+    { "vt_get_replace_file_cnt", ventoy_cmd_get_replace_file_cnt, 0, NULL, "", "", NULL },
     { "vt_test_block_list", ventoy_cmd_test_block_list, 0, NULL, "", "", NULL },
     { "vt_file_exist_nocase", ventoy_cmd_file_exist_nocase, 0, NULL, "", "", NULL },
 
@@ -4573,7 +4963,13 @@ static cmd_para ventoy_cmds[] =
     { "vt_is_pe64", ventoy_cmd_is_pe64, 0, NULL, "", "", NULL },
     { "vt_sel_wimboot", ventoy_cmd_sel_wimboot, 0, NULL, "", "", NULL },
     { "vt_set_wim_load_prompt", ventoy_cmd_set_wim_prompt, 0, NULL, "", "", NULL },
+    { "vt_set_theme", ventoy_cmd_set_theme, 0, NULL, "", "", NULL },
 
+    { "vt_get_efi_vdisk_offset", ventoy_cmd_get_efivdisk_offset, 0, NULL, "", "", NULL },
+    { "vt_search_replace_initrd", ventoy_cmd_search_replace_initrd, 0, NULL, "", "", NULL },
+    { "vt_push_pager", ventoy_cmd_push_pager, 0, NULL, "", "", NULL },
+    { "vt_pop_pager", ventoy_cmd_pop_pager, 0, NULL, "", "", NULL },
+    { "vt_check_json_path_case", ventoy_cmd_chk_json_pathcase, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

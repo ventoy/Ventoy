@@ -69,6 +69,9 @@
 #define VTOY_ARCH_CPIO  "ventoy_x86.cpio"
 #endif
 
+#define ventoy_varg_4(arg) arg[0], arg[1], arg[2], arg[3]
+#define ventoy_varg_8(arg) arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7]
+
 #define VTOY_PWD_CORRUPTED(err) \
 {\
     grub_printf("\n\n Password corrupted, will reboot after 5 seconds.\n\n"); \
@@ -533,6 +536,23 @@ typedef struct plugin_entry
     ventoy_plugin_check_pf checkfunc;
 }plugin_entry;
 
+typedef struct replace_fs_dir
+{
+    grub_device_t dev;
+    grub_fs_t fs;
+    char fullpath[512];
+    char initrd[512];
+    int curpos;
+    int dircnt;
+    int filecnt;
+}replace_fs_dir;
+
+typedef struct chk_case_fs_dir
+{
+    grub_device_t dev;
+    grub_fs_t fs;
+}chk_case_fs_dir;
+
 int ventoy_strcmp(const char *pattern, const char *str);
 int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n);
 void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param);
@@ -778,6 +798,12 @@ typedef struct file_fullpath
     char path[256];
 }file_fullpath;
 
+typedef struct theme_list
+{
+    file_fullpath theme;
+    struct theme_list *next;
+}theme_list;
+
 #define auto_install_type_file   0
 #define auto_install_type_parent 1
 typedef struct install_template
@@ -999,6 +1025,7 @@ int ventoy_plugin_load_dud(dud *node, const char *isopart);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);
+grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_check_password(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_linux_get_main_initrd_index(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -1035,6 +1062,16 @@ int ventoy_chain_file_size(const char *path);
 int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
 
 #define VTOY_CMD_CHECK(a) if (33554432 != g_ventoy_disk_part_size[a]) ventoy_syscall0(exit)
+
+#define vtoy_theme_random_boot_second  0
+#define vtoy_theme_random_boot_day     1
+#define vtoy_theme_random_boot_month   2
+
+#define ventoy_env_export(env, name) \
+{\
+    grub_env_set((env), (name));\
+    grub_env_export(env);\
+}
 
 #endif /* __VENTOY_DEF_H__ */
 

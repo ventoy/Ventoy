@@ -233,4 +233,65 @@ UINT32 VentoyCrc32(void *Buffer, UINT32 Length);
 
 #define SECURE_ICON_STRING _UICON(UNICODE_LOCK)
 
+extern int g_WriteImage;
+
+#define VTSI_IMG_MAGIC 0x0000594F544E4556ULL  // "VENTOY\0\0"
+
+#pragma pack(1)
+
+/*
+ +---------------------------------
+ + sector 0 ~ sector N-1
+ +     data area
+ +---------------------------------
+ + sector N ~ 
+ +     segment[0]
+ +     segment[1]
+ +     segment[2]
+ +      ......
+ +     segment[M-1]
+ +     align data (aligned with 512)
+ +---------------------------------
+ +     footer
+ +---------------------------------
+ *
+ * All the integers are in little endian
+ * The sector size is fixed 512 for ventoy image file.
+ *
+ */
+
+#define VTSI_IMG_MAX_SEG   128
+
+typedef struct {
+    UINT64 disk_start_sector;
+    UINT64 sector_num;
+    UINT64 data_offset;
+}VTSI_SEGMENT;
+
+typedef struct {
+    UINT64 magic;
+    UINT32 version;
+    UINT64 disk_size;
+    UINT32 disk_signature;
+    UINT32 foot_chksum;
+
+    UINT32 segment_num;
+    UINT32 segment_chksum;
+    UINT64 segment_offset;
+
+    UINT8  reserved[512 - 44];
+}VTSI_FOOTER;
+#pragma pack()
+extern int __static_assert__[sizeof(VTSI_FOOTER) == 512 ? 1 : -1];
+
+
+#define SAFE_FREE(ptr) if (ptr) { free(ptr); (ptr) = NULL; }
+int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
+void disk_io_set_imghook(FILE *fp, VTSI_SEGMENT *segment, int maxseg, UINT64 data_offset);
+void disk_io_reset_imghook(int *psegnum, UINT64 *pDataOffset);
+
+
+#define VTSI_SUPPORT 1
+
+
 #endif

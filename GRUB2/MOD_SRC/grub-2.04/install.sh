@@ -97,6 +97,8 @@ elif [ "$1" = "arm64" ]; then
         if ! echo $all_modules | grep -q " ${line%.mod} "; then
             echo "Copy $line ..."
             cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/arm64-efi/$line    $VT_DIR/INSTALL/grub/arm64-efi/
+            xz $VT_DIR/INSTALL/grub/arm64-efi/$line
+            mv $VT_DIR/INSTALL/grub/arm64-efi/${line}.xz $VT_DIR/INSTALL/grub/arm64-efi/${line}
         fi
     done
 elif [ "$1" = "mips64el" ]; then

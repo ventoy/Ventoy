@@ -1354,6 +1354,15 @@ static int int13_load_eltorito ( unsigned int drive, struct segoff *address ) {
 	DBG ( "INT13 drive %02x El Torito boot image loads at %04x:%04x\n",
 	      drive, address->segment, address->offset );
 
+    if (catalog.boot.length > 256)
+    {
+        if (g_debug)
+        {
+            printf("trim length from %d to 4\n", catalog.boot.length);
+        }
+        catalog.boot.length = 4;
+    }
+
 	/* Use INT 13, 42 to read the boot image */
 	eltorito_address.bufsize =
 		offsetof ( typeof ( eltorito_address ), buffer_phys );

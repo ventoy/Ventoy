@@ -21,7 +21,7 @@ elif uname -m | egrep -q 'mips64'; then
 else
     export TOOLDIR=i386
 fi
-export PATH=./tool/$TOOLDIR:$PATH
+export PATH="./tool/$TOOLDIR:$PATH"
 
 
 echo ''

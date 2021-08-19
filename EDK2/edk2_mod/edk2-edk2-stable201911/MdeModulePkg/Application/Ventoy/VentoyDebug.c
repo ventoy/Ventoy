@@ -34,6 +34,7 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/RamDisk.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Protocol/DriverBinding.h>
 #include <Ventoy.h>
 
 #define PROCOTOL_SLEEP_MSECONDS  0

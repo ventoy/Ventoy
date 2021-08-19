@@ -14,7 +14,7 @@ for dir in $(ls); do
     cd ..
 done
 
-find . | cpio -o -H newc>../vtloopex.cpio
+find . | cpio -o -H newc --owner=root:root >../vtloopex.cpio
 
 cd ..
 
