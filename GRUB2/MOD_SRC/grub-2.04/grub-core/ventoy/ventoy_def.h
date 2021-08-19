@@ -547,6 +547,12 @@ typedef struct replace_fs_dir
     int filecnt;
 }replace_fs_dir;
 
+typedef struct chk_case_fs_dir
+{
+    grub_device_t dev;
+    grub_fs_t fs;
+}chk_case_fs_dir;
+
 int ventoy_strcmp(const char *pattern, const char *str);
 int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n);
 void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param);
