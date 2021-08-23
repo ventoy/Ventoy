@@ -4970,6 +4970,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_push_pager", ventoy_cmd_push_pager, 0, NULL, "", "", NULL },
     { "vt_pop_pager", ventoy_cmd_pop_pager, 0, NULL, "", "", NULL },
     { "vt_check_json_path_case", ventoy_cmd_chk_json_pathcase, 0, NULL, "", "", NULL },
+    { "vt_append_extra_sector", ventoy_cmd_append_ext_sector, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

@@ -58,6 +58,12 @@ ventoy_get_os_type() {
 
     # rhel6/CentOS6 and all other distributions based on them
     elif $GREP -q 'el6' /proc/version; then
+        if [ -f /sbin/detectcd ]; then
+            if $GREP -q -i 'LENOVO-EasyStartup' /sbin/detectcd; then
+                echo 'easystartup'; return
+            fi
+        fi
+
         echo 'rhel6'; return
 
     # rhel7/CentOS7/rhel8/CentOS8 and all other distributions based on them
