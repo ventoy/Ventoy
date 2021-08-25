@@ -382,7 +382,7 @@ BOOL IsVentoyLogicalDrive(CHAR DriveLetter)
 }
 
 
-static int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table)
+int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table)
 {
     BYTE Head;
     BYTE Sector;
@@ -424,7 +424,7 @@ static int VentoyFillLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT
     return 0;
 }
 
-int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
+int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
 {
     GUID Guid;
 	int ReservedValue;
@@ -444,7 +444,14 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
 
     *((UINT32 *)(pMBR->BootCode + 0x1B8)) = DiskSignature;
 
-    DiskSectorCount = (UINT32)(DiskSizeBytes / 512);
+    if (DiskSizeBytes / 512 > 0xFFFFFFFF)
+    {
+        DiskSectorCount = 0xFFFFFFFF;
+    }
+    else
+    {
+        DiskSectorCount = (UINT32)(DiskSizeBytes / 512);
+    }
 
 	ReservedValue = GetReservedSpaceInMB();
 	if (ReservedValue <= 0)
@@ -456,12 +463,28 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
 		ReservedSector = (UINT32)(ReservedValue * 2048);
 	}
 
+    if (PartStyle)
+    {
+        ReservedSector += 33; // backup GPT part table
+    }
+
+    // check aligned with 4KB
+    if (IsPartNeed4KBAlign())
+    {
+        UINT64 sectors = DiskSizeBytes / 512;
+        if (sectors % 8)
+        {
+            Log("Disk need to align with 4KB %u", (UINT32)(sectors % 8));
+            ReservedSector += (UINT32)(sectors % 8);
+        }
+    }
+
 	Log("ReservedSector: %u", ReservedSector);
 
     //Part1
     PartStartSector = VENTOY_PART1_START_SECTOR;
 	PartSectorCount = DiskSectorCount - ReservedSector - VENTOY_EFI_PART_SIZE / 512 - PartStartSector;
-    VentoyFillLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
+    VentoyFillMBRLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
 
     pMBR->PartTbl[0].Active = 0x80; // bootable
     pMBR->PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
@@ -469,13 +492,207 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
     //Part2
     PartStartSector += PartSectorCount;
     PartSectorCount = VENTOY_EFI_PART_SIZE / 512;
-    VentoyFillLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
+    VentoyFillMBRLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
 
     pMBR->PartTbl[1].Active = 0x00; 
     pMBR->PartTbl[1].FsFlag = 0xEF; // EFI System Partition
 
     pMBR->Byte55 = 0x55;
     pMBR->ByteAA = 0xAA;
+
+    return 0;
+}
+
+
+static int VentoyFillProtectMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
+{
+    GUID Guid;
+    UINT32 DiskSignature;
+    UINT64 DiskSectorCount;
+
+    VentoyGetLocalBootImg(pMBR);
+
+    CoCreateGuid(&Guid);
+
+    memcpy(&DiskSignature, &Guid, sizeof(UINT32));
+
+    Log("Disk signature: 0x%08x", DiskSignature);
+
+    *((UINT32 *)(pMBR->BootCode + 0x1B8)) = DiskSignature;
+
+    DiskSectorCount = DiskSizeBytes / 512 - 1;
+    if (DiskSectorCount > 0xFFFFFFFF)
+    {
+        DiskSectorCount = 0xFFFFFFFF;
+    }
+
+    memset(pMBR->PartTbl, 0, sizeof(pMBR->PartTbl));
+
+    pMBR->PartTbl[0].Active = 0x00;
+    pMBR->PartTbl[0].FsFlag = 0xee; // EE
+
+    pMBR->PartTbl[0].StartHead = 0;
+    pMBR->PartTbl[0].StartSector = 1;
+    pMBR->PartTbl[0].StartCylinder = 0;
+    pMBR->PartTbl[0].EndHead = 254;
+    pMBR->PartTbl[0].EndSector = 63;
+    pMBR->PartTbl[0].EndCylinder = 1023;
+
+    pMBR->PartTbl[0].StartSectorId = 1;
+    pMBR->PartTbl[0].SectorCount = (UINT32)DiskSectorCount;
+
+    pMBR->Byte55 = 0x55;
+    pMBR->ByteAA = 0xAA;
+
+    pMBR->BootCode[92] = 0x22;
+
+    return 0;
+}
+
+int VentoyFillWholeGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
+{
+    UINT64 Part1SectorCount = 0;
+    UINT64 DiskSectorCount = DiskSizeBytes / 512;
+    VTOY_GPT_HDR *Head = &pInfo->Head;
+    VTOY_GPT_PART_TBL *Table = pInfo->PartTbl;
+    static GUID WindowsDataPartType = { 0xebd0a0a2, 0xb9e5, 0x4433, { 0x87, 0xc0, 0x68, 0xb6, 0xb7, 0x26, 0x99, 0xc7 } };
+
+    VentoyFillProtectMBR(DiskSizeBytes, &pInfo->MBR);
+
+    Part1SectorCount = DiskSectorCount - 33 - 2048;
+
+    memcpy(Head->Signature, "EFI PART", 8);
+    Head->Version[2] = 0x01;
+    Head->Length = 92;
+    Head->Crc = 0;
+    Head->EfiStartLBA = 1;
+    Head->EfiBackupLBA = DiskSectorCount - 1;
+    Head->PartAreaStartLBA = 34;
+    Head->PartAreaEndLBA = DiskSectorCount - 34;
+    CoCreateGuid(&Head->DiskGuid);
+    Head->PartTblStartLBA = 2;
+    Head->PartTblTotNum = 128;
+    Head->PartTblEntryLen = 128;
+
+
+    memcpy(&(Table[0].PartType), &WindowsDataPartType, sizeof(GUID));
+    CoCreateGuid(&(Table[0].PartGuid));
+    Table[0].StartLBA = 2048;
+    Table[0].LastLBA = 2048 + Part1SectorCount - 1;
+    Table[0].Attr = 0;
+    memcpy(Table[0].Name, L"Data", 4 * 2);
+
+    //Update CRC
+    Head->PartTblCrc = VentoyCrc32(Table, sizeof(pInfo->PartTbl));
+    Head->Crc = VentoyCrc32(Head, Head->Length);
+
+    return 0;
+}
+
+int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo)
+{
+    INT64 ReservedValue = 0;
+    UINT64 ModSectorCount = 0;
+    UINT64 ReservedSector = 33;
+    UINT64 Part1SectorCount = 0;
+    UINT64 DiskSectorCount = DiskSizeBytes / 512;
+    VTOY_GPT_HDR *Head = &pInfo->Head;
+    VTOY_GPT_PART_TBL *Table = pInfo->PartTbl;
+    static GUID WindowsDataPartType = { 0xebd0a0a2, 0xb9e5, 0x4433, { 0x87, 0xc0, 0x68, 0xb6, 0xb7, 0x26, 0x99, 0xc7 } };
+    static GUID EspPartType = { 0xc12a7328, 0xf81f, 0x11d2, { 0xba, 0x4b, 0x00, 0xa0, 0xc9, 0x3e, 0xc9, 0x3b } };
+	static GUID BiosGrubPartType = { 0x21686148, 0x6449, 0x6e6f, { 0x74, 0x4e, 0x65, 0x65, 0x64, 0x45, 0x46, 0x49 } };
+
+    VentoyFillProtectMBR(DiskSizeBytes, &pInfo->MBR);
+
+    ReservedValue = GetReservedSpaceInMB();
+    if (ReservedValue > 0)
+    {
+        ReservedSector += ReservedValue * 2048;
+    }
+
+    Part1SectorCount = DiskSectorCount - ReservedSector - (VENTOY_EFI_PART_SIZE / 512) - 2048;
+
+    ModSectorCount = (Part1SectorCount % 8);
+    if (ModSectorCount)
+    {
+        Log("Part1SectorCount:%llu is not aligned by 4KB (%llu)", (ULONGLONG)Part1SectorCount, (ULONGLONG)ModSectorCount);
+    }
+
+    // check aligned with 4KB
+    if (IsPartNeed4KBAlign())
+    {
+        if (ModSectorCount)
+        {
+            Log("Disk need to align with 4KB %u", (UINT32)ModSectorCount);
+            Part1SectorCount -= ModSectorCount;
+        }
+        else
+        {
+            Log("no need to align with 4KB");
+        }
+    }
+
+    memcpy(Head->Signature, "EFI PART", 8);
+    Head->Version[2] = 0x01;
+    Head->Length = 92;
+    Head->Crc = 0;
+    Head->EfiStartLBA = 1;
+    Head->EfiBackupLBA = DiskSectorCount - 1;
+    Head->PartAreaStartLBA = 34;
+    Head->PartAreaEndLBA = DiskSectorCount - 34;
+    CoCreateGuid(&Head->DiskGuid);
+    Head->PartTblStartLBA = 2;
+    Head->PartTblTotNum = 128;
+    Head->PartTblEntryLen = 128;
+
+
+    memcpy(&(Table[0].PartType), &WindowsDataPartType, sizeof(GUID));
+    CoCreateGuid(&(Table[0].PartGuid));
+    Table[0].StartLBA = 2048;
+    Table[0].LastLBA = 2048 + Part1SectorCount - 1;
+    Table[0].Attr = 0;
+    memcpy(Table[0].Name, L"Ventoy", 6 * 2);
+
+    // to fix windows issue
+    //memcpy(&(Table[1].PartType), &EspPartType, sizeof(GUID));
+    memcpy(&(Table[1].PartType), &WindowsDataPartType, sizeof(GUID));
+    CoCreateGuid(&(Table[1].PartGuid));
+    Table[1].StartLBA = Table[0].LastLBA + 1;
+    Table[1].LastLBA = Table[1].StartLBA + VENTOY_EFI_PART_SIZE / 512 - 1;
+    Table[1].Attr = 0xC000000000000001ULL;
+    memcpy(Table[1].Name, L"VTOYEFI", 7 * 2);
+
+#if 0
+	memcpy(&(Table[2].PartType), &BiosGrubPartType, sizeof(GUID));
+	CoCreateGuid(&(Table[2].PartGuid));
+	Table[2].StartLBA = 34;
+	Table[2].LastLBA = 2047;
+	Table[2].Attr = 0;
+#endif
+
+    //Update CRC
+    Head->PartTblCrc = VentoyCrc32(Table, sizeof(pInfo->PartTbl));
+    Head->Crc = VentoyCrc32(Head, Head->Length);
+
+    return 0;
+}
+
+int VentoyFillBackupGptHead(VTOY_GPT_INFO *pInfo, VTOY_GPT_HDR *pHead)
+{
+    UINT64 LBA;
+    UINT64 BackupLBA;
+
+    memcpy(pHead, &pInfo->Head, sizeof(VTOY_GPT_HDR));
+
+    LBA = pHead->EfiStartLBA;
+    BackupLBA = pHead->EfiBackupLBA;
+    
+    pHead->EfiStartLBA = BackupLBA;
+    pHead->EfiBackupLBA = LBA;
+    pHead->PartTblStartLBA = BackupLBA + 1 - 33;
+
+    pHead->Crc = 0;
+    pHead->Crc = VentoyCrc32(pHead, pHead->Length);
 
     return 0;
 }
@@ -560,6 +777,11 @@ int GetHumanReadableGBSize(UINT64 SizeBytes)
     int Pow2 = 1;
     double Delta;
     double GB = SizeBytes * 1.0 / 1000 / 1000 / 1000;
+
+    if ((SizeBytes % 1073741824) == 0)
+    {
+        return (int)(SizeBytes / 1073741824);
+    }
 
     for (i = 0; i < 12; i++)
     {

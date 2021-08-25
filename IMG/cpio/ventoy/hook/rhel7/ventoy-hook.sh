@@ -40,12 +40,38 @@ else
     done
 fi
 
-echo "VTKS=$VTKS" >> $VTLOG
+if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
+    VTOVERLAY="rd.live.overlay=/dev/dm-1:/vtoyoverlayfs/overlayfs"
+    
+    if [ -e /sbin/dmsquash-live-root ]; then
+        echo "patch /sbin/dmsquash-live-root for persistent ..." >> $VTLOG
+        $SED "/mount.*devspec.*\/run\/initramfs\/overlayfs/a . /ventoy/hook/rhel7/ventoy-overlay.sh" -i /sbin/dmsquash-live-root        
+        $SED "s/osmin.img/osmin.imgxxxx/g" -i /sbin/dmsquash-live-root
+    fi
+    
+    #close selinux
+    $BUSYBOX_PATH/mkdir -p $VTOY_PATH/selinuxfs
+    if $BUSYBOX_PATH/mount -t selinuxfs selinuxfs $VTOY_PATH/selinuxfs; then
+        echo 1 > $VTOY_PATH/selinuxfs/disable
+        $BUSYBOX_PATH/umount $VTOY_PATH/selinuxfs
+    fi    
+    $BUSYBOX_PATH/rm -rf $VTOY_PATH/selinuxfs
+fi
+
+
+echo "VTKS=$VTKS  VTOVERLAY=$VTOVERLAY" >> $VTLOG
+
+if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
+    for vtDud in $(ls $VTOY_PATH/ventoy_dud*); do
+        vtInstDD="$vtInstDD inst.dd=file:$vtDud"
+    done
+fi
+echo "vtInstDD=$vtInstDD" >> $VTLOG
 
 if $GREP -q 'root=live' /proc/cmdline; then
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
 else
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
 fi
 
 ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh
@@ -59,6 +85,31 @@ fi
 
 $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/${vtPriority}-ventoy-inotifyd-start.sh
 $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-timeout.sh /lib/dracut/hooks/initqueue/timeout/${vtPriority}-ventoy-timeout.sh
+
+vtNeedRepo=
+if [ -f /etc/system-release ]; then
+    if $GREP -q 'RED OS' /etc/system-release; then
+        vtNeedRepo="yes"
+    fi
+fi
+if $GREP -q el8 /proc/version; then
+    vtNeedRepo="yes"
+fi
+
+if $GREP -i -q Fedora /proc/version; then
+    if $GREP -q 'Server Edition' /etc/os-release; then
+        vtNeedRepo="yes"
+    fi
+fi
+
+if [ "$vtNeedRepo" = "yes" ]; then
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-repo.sh /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh
+fi
+
+if [ -e /sbin/dmsquash-live-root ]; then
+    echo "patch /sbin/dmsquash-live-root ..." >> $VTLOG
+    $SED "1 a $BUSYBOX_PATH/sh $VTOY_PATH/hook/rhel7/ventoy-make-link.sh" -i /sbin/dmsquash-live-root
+fi
 
 # suppress write protected mount warning
 if [ -e /usr/sbin/anaconda-diskroot ]; then

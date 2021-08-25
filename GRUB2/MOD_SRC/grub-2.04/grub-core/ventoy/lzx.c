@@ -462,6 +462,8 @@ static int lzx_uncompressed ( struct lzx *lzx ) {
 	if ( len % 2 )
 		lzx->input.offset++;
 
+    lzx->output.offset += len;
+
 	return 0;
 }
 
@@ -614,7 +616,7 @@ ssize_t lzx_decompress ( const void *data, size_t len, void *buf ) {
 	/* Sanity check */
 	if ( len % 2 ) {
 		DBG ( "LZX cannot handle odd-length input data\n" );
-		return -1;
+		//return -1;
 	}
 
 	/* Initialise global state, if required */

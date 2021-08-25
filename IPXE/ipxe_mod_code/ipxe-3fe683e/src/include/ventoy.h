@@ -4,6 +4,8 @@
 
 FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 
+//#define VTOY_DEBUG 1
+
 #define grub_uint64_t  uint64_t
 #define grub_uint32_t  uint32_t
 #define grub_uint16_t  uint16_t
@@ -12,6 +14,15 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
 #define COMPILE_ASSERT(expr)  extern char __compile_assert[(expr) ? 1 : -1]
 
 #define VENTOY_GUID { 0x77772020, 0x2e77, 0x6576, { 0x6e, 0x74, 0x6f, 0x79, 0x2e, 0x6e, 0x65, 0x74 }}
+
+typedef enum ventoy_chain_type
+{
+    ventoy_chain_linux = 0, /* 0: linux */
+    ventoy_chain_windows,   /* 1: windows */
+    ventoy_chain_wim,       /* 2: wim */
+
+    ventoy_chain_max
+}ventoy_chain_type;
 
 #pragma pack(1)
 
@@ -34,7 +45,7 @@ typedef struct ventoy_image_location
 {
     ventoy_guid  guid;
     
-    /* image sector size, currently this value is always 2048 */
+    /* image sector size, 2048/512 */
     grub_uint32_t   image_sector_size;
 
     /* disk sector size, normally the value is 512 */
@@ -77,7 +88,9 @@ typedef struct ventoy_os_param
 
     grub_uint64_t  vtoy_reserved[4];     // Internal use by ventoy
 
-    grub_uint8_t   reserved[31];
+    grub_uint8_t   vtoy_disk_signature[4];
+    
+    grub_uint8_t   reserved[27];
 }ventoy_os_param;
 
 typedef struct ventoy_iso9660_override
@@ -173,6 +186,8 @@ typedef struct ventoy_sector_flag
 #define VENTOY_BOOT_FIXBIN_DRIVE  0xFD
 
 extern int g_debug;
+extern int g_hddmode;
+extern int g_bios_disk80;
 extern char *g_cmdline_copy;
 extern void *g_initrd_addr;
 extern size_t g_initrd_len;

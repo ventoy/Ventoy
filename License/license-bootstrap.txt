@@ -1,0 +1,1 @@
+bootstrap follows the MIT License (see MIT.txt)

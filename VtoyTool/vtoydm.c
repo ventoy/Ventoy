@@ -41,7 +41,9 @@
 #endif
 
 #ifndef USE_DIET_C
+#ifndef __mips__
 typedef unsigned long long uint64_t;
+#endif
 typedef unsigned int    uint32_t;
 #endif
 
@@ -486,8 +488,8 @@ static int vtoydm_print_linear_table(const char *img_map_file, const char *diskn
 {
     int i;
     int len;
+    uint32_t disk_sector_num;
     uint32_t sector_start;
-    uint32_t sector_num;
     ventoy_img_chunk *chunk = NULL;
     
     chunk = vtoydm_get_img_map_data(img_map_file, &len);
@@ -499,17 +501,26 @@ static int vtoydm_print_linear_table(const char *img_map_file, const char *diskn
     for (i = 0; i < len / sizeof(ventoy_img_chunk); i++)
     {
         sector_start = chunk[i].img_start_sector;
-        sector_num = chunk[i].img_end_sector - chunk[i].img_start_sector + 1;
+        disk_sector_num = (uint32_t)(chunk[i].disk_end_sector + 1 - chunk[i].disk_start_sector);
 
         /* TBD: to be more flexible */
         #if 0
         printf("%u %u linear %s %llu\n", 
-               (sector_start << 2), (sector_num << 2), 
+               (sector_start << 2), disk_sector_num, 
                diskname, (unsigned long long)chunk[i].disk_start_sector);
         #else
-        printf("%u %u linear %s1 %llu\n", 
-               (sector_start << 2), (sector_num << 2), 
+        if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
+        {
+            printf("%u %u linear %sp1 %llu\n", 
+               (sector_start << 2), disk_sector_num, 
                diskname, (unsigned long long)chunk[i].disk_start_sector - 2048);
+        }
+        else
+        {
+            printf("%u %u linear %s1 %llu\n", 
+               (sector_start << 2), disk_sector_num, 
+               diskname, (unsigned long long)chunk[i].disk_start_sector - 2048);
+        }
         #endif
     }
 

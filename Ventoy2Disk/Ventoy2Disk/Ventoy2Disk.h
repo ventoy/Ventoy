@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 #define SIZE_1MB                    (1024 * 1024)
+#define SIZE_2MB                    (2048 * 1024)
 #define VENTOY_EFI_PART_SIZE	    (32 * SIZE_1MB)
 #define VENTOY_PART1_START_SECTOR    2048
 
@@ -79,6 +80,55 @@ typedef struct MBR_HEAD
     UINT8 Byte55;
     UINT8 ByteAA;
 }MBR_HEAD;
+
+typedef struct VTOY_GPT_HDR
+{
+    CHAR   Signature[8]; /* EFI PART */
+    UINT8  Version[4];
+    UINT32 Length;
+    UINT32 Crc;
+    UINT8  Reserved1[4];
+    UINT64 EfiStartLBA;
+    UINT64 EfiBackupLBA;
+    UINT64 PartAreaStartLBA;
+    UINT64 PartAreaEndLBA;
+    GUID   DiskGuid;
+    UINT64 PartTblStartLBA;
+    UINT32 PartTblTotNum;
+    UINT32 PartTblEntryLen;
+    UINT32 PartTblCrc;
+    UINT8  Reserved2[420];
+}VTOY_GPT_HDR;
+
+typedef struct VTOY_GPT_PART_TBL
+{
+    GUID   PartType;
+    GUID   PartGuid;
+    UINT64 StartLBA;
+    UINT64 LastLBA;
+    UINT64 Attr;
+    UINT16 Name[36];
+}VTOY_GPT_PART_TBL;
+
+typedef struct VTOY_GPT_INFO
+{
+    MBR_HEAD MBR;
+    VTOY_GPT_HDR Head;
+    VTOY_GPT_PART_TBL PartTbl[128];
+}VTOY_GPT_INFO;
+
+
+typedef struct ventoy_secure_data
+{
+    UINT8 magic1[16];     /* VENTOY_GUID */
+    UINT8 diskuuid[16];
+    UINT8 Checksum[16];
+    UINT8 adminSHA256[32];
+    UINT8 reserved[4000];
+    UINT8 magic2[16];     /* VENTOY_GUID */
+}ventoy_secure_data;
+
+
 #pragma pack()
 
 #define VENTOY_MAX_PHY_DRIVE  128
@@ -87,6 +137,7 @@ typedef struct PHY_DRIVE_INFO
 {
     int Id;
     int PhyDrive;
+    int PartStyle;//0:MBR 1:GPT
     UINT64 SizeInBytes;
     BYTE DeviceType;
     BOOL RemovableMedia;
@@ -96,9 +147,12 @@ typedef struct PHY_DRIVE_INFO
     CHAR SerialNumber[128];
     STORAGE_BUS_TYPE BusType;
 
-    int FirstDriveLetter;
+    CHAR DriveLetters[64];
+   
     CHAR VentoyVersion[32];
 
+    BOOL SecureBootSupport;
+    MBR_HEAD MBR;
 }PHY_DRIVE_INFO;
 
 typedef enum PROGRESS_POINT
@@ -127,6 +181,9 @@ extern PHY_DRIVE_INFO *g_PhyDriveList;
 extern DWORD g_PhyDriveCount;
 extern int g_ForceOperation;
 extern HWND g_ProgressBarHwnd;
+extern HFONT g_language_normal_font;
+extern HFONT g_language_bold_font;
+extern int g_FilterUSB;
 
 void Log(const char *Fmt, ...);
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...);
@@ -138,19 +195,22 @@ const CHAR * GetBusTypeString(STORAGE_BUS_TYPE Type);
 int VentoyGetLocalBootImg(MBR_HEAD *pMBR);
 int GetHumanReadableGBSize(UINT64 SizeBytes);
 void TrimString(CHAR *String);
-int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR);
+int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle);
+int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo);
 BOOL IsVentoyLogicalDrive(CHAR DriveLetter);
 int GetRegDwordValue(HKEY Key, LPCSTR SubKey, LPCSTR ValueName, DWORD *pValue);
 int GetPhysicalDriveCount(void);
 int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount);
 int GetPhyDriveByLogicalDrive(int DriveLetter);
-int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, MBR_HEAD *pMBR, CHAR *VerBuf, size_t BufLen);
+int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen, BOOL *pSecureBoot);
 int Ventoy2DiskInit(void);
 int Ventoy2DiskDestroy(void);
 PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id);
 int ParseCmdLineOption(LPSTR lpCmdLine);
-int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive);
+int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
 int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive);
+int VentoyFillBackupGptHead(VTOY_GPT_INFO *pInfo, VTOY_GPT_HDR *pHead);
+int VentoyFillWholeGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo);
 void SetProgressBarPos(int Pos);
 int ReadWholeFileToBuf(const CHAR *FileName, int ExtLen, void **Bufer, int *BufLen);
 int INIT unxz(unsigned char *in, int in_size,
@@ -161,5 +221,77 @@ int INIT unxz(unsigned char *in, int in_size,
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount);
 INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 int GetReservedSpaceInMB(void);
+int IsPartNeed4KBAlign(void);
+int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive);
+int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
+int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter);
+UINT32 VentoyCrc32(void *Buffer, UINT32 Length);
+
+#define SET_FILE_POS(pos) \
+    liCurrentPosition.QuadPart = pos; \
+    SetFilePointerEx(hDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN)\
+
+#define SECURE_ICON_STRING _UICON(UNICODE_LOCK)
+
+extern int g_WriteImage;
+
+#define VTSI_IMG_MAGIC 0x0000594F544E4556ULL  // "VENTOY\0\0"
+
+#pragma pack(1)
+
+/*
+ +---------------------------------
+ + sector 0 ~ sector N-1
+ +     data area
+ +---------------------------------
+ + sector N ~ 
+ +     segment[0]
+ +     segment[1]
+ +     segment[2]
+ +      ......
+ +     segment[M-1]
+ +     align data (aligned with 512)
+ +---------------------------------
+ +     footer
+ +---------------------------------
+ *
+ * All the integers are in little endian
+ * The sector size is fixed 512 for ventoy image file.
+ *
+ */
+
+#define VTSI_IMG_MAX_SEG   128
+
+typedef struct {
+    UINT64 disk_start_sector;
+    UINT64 sector_num;
+    UINT64 data_offset;
+}VTSI_SEGMENT;
+
+typedef struct {
+    UINT64 magic;
+    UINT32 version;
+    UINT64 disk_size;
+    UINT32 disk_signature;
+    UINT32 foot_chksum;
+
+    UINT32 segment_num;
+    UINT32 segment_chksum;
+    UINT64 segment_offset;
+
+    UINT8  reserved[512 - 44];
+}VTSI_FOOTER;
+#pragma pack()
+extern int __static_assert__[sizeof(VTSI_FOOTER) == 512 ? 1 : -1];
+
+
+#define SAFE_FREE(ptr) if (ptr) { free(ptr); (ptr) = NULL; }
+int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
+void disk_io_set_imghook(FILE *fp, VTSI_SEGMENT *segment, int maxseg, UINT64 data_offset);
+void disk_io_reset_imghook(int *psegnum, UINT64 *pDataOffset);
+
+
+#define VTSI_SUPPORT 1
+
 
 #endif

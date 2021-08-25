@@ -57,6 +57,26 @@ typedef enum STR_ID
     STR_PRESERVE_SPACE,//24
 	STR_SPACE_VAL_INVALID,//25
 
+    STR_MENU_CLEAR, //26
+    STR_CLEAR_SUCCESS, //27
+    STR_CLEAR_FAILED, //28
+    STR_MENU_PART_STYLE, //29
+	STR_DISK_2TB_MBR_ERROR,//30
+
+    STR_SHOW_ALL_DEV, //31
+    STR_PART_ALIGN_4KB, //32
+    STR_WEB_COMMUNICATION_ERR, //33
+    STR_WEB_REMOTE_ABNORMAL, //34
+    STR_WEB_REQUEST_TIMEOUT, //35
+    STR_WEB_SERVICE_UNAVAILABLE, //36
+    STR_WEB_TOKEN_MISMATCH, //37
+    STR_WEB_SERVICE_BUSY, //38
+
+    STR_MENU_VTSI_CREATE, //39
+    STR_VTSI_CREATE_TIP, //40
+    STR_VTSI_CREATE_SUCCESS, //41
+    STR_VTSI_CREATE_FAILED, //42
+
 	STR_ID_MAX
 }STR_ID;
 
@@ -64,15 +84,42 @@ extern BOOL g_SecureBoot;
 
 #define VTOY_MENU_SECURE_BOOT	  0xA000
 #define VTOY_MENU_PART_CFG        0xA001
+#define VTOY_MENU_CLEAN           0xA002
+#define VTOY_MENU_PART_STYLE      0xA003
+#define VTOY_MENU_PART_MBR        0xA004
+#define VTOY_MENU_PART_GPT        0xA005
+#define VTOY_MENU_ALL_DEV         0xA006
+#define VTOY_MENU_VTSI            0xA007
+
+
+typedef enum OPT_SUBMENU
+{
+    OPT_SUBMENU_SECURE_BOOT = 0,
+    OPT_SUBMENU_PART_STYLE,
+    OPT_SUBMENU_PART_CFG,
+    OPT_SUBMENU_CLEAR,
+    OPT_SUBMENU_ALL_DEV,
+    OPT_SUBMENU_VTSI,
+
+    OPT_SUBMENU_MAX
+}OPT_SUBMENU;
+
+
 #define VTOY_MENU_LANGUAGE_BEGIN  0xB000
 
 
-#define VENTOY_LANGUAGE_INI  TEXT(".\\ventoy\\languages.ini")
+#define VENTOY_LANGUAGE_INI     TEXT(".\\ventoy\\languages.ini")
+#define VENTOY_LANGUAGE_JSON    TEXT(".\\ventoy\\languages.json")
+#define VENTOY_LANGUAGE_INI_A   ".\\ventoy\\languages.ini"
+#define VENTOY_LANGUAGE_JSON_A  ".\\ventoy\\languages.json"
+
 #define VENTOY_CFG_INI     TEXT(".\\Ventoy2Disk.ini")
 #define VENTOY_CFG_INI_A   ".\\Ventoy2Disk.ini"
 #define VENTOY_MAX_LANGUAGE	 200
 
 #define GET_INI_STRING(Section, Key, Buf) GetPrivateProfileString(Section, Key, TEXT("#"), Buf, sizeof(Buf), VENTOY_LANGUAGE_INI)
+
+
 
 typedef struct VENTOY_LANGUAGE
 {
@@ -90,5 +137,14 @@ extern VENTOY_LANGUAGE *g_cur_lang_data;
 const TCHAR * GetString(enum STR_ID ID);
 
 #define _G(a) GetString(a)
+
+typedef enum UNICODE_ICON
+{
+    UNICODE_LOCK = 0,
+    UNICODE_BUTT
+}UNICODE_ICON;
+
+const UINT16 * GetUnicodeIcon(icon);
+#define _UICON(i) GetUnicodeIcon(i)
 
 #endif

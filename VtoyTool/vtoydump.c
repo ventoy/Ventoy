@@ -35,7 +35,9 @@
 #define IS_DIGIT(x) ((x) >= '0' && (x) <= '9')
 
 #ifndef USE_DIET_C
+#ifndef __mips__
 typedef unsigned long long uint64_t;
+#endif
 typedef unsigned int    uint32_t;
 typedef unsigned short  uint16_t;
 typedef unsigned char   uint8_t;
@@ -120,7 +122,9 @@ typedef struct ventoy_os_param
 
     uint64_t  vtoy_reserved[4];     // Internal use by ventoy
 
-    uint8_t   reserved[31];
+    uint8_t   vtoy_disk_signature[4];
+    
+    uint8_t   reserved[27];
 }ventoy_os_param;
 
 #pragma pack()
@@ -155,6 +159,16 @@ static int vtoy_check_os_param(ventoy_os_param *param)
     
     if (memcmp(&param->guid, &vtoy_guid, sizeof(ventoy_guid)))
     {
+        uint8_t *data1 = (uint8_t *)(&param->guid);
+        uint8_t *data2 = (uint8_t *)(&vtoy_guid);
+        
+        for (i = 0; i < 16; i++)
+        {
+            if (data1[i] != data2[i])
+            {
+                debug("guid not equal i = %u, 0x%02x, 0x%02x\n", i, data1[i], data2[i]);
+            }
+        }
         return 1;
     }
 
@@ -208,6 +222,11 @@ static void vtoy_dump_os_param(ventoy_os_param *param)
     printf("param->vtoy_disk_guid = %02x %02x %02x %02x\n", 
         param->vtoy_disk_guid[0], param->vtoy_disk_guid[1], 
         param->vtoy_disk_guid[2], param->vtoy_disk_guid[3]);
+    
+    printf("param->vtoy_disk_signature = %02x %02x %02x %02x\n", 
+        param->vtoy_disk_signature[0], param->vtoy_disk_signature[1], 
+        param->vtoy_disk_signature[2], param->vtoy_disk_signature[3]);
+    
     printf("param->vtoy_disk_size = %llu\n", (unsigned long long)param->vtoy_disk_size);
     printf("param->vtoy_disk_part_id = %u\n", param->vtoy_disk_part_id);
     printf("param->vtoy_disk_part_type = %u\n", param->vtoy_disk_part_type);
@@ -221,7 +240,7 @@ static void vtoy_dump_os_param(ventoy_os_param *param)
     printf("\n");
 }
 
-static int vtoy_get_disk_guid(const char *diskname, uint8_t *vtguid)
+static int vtoy_get_disk_guid(const char *diskname, uint8_t *vtguid, uint8_t *vtsig)
 {
     int i = 0;
     int fd = 0;
@@ -234,6 +253,9 @@ static int vtoy_get_disk_guid(const char *diskname, uint8_t *vtguid)
     {
         lseek(fd, 0x180, SEEK_SET);
         read(fd, vtguid, 16);
+        
+        lseek(fd, 0x1b8, SEEK_SET);
+        read(fd, vtsig, 4);
         close(fd);
 
         debug("GUID for %s: <", devdisk);
@@ -370,13 +392,14 @@ static int vtoy_find_disk_by_size(unsigned long long size, char *diskname)
     return rc;    
 }
 
-static int vtoy_find_disk_by_guid(uint8_t *guid, char *diskname)
+static int vtoy_find_disk_by_guid(ventoy_os_param *param, char *diskname)
 {
     int rc = 0;
     int count = 0;
     DIR* dir = NULL;
     struct dirent* p = NULL;
     uint8_t vtguid[16];
+    uint8_t vtsig[16];
 
     dir = opendir("/sys/block");
     if (!dir)
@@ -393,8 +416,9 @@ static int vtoy_find_disk_by_guid(uint8_t *guid, char *diskname)
         }
     
         memset(vtguid, 0, sizeof(vtguid));
-        rc = vtoy_get_disk_guid(p->d_name, vtguid);
-        if (rc == 0 && memcmp(vtguid, guid, 16) == 0)
+        rc = vtoy_get_disk_guid(p->d_name, vtguid, vtsig);
+        if (rc == 0 && memcmp(vtguid, param->vtoy_disk_guid, 16) == 0 && 
+            memcmp(vtsig, param->vtoy_disk_signature, 4) == 0)
         {
             sprintf(diskname, "%s", p->d_name);
             count++;
@@ -411,23 +435,57 @@ static int vtoy_printf_iso_path(ventoy_os_param *param)
     return 0;
 }
 
+static int vtoy_check_device(ventoy_os_param *param, const char *device)
+{
+    unsigned long long size; 
+    uint8_t vtguid[16] = {0};
+    uint8_t vtsig[4] = {0};
+
+    debug("vtoy_check_device for <%s>\n", device);
+
+    size = vtoy_get_disk_size_in_byte(device);
+    vtoy_get_disk_guid(device, vtguid, vtsig);
+
+    debug("param->vtoy_disk_size=%llu size=%llu\n", 
+        (unsigned long long)param->vtoy_disk_size, (unsigned long long)size);
+
+    if (memcmp(vtguid, param->vtoy_disk_guid, 16) == 0 &&
+        memcmp(vtsig, param->vtoy_disk_signature, 4) == 0)
+    {
+        debug("<%s> is right ventoy disk\n", device);
+        return 0;
+    }
+    else
+    {
+        debug("<%s> is NOT right ventoy disk\n", device);
+        return 1;
+    }
+}
+
 static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
 {
-    int   cnt = 0;
+    int fd, size;
+    int cnt = 0;
     char *path = param->vtoy_img_path;
     const char *fs;
-
+    char diskpath[256] = {0};
+    char sizebuf[64] = {0};
+    
     cnt = vtoy_find_disk_by_size(param->vtoy_disk_size, diskname);
-    if (cnt > 1)
+    debug("find disk by size %llu, cnt=%d...\n", (unsigned long long)param->vtoy_disk_size, cnt);
+    if (1 == cnt)
     {
-        cnt = vtoy_find_disk_by_guid(param->vtoy_disk_guid, diskname);
+        if (vtoy_check_device(param, diskname) != 0)
+        {
+            cnt = 0;
+        }
     }
-    else if (cnt == 0)
+    else
     {
-        cnt = vtoy_find_disk_by_guid(param->vtoy_disk_guid, diskname);
-        debug("find 0 disk by size, try with guid cnt=%d...\n", cnt);
+        cnt = vtoy_find_disk_by_guid(param, diskname);
+        debug("find disk by guid cnt=%d...\n", cnt);
     }
-
+    
     if (param->vtoy_disk_part_type < ventoy_fs_max)
     {
         fs = g_ventoy_fs[param->vtoy_disk_part_type];
@@ -439,37 +497,42 @@ static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
 
     if (1 == cnt)
     {
+        if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
+        {
+            snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%sp2/size", diskname);
+        }
+        else
+        {
+            snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%s2/size", diskname);
+        }
+
+        if (access(diskpath, F_OK) >= 0)
+        {
+            debug("get part size from sysfs for %s\n", diskpath);
+
+            fd = open(diskpath, O_RDONLY | O_BINARY);
+            if (fd >= 0)
+            {
+                read(fd, sizebuf, sizeof(sizebuf));
+                size = (int)strtoull(sizebuf, NULL, 10);
+                close(fd);
+                if ((size != (64 * 1024)) && (size != (8 * 1024)))
+                {
+                    debug("sizebuf=<%s> size=%d\n", sizebuf, size);
+                    return 1;
+                }
+            }
+        }
+        else
+        {
+            debug("%s not exist \n", diskpath);
+        }
+
         printf("/dev/%s#%s#%s\n", diskname, fs, path);
         return 0;
     }
     else
     {
-        return 1;
-    }
-}
-
-static int vtoy_check_device(ventoy_os_param *param, const char *device)
-{
-    unsigned long long size; 
-    uint8_t vtguid[16] = {0};
-
-    debug("vtoy_check_device for <%s>\n", device);
-
-    size = vtoy_get_disk_size_in_byte(device);
-    vtoy_get_disk_guid(device, vtguid);
-
-    debug("param->vtoy_disk_size=%llu size=%llu\n", 
-        (unsigned long long)param->vtoy_disk_size, (unsigned long long)size);
-
-    if ((param->vtoy_disk_size == size || param->vtoy_disk_size == size + 512) && 
-        memcmp(vtguid, param->vtoy_disk_guid, 16) == 0)
-    {
-        debug("<%s> is right ventoy disk\n", device);
-        return 0;
-    }
-    else
-    {
-        debug("<%s> is NOT right ventoy disk\n", device);
         return 1;
     }
 }
@@ -539,8 +602,20 @@ int vtoydump_main(int argc, char **argv)
     rc = vtoy_os_param_from_file(filename, param);
     if (rc)
     {
-        debug("ventoy os param not found %d\n", rc);
-        goto end;
+        debug("ventoy os param not found %d %d\n", rc, ENOENT);
+        if (ENOENT == rc)
+        {
+            debug("now try with file %s\n", "/ventoy/ventoy_os_param");
+            rc = vtoy_os_param_from_file("/ventoy/ventoy_os_param", param);
+            if (rc)
+            {
+                goto end;
+            }
+        }
+        else
+        {
+            goto end;            
+        }        
     }
 
     if (verbose)

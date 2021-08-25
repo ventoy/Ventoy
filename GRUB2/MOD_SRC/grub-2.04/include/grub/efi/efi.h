@@ -87,6 +87,7 @@ EXPORT_FUNC (grub_efi_compare_device_paths) (const grub_efi_device_path_t *dp1,
 					     const grub_efi_device_path_t *dp2);
 
 void * EXPORT_FUNC (grub_efi_allocate_iso_buf) (grub_uint64_t size);
+void * EXPORT_FUNC (grub_efi_allocate_chain_buf) (grub_uint64_t size);
 
 
 extern void (*EXPORT_VAR(grub_efi_net_config)) (grub_efi_handle_t hnd, 

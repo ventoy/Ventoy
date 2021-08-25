@@ -28,8 +28,22 @@ else
     $CAT $VTOY_PATH/hook/default/13-dm-disk.rules > "$DISTRO_UDEV_DIR/13-dm-disk.rules"
 fi
 
-
-if $GREP -q '^mount_setup$' init; then
+if $GREP -q '^"$mount_handler"' /init; then
+    echo 'use mount_handler ...' >> $VTLOG
+    
+    vthookfile=/hooks/archiso
+    
+    if [ -e /hooks/miso ]; then
+        vthookfile=/hooks/miso
+        $SED "/^\"\$mount_handler\"/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/manjaro/ventoy-disk.sh \"\$misodevice\"" -i /init    
+    else
+        $SED "/^\"\$mount_handler\"/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/manjaro/ventoy-disk.sh \"\$archisodevice\"" -i /init
+    fi
+    
+    if [ -f $vthookfile ]; then
+        $SED  '/while ! poll_device "${dev}"/a\    if /ventoy/busybox/sh /ventoy/hook/manjaro/ventoy-timeout.sh ${dev}; then break; fi'   -i $vthookfile
+    fi   
+elif $GREP -q '^mount_setup$' init; then
     echo "Here use notify ..." >> $VTLOG
     
     ventoy_set_inotify_script  manjaro/ventoy-inotifyd-hook.sh

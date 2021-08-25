@@ -1,0 +1,150 @@
+# Copyright (C) 2009 Red Hat, Inc. All rights reserved.
+#
+# This file is part of LVM2.
+
+# Udev rules for device-mapper devices.
+#
+# These rules create a DM control node in /dev/mapper directory.
+# The rules also create nodes named dm-x (x is a number) in /dev
+# directory and symlinks to these nodes with names given by
+# the actual DM names. Some udev environment variables are set
+# for use in later rules:
+#   DM_NAME - actual DM device's name
+#   DM_UUID - UUID set for DM device (blank if not specified)
+#   DM_SUSPENDED - suspended state of DM device (0 or 1)
+#   DM_UDEV_RULES_VSN - DM udev rules version
+#
+# These rules cover only basic device-mapper functionality in udev.
+#
+# Various DM subsystems may contain further subsystem-specific rules
+# in 11-dm-<subsystem_name>.rules which should be installed together
+# with the DM subsystem and which extend these basic rules.
+# For example:
+#   11-dm-lvm.rules for LVM subsystem
+#   11-dm-mpath.rules for multipath subsystem (since version 0.6.0, recommended!)
+#
+# Even more specific rules may be required by subsystems so always
+# check subsystem's upstream repository for recent set of rules.
+# Also, keep in mind that recent rules may also require recent
+# subsystem-specific binaries.
+
+KERNEL=="device-mapper", NAME="mapper/control"
+
+SUBSYSTEM!="block", GOTO="dm_end"
+KERNEL!="dm-[0-9]*", GOTO="dm_end"
+
+
+# Device created, major and minor number assigned - "add" event generated.
+# Table loaded - no event generated.
+# Device resumed (or renamed) - "change" event generated.
+# Device removed - "remove" event generated.
+#
+# The dm-X nodes are always created, even on "add" event, we can't suppress
+# that (the node is created even earlier with devtmpfs). All the symlinks
+# (e.g. /dev/mapper) are created in right time after a device has its table
+# loaded and is properly resumed. For this reason, direct use of dm-X nodes
+# is not recommended.
+ACTION!="add|change", GOTO="dm_end"
+
+# Decode udev control flags and set environment variables appropriately.
+# These flags are encoded in DM_COOKIE variable that was introduced in
+# kernel version 2.6.31. Therefore, we can use this feature with
+# kernels >= 2.6.31 only. Cookie is not decoded for remove event.
+ENV{DM_COOKIE}=="?*", IMPORT{program}="/usr/sbin/dmsetup udevflags $env{DM_COOKIE}"
+
+# Rule out easy-to-detect inappropriate events first.
+ENV{DISK_RO}=="1", GOTO="dm_disable"
+
+# There is no cookie set nor any flags encoded in events not originating
+# in libdevmapper so we need to detect this and try to behave correctly.
+# For such spurious events, regenerate all flags from current udev database content
+# (this information would normally be inaccessible for spurious ADD and CHANGE events).
+ENV{DM_UDEV_PRIMARY_SOURCE_FLAG}=="1", ENV{DM_ACTIVATION}="1", GOTO="dm_flags_done"
+IMPORT{db}="DM_UDEV_DISABLE_DM_RULES_FLAG"
+IMPORT{db}="DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG"
+IMPORT{db}="DM_UDEV_DISABLE_DISK_RULES_FLAG"
+IMPORT{db}="DM_UDEV_DISABLE_OTHER_RULES_FLAG"
+IMPORT{db}="DM_UDEV_LOW_PRIORITY_FLAG"
+IMPORT{db}="DM_UDEV_DISABLE_LIBRARY_FALLBACK_FLAG"
+IMPORT{db}="DM_UDEV_PRIMARY_SOURCE_FLAG"
+IMPORT{db}="DM_UDEV_FLAG7"
+IMPORT{db}="DM_UDEV_RULES_VSN"
+LABEL="dm_flags_done"
+
+# Normally, we operate on "change" events. But when coldplugging, there's an
+# "add" event present. We have to recognize this and do our actions in this
+# particular situation, too. Also, we don't want the nodes to be created
+# prematurely on "add" events while not coldplugging. We check
+# DM_UDEV_PRIMARY_SOURCE_FLAG to see if the device was activated correctly
+# before and if not, we ignore the "add" event totally. This way we can support
+# udev triggers generating "add" events (e.g. "udevadm trigger --action=add" or
+# "echo add > /sys/block/<dm_device>/uevent"). The trigger with "add" event is
+# also used at boot to reevaluate udev rules for all existing devices activated
+# before (e.g. in initrd). If udev is used in initrd, we require the udev init
+# script to not remove the existing udev database so we can reuse the information
+# stored at the time of device activation in the initrd.
+ACTION!="add", GOTO="dm_no_coldplug"
+ENV{DM_UDEV_RULES_VSN}!="1", ENV{DM_UDEV_PRIMARY_SOURCE_FLAG}!="1", GOTO="dm_disable"
+ENV{DM_ACTIVATION}="1"
+LABEL="dm_no_coldplug"
+
+# Putting it together, following table is used to recognize genuine and spurious events.
+# N.B. Spurious events are generated based on use of the WATCH udev
+# rule or by triggering an event manually by "udevadm trigger" call
+# or by "echo <event_name> > /sys/block/dm-X/uevent".
+#
+#        EVENT              DM_UDEV_PRIMARY_SOURCE_FLAG   DM_ACTIVATION
+# ======================================================================
+# add event (genuine)                  0                        0
+# change event (genuine)               1                        1
+# add event (spurious)
+#   |_ dev still not active            0                        0
+#   \_ dev already active              1                        1
+# change event (spurious)
+#   |_ dev still not active            0                        0
+#   \_ dev already active              1                        0
+
+# "dm" sysfs subdirectory is available in newer versions of DM
+# only (kernels >= 2.6.29). We have to check for its existence
+# and use dmsetup tool instead to get the DM name, uuid and 
+# suspended state if the "dm" subdirectory is not present.
+# The "suspended" item was added even later (kernels >= 2.6.31),
+# so we also have to call dmsetup if the kernel version used
+# is in between these releases.
+TEST=="dm", ENV{DM_NAME}="$attr{dm/name}", ENV{DM_UUID}="$attr{dm/uuid}", ENV{DM_SUSPENDED}="$attr{dm/suspended}"
+TEST!="dm", IMPORT{program}="/usr/sbin/dmsetup info -j %M -m %m -c --nameprefixes --noheadings --rows -o name,uuid,suspended"
+ENV{DM_SUSPENDED}!="?*", IMPORT{program}="/usr/sbin/dmsetup info -j %M -m %m -c --nameprefixes --noheadings --rows -o suspended"
+
+# dmsetup tool provides suspended state information in textual
+# form with values "Suspended"/"Active". We translate it to
+# 0/1 respectively to be consistent with sysfs values.
+ENV{DM_SUSPENDED}=="Active", ENV{DM_SUSPENDED}="0"
+ENV{DM_SUSPENDED}=="Suspended", ENV{DM_SUSPENDED}="1"
+
+# This variable provides a reliable way to check that device-mapper
+# rules were installed. It means that all needed variables are set
+# by these rules directly so there's no need to acquire them again
+# later. Other rules can alternate the functionality based on this
+# fact (e.g. fallback to rules that behave correctly even without
+# these rules installed). It also provides versioning for any
+# possible future changes.
+# VSN 1 - original rules
+# VSN 2 - add support for synthesized events
+ENV{DM_UDEV_RULES_VSN}="2"
+
+ENV{DM_UDEV_DISABLE_DM_RULES_FLAG}!="1", ENV{DM_NAME}=="?*", SYMLINK+="mapper/$env{DM_NAME}"
+
+# Avoid processing and scanning a DM device in the other (foreign)
+# rules if it is in suspended state. However, we still keep 'disk'
+# and 'DM subsystem' related rules enabled in this case.
+ENV{DM_SUSPENDED}=="1", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}="1"
+
+GOTO="dm_end"
+
+LABEL="dm_disable"
+ENV{DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG}="1"
+ENV{DM_UDEV_DISABLE_DISK_RULES_FLAG}="1"
+ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}="1"
+OPTIONS:="nowatch"
+
+LABEL="dm_end"

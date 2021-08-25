@@ -205,7 +205,7 @@
 /  To enable the 64-bit LBA, also exFAT needs to be enabled. (FF_FS_EXFAT == 1) */
 
 
-#define FF_MIN_GPT		0x100000000
+#define FF_MIN_GPT		0x10000000000000
 /* Minimum number of sectors to switch GPT format to create partition in f_mkfs and
 /  f_fdisk function. 0x100000000 max. This option has no effect when FF_LBA64 == 0. */
 

@@ -25,6 +25,15 @@
 
 #define VENTOY_GUID { 0x77772020, 0x2e77, 0x6576, { 0x6e, 0x74, 0x6f, 0x79, 0x2e, 0x6e, 0x65, 0x74 }}
 
+typedef enum ventoy_chain_type
+{
+    ventoy_chain_linux = 0, /* 0: linux */
+    ventoy_chain_windows,   /* 1: windows */
+    ventoy_chain_wim,       /* 2: wim */
+
+    ventoy_chain_max
+}ventoy_chain_type;
+
 #pragma pack(1)
 
 typedef struct ventoy_guid
@@ -159,20 +168,31 @@ typedef struct ventoy_virt_chunk
 #define VTOY_BLOCK_DEVICE_PATH_GUID					\
 	{ 0x37b87ac6, 0xc180, 0x4583, { 0xa7, 0x05, 0x41, 0x4d, 0xa8, 0xf7, 0x7e, 0xd2 }}
 
-#define VTOY_BLOCK_DEVICE_PATH_NAME  L"ventoy"
+
 
 #if   defined (MDE_CPU_IA32)
   #define VENTOY_UEFI_DESC   L"IA32 UEFI"
+  #define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_ia32.efi"
+  #define UDF_EFI_DRIVER_PATH  L"\\ventoy\\udf_ia32.efi"
 #elif defined (MDE_CPU_X64)
   #define VENTOY_UEFI_DESC   L"X64 UEFI"
+  #define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_x64.efi"
+  #define UDF_EFI_DRIVER_PATH  L"\\ventoy\\udf_x64.efi"
 #elif defined (MDE_CPU_EBC)
 #elif defined (MDE_CPU_ARM)
   #define VENTOY_UEFI_DESC   L"ARM UEFI"
+  #define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_arm.efi"
+  #define UDF_EFI_DRIVER_PATH  L"\\ventoy\\udf_arm.efi"
 #elif defined (MDE_CPU_AARCH64)
   #define VENTOY_UEFI_DESC   L"ARM64 UEFI"
+  #define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_aa64.efi"
+  #define UDF_EFI_DRIVER_PATH  L"\\ventoy\\udf_aa64.efi"
 #else
   #error Unknown Processor Type
 #endif
+
+#define VENTOY_DEVICE_WARN 1
+#define VTOY_WARNING  L"!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!"
 
 typedef struct ventoy_sector_flag
 {
@@ -199,6 +219,7 @@ typedef struct vtoy_block_data
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *pDiskFs;
     EFI_DEVICE_PATH_PROTOCOL *pDiskFsDevPath;
 
+    EFI_HANDLE IsoDriverImage;
 }vtoy_block_data;
 
 
@@ -215,7 +236,9 @@ if (gDebugPrint) \
     gBS->WaitForEvent(1, &gST->ConIn->WaitForKey, &__Index);\
 }
 
+typedef int (*grub_env_set_pf)(const char *name, const char *val);
 typedef const char * (*grub_env_get_pf)(const char *name);
+typedef int (*grub_env_printf_pf)(const char *fmt, ...);
 
 #pragma pack(1)
 
@@ -242,8 +265,9 @@ typedef struct ventoy_grub_param_file_replace
 typedef struct ventoy_grub_param
 {
     grub_env_get_pf grub_env_get;
-
+    grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
+    grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;
 
 typedef struct ventoy_ram_disk
@@ -259,6 +283,32 @@ typedef struct ventoy_iso9660_override
     UINT32 size;
     UINT32 size_be;
 }ventoy_iso9660_override;
+
+typedef struct PART_TABLE
+{
+    UINT8  Active; // 0x00  0x80
+
+    UINT8  StartHead;
+    UINT16 StartSector : 6;
+    UINT16 StartCylinder : 10;
+
+    UINT8  FsFlag;
+
+    UINT8  EndHead;
+    UINT16 EndSector : 6;
+    UINT16 EndCylinder : 10;
+
+    UINT32 StartSectorId;
+    UINT32 SectorCount;
+}PART_TABLE;
+
+typedef struct MBR_HEAD
+{
+    UINT8 BootCode[446];
+    PART_TABLE PartTbl[4];
+    UINT8 Byte55;
+    UINT8 ByteAA;
+}MBR_HEAD;
 
 #pragma pack()
 
@@ -279,13 +329,49 @@ typedef struct ventoy_system_wrapper
     
     EFI_OPEN_PROTOCOL NewOpenProtocol;
     EFI_OPEN_PROTOCOL OriOpenProtocol;
+
+    EFI_LOCATE_HANDLE_BUFFER NewLocateHandleBuffer;
+    EFI_LOCATE_HANDLE_BUFFER OriLocateHandleBuffer;
+
+    EFI_PROTOCOLS_PER_HANDLE NewProtocolsPerHandle;
+    EFI_PROTOCOLS_PER_HANDLE OriProtocolsPerHandle;
+
+    EFI_LOCATE_HANDLE NewLocateHandle;
+    EFI_LOCATE_HANDLE OriLocateHandle;
+
+    EFI_LOCATE_DEVICE_PATH NewLocateDevicePath;
+    EFI_LOCATE_DEVICE_PATH OriLocateDevicePath;
 } ventoy_system_wrapper;
+
+
+#define MAX_DRIVER_BIND_WRAPPER  64
+typedef struct DriverBindWrapper
+{
+    EFI_DRIVER_BINDING_PROTOCOL *DriverBinding;
+    EFI_DRIVER_BINDING_SUPPORTED pfOldSupport;
+}DRIVER_BIND_WRAPPER;
 
 #define ventoy_wrapper(bs, wrapper, func, newfunc) \
 {\
     wrapper.Ori##func = bs->func;\
     wrapper.New##func = newfunc;\
     bs->func = wrapper.New##func;\
+}
+
+
+#define VENTOY_GET_COMPONENT_NAME(Protocol, DriverName) \
+{\
+    DriverName = NULL;\
+    Status = Protocol->GetDriverName(Protocol, "en", &DriverName);\
+    if (EFI_ERROR(Status) || NULL == DriverName) \
+    {\
+        DriverName = NULL;\
+        Status = Protocol->GetDriverName(Protocol, "eng", &DriverName);\
+        if (EFI_ERROR(Status) || NULL == DriverName) \
+        {\
+            continue;\
+        }\
+    }\
 }
 
 extern BOOLEAN gDebugPrint;
@@ -313,10 +399,13 @@ extern ventoy_efi_file_replace g_efi_file_replace;
 extern ventoy_sector_flag *g_sector_flag;
 extern UINT32 g_sector_flag_num;
 extern BOOLEAN gMemdiskMode;
+extern BOOLEAN gSector512Mode;
 extern UINTN g_iso_buf_size;
+extern UINT8 *g_iso_data_buf;
 extern ventoy_grub_param_file_replace *g_file_replace_list;
 extern BOOLEAN g_fixup_iso9660_secover_enable;
 extern EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *g_con_simple_input_ex;
+extern BOOLEAN g_fix_windows_1st_cdrom_issue;
 
 EFI_STATUS EFIAPI ventoy_wrapper_open_volume
 (
@@ -327,6 +416,11 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
 EFI_STATUS EFIAPI ventoy_wrapper_push_openvolume(IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME OpenVolume);
 EFI_STATUS ventoy_hook_keyboard_start(VOID);
 EFI_STATUS ventoy_hook_keyboard_stop(VOID);
+BOOLEAN ventoy_is_cdrom_dp_exist(VOID);
+EFI_STATUS ventoy_hook_1st_cdrom_start(VOID);
+EFI_STATUS ventoy_hook_1st_cdrom_stop(VOID);
+EFI_STATUS ventoy_disable_ex_filesystem(VOID);
+EFI_STATUS ventoy_enable_ex_filesystem(VOID);
 
 #endif
 

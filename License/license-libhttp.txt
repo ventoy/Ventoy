@@ -1,0 +1,3 @@
+libhttp follows the MIT License (see MIT.txt)
+
+Ventoy does not modify its source code, only its header file and lib is used.

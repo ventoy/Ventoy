@@ -1,0 +1,10 @@
+wimboot
+*.s
+*.o
+*.a
+*.elf
+*.map
+*.unsigned
+*.efi
+*.cab
+efireloc

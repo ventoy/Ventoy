@@ -1,0 +1,63 @@
+#!/ventoy/busybox/sh
+#************************************************************************************
+# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# 
+#************************************************************************************
+
+
+####################################################################
+#                                                                  #
+# Step 1 : Extract injection archive                               #
+#                                                                  #
+####################################################################
+ventoy_unpack_injection() {
+    vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $VTOY_PATH/ventoy_injection)
+    echo "ventoy_unpack_injection  vtmagic=$vtmagic ..."
+    
+    if [ "1F8B" = "$vtmagic" ] || [ "1F9E" = "$vtmagic" ]; then
+        echo "tar.gz  tar -xzvf"
+        tar -xzvf $VTOY_PATH/ventoy_injection -C /
+    elif [ "425A" = "$vtmagic" ]; then
+        echo "tar.bz2  tar -xjvf"
+        tar -xjvf $VTOY_PATH/ventoy_injection -C / 
+    elif [ "FD37" = "$vtmagic" ]; then
+        echo "tar.xz  tar -xJvf"
+        tar -xJvf $VTOY_PATH/ventoy_injection -C /
+    elif [ "5D00" = "$vtmagic" ]; then
+        echo "tar.lzma  tar -xavf"
+        tar -xavf $VTOY_PATH/ventoy_injection -C /
+    else
+        echo "unzip -o"
+        unzip -o $VTOY_PATH/ventoy_injection -d /
+    fi
+}
+
+if [ -e $VTOY_PATH/ventoy_injection ]; then
+    echo "### decompress injection ... ###" >>$VTLOG
+    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 3 : Hand over to ventoy_loop.sh                                  #
+#                                                                  #
+####################################################################
+echo "Now hand over to ventoy.sh" >>$VTLOG
+. $VTOY_PATH/tool/vtoytool_install.sh
+
+export PATH=$VTOY_ORG_PATH
+exec $BUSYBOX_PATH/sh $VTOY_PATH/ventoy_loop.sh

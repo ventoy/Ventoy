@@ -41,8 +41,20 @@ ventoy_os_install_dmsetup() {
     fi
 
     # install md-modules
-    LINE=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list)
+    LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list)
     if [ $? -eq 0 ]; then
+        LINTCNT=$($GREP -i -c ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list)
+        if [ $LINTCNT -gt 1 ]; then
+            vtlog "more than one pkgs, need to filter..."
+            VER=$($BUSYBOX_PATH/uname -r)
+            
+            LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i $VER)
+            LINTCNT=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i -c $VER)
+            if [ $LINTCNT -gt 1 ]; then
+                vtlog "Still more than one pkgs, use the first one..."
+                LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i -m1 $VER)
+            fi
+        fi
         install_udeb_from_line "$LINE" ${vt_usb_disk} 
     fi
 
@@ -50,7 +62,7 @@ ventoy_os_install_dmsetup() {
     if $GREP -q 'device-mapper' /proc/devices; then
         vtlog "device mapper module is loaded"
     else
-        vtlog"device mapper module is NOT loaded, now load it..."
+        vtlog "device mapper module is NOT loaded, now load it..."
         
         VER=$($BUSYBOX_PATH/uname -r)    
         KO=$($FIND /lib/modules/$VER/kernel/drivers/md -name "dm-mod*")
@@ -83,6 +95,8 @@ if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
     exit 0
 fi
 
+vtlog "==== $0 $* ====" 
+
 dmsetup_path=$(ventoy_find_bin_path dmsetup)
 if [ -z "$dmsetup_path" ]; then
     ventoy_os_install_dmsetup "/dev/${1:0:-1}"
@@ -99,8 +113,20 @@ ventoy_udev_disk_common_hook $*
 # So if ventoy is installed on a non-USB device, we just mount /cdrom here except
 # for these has boot=live or boot=casper parameter in cmdline
 #
-if echo $ID_BUS | $GREP -q -i usb; then
+VT_BUS_USB=""
+if [ -n "$ID_BUS" ]; then
+    if echo $ID_BUS | $GREP -q -i usb; then
+        VT_BUS_USB="YES"
+    fi
+else
+    if $BUSYBOX_PATH/ls -l /sys/class/block/${1:0:-1} | $GREP -q -i usb; then
+        VT_BUS_USB="YES"
+    fi
+fi
+
+if [ -n "$VT_BUS_USB" ]; then
     vtlog "$1 is USB device"
+    echo /dev/$1 > /ventoy/list-devices-usb-part
 else
     vtlog "$1 is NOT USB device (bus $ID_BUS)"
     
@@ -108,15 +134,7 @@ else
         vtlog "boot=, or casper, don't mount"
     else
         vtlog "No boot param, need to mount"
-        $BUSYBOX_PATH/mkdir /cdrom
-        
-        if [ -b $VTOY_DM_PATH ]; then
-            vtlog "mount $VTOY_DM_PATH ..."
-            $BUSYBOX_PATH/mount -t iso9660 $VTOY_DM_PATH  /cdrom
-        else
-            vtlog "mount /dev/$1 ..."
-            $BUSYBOX_PATH/mount -t iso9660 /dev/$1  /cdrom
-        fi
+        echo /dev/$1 > /ventoy/list-devices-usb-part
     fi
 fi
 

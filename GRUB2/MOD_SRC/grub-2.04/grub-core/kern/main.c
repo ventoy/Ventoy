@@ -109,6 +109,52 @@ grub_env_write_root (struct grub_env_var *var __attribute__ ((unused)),
   return grub_strdup (val);
 }
 
+static int g_ventoy_hook_root = 0;
+void ventoy_env_hook_root(int hook)
+{
+    g_ventoy_hook_root = hook;
+}
+
+static char *
+ventoy_env_write_root (struct grub_env_var *var __attribute__ ((unused)),
+		     const char *val)
+{
+    const char *pos = val;
+    char buf[256];
+    
+    if (g_ventoy_hook_root == 0)
+    {
+        return grub_env_write_root(var, val);
+    }
+
+    if (pos[0] == '(')
+    {
+        pos++;
+    }
+
+    if (grub_strncmp(pos, "vtimghd", 7) == 0)
+    {
+        return grub_env_write_root(var, val);
+    }
+
+    pos = grub_strchr(val, ',');
+    if (!pos)
+    {
+        return grub_env_write_root(var, val);
+    }
+
+    if (val[0] == '(')
+    {
+        grub_snprintf(buf, sizeof(buf), "(vtimghd%s", pos);
+    }
+    else
+    {
+        grub_snprintf(buf, sizeof(buf), "vtimghd%s", pos);
+    }
+
+    return grub_env_write_root(var, buf);
+}
+
 static void
 grub_set_prefix_and_root (void)
 {
@@ -123,7 +169,7 @@ grub_set_prefix_and_root (void)
     if (header->type == OBJ_TYPE_PREFIX)
       prefix = (char *) header + sizeof (struct grub_module_header);
 
-  grub_register_variable_hook ("root", 0, grub_env_write_root);
+  grub_register_variable_hook ("root", 0, ventoy_env_write_root);
 
   grub_machine_get_bootlocation (&fwdevice, &fwpath);
 

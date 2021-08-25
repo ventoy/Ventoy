@@ -23,11 +23,11 @@ if is_ventoy_hook_finished; then
     exit 0
 fi
 
-vtlog "##### INOTIFYD: $2/$3 is created ..."
-
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
 if is_inotify_ventoy_part $3; then
+
+    vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
 
     vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
     if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
@@ -39,7 +39,13 @@ if is_inotify_ventoy_part $3; then
     fi
 
     vtlog "find ventoy partition ..."
-    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
+    
+    vtReplaceOpt=noreplace
+    if [ -f /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh ]; then
+        vtReplaceOpt=""
+    fi
+    
+    $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 $vtReplaceOpt
     
     blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
     vtDM=$(ventoy_find_dm_id ${blkdev_num})
@@ -57,6 +63,8 @@ if is_inotify_ventoy_part $3; then
     fi
     
     set_ventoy_hook_finish
+else
+    vtlog "##### INOTIFYD: $2/$3 is created (NO) ..."
 fi
 
 PATH=$VTPATH_OLD

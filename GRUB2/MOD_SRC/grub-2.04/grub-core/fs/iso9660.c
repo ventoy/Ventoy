@@ -33,6 +33,7 @@
 GRUB_MOD_LICENSE ("GPLv3+");
 
 static int g_ventoy_no_joliet = 0;
+static int g_ventoy_cur_joliet = 0;
 static grub_uint64_t g_ventoy_last_read_pos = 0;
 static grub_uint64_t g_ventoy_last_read_offset = 0;
 static grub_uint64_t g_ventoy_last_read_dirent_pos = 0;
@@ -451,6 +452,7 @@ grub_iso9660_mount (grub_disk_t disk)
 
   data->disk = disk;
 
+  g_ventoy_cur_joliet = 0;
   block = 16;
   do
     {
@@ -484,6 +486,7 @@ grub_iso9660_mount (grub_disk_t disk)
           if (0 == g_ventoy_no_joliet) {
             copy_voldesc = 1;
             data->joliet = 1;
+            g_ventoy_cur_joliet = 1;
           }
         }
 
@@ -735,6 +738,8 @@ grub_iso9660_iterate_dir (grub_fshelp_node_t dir,
 	  {
 	    if ((dirent.flags & FLAG_TYPE) == FLAG_TYPE_DIR)
 	      ctx.type = GRUB_FSHELP_DIR;
+        else if ((dirent.flags & FLAG_TYPE) == 3)
+          ctx.type = GRUB_FSHELP_DIR;
 	    else
 	      ctx.type = GRUB_FSHELP_REG;
 	  }
@@ -1114,6 +1119,11 @@ grub_iso9660_mtime (grub_device_t device, grub_int32_t *timebuf)
 void grub_iso9660_set_nojoliet(int nojoliet)
 {
     g_ventoy_no_joliet = nojoliet;
+}
+
+int grub_iso9660_is_joliet(void)
+{
+    return g_ventoy_cur_joliet;
 }
 
 grub_uint64_t grub_iso9660_get_last_read_pos(grub_file_t file)

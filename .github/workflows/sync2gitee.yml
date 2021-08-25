@@ -1,0 +1,25 @@
+name: Mirror GitHub to Gitee
+
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  run:
+    name: Sync-GitHub-to-Gitee
+    if: ${{ github.repository_owner == 'ventoy' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Mirror the Github repos to Gitee.
+      uses: Yikun/hub-mirror-action@master
+      with:
+        src: github/ventoy
+        dst: gitee/LongPanda
+        dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
+        dst_token: ${{ secrets.GITEE_TOKEN }}
+        static_list: "Ventoy"
+        force_update: true

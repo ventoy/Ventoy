@@ -99,7 +99,7 @@ grub_env_new_context (int export_all)
 grub_err_t
 grub_env_context_open (void)
 {
-  return grub_env_new_context (1);
+  return grub_env_new_context (grub_env_get("ventoy_new_context") ? 0 : 1);
 }
 
 int grub_extractor_level = 0;

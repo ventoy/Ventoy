@@ -19,4 +19,10 @@
 
 $SED '1 apmedia=usbhd'  -i /init
 $SED "/^ *HAVE_PARTS=/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/puppy-disk.sh"  -i /init
-$SED "/^ *HAVE_PARTS=/a\ HAVE_PARTS='mapper/ventoy|iso9660'"  -i /init
+$SED "/^ *HAVE_PARTS=/a\ HAVE_PARTS='ventoy|iso9660'"  -i /init
+
+if [ -f /DISTRO_SPECS ]; then
+    if ! [ -d /dev ]; then
+        $BUSYBOX_PATH/mkdir /dev
+    fi
+fi

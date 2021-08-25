@@ -34,10 +34,13 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/RamDisk.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Protocol/DriverBinding.h>
 #include <Ventoy.h>
 
+UINT8 *g_iso_data_buf = NULL;
 UINTN g_iso_buf_size = 0;
 BOOLEAN gMemdiskMode = FALSE;
+BOOLEAN gSector512Mode = FALSE;
 
 ventoy_sector_flag *g_sector_flag = NULL;
 UINT32 g_sector_flag_num = 0;
@@ -64,6 +67,54 @@ STATIC BOOLEAN g_blockio_bcd_read_done = FALSE;
 EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *g_con_simple_input_ex = NULL;
 STATIC EFI_INPUT_READ_KEY_EX g_org_read_key_ex = NULL;
 STATIC EFI_INPUT_READ_KEY g_org_read_key = NULL;
+
+STATIC EFI_LOCATE_HANDLE g_org_locate_handle = NULL;
+
+STATIC UINT8 g_sector_buf[2048];
+STATIC EFI_BLOCK_READ g_sector_2048_read = NULL;
+STATIC EFI_BLOCK_WRITE g_sector_2048_write = NULL;
+
+STATIC UINTN g_DriverBindWrapperCnt = 0;
+STATIC DRIVER_BIND_WRAPPER g_DriverBindWrapperList[MAX_DRIVER_BIND_WRAPPER];
+
+BOOLEAN ventoy_is_cdrom_dp_exist(VOID)
+{
+    UINTN i = 0;
+    UINTN Count = 0;
+    EFI_HANDLE *Handles = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_DEVICE_PATH_PROTOCOL *DevicePath = NULL;
+
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiDevicePathProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return FALSE;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
+        if (EFI_ERROR(Status))
+        {
+            continue;
+        }
+
+        while (!IsDevicePathEnd(DevicePath))
+        {
+            if (MEDIA_DEVICE_PATH == DevicePath->Type && MEDIA_CDROM_DP == DevicePath->SubType)
+            {
+                FreePool(Handles);
+                return TRUE;
+            }
+        
+            DevicePath = NextDevicePathNode(DevicePath);
+        }
+    }
+
+    FreePool(Handles);
+    return FALSE;         
+}
 
 #if 0
 /* Block IO procotol */
@@ -101,7 +152,7 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
     ventoy_override_chunk *pOverride = g_override_chunk;
     EFI_BLOCK_IO_PROTOCOL *pRawBlockIo = gBlockData.pRawBlockIo;
     
-    debug("read iso sector %lu  count %u", Sector, Count);
+    debug("read iso sector %lu count %u Buffer:%p Align:%u", Sector, Count, Buffer, pRawBlockIo->Media->IoAlign);
 
     ReadStart = Sector * 2048;
     ReadEnd = (Sector + Count) * 2048;
@@ -114,9 +165,17 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
             {
                 MapLba = (Sector - pchunk->img_start_sector) * 4 + pchunk->disk_start_sector;
             }
-            else
+            else if (g_chain->disk_sector_size == 1024)
             {
-                MapLba = (Sector - pchunk->img_start_sector) * 2048 / g_chain->disk_sector_size + pchunk->disk_start_sector;
+                MapLba = (Sector - pchunk->img_start_sector) * 2 + pchunk->disk_start_sector;
+            }
+            else if (g_chain->disk_sector_size == 2048)
+            {
+                MapLba = (Sector - pchunk->img_start_sector) + pchunk->disk_start_sector;
+            }
+            else if (g_chain->disk_sector_size == 4096)
+            {
+                MapLba = ((Sector - pchunk->img_start_sector) >> 1) + pchunk->disk_start_sector;
             }
 
             secLeft = pchunk->img_end_sector + 1 - Sector;
@@ -126,7 +185,7 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
                                      MapLba, secRead * 2048, pCurBuf);
             if (EFI_ERROR(Status))
             {
-                debug("Raw disk read block failed %r", Status);
+                debug("Raw disk read block failed %r LBA:%lu Count:%u %p", Status, MapLba, secRead, pCurBuf);
                 return Status;
             }
 
@@ -199,6 +258,96 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
     return EFI_SUCCESS;    
 }
 
+STATIC EFI_STATUS EFIAPI ventoy_write_iso_sector
+(
+    IN UINT64                 Sector,
+    IN UINTN                  Count,
+    IN VOID                  *Buffer
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_LBA MapLba = 0;
+    UINT32 i = 0;
+    UINTN secLeft = 0;
+    UINTN secRead = 0;
+    UINT64 ReadStart = 0;
+    UINT64 ReadEnd = 0;
+    UINT8 *pCurBuf = (UINT8 *)Buffer;
+    ventoy_img_chunk *pchunk = g_chunk;
+    EFI_BLOCK_IO_PROTOCOL *pRawBlockIo = gBlockData.pRawBlockIo;
+    
+    debug("write iso sector %lu  count %u", Sector, Count);
+
+    ReadStart = Sector * 2048;
+    ReadEnd = (Sector + Count) * 2048;
+
+    for (i = 0; Count > 0 && i < g_img_chunk_num; i++, pchunk++)
+    {
+        if (Sector >= pchunk->img_start_sector && Sector <= pchunk->img_end_sector)
+        {
+            if (g_chain->disk_sector_size == 512)
+            {
+                MapLba = (Sector - pchunk->img_start_sector) * 4 + pchunk->disk_start_sector;
+            }
+            else if (g_chain->disk_sector_size == 1024)
+            {
+                MapLba = (Sector - pchunk->img_start_sector) * 2 + pchunk->disk_start_sector;
+            }
+            else if (g_chain->disk_sector_size == 2048)
+            {
+                MapLba = (Sector - pchunk->img_start_sector) + pchunk->disk_start_sector;
+            }
+            else if (g_chain->disk_sector_size == 4096)
+            {
+                MapLba = ((Sector - pchunk->img_start_sector) >> 1) + pchunk->disk_start_sector;
+            }
+
+
+            secLeft = pchunk->img_end_sector + 1 - Sector;
+            secRead = (Count < secLeft) ? Count : secLeft;
+
+            Status = pRawBlockIo->WriteBlocks(pRawBlockIo, pRawBlockIo->Media->MediaId,
+                                     MapLba, secRead * 2048, pCurBuf);
+            if (EFI_ERROR(Status))
+            {
+                debug("Raw disk write block failed %r LBA:%lu Count:%u", Status, MapLba, secRead);
+                return Status;
+            }
+
+            Count -= secRead;
+            Sector += secRead;
+            pCurBuf += secRead * 2048;
+        }
+    }
+
+    return EFI_SUCCESS;    
+}
+
+EFI_STATUS EFIAPI ventoy_block_io_ramdisk_write 
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    IN VOID                           *Buffer
+) 
+{
+    (VOID)This;
+    (VOID)MediaId;
+    (VOID)Lba;
+    (VOID)BufferSize;
+    (VOID)Buffer;
+
+    if (!gSector512Mode)
+    {
+        return EFI_WRITE_PROTECTED;
+    }
+
+    CopyMem(g_iso_data_buf + (Lba * 2048), Buffer, BufferSize);
+
+	return EFI_SUCCESS;
+}
+
 EFI_STATUS EFIAPI ventoy_block_io_ramdisk_read 
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
@@ -213,7 +362,7 @@ EFI_STATUS EFIAPI ventoy_block_io_ramdisk_read
     (VOID)This;
     (VOID)MediaId;
 
-    CopyMem(Buffer, (char *)g_chain + (Lba * 2048), BufferSize);
+    CopyMem(Buffer, g_iso_data_buf + (Lba * 2048), BufferSize);
     
     if (g_blockio_start_record_bcd && FALSE == g_blockio_bcd_read_done)
     {
@@ -279,7 +428,7 @@ end:
     return Lba;
 }
 
-EFI_STATUS EFIAPI ventoy_block_io_read 
+EFI_STATUS EFIAPI ventoy_block_io_read_real 
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
     IN UINT32                          MediaId,
@@ -292,6 +441,8 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     UINT32 j = 0;
     UINT32 lbacount = 0;
     UINT32 secNum = 0;
+    UINT32 TmpNum = 0;
+    UINT64 VirtSec = 0;
     UINT64 offset = 0;
     EFI_LBA curlba = 0;
     EFI_LBA lastlba = 0;
@@ -299,7 +450,7 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     ventoy_sector_flag *cur_flag;
     ventoy_virt_chunk *node;
     
-    //debug("### ventoy_block_io_read sector:%u count:%u", (UINT32)Lba, (UINT32)BufferSize / 2048);
+    debug("### block_io_read_real sector:%u count:%u Buffer:%p", (UINT32)Lba, (UINT32)BufferSize / 2048, Buffer);
 
     secNum = BufferSize / 2048;
 
@@ -315,6 +466,28 @@ EFI_STATUS EFIAPI ventoy_block_io_read
     {
         return ventoy_read_iso_sector(Lba, secNum, Buffer);
     }
+    else if (offset < g_chain->real_img_size_in_bytes)
+    {
+        TmpNum = (g_chain->real_img_size_in_bytes - offset) / 2048;
+        ventoy_read_iso_sector(Lba, TmpNum, Buffer);
+
+        Lba += TmpNum;
+        secNum -= TmpNum;
+        Buffer = (UINT8 *)Buffer + (g_chain->real_img_size_in_bytes - offset);
+        offset = Lba * 2048;
+    }
+
+    VirtSec = g_chain->virt_img_size_in_bytes / 2048;
+    if (Lba >= VirtSec)
+    {
+        return EFI_SUCCESS;
+    }
+    else if (Lba + secNum > VirtSec)
+    {
+        secNum = VirtSec - Lba;
+    }
+
+    debug("XXX block_io_read_real sector:%u count:%u Buffer:%p", (UINT32)Lba, (UINT32)BufferSize / 2048, Buffer);
 
     if (secNum > g_sector_flag_num)
     {
@@ -383,6 +556,42 @@ EFI_STATUS EFIAPI ventoy_block_io_read
 	return EFI_SUCCESS;
 }
 
+EFI_STATUS EFIAPI ventoy_block_io_read
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    OUT VOID                          *Buffer
+) 
+{
+    UINT32 IoAlign = 0;
+    VOID *NewBuf = NULL;
+    EFI_STATUS Status = EFI_OUT_OF_RESOURCES;
+
+    if (gBlockData.pRawBlockIo && gBlockData.pRawBlockIo->Media)
+    {
+        IoAlign = gBlockData.pRawBlockIo->Media->IoAlign;
+    }
+
+    if ((IoAlign == 0) || (((UINTN) Buffer & (IoAlign - 1)) == 0))
+    {
+        Status = ventoy_block_io_read_real(This, MediaId, Lba, BufferSize, Buffer);
+    }
+    else
+    {
+        NewBuf = AllocatePages(EFI_SIZE_TO_PAGES(BufferSize + IoAlign));
+        if (NewBuf)
+        {
+            Status = ventoy_block_io_read_real(This, MediaId, Lba, BufferSize, NewBuf);
+            CopyMem(Buffer, NewBuf, BufferSize);
+            FreePages(NewBuf, EFI_SIZE_TO_PAGES(BufferSize + IoAlign));
+        }
+    }
+
+    return Status;
+}
+
 EFI_STATUS EFIAPI ventoy_block_io_write 
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
@@ -392,12 +601,21 @@ EFI_STATUS EFIAPI ventoy_block_io_write
     IN VOID                           *Buffer
 ) 
 {
+    UINT32 secNum = 0;
+    UINT64 offset = 0;
+    
     (VOID)This;
     (VOID)MediaId;
-    (VOID)Lba;
-    (VOID)BufferSize;
-    (VOID)Buffer;
-	return EFI_WRITE_PROTECTED;
+
+    if (!gSector512Mode)
+    {
+        return EFI_WRITE_PROTECTED;
+    }
+
+    secNum = BufferSize / 2048;
+    offset = Lba * 2048;
+
+    return ventoy_write_iso_sector(Lba, secNum, Buffer);
 }
 
 EFI_STATUS EFIAPI ventoy_block_io_flush(IN EFI_BLOCK_IO_PROTOCOL *This)
@@ -406,26 +624,74 @@ EFI_STATUS EFIAPI ventoy_block_io_flush(IN EFI_BLOCK_IO_PROTOCOL *This)
 	return EFI_SUCCESS;
 }
 
+STATIC UINTN ventoy_get_current_device_path_id(VOID)
+{
+    UINTN i = 0;
+    UINTN Count = 0;
+    UINTN MaxId = 0;
+    UINTN CurId = 0;
+    BOOLEAN Find = FALSE;
+    EFI_HANDLE *Handles = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_DEVICE_PATH_PROTOCOL *DevicePath = NULL;
+    VENDOR_DEVICE_PATH *venPath = NULL;
+    
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiDevicePathProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return 0;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
+        if (EFI_ERROR(Status))
+        {
+            continue;
+        }
+
+        if (DevicePath->Type == HARDWARE_DEVICE_PATH && DevicePath->SubType == HW_VENDOR_DP)
+        {
+            venPath = (VENDOR_DEVICE_PATH *)DevicePath;
+            if (CompareGuid(&venPath->Guid, &gVtoyBlockDevicePathGuid))
+            {
+                CurId = StrDecimalToUintn((CHAR16 *)(venPath + 1) + StrLen(L"ventoy_"));
+                MaxId = MAX(MaxId, CurId);
+                Find = TRUE;
+            }
+        }
+    }
+
+    FreePool(Handles);
+
+    return Find ? (MaxId + 1) : 0;
+}
 
 EFI_STATUS EFIAPI ventoy_fill_device_path(VOID)
 {
+    UINTN CurVtoyDpId = 0;
     UINTN NameLen = 0;
     UINT8 TmpBuf[128] = {0};
     VENDOR_DEVICE_PATH *venPath = NULL;
+    CHAR16 VtoyDpName[32];
+
+    CurVtoyDpId = ventoy_get_current_device_path_id();
+    UnicodeSPrintAsciiFormat(VtoyDpName, sizeof(VtoyDpName), "ventoy_%03lu", CurVtoyDpId);
 
     venPath = (VENDOR_DEVICE_PATH *)TmpBuf;
-    NameLen = StrSize(VTOY_BLOCK_DEVICE_PATH_NAME);
+    NameLen = StrSize(VtoyDpName);
     venPath->Header.Type = HARDWARE_DEVICE_PATH;
     venPath->Header.SubType = HW_VENDOR_DP;
     venPath->Header.Length[0] = sizeof(VENDOR_DEVICE_PATH) + NameLen;
     venPath->Header.Length[1] = 0;
     CopyMem(&venPath->Guid, &gVtoyBlockDevicePathGuid, sizeof(EFI_GUID));
-    CopyMem(venPath + 1, VTOY_BLOCK_DEVICE_PATH_NAME, NameLen);
+    CopyMem(venPath + 1, VtoyDpName, NameLen);
     
     gBlockData.Path = AppendDevicePathNode(NULL, (EFI_DEVICE_PATH_PROTOCOL *)TmpBuf);
     gBlockData.DevicePathCompareLen = sizeof(VENDOR_DEVICE_PATH) + NameLen;
 
-    debug("gBlockData.Path=<%s>\n", ConvertDevicePathToText(gBlockData.Path, FALSE, FALSE));
+    debug("gBlockData.Path=<%lu><%s>\n", CurVtoyDpId, ConvertDevicePathToText(gBlockData.Path, FALSE, FALSE));
 
     return EFI_SUCCESS;
 }
@@ -458,11 +724,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
             continue;
         }
 
-        Status = Name2Protocol->GetDriverName(Name2Protocol, "en", &DriverName);
-        if (EFI_ERROR(Status) || NULL == DriverName)
-        {
-            continue;
-        }
+        VENTOY_GET_COMPONENT_NAME(Name2Protocol, DriverName);
 
         if (StrStr(DriverName, DrvName))
         {
@@ -475,7 +737,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
     if (i < Count)
     {
         Status = gBS->ConnectController(ControllerHandle, DrvHandles, NULL, TRUE);
-        debug("Connect partition driver:<%r>", Status);
+        debug("ventoy_connect_driver:<%s> <%r>", DrvName, Status);
         goto end;
     }
 
@@ -500,11 +762,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
             continue;
         }
 
-        Status = NameProtocol->GetDriverName(NameProtocol, "en", &DriverName);
-        if (EFI_ERROR(Status))
-        {
-            continue;
-        }
+        VENTOY_GET_COMPONENT_NAME(NameProtocol, DriverName);
 
         if (StrStr(DriverName, DrvName))
         {
@@ -517,7 +775,7 @@ EFI_STATUS EFIAPI ventoy_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST
     if (i < Count)
     {
         Status = gBS->ConnectController(ControllerHandle, DrvHandles, NULL, TRUE);
-        debug("Connect partition driver:<%r>", Status);
+        debug("ventoy_connect_driver:<%s> <%r>", DrvName, Status);
         goto end;
     }
 
@@ -529,24 +787,386 @@ end:
     return Status;
 }
 
+
+STATIC BOOLEAN ventoy_filesystem_need_wrapper(IN CONST CHAR16 *DrvName)
+{
+    UINTN i;
+    CHAR16 UpperDrvName[256];
+
+    StrCpyS(UpperDrvName, 256, DrvName);
+
+    for (i = 0; i < 256 && UpperDrvName[i]; i++)
+    {
+        if (UpperDrvName[i] >= 'a' && UpperDrvName[i] <= 'z')
+        {
+            UpperDrvName[i] = 'A' + (UpperDrvName[i] - 'a');
+        }
+    }
+
+    /*
+     * suppress some file system drivers 
+     *  1. rEFInd File System Driver
+     *
+     */
+    
+    if (StrStr(UpperDrvName, L"REFIND") && StrStr(UpperDrvName, L"FILE SYSTEM"))
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+STATIC VOID ventoy_add_filesystem_wrapper
+(
+    IN EFI_DRIVER_BINDING_PROTOCOL *DriverBindProtocol, 
+    IN CONST CHAR16 *DriverName
+)
+{
+    UINTN j;
+
+    if (g_DriverBindWrapperCnt >= MAX_DRIVER_BIND_WRAPPER)
+    {
+        debug("driver binding wrapper overflow %lu", g_DriverBindWrapperCnt);
+        return;
+    }
+
+    if (!ventoy_filesystem_need_wrapper(DriverName))
+    {
+        return;
+    }
+
+    for (j = 0; j < g_DriverBindWrapperCnt; j++)
+    {
+        if (g_DriverBindWrapperList[j].DriverBinding == DriverBindProtocol)
+        {
+            debug("Duplicate driverbinding <%s> %p %lu %lu", DriverName, DriverBindProtocol, j, g_DriverBindWrapperCnt);
+            break;
+        }
+    }
+
+    if (j >= g_DriverBindWrapperCnt)
+    {
+        g_DriverBindWrapperList[g_DriverBindWrapperCnt].DriverBinding = DriverBindProtocol;
+        g_DriverBindWrapperList[g_DriverBindWrapperCnt].pfOldSupport = DriverBindProtocol->Supported;
+        g_DriverBindWrapperCnt++;
+        debug("Add driverbinding <%s> %p %lu", DriverName, DriverBindProtocol, g_DriverBindWrapperCnt);
+    }
+}
+
+STATIC EFI_STATUS ventoy_find_filesystem_driverbind(VOID)
+{
+    UINTN i = 0;
+    UINTN Count = 0;
+    CHAR16 *DriverName = NULL;
+    EFI_HANDLE *Handles = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_COMPONENT_NAME_PROTOCOL *NameProtocol = NULL;
+    EFI_COMPONENT_NAME2_PROTOCOL *Name2Protocol = NULL;
+    EFI_DRIVER_BINDING_PROTOCOL *DriverBindProtocol = NULL;
+    
+    debug("ventoy_find_filesystem_driverbind...");
+
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentName2ProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return Status;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiComponentName2ProtocolGuid, (VOID **)&Name2Protocol);
+        if (EFI_ERROR(Status))
+        {
+            continue;
+        }
+
+        VENTOY_GET_COMPONENT_NAME(Name2Protocol, DriverName);
+
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDriverBindingProtocolGuid, (VOID **)&DriverBindProtocol);
+        if (EFI_ERROR(Status))
+        {
+            debug("### 2 No DriverBind <%s> <%r>", DriverName, Status);
+            continue;
+        }
+
+        ventoy_add_filesystem_wrapper(DriverBindProtocol, DriverName);
+    }
+
+    Count = 0;
+    FreePool(Handles);
+    Handles = NULL;
+
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentNameProtocolGuid, 
+                                     NULL, &Count, &Handles);
+    if (EFI_ERROR(Status))
+    {
+        return Status;
+    }
+
+    for (i = 0; i < Count; i++)
+    {
+        Status = gBS->HandleProtocol(Handles[i], &gEfiComponentNameProtocolGuid, (VOID **)&NameProtocol);
+        if (EFI_ERROR(Status))
+        {
+            continue;
+        }
+
+        VENTOY_GET_COMPONENT_NAME(NameProtocol, DriverName);
+
+        Status = gBS->HandleProtocol(Handles[i], &gEfiDriverBindingProtocolGuid, (VOID **)&DriverBindProtocol);
+        if (EFI_ERROR(Status))
+        {
+            debug("### 1 No DriverBind <%s> <%r>", DriverName, Status);
+            continue;
+        }
+
+        ventoy_add_filesystem_wrapper(DriverBindProtocol, DriverName);
+    }
+
+    FreePool(Handles);
+    
+    return EFI_SUCCESS;
+}
+
+STATIC EFI_STATUS EFIAPI ventoy_wrapper_driver_bind_support
+(
+    IN EFI_DRIVER_BINDING_PROTOCOL            *This,
+    IN EFI_HANDLE                              ControllerHandle,
+    IN EFI_DEVICE_PATH_PROTOCOL               *RemainingDevicePath OPTIONAL
+)
+{
+    UINTN i;
+    EFI_STATUS Status = EFI_SUCCESS;
+    EFI_DEVICE_PATH_PROTOCOL *DevicePath = NULL;
+    EFI_DRIVER_BINDING_SUPPORTED pfOldSupport = NULL;
+
+    for (i = 0; i < g_DriverBindWrapperCnt; i++)
+    {
+        if (g_DriverBindWrapperList[i].DriverBinding == This)
+        {
+            pfOldSupport = g_DriverBindWrapperList[i].pfOldSupport;
+            break;
+        }
+    }
+
+    debug("ventoy_wrapper_driver_bind_support %lu %p", i, pfOldSupport);
+
+    if (!pfOldSupport)
+    {
+        return EFI_UNSUPPORTED;
+    }
+
+    Status = gBS->HandleProtocol(ControllerHandle, &gEfiDevicePathProtocolGuid, (VOID **)&DevicePath);
+    if (EFI_ERROR(Status))
+    {
+        goto out;
+    }
+
+    if (0 == CompareMem(gBlockData.Path, DevicePath, gBlockData.DevicePathCompareLen))
+    {
+        debug("return EFI_UNSUPPORTED for ventoy");
+        return EFI_UNSUPPORTED;
+    }
+
+out:
+    return pfOldSupport(This, ControllerHandle, RemainingDevicePath);
+}
+
+EFI_STATUS ventoy_disable_ex_filesystem(VOID)
+{
+    UINTN i;
+
+    ventoy_find_filesystem_driverbind();
+
+    for (i = 0; i < g_DriverBindWrapperCnt; i++)
+    {
+        g_DriverBindWrapperList[i].DriverBinding->Supported = ventoy_wrapper_driver_bind_support;
+    }
+
+    debug("Wrapper Ex Driver Binding %lu", g_DriverBindWrapperCnt);
+    ventoy_debug_pause();
+    
+    return EFI_SUCCESS;
+}
+
+EFI_STATUS ventoy_enable_ex_filesystem(VOID)
+{
+    UINTN i;
+
+    for (i = 0; i < g_DriverBindWrapperCnt; i++)
+    {
+        g_DriverBindWrapperList[i].DriverBinding->Supported = g_DriverBindWrapperList[i].pfOldSupport;
+    }
+    g_DriverBindWrapperCnt = 0;
+
+    return EFI_SUCCESS;
+}
+
+EFI_STATUS EFIAPI ventoy_block_io_read_512
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    OUT VOID                          *Buffer
+)
+{
+    EFI_LBA Mod;
+    UINTN ReadSize;
+    UINT8 *CurBuf = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    debug("ventoy_block_io_read_512 %lu %lu Buffer:%p\n", Lba, BufferSize / 512, Buffer);
+
+    CurBuf = (UINT8 *)Buffer;
+
+    Mod = Lba % 4;
+    if (Mod > 0)
+    {
+        Status |= g_sector_2048_read(This, MediaId, Lba / 4, 2048, g_sector_buf);
+
+        if (BufferSize <= (4 - Mod) * 512)
+        {
+            CopyMem(CurBuf, g_sector_buf + Mod * 512, BufferSize);
+            return EFI_SUCCESS;
+        }
+        else
+        {
+            ReadSize = (4 - Mod) * 512;
+            CopyMem(CurBuf, g_sector_buf + Mod * 512, ReadSize);
+            CurBuf += ReadSize;
+            Lba += (4 - Mod);
+            BufferSize -= ReadSize;
+        }
+    }
+
+    if (BufferSize >= 2048)
+    {
+        ReadSize = BufferSize / 2048 * 2048;
+            
+        Status |= g_sector_2048_read(This, MediaId, Lba / 4, ReadSize, CurBuf);
+        CurBuf += ReadSize;
+        
+        Lba += ReadSize / 512;
+        BufferSize -= ReadSize;
+    }
+
+    if (BufferSize > 0)
+    {
+        Status |= g_sector_2048_read(This, MediaId, Lba / 4, 2048, g_sector_buf);
+        CopyMem(CurBuf, g_sector_buf, BufferSize);
+    }
+
+    return Status;
+}
+
+EFI_STATUS EFIAPI ventoy_block_io_write_512
+(
+    IN EFI_BLOCK_IO_PROTOCOL          *This,
+    IN UINT32                          MediaId,
+    IN EFI_LBA                         Lba,
+    IN UINTN                           BufferSize,
+    IN VOID                           *Buffer
+)
+{
+    EFI_LBA Mod;
+    UINTN ReadSize;
+    UINT8 *CurBuf = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    debug("ventoy_block_io_write_512 %lu %lu\n", Lba, BufferSize / 512);
+
+    CurBuf = (UINT8 *)Buffer;
+
+    Mod = Lba % 4;
+    if (Mod > 0)
+    {
+        Status |= g_sector_2048_read(This, MediaId, Lba / 4, 2048, g_sector_buf);
+
+        if (BufferSize <= (4 - Mod) * 512)
+        {
+            CopyMem(g_sector_buf + Mod * 512, CurBuf, BufferSize);
+            return g_sector_2048_write(This, MediaId, Lba / 4, 2048, g_sector_buf);
+        }
+        else
+        {
+            ReadSize = (4 - Mod) * 512;
+            CopyMem(g_sector_buf + Mod * 512, CurBuf, ReadSize);
+            g_sector_2048_write(This, MediaId, Lba / 4, 2048, g_sector_buf);
+            
+            CurBuf += ReadSize;
+            Lba += (4 - Mod);
+            BufferSize -= ReadSize;
+        }
+    }
+
+    if (BufferSize >= 2048)
+    {
+        ReadSize = BufferSize / 2048 * 2048;
+            
+        Status |= g_sector_2048_write(This, MediaId, Lba / 4, ReadSize, CurBuf);
+        CurBuf += ReadSize;
+        
+        Lba += ReadSize / 512;
+        BufferSize -= ReadSize;
+    }
+
+    if (BufferSize > 0)
+    {
+        Status |= g_sector_2048_read(This, MediaId, Lba / 4, 2048, g_sector_buf);
+        
+        CopyMem(g_sector_buf, CurBuf, BufferSize);
+        g_sector_2048_write(This, MediaId, Lba / 4, 2048, g_sector_buf);
+    }
+
+    return Status;
+}
+
 EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 ImgSize)
 {   
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_BLOCK_IO_PROTOCOL *pBlockIo = &(gBlockData.BlockIo);
     
     ventoy_fill_device_path();
+
+    debug("install block io protocol %p", ImageHandle);
+    ventoy_debug_pause();
+
+    if (gSector512Mode)
+    {
+        gBlockData.Media.BlockSize = 512;
+        gBlockData.Media.LastBlock = ImgSize / 512 - 1;
+        gBlockData.Media.ReadOnly = FALSE;
+    }
+    else
+    {
+        gBlockData.Media.BlockSize = 2048;
+        gBlockData.Media.LastBlock = ImgSize / 2048 - 1;        
+        gBlockData.Media.ReadOnly = TRUE;
+    }
     
-    gBlockData.Media.BlockSize = 2048;
-    gBlockData.Media.LastBlock = ImgSize / 2048 - 1;
-    gBlockData.Media.ReadOnly = TRUE;
     gBlockData.Media.MediaPresent = 1;
     gBlockData.Media.LogicalBlocksPerPhysicalBlock = 1;
 
 	pBlockIo->Revision = EFI_BLOCK_IO_PROTOCOL_REVISION3;
 	pBlockIo->Media = &(gBlockData.Media);
 	pBlockIo->Reset = ventoy_block_io_reset;
-    pBlockIo->ReadBlocks = gMemdiskMode ? ventoy_block_io_ramdisk_read : ventoy_block_io_read;
-	pBlockIo->WriteBlocks = ventoy_block_io_write;
+
+    if (gSector512Mode)
+    {
+        g_sector_2048_read = gMemdiskMode ? ventoy_block_io_ramdisk_read : ventoy_block_io_read;
+        g_sector_2048_write = gMemdiskMode ? ventoy_block_io_ramdisk_write : ventoy_block_io_write;
+        pBlockIo->ReadBlocks = ventoy_block_io_read_512;
+    	pBlockIo->WriteBlocks = ventoy_block_io_write_512;
+    }
+    else
+    {
+        pBlockIo->ReadBlocks = gMemdiskMode ? ventoy_block_io_ramdisk_read : ventoy_block_io_read;        
+    	pBlockIo->WriteBlocks = ventoy_block_io_write;
+    }
+        
 	pBlockIo->FlushBlocks = ventoy_block_io_flush;
 
     Status = gBS->InstallMultipleProtocolInterfaces(&gBlockData.Handle,
@@ -558,11 +1178,10 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
     {
         return Status;
     }
-    
+
     Status = ventoy_connect_driver(gBlockData.Handle, L"Disk I/O Driver");
     debug("Connect disk IO driver %r", Status);
-    ventoy_debug_pause();
-    
+
     Status = ventoy_connect_driver(gBlockData.Handle, L"Partition Driver");
     debug("Connect partition driver %r", Status);
     if (EFI_ERROR(Status))
@@ -656,8 +1275,16 @@ STATIC EFI_STATUS EFIAPI
 ventoy_wrapper_file_set_pos(EFI_FILE_HANDLE This, UINT64 Position)
 {
     (VOID)This;
+        
+    if (Position <= g_efi_file_replace.FileSizeBytes)
+    {
+        g_efi_file_replace.CurPos = Position;
+    }
+    else
+    {
+        g_efi_file_replace.CurPos = g_efi_file_replace.FileSizeBytes;
+    }
     
-    g_efi_file_replace.CurPos = Position;
     return EFI_SUCCESS;
 }
 
@@ -772,6 +1399,18 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
     CHAR8 TmpName[256];
     ventoy_virt_chunk *virt = NULL;
 
+    debug("## ventoy_wrapper_file_open <%s> ", Name);
+
+    if ((Mode & EFI_FILE_MODE_WRITE) > 0 && StrCmp(Name, L"\\loader\\random-seed") == 0)
+    {
+        if (gDebugPrint)
+        {
+            debug("## ventoy_wrapper_file_open return NOT_FOUND for random-seed %lx", Mode);
+            sleep(3);
+        }
+        return EFI_NOT_FOUND;
+    }
+
     Status = g_original_fopen(This, New, Name, Mode, Attributes);
     if (EFI_ERROR(Status))
     {
@@ -806,6 +1445,11 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
                 
                 return Status;
             }
+        }
+
+        if (StrCmp(Name, L"\\EFI\\BOOT") == 0)
+        {
+            (*New)->Open = ventoy_wrapper_file_open;
         }
     }
 
@@ -913,6 +1557,58 @@ EFI_STATUS ventoy_hook_keyboard_stop(VOID)
 
     gST->ConIn->ReadKeyStroke = g_org_read_key;
 
+    return EFI_SUCCESS;
+}
+
+#if 0
+/* Fixup the 1st cdrom influnce for Windows boot */
+#endif
+
+STATIC EFI_STATUS EFIAPI ventoy_wrapper_locate_handle
+(
+    IN     EFI_LOCATE_SEARCH_TYPE    SearchType,
+    IN     EFI_GUID                 *Protocol,    OPTIONAL
+    IN     VOID                     *SearchKey,   OPTIONAL
+    IN OUT UINTN                    *BufferSize,
+    OUT    EFI_HANDLE               *Buffer
+)
+{
+    UINTN i;
+    EFI_HANDLE Handle = NULL;
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    Status = g_org_locate_handle(SearchType, Protocol, SearchKey, BufferSize, Buffer);
+    
+    if (EFI_SUCCESS == Status && Protocol && CompareGuid(&gEfiBlockIoProtocolGuid, Protocol))
+    {
+        for (i = 0; i < (*BufferSize) / sizeof(EFI_HANDLE); i++)
+        {
+            if (Buffer[i] == gBlockData.Handle)
+            {
+                Handle = Buffer[0];
+                Buffer[0] = Buffer[i];
+                Buffer[i] = Handle;
+                break;
+            }
+        }
+    }
+
+    return Status;
+}
+
+EFI_STATUS ventoy_hook_1st_cdrom_start(VOID)
+{
+    g_org_locate_handle = gBS->LocateHandle;
+    gBS->LocateHandle = ventoy_wrapper_locate_handle;
+    
+    return EFI_SUCCESS;
+}
+
+EFI_STATUS ventoy_hook_1st_cdrom_stop(VOID)
+{
+    gBS->LocateHandle = g_org_locate_handle;
+    g_org_locate_handle = NULL;
+    
     return EFI_SUCCESS;
 }
 

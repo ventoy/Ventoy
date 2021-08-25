@@ -1,0 +1,60 @@
+{
+    "control": [
+        { "VTOY_DEFAULT_MENU_MODE": "1" },
+        { "VTOY_FILT_DOT_UNDERSCORE_FILE": "1" }        
+    ],
+    
+    "theme": {
+        "file": "/ventoy/theme/theme.txt",        
+        "display_mode": "GUI",
+        "ventoy_left": "5%",
+        "ventoy_top": "95%",
+        "ventoy_color": "#0000ff"
+    },
+    
+    
+    "menu_class": [        
+        {
+            "key": "ubuntu",
+            "class": "ubuntu"
+        },        
+        {
+            "key": "deepin",
+            "class": "deepin"
+        },
+        {
+            "dir": "rhel",
+            "class": "red-hat"
+        }
+    ],
+    
+    "menu_alias": [
+        {
+            "image": "/ISO/MX-19.1_x64.iso",
+            "alias": "MX 19.1 ISO file For me"
+        },
+        {
+            "image": "/cn_windows_10_enterprise_ltsc_2019_x64_dvd_9c09ff24.iso",
+            "alias": "我的 Windows 10 系统"
+        }
+    ],
+    
+    "auto_install": [
+        {
+            "image": "/ISO/cn_windows_10.iso",
+            "template": "/ventoy/script/windows_unattended.cfg"
+        },
+        {
+            "image": "/ISO/cn_windows_server_2012_r2_vl_x64_dvd_2979220.iso",
+            "template": [
+                "/ventoy/script/windows_unattended1.xml",
+                "/ventoy/script/windows_unattended2.xml",
+                "/ventoy/script/windows_unattended3.xml",
+                "/ventoy/script/windows_unattended4.xml",
+                "/ventoy/script/windows_unattended5.xml",
+                "/ventoy/script/windows_unattended6.xml"
+            ]
+        }
+    ]
+    
+}

@@ -1,0 +1,1101 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- HTTP 1.1 -->  
+    <meta http-equiv="pragma" content="no-cache">  
+    <!-- HTTP 1.0 -->  
+    <meta http-equiv="cache-control" content="no-cache">  
+    <title>Ventoy2Disk</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="static/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="static/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="static/AdminLTE/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->    
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <!-- ./wrapper -->
+    <!-- jQuery 2.1.4 -->
+    <script src="static/js/jQuery-2.1.4.min.js"></script>
+    <!-- jquery validate -->
+    <script src="static/js/jquery.validate.min.js"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="static/AdminLTE/js/app.min.js"></script>    
+    <script src="static/js/jquery.vtoy.alert.js"></script>
+    <script src="static/js/vtoy.js"></script>    
+    <script src="static/js/languages.js"></script>        
+    
+    
+    <style type="text/css">
+    * {
+         font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+     }
+    .modal {
+        padding-top: 80px;
+    }
+    .treeview-menu a {
+        margin-left: 20px;
+    }
+    span.vtoy_ver {
+        display:inline-block;
+        font-size:28px;
+        font-weight:bold;
+        color:red; 
+        width:60%; 
+        text-align:center;
+    }
+    span.vtoy_part {
+        display:inline-block;
+        font-size:14px;
+        font-weight:bold;
+        width:15%; 
+        text-align:right;
+    }
+    span.vtoy_secure {
+        display:inline-block;
+        font-size:20px;
+        font-weight:bold;
+        width:15%; 
+        color:#ea991f;
+        text-align:center;
+        visibility: hidden;
+    }
+    .noselect {
+      -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome, Opera and Firefox */
+    }
+    span.select {
+        visibility:hidden;
+        color:green;
+    }
+    
+    .dropdown-submenu {
+      position: relative;
+    }
+
+    .dropdown-submenu>.dropdown-menu {
+      top: 0;
+      left: 100%;
+      margin-top: -6px;
+      margin-left: -1px;
+      -webkit-border-radius: 0 6px 6px 6px;
+      -moz-border-radius: 0 6px 6px;
+      border-radius: 0 6px 6px 6px;
+    }
+
+    .dropdown-submenu:hover>.dropdown-menu {
+      display: block;
+    }
+
+    .dropdown-submenu>a:after {
+      display: block;
+      content: " ";
+      float: right;
+      width: 0;
+      height: 0;
+      border-color: transparent;
+      border-style: solid;
+      border-width: 5px 0 5px 5px;
+      border-left-color: #ccc;
+      margin-top: 5px;
+      margin-right: -10px;
+    }
+
+    .dropdown-submenu:hover>a:after {
+      border-left-color: #fff;
+    }
+
+    .dropdown-submenu.pull-left {
+      float: none;
+    }
+
+    .dropdown-submenu.pull-left>.dropdown-menu {
+      left: -100%;
+      margin-left: 10px;
+      -webkit-border-radius: 6px 0 6px 6px;
+      -moz-border-radius: 6px 0 6px 6px;
+      border-radius: 6px 0 6px 6px;
+    }
+        
+    select.vtoyselect {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("static/img/dropdown.png");
+        background-repeat: no-repeat;
+        background-position: calc(100% - 7px) 50%;
+        background-size: 2% auto;
+        border-radius:3px;
+        padding:0;
+        padding-left:15px;
+    }
+    
+    select.vtoyselect2 {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("static/img/dropdown.png");
+        background-repeat: no-repeat;
+        background-position: calc(100% - 7px) 50%;
+        background-size: 10% auto;
+        border-radius:3px;
+        padding:0;
+        padding-left:15px;
+    }
+    
+    select:-moz-focusring {
+        color: transparent;
+        text-shadow: 0 0 0 #555;
+    }
+    
+    </style>
+</head>
+
+<body style="overflow:hidden;">
+    <div class="wrapper" >
+        <!-- Content Wrapper. Contains page content -->
+        <div id='vtoy_main_div' style='width:540px; position:absolute;'>
+        
+<div class="modal" id="vtoy_set_part_cfg_modal" >
+    <div class="modal-dialog" id="vtoy_set_part_cfg_modal_dlg" style="position:absolute;">
+        <div class="modal-content">
+            <form id="vtoy_set_part_cfg_form" class="form-horizontal">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 id='part_config_dlg_title'>Configuration</h4>
+                </div>
+                <div class="modal-body">
+                        <div class="form-group">
+                            <div class="col-sm-10 checkbox">
+                                <label >
+                                    <input type="checkbox" id="vtoy_preserve_space_checkbox" onclick="on_enable_preserve_space()"/>
+                                    <span id="vtoy_preserve_space_tip" style="font-size:14px;font-weight:bold;">在磁盘最后保留一段空间</span>
+                                </label>
+                            </div>                                
+                        </div>
+                
+                        <div class="form-group" style="width:520px;">
+                            <div class="col-sm-6" style="float:left; width:350px;">
+                                <input type="text" maxlength="14" class="form-control" id="vtoy_preserve_space" style="font-family: couriew new;font-size: 14px;"/>                                
+                            </div>
+                            <div class="col-sm-6" style="float:left; width:150px;">
+                                <select id="vtoy_space_unit_dropbox" class="form-control valid vtoyselect2" aria-invalid="false">
+                                    <option value="0" selected="selected">GB</option>
+                                    <option value="1">MB</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <hr/>
+                        
+                        <div class="form-group">
+                            <div class="col-sm-10 checkbox">
+                                <label >
+                                    <input type="checkbox" id="vtoy_part_align_4kb"/>
+                                    <span id="vtoy_part_4kb_align_tip" style="font-size:14px;font-weight:bold;">分区按照 4KB 对齐</span>
+                                </label>
+                            </div>                                
+                        </div>
+                        
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id='vtoy_modal_btn_ok'     class="btn btn-primary btn-flat">确定</button>                        
+                    <button type="button" id='vtoy_modal_btn_cancel' class="btn btn-default btn-flat">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+        
+<!-- Main content -->
+<section class="content" id="vtoy-content">
+<div >
+    <div class="row" style="margin-top:-10px; width:535px; font-family:courier new; font-weight:bold;align:center;text-align:center;">
+        <ul class="nav nav-tabs" style="margin-left:5px;">
+          <li class="dropdown">
+            <a class="dropdown-toggle noselect" id='vtoy_option' data-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">配置选项 <span class="caret"></span></a>
+            <ul class="dropdown-menu noselect">
+              <li role="presentation"><a role="menuitem" onclick="on_secure_boot()"><span id='vtoy_check_secure_boot' class="fa fa-check select"></span><span  id='vtoy_menu_secure_boot'>安全启动支持</span><span class="fa fa-check select"></span></a></li>              
+
+              <li class="dropdown-submenu">
+                <a id='vtoy_menu_secure_boot'><span class="fa fa-check select"></span><span id='vtoy_menu_part_style'>分区类型</span><span class="fa fa-check select"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a onclick="on_select_mbr_click()"><span id='vtoy_mbr_check' class="fa fa-check select"></span> MBR</a></li>
+                    <li><a onclick="on_select_gpt_click()"><span id='vtoy_gpt_check' class="fa fa-check select"></span> GPT</a></li>
+                </ul>
+              </li>              
+              <li role="presentation"><a role="menuitem" onclick="on_config_partition()"><span class="fa fa-check select"></span><span id='vtoy_menu_part_config'>分区设置</span><span class="fa fa-check select"></span></a></li>              
+              <li role="presentation"><a role="menuitem" onclick="on_clean_ventoy()"><span class="fa fa-check select"></span><span id='vtoy_menu_clean_ventoy'>清除 Ventoy</span><span class="fa fa-check select"></span></a></li>              
+              <li role="presentation"><a role="menuitem" onclick="on_show_all_device()"><span id='vtoy_check_show_all_dev' class="fa fa-check select"></span><span id='vtoy_menu_show_all_device'>显示所有设备</span><span class="fa fa-check select"></span></a></li>              
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle noselect" id='vtoy_language' data-toggle="dropdown" aria-expanded="false" style="cursor: pointer;;">Languages <span class="caret"></span></a>
+            <ul class="dropdown-menu pull-left noselect" style="height:300px;overflow:scroll"  id='vtoy_language_dropbox'>              
+            </ul>
+          </li>
+        </ul>
+    </div>
+
+    <div class="box-body" style=" font-weight:bold; " >      
+        <div class="row" style="width:520px;">
+            <div style="float:left; width:480px;">
+                <span id="vtoy_dev_title" style="font-weight:bold; margin-left:2px;">设备</span>
+            </div>
+            
+            <div style="float:left; width:480px; margin-top:2px;" >
+                <select id="vtoy_dev_list" class="form-control valid vtoyselect" aria-invalid="false">                
+                </select>
+            </div>
+          
+            <div style="float:right;">
+                <img src="static/img/refresh.ico" alt="" id="refresh_dev_img" style="cursor: pointer;"></img>
+            </div>
+        </div>
+          
+        <div class="row" style="width:520px;margin-top:20px;">          
+              <div class="box box-primary box-solid" style="float:left; width:250px;">
+                <div class="box-header with-border" style="text-align:center;">
+                  <h3 class="box-title" id="vtoy_local_ver_title" style="font-size: 14px;font-weight: bold;" >安装包内 Ventoy 版本</h3>              
+                </div>
+                <div class="box-body no-padding" style="height:40px;">
+                <span class="vtoy_secure fa fa-lock" id="vtoy_select_secure_icon"></span>
+                    <span class="vtoy_ver" id="vtoy_local_ver"></span>
+                    <span class="vtoy_part" id="vtoy_local_part_style"></span>
+                </div>
+              </div>
+              
+              <div class="box box-primary box-solid" style="float:right; width:250px;">
+                <div class="box-header with-border" style="text-align:center;">
+                  <h3 class="box-title" id="vtoy_dev_ver_title" style="font-size: 14px;font-weight: bold;" >设备内部 Ventoy 版本</h3>              
+                </div>
+                <div class="box-body no-padding" style="height:40px;">
+                    <span class="vtoy_secure fa fa-lock" id="vtoy_dev_secure_icon"></span>
+                    <span class="vtoy_ver" id="vtoy_dev_ver"></span>
+                    <span class="vtoy_part" id="vtoy_dev_part_style"></span>
+                </div>
+              </div>
+        </div>
+          
+        <div class="row"  style="width:520px;">
+            <span id="vtoy_status_title" style="font-weight:bold; margin-left:2px;">状态 - 准备就绪</span>
+            <div class="progress">
+                <div id='vtoy_progress_bar' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">                  
+                </div>
+            </div>
+        </div>
+        
+        <div class="row"  style="width:520px;margin-top:2px;">
+            <button id="VtoyBtnInstall" onclick="on_vtoy_install()" class="btn btn-default" style="font-weight:bold; width:150px;margin-left:70px;">安装</button>
+            <button id="VtoyBtnUpdate" onclick="on_vtoy_update()" class="btn btn-default" style="font-weight:bold; width:150px;margin-left:70px;">升级</button>
+        </div>
+    </div>    
+    
+    
+    
+    
+    
+    
+    
+</div>
+            </section>
+            <!-- /.content -->
+        </div>
+        
+        <!-- /.content-wrapper -->
+    </div>
+    
+<script type="text/javascript">
+    
+    var vtoy_in_progress = false;
+    var vtoy_app_width = 550;
+    var vtoy_app_height = 400;
+    var vtoy_cur_language;
+    var vtoy_cur_lang_index = -1;
+    var vtoy_client_language;
+    var vtoy_selected_part_style = 0;
+    var vtoy_current_token = 'xx';
+    var vtoy_cur_dev_list;
+    var vtoy_cur_process_disk_name;
+    var vtoy_chrome_app_mode = (window.location.href.indexOf('chrome-app') >= 0) ? 1 : 0;
+
+
+    function sort_language_list() {
+        var tmp;
+        for (var i = 0; i < vtoy_language_data.length; i++) {
+            for (var j = i + 1; j < vtoy_language_data.length; j++) {
+                if (vtoy_language_data[i].name === 'Chinese Simplified (简体中文)') {
+                    break;
+                }
+                else if (vtoy_language_data[j].name === 'Chinese Simplified (简体中文)' || vtoy_language_data[i].name > vtoy_language_data[j].name) {
+                    tmp = vtoy_language_data[i];
+                    vtoy_language_data[i] = vtoy_language_data[j];
+                    vtoy_language_data[j] = tmp;
+                }
+            }
+        }
+    }
+    
+    function fill_language_list() {
+        var html;
+        var dropbox = $('ul#vtoy_language_dropbox');        
+        for (var i = 0; i < vtoy_language_data.length; i++) {
+            html = '<li role="presentation"><a  onclick="on_language_click(' + i + ')"  role="menuitem" tabindex="' + i + '">' + 
+            '<span id="vtoy_check_' + i + '" class="fa fa-check" style="visibility:hidden;color:green;" ></span> ' + 
+            vtoy_language_data[i].name + '</a></li>';
+            dropbox.append(html);
+        }
+    }
+
+    function update_language(lastIndex, newIndex) {
+        if (lastIndex >= 0) {
+            $('span#vtoy_check_' + lastIndex).css("visibility","hidden");
+        }        
+        $('span#vtoy_check_' + newIndex).css("visibility","visible");
+        
+        vtoy_cur_lang_index = newIndex;
+        
+        $('a#vtoy_option').html(vtoy_cur_language.STR_MENU_OPTION + ' <span class="caret"></span>');
+        $('h3#vtoy_local_ver_title').text(vtoy_cur_language.STR_LOCAL_VER);
+        $('h3#vtoy_dev_ver_title').text(vtoy_cur_language.STR_DISK_VER);
+        $('span#vtoy_status_title').text(vtoy_cur_language.STR_STATUS);
+        
+        if ($('#vtoy_preserve_space_checkbox').is(':checked')) {
+            var valx = $('#vtoy_preserve_space').val();
+            if ($('#vtoy_space_unit_dropbox').val() > 0) {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'MB ]');
+            } else {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'GB ]');
+            }
+        } else {
+            $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE);
+        }
+        
+        $('span#vtoy_menu_secure_boot').text(vtoy_cur_language.STR_MENU_SECURE_BOOT);
+        $('span#vtoy_menu_part_style').text(vtoy_cur_language.STR_MENU_PART_STYLE);
+        $('span#vtoy_menu_part_config').text(vtoy_cur_language.STR_MENU_PART_CFG);
+        $('span#vtoy_menu_clean_ventoy').text(vtoy_cur_language.STR_MENU_CLEAR);
+        $('span#vtoy_menu_show_all_device').text(vtoy_cur_language.STR_SHOW_ALL_DEV);
+        
+        $('span#vtoy_preserve_space_tip').text(vtoy_cur_language.STR_PRESERVE_SPACE);        
+        $('span#vtoy_part_4kb_align_tip').text(vtoy_cur_language.STR_PART_ALIGN_4KB);        
+        
+        $('button#VtoyBtnInstall').text(vtoy_cur_language.STR_INSTALL);
+        $('button#VtoyBtnUpdate').text(vtoy_cur_language.STR_UPDATE);
+        
+        $('button#vtoy_modal_btn_ok').text(vtoy_cur_language.STR_BTN_OK);
+        $('button#vtoy_modal_btn_cancel').text(vtoy_cur_language.STR_BTN_CANCEL);
+        
+        $('h4#part_config_dlg_title').text(vtoy_cur_language.STR_MENU_PART_CFG);
+    }
+    
+    function select_language_by_name(name, sendback) {
+        for (var j = 0; j < vtoy_language_data.length; j++) {
+            if (vtoy_language_data[j].name.indexOf(name) == 0) {
+                vtoy_cur_language = vtoy_language_data[j];
+                update_language(vtoy_cur_lang_index, j);
+                
+                if (sendback > 0) {
+                    var idx = name.indexOf(' (');
+                    if (idx >= 0) {
+                        callVtoy({method : 'sel_language', token:vtoy_current_token, language:name.substr(0, idx)});
+                    } else {
+                        callVtoy({method : 'sel_language', token:vtoy_current_token, language:name});
+                    }
+                }
+                break;
+            }
+        }
+    }
+    
+    function select_language_by_index(index, sendback) {
+        if (index < vtoy_language_data.length) {
+            vtoy_cur_language = vtoy_language_data[index];
+            update_language(vtoy_cur_lang_index, index);            
+            
+            if (sendback > 0) {
+                var idx = vtoy_cur_language.name.indexOf(' (');
+                if (idx >= 0) {
+                    callVtoy({method : 'sel_language', token:vtoy_current_token, language:vtoy_cur_language.name.substr(0, idx)});
+                } else {
+                    callVtoy({method : 'sel_language', token:vtoy_current_token, language:vtoy_cur_language.name});
+                }
+            }
+        }
+    }
+    
+    function on_language_click(index) {
+        if (index != vtoy_cur_lang_index) {
+            select_language_by_index(index, 1);
+        }
+    }
+    
+    function on_select_mbr() {
+        vtoy_selected_part_style = 0;
+        $('span#vtoy_mbr_check').css("visibility","visible");
+        $('span#vtoy_gpt_check').css("visibility","hidden");
+        $('span#vtoy_local_part_style').text('MBR');        
+    }
+    
+    function on_select_mbr_click() {
+        on_select_mbr();
+        callVtoy({method : 'sel_partstyle', token:vtoy_current_token,  partstyle:0});
+    }
+    
+    function on_select_gpt() {    
+        vtoy_selected_part_style = 1;
+        $('span#vtoy_mbr_check').css("visibility","hidden");
+        $('span#vtoy_gpt_check').css("visibility","visible");
+        $('span#vtoy_local_part_style').text('GPT');
+    }
+    
+    function on_select_gpt_click() {    
+        on_select_gpt();        
+        callVtoy({method : 'sel_partstyle', token:vtoy_current_token, partstyle:1});
+    }
+
+    function secure_boot_check(secure) {
+        if (secure > 0) {
+            $('span#vtoy_check_secure_boot').css("visibility","visible");
+            $('span#vtoy_select_secure_icon').css("visibility","visible");
+        } else {
+            $('span#vtoy_check_secure_boot').css("visibility","hidden");
+            $('span#vtoy_select_secure_icon').css("visibility","hidden");
+        }
+    }
+
+    function on_secure_boot() {
+        var secure;
+        if ($('span#vtoy_check_secure_boot').css("visibility") === 'visible') {
+            secure = 1;
+        } else {
+            secure = 0;
+        }
+        secure_boot_check(1 - secure);
+    }
+    
+    function on_show_all_device() {
+        if ($('span#vtoy_check_show_all_dev').css("visibility") === 'visible') {
+            $('span#vtoy_check_show_all_dev').css("visibility", "hidden");
+        } else {
+            $('span#vtoy_check_show_all_dev').css("visibility", "visible");
+        }
+        get_and_fill_dev_list();        
+    }
+    
+    
+    var vtoy_part_align_4kb_tmp;
+    var vtoy_preserve_space_checkbox_tmp;
+    var vtoy_preserve_space_tmp;
+    var vtoy_space_unit_dropbox_tmp;
+    
+    function on_config_partition() {        
+        if (vtoy_chrome_app_mode) {
+            $("#vtoy_set_part_cfg_modal_dlg").css("width", "520px");
+            $("#vtoy_set_part_cfg_modal_dlg").css("margin-top", "-30px");
+        } else {
+            $("#vtoy_set_part_cfg_modal_dlg").css("width", "540px");
+            
+            if (document.body.clientWidth > 550) {
+                $("#vtoy_set_part_cfg_modal_dlg").css("left", (document.body.clientWidth - 550) / 2);
+            }
+            
+            if (document.body.clientHeight > 400) {
+                $("#vtoy_set_part_cfg_modal_dlg").css("top", (document.body.clientHeight - 400) / 2);
+            }
+        }
+        
+        vtoy_part_align_4kb_tmp = $('#vtoy_part_align_4kb').prop("checked");
+        vtoy_preserve_space_checkbox_tmp = $('#vtoy_preserve_space_checkbox').prop("checked");
+        vtoy_preserve_space_tmp = $('#vtoy_preserve_space').val();
+        vtoy_space_unit_dropbox_tmp = $('#vtoy_space_unit_dropbox').val();
+        
+        $('#vtoy_set_part_cfg_modal').modal({backdrop: 'static', keyboard: false});
+    }
+    
+    $("#vtoy_modal_btn_ok").click(function(){
+        if ($('#vtoy_preserve_space_checkbox').is(':checked')) {
+            var valx = $('#vtoy_preserve_space').val();
+            if (valx.length > 14) {
+                ventoy_display_alert('error', vtoy_cur_language.STR_SPACE_VAL_INVALID);
+                return;
+            }
+            
+            var regPat = /^\d+$/;
+            if (!(regPat.test(valx))) {
+                ventoy_display_alert('error', vtoy_cur_language.STR_SPACE_VAL_INVALID);
+                return;
+            }
+            
+            if ($('#vtoy_space_unit_dropbox').val() > 0) {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'MB ]');
+            } else {
+                $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE + ' [ -' + valx + 'GB ]');
+            }
+        } else {
+            $('span#vtoy_dev_title').text(vtoy_cur_language.STR_DEVICE);
+        }
+        $("#vtoy_set_part_cfg_modal").modal('hide');
+    });
+    
+    $("#vtoy_modal_btn_cancel").click(function(){  
+        $("#vtoy_set_part_cfg_modal").modal('hide');
+        $('#vtoy_part_align_4kb').prop("checked", vtoy_part_align_4kb_tmp);
+        $('#vtoy_preserve_space_checkbox').prop("checked", vtoy_preserve_space_checkbox_tmp);
+        $('#vtoy_preserve_space').val(vtoy_preserve_space_tmp);
+        $('#vtoy_space_unit_dropbox').val(vtoy_space_unit_dropbox_tmp);
+    });
+    
+    function on_enable_preserve_space() {
+        if ($('#vtoy_preserve_space_checkbox').is(':checked')) {
+            $('#vtoy_preserve_space').attr("disabled",false);
+            $('#vtoy_space_unit_dropbox').attr("disabled",false);
+        } else {
+            $('#vtoy_preserve_space').attr("disabled",true);
+            $('#vtoy_space_unit_dropbox').attr("disabled",true);
+        }
+    }
+        
+    function ResizeWindow() {
+        //console.log(window.screen.availWidth + ' [x1] ' + window.screen.availHeight);        
+        //console.log(vtoy_app_width + ' [x2] ' + vtoy_app_height);
+        //console.log((window.screen.availWidth - vtoy_app_width) / 2 + ' [x3] ' + (window.screen.availHeight - vtoy_app_height) / 2);        
+        
+        window.onresize = function() { };
+        
+        window.resizeTo(vtoy_app_width, vtoy_app_height);        
+        window.moveTo((window.screen.availWidth - vtoy_app_width) / 2, (window.screen.availHeight - vtoy_app_height) / 2);
+        
+        window.onresize = ResizeWindow;
+    }
+
+    function MoveMainDivToCenter() {
+        $('#vtoy_main_div').css("left", (document.body.clientWidth - 550) / 2);
+        $('#vtoy_main_div').css("top",(document.body.clientHeight - 400) / 2);
+    }
+
+    // disable F5
+    function disableF5(e) {
+        if ((e.which || e.keyCode) == 116) {
+            e.preventDefault(); 
+        };
+    }
+    
+    function on_dev_sel_change() {
+        var index = $("#vtoy_dev_list").val();
+        
+        $('span#vtoy_dev_secure_icon').css("visibility","hidden");
+        
+        if (vtoy_cur_dev_list.length <= 0 || index < 0 || index >= vtoy_cur_dev_list.length) {
+            return;
+        }
+        
+        if (vtoy_cur_dev_list[index].vtoy_valid > 0) {
+            $('span#vtoy_dev_ver').text(vtoy_cur_dev_list[index].vtoy_ver);
+            $('span#vtoy_dev_part_style').text(vtoy_cur_dev_list[index].vtoy_partstyle ? 'GPT' : 'MBR');
+            if (vtoy_cur_dev_list[index].vtoy_secure_boot) {
+                $('span#vtoy_dev_secure_icon').css("visibility","visible");
+            }
+
+            secure_boot_check(vtoy_cur_dev_list[index].vtoy_secure_boot);
+            
+            $('button#VtoyBtnUpdate').prop("disabled", false);
+            
+        } else {
+            $('span#vtoy_dev_ver').text('');
+            $('span#vtoy_dev_part_style').text('');
+            $('button#VtoyBtnUpdate').prop("disabled", true);
+        }
+    }
+    
+    $("#vtoy_dev_list").change(on_dev_sel_change);
+    
+    function ventoy_display_alert(type, vmsg) {
+        var titlestr;
+        var msgstr;
+        var message;
+        
+        if (type === 'error') {
+            titlestr = '<span class="fa  fa-minus-circle" style="color:#dd4b39; font-weight:bold;"> ' + vtoy_cur_language.STR_ERROR + '</span>';
+        } else if (type === 'warning') {
+            titlestr = '<span class="fa fa-warning" style="color:#f39c12; font-weight:bold;"> ' + vtoy_cur_language.STR_WARNING + '</span>';
+        } else {
+            titlestr = '<span class="fa fa-check-circle" style="color:green; font-weight:bold;"> ' + vtoy_cur_language.STR_INFO + '</span>';
+        }
+        
+        msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + vmsg + '</span>';
+        message = msgstr.replace("#@", "<br/>");
+        
+        Modal.alert({title:titlestr, msg:message, btnok:vtoy_cur_language.STR_BTN_OK, btncl:vtoy_cur_language.STR_BTN_CANCEL });
+    }
+    
+    function set_progress_bar(percent) {
+        var per = percent + '%';
+        
+        $('#vtoy_progress_bar').css('width', per);
+        
+        if (percent === 0) {
+            $('span#vtoy_status_title').text(vtoy_cur_language.STR_STATUS);
+        } else {
+            var status = vtoy_cur_language.STR_STATUS;
+            var idx = status.indexOf('- ');
+            
+            if (idx >= 0) {
+                $('span#vtoy_status_title').text(status.substr(0, idx + 2) + per);
+            }
+        }
+    }
+    
+    
+    function progressDisableItem(in_progress) {
+        $('button#VtoyBtnInstall').prop("disabled", in_progress);
+        $('button#VtoyBtnUpdate').prop("disabled", in_progress);
+    }
+    
+    function queryProgress(op) {
+        callVtoySync({
+            method : 'get_percent',
+            token : vtoy_current_token
+        }, function(data) {
+            if (data.result === 'success') {
+                set_progress_bar(data.percent);                
+                if (data.percent === 100) {
+                    var titlestr = '<span class="fa fa-check-circle" style="color:green; font-weight:bold;"> ' + vtoy_cur_language.STR_INFO + '</span>';
+                    var msgstr;
+
+                    if (op === 1) {
+                        msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + vtoy_cur_language.STR_INSTALL_SUCCESS + '</span>';
+                    } else {
+                        msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + vtoy_cur_language.STR_UPDATE_SUCCESS + '</span>';
+                    }
+                    var message = msgstr.replace("#@", "<br/>");
+
+                    callVtoySync({
+                        method : 'refresh_device',
+                        token : vtoy_current_token
+                    }, function(data) {            
+                        get_and_fill_dev_list();
+                        
+                        for (var i = 0; i < vtoy_cur_dev_list.length; i++) {
+                            if (vtoy_cur_dev_list[i].name === vtoy_cur_process_disk_name) {
+                                $("#vtoy_dev_list").val(i);
+                                on_dev_sel_change();
+                                break;
+                            }                            
+                        }
+                    });
+                    
+                    Modal.alert({title:titlestr, msg:message, btnok:vtoy_cur_language.STR_BTN_OK }).on(function(e) {
+                        vtoy_in_progress = false;
+                        progressDisableItem(vtoy_in_progress);
+                        set_progress_bar(0);
+                    });
+                } else {
+                    setTimeout(function() {
+                        queryProgress(op);
+                    }, 300);
+                }                
+            } else {
+                
+                if (data.result === 'mbr2tb') {
+                    ventoy_display_alert('error', vtoy_cur_language.STR_DISK_2TB_MBR_ERROR);
+                } else if (data.result === 'reserve_invalid') {
+                    ventoy_display_alert('error', vtoy_cur_language.STR_SPACE_VAL_INVALID);
+                } else {
+                    ventoy_display_alert('error', (op === 1) ? vtoy_cur_language.STR_INSTALL_FAILED : vtoy_cur_language.STR_UPDATE_FAILED);
+                }
+                
+                vtoy_in_progress = false;
+                progressDisableItem(vtoy_in_progress);
+                set_progress_bar(0);
+            }
+        });
+    }
+    
+    function install_ventoy(index, reservesize) {
+        var secureboot;
+        var curDev = vtoy_cur_dev_list[index];
+        var align = $('#vtoy_part_align_4kb').prop("checked");
+        
+        vtoy_cur_process_disk_name = curDev.name;
+        
+        if ($('span#vtoy_check_secure_boot').css("visibility") === 'visible') {
+            secureboot = 1;
+        } else {
+            secureboot = 0;
+        }
+        
+        callVtoySync({
+            method : 'install',
+            token : vtoy_current_token,
+            disk : curDev.name,
+            partstyle : vtoy_selected_part_style,
+            secure_boot : secureboot,
+            align_4kb : align ? 1 : 0,
+            reserve_space : reservesize + ''            
+        }, function(data) {            
+            if (data.result === 'success') {
+                vtoy_in_progress = true;
+                progressDisableItem(vtoy_in_progress);
+                queryProgress(1);
+            } else {
+                ventoy_display_alert('error', vtoy_cur_language.STR_INSTALL_FAILED);
+            }
+        });
+    }
+    
+    
+    function on_vtoy_install() {
+        var model;
+        var reserve;
+        var titlestr = '<span class="fa fa-warning" style="color:#f39c12; font-weight:bold;"> ' + vtoy_cur_language.STR_WARNING + '</span>';
+        var msgstr1 = vtoy_cur_language.STR_INSTALL_TIP.replace("#@", "<br/>");
+        var msgstr2 = vtoy_cur_language.STR_INSTALL_TIP2.replace("#@", "<br/>");
+        var index = $("#vtoy_dev_list").val();
+        
+        if (vtoy_cur_dev_list.length <= 0 || index < 0 || index >= vtoy_cur_dev_list.length) {
+            return;
+        }
+        
+        if (vtoy_in_progress) {
+            return;
+        }
+        
+        if ($('#vtoy_preserve_space_checkbox').is(':checked')) {
+            var valx = $('#vtoy_preserve_space').val();
+            if (valx.length > 14) {
+                ventoy_display_alert('error', vtoy_cur_language.STR_SPACE_VAL_INVALID);
+                return;
+            }
+
+            if (valx > 0) {
+                if ($('#vtoy_space_unit_dropbox').val() > 0) {
+                    reserve = valx * 1024 * 1024;
+                } else {
+                    reserve = valx * 1024 * 1024 * 1024;
+                } 
+            }
+        } else {
+            reserve = 0;
+        }
+        
+        var curDev = vtoy_cur_dev_list[index];
+        model = curDev.name + '&nbsp;&nbsp;[' + curDev.size + ']&nbsp;&nbsp;' + curDev.model + '<br/>';        
+        var msgstrex1 = '<span style="font-size:14px; font-weight:bold;"> ' + model + msgstr1 + '</span>';
+        var msgstrex2 = '<span style="font-size:14px; font-weight:bold; color:#f39c12;"> ' + model + msgstr2 + '</span>';
+        
+        Modal.confirm({title:titlestr, msg:msgstrex1, btnok:vtoy_cur_language.STR_BTN_OK, btncl:vtoy_cur_language.STR_BTN_CANCEL }).on(function(e) {
+            if (e) {
+                Modal.confirm({title:titlestr, msg:msgstrex2, btnok:vtoy_cur_language.STR_BTN_OK, btncl:vtoy_cur_language.STR_BTN_CANCEL }).on(function(e1) {
+                    if (e1) {
+                        install_ventoy(index, reserve);
+                    }
+                });
+            }
+        });
+    }
+
+
+    function update_ventoy(index) {
+        var secureboot;
+        var curDev = vtoy_cur_dev_list[index];
+        
+        vtoy_cur_process_disk_name = curDev.name;
+        
+        if ($('span#vtoy_check_secure_boot').css("visibility") === 'visible') {
+            secureboot = 1;
+        } else {
+            secureboot = 0;
+        }
+        
+        callVtoySync({
+            method : 'update',
+            token : vtoy_current_token,
+            disk : curDev.name,
+            secure_boot : secureboot
+        }, function(data) {            
+            if (data.result === 'success') {
+                vtoy_in_progress = true;
+                progressDisableItem(vtoy_in_progress);
+                queryProgress(2);
+            } else {
+                ventoy_display_alert('error', vtoy_cur_language.STR_UPDATE_FAILED);
+            }
+        });
+    }
+
+    function on_vtoy_update() {
+        var model;
+        var reserve;
+        var titlestr = '<span class="fa fa-info" style="color:green; font-weight:bold;"> ' + vtoy_cur_language.STR_INFO + '</span>';
+        var msgstr1 = vtoy_cur_language.STR_UPDATE_TIP.replace("#@", "<br/>");
+        var index = $("#vtoy_dev_list").val();
+        
+        if (vtoy_cur_dev_list.length <= 0 || index < 0 || index >= vtoy_cur_dev_list.length) {
+            return;
+        }
+        
+        if (vtoy_in_progress) {
+            return;
+        }
+        
+        var curDev = vtoy_cur_dev_list[index];
+        model = curDev.name + '&nbsp;&nbsp;[' + curDev.size + ']&nbsp;&nbsp;' + curDev.model + '<br/>';        
+        var msgstrex1 = '<span style="font-size:14px; font-weight:bold;"> ' + model + msgstr1 + '</span>';
+        
+        Modal.confirm({title:titlestr, msg:msgstrex1, btnok:vtoy_cur_language.STR_BTN_OK, btncl:vtoy_cur_language.STR_BTN_CANCEL }).on(function(e) {
+            if (e) {
+                update_ventoy(index);
+            }
+        });
+    }
+    
+    function on_clean_ventoy() {
+        var model;
+        var reserve;
+        var titlestr = '<span class="fa fa-warning" style="color:#f39c12; font-weight:bold;"> ' + vtoy_cur_language.STR_WARNING + '</span>';
+        var msgstr1 = vtoy_cur_language.STR_INSTALL_TIP.replace("#@", "<br/>");
+        var msgstr2 = vtoy_cur_language.STR_INSTALL_TIP2.replace("#@", "<br/>");
+        var index = $("#vtoy_dev_list").val();
+        
+        if (vtoy_cur_dev_list.length <= 0 || index < 0 || index >= vtoy_cur_dev_list.length) {
+            return;
+        }
+        
+        if (vtoy_in_progress) {
+            return;
+        }
+        
+        var curDev = vtoy_cur_dev_list[index];
+        model = curDev.name + '&nbsp;&nbsp;[' + curDev.size + ']&nbsp;&nbsp;' + curDev.model + '<br/>';        
+        var msgstrex1 = '<span style="font-size:14px; font-weight:bold;"> ' + model + msgstr1 + '</span>';
+        var msgstrex2 = '<span style="font-size:14px; font-weight:bold; color:#f39c12;"> ' + model + msgstr2 + '</span>';
+        
+        Modal.confirm({title:titlestr, msg:msgstrex1, btnok:vtoy_cur_language.STR_BTN_OK, btncl:vtoy_cur_language.STR_BTN_CANCEL }).on(function(e) {
+            if (e) {
+                Modal.confirm({title:titlestr, msg:msgstrex2, btnok:vtoy_cur_language.STR_BTN_OK, btncl:vtoy_cur_language.STR_BTN_CANCEL }).on(function(e1) {
+                    if (e1) {
+                        callVtoySync({
+                            method : 'clean',
+                            token : vtoy_current_token,
+                            disk : curDev.name                    
+                        }, function(data) {            
+                            if (data.result === 'success') {
+                                ventoy_display_alert('success', vtoy_cur_language.STR_CLEAR_SUCCESS);
+                                
+                                callVtoySync({
+                                    method : 'refresh_device',
+                                    token : vtoy_current_token
+                                }, function(data) {            
+                                    get_and_fill_dev_list();
+                                    
+                                    for (var i = 0; i < vtoy_cur_dev_list.length; i++) {
+                                        if (vtoy_cur_dev_list[i].name === curDev.name) {
+                                            $("#vtoy_dev_list").val(i);
+                                            on_dev_sel_change();
+                                            break;
+                                        }                            
+                                    }
+                                });
+                                
+                            } else {
+                                ventoy_display_alert('error', vtoy_cur_language.STR_CLEAR_FAILED);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
+    
+    
+    function fill_dev_list_dropbox() {
+        var model;        
+        $('#vtoy_dev_list').empty();
+        $('span#vtoy_dev_secure_icon').css("visibility","hidden");
+        
+        for (var i = 0; i < vtoy_cur_dev_list.length; i++) {
+            model = vtoy_cur_dev_list[i].name + '&nbsp;&nbsp;[' + vtoy_cur_dev_list[i].size + ']&nbsp;&nbsp;' + vtoy_cur_dev_list[i].model;            
+            $("#vtoy_dev_list").append("<option value='" + i + "'>" + model + "</option>");
+        }
+        
+        $('span#vtoy_dev_ver').text('');
+        $('span#vtoy_dev_part_style').text('');
+        
+        if (vtoy_cur_dev_list.length > 0) {
+            if (vtoy_cur_dev_list[0].vtoy_valid > 0) {
+                $('span#vtoy_dev_ver').text(vtoy_cur_dev_list[0].vtoy_ver);
+                $('span#vtoy_dev_part_style').text(vtoy_cur_dev_list[0].vtoy_partstyle ? 'GPT' : 'MBR');
+                if (vtoy_cur_dev_list[0].vtoy_secure_boot) {
+                    $('span#vtoy_dev_secure_icon').css("visibility","visible");
+                }
+                
+                secure_boot_check(vtoy_cur_dev_list[0].vtoy_secure_boot);
+                
+                $('button#VtoyBtnUpdate').prop("disabled", false);
+            } else {
+                $('button#VtoyBtnUpdate').prop("disabled", true);
+            }
+            $('button#VtoyBtnInstall').prop("disabled", false);
+        } else {
+            $('button#VtoyBtnInstall').prop("disabled", true);
+            $('button#VtoyBtnUpdate').prop("disabled", true);
+        }
+    }
+    
+    function get_and_fill_dev_list() {
+        var showall = 0;
+        if ($('span#vtoy_check_show_all_dev').css("visibility") === 'visible') {
+            showall = 1;
+        }
+    
+        callVtoySync({
+            method : 'get_dev_list',
+            alldev : showall,
+            token : vtoy_current_token
+        }, function(data) {            
+            vtoy_cur_dev_list = data.list;
+            fill_dev_list_dropbox();
+        });
+    }
+    
+    function on_click_refresh_device() {
+        if (vtoy_in_progress === true) {
+            return;
+        }
+        callVtoySync({
+            method : 'refresh_device',
+            token : vtoy_current_token
+        }, function(data) {            
+            get_and_fill_dev_list();
+        });
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //SCRIPT_DEL_THIS $(document).on("keydown", disableF5);
+    //SCRIPT_DEL_THIS $(document).on("contextmenu",function(e){ return false; });
+
+    $('#refresh_dev_img').click(on_click_refresh_device);
+    $('#vtoy_part_align_4kb').prop("checked", true);
+    
+    if (vtoy_chrome_app_mode) {
+        ResizeWindow();
+    } else {
+        $('#vtoy_main_div').css("border", '2px solid #f4f4f4');
+        window.onresize = function() {
+            MoveMainDivToCenter();
+        }
+        MoveMainDivToCenter();
+    }
+
+    sort_language_list();
+    fill_language_list();
+
+    if (navigator.language) {
+        vtoy_client_language = navigator.language.toLowerCase();
+    }
+    else {
+        vtoy_client_language = navigator.browserLanguage.toLowerCase();
+    }
+    
+    if (vtoy_client_language === 'zh-cn') {
+        select_language_by_index(0, 0);
+    } else {
+        select_language_by_name('English (English)', 0);
+    }
+    
+    on_select_mbr();
+    secure_boot_check(0);
+    
+    on_enable_preserve_space();
+    
+    callVtoySync({
+        method : 'sysinfo'
+    }, function(data) {  
+        vtoy_current_token = data.token;        
+        if (data.language.length > 0) {
+            select_language_by_name(data.language, 0);
+        }
+        
+        if (data.busy === true) {
+            vtoy_cur_process_disk_name = data.process_disk;
+            vtoy_in_progress = true;
+        } else {
+            vtoy_in_progress = false;
+        }
+        
+        if (data.partstyle == 1) {
+            on_select_gpt();
+        } else {
+            on_select_mbr();
+        }
+        
+        $('span#vtoy_local_ver').text(data.ventoy_ver);
+        
+        callVtoySync({
+            method : 'refresh_device',
+            token : vtoy_current_token
+        }, function(data) {            
+            get_and_fill_dev_list();
+        });
+        
+        if (vtoy_in_progress) {
+            for (var i = 0; i < vtoy_cur_dev_list.length; i++) {
+                if (vtoy_cur_dev_list[i].name === vtoy_cur_process_disk_name) {
+                    $("#vtoy_dev_list").val(i);
+                    on_dev_sel_change();
+                    break;
+                }                            
+            }
+            
+            progressDisableItem(vtoy_in_progress);
+            if (data.process_type === 'install') {
+                queryProgress(1);
+            } else if (data.process_type === 'update') {
+                queryProgress(2);
+            }
+        }
+    });
+    
+</script>
+</body>
+
+</html>

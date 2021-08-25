@@ -68,8 +68,75 @@ typedef struct ventoy_os_param
 typedef struct ventoy_windows_data
 {
     char auto_install_script[384];
-    UINT8 reserved[128];
+    char injection_archive[384];
+    UINT8 reserved[256];
 }ventoy_windows_data;
+
+
+
+typedef struct PART_TABLE
+{
+	UINT8  Active; // 0x00  0x80
+
+	UINT8  StartHead;
+	UINT16 StartSector : 6;
+	UINT16 StartCylinder : 10;
+
+	UINT8  FsFlag;
+
+	UINT8  EndHead;
+	UINT16 EndSector : 6;
+	UINT16 EndCylinder : 10;
+
+	UINT32 StartSectorId;
+	UINT32 SectorCount;
+}PART_TABLE;
+
+typedef struct MBR_HEAD
+{
+	UINT8 BootCode[446];
+	PART_TABLE PartTbl[4];
+	UINT8 Byte55;
+	UINT8 ByteAA;
+}MBR_HEAD;
+
+typedef struct VTOY_GPT_HDR
+{
+	CHAR   Signature[8]; /* EFI PART */
+	UINT8  Version[4];
+	UINT32 Length;
+	UINT32 Crc;
+	UINT8  Reserved1[4];
+	UINT64 EfiStartLBA;
+	UINT64 EfiBackupLBA;
+	UINT64 PartAreaStartLBA;
+	UINT64 PartAreaEndLBA;
+	GUID   DiskGuid;
+	UINT64 PartTblStartLBA;
+	UINT32 PartTblTotNum;
+	UINT32 PartTblEntryLen;
+	UINT32 PartTblCrc;
+	UINT8  Reserved2[420];
+}VTOY_GPT_HDR;
+
+typedef struct VTOY_GPT_PART_TBL
+{
+	GUID   PartType;
+	GUID   PartGuid;
+	UINT64 StartLBA;
+	UINT64 LastLBA;
+	UINT64 Attr;
+	UINT16 Name[36];
+}VTOY_GPT_PART_TBL;
+
+typedef struct VTOY_GPT_INFO
+{
+	MBR_HEAD MBR;
+	VTOY_GPT_HDR Head;
+	VTOY_GPT_PART_TBL PartTbl[128];
+}VTOY_GPT_INFO;
+
+
 
 #pragma pack()
 
@@ -83,5 +150,6 @@ typedef struct ventoy_windows_data
 	}\
 }
 
+#define LASTERR     GetLastError()
 
 #endif

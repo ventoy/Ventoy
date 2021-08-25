@@ -114,11 +114,12 @@ static int ventoy_iso_open(const char *path, struct fuse_file_info *file)
     return 0;
 }
 
-static int ventoy_read_iso_sector(uint32_t sector, uint32_t num, void *buf)
+static int ventoy_read_iso_sector(uint32_t sector, uint32_t num, char *buf)
 {
     uint32_t i = 0;
     uint32_t leftSec = 0;
     uint32_t readSec = 0;
+    off_t offset = 0;
     dmtable_entry *entry = NULL;
     
     for (i = 0; i < g_disk_entry_num && num > 0; i++)
@@ -127,14 +128,15 @@ static int ventoy_read_iso_sector(uint32_t sector, uint32_t num, void *buf)
 
         if (sector >= entry->isoSector && sector < entry->isoSector + entry->sectorNum)
         {
-            lseek(g_disk_fd, (entry->diskSector + (sector - entry->isoSector)) * 512, SEEK_SET);
+            offset = (entry->diskSector + (sector - entry->isoSector)) * 512;
 
             leftSec = entry->sectorNum - (sector - entry->isoSector);
             readSec = (leftSec > num) ? num : leftSec;
 
-            read(g_disk_fd, buf, readSec * 512);
+            pread(g_disk_fd, buf, readSec * 512, offset);
 
             sector += readSec;
+            buf += readSec * 512;
             num -= readSec;
         }
     }

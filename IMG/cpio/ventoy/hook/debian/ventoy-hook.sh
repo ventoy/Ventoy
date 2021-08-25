@@ -28,6 +28,12 @@ ventoy_get_debian_distro() {
         fi
     fi
     
+    if [ -e /DISTRO_SPECS ]; then
+        if $GREP -q veket /DISTRO_SPECS; then
+            echo 'veket'; return
+        fi
+    fi
+    
     if [ -e /init ]; then
         if $GREP -q PUPPYSFS /init; then
             if $GREP -q VEKETSFS /init; then
@@ -35,6 +41,8 @@ ventoy_get_debian_distro() {
             else
                 echo 'puppy'; return
             fi
+        elif $GREP -m1 -q 'Minimal.*Linux.*Live' /init; then
+            echo 'mll'; return
         fi
     fi
 
@@ -60,6 +68,32 @@ ventoy_get_debian_distro() {
         echo 'porteus'; return
     fi
     
+    if $GREP -q 'linuxconsole' /proc/version; then
+        echo 'linuxconsole'; return
+    fi
+    
+    if $GREP -q 'vyos' /proc/version; then
+        echo 'vyos'; return
+    fi
+    
+    if $GREP -q 'kylin' /proc/version; then
+        echo 'kylin'; return
+    fi
+    
+    if [ -f /scripts/00-ver ]; then
+        if $GREP -q 'Bliss-OS' /scripts/00-ver; then
+            echo 'bliss'; return
+        fi
+    fi
+    
+    if [ -e /opt/kerio ]; then
+        echo 'kerio'; return
+    fi
+    
+    if $GREP -q 'mocaccino' /proc/version; then
+        echo 'mocaccino'; return
+    fi
+    
     echo 'default'
 }
 
@@ -68,10 +102,10 @@ DISTRO=$(ventoy_get_debian_distro)
 echo "##### distribution = $DISTRO ######" >> $VTLOG
 . $VTOY_PATH/hook/debian/${DISTRO}-hook.sh
 
-
-
-
-
+if [ -f /bin/env2debconf ]; then
+    $SED "1a /bin/sh $VTOY_PATH/hook/debian/ventoy_env2debconf.sh" -i /bin/env2debconf
+    $SED "s#in *\$(set)#in \$(cat /ventoy/envset)#" -i /bin/env2debconf
+fi
 
 
 
