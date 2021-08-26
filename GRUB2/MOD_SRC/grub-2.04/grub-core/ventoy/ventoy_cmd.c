@@ -3491,9 +3491,11 @@ end:
 
 static int ventoy_img_partition_callback (struct grub_disk *disk, const grub_partition_t partition, void *data)
 {
+    int *pCnt = (int *)data;
+    
     (void)disk;
-    (void)data;
 
+    (*pCnt)++;
     g_part_list_pos += grub_snprintf(g_part_list_buf + g_part_list_pos, VTOY_MAX_SCRIPT_BUF - g_part_list_pos,
         "0 %llu linear /dev/ventoy %llu\n",
         (ulonglong)partition->len, (ulonglong)partition->start);
@@ -3503,6 +3505,7 @@ static int ventoy_img_partition_callback (struct grub_disk *disk, const grub_par
 
 static grub_err_t ventoy_cmd_img_part_info(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int cnt = 0;
     char *device_name = NULL;
     grub_device_t dev = NULL;
     char buf[64];
@@ -3531,10 +3534,13 @@ static grub_err_t ventoy_cmd_img_part_info(grub_extcmd_context_t ctxt, int argc,
         goto end;        
     }
 
-    grub_partition_iterate(dev->disk, ventoy_img_partition_callback, NULL);
+    grub_partition_iterate(dev->disk, ventoy_img_partition_callback, &cnt);
 
     grub_snprintf(buf, sizeof(buf), "newc:vtoy_dm_table:mem:0x%llx:size:%d", (ulonglong)(ulong)g_part_list_buf, g_part_list_pos);
     grub_env_set("vtoy_img_part_file", buf);
+
+    grub_snprintf(buf, sizeof(buf), "%d", cnt);
+    grub_env_set("vtoy_img_part_cnt", buf);
 
 end:
 
@@ -4792,6 +4798,59 @@ out:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t grub_cmd_gptpriority(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+  grub_disk_t disk;
+  grub_partition_t part;
+  char priority_str[3]; /* Maximum value 15 */
+
+  (void)ctxt;
+
+  if (argc < 2 || argc > 3)
+    return grub_error (GRUB_ERR_BAD_ARGUMENT,
+                       "gptpriority DISKNAME PARTITIONNUM [VARNAME]");
+
+  /* Open the disk if it exists */
+  disk = grub_disk_open (args[0]);
+  if (!disk)
+    {
+      return grub_error (GRUB_ERR_BAD_ARGUMENT,
+                         "Not a disk");
+    }
+
+  part = grub_partition_probe (disk, args[1]);
+  if (!part)
+    {
+      grub_disk_close (disk);
+      return grub_error (GRUB_ERR_BAD_ARGUMENT,
+                         "No such partition");
+    }
+
+  if (grub_strcmp (part->partmap->name, "gpt"))
+    {
+      grub_disk_close (disk);
+      return grub_error (GRUB_ERR_BAD_PART_TABLE,
+                         "Not a GPT partition");
+    }
+
+  grub_snprintf (priority_str, sizeof(priority_str), "%u",
+                 (grub_uint32_t)((part->gpt_attrib >> 48) & 0xfULL));
+
+  if (argc == 3)
+    {
+      grub_env_set (args[2], priority_str);
+      grub_env_export (args[2]);
+    }
+  else
+    {
+      grub_printf ("Priority is %s\n", priority_str);
+    }
+
+  grub_disk_close (disk);
+  return GRUB_ERR_NONE;
+}
+
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -4838,6 +4897,8 @@ int ventoy_env_init(void)
 
     return 0;
 }
+
+
 
 static cmd_para ventoy_cmds[] = 
 {
@@ -4971,6 +5032,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_pop_pager", ventoy_cmd_pop_pager, 0, NULL, "", "", NULL },
     { "vt_check_json_path_case", ventoy_cmd_chk_json_pathcase, 0, NULL, "", "", NULL },
     { "vt_append_extra_sector", ventoy_cmd_append_ext_sector, 0, NULL, "", "", NULL },
+    { "gptpriority", grub_cmd_gptpriority, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)
