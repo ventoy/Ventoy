@@ -63,6 +63,13 @@ body:
       placeholder: 32GB
     validations:
       required: true
+  - type: input
+    id: vendor
+    attributes:
+      label: Disk Manufacturer
+      description: What is the manufacturer of the disk installed with Ventoy? (e.g. SanDisk/Kingston...)      
+    validations:
+      required: false
   - type: dropdown
     id: checksum
     attributes:
