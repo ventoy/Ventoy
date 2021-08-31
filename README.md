@@ -15,8 +15,8 @@ With ventoy, you don't need to format the disk over and over, you just need to c
 You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
-Most type of OS supported(Windows/WinPE/Linux/Unix/Vmware/Xen...) <br/>
-  730+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported. <br/>
+Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
+  730+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
 <br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
 </h4>
 
@@ -42,7 +42,7 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 * Fast (limited only by the speed of copying iso file)
 * Can be installed in USB/Local Disk/SSD/NVMe/SD Card
 * Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
-* No need to be continuous in disk for ISO/IMG files
+* No need to be continuous in disk for ISO/WIM/IMG/VHD(x)/EFI files
 * MBR and GPT partition style supported (1.0.15+)
 * x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI, MIPS64EL UEFI supported
 * IA32/x86_64 UEFI Secure Boot supported (1.0.07+)
