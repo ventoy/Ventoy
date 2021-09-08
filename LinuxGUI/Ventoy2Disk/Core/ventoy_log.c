@@ -133,7 +133,7 @@ void ventoy_syslog(int level, const char *Fmt, ...)
     if (fp)
     {
         fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
-           ttm.tm_year, ttm.tm_mon, ttm.tm_mday,
+           ttm.tm_year + 1900, ttm.tm_mon, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            log);
         fclose(fp);

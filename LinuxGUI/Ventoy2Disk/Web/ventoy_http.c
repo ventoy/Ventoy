@@ -40,9 +40,13 @@
 #include <ventoy_http.h>
 #include "fat_filelib.h"
 
+static char *g_pub_out_buf = NULL;
+static int g_pub_out_max = 0;
+
 static pthread_mutex_t g_api_mutex;
 static char g_cur_language[128];
 static int  g_cur_part_style = 0;
+static int  g_cur_show_all = 0;
 static char g_cur_server_token[64];
 static struct mg_context *g_ventoy_http_ctx = NULL;
 
@@ -52,8 +56,8 @@ static uint8_t *g_grub_stg1_raw_img = NULL;
 
 static char g_cur_process_diskname[64];
 static char g_cur_process_type[64];
-static int g_cur_process_result = 0;
-static PROGRESS_POINT g_current_progress = PT_FINISH;
+static volatile int g_cur_process_result = 0;
+static volatile PROGRESS_POINT g_current_progress = PT_FINISH;
 
 static int ventoy_load_mbr_template(void)
 {
@@ -162,7 +166,8 @@ static int ventoy_http_save_cfg(void)
         return 0;
     }
 
-    fprintf(fp, "[Ventoy]\nLanguage=%s\nPartStyle=%d\n", g_cur_language, g_cur_part_style);
+    fprintf(fp, "[Ventoy]\nLanguage=%s\nPartStyle=%d\nShowAllDevice=%d\n", 
+        g_cur_language, g_cur_part_style, g_cur_show_all);
 
     fclose(fp);
     return 0;
@@ -205,6 +210,10 @@ static int ventoy_http_load_cfg(void)
         {
             g_cur_part_style = (int)strtol(line + strlen("PartStyle="), NULL, 10);
         }
+        else if (strncmp(line, "ShowAllDevice=", strlen("ShowAllDevice=")) == 0)
+        {
+            g_cur_show_all = (int)strtol(line + strlen("ShowAllDevice="), NULL, 10);
+        }
     }
 
     fclose(fp);
@@ -214,23 +223,47 @@ static int ventoy_http_load_cfg(void)
 
 static int ventoy_json_result(struct mg_connection *conn, const char *err)
 {
-    mg_printf(conn, 
-              "HTTP/1.1 200 OK \r\n"
-              "Content-Type: application/json\r\n"
-              "Content-Length: %d\r\n"
-              "\r\n%s",
-              (int)strlen(err), err);
+    if (conn)
+    {
+        mg_printf(conn, 
+                  "HTTP/1.1 200 OK \r\n"
+                  "Content-Type: application/json\r\n"
+                  "Content-Length: %d\r\n"
+                  "\r\n%s",
+                  (int)strlen(err), err);
+    }
+    else
+    {
+        memcpy(g_pub_out_buf, err, (int)strlen(err) + 1);
+    }
+
     return 0;
 }
 
 static int ventoy_json_buffer(struct mg_connection *conn, const char *json_buf, int json_len)
 {
-    mg_printf(conn, 
-              "HTTP/1.1 200 OK \r\n"
-              "Content-Type: application/json\r\n"
-              "Content-Length: %d\r\n"
-              "\r\n%s",
-              json_len, json_buf);
+    if (conn)
+    {
+        mg_printf(conn, 
+                  "HTTP/1.1 200 OK \r\n"
+                  "Content-Type: application/json\r\n"
+                  "Content-Length: %d\r\n"
+                  "\r\n%s",
+                  json_len, json_buf);    
+    }
+    else
+    {
+        if (json_len >= g_pub_out_max)
+        {
+            vlog("json buffer overflow\n");
+        }
+        else
+        {
+            memcpy(g_pub_out_buf, json_buf, json_len);
+            g_pub_out_buf[json_len] = 0;
+        }
+    }
+
     return 0;
 }
 
@@ -1369,6 +1402,41 @@ static int ventoy_json_handler(struct mg_connection *conn, VTOY_JSON *json)
     return 0;
 }
 
+int ventoy_func_handler(const char *jsonstr, char *jsonbuf, int buflen)
+{
+    int i;
+    const char *method = NULL;
+    VTOY_JSON *json = NULL;
+
+    g_pub_out_buf = jsonbuf;
+    g_pub_out_max = buflen;
+
+    json = vtoy_json_create();
+    if (JSON_SUCCESS == vtoy_json_parse(json, jsonstr))
+    {
+        pthread_mutex_lock(&g_api_mutex);
+
+        method = vtoy_json_get_string_ex(json->pstChild, "method");
+        for (i = 0; i < (int)(sizeof(g_ventoy_json_cb) / sizeof(g_ventoy_json_cb[0])); i++)
+        {
+            if (method && strcmp(method, g_ventoy_json_cb[i].method) == 0)
+            {
+                g_ventoy_json_cb[i].callback(NULL, json->pstChild);
+                break;
+            }
+        }
+
+        pthread_mutex_unlock(&g_api_mutex);
+    }
+    else
+    {
+        ventoy_json_result(NULL, VTOY_JSON_INVALID_RET);
+    }
+
+    vtoy_json_destroy(json);
+    return 0;
+}
+
 static int ventoy_request_handler(struct mg_connection *conn)
 {
     int post_data_len;
@@ -1481,3 +1549,77 @@ void ventoy_http_exit(void)
     g_efi_part_raw_img = NULL;    
 }
 
+
+const char * ventoy_code_get_cur_language(void)
+{
+    return g_cur_language;
+}
+
+int ventoy_code_get_cur_part_style(void)
+{
+    return g_cur_part_style;
+}
+
+void ventoy_code_set_cur_part_style(int style)
+{
+    pthread_mutex_lock(&g_api_mutex);
+    
+    g_cur_part_style = style;
+    ventoy_http_save_cfg();
+
+    pthread_mutex_unlock(&g_api_mutex);
+}
+
+int ventoy_code_get_cur_show_all(void)
+{
+    return g_cur_show_all;
+}
+
+void ventoy_code_set_cur_show_all(int show_all)
+{
+    pthread_mutex_lock(&g_api_mutex);
+    
+    g_cur_show_all = show_all;
+    ventoy_http_save_cfg();
+
+    pthread_mutex_unlock(&g_api_mutex);
+}
+
+void ventoy_code_set_cur_language(const char *lang)
+{
+    pthread_mutex_lock(&g_api_mutex);
+    
+    scnprintf(g_cur_language, "%s", lang);
+    ventoy_http_save_cfg();
+    
+    pthread_mutex_unlock(&g_api_mutex);
+}
+
+void ventoy_code_refresh_device(void)
+{
+    if (g_current_progress == PT_FINISH)
+    {
+        g_disk_num = 0;
+        ventoy_disk_enumerate_all();
+    }
+}
+
+int ventoy_code_is_busy(void)
+{
+    return (g_current_progress == PT_FINISH) ? 0 : 1;
+}
+
+int ventoy_code_get_percent(void)
+{
+    return g_current_progress * 100 / PT_FINISH;
+}
+
+int ventoy_code_get_result(void)
+{
+    return g_cur_process_result;
+}
+
+void ventoy_code_save_cfg(void)
+{
+    ventoy_http_save_cfg();
+}
