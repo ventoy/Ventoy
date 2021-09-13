@@ -1,0 +1,23 @@
+[
+    {
+        "type": "env",
+        "name": "DESKTOP_SESSION",
+        "condition": "equal",
+        "expression": "deepin",
+        "gui": "qt5"
+    },
+    {
+        "type": "env",
+        "name": "DESKTOP_SESSION",
+        "condition": "equal",
+        "expression": "uos",
+        "gui": "qt5"
+    },
+    {
+        "type": "env",
+        "name": "DESKTOP_SESSION",
+        "condition": "equal",
+        "expression": "ukui",
+        "gui": "gtk3"
+    }
+]

@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Ventoy2DiskWindow</class>
+ <widget class="QMainWindow" name="Ventoy2DiskWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>441</width>
+    <height>367</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Ventoy2Disk</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBoxDevice">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>421</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Device</string>
+    </property>
+    <widget class="QComboBox" name="comboBoxDevice">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>361</width>
+       <height>26</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="ButtonRefresh">
+     <property name="geometry">
+      <rect>
+       <x>380</x>
+       <y>37</y>
+       <width>30</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>../refresh.ico</normaloff>../refresh.ico</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>24</width>
+       <height>24</height>
+      </size>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBoxVentoyLocal">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>205</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Ventoy In Package</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <widget class="QLabel" name="labelVentoyLocalVer">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>30</y>
+       <width>135</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600; color:#ff0000;&quot;&gt;1.0.53&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelVentoyLocalPartStyle">
+     <property name="geometry">
+      <rect>
+       <x>172</x>
+       <y>60</y>
+       <width>31</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MBR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelVentoyLocalSecure">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>36</y>
+       <width>21</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../secure.ico</pixmap>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBoxVentoyDevice">
+    <property name="geometry">
+     <rect>
+      <x>225</x>
+      <y>100</y>
+      <width>205</width>
+      <height>80</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Ventoy In Device</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <widget class="QLabel" name="labelVentoyDeviceVer">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>30</y>
+       <width>135</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600; color:#ff0000;&quot;&gt;1.0.52&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelVentoyDevicePartStyle">
+     <property name="geometry">
+      <rect>
+       <x>172</x>
+       <y>60</y>
+       <width>31</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GPT&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelVentoyDeviceSecure">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>36</y>
+       <width>21</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap>../secure.ico</pixmap>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBoxStatus">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>190</y>
+      <width>421</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Status: REDAY</string>
+    </property>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>401</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
+     <property name="format">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="ButtonInstall">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>275</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Install</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ButtonUpdate">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>275</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>441</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuOption">
+    <property name="title">
+     <string>Option</string>
+    </property>
+    <widget class="QMenu" name="menuPartition_Style">
+     <property name="title">
+      <string>Partition Style</string>
+     </property>
+     <addaction name="actionMBR"/>
+     <addaction name="actionGPT"/>
+    </widget>
+    <addaction name="actionSecure_Boot_Support"/>
+    <addaction name="menuPartition_Style"/>
+    <addaction name="actionPartition_Configuration"/>
+    <addaction name="actionClear_Ventoy"/>
+    <addaction name="actionShow_All_Devices"/>
+   </widget>
+   <widget class="QMenu" name="menuLanguage">
+    <property name="title">
+     <string>Language</string>
+    </property>
+   </widget>
+   <addaction name="menuOption"/>
+   <addaction name="menuLanguage"/>
+  </widget>
+  <action name="actionSecure_Boot_Support">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Secure Boot Support</string>
+   </property>
+  </action>
+  <action name="actionMBR">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MBR</string>
+   </property>
+  </action>
+  <action name="actionGPT">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>GPT</string>
+   </property>
+  </action>
+  <action name="actionPartition_Configuration">
+   <property name="text">
+    <string>Partition Configuration</string>
+   </property>
+  </action>
+  <action name="actionClear_Ventoy">
+   <property name="text">
+    <string>Clear Ventoy</string>
+   </property>
+  </action>
+  <action name="actionShow_All_Devices">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show All Devices</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

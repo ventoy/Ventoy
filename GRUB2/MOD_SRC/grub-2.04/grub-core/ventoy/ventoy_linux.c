@@ -38,6 +38,9 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+#define VTOY_APPEND_EXT_SIZE 4096
+static int g_append_ext_sector = 0;
+
 char * ventoy_get_line(char *start)
 {
     if (start == NULL)
@@ -658,6 +661,11 @@ static grub_uint32_t ventoy_linux_get_virt_chunk_count(void)
         count++;
     }
     
+    if (g_append_ext_sector > 0)
+    {
+        count++;
+    }
+    
     return count;
 }
 
@@ -670,6 +678,11 @@ static grub_uint32_t ventoy_linux_get_virt_chunk_size(void)
     if (g_conf_replace_offset > 0)
     {
         size += sizeof(ventoy_virt_chunk) + g_conf_replace_new_len_align;
+    }
+    
+    if (g_append_ext_sector > 0)
+    {
+        size += sizeof(ventoy_virt_chunk) + VTOY_APPEND_EXT_SIZE;
     }
 
     return size;
@@ -724,6 +737,27 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
 
         offset += g_ventoy_cpio_size;
         sector += cpio_secs + initrd_secs;
+        cur++;
+    }
+
+    /* Lenovo EasyStartup need an addional sector for boundary check */
+    if (g_append_ext_sector > 0)
+    {
+        cpio_secs = VTOY_APPEND_EXT_SIZE / 2048;
+    
+        cur->mem_sector_start   = sector;
+        cur->mem_sector_end     = cur->mem_sector_start + cpio_secs;
+        cur->mem_sector_offset  = offset;
+        cur->remap_sector_start = 0;
+        cur->remap_sector_end   = 0;
+        cur->org_sector_start   = 0;
+
+        grub_memset(override + offset, 0, VTOY_APPEND_EXT_SIZE);
+
+        chain->virt_img_size_in_bytes += VTOY_APPEND_EXT_SIZE;
+
+        offset += VTOY_APPEND_EXT_SIZE;
+        sector += cpio_secs;
         cur++;
     }
 
@@ -1115,6 +1149,24 @@ grub_err_t ventoy_cmd_skip_svd(grub_extcmd_context_t ctxt, int argc, char **args
     }
 
     grub_file_close(file);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_append_ext_sector(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (args[0][0] == '1')
+    {
+        g_append_ext_sector = 1;        
+    }
+    else
+    {
+        g_append_ext_sector = 0;
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }

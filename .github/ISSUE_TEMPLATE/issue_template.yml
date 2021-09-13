@@ -21,7 +21,7 @@ body:
     attributes:
       label: Ventoy Version
       description: What version of ventoy are you running?
-      placeholder: 1.0.49
+      placeholder: 1.0.51
     validations:
       required: true
   - type: dropdown
@@ -63,6 +63,13 @@ body:
       placeholder: 32GB
     validations:
       required: true
+  - type: input
+    id: vendor
+    attributes:
+      label: Disk Manufacturer
+      description: What is the manufacturer of the disk installed with Ventoy? (e.g. SanDisk/Kingston...)      
+    validations:
+      required: false
   - type: dropdown
     id: checksum
     attributes:

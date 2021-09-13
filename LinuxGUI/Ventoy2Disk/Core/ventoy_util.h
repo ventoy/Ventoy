@@ -20,6 +20,9 @@
 #ifndef __VENTOY_UTIL_H__
 #define __VENTOY_UTIL_H__
 
+extern char g_log_file[PATH_MAX];
+extern char g_ini_file[PATH_MAX];
+
 #define check_free(p) if (p) free(p)
 #define vtoy_safe_close_fd(fd) \
 {\
