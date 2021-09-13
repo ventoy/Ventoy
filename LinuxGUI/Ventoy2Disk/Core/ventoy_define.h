@@ -31,9 +31,6 @@
 #define VTOYEFI_PART_BYTES    (32 * 1024 * 1024)
 #define VTOYEFI_PART_SECTORS  65536
 
-#define VTOY_LOG_FILE "log.txt"
-
-
 #pragma pack(1)
 
 typedef struct vtoy_guid

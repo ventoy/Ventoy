@@ -5,18 +5,18 @@ if [ ! -d $1/pool ]; then
     exit 1
 fi
 
-rm -rf mips64el
-mkdir mips64el
-cd mips64el
+rm -rf i386
+mkdir i386
+cd i386
 
-cat ../mips64ellibs | while read line; do
+cat ../i386libs | while read line; do
     find "$1/pool" -name "*${line}*.deb" | while read deb; do
         echo "extract ${deb##*/} ..."
         dpkg -x $deb .
     done
 done
 
-ls -1 ../download/*mips64el.deb | while read line; do
+ls -1 ../download/*i386.deb | while read line; do
     echo "extract ${line} ..."
     dpkg -x "$line" .
 done

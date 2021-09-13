@@ -588,6 +588,7 @@ static int VentoyAttachVirtualDisk(HANDLE Handle, const char *IsoPath)
 
 int VentoyMountISOByAPI(const char *IsoPath)
 {
+    int i;
 	HANDLE Handle;
 	DWORD Status;
 	WCHAR wFilePath[512] = { 0 };
@@ -598,10 +599,12 @@ int VentoyMountISOByAPI(const char *IsoPath)
 
     if (IsUTF8Encode(IsoPath))
     {
+        Log("This is UTF8 encoding");
         MultiByteToWideChar(CP_UTF8, 0, IsoPath, (int)strlen(IsoPath), wFilePath, (int)(sizeof(wFilePath) / sizeof(WCHAR)));
     }
     else
     {
+        Log("This is ANSI encoding");
         MultiByteToWideChar(CP_ACP, 0, IsoPath, (int)strlen(IsoPath), wFilePath, (int)(sizeof(wFilePath) / sizeof(WCHAR)));
     }
 
@@ -610,19 +613,36 @@ int VentoyMountISOByAPI(const char *IsoPath)
 	
 	OpenParameters.Version = OPEN_VIRTUAL_DISK_VERSION_1;
 
-	Status = OpenVirtualDisk(&StorageType, wFilePath, VIRTUAL_DISK_ACCESS_READ, 0, &OpenParameters, &Handle);
-	if (Status != ERROR_SUCCESS)
-	{
-		if (ERROR_VIRTDISK_PROVIDER_NOT_FOUND == Status)
-		{
-			Log("VirtualDisk for ISO file is not supported in current system");
-		}
-		else
-		{
-			Log("Failed to open virtual disk ErrorCode:%u", Status);
-		}
-		return 1;
-	}
+    for (i = 0; i < 10; i++)
+    {
+        Status = OpenVirtualDisk(&StorageType, wFilePath, VIRTUAL_DISK_ACCESS_READ, 0, &OpenParameters, &Handle);
+        if (ERROR_FILE_NOT_FOUND == Status || ERROR_PATH_NOT_FOUND == Status)
+        {
+            Log("OpenVirtualDisk ErrorCode:%u, now wait and retry...", Status);
+            Sleep(1000);
+        }
+        else
+        {
+            if (ERROR_SUCCESS == Status)
+            {
+                Log("OpenVirtualDisk success");
+            }
+            else if (ERROR_VIRTDISK_PROVIDER_NOT_FOUND == Status)
+            {
+                Log("VirtualDisk for ISO file is not supported in current system");
+            }
+            else
+            {
+                Log("Failed to open virtual disk ErrorCode:%u", Status);
+            }
+            break;
+        }
+    }
+
+    if (Status != ERROR_SUCCESS)
+    {
+        return 1;
+    }
 
 	Log("OpenVirtualDisk success");
 
@@ -1210,48 +1230,68 @@ static int ProcessUnattendedInstallation(const char *script)
 
 static int VentoyHook(ventoy_os_param *param)
 {
+    int i;
     int rc;
-	CHAR Letter = 'A';
+    BOOL find = FALSE;
+    CHAR Letter;
+    DWORD Drives;
 	DISK_EXTENT DiskExtent;
-	DWORD Drives = GetLogicalDrives();
 	UINT8 UUID[16];
 	CHAR IsoPath[MAX_PATH];
 
-	Log("Logical Drives=0x%x Path:<%s>", Drives, param->vtoy_img_path);
+	Log("VentoyHook Path:<%s>", param->vtoy_img_path);
 
     if (IsUTF8Encode(param->vtoy_img_path))
     {
         Log("This file is UTF8 encoding\n");
     }
 
-	while (Drives)
-	{
-        if (Drives & 0x01)
+    for (i = 0; i < 5; i++)
+    {
+        Letter = 'A';
+        Drives = GetLogicalDrives();
+        Log("Logic Drives: 0x%x", Drives);
+
+        while (Drives)
         {
-            sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
-            if (IsFileExist("%s", IsoPath))
+            if (Drives & 0x01)
             {
-                Log("File exist under %C:", Letter);
-                if (GetPhyDiskUUID(Letter, UUID, &DiskExtent) == 0)
+                sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
+                if (IsFileExist("%s", IsoPath))
                 {
-                    if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
+                    Log("File exist under %C:", Letter);
+                    if (GetPhyDiskUUID(Letter, UUID, &DiskExtent) == 0)
                     {
-                        Log("Disk UUID match");
-                        break;
+                        if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
+                        {
+                            Log("Disk UUID match");
+                            find = TRUE;
+                            break;
+                        }
                     }
                 }
+                else
+                {
+                    Log("File NOT exist under %C:", Letter);
+                }
             }
-            else
-            {
-                Log("File NOT exist under %C:", Letter);
-            }
+
+            Drives >>= 1;
+            Letter++;
         }
 
-		Drives >>= 1;
-		Letter++;
-	}
+        if (find)
+        {
+            break;
+        }
+        else
+        {
+            Log("Now wait and retry ...");
+            Sleep(1000);
+        }
+    }
 
-	if (Drives == 0)
+    if (find == FALSE)
 	{
 		Log("Failed to find ISO file");
 		return 1;

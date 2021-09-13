@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <sys/mount.h>
 #include <linux/fs.h>
+#include <linux/limits.h>
 #include <dirent.h>
 #include <pthread.h>
 #include <ventoy_define.h>
@@ -160,9 +161,10 @@ static int ventoy_http_save_cfg(void)
 {
     FILE *fp;
 
-    fp = fopen("./Ventoy2Disk.ini", "w");
+    fp = fopen(g_ini_file, "w");
     if (!fp)
     {
+        vlog("Failed to open %s code:%d\n", g_ini_file, errno);
         return 0;
     }
 
@@ -180,7 +182,7 @@ static int ventoy_http_load_cfg(void)
     char line[256];
     FILE *fp;
 
-    fp = fopen("./Ventoy2Disk.ini", "r");
+    fp = fopen(g_ini_file, "r");
     if (!fp)
     {
         return 0;
@@ -1499,7 +1501,7 @@ int ventoy_http_start(const char *ip, const char *port)
     {
 	    "listening_ports",    "24680",
         "document_root",      "WebUI",
-        "error_log_file",     VTOY_LOG_FILE,
+        "error_log_file",     g_log_file,
 	    "request_timeout_ms", "10000",
 	     NULL
     };

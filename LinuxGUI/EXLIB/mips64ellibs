@@ -1,3 +1,8 @@
+libmd
+libzstd
+libpcre2-16
+libicu
+qt5
 libglib2
 libgtk-3
 libpango

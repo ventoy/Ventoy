@@ -35,7 +35,7 @@ ventoy_get_debian_distro() {
     fi
     
     if [ -e /init ]; then
-        if $GREP -q PUPPYSFS /init; then
+        if $EGREP -q 'PUPPYSFS|PUPPYFILE' /init; then
             if $GREP -q VEKETSFS /init; then
                 echo 'veket'; return
             else

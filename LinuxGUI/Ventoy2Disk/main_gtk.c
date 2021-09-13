@@ -8,9 +8,14 @@
 #include <errno.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <linux/limits.h>
 #include <ventoy_define.h>
 #include <ventoy_util.h>
 #include "ventoy_gtk.h"
+
+char g_log_file[PATH_MAX];
+char g_ini_file[PATH_MAX];
 
 static int set_image_from_pixbuf(GtkBuilder *pBuilder, const char *id, const void *pData, int len)
 {
@@ -53,6 +58,7 @@ int early_msgbox(GtkMessageType type, GtkButtonsType buttons, const char *str)
 
 int main(int argc, char *argv[])
 {
+    int i;
     int len;
     const void *pData = NULL;
     GtkWidget *pWidget = NULL;
@@ -72,6 +78,20 @@ int main(int argc, char *argv[])
     {
         early_msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Please run under the correct directory.");
         return 1;
+    }
+
+    snprintf(g_log_file, sizeof(g_log_file), "log.txt");
+    snprintf(g_ini_file, sizeof(g_ini_file), "./Ventoy2Disk.ini");
+    for (i = 0; i < argc; i++)
+    {
+        if (argv[i] && argv[i + 1] && strcmp(argv[i], "-l") == 0)
+        {
+            snprintf(g_log_file, sizeof(g_log_file), "%s", argv[i + 1]);
+        }
+        else if (argv[i] && argv[i + 1] &&  strcmp(argv[i], "-i") == 0)
+        {
+            snprintf(g_ini_file, sizeof(g_ini_file), "%s", argv[i + 1]);
+        }
     }
 
     ventoy_log_init();
@@ -113,6 +133,7 @@ int main(int argc, char *argv[])
 
     on_init_window(pBuilder);
     g_signal_connect(G_OBJECT(pWidget), "delete_event", G_CALLBACK(on_exit_window), NULL);
+    g_signal_connect(G_OBJECT(pWidget), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     gtk_main();
 

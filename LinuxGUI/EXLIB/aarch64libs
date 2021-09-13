@@ -1,4 +1,7 @@
 gtk3-
+qt5
+GL
+icu
 glib2-
 pango-
 cairo-

@@ -9,9 +9,11 @@
 #include <dirent.h> 
 #include <sys/utsname.h>
 #include <sys/types.h>
+#include <linux/limits.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
+#include "ventoy_json.h"
 
 #define LIB_FLAG_GTK2   (1 << 0)
 #define LIB_FLAG_GTK3   (1 << 1)
@@ -31,6 +33,7 @@
 #define LD_CACHE_FILE   "/etc/ld.so.cache"
 #define INT2STR_YN(a)   ((a) == 0 ? "NO" : "YES")
 
+static char g_log_file[PATH_MAX];
 static char *g_log_buf = NULL;
 extern char ** environ;
 
@@ -78,7 +81,9 @@ struct cache_file_new
 (((addr) + __alignof__ (struct cache_file_new) -1)	\
  & (~(__alignof__ (struct cache_file_new) - 1)))
 
-static void vlog(const char *Fmt, ...)
+#define vlog(fmt, args...) ventoy_syslog(0, fmt, ##args)
+
+void ventoy_syslog(int level, const char *Fmt, ...)
 {
     int buflen;
     char *buf = NULL;
@@ -87,6 +92,8 @@ static void vlog(const char *Fmt, ...)
     time_t stamp;
     struct tm ttm;
     FILE *fp;
+
+    (void)level;
     
     time(&stamp);
     localtime_r(&stamp, &ttm);
@@ -106,7 +113,7 @@ static void vlog(const char *Fmt, ...)
     vsnprintf(buf, buflen, Fmt, arg);
     va_end(arg);
 
-    fp = fopen("log.txt", "a+");
+    fp = fopen(g_log_file, "a+");
     if (fp)
     {
         fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
@@ -116,10 +123,12 @@ static void vlog(const char *Fmt, ...)
         fclose(fp);
     }
 
+    #if 0
     printf("[%04u/%02u/%02u %02u:%02u:%02u] %s", 
            ttm.tm_year + 1900, ttm.tm_mon, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            buf);
+    #endif
 }
 
 static int is_gtk_env(void)
@@ -223,14 +232,14 @@ static int detect_qt_version(int libflag)
         return 5;
     }
 
-    if (qt4 > 0)
-    {
-        return 4;
-    }
-
     if (qt6 > 0)
     {
         return 6;
+    }
+
+    if (qt4 > 0)
+    {
+        return 4;
     }
 
     return 0;
@@ -622,7 +631,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
     
     if (((*flag) & LIB_FLAG_QT4) == 0)
     {
-        if (strncmp(lib, "libqt4", 6) == 0)
+        if (strncmp(lib, "libQt4", 6) == 0)
         {
             vlog("LIB:<%s>\n", lib);
             *flag |= LIB_FLAG_QT4;
@@ -632,7 +641,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
     
     if (((*flag) & LIB_FLAG_QT5) == 0)
     {
-        if (strncmp(lib, "libqt5", 6) == 0)
+        if (strncmp(lib, "libQt5", 6) == 0)
         {
             vlog("LIB:<%s>\n", lib);
             *flag |= LIB_FLAG_QT5;
@@ -642,7 +651,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
     
     if (((*flag) & LIB_FLAG_QT6) == 0)
     {
-        if (strncmp(lib, "libqt6", 6) == 0)
+        if (strncmp(lib, "libQt6", 6) == 0)
         {
             vlog("LIB:<%s>\n", lib);
             *flag |= LIB_FLAG_QT6;
@@ -783,6 +792,176 @@ static int parse_ld_cache(int *flag)
     return 0;
 }
 
+static int gui_type_check(VTOY_JSON *pstNode)
+{
+    FILE *fp = NULL;
+    const char *env = NULL;
+    const char *arch = NULL;
+    const char *srctype = NULL;
+    const char *srcname = NULL;
+    const char *condition = NULL;
+    const char *expression = NULL;
+    char line[1024];
+    
+    arch = vtoy_json_get_string_ex(pstNode, "arch");
+    srctype = vtoy_json_get_string_ex(pstNode, "type");
+    srcname = vtoy_json_get_string_ex(pstNode, "name");
+    condition = vtoy_json_get_string_ex(pstNode, "condition");
+    expression = vtoy_json_get_string_ex(pstNode, "expression");
+    
+    if (srctype == NULL || srcname == NULL || condition == NULL)
+    {
+        return 0;
+    }
+
+    if (arch && NULL == strstr(arch, VTOY_GUI_ARCH))
+    {
+        return 0;
+    }
+
+    vlog("check <%s> <%s> <%s>\n", srctype, srcname, condition);
+
+    if (strcmp(srctype, "file") == 0)
+    {
+        if (access(srcname, F_OK) == -1)
+        {
+            return 0;
+        }
+    
+        if (strcmp(condition, "exist") == 0)
+        {
+            vlog("File %s exist\n", srcname);
+            return 1;
+        }
+        else if (strcmp(condition, "contains") == 0)
+        {
+            fp = fopen(srcname, "r");
+            if (fp == NULL)
+            {
+                return 0;
+            }
+
+            while (fgets(line, sizeof(line), fp))
+            {
+                if (strstr(line, expression))
+                {
+                    vlog("File %s contains %s\n", srcname, expression);
+                    fclose(fp);
+                    return 1;
+                }
+            }
+
+            fclose(fp);
+            return 0;
+        }
+    }
+    else if (strcmp(srctype, "env") == 0)
+    {
+        env = getenv(srcname);
+        if (env == NULL)
+        {
+            return 0;
+        }
+
+        if (strcmp(condition, "exist") == 0)
+        {
+            vlog("env %s exist\n", srcname);
+            return 1;
+        }
+        else if (strcmp(condition, "equal") == 0)
+        {
+            if (strcmp(expression, env) == 0)
+            {
+                vlog("env %s is %s\n", srcname, env);
+                return 1;
+            }
+            return 0;
+        }
+        else if (strcmp(condition, "contains") == 0)
+        {
+            if (strstr(env, expression))
+            {
+                vlog("env %s is %s contains %s\n", srcname, env, expression);
+                return 1;
+            }
+            return 0;
+        }
+    }
+    
+    return 0;
+}
+
+static int read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen)
+{
+    int FileSize;
+    FILE *fp = NULL;
+    void *Data = NULL;
+
+    fp = fopen(FileName, "rb");
+    if (fp == NULL)
+    {
+        vlog("Failed to open file %s", FileName);
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    FileSize = (int)ftell(fp);
+
+    Data = malloc(FileSize + ExtLen);
+    if (!Data)
+    {
+        fclose(fp);
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_SET);
+    fread(Data, 1, FileSize, fp);
+
+    fclose(fp);
+
+    *Bufer = Data;
+    *BufLen = FileSize;
+
+    return 0;
+}
+
+static int distro_check_gui_env(char *type, int len, int *pver)
+{
+    int size;
+    int length;
+    char *pBuf = NULL;
+    VTOY_JSON *pstNode = NULL;
+    VTOY_JSON *pstJson = NULL;
+
+    vlog("distro_check_gui_env ...\n");
+
+    if (access("./tool/distro_gui_type.json", F_OK) == -1)
+    {
+        vlog("distro_gui_type.json file not exist\n");
+        return 0;
+    }
+
+    read_file_to_buf("./tool/distro_gui_type.json", 1, (void **)&pBuf, &size);
+    pBuf[size] = 0;
+    
+    pstJson = vtoy_json_create();
+    vtoy_json_parse(pstJson, pBuf);
+
+    for (pstNode = pstJson->pstChild; pstNode; pstNode = pstNode->pstNext)
+    {
+        if (gui_type_check(pstNode->pstChild))
+        {
+            length = (int)snprintf(type, len, "%s", vtoy_json_get_string_ex(pstNode->pstChild, "gui"));
+            *pver = type[length - 1] - '0';
+            type[length - 1] = 0;
+            break;
+        }
+    }
+
+    vtoy_json_destroy(pstJson);
+    return pstNode ? 1 : 0;
+}
+
 static int detect_gui_exe_path(const char *curpath, char *pathbuf, int buflen)
 {
     int ret;
@@ -860,7 +1039,12 @@ static int detect_gui_exe_path(const char *curpath, char *pathbuf, int buflen)
         }
         else if ((LIB_FLAG_GTK & libflag) > 0 && (LIB_FLAG_QT & libflag) > 0)
         {
-            if (is_gtk_env())
+            if (distro_check_gui_env(line, sizeof(line), &ver))
+            {
+                guitype = line;
+                vlog("distro_check_gui <%s%d> ...\n", line, ver);
+            }
+            else if (is_gtk_env())
             {
                 guitype = "gtk";
                 ver = detect_gtk_version(libflag);
@@ -872,8 +1056,9 @@ static int detect_gui_exe_path(const char *curpath, char *pathbuf, int buflen)
             }
             else
             {
-                vlog("Current X environment is NOT supported.\n");
-                return 1;
+                vlog("Can not distinguish GTK and QT, default use GTK.\n");
+                guitype = "gtk";
+                ver = detect_gtk_version(libflag);
             }
         }
         else
@@ -989,7 +1174,18 @@ int real_main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+    int i;
     int ret;
+
+    snprintf(g_log_file, sizeof(g_log_file), "log.txt");
+    for (i = 0; i < argc; i++)
+    {
+        if (argv[i] && argv[i + 1] && strcmp(argv[i], "-l") == 0)
+        {
+            snprintf(g_log_file, sizeof(g_log_file), "%s", argv[i + 1]);
+            break;
+        }
+    }
 
     g_log_buf = malloc(MAX_LOG_BUF);
     if (!g_log_buf)

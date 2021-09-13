@@ -81,15 +81,19 @@ build_func() {
     rm -f ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}_$libsuffix
     cp -a Ventoy2Disk.${gtkver}_$libsuffix ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}
     
-   $1 -D_FILE_OFFSET_BITS=64 Ventoy2Disk/ventoy_gui.c -DVTOY_GUI_ARCH="\"$toolDir\"" -o VentoyGUI.$toolDir
-   cp -a VentoyGUI.$toolDir ../INSTALL/
+    $1 -O2 -D_FILE_OFFSET_BITS=64 Ventoy2Disk/ventoy_gui.c Ventoy2Disk/Core/ventoy_json.c -I Ventoy2Disk/Core  -DVTOY_GUI_ARCH="\"$toolDir\"" -o VentoyGUI.$toolDir
+    cp -a VentoyGUI.$toolDir ../INSTALL/
 }
+
 
 build_func "gcc" '64' 'x86_64' 'gtk2'
 build_func "gcc" '64' 'x86_64' 'gtk3'
+
 build_func "gcc -m32" '32' 'i386' 'gtk2'
 build_func "gcc -m32" '32' 'i386' 'gtk3'
 
 build_func "aarch64-linux-gnu-gcc" 'aa64' 'aarch64' 'gtk3'
+
+export PATH=/opt/mips-loongson-gcc8-linux-gnu-2021-02-08/bin/:$PATH
 build_func "mips-linux-gnu-gcc -mips64r2 -mabi=64" 'm64e' 'mips64el' 'gtk3'
 

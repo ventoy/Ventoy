@@ -11,6 +11,7 @@
     <property name="resizable">False</property>
     <property name="title" translatable="yes">Partition Configuration</property>
     <property name="modal">True</property>
+    <property name="window_position">center</property>
     <property name="default_width">460</property>
     <property name="default_height">270</property>
     <child>

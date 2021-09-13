@@ -9,6 +9,7 @@ fi
 dos2unix -q ./tool/ventoy_lib.sh
 dos2unix -q ./tool/VentoyWorker.sh
 dos2unix -q ./tool/VentoyGTK.glade
+dos2unix -q ./tool/distro_gui_type.json
 
 . ./tool/ventoy_lib.sh
 

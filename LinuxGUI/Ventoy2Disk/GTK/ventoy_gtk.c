@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <time.h>
 #include <unistd.h>
+#include <linux/limits.h>
 
 #include <ventoy_define.h>
 #include <ventoy_json.h>
@@ -300,14 +301,22 @@ void on_part_style_toggled(GtkMenuItem *menuItem, gpointer data)
 static ventoy_disk *select_active_dev(const char *select, int *activeid)
 {
     int i;
+    int alldev;
     ventoy_disk *cur = NULL;
 
+    alldev = ventoy_code_get_cur_show_all();
+    
     /* find the match one */
     if (select)
     {
         for (i = 0; i < g_disk_num; i++)
         {
             cur = g_disk_list + i;
+            if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
+            {
+                continue;
+            }
+            
             if (strcmp(cur->disk_name, select) == 0)
             {
                 *activeid = i;
@@ -320,6 +329,11 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
     for (i = 0; i < g_disk_num; i++)
     {
         cur = g_disk_list + i;
+        if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
+        {
+            continue;
+        }
+        
         if (cur->vtoydata.ventoy_valid)
         {
             *activeid = i;
@@ -331,6 +345,11 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
     for (i = 0; i < g_disk_num; i++)
     {
         cur = g_disk_list + i;
+        if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
+        {
+            continue;
+        }
+        
         if (cur->type == VTOY_DEVICE_USB)
         {
             *activeid = i;
@@ -339,8 +358,19 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
     }
 
     /* use the first one */
-    *activeid = 0;
-    return g_disk_list;
+    for (i = 0; i < g_disk_num; i++)
+    {
+        cur = g_disk_list + i;
+        if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
+        {
+            continue;
+        }
+        
+        *activeid = i;
+        return cur;
+    }
+        
+    return NULL;
 }
 
 static void fill_dev_list(const char *select)
@@ -613,6 +643,8 @@ static int install_proc(ventoy_disk *cur)
 void on_button_install_clicked(GtkWidget *widget, gpointer data) 
 {
     int active;
+    long long size;
+    long long space;
     ventoy_disk *cur = NULL;
 
     if (g_thread_run || ventoy_code_is_busy())
@@ -634,6 +666,27 @@ void on_button_install_clicked(GtkWidget *widget, gpointer data)
     {
         msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_DISK_2TB_MBR_ERROR");
         return;
+    }
+
+    if (g_preserve_space_check)
+    {
+        space = g_preserve_space_number;
+        if (g_preserve_space_unit == 1)
+        {
+            space = space * 1024;
+        }
+        else
+        {
+            space = space;
+        }
+
+        size = cur->size_in_byte / SIZE_1MB;
+        if (size <= space || (size - space) <= (VTOYEFI_PART_BYTES / SIZE_1MB))
+    	{
+    	    msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_SPACE_VAL_INVALID");
+    		vlog("reserved space value too big ...\n");
+    		return;
+    	}
     }
 
     if (GTK_RESPONSE_CANCEL == msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP"))
