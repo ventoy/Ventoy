@@ -228,6 +228,13 @@ static int ventoy_boot_opt_filter(char *opt)
         return 0;
     }
 
+    if (grub_strncmp(opt, "dm=", 3) == 0)
+    {
+        opt[0] = 'D';
+        opt[1] = 'M';
+        return 0;
+    }
+
     if (ventoy_debug)
     {
         if (grub_strcmp(opt, "quiet") == 0)

@@ -41,18 +41,18 @@ ventoy_os_install_dmsetup() {
     fi
 
     # install md-modules
-    LINE=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list)
+    LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list)
     if [ $? -eq 0 ]; then
-        LINTCNT=$($GREP -c ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list)
+        LINTCNT=$($GREP -i -c ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list)
         if [ $LINTCNT -gt 1 ]; then
             vtlog "more than one pkgs, need to filter..."
             VER=$($BUSYBOX_PATH/uname -r)
             
-            LINE=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP $VER)
-            LINTCNT=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -c $VER)
+            LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i $VER)
+            LINTCNT=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i -c $VER)
             if [ $LINTCNT -gt 1 ]; then
                 vtlog "Still more than one pkgs, use the first one..."
-                LINE=$($GREP ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP  -m1 $VER)
+                LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i -m1 $VER)
             fi
         fi
         install_udeb_from_line "$LINE" ${vt_usb_disk} 

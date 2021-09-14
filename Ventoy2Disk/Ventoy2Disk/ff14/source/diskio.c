@@ -202,7 +202,7 @@ DRESULT disk_write (
     LARGE_INTEGER liCurrentPosition;
     VTSI_SEGMENT *CurSeg = NULL;
 
-    Log("==== disk_write: sector:%ld count:%ld", (long)sector, (long)count);
+    //Log("==== disk_write: sector:%ld count:%ld", (long)sector, (long)count);
 
     // skip MBR
     if (sector == 0)

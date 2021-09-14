@@ -291,7 +291,7 @@ void disk_io_set_imghook(FILE *fp, VTSI_SEGMENT *segment, int maxseg, UINT64 dat
 void disk_io_reset_imghook(int *psegnum, UINT64 *pDataOffset);
 
 
-#define VTSI_SUPPORT 0
+#define VTSI_SUPPORT 1
 
 
 #endif

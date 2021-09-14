@@ -809,11 +809,6 @@ STATIC BOOLEAN ventoy_filesystem_need_wrapper(IN CONST CHAR16 *DrvName)
      *
      */
     
-    if (StrStr(UpperDrvName, L"ISO9660") || StrStr(UpperDrvName, L"UDF"))
-    {
-        return TRUE;
-    }
-
     if (StrStr(UpperDrvName, L"REFIND") && StrStr(UpperDrvName, L"FILE SYSTEM"))
     {
         return TRUE;
@@ -915,7 +910,6 @@ STATIC EFI_STATUS ventoy_find_filesystem_driverbind(VOID)
         Status = gBS->HandleProtocol(Handles[i], &gEfiComponentNameProtocolGuid, (VOID **)&NameProtocol);
         if (EFI_ERROR(Status))
         {
-            debug();
             continue;
         }
 
@@ -1144,14 +1138,15 @@ EFI_STATUS EFIAPI ventoy_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 Im
     {
         gBlockData.Media.BlockSize = 512;
         gBlockData.Media.LastBlock = ImgSize / 512 - 1;
+        gBlockData.Media.ReadOnly = FALSE;
     }
     else
     {
         gBlockData.Media.BlockSize = 2048;
         gBlockData.Media.LastBlock = ImgSize / 2048 - 1;        
+        gBlockData.Media.ReadOnly = TRUE;
     }
     
-    gBlockData.Media.ReadOnly = TRUE;
     gBlockData.Media.MediaPresent = 1;
     gBlockData.Media.LogicalBlocksPerPhysicalBlock = 1;
 
@@ -1405,6 +1400,16 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
     ventoy_virt_chunk *virt = NULL;
 
     debug("## ventoy_wrapper_file_open <%s> ", Name);
+
+    if ((Mode & EFI_FILE_MODE_WRITE) > 0 && StrCmp(Name, L"\\loader\\random-seed") == 0)
+    {
+        if (gDebugPrint)
+        {
+            debug("## ventoy_wrapper_file_open return NOT_FOUND for random-seed %lx", Mode);
+            sleep(3);
+        }
+        return EFI_NOT_FOUND;
+    }
 
     Status = g_original_fopen(This, New, Name, Mode, Attributes);
     if (EFI_ERROR(Status))

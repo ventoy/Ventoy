@@ -57,7 +57,9 @@ VOID EFIAPI VtoyUtilDebug(IN CONST CHAR8  *Format, ...);
 #define debug(expr, ...) if (gVtoyDebugPrint) VtoyUtilDebug("[VTOY] "expr"\n", ##__VA_ARGS__)
 #define Printf VtoyUtilDebug
 
+EFI_STATUS VtoyGetComponentName(IN UINTN Ver, IN VOID *Protocol, OUT CHAR16 **DriverName);
 EFI_STATUS FixWindowsMemhole(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdLine);
+EFI_STATUS ShowEfiDrivers(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdLine);
 
 #endif
 

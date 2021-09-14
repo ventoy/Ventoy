@@ -25,6 +25,8 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <linux/limits.h>
 #include <ventoy_define.h>
 #include <ventoy_util.h>
 #include <ventoy_json.h>

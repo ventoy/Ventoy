@@ -267,6 +267,7 @@ typedef struct ventoy_grub_param
 int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 void grub_iso9660_set_nojoliet(int nojoliet);
+int grub_iso9660_is_joliet(void);
 grub_uint64_t grub_iso9660_get_last_read_pos(grub_file_t file);
 grub_uint64_t grub_iso9660_get_last_file_dirent_pos(grub_file_t file);
 grub_uint64_t grub_udf_get_file_offset(grub_file_t file);

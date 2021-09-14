@@ -8,8 +8,8 @@ fi
 
 dos2unix -q ./tool/ventoy_lib.sh
 dos2unix -q ./tool/VentoyWorker.sh
-dos2unix -q ./tool/WebDeepin.sh
-dos2unix -q ./tool/WebUos.sh
+dos2unix -q ./tool/VentoyGTK.glade
+dos2unix -q ./tool/distro_gui_type.json
 
 . ./tool/ventoy_lib.sh
 
@@ -78,9 +78,13 @@ cp $OPT ./tool/ENROLL_THIS_KEY_IN_MOKMANAGER.cer $tmpmnt/
 
 
 mkdir -p $tmpmnt/tool
-cp $OPT ./tool/i386/mount.exfat-fuse     $tmpmnt/tool/mount.exfat-fuse_i386
-cp $OPT ./tool/x86_64/mount.exfat-fuse   $tmpmnt/tool/mount.exfat-fuse_x86_64
-cp $OPT ./tool/aarch64/mount.exfat-fuse  $tmpmnt/tool/mount.exfat-fuse_aarch64
+# cp $OPT ./tool/i386/mount.exfat-fuse     $tmpmnt/tool/mount.exfat-fuse_i386
+# cp $OPT ./tool/x86_64/mount.exfat-fuse   $tmpmnt/tool/mount.exfat-fuse_x86_64
+# cp $OPT ./tool/aarch64/mount.exfat-fuse  $tmpmnt/tool/mount.exfat-fuse_aarch64
+# to save space
+cp $OPT ./tool/i386/vtoygpt     $tmpmnt/tool/mount.exfat-fuse_i386
+cp $OPT ./tool/x86_64/vtoygpt   $tmpmnt/tool/mount.exfat-fuse_x86_64
+cp $OPT ./tool/aarch64/vtoygpt  $tmpmnt/tool/mount.exfat-fuse_aarch64
 
 
 rm -f $tmpmnt/grub/i386-pc/*.img
@@ -101,7 +105,8 @@ cp $OPT ./tool $tmpdir/
 rm -f $tmpdir/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
 cp $OPT Ventoy2Disk.sh $tmpdir/
 cp $OPT VentoyWeb.sh $tmpdir/
-cp $OPT VentoyWebDeepin.sh $tmpdir/
+cp $OPT VentoyGUI* $tmpdir/
+
 #cp $OPT Ventoy.desktop $tmpdir/
 cp $OPT README $tmpdir/
 cp $OPT plugin $tmpdir/
@@ -109,7 +114,7 @@ cp $OPT CreatePersistentImg.sh $tmpdir/
 cp $OPT ExtendPersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
 dos2unix -q $tmpdir/VentoyWeb.sh
-dos2unix -q $tmpdir/VentoyWebDeepin.sh
+
 #dos2unix -q $tmpdir/Ventoy.desktop
 dos2unix -q $tmpdir/CreatePersistentImg.sh
 dos2unix -q $tmpdir/ExtendPersistentImg.sh
@@ -128,11 +133,15 @@ rm -f ventoy-${curver}-linux.tar.gz
 
 CurDir=$PWD
 
-for d in i386 x86_64 aarch64; do
+for d in i386 x86_64 aarch64 mips64el; do
     cd $tmpdir/tool/$d
     for file in $(ls); do
         if [ "$file" != "xzcat" ]; then
-            xz --check=crc32 $file
+            if echo "$file" | grep -q '^Ventoy2Disk'; then
+                chmod +x $file
+            else
+                xz --check=crc32 $file
+            fi
         fi
     done
     cd $CurDir
@@ -143,7 +152,10 @@ find $tmpdir/ -type d -exec chmod 755 "{}" +
 find $tmpdir/ -type f -exec chmod 644 "{}" +
 chmod +x $tmpdir/Ventoy2Disk.sh
 chmod +x $tmpdir/VentoyWeb.sh
-chmod +x $tmpdir/VentoyWebDeepin.sh
+chmod +x $tmpdir/VentoyGUI*
+
+cp $OPT $LANG_DIR/languages.json $tmpdir/tool/
+
 #chmod +x $tmpdir/Ventoy.desktop
 chmod +x $tmpdir/CreatePersistentImg.sh
 chmod +x $tmpdir/ExtendPersistentImg.sh

@@ -121,6 +121,11 @@ elif [ "$VTOY_ARCH" = "i386" ]; then
     ln -s $VTOY_PATH/tool/dmsetup32 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzip32 $VTOY_PATH/tool/lunzip
 
+    if uname -a | egrep -q 'x86_64|amd64'; then
+        echo "zstdcat use 64bit ..." >>$VTLOG
+        rm -f $VTOY_PATH/tool/zstdcat
+        ln -s $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
+    fi
 elif [ "$VTOY_ARCH" = "mips64el" ]; then
     echo "Use MIPS64 busybox toolkit ..." >>$VTLOG
     ln -s $BUSYBOX_PATH/xzminidecm64e $BUSYBOX_PATH/xzminidec

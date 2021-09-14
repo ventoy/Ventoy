@@ -81,6 +81,18 @@ else
         echo "use unsquashfs_32" >>$VTLOG    
         $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_32 $VTOY_PATH/tool/vtoy_unsquashfs
     fi
-    
+
+    if $GREP -q 64 $VTOY_PATH/ventoy_arch; then
+        echo "use veritysetup64" >>$VTLOG    
+        if [ -f $VTOY_PATH/tool/veritysetup64 ]; then
+            $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/veritysetup64  $VTOY_PATH/tool/veritysetup
+        fi
+    else
+        echo "use veritysetup32" >>$VTLOG    
+        
+        if [ -f $VTOY_PATH/tool/veritysetup32 ]; then
+            $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/veritysetup32  $VTOY_PATH/tool/veritysetup
+        fi
+    fi
 fi
 

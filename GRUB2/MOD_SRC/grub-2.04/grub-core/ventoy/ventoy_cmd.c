@@ -127,6 +127,9 @@ static grub_uint64_t g_enumerate_start_time_ms;
 static grub_uint64_t g_enumerate_finish_time_ms;
 static int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
 
+static int g_pager_flag = 0;
+static char g_old_pager[32];
+
 static const char *g_vtoy_winpeshl_ini = "[LaunchApps]\r\nvtoyjump.exe";
 
 static const char *g_menu_class[] = 
@@ -141,6 +144,8 @@ const char *g_menu_prefix[img_type_max] =
 
 static int g_vtoy_load_prompt = 0;
 static char g_vtoy_prompt_msg[64];
+
+static char g_json_case_mis_path[32];
 
 static int ventoy_get_fs_type(const char *fs)
 {
@@ -1219,6 +1224,23 @@ static grub_err_t ventoy_cmd_load_img_memdisk(grub_extcmd_context_t ctxt, int ar
     rc = 0;
     
     return rc;
+}
+
+static grub_err_t ventoy_cmd_iso9660_is_joliet(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+    
+    if (grub_iso9660_is_joliet())
+    {
+        debug("This time has joliet process\n");
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 static grub_err_t ventoy_cmd_iso9660_nojoliet(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -3469,9 +3491,11 @@ end:
 
 static int ventoy_img_partition_callback (struct grub_disk *disk, const grub_partition_t partition, void *data)
 {
+    int *pCnt = (int *)data;
+    
     (void)disk;
-    (void)data;
 
+    (*pCnt)++;
     g_part_list_pos += grub_snprintf(g_part_list_buf + g_part_list_pos, VTOY_MAX_SCRIPT_BUF - g_part_list_pos,
         "0 %llu linear /dev/ventoy %llu\n",
         (ulonglong)partition->len, (ulonglong)partition->start);
@@ -3481,6 +3505,7 @@ static int ventoy_img_partition_callback (struct grub_disk *disk, const grub_par
 
 static grub_err_t ventoy_cmd_img_part_info(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int cnt = 0;
     char *device_name = NULL;
     grub_device_t dev = NULL;
     char buf[64];
@@ -3509,10 +3534,13 @@ static grub_err_t ventoy_cmd_img_part_info(grub_extcmd_context_t ctxt, int argc,
         goto end;        
     }
 
-    grub_partition_iterate(dev->disk, ventoy_img_partition_callback, NULL);
+    grub_partition_iterate(dev->disk, ventoy_img_partition_callback, &cnt);
 
     grub_snprintf(buf, sizeof(buf), "newc:vtoy_dm_table:mem:0x%llx:size:%d", (ulonglong)(ulong)g_part_list_buf, g_part_list_pos);
     grub_env_set("vtoy_img_part_file", buf);
+
+    grub_snprintf(buf, sizeof(buf), "%d", cnt);
+    grub_env_set("vtoy_img_part_cnt", buf);
 
 end:
 
@@ -4629,6 +4657,200 @@ fail:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_push_pager(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    const char *pager = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    pager = grub_env_get("pager");
+    if (NULL == pager)
+    {
+        g_pager_flag = 1;
+        grub_env_set("pager", "1");
+    }
+    else if (pager[0] == '1')
+    {
+        g_pager_flag = 0;
+    }
+    else
+    {
+        grub_snprintf(g_old_pager, sizeof(g_old_pager), "%s", pager);
+        g_pager_flag = 2;
+        grub_env_set("pager", "1");
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t ventoy_cmd_pop_pager(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (g_pager_flag == 1)
+    {
+        grub_env_unset("pager");
+    }
+    else if (g_pager_flag == 2)
+    {
+        grub_env_set("pager", g_old_pager);
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static int ventoy_chk_case_file(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    if (g_json_case_mis_path[0])
+    {
+        return 1;
+    }
+
+    if (0 == info->dir && grub_strncasecmp(filename, "ventoy.json", 11) == 0)
+    {
+        grub_snprintf(g_json_case_mis_path, 32, "%s/%s", (char *)data, filename);
+        return 1;
+    }
+    return 0;
+}
+
+static int ventoy_chk_case_dir(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    char path[16];
+    chk_case_fs_dir *fs_dir = (chk_case_fs_dir *)data;
+
+    if (g_json_case_mis_path[0])
+    {
+        return 1;
+    }
+
+    if (info->dir && (filename[0] == 'v' || filename[0] == 'V'))
+    {
+        if (grub_strncasecmp(filename, "ventoy", 6) == 0)
+        {
+            grub_snprintf(path, sizeof(path), "/%s", filename);
+            fs_dir->fs->fs_dir(fs_dir->dev, path, ventoy_chk_case_file, path);
+            if (g_json_case_mis_path[0])
+            {
+                return 1;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_chk_json_pathcase(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int fstype = 0;
+    char *device_name = NULL;
+    grub_device_t dev = NULL;
+    grub_fs_t fs = NULL;
+    chk_case_fs_dir fs_dir;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    device_name = grub_file_get_device_name(args[0]);
+    if (!device_name)
+    {
+        goto out;
+    }
+
+    dev = grub_device_open(device_name);
+    if (!dev)
+    {
+        goto out;
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        goto out;
+    }
+
+    fstype = ventoy_get_fs_type(fs->name);
+    if (fstype == ventoy_fs_fat || fstype == ventoy_fs_exfat || fstype >= ventoy_fs_max)
+    {
+        goto out;
+    }
+
+    g_json_case_mis_path[0] = 0;
+    fs_dir.dev = dev;
+    fs_dir.fs = fs;
+    fs->fs_dir(dev, "/", ventoy_chk_case_dir, &fs_dir);
+
+    if (g_json_case_mis_path[0])
+    {
+        grub_env_set("VTOY_PLUGIN_PATH_CASE_MISMATCH", g_json_case_mis_path);
+    }
+
+out:
+
+    grub_check_free(device_name);
+    check_free(dev, grub_device_close);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t grub_cmd_gptpriority(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+  grub_disk_t disk;
+  grub_partition_t part;
+  char priority_str[3]; /* Maximum value 15 */
+
+  (void)ctxt;
+
+  if (argc < 2 || argc > 3)
+    return grub_error (GRUB_ERR_BAD_ARGUMENT,
+                       "gptpriority DISKNAME PARTITIONNUM [VARNAME]");
+
+  /* Open the disk if it exists */
+  disk = grub_disk_open (args[0]);
+  if (!disk)
+    {
+      return grub_error (GRUB_ERR_BAD_ARGUMENT,
+                         "Not a disk");
+    }
+
+  part = grub_partition_probe (disk, args[1]);
+  if (!part)
+    {
+      grub_disk_close (disk);
+      return grub_error (GRUB_ERR_BAD_ARGUMENT,
+                         "No such partition");
+    }
+
+  if (grub_strcmp (part->partmap->name, "gpt"))
+    {
+      grub_disk_close (disk);
+      return grub_error (GRUB_ERR_BAD_PART_TABLE,
+                         "Not a GPT partition");
+    }
+
+  grub_snprintf (priority_str, sizeof(priority_str), "%u",
+                 (grub_uint32_t)((part->gpt_attrib >> 48) & 0xfULL));
+
+  if (argc == 3)
+    {
+      grub_env_set (args[2], priority_str);
+      grub_env_export (args[2]);
+    }
+  else
+    {
+      grub_printf ("Priority is %s\n", priority_str);
+    }
+
+  grub_disk_close (disk);
+  return GRUB_ERR_NONE;
+}
+
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -4675,6 +4897,8 @@ int ventoy_env_init(void)
 
     return 0;
 }
+
+
 
 static cmd_para ventoy_cmds[] = 
 {
@@ -4736,6 +4960,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_select_conf_replace", ventoy_select_conf_replace, 0, NULL, "", "", NULL },
 
     { "vt_iso9660_nojoliet", ventoy_cmd_iso9660_nojoliet, 0, NULL, "", "", NULL },
+    { "vt_iso9660_isjoliet", ventoy_cmd_iso9660_is_joliet, 0, NULL, "", "", NULL },
     { "vt_is_udf", ventoy_cmd_is_udf, 0, NULL, "", "", NULL },
     { "vt_file_size", ventoy_cmd_file_size, 0, NULL, "", "", NULL },
     { "vt_load_file_to_mem", ventoy_cmd_load_file_to_mem, 0, NULL, "", "", NULL },
@@ -4803,6 +5028,11 @@ static cmd_para ventoy_cmds[] =
 
     { "vt_get_efi_vdisk_offset", ventoy_cmd_get_efivdisk_offset, 0, NULL, "", "", NULL },
     { "vt_search_replace_initrd", ventoy_cmd_search_replace_initrd, 0, NULL, "", "", NULL },
+    { "vt_push_pager", ventoy_cmd_push_pager, 0, NULL, "", "", NULL },
+    { "vt_pop_pager", ventoy_cmd_pop_pager, 0, NULL, "", "", NULL },
+    { "vt_check_json_path_case", ventoy_cmd_chk_json_pathcase, 0, NULL, "", "", NULL },
+    { "vt_append_extra_sector", ventoy_cmd_append_ext_sector, 0, NULL, "", "", NULL },
+    { "gptpriority", grub_cmd_gptpriority, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

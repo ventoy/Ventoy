@@ -660,30 +660,22 @@ static wim_directory_entry * search_full_wim_dirent
 
 static wim_directory_entry * search_replace_wim_dirent(void *meta_data, wim_directory_entry *dir)
 {
-    wim_directory_entry *wim_dirent1 = NULL;
-    wim_directory_entry *wim_dirent2 = NULL;
+    wim_directory_entry *wim_dirent = NULL;
     const char *pecmd_path[] = { "Windows", "System32", "pecmd.exe", NULL };
-    const char *wpeinit_path[] = { "Windows", "System32", "wpeinit.exe", NULL };
     const char *winpeshl_path[] = { "Windows", "System32", "winpeshl.exe", NULL };
 
-    wim_dirent1 = search_full_wim_dirent(meta_data, dir, pecmd_path);
-    debug("search pecmd.exe %p\n", wim_dirent1);
-    if (wim_dirent1)
+    wim_dirent = search_full_wim_dirent(meta_data, dir, pecmd_path);
+    debug("search pecmd.exe %p\n", wim_dirent);
+    if (wim_dirent)
     {
-        wim_dirent2 = search_full_wim_dirent(meta_data, dir, wpeinit_path);
-        debug("search wpeinit.exe %p\n", wim_dirent1);
-        if (wim_dirent2)
-        {
-            return wim_dirent2;
-        }
-        return wim_dirent1;
+        return wim_dirent;
     }
 
-    wim_dirent1 = search_full_wim_dirent(meta_data, dir, winpeshl_path);
-    debug("search winpeshl.exe %p\n", wim_dirent1);
-    if (wim_dirent1)
+    wim_dirent = search_full_wim_dirent(meta_data, dir, winpeshl_path);
+    debug("search winpeshl.exe %p\n", wim_dirent);
+    if (wim_dirent)
     {
-        return wim_dirent1;
+        return wim_dirent;
     }
 
     return NULL;
@@ -745,6 +737,27 @@ static grub_uint64_t ventoy_get_stream_len(wim_directory_entry *dir)
     return offset;
 }
 
+static int ventoy_update_stream_hash(wim_patch *patch, wim_directory_entry *dir)
+{
+    grub_uint16_t i;
+    grub_uint64_t offset = 0;
+    wim_stream_entry *stream = (wim_stream_entry *)((char *)dir + dir->len);
+
+    for (i = 0; i < dir->streams; i++)
+    {
+        if (grub_memcmp(stream->hash.sha1, patch->old_hash.sha1, sizeof(wim_hash)) == 0)
+        {
+            debug("find target stream %u, name_len:%u upadte hash\n", i, stream->name_len);
+            grub_memcpy(stream->hash.sha1, &(patch->wim_data.bin_hash), sizeof(wim_hash));
+        }
+
+        offset += stream->len;
+        stream = (wim_stream_entry *)((char *)stream + stream->len);
+    }
+
+    return offset;
+}
+
 static int ventoy_update_all_hash(wim_patch *patch, void *meta_data, wim_directory_entry *dir)
 {
     if ((meta_data == NULL) || (dir == NULL))
@@ -772,6 +785,7 @@ static int ventoy_update_all_hash(wim_patch *patch, void *meta_data, wim_directo
 
         if (dir->streams)
         {
+            ventoy_update_stream_hash(patch, dir);
             dir = (wim_directory_entry *)((char *)dir + dir->len + ventoy_get_stream_len(dir));
         }
         else
@@ -932,6 +946,7 @@ static int ventoy_update_before_chain(ventoy_os_param *param, char *isopath)
 static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
 {
     int rc;
+    grub_uint16_t i;
     grub_file_t file;
     grub_uint32_t exe_len;
     grub_uint8_t *exe_data = NULL;
@@ -940,6 +955,7 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
     wim_security_header *security = NULL;
     wim_directory_entry *rootdir = NULL;
     wim_directory_entry *search = NULL;
+    wim_stream_entry *stream = NULL;
     wim_header *head = &(patch->wim_data.wim_header);    
     wim_tail *wim_data = &patch->wim_data;
     
@@ -1002,8 +1018,28 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
     }
     
     debug("find replace file at %p\n", search);
-    
-    grub_memcpy(&patch->old_hash, search->hash.sha1, sizeof(wim_hash));
+
+    grub_memset(&patch->old_hash, 0, sizeof(wim_hash));
+    if (grub_memcmp(&patch->old_hash, search->hash.sha1, sizeof(wim_hash)) == 0)
+    {
+        debug("search hash all 0, now do deep search\n");
+        stream = (wim_stream_entry *)((char *)search + search->len);
+        for (i = 0; i < search->streams; i++)
+        {
+            if (stream->name_len == 0)
+            {
+                grub_memcpy(&patch->old_hash, stream->hash.sha1, sizeof(wim_hash));
+                debug("new search hash: %02x %02x %02x %02x %02x %02x %02x %02x\n", 
+                    ventoy_varg_8(patch->old_hash.sha1));
+                break;
+            }
+            stream = (wim_stream_entry *)((char *)stream + stream->len);
+        }
+    }
+    else
+    {
+        grub_memcpy(&patch->old_hash, search->hash.sha1, sizeof(wim_hash));        
+    }
 
     debug("read lookup offset:%llu size:%llu\n", (ulonglong)head->lookup.offset, (ulonglong)head->lookup.raw_size);
     lookup = grub_malloc(head->lookup.raw_size);
@@ -1030,8 +1066,8 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch)
     }
     else
     {
-        debug("failed to find lookup entry for replace file 0x%02x 0x%02x\n", 
-               patch->old_hash.sha1[0],  patch->old_hash.sha1[1]);
+        debug("failed to find lookup entry for replace file %02x %02x %02x %02x\n", 
+            ventoy_varg_4(patch->old_hash.sha1));
     }
 
     wim_data->wim_raw_size = (grub_uint32_t)file->size;
