@@ -666,7 +666,7 @@
         "name":"Russian (Pусский)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"BL4CKH47H4CK3R",
+        "Author":"BL4CKH47H4CK3R, Teraskull",
         
         "STR_ERROR":"Ошибка",
         "STR_WARNING":"Предупреждение",
@@ -707,10 +707,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Ошибка связи: Служба недоступна",
         "STR_WEB_TOKEN_MISMATCH":"Статус демона обновлен. Повторите попытку позже.",
         "STR_WEB_SERVICE_BUSY":"Служба занята, повторите попытку позже.",
-        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
-        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
-        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_VTSI_CREATE":"Создать файл VTSI",
+        "STR_VTSI_CREATE_TIP":"На этот раз Ventoy не будет установлен на устройство, а будет только создан файл VTSI#@Продолжить?",
+        "STR_VTSI_CREATE_SUCCESS":"Файл VTSI создан успешно!#@Вы можете использовать Rufus(3.15+), чтобы записать его на устройство, для завершения установки Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"Ошибка создания файла VTSI.",
         "STRXXX":""
     },
     {
@@ -1727,10 +1727,10 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Помилка зв'язку: Служба недоступна",
         "STR_WEB_TOKEN_MISMATCH":"Статус демона оновлено. Повторіть спробу пізніше.",
         "STR_WEB_SERVICE_BUSY":"Служба зайнята, повторіть спробу пізніше.",
-        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
-        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
-        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_VTSI_CREATE":"Створити файл VTSI",
+        "STR_VTSI_CREATE_TIP":"Цього разу Ventoy не буде встановлено на пристрій, а лише буде створено файл VTSI#@Продовжити?",
+        "STR_VTSI_CREATE_SUCCESS":"Файл VTSI створено успішно!#@Ви можете використати Rufus(3.15+), щоб записати його на пристрій, для завершення встановлення Ventoy",
+        "STR_VTSI_CREATE_FAILED":"Не вдалося створити файл VTSI.",
         "STRXXX":""
     },
     {
