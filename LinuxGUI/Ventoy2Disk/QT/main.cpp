@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QStyle>
+#include <QDir>
 #include <QDesktopWidget>
 #include <QPixmap>
 #include <unistd.h>
@@ -23,6 +24,7 @@ char g_ini_file[4096];
 int main(int argc, char *argv[])
 {
     int ret;
+    long long size;
     QApplication a(argc, argv);
     Ventoy2DiskWindow w;
 
@@ -33,6 +35,21 @@ int main(int argc, char *argv[])
         return 1;
     }
 #endif
+
+    if (!QFileInfo::exists("./boot/boot.img"))
+    {
+        QString curdir = a.applicationDirPath();
+        int index = curdir.indexOf("/tool/");
+
+        if (index >= 0)
+        {
+            QDir::setCurrent(curdir.left(index));
+        }
+        else
+        {
+            QDir::setCurrent(curdir);        
+        }        
+    }
 
     if (!QFileInfo::exists("./boot/boot.img"))
     {
@@ -56,9 +73,18 @@ int main(int argc, char *argv[])
         }
     }
 
+    QFileInfo Info(g_log_file);
+    size = (long long)Info.size();
+    if (size >= 4 * SIZE_1MB)
+    {
+        QFile::remove(g_log_file);
+    }
+
     vlog("===================================================\n");
     vlog("===== Ventoy2Disk %s powered by QT %s =====\n", ventoy_get_local_version(), qVersion());
     vlog("===================================================\n");
+    vlog("log file is <%s> lastsize:%lld\n", g_log_file, (long long)size);
+    vlog("ini file is <%s>\n", g_ini_file);
 
     ventoy_disk_init();
     ventoy_http_init();

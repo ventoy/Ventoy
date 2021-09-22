@@ -9,6 +9,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <linux/limits.h>
 #include <ventoy_define.h>
 #include <ventoy_util.h>
@@ -56,6 +57,49 @@ int early_msgbox(GtkMessageType type, GtkButtonsType buttons, const char *str)
     return ret;
 }
 
+static int adjust_cur_dir(char *argv0)
+{
+    int ret = 2;
+    char c;
+    char *pos = NULL;
+    char *end = NULL;
+
+    if (argv0[0] == '.')
+    {
+        return 1;
+    }
+
+    for (pos = argv0; pos && *pos; pos++)
+    {
+        if (*pos == '/')
+        {
+            end = pos;
+        }
+    }
+
+    if (end)
+    {
+        c = *end;
+        *end = 0;
+
+        pos = strstr(argv0, "/tool/");
+        if (pos)
+        {
+            *pos = 0;
+        }
+        
+        ret = chdir(argv0);
+        
+        *end = c;
+        if (pos)
+        {
+            *pos = '/';
+        }
+    }
+
+    return ret;
+}
+
 int main(int argc, char *argv[])
 {
     int i;
@@ -64,6 +108,7 @@ int main(int argc, char *argv[])
     GtkWidget *pWidget = NULL;
     GtkBuilder *pBuilder = NULL;
     GError *error = NULL;
+    struct stat logstat;
 
     gtk_init(&argc, &argv);
     
@@ -72,6 +117,11 @@ int main(int argc, char *argv[])
         early_msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, 
                      "Ventoy2Disk permission denied!\r\nPlease run with root privileges.");
         return EACCES;
+    }
+
+    if (access("./boot/boot.img", F_OK) == -1)
+    {
+        adjust_cur_dir(argv[0]);        
     }
 
     if (access("./boot/boot.img", F_OK) == -1)
@@ -94,11 +144,22 @@ int main(int argc, char *argv[])
         }
     }
 
+    memset(&logstat, 0, sizeof(logstat));
+    if (0 == stat(g_log_file, &logstat))
+    {
+        if (logstat.st_size >= 4 * SIZE_1MB)
+        {
+            remove(g_log_file);
+        }
+    }
+
     ventoy_log_init();
 
     vlog("================================================\n");
     vlog("===== Ventoy2Disk %s powered by GTK%d.x =====\n", ventoy_get_local_version(), GTK_MAJOR_VERSION);
     vlog("================================================\n");
+    vlog("log file is <%s> lastsize:%lld\n", g_log_file, (long long)logstat.st_size);
+    vlog("ini file is <%s>\n", g_ini_file);
 
     ventoy_disk_init();
 
