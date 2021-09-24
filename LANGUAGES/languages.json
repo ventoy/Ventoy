@@ -1668,7 +1668,7 @@
         "STR_CLEAR_FAILED":"Terjadi kesalahan ketika penghapusan berlangsung. Anda perlu mencabut-pasang ulang USB dan coba lagi. Cek log.txt untuk detil.",
         "STR_MENU_PART_STYLE":"Gaya Partisi",
         "STR_DISK_2TB_MBR_ERROR":"Silakan pilih GPT untuk disk yang lebih dari 2TB",
-        "STR_SHOW_ALL_DEV":"Show All Devices",
+        "STR_SHOW_ALL_DEV":"Tampilkan Semua Perangkat",
         "STR_PART_ALIGN_4KB":"Meluruskan dengan partisi 4KB",
         "STR_WEB_COMMUNICATION_ERR":"Kesalahan komunikasi:",
         "STR_WEB_REMOTE_ABNORMAL":"Kesalahan komunikasi: tidak normalnya kendali",
