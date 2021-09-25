@@ -88,8 +88,8 @@ ventoy_get_os_type() {
         
     # Deepin : do the same process with debian
     elif $GREP -q '[Dd]eepin' /proc/version; then
-        echo 'debian'; return
-        
+        echo 'debian'; return    
+
     # SUSE
     elif $GREP -q 'SUSE' /proc/version; then
         echo 'suse'; return
@@ -160,7 +160,11 @@ ventoy_get_os_type() {
         elif $GREP -q 'openEuler' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'fuyu' /etc/os-release; then
-            echo 'openEuler'; return	
+            echo 'openEuler'; return
+        elif $GREP -q 'deepin' /etc/os-release; then
+            echo 'debian'; return
+        elif $GREP -q 'chinauos' /etc/os-release; then
+            echo 'debian'; return
         fi
     fi
     
