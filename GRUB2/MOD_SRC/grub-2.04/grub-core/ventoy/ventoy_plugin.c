@@ -48,6 +48,7 @@ static install_template *g_install_template_head = NULL;
 static dud *g_dud_head = NULL;
 static menu_password *g_pwd_head = NULL;
 static persistence_config *g_persistence_head = NULL;
+static menu_tip *g_menu_tip_head = NULL;
 static menu_alias *g_menu_alias_head = NULL;
 static menu_class *g_menu_class_head = NULL;
 static custom_boot *g_custom_boot_head = NULL;
@@ -1417,6 +1418,176 @@ static int ventoy_plugin_menualias_entry(VTOY_JSON *json, const char *isodisk)
     return 0;
 }
 
+static int ventoy_plugin_menutip_check(VTOY_JSON *json, const char *isodisk)
+{
+    const char *path = NULL;
+    const char *tip = NULL;
+    VTOY_JSON *pNode = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_OBJECT)
+    {
+        grub_printf("Not object %d\n", json->enDataType);
+        return 1;
+    }
+
+    tip = vtoy_json_get_string_ex(json->pstChild, "left");
+    if (tip)
+    {
+        grub_printf("left: <%s>\n", tip);
+    }
+    
+    tip = vtoy_json_get_string_ex(json->pstChild, "top");
+    if (tip)
+    {
+        grub_printf("top: <%s>\n", tip);
+    }
+    
+    tip = vtoy_json_get_string_ex(json->pstChild, "color");
+    if (tip)
+    {
+        grub_printf("color: <%s>\n", tip);
+    }
+
+    pNode = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "tips");
+    for (pNode = pNode->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        path = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (path && path[0] == '/')
+        {
+            if (grub_strchr(path, '*'))
+            {
+                grub_printf("image: <%s> [ * ]\n", path);
+            }
+            else if (ventoy_check_file_exist("%s%s", isodisk, path))
+            {
+                grub_printf("image: <%s> [ OK ]\n", path);
+            }
+            else
+            {
+                grub_printf("image: <%s> [ NOT EXIST ]\n", path);
+            }
+
+            tip = vtoy_json_get_string_ex(pNode->pstChild, "tip");
+            if (tip)
+            {
+                grub_printf("tip: <%s>\n", tip);
+            }
+            else
+            {
+                tip = vtoy_json_get_string_ex(pNode->pstChild, "tip1");
+                if (tip)
+                    grub_printf("tip1: <%s>\n", tip);
+                else
+                    grub_printf("tip1: <NULL>\n");
+                
+                tip = vtoy_json_get_string_ex(pNode->pstChild, "tip2");
+                if (tip)
+                    grub_printf("tip2: <%s>\n", tip);
+                else
+                    grub_printf("tip2: <NULL>\n");
+            }
+        }
+        else
+        {
+            grub_printf("image: <%s> [ INVALID ]\n", path);
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_plugin_menutip_entry(VTOY_JSON *json, const char *isodisk)
+{
+    const char *path = NULL;
+    const char *tip = NULL;
+    VTOY_JSON *pNode = NULL;
+    menu_tip *node = NULL;
+    menu_tip *next = NULL;
+
+    (void)isodisk;
+
+    if (json->enDataType != JSON_TYPE_OBJECT)
+    {
+        debug("Not object %d\n", json->enDataType);
+        return 0;
+    }
+
+    pNode = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "tips");
+    if (pNode == NULL)
+    {
+        debug("Not tips found\n");
+        return 0;
+    }
+
+    if (g_menu_tip_head)
+    {
+        for (node = g_menu_tip_head; node; node = next)
+        {
+            next = node->next;
+            grub_free(node);
+        }
+
+        g_menu_tip_head = NULL;
+    }
+
+    tip = vtoy_json_get_string_ex(json->pstChild, "left");
+    if (tip)
+    {
+        grub_env_set("VTOY_TIP_LEFT", tip);
+    }
+    
+    tip = vtoy_json_get_string_ex(json->pstChild, "top");
+    if (tip)
+    {
+        grub_env_set("VTOY_TIP_TOP", tip);
+    }
+    
+    tip = vtoy_json_get_string_ex(json->pstChild, "color");
+    if (tip)
+    {
+        grub_env_set("VTOY_TIP_COLOR", tip);
+    }
+
+    for (pNode = pNode->pstChild; pNode; pNode = pNode->pstNext)
+    {
+        path = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (path && path[0] == '/')
+        {
+            node = grub_zalloc(sizeof(menu_tip));
+            if (node)
+            {
+                node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", path);
+
+                tip = vtoy_json_get_string_ex(pNode->pstChild, "tip");
+                if (tip)
+                {
+                    grub_snprintf(node->tip1, 1000, "%s", tip);
+                }
+                else
+                {
+                    tip = vtoy_json_get_string_ex(pNode->pstChild, "tip1");
+                    if (tip)
+                        grub_snprintf(node->tip1, 1000, "%s", tip);
+
+                    tip = vtoy_json_get_string_ex(pNode->pstChild, "tip2");
+                    if (tip)
+                        grub_snprintf(node->tip2, 1000, "%s", tip);
+                }
+
+                if (g_menu_tip_head)
+                {
+                    node->next = g_menu_tip_head;
+                }
+                
+                g_menu_tip_head = node;
+            }
+        }
+    }
+
+    return 0;
+}
 
 static int ventoy_plugin_injection_check(VTOY_JSON *json, const char *isodisk)
 {
@@ -2101,6 +2272,7 @@ static plugin_entry g_plugin_entries[] =
     { "auto_install", ventoy_plugin_auto_install_entry, ventoy_plugin_auto_install_check },
     { "persistence", ventoy_plugin_persistence_entry, ventoy_plugin_persistence_check },
     { "menu_alias", ventoy_plugin_menualias_entry, ventoy_plugin_menualias_check },
+    { "menu_tip", ventoy_plugin_menutip_entry, ventoy_plugin_menutip_check },
     { "menu_class", ventoy_plugin_menuclass_entry, ventoy_plugin_menuclass_check },
     { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check },
     { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check },
@@ -2148,6 +2320,11 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     
     (void)ctxt;
     (void)argc;
+
+    grub_env_set("VTOY_TIP_LEFT", "10%");
+    grub_env_set("VTOY_TIP_TOP", "80%+5");
+    grub_env_set("VTOY_TIP_COLOR", "blue");
+    grub_env_set("VTOY_TIP_ALIGN", "left");
 
     file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "%s/ventoy/ventoy.json", args[0]);
     if (!file)
@@ -2203,6 +2380,15 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
             grub_sleep(5);
             grub_exit();
         }
+    }
+
+    if (g_menu_tip_head)
+    {
+        grub_env_set("VTOY_MENU_TIP_ENABLE", "1");
+    }
+    else
+    {
+        grub_env_unset("VTOY_MENU_TIP_ENABLE");
     }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
@@ -2459,6 +2645,28 @@ const char * ventoy_plugin_get_menu_alias(int type, const char *isopath)
             node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
         {
             return node->alias;
+        }
+    }
+
+    return NULL;
+}
+
+const menu_tip * ventoy_plugin_get_menu_tip(const char *isopath)
+{
+    int len;
+    menu_tip *node = NULL;
+
+    if (!g_menu_tip_head)
+    {
+        return NULL;
+    }
+
+    len = (int)grub_strlen(isopath);
+    for (node = g_menu_tip_head; node; node = node->next)
+    {
+        if (node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
+        {
+            return node;
         }
     }
 
