@@ -33,6 +33,9 @@
 #include <grub/gfxterm.h>
 #include <grub/dl.h>
 #include <grub/env.h>
+#include <grub/extcmd.h>
+#include <grub/ventoy.h>
+#include "ventoy/ventoy_def.h"
 
 int g_ventoy_menu_refresh = 0;
 int g_ventoy_memdisk_mode = 0;
@@ -381,10 +384,28 @@ grub_menu_execute_with_fallback (grub_menu_t menu,
 
 static struct grub_menu_viewer *viewers;
 
+int g_menu_update_mode = 0;
+int g_ventoy_tip_label_enable = 0;
+const char * g_ventoy_tip_msg1 = NULL;
+const char * g_ventoy_tip_msg2 = NULL;
+
 static void
-menu_set_chosen_entry (int entry)
+menu_set_chosen_entry (grub_menu_t menu, int entry)
 {
   struct grub_menu_viewer *cur;
+  img_info *img;
+  grub_menu_entry_t e = grub_menu_get_entry (menu, entry);
+
+  g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
+  if (e && e->id && grub_strncmp(e->id, "VID_", 4) == 0) {
+    img = (img_info *)(void *)grub_strtoul(e->id + 4, NULL, 16);
+    if (img)
+    {
+        g_ventoy_tip_msg1 = img->tip1;
+        g_ventoy_tip_msg2 = img->tip2;
+    }
+  }
+
   for (cur = viewers; cur; cur = cur->next)
     cur->set_chosen_entry (entry, cur->data);
 }
@@ -732,13 +753,13 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	    case GRUB_TERM_KEY_HOME:
 	    case GRUB_TERM_CTRL | 'a':
 	      current_entry = 0;
-	      menu_set_chosen_entry (current_entry);
+	      menu_set_chosen_entry (menu, current_entry);
 	      break;
 
 	    case GRUB_TERM_KEY_END:
 	    case GRUB_TERM_CTRL | 'e':
 	      current_entry = menu->size - 1;
-	      menu_set_chosen_entry (current_entry);
+	      menu_set_chosen_entry (menu, current_entry);
 	      break;
 
 	    case GRUB_TERM_KEY_UP:
@@ -746,7 +767,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	    case '^':
 	      if (current_entry > 0)
 		current_entry--;
-	      menu_set_chosen_entry (current_entry);
+	      menu_set_chosen_entry (menu, current_entry);
 	      break;
 
 	    case GRUB_TERM_CTRL | 'n':
@@ -754,7 +775,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	    case 'v':
 	      if (current_entry < menu->size - 1)
 		current_entry++;
-	      menu_set_chosen_entry (current_entry);
+	      menu_set_chosen_entry (menu, current_entry);
 	      break;
 
 	    case GRUB_TERM_CTRL | 'g':
@@ -763,7 +784,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 		current_entry = 0;
 	      else
 		current_entry -= GRUB_MENU_PAGE_SIZE;
-	      menu_set_chosen_entry (current_entry);
+	      menu_set_chosen_entry (menu, current_entry);
 	      break;
 
 	    case GRUB_TERM_CTRL | 'c':
@@ -772,7 +793,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 		current_entry += GRUB_MENU_PAGE_SIZE;
 	      else
 		current_entry = menu->size - 1;
-	      menu_set_chosen_entry (current_entry);
+	      menu_set_chosen_entry (menu, current_entry);
 	      break;
 
 	    case '\n':
