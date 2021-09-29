@@ -202,8 +202,6 @@ void on_secure_boot_toggled(GtkMenuItem *menuItem, gpointer data)
 {
     g_secure_boot_support = 1 - g_secure_boot_support;
 
-vlog("on_secure_boot_toggled %d\n",g_secure_boot_support );
-
     if (g_secure_boot_support)
     {
         gtk_widget_show((GtkWidget *)g_image_secure_local);        
