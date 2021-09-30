@@ -35,6 +35,7 @@
 #include <ventoy_http.h>
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include "ventoy_gtk.h"
 
 int g_secure_boot_support = 0;
@@ -494,12 +495,12 @@ void on_clear_ventoy(GtkMenuItem *menuItem, gpointer data)
         return;
     }
 
-    if (GTK_RESPONSE_CANCEL == msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP"))
+    if (GTK_RESPONSE_OK != msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP"))
     {
         return;
     }
 
-    if (GTK_RESPONSE_CANCEL == msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP2"))
+    if (GTK_RESPONSE_OK != msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP2"))
     {
         return;
     }
@@ -687,12 +688,12 @@ void on_button_install_clicked(GtkWidget *widget, gpointer data)
     	}
     }
 
-    if (GTK_RESPONSE_CANCEL == msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP"))
+    if (GTK_RESPONSE_OK != msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP"))
     {
         return;
     }
 
-    if (GTK_RESPONSE_CANCEL == msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP2"))
+    if (GTK_RESPONSE_OK != msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK_CANCEL, "STR_INSTALL_TIP2"))
     {
         return;
     }
@@ -788,7 +789,7 @@ void on_button_update_clicked(GtkWidget *widget, gpointer data)
         return;
     }
 
-    if (GTK_RESPONSE_CANCEL == msgbox(GTK_MESSAGE_INFO, GTK_BUTTONS_OK_CANCEL, "STR_UPDATE_TIP"))
+    if (GTK_RESPONSE_OK != msgbox(GTK_MESSAGE_INFO, GTK_BUTTONS_OK_CANCEL, "STR_UPDATE_TIP"))
     {
         return;
     }
@@ -1020,9 +1021,16 @@ static void init_part_cfg_window(GtkBuilder *pBuilder)
     SIGNAL("part_cfg_dlg", "delete_event", on_part_cfg_close);
 }
 
+static void add_accelerator(GtkAccelGroup *agMain, void *widget, const char *signal, guint accel_key)
+{
+    gtk_widget_add_accelerator(GTK_WIDGET(widget), signal, agMain, accel_key, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+    gtk_widget_add_accelerator(GTK_WIDGET(widget), signal, agMain, accel_key, GDK_SHIFT_MASK | GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
+}
+
 void on_init_window(GtkBuilder *pBuilder)
 {
     GSList *pGroup = NULL;
+    GtkAccelGroup *agMain = NULL;
     char version[512];
 
     vlog("on_init_window ...\n");
@@ -1095,6 +1103,13 @@ void on_init_window(GtkBuilder *pBuilder)
     
     SIGNAL("menu_item_part_cfg", "activate",  on_part_config);
     SIGNAL("menu_item_clear", "activate",  on_clear_ventoy);
+
+    agMain = gtk_accel_group_new();
+    gtk_window_add_accel_group(GTK_WINDOW(g_topWindow), agMain);
+    add_accelerator(agMain, g_dev_combobox,   "popup",   GDK_KEY_d);
+    add_accelerator(agMain, g_install_button, "clicked", GDK_KEY_i);
+    add_accelerator(agMain, g_update_button,  "clicked", GDK_KEY_u);
+    add_accelerator(agMain, g_refresh_button, "clicked", GDK_KEY_r);
 
     fill_dev_list(NULL);
 

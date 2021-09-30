@@ -344,6 +344,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="has_default">True</property>
                     <property name="image">image_refresh</property>
                   </object>
                   <packing>
@@ -540,7 +541,7 @@
             <property name="width_request">100</property>
             <property name="height_request">40</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can_focus">True</property>            
             <property name="receives_default">True</property>
           </object>
           <packing>
