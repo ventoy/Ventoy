@@ -33,7 +33,7 @@
                   <object class="GtkCheckButton" id="space_check_btn">
                     <property name="width_request">380</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can_focus">True</property>
                   </object>
                   <packing>
                     <property name="x">10</property>                    
@@ -137,7 +137,7 @@
                   <object class="GtkCheckButton" id="space_align_btn">
                     <property name="width_request">380</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can_focus">True</property>
                     <property name="active">True</property>
                   </object>
                   <packing>
@@ -176,6 +176,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
+            <property name="has_default">True</property>
           </object>
           <packing>
             <property name="x">270</property>
@@ -344,6 +345,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="has_default">True</property>
                     <property name="image">image_refresh</property>
                   </object>
                   <packing>
@@ -540,7 +542,7 @@
             <property name="width_request">100</property>
             <property name="height_request">40</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can_focus">True</property>            
             <property name="receives_default">True</property>
           </object>
           <packing>

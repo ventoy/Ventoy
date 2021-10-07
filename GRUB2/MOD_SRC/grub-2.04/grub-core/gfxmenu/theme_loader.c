@@ -733,6 +733,8 @@ done:
   return grub_errno;
 }
 
+extern int g_menu_update_mode;
+
 /* Set properties on the view based on settings from the specified
    theme file.  */
 grub_err_t
@@ -752,7 +754,7 @@ grub_gfxmenu_view_load_theme (grub_gfxmenu_view_t view, const char *theme_path)
     }
 
   p.len = grub_file_size (file);
-  p.buf = grub_malloc (p.len + 4096);
+  p.buf = grub_malloc (p.len + 8192);
   p.pos = 0;
   p.line_num = 1;
   p.col_num = 1;
@@ -779,6 +781,33 @@ grub_gfxmenu_view_load_theme (grub_gfxmenu_view_t view, const char *theme_path)
       "    + label {text = \"[Unofficial Ventoy]\" color = \"red\" align = \"left\"}\n"
       "}\n");    
   }
+}
+
+{
+    const char *tip = grub_env_get("VTOY_MENU_TIP_ENABLE");
+    if (tip && tip[0] == '1')
+    {
+        char tmpmsg[512];
+
+        grub_memset(tmpmsg, 'w', 500);
+        tmpmsg[500] = 0;
+        
+        g_menu_update_mode = 1;
+        p.len += grub_snprintf(p.buf + p.len, 4096, 
+            "\n+ vbox{\n    left = %s\n    top = %s\n"
+            "+ label { id=\"VTOY_MENU_TIP_1\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
+            "+ label { id=\"VTOY_MENU_TIP_2\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
+            "}\n",
+            grub_env_get("VTOY_TIP_LEFT"),
+            grub_env_get("VTOY_TIP_TOP"),
+            tmpmsg,
+            grub_env_get("VTOY_TIP_COLOR"),
+            grub_env_get("VTOY_TIP_ALIGN"),
+            tmpmsg,
+            grub_env_get("VTOY_TIP_COLOR"),
+            grub_env_get("VTOY_TIP_ALIGN")
+        );
+    }
 }
 
   if (view->canvas)

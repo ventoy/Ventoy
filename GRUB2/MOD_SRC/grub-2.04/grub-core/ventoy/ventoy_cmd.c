@@ -1562,6 +1562,7 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
     grub_size_t len;
     img_info *img;
     img_info *tail;
+    const menu_tip *tip;
     img_iterator_node *tmp;
     img_iterator_node *new_node;
     img_iterator_node *node = (img_iterator_node *)data;
@@ -1779,6 +1780,14 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
             g_ventoy_img_count++;
 
             img->alias = ventoy_plugin_get_menu_alias(vtoy_alias_image_file, img->path);
+
+            tip = ventoy_plugin_get_menu_tip(img->path);
+            if (tip)
+            {
+                img->tip1 = tip->tip1;
+                img->tip2 = tip->tip2;
+            }
+            
             img->class = ventoy_plugin_get_menu_class(vtoy_class_image_file, img->name, img->path);
             if (!img->class)
             {
@@ -2073,23 +2082,23 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
         if (g_tree_view_menu_style == 0)
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"%-10s %s%s\" --class=\"%s\" --id=\"VID_%d\" {\n"
+                          "menuentry \"%-10s %s%s\" --class=\"%s\" --id=\"VID_%p\" {\n"
                           "  %s_%s \n" 
                           "}\n", 
                           grub_get_human_size(img->size, GRUB_HUMAN_SIZE_SHORT), 
                           img->unsupport ? "[***********] " : "", 
-                          img->alias ? img->alias : img->name, img->class, img->id,
+                          img->alias ? img->alias : img->name, img->class, img,
                           img->menu_prefix,
                           img->unsupport ? "unsupport_menuentry" : "common_menuentry");
         }
         else
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"%s%s\" --class=\"%s\" --id=\"VID_%d\" {\n"
+                          "menuentry \"%s%s\" --class=\"%s\" --id=\"VID_%p\" {\n"
                           "  %s_%s \n" 
                           "}\n", 
                           img->unsupport ? "[***********] " : "", 
-                          img->alias ? img->alias : img->name, img->class, img->id,
+                          img->alias ? img->alias : img->name, img->class, img,
                           img->menu_prefix,
                           img->unsupport ? "unsupport_menuentry" : "common_menuentry");
         }
@@ -2136,7 +2145,7 @@ static int ventoy_set_default_menu(void)
 
         if (0 == g_default_menu_mode)
         {
-            vtoy_ssprintf(g_list_script_buf, g_list_script_pos, "set default='VID_%d'\n", default_node->id);
+            vtoy_ssprintf(g_list_script_buf, g_list_script_pos, "set default='VID_%p'\n", default_node);
         }
         else
         {
@@ -2169,7 +2178,7 @@ static int ventoy_set_default_menu(void)
                 pos = end + 1;
             }
 
-            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "VID_%d'\n", default_node->id);
+            vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "VID_%p'\n", default_node);
             grub_free(def);
         }
     }
@@ -2266,7 +2275,7 @@ static grub_err_t ventoy_cmd_ext_select_img_path(grub_extcmd_context_t ctxt, int
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "No such image");
     }
 
-    grub_snprintf(id, sizeof(id), "VID_%d", cur->id);
+    grub_snprintf(id, sizeof(id), "VID_%p", cur);
     grub_env_set("chosen", id);
     grub_env_export("chosen");
 
@@ -2275,11 +2284,10 @@ static grub_err_t ventoy_cmd_ext_select_img_path(grub_extcmd_context_t ctxt, int
 
 static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    int img_id = 0;
     char value[32];
     char *pos = NULL;
     const char *id = NULL;
-    img_info *cur = g_ventoy_img_list;
+    img_info *cur = NULL;
 
     (void)ctxt;
     
@@ -2293,20 +2301,11 @@ static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int arg
     pos = grub_strstr(id, "VID_");
     if (pos)
     {
-        img_id = (int)grub_strtoul(pos + 4, NULL, 10);
+        cur = (img_info *)(void *)grub_strtoul(pos + 4, NULL, 16);
     }
     else
     {
-        img_id = (int)grub_strtoul(id, NULL, 10);
-    }
-
-    while (cur)
-    {
-        if (img_id == cur->id)
-        {
-            break;
-        }
-        cur = cur->next;
+        cur = g_ventoy_img_list;
     }
 
     if (!cur)
@@ -2335,12 +2334,14 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     grub_device_t dev = NULL;
     img_info *cur = NULL;
     img_info *tail = NULL;
+    img_info *min = NULL;
+    img_info *head = NULL;
     const char *strdata = NULL;
     char *device_name = NULL;
     char buf[32];
     img_iterator_node *node = NULL;
     img_iterator_node *tmp = NULL;
-    
+
     (void)ctxt;
 
     if (argc != 2)
@@ -2470,16 +2471,48 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     }
     
     /* sort image list by image name */
-    for (cur = g_ventoy_img_list; cur; cur = cur->next)
+    while (g_ventoy_img_list)
     {
-        for (tail = cur->next; tail; tail = tail->next)
+        min = g_ventoy_img_list;
+        for (cur = g_ventoy_img_list->next; cur; cur = cur->next)
         {
-            if (ventoy_cmp_img(cur, tail) > 0)
+            if (ventoy_cmp_img(min, cur) > 0)
             {
-                ventoy_swap_img(cur, tail);
+                min = cur;
             }
         }
+
+        if (min->prev)
+        {
+            min->prev->next = min->next;                
+        }
+        
+        if (min->next)
+        {
+            min->next->prev = min->prev;
+        }
+
+        if (min == g_ventoy_img_list)
+        {
+            g_ventoy_img_list = min->next;
+        }
+
+        if (head == NULL)
+        {
+            head = tail = min;
+            min->prev = NULL;
+            min->next = NULL;
+        }
+        else
+        {
+            tail->next = min;
+            min->prev = tail;
+            min->next = NULL;
+            tail = min;
+        }
     }
+
+    g_ventoy_img_list = head;
 
     if (g_default_menu_mode == 1)
     {
@@ -2492,11 +2525,11 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     for (cur = g_ventoy_img_list; cur; cur = cur->next)
     {
         vtoy_ssprintf(g_list_script_buf, g_list_script_pos,
-                  "menuentry \"%s%s\" --class=\"%s\" --id=\"VID_%d\" {\n"
+                  "menuentry \"%s%s\" --class=\"%s\" --id=\"VID_%p\" {\n"
                   "  %s_%s \n" 
                   "}\n", 
                   cur->unsupport ? "[***********] " : "", 
-                  cur->alias ? cur->alias : cur->name, cur->class, cur->id,
+                  cur->alias ? cur->alias : cur->name, cur->class, cur,
                   cur->menu_prefix,
                   cur->unsupport ? "unsupport_menuentry" : "common_menuentry");
     }
@@ -4850,6 +4883,27 @@ static grub_err_t grub_cmd_gptpriority(grub_extcmd_context_t ctxt, int argc, cha
   return GRUB_ERR_NONE;
 }
 
+
+
+/* <BEGIN>: Deleted by longpanda, 20210916 PN:XX LABEL:XX */
+#if 0
+void ventoy_tip_set_menu_label(const char *vid)
+{
+    img_info *node;
+
+    g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
+    if (vid)
+    {
+        node = (img_info *)(void *)grub_strtoul(vid + 4, NULL, 16);
+        if (node)
+        {
+           g_ventoy_tip_msg1 = node->tip1;
+           g_ventoy_tip_msg2 = node->tip2;
+        }
+    }
+}
+#endif /* #if 0 */
+/* <END>  : Deleted by longpanda, 20210916 PN:XX LABEL:XX */
 
 int ventoy_env_init(void)
 {

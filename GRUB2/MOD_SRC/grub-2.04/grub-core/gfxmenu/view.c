@@ -386,20 +386,36 @@ redraw_menu_visit (grub_gui_component_t component,
     }
 }
 
+extern int g_menu_update_mode;
+
+static void grub_gfxmenu_update_all(grub_gfxmenu_view_t view)
+{
+    grub_video_set_area_status(GRUB_VIDEO_AREA_DISABLED);
+    grub_gfxmenu_view_redraw(view, &view->screen);
+}
+
 void
 grub_gfxmenu_redraw_menu (grub_gfxmenu_view_t view)
 {
   update_menu_components (view);
 
-  grub_gui_iterate_recursively ((grub_gui_component_t) view->canvas,
-                                redraw_menu_visit, view);
+  if (g_menu_update_mode)
+    grub_gfxmenu_update_all(view);
+  else
+    grub_gui_iterate_recursively ((grub_gui_component_t) view->canvas,
+                                  redraw_menu_visit, view);
+  
   grub_video_swap_buffers ();
   if (view->double_repaint)
     {
-      grub_gui_iterate_recursively ((grub_gui_component_t) view->canvas,
-				    redraw_menu_visit, view);
+      if (g_menu_update_mode)
+        grub_gfxmenu_update_all(view);
+      else
+        grub_gui_iterate_recursively ((grub_gui_component_t) view->canvas,
+                                      redraw_menu_visit, view);
     }
 }
+
 
 void 
 grub_gfxmenu_set_chosen_entry (int entry, void *data)
@@ -408,6 +424,8 @@ grub_gfxmenu_set_chosen_entry (int entry, void *data)
 
   view->selected = entry;
   grub_gfxmenu_redraw_menu (view);
+
+  
 }
 
 static void

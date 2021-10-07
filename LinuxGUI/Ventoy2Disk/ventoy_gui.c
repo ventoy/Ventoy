@@ -33,7 +33,10 @@
 #define LD_CACHE_FILE   "/etc/ld.so.cache"
 #define INT2STR_YN(a)   ((a) == 0 ? "NO" : "YES")
 
+static int g_xdg_log = 0;
+static int g_xdg_ini = 0;
 static char g_log_file[PATH_MAX];
+static char g_ini_file[PATH_MAX];
 static char *g_log_buf = NULL;
 extern char ** environ;
 
@@ -499,6 +502,7 @@ static int restart_main(int argc, char **argv, char *guiexe)
     if (envs)
     {
         vlog("recover success, argc=%d evecve <%s>\n", j, guiexe);
+        dump_args("EXECVE", newargv);
         execve(guiexe, newargv, envs); 
     }
     else
@@ -584,12 +588,36 @@ static int restart_by_pkexec(int argc, char **argv, const char *curpath, const c
 
     newargv[j++] = pkexec;
     newargv[j++] = path;
-    for (i = 1; i < argc && j < MAX_PARAS - 2; i++)
+    for (i = 1; i < argc && j < MAX_PARAS; i++)
     {
+        if (strcmp(argv[i], "--xdg") == 0)
+        {
+            continue;
+        }
         newargv[j++] = argv[i];
     }
-    newargv[j++] = create_environ_param(VTOY_ENV_STR, environ);
-    newargv[j++] = exepara;
+
+    if (j < MAX_PARAS)
+    {
+        newargv[j++] = create_environ_param(VTOY_ENV_STR, environ);        
+    }
+
+    if (j < MAX_PARAS)
+    {
+        newargv[j++] = exepara;        
+    }
+    
+    if (g_xdg_log && j + 1 < MAX_PARAS)
+    {
+        newargv[j++] = "-l";        
+        newargv[j++] = g_log_file;        
+    }
+    
+    if (g_xdg_ini && j + 1 < MAX_PARAS)
+    {
+        newargv[j++] = "-i";        
+        newargv[j++] = g_ini_file;        
+    }
 
     dump_args("PKEXEC", newargv);
     execv(pkexec, newargv);
@@ -962,8 +990,9 @@ static int distro_check_gui_env(char *type, int len, int *pver)
     return pstNode ? 1 : 0;
 }
 
-static int detect_gui_exe_path(const char *curpath, char *pathbuf, int buflen)
+static int detect_gui_exe_path(int argc, char **argv, const char *curpath, char *pathbuf, int buflen)
 {
+    int i;
     int ret;
     int ver;
     int libflag = 0;
@@ -971,8 +1000,46 @@ static int detect_gui_exe_path(const char *curpath, char *pathbuf, int buflen)
     char line[256];
     mode_t mode;
     struct stat filestat;
-    
-    if (access("./ventoy_gui_type", F_OK) != -1)
+
+    for (i = 1; i < argc; i++)
+    {
+        if (argv[i] && strcmp(argv[i], "--gtk2") == 0)
+        {
+            guitype = "gtk";
+            ver = 2;
+        }
+        else if (argv[i] && strcmp(argv[i], "--gtk3") == 0)
+        {
+            guitype = "gtk";
+            ver = 3;
+        }
+        else if (argv[i] && strcmp(argv[i], "--gtk4") == 0)
+        {
+            guitype = "gtk";
+            ver = 4;
+        }
+        else if (argv[i] && strcmp(argv[i], "--qt4") == 0)
+        {
+            guitype = "qt";
+            ver = 4;
+        }
+        else if (argv[i] && strcmp(argv[i], "--qt5") == 0)
+        {
+            guitype = "qt";
+            ver = 5;
+        }
+        else if (argv[i] && strcmp(argv[i], "--qt6") == 0)
+        {
+            guitype = "qt";
+            ver = 6;
+        }
+    }
+
+    if (guitype)
+    {
+        vlog("Get GUI type from param <%s%d>.\n", guitype, ver);
+    }
+    else if (access("./ventoy_gui_type", F_OK) != -1)
     {
         vlog("Get GUI type from ventoy_gui_type file.\n");
     
@@ -1113,6 +1180,7 @@ int real_main(int argc, char **argv)
     vlog("=============== VentoyGui %s ===============\n", VTOY_GUI_ARCH);
     vlog("=========================================================\n");
     vlog("=========================================================\n");
+    vlog("log file is <%s>\n", g_log_file);
 
     euid = geteuid();
     getcwd(curpath, sizeof(curpath));
@@ -1145,7 +1213,7 @@ int real_main(int argc, char **argv)
             return 1;
         }
 
-        if (detect_gui_exe_path(curpath, path, sizeof(path)))
+        if (detect_gui_exe_path(argc, argv, curpath, path, sizeof(path)))
         {
             return 1;
         }
@@ -1154,7 +1222,6 @@ int real_main(int argc, char **argv)
         {
             vlog("We have root privileges, just exec %s\n", path);
             argv[0] = path;
-            argv[1] = NULL;
             execv(argv[0], argv);
         }
         else
@@ -1176,6 +1243,7 @@ int main(int argc, char **argv)
 {
     int i;
     int ret;
+    const char *env = NULL;
 
     snprintf(g_log_file, sizeof(g_log_file), "log.txt");
     for (i = 0; i < argc; i++)
@@ -1184,6 +1252,22 @@ int main(int argc, char **argv)
         {
             snprintf(g_log_file, sizeof(g_log_file), "%s", argv[i + 1]);
             break;
+        }
+        else if (argv[i] && strcmp(argv[i], "--xdg") == 0)
+        {
+            env = getenv("XDG_CACHE_HOME");
+            if (env)
+            {
+                g_xdg_log = 1;
+                snprintf(g_log_file, sizeof(g_log_file), "%s/ventoy.log", env);
+            }
+            
+            env = getenv("XDG_CONFIG_HOME");
+            if (env)
+            {
+                g_xdg_ini = 1;
+                snprintf(g_ini_file, sizeof(g_ini_file), "%s/Ventoy2Disk.ini", env);
+            }
         }
     }
 

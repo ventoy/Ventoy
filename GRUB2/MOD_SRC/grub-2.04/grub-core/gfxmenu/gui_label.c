@@ -59,10 +59,14 @@ struct grub_gui_label
   grub_font_t font;
   grub_video_rgba_color_t color;
   int value;
+  int vtoytip;
   enum align_mode align;
 };
 
 typedef struct grub_gui_label *grub_gui_label_t;
+
+extern const char * g_ventoy_tip_msg1;
+extern const char * g_ventoy_tip_msg2;
 
 static void
 label_destroy (void *vself)
@@ -90,6 +94,7 @@ label_is_instance (void *vself __attribute__((unused)), const char *type)
 static void
 label_paint (void *vself, const grub_video_rect_t *region)
 {
+  const char *text;
   grub_gui_label_t self = vself;
 
   if (! self->visible)
@@ -98,16 +103,24 @@ label_paint (void *vself, const grub_video_rect_t *region)
   if (!grub_video_have_common_points (region, &self->bounds))
     return;
 
+  if (self->vtoytip == 1) {
+     text = g_ventoy_tip_msg1 ? g_ventoy_tip_msg1 : "";
+  } else if (self->vtoytip == 2) {
+     text = g_ventoy_tip_msg2 ? g_ventoy_tip_msg2 : "";
+  } else {
+     text = self->text;
+  }
+
   /* Calculate the starting x coordinate.  */
   int left_x;
   if (self->align == align_left)
     left_x = 0;
   else if (self->align == align_center)
     left_x = (self->bounds.width
-	      - grub_font_get_string_width (self->font, self->text)) / 2;
+	      - grub_font_get_string_width (self->font, text)) / 2;
   else if (self->align == align_right)
     left_x = (self->bounds.width
-              - grub_font_get_string_width (self->font, self->text));
+              - grub_font_get_string_width (self->font, text));
   else
     return;   /* Invalid alignment.  */
 
@@ -116,7 +129,7 @@ label_paint (void *vself, const grub_video_rect_t *region)
 
   grub_video_rect_t vpsave;
   grub_gui_set_viewport (&self->bounds, &vpsave);
-  grub_font_draw_string (self->text,
+  grub_font_draw_string (text,
                          self->font,
                          grub_video_map_rgba_color (self->color),
                          left_x,
@@ -156,8 +169,8 @@ static void
 label_get_minimal_size (void *vself, unsigned *width, unsigned *height)
 {
   grub_gui_label_t self = vself;
-  *width = grub_font_get_string_width (self->font, self->text);
-  *height = (grub_font_get_ascent (self->font)
+   *width = grub_font_get_string_width (self->font, self->text);
+   *height = (grub_font_get_ascent (self->font)
              + grub_font_get_descent (self->font));
 }
 
@@ -255,8 +268,14 @@ label_set_property (void *vself, const char *name, const char *value)
     {
       grub_gfxmenu_timeout_unregister ((grub_gui_component_t) self);
       grub_free (self->id);
-      if (value)
+      if (value) {
         self->id = grub_strdup (value);
+        if (grub_strcmp(value, "VTOY_MENU_TIP_1") == 0) {
+            self->vtoytip = 1;
+        } else if (grub_strcmp(value, "VTOY_MENU_TIP_2") == 0) {
+            self->vtoytip = 2;
+        }
+      }
       else
         self->id = 0;
       if (self->id && grub_strcmp (self->id, GRUB_GFXMENU_TIMEOUT_COMPONENT_ID)

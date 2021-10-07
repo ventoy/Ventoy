@@ -185,7 +185,7 @@ ventoy_unpack_injection() {
 
 if [ -e $VTOY_PATH/ventoy_injection ]; then
     echo "### decompress injection ... ###" >>$VTLOG
-    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1
+    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1    
 fi
 
 

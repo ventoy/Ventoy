@@ -88,8 +88,8 @@ ventoy_get_os_type() {
         
     # Deepin : do the same process with debian
     elif $GREP -q '[Dd]eepin' /proc/version; then
-        echo 'debian'; return
-        
+        echo 'debian'; return    
+
     # SUSE
     elif $GREP -q 'SUSE' /proc/version; then
         echo 'suse'; return
@@ -160,7 +160,11 @@ ventoy_get_os_type() {
         elif $GREP -q 'openEuler' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'fuyu' /etc/os-release; then
-            echo 'openEuler'; return	
+            echo 'openEuler'; return
+        elif $GREP -q 'deepin' /etc/os-release; then
+            echo 'debian'; return
+        elif $GREP -q 'chinauos' /etc/os-release; then
+            echo 'debian'; return
         fi
     fi
     
@@ -346,7 +350,17 @@ fi
 
 ####################################################################
 #                                                                  #
-# Step 3 : Check for debug break                                   #
+# Step 3 : Run LiveInjection Hook                                  #
+#                                                                  #
+####################################################################
+if [ -f "/live_injection_7ed136ec_7a61_4b54_adc3_ae494d5106ea/hook.sh" ]; then
+    $BUSYBOX_PATH/sh "/live_injection_7ed136ec_7a61_4b54_adc3_ae494d5106ea/hook.sh" $VTOS
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 4 : Check for debug break                                   #
 #                                                                  #
 ####################################################################
 if [ "$VTOY_BREAK_LEVEL" = "03" ] || [ "$VTOY_BREAK_LEVEL" = "13" ]; then
@@ -363,7 +377,7 @@ fi
 
 ####################################################################
 #                                                                  #
-# Step 4 : Hand over to real init                                  #
+# Step 5 : Hand over to real init                                  #
 #                                                                  #
 ####################################################################
 $BUSYBOX_PATH/umount /proc

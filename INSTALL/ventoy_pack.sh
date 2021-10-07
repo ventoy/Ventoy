@@ -107,7 +107,7 @@ cp $OPT Ventoy2Disk.sh $tmpdir/
 cp $OPT VentoyWeb.sh $tmpdir/
 cp $OPT VentoyGUI* $tmpdir/
 
-#cp $OPT Ventoy.desktop $tmpdir/
+
 cp $OPT README $tmpdir/
 cp $OPT plugin $tmpdir/
 cp $OPT CreatePersistentImg.sh $tmpdir/
@@ -115,7 +115,7 @@ cp $OPT ExtendPersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
 dos2unix -q $tmpdir/VentoyWeb.sh
 
-#dos2unix -q $tmpdir/Ventoy.desktop
+
 dos2unix -q $tmpdir/CreatePersistentImg.sh
 dos2unix -q $tmpdir/ExtendPersistentImg.sh
 
@@ -156,7 +156,7 @@ chmod +x $tmpdir/VentoyGUI*
 
 cp $OPT $LANG_DIR/languages.json $tmpdir/tool/
 
-#chmod +x $tmpdir/Ventoy.desktop
+
 chmod +x $tmpdir/CreatePersistentImg.sh
 chmod +x $tmpdir/ExtendPersistentImg.sh
 
@@ -169,6 +169,7 @@ cp $OPT Ventoy2Disk*.exe $tmpdir/
 cp $OPT $LANG_DIR/languages.json $tmpdir/ventoy/
 rm -rf $tmpdir/tool
 rm -f $tmpdir/*.sh
+rm -f $tmpdir/VentoyGUI.*
 rm -rf $tmpdir/WebUI
 rm -f $tmpdir/README
 
@@ -178,11 +179,11 @@ zip -r ventoy-${curver}-windows.zip $tmpdir/
 rm -rf $tmpdir
 
 echo "=============== run livecd.sh ==============="
-cd ../LiveCD
+cd ../LiveCDGUI
 sh livecd.sh $1
 cd $CurDir
 
-mv ../LiveCD/ventoy*.iso ./
+mv ../LiveCDGUI/ventoy*.iso ./
 
 if [ -e ventoy-${curver}-windows.zip ] && [ -e ventoy-${curver}-linux.tar.gz ]; then
     echo -e "\n ============= SUCCESS =================\n"

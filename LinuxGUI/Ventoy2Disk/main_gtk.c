@@ -9,11 +9,13 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <linux/limits.h>
 #include <ventoy_define.h>
 #include <ventoy_util.h>
 #include "ventoy_gtk.h"
 
+static int g_kiosk_mode = 0;
 char g_log_file[PATH_MAX];
 char g_ini_file[PATH_MAX];
 
@@ -56,6 +58,49 @@ int early_msgbox(GtkMessageType type, GtkButtonsType buttons, const char *str)
     return ret;
 }
 
+static int adjust_cur_dir(char *argv0)
+{
+    int ret = 2;
+    char c;
+    char *pos = NULL;
+    char *end = NULL;
+
+    if (argv0[0] == '.')
+    {
+        return 1;
+    }
+
+    for (pos = argv0; pos && *pos; pos++)
+    {
+        if (*pos == '/')
+        {
+            end = pos;
+        }
+    }
+
+    if (end)
+    {
+        c = *end;
+        *end = 0;
+
+        pos = strstr(argv0, "/tool/");
+        if (pos)
+        {
+            *pos = 0;
+        }
+        
+        ret = chdir(argv0);
+        
+        *end = c;
+        if (pos)
+        {
+            *pos = '/';
+        }
+    }
+
+    return ret;
+}
+
 int main(int argc, char *argv[])
 {
     int i;
@@ -64,6 +109,7 @@ int main(int argc, char *argv[])
     GtkWidget *pWidget = NULL;
     GtkBuilder *pBuilder = NULL;
     GError *error = NULL;
+    struct stat logstat;
 
     gtk_init(&argc, &argv);
     
@@ -76,10 +122,24 @@ int main(int argc, char *argv[])
 
     if (access("./boot/boot.img", F_OK) == -1)
     {
+        adjust_cur_dir(argv[0]);        
+    }
+
+    if (access("./boot/boot.img", F_OK) == -1)
+    {
         early_msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Please run under the correct directory.");
         return 1;
     }
 
+    for (i = 0; i < argc; i++)
+    {
+        if (argv[i] && strcmp(argv[i], "--kiosk") == 0)
+        {
+            g_kiosk_mode = 1;
+            break;
+        }
+    }
+    
     snprintf(g_log_file, sizeof(g_log_file), "log.txt");
     snprintf(g_ini_file, sizeof(g_ini_file), "./Ventoy2Disk.ini");
     for (i = 0; i < argc; i++)
@@ -94,11 +154,22 @@ int main(int argc, char *argv[])
         }
     }
 
+    memset(&logstat, 0, sizeof(logstat));
+    if (0 == stat(g_log_file, &logstat))
+    {
+        if (logstat.st_size >= 4 * SIZE_1MB)
+        {
+            remove(g_log_file);
+        }
+    }
+
     ventoy_log_init();
 
     vlog("================================================\n");
     vlog("===== Ventoy2Disk %s powered by GTK%d.x =====\n", ventoy_get_local_version(), GTK_MAJOR_VERSION);
     vlog("================================================\n");
+    vlog("log file is <%s> lastsize:%lld\n", g_log_file, (long long)logstat.st_size);
+    vlog("ini file is <%s>\n", g_ini_file);
 
     ventoy_disk_init();
 
@@ -118,12 +189,20 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    pData = get_refresh_icon_raw_data(&len);
-    set_image_from_pixbuf(pBuilder, "image_refresh", pData, len);
-    
-    pData = get_secure_icon_raw_data(&len);
-    set_image_from_pixbuf(pBuilder, "image_secure_local", pData, len);
-    set_image_from_pixbuf(pBuilder, "image_secure_dev", pData, len);
+    if (g_kiosk_mode)
+    {
+        gtk_image_set_from_file((GtkImage *)gtk_builder_get_object(pBuilder, "image_refresh"), "/ventoy/refresh.png");        
+        gtk_image_set_from_file((GtkImage *)gtk_builder_get_object(pBuilder, "image_secure_local"), "/ventoy/secure.png");        
+        gtk_image_set_from_file((GtkImage *)gtk_builder_get_object(pBuilder, "image_secure_dev"), "/ventoy/secure.png");        
+    }
+    else
+    {
+        pData = get_refresh_icon_raw_data(&len);
+        set_image_from_pixbuf(pBuilder, "image_refresh", pData, len);        
+        pData = get_secure_icon_raw_data(&len);
+        set_image_from_pixbuf(pBuilder, "image_secure_local", pData, len);
+        set_image_from_pixbuf(pBuilder, "image_secure_dev", pData, len);
+    }
 
     pWidget = GTK_WIDGET(gtk_builder_get_object(pBuilder, "window"));
     gtk_widget_show_all(pWidget);
