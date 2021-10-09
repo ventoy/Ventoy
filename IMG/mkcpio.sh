@@ -62,6 +62,9 @@ cp -a $VENTOY_PATH/VBLADE/vblade-master/vblade_64 tool/
 cp -a $VENTOY_PATH/LZIP/lunzip32 tool/
 cp -a $VENTOY_PATH/LZIP/lunzip64 tool/
 
+cp -a $VENTOY_PATH/cryptsetup/veritysetup32 tool/
+cp -a $VENTOY_PATH/cryptsetup/veritysetup64 tool/
+
 chmod -R 777 ./tool
 
 find ./tool | cpio  -o -H newc --owner=root:root >tool.cpio

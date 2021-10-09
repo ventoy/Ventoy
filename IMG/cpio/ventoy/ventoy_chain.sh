@@ -348,6 +348,23 @@ if [ -e "$VTOY_PATH/hook/$VTOS/ventoy-hook.sh" ]; then
 fi
 
 
+
+if $GREP -q -i Untangle /proc/version; then
+    for vtPara in $($CAT /proc/cmdline); do
+        vtItemkey=$(echo $vtPara | $AWK -F= '{print $1}')
+        vtItemVal=$(echo $vtPara | $AWK -F= '{print $2}')
+        if $GREP -q -m1 "^$vtItemkey\$" $VTOY_PATH/hook/default/export.list; then
+            vtEnvExport="$vtEnvExport $vtItemkey=$vtItemVal"
+        fi
+    done
+    
+    echo "================ env export ================" >> $VTLOG
+    echo $vtEnvExport >> $VTLOG
+    echo "============================================" >> $VTLOG
+fi
+
+
+
 ####################################################################
 #                                                                  #
 # Step 3 : Run LiveInjection Hook                                  #
@@ -406,7 +423,12 @@ for vtinit in $user_rdinit /init /sbin/init /linuxrc; do
             if [ -f "$VTOY_PATH/hook/$VTOS/ventoy-before-init.sh" ]; then
                 $BUSYBOX_PATH/sh "$VTOY_PATH/hook/$VTOS/ventoy-before-init.sh"
             fi
-            exec "$vtinit"
+            
+            if [ -z "$vtEnvExport" ]; then
+                exec "$vtinit"
+            else
+                exec env $vtEnvExport "$vtinit"
+            fi            
         fi
     fi
 done
