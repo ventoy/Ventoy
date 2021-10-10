@@ -11,3 +11,4 @@ echo "ShowAllDevice=0"                          >> $INIFILE
 
 /ventoy/tool/x86_64/Ventoy2Disk.gtk3 --kiosk
 
+reboot

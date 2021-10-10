@@ -25,7 +25,7 @@ if [ "$1" = "CI" ]; then
 fi
 
 if [ ! -f ./EXT/vmlinuz ]; then
-    echo "Please download EXT files first!"
+    echo "Please download EXT files firstly!"
     exit 1
 fi
 
