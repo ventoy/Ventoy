@@ -52,8 +52,20 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # Debian :
+    if $GREP -q '[Dd]ebian' /proc/version; then
+        echo 'debian'; return
+
+    # Ubuntu : do the same process with debian
+    elif $GREP -q '[Uu]buntu' /proc/version; then
+        echo 'debian'; return
+        
+    # Deepin : do the same process with debian
+    elif $GREP -q '[Dd]eepin' /proc/version; then
+        echo 'debian'; return
+
     # rhel5/CentOS5 and all other distributions based on them
-    if $GREP -q 'el5' /proc/version; then
+    elif $GREP -q 'el5' /proc/version; then
         echo 'rhel5'; return
 
     # rhel6/CentOS6 and all other distributions based on them
@@ -78,18 +90,6 @@ ventoy_get_os_type() {
     elif $GREP -q '\.fc[0-9][0-9]\.' /proc/version; then
         echo 'rhel7'; return
         
-    # Debian :
-    elif $GREP -q '[Dd]ebian' /proc/version; then
-        echo 'debian'; return
-        
-    # Ubuntu : do the same process with debian
-    elif $GREP -q '[Uu]buntu' /proc/version; then
-        echo 'debian'; return
-        
-    # Deepin : do the same process with debian
-    elif $GREP -q '[Dd]eepin' /proc/version; then
-        echo 'debian'; return    
-
     # SUSE
     elif $GREP -q 'SUSE' /proc/version; then
         echo 'suse'; return
