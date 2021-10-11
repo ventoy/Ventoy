@@ -5087,6 +5087,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_json_path_case", ventoy_cmd_chk_json_pathcase, 0, NULL, "", "", NULL },
     { "vt_append_extra_sector", ventoy_cmd_append_ext_sector, 0, NULL, "", "", NULL },
     { "gptpriority", grub_cmd_gptpriority, 0, NULL, "", "", NULL },
+    { "vt_wim_peset", ventoy_cmd_wim_peset, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

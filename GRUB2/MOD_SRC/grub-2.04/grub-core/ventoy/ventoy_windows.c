@@ -40,6 +40,7 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+static int g_peset_flag = 0;
 static int g_iso_fs_type = 0;
 static int g_wim_total_patch_count = 0;
 static int g_wim_valid_patch_count = 0;
@@ -417,6 +418,7 @@ grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char *
     g_wim_patch_head = NULL;
     g_wim_total_patch_count = 0;
     g_wim_valid_patch_count = 0;
+    g_peset_flag = 0;
 
     return 0;
 }
@@ -660,7 +662,9 @@ static wim_directory_entry * search_full_wim_dirent
 
 static wim_directory_entry * search_replace_wim_dirent(void *meta_data, wim_directory_entry *dir)
 {
+    wim_directory_entry *tmp_dirent = NULL;
     wim_directory_entry *wim_dirent = NULL;
+    const char *peset_path[] = { "Windows", "System32", "peset.exe", NULL };
     const char *pecmd_path[] = { "Windows", "System32", "pecmd.exe", NULL };
     const char *winpeshl_path[] = { "Windows", "System32", "winpeshl.exe", NULL };
 
@@ -668,6 +672,16 @@ static wim_directory_entry * search_replace_wim_dirent(void *meta_data, wim_dire
     debug("search pecmd.exe %p\n", wim_dirent);
     if (wim_dirent)
     {
+        if (g_peset_flag)
+        {
+            tmp_dirent = search_full_wim_dirent(meta_data, dir, peset_path);
+            debug("search peset.exe %p\n", tmp_dirent);
+            if (tmp_dirent)
+            {
+                return tmp_dirent;
+            }
+        }
+
         return wim_dirent;
     }
 
@@ -1826,6 +1840,17 @@ grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, c
         return 1;
     }
     
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_wim_peset(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+    
+    g_peset_flag = 1;
+
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
