@@ -389,23 +389,29 @@ int g_ventoy_tip_label_enable = 0;
 const char * g_ventoy_tip_msg1 = NULL;
 const char * g_ventoy_tip_msg2 = NULL;
 
+static void menu_set_chosen_tip(grub_menu_t menu, int entry)
+{
+    img_info *img;
+    grub_menu_entry_t e = grub_menu_get_entry (menu, entry);
+
+    g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
+    if (e && e->id && grub_strncmp(e->id, "VID_", 4) == 0) 
+    {
+        img = (img_info *)(void *)grub_strtoul(e->id + 4, NULL, 16);
+        if (img)
+        {
+            g_ventoy_tip_msg1 = img->tip1;
+            g_ventoy_tip_msg2 = img->tip2;
+        }
+    }
+}
+
 static void
 menu_set_chosen_entry (grub_menu_t menu, int entry)
 {
   struct grub_menu_viewer *cur;
-  img_info *img;
-  grub_menu_entry_t e = grub_menu_get_entry (menu, entry);
-
-  g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
-  if (e && e->id && grub_strncmp(e->id, "VID_", 4) == 0) {
-    img = (img_info *)(void *)grub_strtoul(e->id + 4, NULL, 16);
-    if (img)
-    {
-        g_ventoy_tip_msg1 = img->tip1;
-        g_ventoy_tip_msg2 = img->tip2;
-    }
-  }
-
+  
+  menu_set_chosen_tip(menu, entry);
   for (cur = viewers; cur; cur = cur->next)
     cur->set_chosen_entry (entry, cur->data);
 }
@@ -701,6 +707,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
   current_entry = default_entry;
 
  refresh:
+  menu_set_chosen_tip(menu, current_entry);
   menu_init (current_entry, menu, nested);
 
   /* Initialize the time.  */
