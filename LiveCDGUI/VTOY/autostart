@@ -26,4 +26,4 @@ tar xf /usr/local/sbin/ntfs-3g.tar.gz -C /
 
 /ventoy/tool/x86_64/Ventoy2Disk.gtk3 --kiosk
 
-reboot
+reboot -f

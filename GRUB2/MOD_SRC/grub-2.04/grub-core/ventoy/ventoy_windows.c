@@ -687,6 +687,7 @@ static int parse_registry_setup_cmdline
 )
 {
     char c;
+    int ret = 0;
     grub_uint32_t i = 0;    
     grub_uint32_t reglen = 0;
     wim_hash zerohash;
@@ -726,7 +727,7 @@ static int parse_registry_setup_cmdline
 
     if (grub_strncmp(decompress_data + 0x1000, "hbin", 4))
     {
-        return 5;
+        ret_goto_end(5);
     }
 
     for (i = 0x1000; i + sizeof(reg_vk) < reglen; i += 8)
@@ -746,18 +747,18 @@ static int parse_registry_setup_cmdline
 
     if (i + sizeof(reg_vk) >= reglen || regvk == NULL)
     {
-        return 6;
+        ret_goto_end(6);
     }
 
     if (regvk->datasize == 0 || (regvk->datasize & 0x80000000) > 0 ||
         regvk->dataoffset == 0 || regvk->dataoffset == 0xFFFFFFFF)
     {
-        return 7;
+        ret_goto_end(7);
     }
 
     if (regvk->datasize / 2 >= buflen)
     {
-        return 8;
+        ret_goto_end(8);
     }
 
     debug("start offset is 0x%x(%u)\n", 0x1000 + regvk->dataoffset + 4, 0x1000 + regvk->dataoffset + 4);
@@ -768,8 +769,11 @@ static int parse_registry_setup_cmdline
         *buf++ = c;
     }
 
-    grub_free(decompress_data);
-    return 0;
+    ret = 0;
+
+end:
+    grub_check_free(decompress_data);
+    return ret;
 }
 
 static wim_directory_entry * search_replace_wim_dirent
@@ -784,44 +788,49 @@ static wim_directory_entry * search_replace_wim_dirent
     int ret;
     char cmdline[256] = {0};
     wim_directory_entry *wim_dirent = NULL;
+    wim_directory_entry *pecmd_dirent = NULL;
     const char *peset_path[] = { "Windows", "System32", "peset.exe", NULL };
     const char *pecmd_path[] = { "Windows", "System32", "pecmd.exe", NULL };
     const char *winpeshl_path[] = { "Windows", "System32", "winpeshl.exe", NULL };
 
-    ret = parse_registry_setup_cmdline(file, head, lookup, meta_data, dir, cmdline, sizeof(cmdline));
-    if (0 == ret)
-    {
-        debug("registry setup cmdline:<%s>\n", cmdline);
-        ventoy_str_toupper(cmdline);
-        
-        if (grub_strncmp(cmdline, "PECMD", 5) == 0)
-        {
-            wim_dirent = search_full_wim_dirent(meta_data, dir, pecmd_path);
-            debug("search pecmd.exe %p\n", wim_dirent);
-        }
-        else if (grub_strncmp(cmdline, "PESET", 5) == 0)
-        {
-            wim_dirent = search_full_wim_dirent(meta_data, dir, peset_path);
-            debug("search peset.exe %p\n", wim_dirent);
-        }
-        else if (grub_strncmp(cmdline, "WINPESHL", 8) == 0)
-        {
-            wim_dirent = search_full_wim_dirent(meta_data, dir, winpeshl_path);
-            debug("search winpeshl.exe %p\n", wim_dirent);
-        }
+    pecmd_dirent = search_full_wim_dirent(meta_data, dir, pecmd_path);
+    debug("search pecmd.exe %p\n", pecmd_dirent);
 
-        if (wim_dirent)
+    if (pecmd_dirent)
+    {
+        ret = parse_registry_setup_cmdline(file, head, lookup, meta_data, dir, cmdline, sizeof(cmdline));
+        if (0 == ret)
         {
-            return wim_dirent;
+            debug("registry setup cmdline:<%s>\n", cmdline);
+            ventoy_str_toupper(cmdline);
+            
+            if (grub_strncmp(cmdline, "PECMD", 5) == 0)
+            {
+                wim_dirent = pecmd_dirent;
+            }
+            else if (grub_strncmp(cmdline, "PESET", 5) == 0)
+            {
+                wim_dirent = search_full_wim_dirent(meta_data, dir, peset_path);
+                debug("search peset.exe %p\n", wim_dirent);
+            }
+            else if (grub_strncmp(cmdline, "WINPESHL", 8) == 0)
+            {
+                wim_dirent = search_full_wim_dirent(meta_data, dir, winpeshl_path);
+                debug("search winpeshl.exe %p\n", wim_dirent);
+            }
+
+            if (wim_dirent)
+            {
+                return wim_dirent;
+            }
+        }
+        else
+        {
+            debug("registry setup cmdline failed : %d\n", ret);
         }
     }
-    else
-    {
-        debug("registry setup cmdline failed : %d\n", ret);
-    }
 
-    wim_dirent = search_full_wim_dirent(meta_data, dir, pecmd_path);
-    debug("search pecmd.exe %p\n", wim_dirent);
+    wim_dirent = pecmd_dirent;
     if (wim_dirent)
     {
         return wim_dirent;

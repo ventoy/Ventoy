@@ -1102,5 +1102,7 @@ int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
     grub_env_export(env);\
 }
 
+#define ret_goto_end(a) ret = a; goto end;
+
 #endif /* __VENTOY_DEF_H__ */
 
