@@ -434,6 +434,18 @@ typedef struct wim_directory_entry
 /** No security information exists for this file */
 #define WIM_NO_SECURITY 0xffffffffUL
 
+typedef struct reg_vk
+{
+    grub_uint32_t res1;
+    grub_uint16_t sig;
+    grub_uint16_t namesize;
+    grub_uint32_t datasize;
+    grub_uint32_t dataoffset;
+    grub_uint32_t datatype;
+    grub_uint16_t flag;
+    grub_uint16_t res2;
+}reg_vk;
+
 #pragma pack()
 
 
@@ -586,7 +598,6 @@ grub_err_t ventoy_cmd_is_pe64(grub_extcmd_context_t ctxt, int argc, char **args)
 grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
-grub_err_t ventoy_cmd_wim_peset(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_dump_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_sel_wimboot(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -1018,6 +1029,8 @@ extern grub_uint32_t g_ventoy_plat_data;
 #define ventoy_syscall0(name) grub_##name()
 #define ventoy_syscall1(name, a) grub_##name(a)
 
+void ventoy_str_tolower(char *str);
+void ventoy_str_toupper(char *str);
 char * ventoy_get_line(char *start);
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
