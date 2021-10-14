@@ -21,6 +21,8 @@
 #ifndef __VENTOY_DEF_H__
 #define __VENTOY_DEF_H__
 
+#define VTOY_MAX_DIR_DEPTH  32
+
 #define VTOY_MAX_SCRIPT_BUF    (4 * 1024 * 1024)
 
 #define VTOY_PART_BUF_LEN  (128 * 1024)

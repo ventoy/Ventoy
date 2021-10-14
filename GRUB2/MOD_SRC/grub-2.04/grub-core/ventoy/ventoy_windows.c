@@ -776,6 +776,67 @@ end:
     return ret;
 }
 
+static int parse_custom_setup_path(char *cmdline, const char **path, char *exefile)
+{
+    int i = 0;
+    int len = 0;
+    char *pos1 = NULL;
+    char *pos2 = NULL;
+    
+    if ((cmdline[0] == 'x' || cmdline[0] == 'X') && cmdline[1] == ':')
+    {
+        pos1 = pos2 = cmdline + 3;
+
+        while (i < VTOY_MAX_DIR_DEPTH && *pos2)
+        {
+            while (*pos2 && *pos2 != '\\' && *pos2 != '/')
+            {
+                pos2++;
+            }
+
+            path[i++] = pos1;
+            
+            if (*pos2 == 0)
+            {                
+                break;
+            }
+
+            *pos2 = 0;
+            pos1 = pos2 + 1;
+            pos2 = pos1;
+        }
+
+        if (i == 0 || i >= VTOY_MAX_DIR_DEPTH)
+        {
+            return 1;
+        }
+    }
+    else
+    {
+        path[i++] = "Windows";
+        path[i++] = "System32";
+        path[i++] = cmdline;
+    }
+
+    pos1 = (char *)path[i - 1];
+    while (*pos1 != ' ' && *pos1 != '\t' && *pos1)
+    {
+        pos1++;
+    }
+    *pos1 = 0;
+
+    len = (int)grub_strlen(path[i - 1]);
+    if (len < 4 || grub_strcasecmp(path[i - 1] + len - 4, ".exe") != 0)
+    {
+        grub_snprintf(exefile, 256, "%s.exe", path[i - 1]);
+        path[i - 1] = exefile;            
+    }
+
+
+    debug("custom setup: %d <%s>\n", i, path[i - 1]);
+    return 0;
+}
+
 static wim_directory_entry * search_replace_wim_dirent
 (
     grub_file_t file, 
@@ -786,37 +847,43 @@ static wim_directory_entry * search_replace_wim_dirent
 )
 {
     int ret;
+    char exefile[256] = {0};
     char cmdline[256] = {0};
     wim_directory_entry *wim_dirent = NULL;
     wim_directory_entry *pecmd_dirent = NULL;
     const char *peset_path[] = { "Windows", "System32", "peset.exe", NULL };
     const char *pecmd_path[] = { "Windows", "System32", "pecmd.exe", NULL };
     const char *winpeshl_path[] = { "Windows", "System32", "winpeshl.exe", NULL };
+    const char *custom_path[VTOY_MAX_DIR_DEPTH + 1] = { NULL };
 
     pecmd_dirent = search_full_wim_dirent(meta_data, dir, pecmd_path);
     debug("search pecmd.exe %p\n", pecmd_dirent);
 
     if (pecmd_dirent)
     {
-        ret = parse_registry_setup_cmdline(file, head, lookup, meta_data, dir, cmdline, sizeof(cmdline));
+        ret = parse_registry_setup_cmdline(file, head, lookup, meta_data, dir, cmdline, sizeof(cmdline) - 1);
         if (0 == ret)
         {
             debug("registry setup cmdline:<%s>\n", cmdline);
-            ventoy_str_toupper(cmdline);
             
-            if (grub_strncmp(cmdline, "PECMD", 5) == 0)
+            if (grub_strncasecmp(cmdline, "PECMD", 5) == 0)
             {
                 wim_dirent = pecmd_dirent;
             }
-            else if (grub_strncmp(cmdline, "PESET", 5) == 0)
+            else if (grub_strncasecmp(cmdline, "PESET", 5) == 0)
             {
                 wim_dirent = search_full_wim_dirent(meta_data, dir, peset_path);
                 debug("search peset.exe %p\n", wim_dirent);
             }
-            else if (grub_strncmp(cmdline, "WINPESHL", 8) == 0)
+            else if (grub_strncasecmp(cmdline, "WINPESHL", 8) == 0)
             {
                 wim_dirent = search_full_wim_dirent(meta_data, dir, winpeshl_path);
                 debug("search winpeshl.exe %p\n", wim_dirent);
+            }
+            else if (0 == parse_custom_setup_path(cmdline, custom_path, exefile))
+            {
+                wim_dirent = search_full_wim_dirent(meta_data, dir, custom_path);
+                debug("search custom path %p\n", wim_dirent);
             }
 
             if (wim_dirent)
