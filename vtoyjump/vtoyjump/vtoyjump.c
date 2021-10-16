@@ -40,6 +40,9 @@ static CHAR g_prog_full_path[MAX_PATH];
 static CHAR g_prog_dir[MAX_PATH];
 static CHAR g_prog_name[MAX_PATH];
 
+#define AUTO_RUN_BAT    "X:\\VentoyAutoRun.bat"
+#define AUTO_RUN_LOG    "X:\\VentoyAutoRun.log"
+
 #define LOG_FILE  "X:\\Windows\\system32\\ventoy.log"
 #define MUTEX_LOCK(hmutex)  if (hmutex != NULL) LockStatus = WaitForSingleObject(hmutex, INFINITE)
 #define MUTEX_UNLOCK(hmutex)  if (hmutex != NULL && WAIT_OBJECT_0 == LockStatus) ReleaseMutex(hmutex)
@@ -1251,7 +1254,9 @@ static int VentoyHook(ventoy_os_param *param)
     int rc;
     BOOL find = FALSE;
     CHAR Letter;
+    CHAR MntLetter;
     DWORD Drives;
+    DWORD NewDrives;
 	DISK_EXTENT DiskExtent;
 	UINT8 UUID[16];
 	CHAR IsoPath[MAX_PATH];
@@ -1316,7 +1321,28 @@ static int VentoyHook(ventoy_os_param *param)
 
 	Log("Find ISO file <%s>", IsoPath);
     
+    Drives = GetLogicalDrives();
+    Log("Drives before mount: 0x%x", Drives);
+
     rc = MountIsoFile(IsoPath, DiskExtent.DiskNumber);
+
+    NewDrives = GetLogicalDrives();
+    Log("Drives after mount: 0x%x", NewDrives);
+
+    MntLetter = 'A';
+    NewDrives = (NewDrives ^ Drives);
+    while (NewDrives)
+    {
+        if (NewDrives & 0x01)
+        {
+            Log("Maybe the ISO file is mounted at %C:", MntLetter);
+            break;
+        }
+
+        NewDrives >>= 1;
+        MntLetter++;
+    }
+
     Log("Mount ISO FILE: %s", rc == 0 ? "SUCCESS" : "FAILED");
 
     // for protect
@@ -1348,6 +1374,44 @@ static int VentoyHook(ventoy_os_param *param)
         {
             Log("decompress injection archive %s...", IsoPath);
             DecompressInjectionArchive(IsoPath, DiskExtent.DiskNumber);
+
+            if (IsFileExist("%s", AUTO_RUN_BAT))
+            {
+                HANDLE hOut;
+                DWORD flags = CREATE_NO_WINDOW;
+                CHAR StrBuf[1024];
+                STARTUPINFOA Si;
+                PROCESS_INFORMATION Pi;
+                SECURITY_ATTRIBUTES Sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+
+                Log("%s exist, now run it...", AUTO_RUN_BAT);
+
+                GetStartupInfoA(&Si);
+
+                hOut = CreateFileA(AUTO_RUN_LOG,
+                    FILE_APPEND_DATA,
+                    FILE_SHARE_WRITE | FILE_SHARE_READ,
+                    &Sa,
+                    OPEN_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL,
+                    NULL);
+
+                Si.dwFlags |= STARTF_USESTDHANDLES;
+                if (hOut != INVALID_HANDLE_VALUE)
+                {
+                    Si.hStdError = hOut;
+                    Si.hStdOutput = hOut;
+                }
+
+                sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
+                sprintf_s(StrBuf, sizeof(StrBuf), "cmd.exe /c %s \"%s\" %C", AUTO_RUN_BAT, IsoPath, MntLetter);
+                CreateProcessA(NULL, StrBuf, NULL, NULL, TRUE, flags, NULL, NULL, &Si, &Pi);
+                WaitForSingleObject(Pi.hProcess, INFINITE);
+            }
+            else
+            {
+                Log("%s not exist...", AUTO_RUN_BAT);
+            }
         }
         else
         {
