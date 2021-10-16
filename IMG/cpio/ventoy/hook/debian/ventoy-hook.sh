@@ -94,6 +94,10 @@ ventoy_get_debian_distro() {
         echo 'mocaccino'; return
     fi
     
+    if $GREP -q '/pyabr/' /proc/cmdline; then
+        echo 'pyabr'; return
+    fi
+    
     echo 'default'
 }
 
