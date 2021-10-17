@@ -1248,6 +1248,117 @@ static int ProcessUnattendedInstallation(const char *script)
     return 0;
 }
 
+static int Windows11BypassCheck(const char *isofile, const char MntLetter)
+{
+    int Ret = 1;
+    DWORD dwHandle;
+    DWORD dwSize;
+    DWORD dwValue = 1;
+    UINT VerLen = 0;
+    CHAR *Buffer = NULL;
+    VS_FIXEDFILEINFO* VerInfo = NULL;
+    CHAR CheckFile[MAX_PATH];
+    UINT16 Major, Minor, Build, Revision;
+
+    Log("Windows11BypassCheck for <%s> %C:", isofile, MntLetter);
+
+    if (FALSE == IsFileExist("%C:\\sources\\boot.wim", MntLetter) ||
+        FALSE == IsFileExist("%C:\\sources\\compatresources.dll", MntLetter))
+    {
+        Log("boot.wim/compatresources.dll not exist, this is not a windows install media.");
+        goto End;
+    }
+
+    if (FALSE == IsFileExist("%C:\\sources\\install.wim", MntLetter) && 
+        FALSE == IsFileExist("%C:\\sources\\install.esd", MntLetter))
+    {
+        Log("install.wim/install.esd not exist, this is not a windows install media.");
+        goto End;
+    }
+
+    sprintf_s(CheckFile, sizeof(CheckFile), "%C:\\sources\\compatresources.dll", MntLetter);
+    dwSize = GetFileVersionInfoSizeA(CheckFile, &dwHandle);
+    if (0 == dwSize)
+    {
+        Log("Failed to get file version info size: %u", LASTERR);
+        goto End;
+    }
+
+    Buffer = malloc(dwSize);
+    if (!Buffer)
+    {
+        goto End;
+    }
+
+    if (FALSE == GetFileVersionInfoA(CheckFile, dwHandle, dwSize, Buffer))
+    {
+        Log("Failed to get file version info : %u", LASTERR);
+        goto End;
+    }
+
+    if (VerQueryValueA(Buffer, "\\", (LPVOID)&VerInfo, &VerLen) && VerLen != 0)
+    {
+        if (VerInfo->dwSignature == VS_FFI_SIGNATURE)
+        {
+            Major = HIWORD(VerInfo->dwFileVersionMS);
+            Minor = LOWORD(VerInfo->dwFileVersionMS);
+            Build = HIWORD(VerInfo->dwFileVersionLS);
+            Revision = LOWORD(VerInfo->dwFileVersionLS);
+
+            Log("FileVersionze: <%u %u %u %u>", Major, Minor, Build, Revision);
+
+            if (Major == 10 && Build > 20000)
+            {
+                Major = 11;
+            }
+
+            if (Major != 11)
+            {
+                Log("This is not Windows 11, not need to bypass.", Major);
+                goto End;
+            }
+        }
+    }
+
+    //Now we really need to bypass windows 11 check. create registry
+    HKEY hKey = NULL;
+    HKEY hSubKey = NULL;
+    LSTATUS Status;
+
+    Status = RegCreateKeyExA(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwSize);
+    if (ERROR_SUCCESS != Status)
+    {
+        Log("Failed to create reg key System\\Setup %u %u", LASTERR, Status);
+        goto End;
+    }
+
+    Status = RegCreateKeyExA(hKey, "LabConfig", 0, NULL, 0, KEY_SET_VALUE | KEY_QUERY_VALUE | KEY_CREATE_SUB_KEY, NULL, &hSubKey, &dwSize);
+    if (ERROR_SUCCESS != Status)
+    {
+        Log("Failed to create LabConfig reg  %u %u", LASTERR, Status);
+        goto End;
+    }
+
+    //set reg value
+    Status += RegSetValueExA(hSubKey, "BypassRAMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassTPMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassSecureBootCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassStorageCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassCPUCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+
+    Log("Create bypass registry %s %u", (Status == ERROR_SUCCESS) ? "SUCCESS" : "FAILED", Status);
+
+    Ret = 0;
+
+End:
+    if (Buffer)
+    {
+        free(Buffer);
+    }
+    
+    return Ret; 
+}
+
 static int VentoyHook(ventoy_os_param *param)
 {
     int i;
@@ -1327,7 +1438,7 @@ static int VentoyHook(ventoy_os_param *param)
     rc = MountIsoFile(IsoPath, DiskExtent.DiskNumber);
 
     NewDrives = GetLogicalDrives();
-    Log("Drives after mount: 0x%x", NewDrives);
+    Log("Drives after mount: 0x%x (0x%x)", NewDrives, (NewDrives ^ Drives));
 
     MntLetter = 'A';
     NewDrives = (NewDrives ^ Drives);
@@ -1335,7 +1446,14 @@ static int VentoyHook(ventoy_os_param *param)
     {
         if (NewDrives & 0x01)
         {
-            Log("Maybe the ISO file is mounted at %C:", MntLetter);
+            if ((NewDrives >> 1) == 0)
+            {
+                Log("The ISO file is mounted at %C:", MntLetter);
+            }
+            else
+            {
+                Log("Maybe the ISO file is mounted at %C:", MntLetter);
+            }
             break;
         }
 
@@ -1344,6 +1462,12 @@ static int VentoyHook(ventoy_os_param *param)
     }
 
     Log("Mount ISO FILE: %s", rc == 0 ? "SUCCESS" : "FAILED");
+
+    //Windows 11 bypass check
+    if (g_windows_data.windows11_bypass_check == 1)
+    {
+        Windows11BypassCheck(IsoPath, MntLetter);
+    }
 
     // for protect
     rc = DeleteVentoyPart2MountPoint(DiskExtent.DiskNumber);
@@ -1407,6 +1531,8 @@ static int VentoyHook(ventoy_os_param *param)
                 sprintf_s(StrBuf, sizeof(StrBuf), "cmd.exe /c %s \"%s\" %C", AUTO_RUN_BAT, IsoPath, MntLetter);
                 CreateProcessA(NULL, StrBuf, NULL, NULL, TRUE, flags, NULL, NULL, &Si, &Pi);
                 WaitForSingleObject(Pi.hProcess, INFINITE);
+
+                SAFE_CLOSE_HANDLE(hOut);
             }
             else
             {

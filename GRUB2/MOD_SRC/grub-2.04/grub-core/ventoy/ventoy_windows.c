@@ -1049,6 +1049,7 @@ int ventoy_fill_windows_rtdata(void *buf, char *isopath)
 {
     char *pos = NULL;
     char *script = NULL;
+    const char *env = NULL;
     ventoy_windows_data *data = (ventoy_windows_data *)buf;
 
     grub_memset(data, 0, sizeof(ventoy_windows_data));
@@ -1087,7 +1088,13 @@ int ventoy_fill_windows_rtdata(void *buf, char *isopath)
     {
         debug("injection archive not configed %s\n", pos);
     }
-    
+
+    env = grub_env_get("VTOY_WIN11_BYPASS_CHECK");
+    if (env && env[0] == '1' && env[1] == 0)
+    {
+        data->windows11_bypass_check = 1;
+    }
+
     return 0;
 }
 
