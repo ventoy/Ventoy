@@ -24,8 +24,8 @@ if [ -e /init ] && $GREP -q '^mountroot$' /init; then
     echo "Here before mountroot ..." >> $VTLOG    
     $SED  "/^mountroot$/i\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/disk_mount_hook.sh"  -i /init
     
-    if [ -f /scripts/init-premount/partitioning ]; then
-        $SED "1aexit 0" -i /scripts/init-premount/partitioning
+    if [ -f /scripts/init-premount/ORDER ]; then
+        $SED "/\/scripts\/init-premount\/partitioning/,+1d"  -i /scripts/init-premount/ORDER
     fi
     
 else
