@@ -23,6 +23,11 @@ $SED "s#.*livefs_root=.*find_livefs.*#$BUSYBOX_PATH/mount -t iso9660 /dev/mapper
 if [ -e /init ] && $GREP -q '^mountroot$' /init; then
     echo "Here before mountroot ..." >> $VTLOG    
     $SED  "/^mountroot$/i\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/disk_mount_hook.sh"  -i /init
+    
+    if [ -f /scripts/init-premount/partitioning ]; then
+        $SED "1aexit 0" -i /scripts/init-premount/partitioning
+    fi
+    
 else
     echo "Use default hook ..." >> $VTLOG
     ventoy_systemd_udevd_work_around
