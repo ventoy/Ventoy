@@ -49,6 +49,19 @@ int g_ventoy_menu_esc = 0;
 int g_ventoy_fn_mutex = 0;
 int g_ventoy_terminal_output = 0;
 
+#define VTOY_COMM_HOTKEY(cmdkey) \
+if (0 == g_ventoy_fn_mutex) { \
+    cmdstr = grub_env_get(cmdkey); \
+    if (cmdstr) \
+    { \
+        menu_fini (); \
+        g_ventoy_fn_mutex = 1; \
+        grub_script_execute_sourcecode(cmdstr); \
+        g_ventoy_fn_mutex = 0; \
+        goto refresh; \
+    } \
+}
+
 /* Time to delay after displaying an error message about a default/fallback
    entry failing to boot.  */
 #define DEFAULT_ENTRY_ERROR_DELAY_MS  2500
@@ -388,7 +401,7 @@ int g_menu_update_mode = 0;
 int g_ventoy_tip_label_enable = 0;
 const char * g_ventoy_tip_msg1 = NULL;
 const char * g_ventoy_tip_msg2 = NULL;
-
+static const char *g_ventoy_cur_img_path = NULL;
 static void menu_set_chosen_tip(grub_menu_t menu, int entry)
 {
     img_info *img;
@@ -402,6 +415,7 @@ static void menu_set_chosen_tip(grub_menu_t menu, int entry)
         {
             g_ventoy_tip_msg1 = img->tip1;
             g_ventoy_tip_msg2 = img->tip2;
+            g_ventoy_cur_img_path = img->path;
         }
     }
 }
@@ -835,71 +849,23 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 
         case GRUB_TERM_KEY_F2:
         case '2':
-            if (0 == g_ventoy_fn_mutex) {
-                cmdstr = grub_env_get("VTOY_F2_CMD");
-                if (cmdstr)
-                {
-                    menu_fini ();
-                    g_ventoy_fn_mutex = 1;
-                    grub_script_execute_sourcecode(cmdstr);
-                    g_ventoy_fn_mutex = 0;
-                    goto refresh;
-                }
-            }
+            VTOY_COMM_HOTKEY("VTOY_F2_CMD");
             break;
         case GRUB_TERM_KEY_F3:
         case '3':
-            if (0 == g_ventoy_fn_mutex) {
-                cmdstr = grub_env_get("VTOY_F3_CMD");
-                if (cmdstr)
-                {
-                    menu_fini ();
-                    grub_script_execute_sourcecode(cmdstr);
-                    goto refresh;
-                }
-            }
+            VTOY_COMM_HOTKEY("VTOY_F3_CMD");
             break;
         case GRUB_TERM_KEY_F4:
         case '4':
-            if (0 == g_ventoy_fn_mutex) {
-                cmdstr = grub_env_get("VTOY_F4_CMD");
-                if (cmdstr)
-                {
-                    menu_fini ();
-                    g_ventoy_fn_mutex = 1;
-                    grub_script_execute_sourcecode(cmdstr);
-                    g_ventoy_fn_mutex = 0;
-                    goto refresh;
-                }
-            }
+            VTOY_COMM_HOTKEY("VTOY_F4_CMD");
             break;
         case GRUB_TERM_KEY_F5:
         case '5':
-            if (0 == g_ventoy_fn_mutex) {
-                cmdstr = grub_env_get("VTOY_F5_CMD");
-                if (cmdstr)
-                {
-                    menu_fini ();
-                    g_ventoy_fn_mutex = 1;
-                    grub_script_execute_sourcecode(cmdstr);
-                    g_ventoy_fn_mutex = 0;
-                    goto refresh;
-                }
-            }
+            VTOY_COMM_HOTKEY("VTOY_F5_CMD");
             break;
         case GRUB_TERM_KEY_F6:
         case '6':
-            if (0 == g_ventoy_fn_mutex) {
-                cmdstr = grub_env_get("VTOY_F6_CMD");
-                if (cmdstr)
-                {
-                    menu_fini ();
-                    g_ventoy_fn_mutex = 1;
-                    grub_script_execute_sourcecode(cmdstr);
-                    g_ventoy_fn_mutex = 0;
-                    goto refresh;
-                }
-            }
+            VTOY_COMM_HOTKEY("VTOY_F6_CMD");
             break;
         case GRUB_TERM_KEY_F7:
             menu_fini ();
@@ -945,6 +911,38 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             g_ventoy_menu_refresh = 1;
             goto refresh;
 
+        case (GRUB_TERM_CTRL | 'h'):
+        {
+            cmdstr = grub_env_get("VTOY_HELP_CMD");
+            if (cmdstr)
+            {
+                grub_script_execute_sourcecode(cmdstr);
+                while (grub_getkey() != GRUB_TERM_ESC)
+                    ;
+                menu_fini ();
+                goto refresh;
+            }
+            break;
+        }
+        case (GRUB_TERM_CTRL | 'm'):
+        {
+            if (g_ventoy_cur_img_path)
+            {
+                grub_env_set("VTOY_CHKSUM_FILE_PATH", g_ventoy_cur_img_path);
+                cmdstr = grub_env_get("VTOY_CHKSUM_CMD");
+                if (cmdstr)
+                {
+                    menu_fini();
+                    grub_script_execute_sourcecode(cmdstr);
+                    goto refresh;
+                }
+            }
+            else
+            {
+                grub_env_set("VTOY_CHKSUM_FILE_PATH", "X");
+            }
+            break;
+        }
 	    default:
 	      {
 		int entry;

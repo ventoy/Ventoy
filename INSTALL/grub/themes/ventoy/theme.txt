@@ -46,7 +46,7 @@ terminal-box: "terminal_box_*.png"
 }
 
 + hbox{ 
-    left = 30%
+    left = 28%
     top = 95%
     width = 10%
     height = 25
