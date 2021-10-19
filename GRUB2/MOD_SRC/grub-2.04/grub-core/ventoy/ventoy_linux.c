@@ -978,6 +978,12 @@ static grub_err_t ventoy_linux_locate_initrd(int filt, int *filtcnt)
             }
         }
 
+        /* skip hdt.img */
+        if (file->size <= VTOY_SIZE_1MB && grub_strcmp(node->name, "/boot/hdt.img") == 0)
+        {
+            continue;
+        }
+
         if (grub_strcmp(file->fs->name, "iso9660") == 0)
         {
             node->iso_type = 0;
