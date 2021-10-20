@@ -1828,11 +1828,11 @@
         "STR_WEB_REQUEST_TIMEOUT":"Kommunikationsfel: Begäran tog för lång tid",
         "STR_WEB_SERVICE_UNAVAILABLE":"Kommunikationsfel: Tjänsten är inte tillgänglig",
         "STR_WEB_TOKEN_MISMATCH":"Daemon-status uppdaterad. Försök igen senare.",
-        "STR_WEB_SERVICE_BUSY":"Tjänster är upptagen. Försök igen senare.",
-        "STR_MENU_VTSI_CREATE":"Generate VTSI File",
-        "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
-        "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
-        "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_WEB_SERVICE_BUSY":"Tjänsten är upptagen. Försök igen senare.",
+        "STR_MENU_VTSI_CREATE":"Skapa VTSI-fil",
+        "STR_VTSI_CREATE_TIP":"Den här gången skrivs det inget till enheten, utan det skapas endast en VTSI-fil#@Fortsätta?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI-filen skapad!#@Använd Rufus (3.15+) till att skriva till enheten för att slutföra installationen av Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"Misslyckades med att skapa VTSI-filen.",
         "STRXXX":""
     },
     {
