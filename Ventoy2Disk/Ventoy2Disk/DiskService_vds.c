@@ -383,6 +383,7 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
     hr = IVdsAdvancedDisk_QueryPartitions(pAdvancedDisk, &prop_array, &prop_array_size);
     if (hr == S_OK) 
     {
+		r = TRUE;
         for (i = 0; i < prop_array_size; i++) 
         {
             if (PartNumber == 0 || PartNumber == prop_array[i].ulPartitionNumber)
@@ -402,21 +403,25 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
             {
                 r = FALSE;
                 VDS_SET_ERROR(hr);
-                Log("Could not delete partitions: %u", LASTERR);
+                Log("Could not delete partitions: 0x%x", LASTERR);
+				break;
             }
             else 
             {
                 Log("Delete this partitions success");
             }
         }
-        r = TRUE;
     }
     else 
     {
         Log("No partition to delete on disk '%S'", pDiskProp->pwszName);
         r = TRUE;
     }
-    CoTaskMemFree(prop_array);
+
+	if (prop_array)
+	{
+		CoTaskMemFree(prop_array);
+	}
 
     return r;
 }

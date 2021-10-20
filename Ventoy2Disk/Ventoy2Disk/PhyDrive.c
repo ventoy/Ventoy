@@ -1657,7 +1657,9 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
 
     if (!VDS_DeleteAllPartitions(pPhyDrive->PhyDrive))
     {
-        Log("Notice: Could not delete partitions: %u", GetLastError());
+        Log("Notice: Could not delete partitions: 0x%x", GetLastError());
+		rc = 1;
+		goto End;
     }
 
     Log("Deleting all partitions ......................... OK");
