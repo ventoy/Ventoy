@@ -504,7 +504,9 @@ int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive)
     if (buffer == NULL)
         goto out;
 
-    for (i = 0;; i++) {
+	Log("handles->NumberOfHandles = %lu", (ULONG)handles->NumberOfHandles);
+
+	for (i = 0; i < handles->NumberOfHandles; i++) {
         ULONG attempts = 8;
         PSYSTEM_HANDLE_TABLE_ENTRY_INFO_EX handleInfo =
             (i < handles->NumberOfHandles) ? &handles->Handles[i] : NULL;
