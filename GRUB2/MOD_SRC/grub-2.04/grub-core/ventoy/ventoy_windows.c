@@ -375,6 +375,7 @@ grub_err_t ventoy_cmd_sel_wimboot(grub_extcmd_context_t ctxt, int argc, char **a
 
     g_ventoy_menu_esc = 1;
     g_ventoy_suppress_esc = 1;
+    g_ventoy_suppress_esc_default = 1;
 
     grub_snprintf(configfile, sizeof(configfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)buf, size);
     grub_script_execute_sourcecode(configfile);

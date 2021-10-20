@@ -829,6 +829,7 @@ typedef struct install_template
     int pathlen;
     char isopath[256];
 
+    int timeout;
     int autosel;
     int cursel;
     int templatenum;
@@ -860,6 +861,7 @@ typedef struct persistence_config
     int pathlen;
     char isopath[256];
 
+    int timeout;
     int autosel;
     int cursel;
     int backendnum;
@@ -987,6 +989,7 @@ typedef struct menu_password
 
 extern int g_ventoy_menu_esc;
 extern int g_ventoy_suppress_esc;
+extern int g_ventoy_suppress_esc_default;
 extern int g_ventoy_last_entry;
 extern int g_ventoy_memdisk_mode;
 extern int g_ventoy_iso_raw;

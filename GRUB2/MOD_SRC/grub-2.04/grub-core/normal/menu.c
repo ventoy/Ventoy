@@ -45,6 +45,7 @@ int g_ventoy_wimboot_mode = 0;
 int g_ventoy_iso_uefi_drv = 0;
 int g_ventoy_last_entry = -1;
 int g_ventoy_suppress_esc = 0;
+int g_ventoy_suppress_esc_default = 1;
 int g_ventoy_menu_esc = 0;
 int g_ventoy_fn_mutex = 0;
 int g_ventoy_terminal_output = 0;
@@ -639,7 +640,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
   default_entry = get_entry_number (menu, "default");
 
   if (g_ventoy_suppress_esc)
-      default_entry = 1;
+      default_entry = g_ventoy_suppress_esc_default;
   else if (g_ventoy_last_entry >= 0 && g_ventoy_last_entry < menu->size) {
       default_entry = g_ventoy_last_entry;
   } 
@@ -1034,6 +1035,11 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
           g_ventoy_last_entry = boot_entry;
           if (g_ventoy_menu_esc)
               break;          
+      }
+
+      if (autobooted == 0 && g_ventoy_menu_esc && auto_boot) {
+          g_ventoy_last_entry = boot_entry;
+          break;
       }
 
       e = grub_menu_get_entry (menu, boot_entry);
