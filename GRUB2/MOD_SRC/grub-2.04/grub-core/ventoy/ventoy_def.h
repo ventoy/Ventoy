@@ -21,6 +21,8 @@
 #ifndef __VENTOY_DEF_H__
 #define __VENTOY_DEF_H__
 
+#define VTOY_MAX_DIR_DEPTH  32
+
 #define VTOY_MAX_SCRIPT_BUF    (4 * 1024 * 1024)
 
 #define VTOY_PART_BUF_LEN  (128 * 1024)
@@ -434,6 +436,18 @@ typedef struct wim_directory_entry
 /** No security information exists for this file */
 #define WIM_NO_SECURITY 0xffffffffUL
 
+typedef struct reg_vk
+{
+    grub_uint32_t res1;
+    grub_uint16_t sig;
+    grub_uint16_t namesize;
+    grub_uint32_t datasize;
+    grub_uint32_t dataoffset;
+    grub_uint32_t datatype;
+    grub_uint16_t flag;
+    grub_uint16_t res2;
+}reg_vk;
+
 #pragma pack()
 
 
@@ -815,6 +829,7 @@ typedef struct install_template
     int pathlen;
     char isopath[256];
 
+    int timeout;
     int autosel;
     int cursel;
     int templatenum;
@@ -846,6 +861,7 @@ typedef struct persistence_config
     int pathlen;
     char isopath[256];
 
+    int timeout;
     int autosel;
     int cursel;
     int backendnum;
@@ -973,6 +989,7 @@ typedef struct menu_password
 
 extern int g_ventoy_menu_esc;
 extern int g_ventoy_suppress_esc;
+extern int g_ventoy_suppress_esc_default;
 extern int g_ventoy_last_entry;
 extern int g_ventoy_memdisk_mode;
 extern int g_ventoy_iso_raw;
@@ -1017,6 +1034,8 @@ extern grub_uint32_t g_ventoy_plat_data;
 #define ventoy_syscall0(name) grub_##name()
 #define ventoy_syscall1(name, a) grub_##name(a)
 
+void ventoy_str_tolower(char *str);
+void ventoy_str_toupper(char *str);
 char * ventoy_get_line(char *start);
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
@@ -1087,6 +1106,8 @@ int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
     grub_env_set((env), (name));\
     grub_env_export(env);\
 }
+
+#define ret_goto_end(a) ret = a; goto end;
 
 #endif /* __VENTOY_DEF_H__ */
 

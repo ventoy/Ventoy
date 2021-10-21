@@ -2969,6 +2969,7 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
 {
     int i = 0;
     int pos = 0;
+    int defidx = 1;
     char *buf = NULL;
     char configfile[128];
     install_template *node = NULL;
@@ -2993,9 +2994,13 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
 
     if (node->autosel >= 0 && node->autosel <= node->templatenum)
     {
-        node->cursel = node->autosel - 1;
-        debug("Auto install template auto select %d\n", node->autosel);
-        return 0;
+        defidx = node->autosel;
+        if (node->timeout < 0)
+        {
+            node->cursel = node->autosel - 1;
+            debug("Auto install template auto select %d\n", node->autosel);
+            return 0;
+        }
     }
 
     buf = (char *)grub_malloc(VTOY_MAX_SCRIPT_BUF);
@@ -3004,24 +3009,31 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
         return 0;
     }
 
+    if (node->timeout > 0)
+    {
+        vtoy_ssprintf(buf, pos, "set timeout=%d\n", node->timeout);        
+    }
+    
     vtoy_ssprintf(buf, pos, "menuentry \"Boot without auto installation template\" {\n"
-                  "  echo %s\n}\n", "123");
+                  "  echo %s\n}\n", "");
 
     for (i = 0; i < node->templatenum; i++)
     {
-        vtoy_ssprintf(buf, pos, "menuentry \"Boot with %s\" {\n"
-                  "  echo 123\n}\n",
+        vtoy_ssprintf(buf, pos, "menuentry \"Boot with %s\"{\n"
+                  "  echo \"\"\n}\n",
                   node->templatepath[i].path);
     }
 
     g_ventoy_menu_esc = 1;
     g_ventoy_suppress_esc = 1;
+    g_ventoy_suppress_esc_default = defidx;
 
     grub_snprintf(configfile, sizeof(configfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)buf, pos);
     grub_script_execute_sourcecode(configfile);
     
     g_ventoy_menu_esc = 0;
     g_ventoy_suppress_esc = 0;
+    g_ventoy_suppress_esc_default = 1;
 
     grub_free(buf);
 
@@ -3034,6 +3046,7 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
 {
     int i = 0;
     int pos = 0;
+    int defidx = 1;
     char *buf = NULL;
     char configfile[128];
     persistence_config *node;
@@ -3058,9 +3071,13 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
 
     if (node->autosel >= 0 && node->autosel <= node->backendnum)
     {
-        node->cursel = node->autosel - 1;
-        debug("Persistence image auto select %d\n", node->autosel);
-        return 0;
+        defidx = node->autosel;
+        if (node->timeout < 0)
+        {
+            node->cursel = node->autosel - 1;
+            debug("Persistence image auto select %d\n", node->autosel);
+            return 0;            
+        }
     }
 
     buf = (char *)grub_malloc(VTOY_MAX_SCRIPT_BUF);
@@ -3069,25 +3086,32 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
         return 0;
     }
 
+    if (node->timeout > 0)
+    {
+        vtoy_ssprintf(buf, pos, "set timeout=%d\n", node->timeout);        
+    }
+
     vtoy_ssprintf(buf, pos, "menuentry \"Boot without persistence\" {\n"
-                  "  echo %s\n}\n", "123");
+                  "  echo %s\n}\n", "");
     
     for (i = 0; i < node->backendnum; i++)
     {
         vtoy_ssprintf(buf, pos, "menuentry \"Boot with %s\" {\n"
-                      "  echo 123\n}\n",
+                      "  echo \"\"\n}\n",
                       node->backendpath[i].path);
         
     }
 
     g_ventoy_menu_esc = 1;
     g_ventoy_suppress_esc = 1;
-
+    g_ventoy_suppress_esc_default = defidx;
+    
     grub_snprintf(configfile, sizeof(configfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)buf, pos);
     grub_script_execute_sourcecode(configfile);
     
     g_ventoy_menu_esc = 0;
     g_ventoy_suppress_esc = 0;
+    g_ventoy_suppress_esc_default = 1;
 
     grub_free(buf);
 

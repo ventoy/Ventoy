@@ -602,6 +602,7 @@ static int ventoy_plugin_auto_install_check(VTOY_JSON *json, const char *isodisk
 {
     int pathnum = 0;
     int autosel = 0;
+    int timeout = 0;
     char *pos = NULL;
     const char *iso = NULL;
     VTOY_JSON *pNode = NULL;
@@ -638,6 +639,18 @@ static int ventoy_plugin_auto_install_check(VTOY_JSON *json, const char *isodisk
                         grub_printf("autosel: %d [FAIL]\n", autosel);
                     }
                 }
+                
+                if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "timeout", &timeout))
+                {
+                    if (timeout >= 0)
+                    {
+                        grub_printf("timeout: %d [OK]\n", timeout);
+                    }
+                    else
+                    {
+                        grub_printf("timeout: %d [FAIL]\n", timeout);
+                    }
+                }
             }
             else
             {
@@ -662,6 +675,18 @@ static int ventoy_plugin_auto_install_check(VTOY_JSON *json, const char *isodisk
                         grub_printf("autosel: %d [FAIL]\n", autosel);
                     }
                 }
+                
+                if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "timeout", &timeout))
+                {
+                    if (timeout >= 0)
+                    {
+                        grub_printf("timeout: %d [OK]\n", timeout);
+                    }
+                    else
+                    {
+                        grub_printf("timeout: %d [FAIL]\n", timeout);
+                    }
+                }
             }
             else
             {
@@ -682,6 +707,7 @@ static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk
     int type = 0;
     int pathnum = 0;
     int autosel = 0;
+    int timeout = 0;
     const char *iso = NULL;
     VTOY_JSON *pNode = NULL;
     install_template *node = NULL;
@@ -729,11 +755,20 @@ static int ventoy_plugin_auto_install_entry(VTOY_JSON *json, const char *isodisk
                     node->templatenum = pathnum;
 
                     node->autosel = -1;
+                    node->timeout = -1;
                     if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "autosel", &autosel))
                     {
                         if (autosel >= 0 && autosel <= pathnum)
                         {
                             node->autosel = autosel;
+                        }
+                    }
+                    
+                    if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "timeout", &timeout))
+                    {
+                        if (timeout >= 0)
+                        {
+                            node->timeout = timeout;
                         }
                     }
 
@@ -1175,6 +1210,7 @@ static int ventoy_plugin_pwd_check(VTOY_JSON *json, const char *isodisk)
 static int ventoy_plugin_persistence_check(VTOY_JSON *json, const char *isodisk)
 {
     int autosel = 0;
+    int timeout = 0;
     int pathnum = 0;
     char *pos = NULL;
     const char *iso = NULL;
@@ -1213,6 +1249,18 @@ static int ventoy_plugin_persistence_check(VTOY_JSON *json, const char *isodisk)
                         grub_printf("autosel: %d [FAIL]\n", autosel);
                     }
                 }
+                
+                if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "timeout", &timeout))
+                {
+                    if (timeout >= 0)
+                    {
+                        grub_printf("timeout: %d [OK]\n", timeout);
+                    }
+                    else
+                    {
+                        grub_printf("timeout: %d [FAIL]\n", timeout);
+                    }
+                }
             } 
             else
             {
@@ -1231,6 +1279,7 @@ static int ventoy_plugin_persistence_check(VTOY_JSON *json, const char *isodisk)
 static int ventoy_plugin_persistence_entry(VTOY_JSON *json, const char *isodisk)
 {
     int autosel = 0;
+    int timeout = 0;
     int pathnum = 0;
     const char *iso = NULL;
     VTOY_JSON *pNode = NULL;
@@ -1273,11 +1322,20 @@ static int ventoy_plugin_persistence_entry(VTOY_JSON *json, const char *isodisk)
                     node->backendnum = pathnum;
 
                     node->autosel = -1;
+                    node->timeout = -1;
                     if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "autosel", &autosel))
                     {
                         if (autosel >= 0 && autosel <= pathnum)
                         {
                             node->autosel = autosel;
+                        }
+                    }
+                    
+                    if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "timeout", &timeout))
+                    {
+                        if (timeout >= 0)
+                        {
+                            node->timeout = timeout;
                         }
                     }
 

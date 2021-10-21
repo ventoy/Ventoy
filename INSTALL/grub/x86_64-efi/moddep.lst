@@ -26,7 +26,7 @@ sfs: fshelp
 reiserfs: fshelp
 part_sunpc:
 zstd:
-gfxmenu: trig video_colors bitmap_scale gfxterm font normal bitmap video
+gfxmenu: trig video_colors gfxterm bitmap_scale font normal video bitmap
 backtrace:
 jfs:
 help: extcmd normal

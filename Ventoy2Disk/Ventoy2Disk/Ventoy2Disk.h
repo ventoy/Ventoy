@@ -53,6 +53,7 @@
 }
 
 #define LASTERR     GetLastError()
+#define RET_LASTERR (ret ? 0 : LASTERR)
 
 #pragma pack(1)
 typedef struct PART_TABLE
@@ -153,12 +154,13 @@ typedef struct PHY_DRIVE_INFO
 
     BOOL SecureBootSupport;
     MBR_HEAD MBR;
+    UINT64 Part2GPTAttr;
 }PHY_DRIVE_INFO;
 
 typedef enum PROGRESS_POINT
 {
     PT_START = 0,
-    PT_LOCK_FOR_CLEAN,
+    PT_LOCK_FOR_CLEAN = 8,
     PT_DEL_ALL_PART,
     PT_LOCK_FOR_WRITE,
     PT_FORMAT_PART1,
@@ -185,6 +187,7 @@ extern HFONT g_language_normal_font;
 extern HFONT g_language_bold_font;
 extern int g_FilterUSB;
 
+void TraceOut(const char *Fmt, ...);
 void Log(const char *Fmt, ...);
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...);
 void DumpWindowsVersion(void);
@@ -207,11 +210,12 @@ int Ventoy2DiskInit(void);
 int Ventoy2DiskDestroy(void);
 PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id);
 int ParseCmdLineOption(LPSTR lpCmdLine);
-int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
-int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive);
+int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId);
+int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId);
 int VentoyFillBackupGptHead(VTOY_GPT_INFO *pInfo, VTOY_GPT_HDR *pHead);
 int VentoyFillWholeGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo);
 void SetProgressBarPos(int Pos);
+int SaveBufToFile(const CHAR *FileName, const void *Buffer, int BufLen);
 int ReadWholeFileToBuf(const CHAR *FileName, int ExtLen, void **Bufer, int *BufLen);
 int INIT unxz(unsigned char *in, int in_size,
     int(*fill)(void *dest, unsigned int size),

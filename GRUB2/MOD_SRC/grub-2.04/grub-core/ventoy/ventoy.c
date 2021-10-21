@@ -53,6 +53,26 @@ void ventoy_debug(const char *fmt, ...)
     va_end (args);
 }
 
+void ventoy_str_tolower(char *str)
+{
+    while (*str)
+    {
+        *str = grub_tolower(*str);
+        str++;
+    }
+}
+
+void ventoy_str_toupper(char *str)
+{
+    while (*str)
+    {
+        *str = grub_toupper(*str);
+        str++;
+    }
+}
+
+
+
 int ventoy_strcmp(const char *pattern, const char *str)
 {
     while (*pattern && *str)

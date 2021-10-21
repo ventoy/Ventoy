@@ -92,6 +92,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="crc32.c" />
+    <ClCompile Include="DiskService_diskpart.c" />
+    <ClCompile Include="DiskService_vds.c" />
+    <ClCompile Include="DiskService_wmsa.c" />
     <ClCompile Include="fat_io_lib\fat_access.c" />
     <ClCompile Include="fat_io_lib\fat_cache.c" />
     <ClCompile Include="fat_io_lib\fat_filelib.c" />
@@ -115,6 +118,7 @@
     <ClCompile Include="xz-embedded-20130513\linux\lib\decompress_unxz.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DiskService.h" />
     <ClInclude Include="fat_io_lib\fat_access.h" />
     <ClInclude Include="fat_io_lib\fat_cache.h" />
     <ClInclude Include="fat_io_lib\fat_defs.h" />

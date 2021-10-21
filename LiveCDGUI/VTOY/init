@@ -82,9 +82,22 @@ fi
 
 mkdir -p /union/opt/scripts/
 echo 123 > /union/opt/scripts/extras
+
+echo "c2::respawn:/sbin/agetty --autologin root 38400 tty2 linux" >> /union/etc/inittab
+echo "c3::respawn:/sbin/agetty --autologin root 38400 tty3 linux" >> /union/etc/inittab
+echo "c4::respawn:/sbin/agetty --autologin root 38400 tty4 linux" >> /union/etc/inittab
+
+
+sed "s/root:[^:]*:/root::/g" -i /union/etc/shadow
+rm -f /union/etc/X11/xorg.conf.d/10-xorg.conf
 rm -f /union/lib64/udev/rules.d/10-kiosk-auto_mount.rules
 cp -a /VTOY/autostart /union/etc/xdg/openbox/autostart
 cp -a /VTOY/*.png /union/ventoy/
+
+mkdir -p /union/usr/local/sbin
+mv /VTOY/ntfs-3g.tar.gz /union/usr/local/sbin/
+mv /VTOY/busybox /union/usr/local/sbin/
+
 
 cp -a /bin/busybox /union/bin; ln -sf /union/lib /lib
 cp -a /VTOY/wallpaper.png /union/usr/share/wallpapers/ 2>/dev/null

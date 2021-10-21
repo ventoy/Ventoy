@@ -23,9 +23,11 @@ cd _INITRD_
 xzcat ../EXT/initrd.xz | cpio -idmu --quiet >/dev/null 2>&1
 cp -a ../EXT/*.xzm ./
 cp -a ../VTOY ./
+cp -a ../EXT/ntfs-3g.tar.gz ./VTOY/
+cp -a ../EXT/busybox-x86_64 ./VTOY/busybox
+
 chown -R 0:0 ./VTOY
-chmod +x ./VTOY/init
-chmod +x ./VTOY/autostart
+chmod -R 777 ./VTOY
 
 
 mkdir ventoy

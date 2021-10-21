@@ -25,13 +25,25 @@ porteus_hook() {
 if $GREP -q exfat /proc/filesystems; then
     vtPath=$($VTOY_PATH/tool/vtoydump -p $VTOY_PATH/ventoy_os_param)
     
+    vtFindFlag=0
     $GREP '`value from`' /usr/* -r | $AWK -F: '{print $1}' | while read vtline; do
         echo "hooking $vtline ..." >> $VTLOG
         $SED "s#\`value from\`#$vtPath#g"  -i $vtline
+        vtFindFlag=1
     done
 
+    if [ $vtFindFlag -eq 0 ]; then
+        if $GREP -q '`value from`' /linuxrc; then
+            echo "hooking linuxrc ..." >> $VTLOG
+            $SED "/searching *for *\$CFG *file/i$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/porteus-path.sh"  -i /linuxrc
+            $SED "/searching *for *\$CFG *file/iFROM=\$(cat /porteus-from)"  -i /linuxrc
+            $SED "/searching *for *\$CFG *file/iISO=\$(cat /porteus-from)"  -i /linuxrc
+            vtFindFlag=1
+        fi
+    fi
+
 else
-    for vtfile in '/init' '/linuxrc' ; do
+    for vtfile in '/linuxrc' '/init'; do
         if [ -e $vtfile ]; then
             if ! $GREP -q ventoy $vtfile; then
                 echo "hooking $vtfile ..."  >> $VTLOG

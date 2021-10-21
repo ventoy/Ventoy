@@ -71,7 +71,7 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
     return 0;
 }
 
-static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UINT64 *Part2StartSector)
+static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UINT64 *Part2StartSector, UINT64 *GptPart2Attr)
 {
     int i;
     BOOL bRet;
@@ -149,7 +149,15 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 
 		if (memcmp(pGpt->PartTbl[1].Name, L"VTOYEFI", 7 * 2))
 		{
-			Log("Invalid ventoy efi part name");
+			if (pGpt->PartTbl[1].Name[0])
+			{
+				Log("Invalid ventoy efi part name <%S>", pGpt->PartTbl[1].Name);
+			}
+			else
+			{
+				Log("Invalid ventoy efi part name <null>");
+			}
+			
 			return FALSE;
 		}
 
@@ -170,6 +178,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
             return FALSE;
         }
 
+        *GptPart2Attr = pGpt->PartTbl[1].Attr;
 		*Part2StartSector = pGpt->PartTbl[1].StartLBA;
 
         memcpy(pMBR, &(pGpt->MBR), sizeof(MBR_HEAD));
@@ -225,6 +234,7 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
     int Letter = 'A';
     int Id = 0;
     int LetterCount = 0;
+    UINT64 Part2GPTAttr = 0;
 	UINT64 Part2StartSector = 0;
     PHY_DRIVE_INFO *CurDrive;
 	MBR_HEAD MBR;
@@ -247,6 +257,7 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 
     for (i = 0; i < DriveCount; i++)
     {
+        Part2GPTAttr = 0;
         CurDrive = pDriveList + i;
 
         CurDrive->Id = -1;
@@ -278,10 +289,11 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
             }
         }
 
-		if (IsVentoyPhyDrive(CurDrive->PhyDrive, CurDrive->SizeInBytes, &MBR, &Part2StartSector))
+        if (IsVentoyPhyDrive(CurDrive->PhyDrive, CurDrive->SizeInBytes, &MBR, &Part2StartSector, &Part2GPTAttr))
         {
             memcpy(&(CurDrive->MBR), &MBR, sizeof(MBR));
             CurDrive->PartStyle = (MBR.PartTbl[0].FsFlag == 0xEE) ? 1 : 0;
+            CurDrive->Part2GPTAttr = Part2GPTAttr;
             GetVentoyVerInPhyDrive(CurDrive, Part2StartSector, CurDrive->VentoyVersion, sizeof(CurDrive->VentoyVersion), &(CurDrive->SecureBootSupport));
             Log("PhyDrive %d is Ventoy Disk ver:%s SecureBoot:%u", CurDrive->PhyDrive, CurDrive->VentoyVersion, CurDrive->SecureBootSupport);
 
