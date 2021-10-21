@@ -41,7 +41,7 @@ BOOL VDS_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Attr);
 BOOL VDS_CreateVtoyEFIPart(int DriveIndex, UINT64 Offset);
 BOOL VDS_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL VDS_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
-
+BOOL VDS_FormatVtoyEFIPart(int DriveIndex, UINT64 Offset);
 
 //diskpart.exe
 BOOL DSPT_CleanDisk(int DriveIndex);

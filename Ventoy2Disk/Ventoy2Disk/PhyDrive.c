@@ -20,6 +20,7 @@
  */
  
 #include <Windows.h>
+#include <time.h>
 #include <winternl.h>
 #include <commctrl.h>
 #include <initguid.h>
@@ -1827,6 +1828,103 @@ End:
     return rc;
 }
 
+static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBackup)
+{
+	DWORD dwSize;
+	DWORD dwStatus;
+	BOOL Return = FALSE;
+	BOOL ret = FALSE;
+	BYTE *backup = NULL;
+	HANDLE hDrive = INVALID_HANDLE_VALUE;
+	LARGE_INTEGER liCurPosition;
+	LARGE_INTEGER liNewPosition;
+
+	Log("BackupDataBeforeCleanDisk %d", PhyDrive);
+
+	backup = malloc(SIZE_1MB * 3);
+	if (!backup)
+	{
+		goto out;
+	}
+
+	hDrive = GetPhysicalHandle(PhyDrive, FALSE, FALSE, FALSE);
+	if (hDrive == INVALID_HANDLE_VALUE)
+	{
+		goto out;
+	}
+
+	//read first 1MB
+	dwStatus = SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
+	if (dwStatus != 0)
+	{
+		goto out;
+	}
+	
+	dwSize = 0;
+	ret = ReadFile(hDrive, backup, SIZE_1MB, &dwSize, NULL);
+	if ((!ret) || (dwSize != SIZE_1MB))
+	{
+		Log("Failed to read %d %u 0x%x", ret, dwSize, LASTERR);
+		goto out;
+	}
+	
+	liCurPosition.QuadPart = DiskSize - (SIZE_1MB * 2);
+	liNewPosition.QuadPart = 0;
+	if (0 == SetFilePointerEx(hDrive, liCurPosition, &liNewPosition, FILE_BEGIN) ||
+		liNewPosition.QuadPart != liCurPosition.QuadPart)
+	{
+		goto out;
+	}
+
+	dwSize = 0;
+	ret = ReadFile(hDrive, backup + SIZE_1MB, 2 * SIZE_1MB, &dwSize, NULL);
+	if ((!ret) || (dwSize != 2 * SIZE_1MB))
+	{
+		Log("Failed to read %d %u 0x%x", ret, dwSize, LASTERR);
+		goto out;
+	}
+
+	*pBackup = backup;
+	backup = NULL; //For don't free later
+	Return = TRUE;
+
+out:
+	CHECK_CLOSE_HANDLE(hDrive);
+	if (backup)
+		free(backup);
+
+	return Return;
+}
+
+
+static BOOL WriteBackupDataToDisk(HANDLE hDrive, UINT64 Offset, BYTE *Data, DWORD Length)
+{
+	DWORD dwSize = 0;
+	BOOL ret = FALSE;
+	LARGE_INTEGER liCurPosition;
+	LARGE_INTEGER liNewPosition;
+
+	Log("WriteBackupDataToDisk %llu %p %u", Offset, Data, Length);
+
+	liCurPosition.QuadPart = Offset;
+	liNewPosition.QuadPart = 0;
+	if (0 == SetFilePointerEx(hDrive, liCurPosition, &liNewPosition, FILE_BEGIN) ||
+		liNewPosition.QuadPart != liCurPosition.QuadPart)
+	{
+		return FALSE;
+	}
+
+	ret = WriteFile(hDrive, Data, Length, &dwSize, NULL);
+	if ((!ret) || dwSize != Length)
+	{
+		Log("Failed to write %d %u %u", ret, dwSize, LASTERR);
+		return FALSE;
+	}
+
+	Log("WriteBackupDataToDisk %llu %p %u success", Offset, Data, Length);
+	return TRUE;
+}
+
 
 int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 {
@@ -1835,6 +1933,8 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	int MaxRetry = 3;
 	BOOL ForceMBR = FALSE;
 	BOOL Esp2Basic = FALSE;
+	BOOL ChangeAttr = FALSE;
+	BOOL CleanDisk = FALSE;
 	HANDLE hVolume;
 	HANDLE hDrive;
 	DWORD Status;
@@ -1846,6 +1946,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	UINT64 ReservedMB = 0;
 	MBR_HEAD BootImg;
 	MBR_HEAD MBR;
+	BYTE *pBackup = NULL;
 	VTOY_GPT_INFO *pGptInfo = NULL;
 	UINT8 ReservedData[4096];
 
@@ -1935,20 +2036,43 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	if (pPhyDrive->PartStyle == 1)
 	{
 		Log("TryId=%d EFI GPT partition type is 0x%llx", TryId, pPhyDrive->Part2GPTAttr);
+		PROGRESS_BAR_SET_POS(PT_DEL_ALL_PART);
 
-		if ((TryId == 1 && (pPhyDrive->Part2GPTAttr >> 56) == 0xC0) || TryId == 2)
+		if (TryId == 1)
 		{
-			PROGRESS_BAR_SET_POS(PT_DEL_ALL_PART);
 			Log("Change GPT partition type to ESP");
-
 			if (VDS_ChangeVtoyEFI2ESP(pPhyDrive->PhyDrive, StartSector * 512))
 			{
 				Esp2Basic = TRUE;
 				Sleep(1000);
 			}
 		}
+		else if (TryId == 2)
+		{
+			Log("Change GPT partition attribute");
+			if (VDS_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, 0x8000000000000001))
+			{
+				ChangeAttr = TRUE;
+				Sleep(1000);
+			}
+		}
+		else if (TryId == 3)
+		{
+			Log("Clean disk GPT partition table");
+			if (BackupDataBeforeCleanDisk(pPhyDrive->PhyDrive, pPhyDrive->SizeInBytes, &pBackup))
+			{
+				Log("Success to backup data before clean");
+				CleanDisk = TRUE;
+				VDS_CleanDisk(pPhyDrive->PhyDrive);
+				Sleep(1000);
+			}
+			else
+			{
+				Log("Failed to backup data before clean");
+			}
+		}
 	}
-
+	
     PROGRESS_BAR_SET_POS(PT_LOCK_FOR_WRITE);
 
     Log("Lock disk for update ............................ ");
@@ -1966,7 +2090,12 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
     hVolume = INVALID_HANDLE_VALUE;
 
 	//If we change VTOYEFI to ESP, it can not have s volume name, so don't try to get it.
-	if (Esp2Basic)
+	if (CleanDisk)
+	{
+		WriteBackupDataToDisk(hDrive, pPhyDrive->SizeInBytes - (2 * SIZE_1MB), pBackup + SIZE_1MB, 2 * SIZE_1MB);
+		Status = ERROR_NOT_FOUND;
+	}
+	else if (Esp2Basic)
 	{
 		Status = ERROR_NOT_FOUND;
 	}
@@ -2131,6 +2260,13 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
         }
     }
 
+	if (CleanDisk)
+	{
+		WriteBackupDataToDisk(hDrive, 4 * 512, pBackup + 4 * 512, SIZE_1MB - 4 * 512);
+		WriteBackupDataToDisk(hDrive, 0, pBackup, 4 * 512);
+		free(pBackup);
+	}
+
     //Refresh Drive Layout
     DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
 
@@ -2152,6 +2288,20 @@ End:
 		Log("Recover GPT partition type to basic");
 		VDS_ChangeVtoyEFI2Basic(pPhyDrive->PhyDrive, StartSector * 512);
     }
+
+	if (ChangeAttr || ((pPhyDrive->Part2GPTAttr >> 56) != 0xC0))
+	{
+		Log("Change EFI partition attr %u <0x%llx> to <0x%llx>", ChangeAttr, pPhyDrive->Part2GPTAttr, 0xC000000000000001ULL);
+		if (VDS_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, 0xC000000000000001ULL))
+		{
+			Log("Change EFI partition attr success");
+			pPhyDrive->Part2GPTAttr = 0xC000000000000001ULL;
+		}
+		else
+		{
+			Log("Change EFI partition attr failed");
+		}
+	}
 
     if (pGptInfo)
     {
