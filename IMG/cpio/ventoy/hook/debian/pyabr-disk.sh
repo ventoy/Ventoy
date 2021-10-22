@@ -47,8 +47,29 @@ ventoy_os_install_dmsetup_by_fuse() {
     umount $VTOY_PATH/mnt/fuse
 }
 
-
-wait_for_usb_disk_ready
+while [ -n "Y" ]; do
+    vtdiskname=$(get_ventoy_disk_name)
+    if [ "$vtdiskname" = "unknown" ]; then
+        vtlog "ventoy disk not found"
+        if [ -r /proc/sys/kernel/hotplug ]; then
+            echo /sbin/mdev > /proc/sys/kernel/hotplug
+        fi
+        mdev -s
+        sleep 1
+    else
+        if check_usb_disk_ready "$vtdiskname"; then
+            vtlog "check_usb_disk_ready $vtdiskname ok"
+            break
+        else
+            vtlog "check_usb_disk_ready $vtdiskname error"
+            if [ -r /proc/sys/kernel/hotplug ]; then
+                echo /sbin/mdev > /proc/sys/kernel/hotplug
+            fi
+            mdev -s
+            sleep 1
+        fi
+    fi
+done
 
 vtdiskname=$(get_ventoy_disk_name)
 if [ "$vtdiskname" = "unknown" ]; then
