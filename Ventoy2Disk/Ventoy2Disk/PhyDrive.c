@@ -31,6 +31,8 @@
 #include "ff.h"
 #include "DiskService.h"
 
+static int g_backup_bin_index = 0;
+
 static DWORD GetVentoyVolumeName(int PhyDrive, UINT64 StartSectorId, CHAR *NameBuf, UINT32 BufLen, BOOL DelSlash)
 {
     size_t len;
@@ -1841,7 +1843,7 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 
 	Log("BackupDataBeforeCleanDisk %d", PhyDrive);
 
-	backup = malloc(SIZE_1MB * 3);
+	backup = malloc(SIZE_1MB * 4);
 	if (!backup)
 	{
 		goto out;
@@ -1853,7 +1855,7 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 		goto out;
 	}
 
-	//read first 1MB
+	//read first 2MB
 	dwStatus = SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
 	if (dwStatus != 0)
 	{
@@ -1861,14 +1863,15 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 	}
 	
 	dwSize = 0;
-	ret = ReadFile(hDrive, backup, SIZE_1MB, &dwSize, NULL);
-	if ((!ret) || (dwSize != SIZE_1MB))
+	ret = ReadFile(hDrive, backup, SIZE_2MB, &dwSize, NULL);
+	if ((!ret) || (dwSize != SIZE_2MB))
 	{
 		Log("Failed to read %d %u 0x%x", ret, dwSize, LASTERR);
 		goto out;
 	}
 	
-	liCurPosition.QuadPart = DiskSize - (SIZE_1MB * 2);
+	//read last 2MB
+	liCurPosition.QuadPart = DiskSize - SIZE_2MB;
 	liNewPosition.QuadPart = 0;
 	if (0 == SetFilePointerEx(hDrive, liCurPosition, &liNewPosition, FILE_BEGIN) ||
 		liNewPosition.QuadPart != liCurPosition.QuadPart)
@@ -1877,8 +1880,8 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 	}
 
 	dwSize = 0;
-	ret = ReadFile(hDrive, backup + SIZE_1MB, 2 * SIZE_1MB, &dwSize, NULL);
-	if ((!ret) || (dwSize != 2 * SIZE_1MB))
+	ret = ReadFile(hDrive, backup + SIZE_2MB, SIZE_2MB, &dwSize, NULL);
+	if ((!ret) || (dwSize != SIZE_2MB))
 	{
 		Log("Failed to read %d %u 0x%x", ret, dwSize, LASTERR);
 		goto out;
@@ -1930,11 +1933,12 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 {
 	int i;
 	int rc = 0;
-	int MaxRetry = 3;
+	int MaxRetry = 4;
 	BOOL ForceMBR = FALSE;
 	BOOL Esp2Basic = FALSE;
 	BOOL ChangeAttr = FALSE;
 	BOOL CleanDisk = FALSE;
+	BOOL bWriteBack = TRUE;
 	HANDLE hVolume;
 	HANDLE hDrive;
 	DWORD Status;
@@ -1942,6 +1946,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	BOOL bRet;
 	CHAR DriveName[] = "?:\\";
 	CHAR DriveLetters[MAX_PATH] = { 0 };
+	CHAR BackBinFile[MAX_PATH];
 	UINT64 StartSector;
 	UINT64 ReservedMB = 0;
 	MBR_HEAD BootImg;
@@ -2044,7 +2049,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 			if (VDS_ChangeVtoyEFI2ESP(pPhyDrive->PhyDrive, StartSector * 512))
 			{
 				Esp2Basic = TRUE;
-				Sleep(1000);
+				Sleep(3000);
 			}
 		}
 		else if (TryId == 2)
@@ -2053,7 +2058,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 			if (VDS_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, 0x8000000000000001))
 			{
 				ChangeAttr = TRUE;
-				Sleep(1000);
+				Sleep(2000);
 			}
 		}
 		else if (TryId == 3)
@@ -2061,10 +2066,19 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 			Log("Clean disk GPT partition table");
 			if (BackupDataBeforeCleanDisk(pPhyDrive->PhyDrive, pPhyDrive->SizeInBytes, &pBackup))
 			{
+				sprintf_s(BackBinFile, sizeof(BackBinFile), ".\\ventoy\\phydrive%d_%u_%d.bin",
+					pPhyDrive->PhyDrive, GetCurrentProcessId(), g_backup_bin_index++);
+				SaveBufToFile(BackBinFile, pBackup, 4 * SIZE_1MB);
+				Log("Save backup data to %s", BackBinFile);
+
 				Log("Success to backup data before clean");
 				CleanDisk = TRUE;
-				VDS_CleanDisk(pPhyDrive->PhyDrive);
-				Sleep(1000);
+				if (!VDS_CleanDisk(pPhyDrive->PhyDrive))
+				{
+					Sleep(3000);
+					DSPT_CleanDisk(pPhyDrive->PhyDrive);
+				}
+				Sleep(3000);
 			}
 			else
 			{
@@ -2092,7 +2106,11 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	//If we change VTOYEFI to ESP, it can not have s volume name, so don't try to get it.
 	if (CleanDisk)
 	{
-		WriteBackupDataToDisk(hDrive, pPhyDrive->SizeInBytes - (2 * SIZE_1MB), pBackup + SIZE_1MB, 2 * SIZE_1MB);
+		//writeback the last 2MB
+		if (!WriteBackupDataToDisk(hDrive, pPhyDrive->SizeInBytes - SIZE_2MB, pBackup + SIZE_2MB, SIZE_2MB))
+		{
+			bWriteBack = FALSE;
+		}
 		Status = ERROR_NOT_FOUND;
 	}
 	else if (Esp2Basic)
@@ -2164,7 +2182,15 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
         goto End;
     }
 
-    if (!TryWritePart2(hDrive, StartSector))
+	bRet = TryWritePart2(hDrive, StartSector);
+	if (FALSE == bRet && Esp2Basic)
+	{
+		Log("TryWritePart2 agagin ...");
+		Sleep(3000);
+		bRet = TryWritePart2(hDrive, StartSector);
+	}
+
+	if (!bRet)
     {
 		if (pPhyDrive->PartStyle == 0)
 		{
@@ -2262,9 +2288,23 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 
 	if (CleanDisk)
 	{
-		WriteBackupDataToDisk(hDrive, 4 * 512, pBackup + 4 * 512, SIZE_1MB - 4 * 512);
-		WriteBackupDataToDisk(hDrive, 0, pBackup, 4 * 512);
+		if (!WriteBackupDataToDisk(hDrive, 4 * 512, pBackup + 4 * 512, SIZE_2MB - 4 * 512))
+		{
+			bWriteBack = FALSE;
+		}
+
+		if (!WriteBackupDataToDisk(hDrive, 0, pBackup, 4 * 512))
+		{
+			bWriteBack = FALSE;
+		}
+
 		free(pBackup);
+
+		if (bWriteBack)
+		{
+			Log("Write success, now delete %s", BackBinFile);
+			DeleteFileA(BackBinFile);
+		}
 	}
 
     //Refresh Drive Layout
@@ -2291,19 +2331,19 @@ End:
 
 	if (pPhyDrive->PartStyle == 1)
 	{
-	if (ChangeAttr || ((pPhyDrive->Part2GPTAttr >> 56) != 0xC0))
-	{
-		Log("Change EFI partition attr %u <0x%llx> to <0x%llx>", ChangeAttr, pPhyDrive->Part2GPTAttr, 0xC000000000000001ULL);
-		if (VDS_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, 0xC000000000000001ULL))
+		if (ChangeAttr || ((pPhyDrive->Part2GPTAttr >> 56) != 0xC0))
 		{
-			Log("Change EFI partition attr success");
-			pPhyDrive->Part2GPTAttr = 0xC000000000000001ULL;
+			Log("Change EFI partition attr %u <0x%llx> to <0x%llx>", ChangeAttr, pPhyDrive->Part2GPTAttr, 0xC000000000000001ULL);
+			if (VDS_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, 0xC000000000000001ULL))
+			{
+				Log("Change EFI partition attr success");
+				pPhyDrive->Part2GPTAttr = 0xC000000000000001ULL;
+			}
+			else
+			{
+				Log("Change EFI partition attr failed");
+			}
 		}
-		else
-		{
-			Log("Change EFI partition attr failed");
-		}
-	}
 	}
 
     if (pGptInfo)
