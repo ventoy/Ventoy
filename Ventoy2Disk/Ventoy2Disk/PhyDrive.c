@@ -2289,6 +2289,8 @@ End:
 		VDS_ChangeVtoyEFI2Basic(pPhyDrive->PhyDrive, StartSector * 512);
     }
 
+	if (pPhyDrive->PartStyle == 1)
+	{
 	if (ChangeAttr || ((pPhyDrive->Part2GPTAttr >> 56) != 0xC0))
 	{
 		Log("Change EFI partition attr %u <0x%llx> to <0x%llx>", ChangeAttr, pPhyDrive->Part2GPTAttr, 0xC000000000000001ULL);
@@ -2301,6 +2303,7 @@ End:
 		{
 			Log("Change EFI partition attr failed");
 		}
+	}
 	}
 
     if (pGptInfo)
