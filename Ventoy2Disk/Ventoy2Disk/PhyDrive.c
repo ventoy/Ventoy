@@ -1837,9 +1837,11 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 	BOOL Return = FALSE;
 	BOOL ret = FALSE;
 	BYTE *backup = NULL;
+	UINT64 offset;
 	HANDLE hDrive = INVALID_HANDLE_VALUE;
 	LARGE_INTEGER liCurPosition;
 	LARGE_INTEGER liNewPosition;
+	VTOY_GPT_INFO *pGPT = NULL;
 
 	Log("BackupDataBeforeCleanDisk %d", PhyDrive);
 
@@ -1870,6 +1872,18 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 		goto out;
 	}
 	
+	pGPT = (VTOY_GPT_INFO *)backup;
+	offset = pGPT->Head.EfiBackupLBA * 512;
+	if (offset >= (DiskSize - SIZE_2MB) && offset < DiskSize)
+	{
+		Log("EFI partition table check success"); 
+	}
+	else
+	{
+		Log("Backup EFI LBA not in last 2MB range: %llu", pGPT->Head.EfiBackupLBA);
+		goto out;
+	}
+
 	//read last 2MB
 	liCurPosition.QuadPart = DiskSize - SIZE_2MB;
 	liNewPosition.QuadPart = 0;
@@ -2111,6 +2125,13 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 		{
 			bWriteBack = FALSE;
 		}
+
+		//write the first 2MB except parttable
+		if (!WriteBackupDataToDisk(hDrive, 34 * 512, pBackup + 34 * 512, SIZE_2MB - 34 * 512))
+		{
+			bWriteBack = FALSE;
+		}
+
 		Status = ERROR_NOT_FOUND;
 	}
 	else if (Esp2Basic)
@@ -2288,12 +2309,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 
 	if (CleanDisk)
 	{
-		if (!WriteBackupDataToDisk(hDrive, 4 * 512, pBackup + 4 * 512, SIZE_2MB - 4 * 512))
-		{
-			bWriteBack = FALSE;
-		}
-
-		if (!WriteBackupDataToDisk(hDrive, 0, pBackup, 4 * 512))
+		if (!WriteBackupDataToDisk(hDrive, 0, pBackup, 34 * 512))
 		{
 			bWriteBack = FALSE;
 		}
@@ -2302,9 +2318,15 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 
 		if (bWriteBack)
 		{
-			Log("Write success, now delete %s", BackBinFile);
+			Log("Write backup data success, now delete %s", BackBinFile);
 			DeleteFileA(BackBinFile);
 		}
+		else
+		{
+			Log("Write backup data failed");
+		}
+
+		Sleep(1000);
 	}
 
     //Refresh Drive Layout

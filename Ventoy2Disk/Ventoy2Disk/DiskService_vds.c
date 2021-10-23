@@ -887,7 +887,7 @@ STATIC BOOL VDS_CallBack_CleanDisk(void *pInterface, VDS_DISK_PROP *pDiskProp, U
 BOOL VDS_CleanDisk(int DriveIndex)
 {
 	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_CleanDisk, 0);
-    Log("VDS_CleanDisk %d ret:%d", DriveIndex, ret);
+    Log("VDS_CleanDisk %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
     return ret;
 }
 
@@ -958,15 +958,15 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
 
 BOOL VDS_DeleteAllPartitions(int DriveIndex)
 {
-	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_DeletePartition, 0);
-    Log("VDS_DeleteAllPartitions %d ret:%d", DriveIndex, ret);
+	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_DeletePartition, 0);    
+	Log("VDS_DeleteAllPartitions %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
     return ret;
 }
 
 BOOL VDS_DeleteVtoyEFIPartition(int DriveIndex)
 {
 	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_DeletePartition, 2);
-    Log("VDS_DeleteVtoyEFIPartition %d ret:%d", DriveIndex, ret);
+	Log("VDS_DeleteVtoyEFIPartition %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
     return ret;
 }
 
@@ -1029,8 +1029,8 @@ STATIC BOOL VDS_CallBack_ChangeEFIAttr(void *pInterface, VDS_DISK_PROP *pDiskPro
 
 BOOL VDS_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Attr)
 {
-	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_ChangeEFIAttr, Attr);
-    Log("VDS_ChangeVtoyEFIAttr %d ret:%d", DriveIndex, ret);
+	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_ChangeEFIAttr, Attr);    
+	Log("VDS_ChangeVtoyEFIAttr %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
     return ret;
 }
 
@@ -1070,7 +1070,7 @@ BOOL VDS_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset)
 	Para.Offset = Offset;
 
 	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK2, DriveIndex, VDS_CallBack_ChangeEFIType, (ULONG)&Para);
-	Log("VDS_ChangeVtoyEFI2ESP %d ret:%d", DriveIndex, ret);
+	Log("VDS_ChangeVtoyEFI2ESP %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
 
@@ -1083,7 +1083,7 @@ BOOL VDS_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset)
 	Para.Offset = Offset;
 
 	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK2, DriveIndex, VDS_CallBack_ChangeEFIType, (ULONG)&Para);
-	Log("VDS_ChangeVtoyEFI2ESP %d ret:%d", DriveIndex, ret);
+	Log("VDS_ChangeVtoyEFI2Basic %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
 
@@ -1157,8 +1157,8 @@ BOOL VDS_CreateVtoyEFIPart(int DriveIndex, UINT64 Offset)
 	memcpy(&(Para.Type), &EspPartType, sizeof(GUID));
     CoCreateGuid(&(Para.Id));
 
-	BOOL ret = VDS_DiskCommProc(INTF_CREATEPARTITIONEX, DriveIndex, VDS_CallBack_CreateVtoyEFI, (ULONG)&Para);
-    Log("VDS_CreateVtoyEFIPart %d ret:%d", DriveIndex, ret);
+	BOOL ret = VDS_DiskCommProc(INTF_CREATEPARTITIONEX, DriveIndex, VDS_CallBack_CreateVtoyEFI, (ULONG)&Para);    
+	Log("VDS_CreateVtoyEFIPart %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
     return ret; 
 }
 
@@ -1217,7 +1217,8 @@ BOOL VDS_FormatVtoyEFIPart(int DriveIndex, UINT64 Offset)
 	Para.Offset = Offset;
 	memcpy(Para.Name, L"VTOYEFI", 7 * 2);
 
-	BOOL ret = VDS_DiskCommProc(INTF_PARTITIONMF, DriveIndex, VDS_CallBack_FormatVtoyEFI, (ULONG)&Para);
-	Log("VDS_FormatVtoyEFIPart %d ret:%d", DriveIndex, ret);
+	BOOL ret = VDS_DiskCommProc(INTF_PARTITIONMF, DriveIndex, VDS_CallBack_FormatVtoyEFI, (ULONG)&Para);	
+	Log("VDS_FormatVtoyEFIPart %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
+
