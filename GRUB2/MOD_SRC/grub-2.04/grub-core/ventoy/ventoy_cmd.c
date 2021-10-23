@@ -2946,6 +2946,7 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
     }
 
     grub_memset(&g_grub_param->file_replace, 0, sizeof(g_grub_param->file_replace));
+    grub_memset(&g_grub_param->img_replace, 0, sizeof(g_grub_param->img_replace));
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
@@ -2977,14 +2978,20 @@ static grub_err_t ventoy_select_conf_replace(grub_extcmd_context_t ctxt, int arg
     debug("Find conf replace for %s\n", args[1]);
 
     file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(loop)%s", node->orgconf);
-    if (!file)
+    if (file)
+    {
+        offset = grub_iso9660_get_last_file_dirent_pos(file);
+        grub_file_close(file);  
+    }
+    else if (node->img > 0)
+    {
+        offset = 0;
+    }
+    else
     {
         debug("<(loop)%s> NOT exist\n", node->orgconf);
         goto end;
     }
-
-    offset = grub_iso9660_get_last_file_dirent_pos(file);
-    grub_file_close(file);    
 
     file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[0], node->newconf);
     if (!file)
@@ -3007,6 +3014,13 @@ static grub_err_t ventoy_select_conf_replace(grub_extcmd_context_t ctxt, int arg
 
     g_conf_replace_node = node;
     g_conf_replace_offset = offset + 2;
+
+    if (node->img > 0)
+    {
+        g_grub_param->img_replace.magic = GRUB_IMG_REPLACE_MAGIC;
+        g_grub_param->img_replace.old_name_cnt = 1;
+        grub_snprintf(g_grub_param->img_replace.old_file_name[0], 256, "%s", node->orgconf);
+    }
 
     debug("conf_replace OK: newlen: %d\n", g_conf_replace_new_len);
 

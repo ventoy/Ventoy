@@ -2005,6 +2005,7 @@ static int ventoy_plugin_custom_boot_check(VTOY_JSON *json, const char *isodisk)
 
 static int ventoy_plugin_conf_replace_entry(VTOY_JSON *json, const char *isodisk)
 {
+    int img = 0;
     const char *isof = NULL;
     const char *orgf = NULL;
     const char *newf = NULL;
@@ -2042,6 +2043,11 @@ static int ventoy_plugin_conf_replace_entry(VTOY_JSON *json, const char *isodisk
             node = grub_zalloc(sizeof(conf_replace));
             if (node)
             {
+                if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "img", &img))
+                {
+                    node->img = img;
+                }
+
                 node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", isof);
                 grub_snprintf(node->orgconf, sizeof(node->orgconf), "%s", orgf);
                 grub_snprintf(node->newconf, sizeof(node->newconf), "%s", newf);
@@ -2064,6 +2070,7 @@ static int ventoy_plugin_conf_replace_entry(VTOY_JSON *json, const char *isodisk
 
 static int ventoy_plugin_conf_replace_check(VTOY_JSON *json, const char *isodisk)
 {
+    int img = 0;
     const char *isof = NULL;
     const char *orgf = NULL;
     const char *newf = NULL;
@@ -2133,7 +2140,7 @@ static int ventoy_plugin_conf_replace_check(VTOY_JSON *json, const char *isodisk
                 }
                 else
                 {
-                    grub_printf("new:<%s> [OK]\n", newf);                    
+                    grub_printf("new1:<%s> [OK]\n", newf);                    
                 }
                 grub_file_close(file);
             }
@@ -2141,6 +2148,12 @@ static int ventoy_plugin_conf_replace_check(VTOY_JSON *json, const char *isodisk
             {
                 grub_printf("new:<%s> [NOT Exist]\n", newf);   
             }
+
+            if (JSON_SUCCESS == vtoy_json_get_int(pNode->pstChild, "img", &img))
+            {
+                grub_printf("img:<%d>\n", img);           
+            }
+            
             grub_printf("\n");
         }
     }

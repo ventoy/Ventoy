@@ -925,6 +925,7 @@ typedef struct custom_boot
 typedef struct conf_replace
 {
     int pathlen;
+    int img;
     char isopath[256];
     char orgconf[256];
     char newconf[256];
@@ -1108,6 +1109,8 @@ int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
 }
 
 #define ret_goto_end(a) ret = a; goto end;
+
+extern ventoy_grub_param *g_grub_param;
 
 #endif /* __VENTOY_DEF_H__ */
 

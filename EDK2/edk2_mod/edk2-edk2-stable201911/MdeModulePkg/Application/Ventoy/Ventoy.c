@@ -59,6 +59,9 @@ static grub_env_set_pf grub_env_set = NULL;
 ventoy_grub_param_file_replace *g_file_replace_list = NULL;
 ventoy_efi_file_replace g_efi_file_replace;
 
+ventoy_grub_param_file_replace *g_img_replace_list = NULL;
+ventoy_efi_file_replace g_img_file_replace;
+
 CONST CHAR16 gIso9660EfiDriverPath[] = ISO9660_EFI_DRIVER_PATH;
 CONST CHAR16 gUdfEfiDriverPath[] = UDF_EFI_DRIVER_PATH;
 
@@ -707,6 +710,35 @@ STATIC EFI_STATUS EFIAPI ventoy_load_isoefi_driver(IN EFI_HANDLE ImageHandle)
     return EFI_SUCCESS;
 }
 
+STATIC EFI_STATUS ventoy_proc_img_replace_name(ventoy_grub_param_file_replace *replace)
+{
+    UINT32 i;
+    char tmp[256];
+
+    if (replace->magic != GRUB_IMG_REPLACE_MAGIC)
+    {
+        return EFI_SUCCESS;
+    }
+
+    if (replace->old_file_name[0][0] == 0)
+    {
+        return EFI_SUCCESS;
+    }
+
+    AsciiStrCpyS(tmp, sizeof(tmp), replace->old_file_name[0]);
+    
+    for (i = 0; i < 256 && tmp[i]; i++)
+    {
+        if (tmp[i] == '/')
+        {
+            tmp[i] = '\\';
+        }
+    }
+
+    AsciiStrCpyS(replace->old_file_name[0], 256, tmp);
+    return EFI_SUCCESS;
+}
+
 STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
 {   
     UINT32 i = 0;
@@ -817,6 +849,19 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         old_cnt > 3 ? g_file_replace_list->old_file_name[3] : ""
         );
 
+    g_img_replace_list = &pGrubParam->img_replace;
+    ventoy_proc_img_replace_name(g_img_replace_list);
+    old_cnt = g_img_replace_list->old_file_cnt;
+    debug("img replace: magic:0x%x virtid:%u name count:%u <%a> <%a> <%a> <%a>",
+        g_img_replace_list->magic,
+        g_img_replace_list->new_file_virtual_id,
+        old_cnt,
+        old_cnt > 0 ? g_img_replace_list->old_file_name[0] : "",
+        old_cnt > 1 ? g_img_replace_list->old_file_name[1] : "",
+        old_cnt > 2 ? g_img_replace_list->old_file_name[2] : "",
+        old_cnt > 3 ? g_img_replace_list->old_file_name[3] : ""
+        );
+    
     pPos = StrStr(pCmdLine, L"mem:");
     chain = (ventoy_chain_head *)StrHexToUintn(pPos + 4);
 
@@ -1050,7 +1095,8 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
                 gST->ConIn->Reset(gST->ConIn, FALSE);
             }
             
-            if (g_file_replace_list && g_file_replace_list->magic == GRUB_FILE_REPLACE_MAGIC)
+            if ((g_file_replace_list && g_file_replace_list->magic == GRUB_FILE_REPLACE_MAGIC) ||
+                (g_img_replace_list && g_img_replace_list->magic == GRUB_IMG_REPLACE_MAGIC))
             {
                 ventoy_wrapper_push_openvolume(pFile->OpenVolume);
                 pFile->OpenVolume = ventoy_wrapper_open_volume;
