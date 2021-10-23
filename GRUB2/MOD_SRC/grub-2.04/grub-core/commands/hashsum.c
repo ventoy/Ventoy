@@ -94,7 +94,7 @@ hash_file (grub_file_t file, const gcry_md_spec_t *hash, void *result)
       {
           total += r;
           div = grub_divmod64(total * 100, (grub_uint64_t)file->size, &ro);
-          grub_printf("\rCalculating   %d%%    ", (int)div);
+          grub_printf("\rCalculating    %s   %d%%    ", hash->name, (int)div);
           grub_refresh();
       }
     }
@@ -105,7 +105,7 @@ hash_file (grub_file_t file, const gcry_md_spec_t *hash, void *result)
   grub_free (context);
   if (progress)
   {
-    grub_printf("\rCalculating   100%%    \n\r\n");
+    grub_printf("\rCalculating    %s   100%%    \n\r\n", hash->name);
     grub_refresh();      
   }
   return GRUB_ERR_NONE;
