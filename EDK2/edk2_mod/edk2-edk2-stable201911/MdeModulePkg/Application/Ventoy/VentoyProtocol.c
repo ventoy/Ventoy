@@ -1484,7 +1484,7 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
         {
             AsciiStrCpyS(OldName, sizeof(OldName), g_img_replace_list[i].old_file_name[j]);
             if ((0 == AsciiStrCmp(OldName, TmpName)) ||
-                 (AsciiStrnCmp(OldName, "\\loader\\entries", 15) == 0 && 
+                 (AsciiStrnCmp(OldName, "\\loader\\entries\\", 16) == 0 && 
                   AsciiStrCmp(OldName + 16, TmpName) == 0
                   )  
                 )
