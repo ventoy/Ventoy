@@ -1660,9 +1660,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
 
     if (!VDS_DeleteAllPartitions(pPhyDrive->PhyDrive))
     {
-        Log("Notice: Could not delete partitions: 0x%x", GetLastError());
-		rc = 1;
-		goto End;
+        Log("Notice: Could not delete partitions: 0x%x, but we continue.", GetLastError());
     }
 
     Log("Deleting all partitions ......................... OK");
@@ -1838,6 +1836,7 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 	BOOL ret = FALSE;
 	BYTE *backup = NULL;
 	UINT64 offset;
+	BYTE Buffer[512];
 	HANDLE hDrive = INVALID_HANDLE_VALUE;
 	LARGE_INTEGER liCurPosition;
 	LARGE_INTEGER liNewPosition;
@@ -1845,6 +1844,54 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 
 	Log("BackupDataBeforeCleanDisk %d", PhyDrive);
 
+	// step1: check write access
+	hDrive = GetPhysicalHandle(PhyDrive, TRUE, TRUE, FALSE);
+	if (hDrive == INVALID_HANDLE_VALUE)
+	{
+		Log("Failed to GetPhysicalHandle for write.");
+		goto out;
+	}
+
+	liCurPosition.QuadPart = 2039 * 512;
+	liNewPosition.QuadPart = 0;
+	if (0 == SetFilePointerEx(hDrive, liCurPosition, &liNewPosition, FILE_BEGIN) ||
+		liNewPosition.QuadPart != liCurPosition.QuadPart)
+	{
+		Log("SetFilePointer1 Failed %u", LASTERR);
+		goto out;
+	}
+	
+
+	dwSize = 0;
+	ret = ReadFile(hDrive, Buffer, 512, &dwSize, NULL);
+	if ((!ret) || (dwSize != 512))
+	{
+		Log("Failed to read %d %u 0x%x", ret, dwSize, LASTERR);
+		goto out;
+	}
+
+
+	liCurPosition.QuadPart = 2039 * 512;
+	liNewPosition.QuadPart = 0;
+	if (0 == SetFilePointerEx(hDrive, liCurPosition, &liNewPosition, FILE_BEGIN) ||
+		liNewPosition.QuadPart != liCurPosition.QuadPart)
+	{
+		Log("SetFilePointer2 Failed %u", LASTERR);
+		goto out;
+	}
+
+	ret = WriteFile(hDrive, Buffer, 512, &dwSize, NULL);
+	if ((!ret) || dwSize != 512)
+	{
+		Log("Failed to write %d %u %u", ret, dwSize, LASTERR);
+		goto out;
+	}
+
+	CHECK_CLOSE_HANDLE(hDrive);
+	Log("Write access check success");
+
+
+	//step2 backup 4MB data
 	backup = malloc(SIZE_1MB * 4);
 	if (!backup)
 	{
@@ -2333,6 +2380,13 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
     DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
 
 End:
+
+	if (hVolume != INVALID_HANDLE_VALUE)
+	{
+		bRet = DeviceIoControl(hVolume, FSCTL_UNLOCK_VOLUME, NULL, 0, NULL, 0, &dwSize, NULL);
+		Log("FSCTL_UNLOCK_VOLUME bRet:%u code:%u", bRet, LASTERR);
+		CHECK_CLOSE_HANDLE(hVolume);
+	}
 
     if (rc == 0)
     {
