@@ -918,6 +918,38 @@ static grub_err_t ventoy_cmd_strbegin(grub_extcmd_context_t ctxt, int argc, char
     return 0;
 }
 
+static grub_err_t ventoy_cmd_strcasebegin(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    char *c0, *c1;
+    
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        return 1;
+    }
+
+    c0 = args[0];
+    c1 = args[1];
+
+    while (*c0 && *c1)
+    {
+        if ((*c0 != *c1) && (*c0 != grub_toupper(*c1)))
+        {
+            return 1;
+        }
+        c0++;
+        c1++;
+    }
+
+    if (*c1)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_incr(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     long value_long = 0;
@@ -5051,6 +5083,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_mod",  ventoy_cmd_mod,  0, NULL, "{Int} {Int} {Var}",   "mod integer variable",    NULL },
     { "vt_strstr",  ventoy_cmd_strstr,  0, NULL, "",   "",    NULL },
     { "vt_str_begin",  ventoy_cmd_strbegin,  0, NULL, "",   "",    NULL },
+    { "vt_str_casebegin",  ventoy_cmd_strcasebegin,  0, NULL, "",   "",    NULL },
     { "vt_debug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
     { "vtdebug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
     { "vtbreak", ventoy_cmd_break, 0, NULL, "{level}",   "set debug break",    NULL },
