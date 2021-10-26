@@ -1591,9 +1591,11 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     UINT64 Part1SectorCount = 0;
     UINT64 Part2StartSector = 0;
 
+	Log("#####################################################");
     Log("InstallVentoy2PhyDrive try%d %s PhyDrive%d <<%s %s %dGB>>", TryId,
         PartStyle ? "GPT" : "MBR", pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId,
         GetHumanReadableGBSize(pPhyDrive->SizeInBytes));
+	Log("#####################################################");
 
     if (PartStyle)
     {
@@ -1828,29 +1830,14 @@ End:
     return rc;
 }
 
-static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBackup)
+static BOOL DiskCheckWriteAccess(HANDLE hDrive)
 {
 	DWORD dwSize;
-	DWORD dwStatus;
-	BOOL Return = FALSE;
 	BOOL ret = FALSE;
-	BYTE *backup = NULL;
-	UINT64 offset;
+	BOOL bRet = FALSE;
 	BYTE Buffer[512];
-	HANDLE hDrive = INVALID_HANDLE_VALUE;
 	LARGE_INTEGER liCurPosition;
 	LARGE_INTEGER liNewPosition;
-	VTOY_GPT_INFO *pGPT = NULL;
-
-	Log("BackupDataBeforeCleanDisk %d", PhyDrive);
-
-	// step1: check write access
-	hDrive = GetPhysicalHandle(PhyDrive, TRUE, TRUE, FALSE);
-	if (hDrive == INVALID_HANDLE_VALUE)
-	{
-		Log("Failed to GetPhysicalHandle for write.");
-		goto out;
-	}
 
 	liCurPosition.QuadPart = 2039 * 512;
 	liNewPosition.QuadPart = 0;
@@ -1860,7 +1847,7 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 		Log("SetFilePointer1 Failed %u", LASTERR);
 		goto out;
 	}
-	
+
 
 	dwSize = 0;
 	ret = ReadFile(hDrive, Buffer, 512, &dwSize, NULL);
@@ -1880,6 +1867,7 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 		goto out;
 	}
 
+	dwSize = 0;
 	ret = WriteFile(hDrive, Buffer, 512, &dwSize, NULL);
 	if ((!ret) || dwSize != 512)
 	{
@@ -1887,9 +1875,46 @@ static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBac
 		goto out;
 	}
 
-	CHECK_CLOSE_HANDLE(hDrive);
-	Log("Write access check success");
+	bRet = TRUE;
 
+out:
+	
+	return bRet;
+}
+
+static BOOL BackupDataBeforeCleanDisk(int PhyDrive, UINT64 DiskSize, BYTE **pBackup)
+{
+	DWORD dwSize;
+	DWORD dwStatus;
+	BOOL Return = FALSE;
+	BOOL ret = FALSE;
+	BYTE *backup = NULL;
+	UINT64 offset;
+	HANDLE hDrive = INVALID_HANDLE_VALUE;
+	LARGE_INTEGER liCurPosition;
+	LARGE_INTEGER liNewPosition;
+	VTOY_GPT_INFO *pGPT = NULL;
+
+	Log("BackupDataBeforeCleanDisk %d", PhyDrive);
+
+	// step1: check write access
+	hDrive = GetPhysicalHandle(PhyDrive, TRUE, TRUE, FALSE);
+	if (hDrive == INVALID_HANDLE_VALUE)
+	{
+		Log("Failed to GetPhysicalHandle for write.");
+		goto out;
+	}
+
+	if (DiskCheckWriteAccess(hDrive))
+	{
+		Log("DiskCheckWriteAccess success");
+		CHECK_CLOSE_HANDLE(hDrive);
+	}
+	else
+	{
+		Log("DiskCheckWriteAccess failed");
+		goto out;
+	}
 
 	//step2 backup 4MB data
 	backup = malloc(SIZE_1MB * 4);
@@ -2016,9 +2041,11 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	VTOY_GPT_INFO *pGptInfo = NULL;
 	UINT8 ReservedData[4096];
 
+	Log("#####################################################");
 	Log("UpdateVentoy2PhyDrive try%d %s PhyDrive%d <<%s %s %dGB>>", TryId,
 		pPhyDrive->PartStyle ? "GPT" : "MBR", pPhyDrive->PhyDrive, pPhyDrive->VendorId, pPhyDrive->ProductId,
 		GetHumanReadableGBSize(pPhyDrive->SizeInBytes));
+	Log("#####################################################");
 
 	PROGRESS_BAR_SET_POS(PT_LOCK_FOR_CLEAN);
 
@@ -2262,20 +2289,29 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
     {
 		if (pPhyDrive->PartStyle == 0)
 		{
-			ForceMBR = TRUE;
-
-			Log("Try write failed, now delete partition 2 for MBR...");
-			CHECK_CLOSE_HANDLE(hDrive);
-
-			Log("Now delete partition 2...");
-			VDS_DeleteVtoyEFIPartition(pPhyDrive->PhyDrive);
-
-			hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, TRUE, FALSE);
-			if (hDrive == INVALID_HANDLE_VALUE)
+			if (DiskCheckWriteAccess(hDrive))
 			{
-				Log("Failed to GetPhysicalHandle for write.");
-				rc = 1;
-				goto End;
+				Log("MBR DiskCheckWriteAccess success");
+
+				ForceMBR = TRUE;
+
+				Log("Try write failed, now delete partition 2 for MBR...");
+				CHECK_CLOSE_HANDLE(hDrive);
+
+				Log("Now delete partition 2...");
+				VDS_DeleteVtoyEFIPartition(pPhyDrive->PhyDrive);
+
+				hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, TRUE, FALSE);
+				if (hDrive == INVALID_HANDLE_VALUE)
+				{
+					Log("Failed to GetPhysicalHandle for write.");
+					rc = 1;
+					goto End;
+				}
+			}
+			else
+			{
+				Log("MBR DiskCheckWriteAccess failed");
 			}
 		}
 		else
