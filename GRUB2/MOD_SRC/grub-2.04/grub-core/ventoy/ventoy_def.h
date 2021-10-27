@@ -550,6 +550,7 @@ typedef struct plugin_entry
     const char *key;
     ventoy_plugin_entry_pf entryfunc;
     ventoy_plugin_check_pf checkfunc;
+    int flag;
 }plugin_entry;
 
 typedef struct replace_fs_dir

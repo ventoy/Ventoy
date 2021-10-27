@@ -2338,45 +2338,55 @@ static int ventoy_plugin_image_list_check(VTOY_JSON *json, const char *isodisk)
 
 static plugin_entry g_plugin_entries[] = 
 {
-    { "control", ventoy_plugin_control_entry, ventoy_plugin_control_check },
-    { "theme", ventoy_plugin_theme_entry, ventoy_plugin_theme_check },
-    { "auto_install", ventoy_plugin_auto_install_entry, ventoy_plugin_auto_install_check },
-    { "persistence", ventoy_plugin_persistence_entry, ventoy_plugin_persistence_check },
-    { "menu_alias", ventoy_plugin_menualias_entry, ventoy_plugin_menualias_check },
-    { "menu_tip", ventoy_plugin_menutip_entry, ventoy_plugin_menutip_check },
-    { "menu_class", ventoy_plugin_menuclass_entry, ventoy_plugin_menuclass_check },
-    { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check },
-    { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check },
-    { "image_list", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
-    { "image_blacklist", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check },
-    { "conf_replace", ventoy_plugin_conf_replace_entry, ventoy_plugin_conf_replace_check },
-    { "dud", ventoy_plugin_dud_entry, ventoy_plugin_dud_check },
-    { "password", ventoy_plugin_pwd_entry, ventoy_plugin_pwd_check },
-    { "custom_boot", ventoy_plugin_custom_boot_entry, ventoy_plugin_custom_boot_check },
+    { "control", ventoy_plugin_control_entry, ventoy_plugin_control_check, 0 },
+    { "theme", ventoy_plugin_theme_entry, ventoy_plugin_theme_check, 0 },
+    { "auto_install", ventoy_plugin_auto_install_entry, ventoy_plugin_auto_install_check, 0 },
+    { "persistence", ventoy_plugin_persistence_entry, ventoy_plugin_persistence_check, 0 },
+    { "menu_alias", ventoy_plugin_menualias_entry, ventoy_plugin_menualias_check, 0 },
+    { "menu_tip", ventoy_plugin_menutip_entry, ventoy_plugin_menutip_check, 0 },
+    { "menu_class", ventoy_plugin_menuclass_entry, ventoy_plugin_menuclass_check, 0 },
+    { "injection", ventoy_plugin_injection_entry, ventoy_plugin_injection_check, 0 },
+    { "auto_memdisk", ventoy_plugin_auto_memdisk_entry, ventoy_plugin_auto_memdisk_check, 0 },
+    { "image_list", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check, 0 },
+    { "image_blacklist", ventoy_plugin_image_list_entry, ventoy_plugin_image_list_check, 0 },
+    { "conf_replace", ventoy_plugin_conf_replace_entry, ventoy_plugin_conf_replace_check, 0 },
+    { "dud", ventoy_plugin_dud_entry, ventoy_plugin_dud_check, 0 },
+    { "password", ventoy_plugin_pwd_entry, ventoy_plugin_pwd_check, 0 },
+    { "custom_boot", ventoy_plugin_custom_boot_entry, ventoy_plugin_custom_boot_check, 0 },
 };
 
 static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
 {
     int i;
     char key[128];
-    VTOY_JSON *cur = json;
+    VTOY_JSON *cur = NULL;
 
     grub_snprintf(g_iso_disk_name, sizeof(g_iso_disk_name), "%s", isodisk);
 
-    while (cur)
+    for (cur = json; cur; cur = cur->pstNext)
     {
         for (i = 0; i < (int)ARRAY_SIZE(g_plugin_entries); i++)
         {
             grub_snprintf(key, sizeof(key), "%s_%s", g_plugin_entries[i].key, g_arch_mode_suffix);
-            if (grub_strcmp(g_plugin_entries[i].key, cur->pcName) == 0 || grub_strcmp(key, cur->pcName) == 0)
+            if (g_plugin_entries[i].flag == 0 && grub_strcmp(key, cur->pcName) == 0)
             {
                 debug("Plugin entry for %s\n", g_plugin_entries[i].key);
                 g_plugin_entries[i].entryfunc(cur, isodisk);
+                g_plugin_entries[i].flag = 1;
                 break;
             }
         }
-    
-        cur = cur->pstNext;
+        
+        for (i = 0; i < (int)ARRAY_SIZE(g_plugin_entries); i++)
+        {
+            if (g_plugin_entries[i].flag == 0 && grub_strcmp(g_plugin_entries[i].key, cur->pcName) == 0)
+            {
+                debug("Plugin entry for %s\n", g_plugin_entries[i].key);
+                g_plugin_entries[i].entryfunc(cur, isodisk);
+                g_plugin_entries[i].flag = 1;
+                break;
+            }
+        }
     }
 
     return 0;
