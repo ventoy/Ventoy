@@ -10,8 +10,8 @@ F7 - Grafik Modu(GUI Mode) ile Metin Modu(Text Mode) arasında geçiş yapmayı 
 m - İndirilen imaj dosyalarının hatasız indirildiğini teyit etmek için "md5/sha1/sha256/sha512" değerlerini kontrol etmeyi sağlar
 Ctrl+w - WIMBOOT Modu çalıştırmayı sağlar(Sadece normal Windows ISO ları için)
 Ctrl+r - Grub2 Modu çalıştırmayı sağlar (Sadece bazı Linux dağıtımları için)
-Ctrl+i - Uyumluluk Modu'nu (Compatible Mode) çalıştırmayı sağlar (Sadece bazı çalışmayan ISO ları test etmek için bu modu kullanabilirsiniz)
-Ctrl+u - Load ISO efi driver (Just only for debug, can not be used officially)
+Ctrl+i - Uyumluluk Modu'nu (Compatible Mode) çalıştırmayı sağlar (Sadece hata ayıklama için bu modu kullanabilirsiniz)
+Ctrl+u - ISO efi sürücüsünü yükler(Sadece hata ayıklama için bu mod kullanılabilir, resmi olarak kullanılamaz)
 
 
 Geriye dönmek için ESC tuşuna basınız......
