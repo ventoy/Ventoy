@@ -11,6 +11,6 @@ m - Somme de contrôle des images (md5/sha1/sha256/sha512)
 Ctrl+w - Mode WIMBOOT (seulement pour les images standards Windows)
 Ctrl+r - Mode Grub2 (seulement pour quelques Linux)
 Ctrl+i - Mode Compatible (seulement à fins de tests)
-
+Ctrl+u - Load ISO efi driver (Just only for debug, can not be used officially)
 
 Appuyer sur Echap pour sortir ......

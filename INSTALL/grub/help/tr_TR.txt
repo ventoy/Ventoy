@@ -11,6 +11,7 @@ m - İndirilen imaj dosyalarının hatasız indirildiğini teyit etmek için "md
 Ctrl+w - WIMBOOT Modu çalıştırmayı sağlar(Sadece normal Windows ISO ları için)
 Ctrl+r - Grub2 Modu çalıştırmayı sağlar (Sadece bazı Linux dağıtımları için)
 Ctrl+i - Uyumluluk Modu'nu (Compatible Mode) çalıştırmayı sağlar (Sadece bazı çalışmayan ISO ları test etmek için bu modu kullanabilirsiniz)
+Ctrl+u - Load ISO efi driver (Just only for debug, can not be used officially)
 
 
 Geriye dönmek için ESC tuşuna basınız......

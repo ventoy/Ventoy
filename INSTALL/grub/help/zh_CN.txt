@@ -11,6 +11,7 @@ m - 计算文件校验值（md5/sha1/sha256/sha512）
 Ctrl+w - WIMBOOT 模式 （只适用于标准的 Windows ISO文件）
 Ctrl+r - Grub2 模式 （只适用于常见的一些 Linux 系统ISO文件）
 Ctrl+i - 兼容模式 （只用作调试目的，不能正式使用）
+Ctrl+u - 加载 ISO efi 驱动（只用作调试目的，不能正式使用）
 
 
 按 ESC 键返回 ......
