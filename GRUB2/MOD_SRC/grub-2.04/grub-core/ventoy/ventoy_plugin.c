@@ -2376,7 +2376,11 @@ static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
                 break;
             }
         }
-        
+    }
+
+    
+    for (cur = json; cur; cur = cur->pstNext)
+    {
         for (i = 0; i < (int)ARRAY_SIZE(g_plugin_entries); i++)
         {
             if (g_plugin_entries[i].flag == 0 && grub_strcmp(g_plugin_entries[i].key, cur->pcName) == 0)
@@ -3180,7 +3184,7 @@ grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, ch
     grub_snprintf(key, sizeof(key), "%s_%s", args[1], g_arch_mode_suffix);
     for (node = json->pstChild; node; node = node->pstNext)
     {
-        if (grub_strcmp(node->pcName, args[1]) == 0 || grub_strcmp(node->pcName, key) == 0)
+        if (grub_strcmp(node->pcName, key) == 0)
         {
             break;
         }
@@ -3188,8 +3192,19 @@ grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, ch
 
     if (!node)
     {
-        grub_printf("%s is NOT found in ventoy.json\n", args[1]);
-        goto end;
+        for (node = json->pstChild; node; node = node->pstNext)
+        {
+            if (grub_strcmp(node->pcName, args[1]) == 0)
+            {
+                break;
+            }
+        }
+
+        if (!node)
+        {
+            grub_printf("%s is NOT found in ventoy.json\n", args[1]);
+            goto end;            
+        }
     }
 
     for (i = 0; i < (int)ARRAY_SIZE(g_plugin_entries); i++)
