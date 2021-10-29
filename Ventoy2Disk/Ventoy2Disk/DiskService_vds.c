@@ -608,7 +608,7 @@ STATIC IVdsService * VDS_InitService(void)
     if (hr != S_OK) 
     {
         VDS_SET_ERROR(hr);
-        Log("Could not create VDS Loader Instance: %u", LASTERR);
+        Log("Could not create VDS Loader Instance: 0x%x", LASTERR);
         return NULL;
     }
 
@@ -618,7 +618,7 @@ STATIC IVdsService * VDS_InitService(void)
     if (hr != S_OK) 
     {
         VDS_SET_ERROR(hr);
-        Log("Could not load VDS Service: %u", LASTERR);
+        Log("Could not load VDS Service: 0x%x", LASTERR);
         return NULL;
     }
 
@@ -627,7 +627,7 @@ STATIC IVdsService * VDS_InitService(void)
     if (hr != S_OK) 
     {
         VDS_SET_ERROR(hr);
-        Log("VDS Service is not ready: %u", LASTERR);
+        Log("VDS Service is not ready: 0x%x", LASTERR);
         return NULL;
     }
 
