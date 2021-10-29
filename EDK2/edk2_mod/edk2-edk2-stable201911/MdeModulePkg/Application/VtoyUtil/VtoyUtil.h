@@ -41,6 +41,7 @@ typedef struct ventoy_grub_param
     grub_env_get_pf grub_env_get;
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
+    ventoy_grub_param_file_replace img_replace;
     grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;
 #pragma pack()

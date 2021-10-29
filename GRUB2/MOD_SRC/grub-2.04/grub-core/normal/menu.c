@@ -913,6 +913,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             goto refresh;
 
         case (GRUB_TERM_CTRL | 'h'):
+        case 'h':
         {
             cmdstr = grub_env_get("VTOY_HELP_CMD");
             if (cmdstr)
@@ -926,6 +927,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             break;
         }
         case (GRUB_TERM_CTRL | 'm'):
+        case 'm':
         {
             if (g_ventoy_cur_img_path)
             {

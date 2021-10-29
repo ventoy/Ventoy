@@ -94,7 +94,7 @@ hash_file (grub_file_t file, const gcry_md_spec_t *hash, void *result)
       {
           total += r;
           div = grub_divmod64(total * 100, (grub_uint64_t)file->size, &ro);
-          grub_printf("\rCalculating   %d%%    ", (int)div);
+          grub_printf("\rCalculating    %s   %d%%    ", hash->name, (int)div);
           grub_refresh();
       }
     }
@@ -105,7 +105,7 @@ hash_file (grub_file_t file, const gcry_md_spec_t *hash, void *result)
   grub_free (context);
   if (progress)
   {
-    grub_printf("\rCalculating   100%%    \n\r\n");
+    grub_printf("\rCalculating    %s   100%%    \n\r\n", hash->name);
     grub_refresh();      
   }
   return GRUB_ERR_NONE;
@@ -224,6 +224,8 @@ grub_cmd_hashsum (struct grub_extcmd_context *ctxt,
   int keep = state[3].set;
   int uncompress = state[4].set;
   unsigned unread = 0;
+  int len = 0;
+  char hashsum[256];
 
   for (i = 0; i < ARRAY_SIZE (aliases); i++)
     if (grub_strcmp (ctxt->extcmd->cmd->name, aliases[i].name) == 0)
@@ -282,8 +284,12 @@ grub_cmd_hashsum (struct grub_extcmd_context *ctxt,
 	  continue;
 	}
       for (j = 0; j < hash->mdlen; j++)
-	grub_printf ("%02x", ((grub_uint8_t *) result)[j]);
+	  {
+	    grub_printf ("%02x", ((grub_uint8_t *) result)[j]);
+        len += grub_snprintf(hashsum + len, sizeof(hashsum) - len, "%02x", ((grub_uint8_t *) result)[j]);
+      }
       grub_printf ("  %s\n", args[i]);
+      grub_env_set("VT_LAST_CHECK_SUM", hashsum);
     }
 
   if (unread)

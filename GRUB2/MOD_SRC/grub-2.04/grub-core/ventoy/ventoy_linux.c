@@ -691,6 +691,7 @@ static grub_uint32_t ventoy_linux_get_virt_chunk_size(void)
 static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_head *chain)
 {
     int id = 0;
+    int virtid = 0;
     initrd_info *node;
     grub_uint64_t sector;
     grub_uint32_t offset;
@@ -738,6 +739,7 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
         offset += g_ventoy_cpio_size;
         sector += cpio_secs + initrd_secs;
         cur++;
+        virtid++;
     }
 
     /* Lenovo EasyStartup need an addional sector for boundary check */
@@ -759,6 +761,7 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
         offset += VTOY_APPEND_EXT_SIZE;
         sector += cpio_secs;
         cur++;
+        virtid++;
     }
 
     if (g_conf_replace_offset > 0)
@@ -776,9 +779,15 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
 
         chain->virt_img_size_in_bytes += g_conf_replace_new_len_align;
 
+        if (g_grub_param->img_replace.magic == GRUB_IMG_REPLACE_MAGIC)
+        {
+            g_grub_param->img_replace.new_file_virtual_id = virtid;
+        }
+
         offset += g_conf_replace_new_len_align;
         sector += cpio_secs;
         cur++;
+        virtid++;
     }
 
     return;
