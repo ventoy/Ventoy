@@ -109,4 +109,26 @@ See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for
 # Forum
 [https://forums.ventoy.net](https://forums.ventoy.net)
 
+# Donation
+It would be much appreciated if you want to make a small donation to support my work!  
+Alipay, WeChat Pay, PayPal and Bitcoin are avaliable for donation. You can chose any of them.  
+
+**Alipay**  
+[https://www.ventoy.net/static/img/AliPay.png](https://www.ventoy.net/static/img/AliPay.png)
+
+**WeChat Pay**  
+[https://www.ventoy.net/static/img/WeChatPay.png](https://www.ventoy.net/static/img/WeChatPay.png)
+
+**PayPal**  
+You can transfer to my paypal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
+
+**Bitcoin**  
+Bitcoin Address `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
+
+
+
+
+
+
+
 
