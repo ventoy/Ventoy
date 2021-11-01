@@ -4866,7 +4866,7 @@ static int ventoy_chk_case_file(const char *filename, const struct grub_dirhook_
         return 1;
     }
 
-    if (0 == info->dir && grub_strncasecmp(filename, "ventoy.json", 11) == 0)
+    if (0 == info->dir && grub_strcasecmp(filename, "ventoy.json") == 0)
     {
         grub_snprintf(g_json_case_mis_path, 32, "%s/%s", (char *)data, filename);
         return 1;
@@ -4886,7 +4886,7 @@ static int ventoy_chk_case_dir(const char *filename, const struct grub_dirhook_i
 
     if (info->dir && (filename[0] == 'v' || filename[0] == 'V'))
     {
-        if (grub_strncasecmp(filename, "ventoy", 6) == 0)
+        if (grub_strcasecmp(filename, "ventoy") == 0)
         {
             grub_snprintf(path, sizeof(path), "/%s", filename);
             fs_dir->fs->fs_dir(fs_dir->dev, path, ventoy_chk_case_file, path);
