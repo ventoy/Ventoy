@@ -72,6 +72,13 @@ ls -1 ./grub/ | grep -v 'grub\.cfg' | while read line; do
     cp $OPT ./grub/$line $tmpmnt/grub/
 done
 
+#tar help txt
+cd $tmpmnt/grub/
+tar czf help.tar.gz ./help/
+rm -rf ./help
+cd ../../
+
+
 cp $OPT ./ventoy   $tmpmnt/
 cp $OPT ./EFI   $tmpmnt/
 cp $OPT ./tool/ENROLL_THIS_KEY_IN_MOKMANAGER.cer $tmpmnt/

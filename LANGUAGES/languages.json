@@ -1682,7 +1682,7 @@
         "STR_VTSI_CREATE_FAILED":"Berkas VTSI gagal dibuat.",
         "STRXXX":""
     },
-	{
+    {
         "name":"Norwegian Bokmål (Norsk Bokmål)",
         "FontFamily":"Courier New",
         "FontSize":16,
