@@ -199,6 +199,18 @@ typedef struct ventoy_iso9660_vd
     grub_uint32_t space;
 }ventoy_iso9660_vd;
 
+/* https://wiki.osdev.org/El-Torito */
+typedef struct boot_info_table
+{
+    grub_uint32_t bi_data0;
+    grub_uint32_t bi_data1;
+    grub_uint32_t bi_PrimaryVolumeDescriptor;
+    grub_uint32_t bi_BootFileLocation;
+    grub_uint32_t bi_BootFileLength;
+    grub_uint32_t bi_Checksum;
+    grub_uint8_t bi_Reserved[40];
+}boot_info_table;
+
 #pragma pack()
 
 #define img_type_start 0

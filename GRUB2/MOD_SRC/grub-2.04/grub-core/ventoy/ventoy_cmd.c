@@ -2701,6 +2701,22 @@ grub_uint32_t ventoy_get_iso_boot_catlog(grub_file_t file)
     return desc.sector;    
 }
 
+static grub_uint32_t ventoy_get_bios_eltorito_rba(grub_file_t file, grub_uint32_t sector)
+{
+    grub_uint8_t buf[512];
+
+    grub_file_seek(file, sector * 2048);
+    grub_file_read(file, buf, sizeof(buf));
+
+    if (buf[0] == 0x01 && buf[1] == 0x00 && 
+        buf[30] == 0x55 && buf[31] == 0xaa && buf[32] == 0x88)
+    {
+        return *((grub_uint32_t *)(buf + 40));
+    }
+
+    return 0;
+}
+
 int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
 {
     int i;
@@ -5007,26 +5023,71 @@ static grub_err_t grub_cmd_gptpriority(grub_extcmd_context_t ctxt, int argc, cha
 }
 
 
-
-/* <BEGIN>: Deleted by longpanda, 20210916 PN:XX LABEL:XX */
-#if 0
-void ventoy_tip_set_menu_label(const char *vid)
+static grub_err_t grub_cmd_syslinux_nojoliet(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    img_info *node;
+    int ret = 1;
+    int joliet = 0;
+    grub_file_t file = NULL;
+    grub_uint32_t loadrba = 0;
+    grub_uint32_t boot_catlog = 0;
+    grub_uint8_t sector[512];
+    boot_info_table *info = NULL;
+    
+    (void)ctxt;
+    (void)argc;
 
-    g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
-    if (vid)
+    /* This also trigger a iso9660 fs parse */
+    if (ventoy_check_file_exist("(loop)/isolinux/isolinux.cfg"))
     {
-        node = (img_info *)(void *)grub_strtoul(vid + 4, NULL, 16);
-        if (node)
-        {
-           g_ventoy_tip_msg1 = node->tip1;
-           g_ventoy_tip_msg2 = node->tip2;
-        }
+        return 0;
     }
+
+    joliet = grub_iso9660_is_joliet();
+    if (joliet == 0)
+    {
+        return 1;
+    }
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        debug("failed to open %s\n", args[0]);
+        return 1;
+    }
+
+    boot_catlog = ventoy_get_iso_boot_catlog(file);
+    if (boot_catlog == 0)
+    {
+        debug("no bootcatlog found %u\n", boot_catlog);
+        goto out;
+    }
+    
+    loadrba = ventoy_get_bios_eltorito_rba(file, boot_catlog);
+    if (loadrba == 0)
+    {
+        debug("no bios eltorito rba found %u\n", loadrba);
+        goto out;
+    }
+
+    grub_file_seek(file, loadrba * 2048);
+    grub_file_read(file, sector, 512);
+
+    info = (boot_info_table *)sector;
+    if (info->bi_data0 == 0x7c6ceafa && 
+        info->bi_data1 == 0x90900000 && 
+        info->bi_PrimaryVolumeDescriptor == 16 && 
+        info->bi_BootFileLocation == loadrba)
+    {
+        debug("bootloader is syslinux, %u.\n", loadrba);
+        ret = 0;
+    }
+
+out:
+
+    grub_file_close(file);
+    grub_errno = GRUB_ERR_NONE;
+    return ret;
 }
-#endif /* #if 0 */
-/* <END>  : Deleted by longpanda, 20210916 PN:XX LABEL:XX */
 
 int ventoy_env_init(void)
 {
@@ -5211,6 +5272,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_json_path_case", ventoy_cmd_chk_json_pathcase, 0, NULL, "", "", NULL },
     { "vt_append_extra_sector", ventoy_cmd_append_ext_sector, 0, NULL, "", "", NULL },
     { "gptpriority", grub_cmd_gptpriority, 0, NULL, "", "", NULL },
+    { "vt_syslinux_need_nojoliet", grub_cmd_syslinux_nojoliet, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)
