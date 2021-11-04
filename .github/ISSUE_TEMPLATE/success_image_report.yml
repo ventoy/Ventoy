@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        I list all the successfully tested image files in the official website: [https://www.ventoy.net/en/isolist.html]https://www.ventoy.net/en/isolist.html   
+        I list all the successfully tested image files in the official website: https://www.ventoy.net/en/isolist.html   
         If you successfully test an image file which is not listed in the above page, you can tell me and I will be very glad to add it to the tested list.
   - type: checkboxes
     id: faq
