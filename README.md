@@ -36,6 +36,10 @@ FydeOS, CloudReady
 **Other**  
 VMware ESXi, Citrix XenServer, Xen XCP-ng
 
+# Tesed Image Report
+[【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
+  
+  
 # Features
 * 100% open source
 * Simple to use
