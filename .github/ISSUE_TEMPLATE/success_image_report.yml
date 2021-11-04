@@ -44,7 +44,15 @@ body:
         - MBR
         - GPT
     validations:
-      required: true  
+      required: true
+  - type: input
+    id: filename
+    attributes:
+      label: Image file name
+      description: The successfully tested image file name.
+      placeholder: xxxx.iso
+    validations:
+      required: true
   - type: dropdown
     id: checksum
     attributes:
