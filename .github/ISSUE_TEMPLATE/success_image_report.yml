@@ -1,5 +1,5 @@
 name: Success Image Report
-description: To report an image file that boot OK in Ventoy and is not yet listed in official website.
+description: To report an image file that boot successfully in Ventoy and is not yet listed in [https://www.ventoy.net/en/isolist.html](https://www.ventoy.net/en/isolist.html)
 title: "[Success Image Report]: "
 assignees:
   - octocat
@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this report!
+        Thanks for taking the time to fill out this report! I will be very glad to add the test result to the official website.
   - type: checkboxes
     id: faq
     attributes:
