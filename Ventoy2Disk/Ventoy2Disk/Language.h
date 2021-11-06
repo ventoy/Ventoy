@@ -123,8 +123,8 @@ typedef enum OPT_SUBMENU
 
 typedef struct VENTOY_LANGUAGE
 {
-	WCHAR Name[128];
-	WCHAR FontFamily[64];
+	WCHAR Name[256];
+	WCHAR FontFamily[128];
 	int FontSize;
 
 	WCHAR StrId[STR_ID_MAX][64];

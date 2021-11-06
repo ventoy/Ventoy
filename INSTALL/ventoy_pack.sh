@@ -172,7 +172,14 @@ tar -czvf ventoy-${curver}-linux.tar.gz $tmpdir
 
 
 rm -f ventoy-${curver}-windows.zip
-cp $OPT Ventoy2Disk*.exe $tmpdir/
+
+cp $OPT Ventoy2Disk.exe $tmpdir/
+cp $OPT FOR_X64_ARM.txt $tmpdir/
+mkdir -p $tmpdir/altexe
+cp $OPT Ventoy2Disk_*.exe $tmpdir/altexe/
+
+
+
 cp $OPT $LANG_DIR/languages.json $tmpdir/ventoy/
 rm -rf $tmpdir/tool
 rm -f $tmpdir/*.sh

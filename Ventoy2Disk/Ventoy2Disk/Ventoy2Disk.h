@@ -187,6 +187,8 @@ extern HFONT g_language_normal_font;
 extern HFONT g_language_bold_font;
 extern int g_FilterUSB;
 
+
+
 void TraceOut(const char *Fmt, ...);
 void Log(const char *Fmt, ...);
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...);

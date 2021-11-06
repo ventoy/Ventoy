@@ -302,7 +302,7 @@ int INIT unxz(unsigned char *in, int in_size,
 		do {
 			if (b.in_pos == b.in_size && fill != NULL) {
 				if (in_used != NULL)
-					*in_used += b.in_pos;
+					*in_used += (int)(b.in_pos);
 
 				b.in_pos = 0;
 
@@ -329,7 +329,7 @@ int INIT unxz(unsigned char *in, int in_size,
 				 * returned by xz_dec_run(), but probably
 				 * it's not too bad.
 				 */
-				if (flush(b.out, b.out_pos) != (int)b.out_pos)
+				if (flush(b.out, (unsigned int)(b.out_pos)) != (int)b.out_pos)
 					ret = XZ_BUF_ERROR;
 
 				b.out_pos = 0;
@@ -344,7 +344,7 @@ int INIT unxz(unsigned char *in, int in_size,
 	}
 
 	if (in_used != NULL)
-		*in_used += b.in_pos;
+		*in_used += (int)(b.in_pos);
 
 	xz_dec_end(s);
 

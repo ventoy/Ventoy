@@ -49,7 +49,7 @@ STATIC BOOL DSPT_CommProc(const char *Cmd)
     GetCurrentDirectoryA(sizeof(CmdBuf), CmdBuf);
     sprintf_s(CmdFile, sizeof(CmdFile), "%s\\ventoy\\diskpart_%u.txt", CmdBuf, GetCurrentProcessId());
     
-    SaveBufToFile(CmdFile, Cmd, strlen(Cmd));
+    SaveBufToFile(CmdFile, Cmd, (int)strlen(Cmd));
 
     GetStartupInfoA(&Si);
     Si.dwFlags |= STARTF_USESHOWWINDOW;
