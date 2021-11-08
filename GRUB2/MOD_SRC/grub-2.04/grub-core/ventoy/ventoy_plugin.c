@@ -2399,7 +2399,9 @@ static int ventoy_parse_plugin_config(VTOY_JSON *json, const char *isodisk)
 grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int ret = 0;
+    int offset = 0;
     char *buf = NULL;
+    grub_uint8_t *code = NULL;
     grub_file_t file;
     VTOY_JSON *json = NULL;
     
@@ -2436,9 +2438,25 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
         return 1;
     }
 
-    
+    code = (grub_uint8_t *)buf;
+    if (code[0] == 0xef && code[1] == 0xbb && code[2] == 0xbf)
+    {
+        offset = 3; /* Skip UTF-8 BOM */
+    }
+    else if ((code[0] == 0xff && code[1] == 0xfe) || (code[0] == 0xfe && code[1] == 0xff))
+    {
+        grub_env_set("VTOY_PLUGIN_SYNTAX_ERROR", "1");
+        grub_env_export("VTOY_PLUGIN_SYNTAX_ERROR");
 
-    ret = vtoy_json_parse(json, buf);
+        grub_env_set("VTOY_PLUGIN_ENCODE_ERROR", "1");
+        grub_env_export("VTOY_PLUGIN_ENCODE_ERROR");
+
+        debug("Failed to parse json string %d\n", ret);
+        grub_free(buf);
+        return 1;
+    }
+    
+    ret = vtoy_json_parse(json, buf + offset);
     if (ret)
     {
         grub_env_set("VTOY_PLUGIN_SYNTAX_ERROR", "1");
