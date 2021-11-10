@@ -583,6 +583,7 @@ void DumpWindowsVersion(void)
     return;
 }
 
+
 BOOL IsVentoyLogicalDrive(CHAR DriveLetter)
 {
     int i;
@@ -666,6 +667,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
     Log("Disk signature: 0x%08x", DiskSignature);
 
     *((UINT32 *)(pMBR->BootCode + 0x1B8)) = DiskSignature;
+	memcpy(pMBR->BootCode + 0x180, &Guid, 16);
 
     if (DiskSizeBytes / 512 > 0xFFFFFFFF)
     {
@@ -742,6 +744,7 @@ static int VentoyFillProtectMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR)
     Log("Disk signature: 0x%08x", DiskSignature);
 
     *((UINT32 *)(pMBR->BootCode + 0x1B8)) = DiskSignature;
+	memcpy(pMBR->BootCode + 0x180, &Guid, 16);
 
     DiskSectorCount = DiskSizeBytes / 512 - 1;
     if (DiskSectorCount > 0xFFFFFFFF)

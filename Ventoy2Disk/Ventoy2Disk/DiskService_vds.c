@@ -36,6 +36,10 @@
 // 3. Filter out the crap we don't need.
 static const char *GetVdsError(DWORD error_code)
 {
+	static char code[32];
+
+	sprintf_s(code, sizeof(code), "[0x%08x]", error_code);
+
 	switch (error_code) {
 	case 0x80042400:	// VDS_E_NOT_SUPPORTED
 		return "The operation is not supported by the object.";
@@ -450,7 +454,7 @@ static const char *GetVdsError(DWORD error_code)
 	case 0x80042918:	// VDS_E_COMPRESSION_NOT_SUPPORTED
 		return "The specified file system does not support compression.";
 	default:
-		return NULL;
+		return code;
 	}
 }
 
@@ -537,6 +541,8 @@ const char *WindowsErrorString(DWORD error_code)
 #define INTF_ADVANCEDDISK2  2
 #define INTF_CREATEPARTITIONEX  3
 #define INTF_PARTITIONMF 4
+#define INTF_VOLUME 5
+#define INTF_VOLUME_MF3 6
 
 /* 
  * Some code and functions in the file are copied from rufus.
@@ -588,6 +594,8 @@ const char *WindowsErrorString(DWORD error_code)
 #define IVdsAsync_Wait(This,pHrResult,pAsyncOut) (This)->lpVtbl->Wait(This,pHrResult,pAsyncOut)
 #define IVdsAsync_Release(This) (This)->lpVtbl->Release(This)
 
+#define IVdsVolume_Shrink(This, ullNumberOfBytesToRemove, ppAsync) (This)->lpVtbl->Shrink(This, ullNumberOfBytesToRemove, ppAsync)
+
 #define IUnknown_QueryInterface(This, a, b) (This)->lpVtbl->QueryInterface(This,a,b)
 #define IUnknown_Release(This) (This)->lpVtbl->Release(This)
 
@@ -633,6 +641,162 @@ STATIC IVdsService * VDS_InitService(void)
 
     Log("VDS init OK, service %p", pService);
     return pService;
+}
+
+STATIC BOOL VDS_VolumeCommProc(int intf, const WCHAR* wVolumeGuid, VDS_Callback_PF callback, UINT64 data)
+{
+	int Pos = 0;
+	BOOL Find = FALSE;
+	BOOL r = FALSE;
+	HRESULT hr;
+	ULONG ulFetched;
+	IUnknown* pUnk = NULL;
+	IEnumVdsObject* pEnum = NULL;
+	IVdsService* pService = NULL;
+
+	pService = VDS_InitService();
+	if (!pService)
+	{
+		Log("Could not query VDS Service");
+		goto out;
+	}
+
+	// Query the VDS Service Providers
+	hr = IVdsService_QueryProviders(pService, VDS_QUERY_SOFTWARE_PROVIDERS, &pEnum);
+	if (hr != S_OK)
+	{
+		VDS_SET_ERROR(hr);
+		Log("Could not query VDS Service Providers: 0x%lx %u", hr, LASTERR);
+		goto out;
+	}
+
+	while (IEnumVdsObject_Next(pEnum, 1, &pUnk, &ulFetched) == S_OK)
+	{
+		IVdsProvider* pProvider;
+		IVdsSwProvider* pSwProvider;
+		IEnumVdsObject* pEnumPack;
+		IUnknown* pPackUnk;
+
+		// Get VDS Provider
+		hr = IUnknown_QueryInterface(pUnk, &IID_IVdsProvider, (void**)&pProvider);
+		IUnknown_Release(pUnk);
+		if (hr != S_OK)
+		{
+			VDS_SET_ERROR(hr);
+			Log("Could not get VDS Provider: %u", LASTERR);
+			goto out;
+		}
+
+		// Get VDS Software Provider
+		hr = IVdsSwProvider_QueryInterface(pProvider, &IID_IVdsSwProvider, (void**)&pSwProvider);
+		IVdsProvider_Release(pProvider);
+		if (hr != S_OK)
+		{
+			VDS_SET_ERROR(hr);
+			Log("Could not get VDS Software Provider: %u", LASTERR);
+			goto out;
+		}
+
+		// Get VDS Software Provider Packs
+		hr = IVdsSwProvider_QueryPacks(pSwProvider, &pEnumPack);
+		IVdsSwProvider_Release(pSwProvider);
+		if (hr != S_OK)
+		{
+			VDS_SET_ERROR(hr);
+			Log("Could not get VDS Software Provider Packs: %u", LASTERR);
+			goto out;
+		}
+
+		// Enumerate Provider Packs
+		while (IEnumVdsObject_Next(pEnumPack, 1, &pPackUnk, &ulFetched) == S_OK)
+		{
+			IVdsPack* pPack;
+			IEnumVdsObject* pEnumVolume;
+			IUnknown* pVolumeUnk;
+
+			hr = IUnknown_QueryInterface(pPackUnk, &IID_IVdsPack, (void**)&pPack);
+			IUnknown_Release(pPackUnk);
+			if (hr != S_OK)
+			{
+				VDS_SET_ERROR(hr);
+				Log("Could not query VDS Software Provider Pack: %u", LASTERR);
+				goto out;
+			}
+
+			// Use the pack interface to access the volume
+			hr = IVdsPack_QueryVolumes(pPack, &pEnumVolume);;
+			if (hr != S_OK) {
+				VDS_SET_ERROR(hr);
+				Log("Could not query VDS volume: %u", LASTERR);
+				goto out;
+			}
+
+			// List disks
+			while (IEnumVdsObject_Next(pEnumVolume, 1, &pVolumeUnk, &ulFetched) == S_OK)
+			{
+				IVdsVolume* pVolume;
+				IVdsVolumeMF3* pVolumeMF3;
+				LPWSTR* wszPathArray;
+				ULONG ulNumberOfPaths;
+
+				// Get the disk interface.
+				hr = IUnknown_QueryInterface(pVolumeUnk, &IID_IVdsVolumeMF3, (void**)&pVolumeMF3);
+				if (hr != S_OK) {
+					VDS_SET_ERROR(hr);
+					Log("Could not query VDS Volume Interface: %u", LASTERR);
+					goto out;
+				}
+
+				// Get the volume properties
+				hr = IVdsVolumeMF3_QueryVolumeGuidPathnames(pVolumeMF3, &wszPathArray, &ulNumberOfPaths);
+				if ((hr != S_OK) && (hr != VDS_S_PROPERTIES_INCOMPLETE)) 
+				{
+					Log("Could not query VDS VolumeMF3 GUID PathNames: %s", GetVdsError(hr));
+					IVdsVolume_Release(pVolumeMF3);
+					IUnknown_Release(pVolumeUnk);
+					continue;
+				}
+
+				Log("Get Volume %d %lu <%S>", intf, ulNumberOfPaths, wszPathArray[0]);
+
+				if ((ulNumberOfPaths >= 1) && wcsstr(wszPathArray[0], wVolumeGuid))
+				{
+					Find = TRUE;
+					Log("Call back for this Volume %d <%S>", intf, wVolumeGuid);
+
+					if (INTF_VOLUME_MF3 == intf)
+					{
+						r = callback(pVolumeMF3, NULL, data);
+					}
+					else if (INTF_VOLUME == intf)
+					{
+						// Get the disk interface.
+						hr = IUnknown_QueryInterface(pVolumeUnk, &IID_IVdsVolume, (void**)&pVolume);
+						if (hr != S_OK) {
+							VDS_SET_ERROR(hr);
+							Log("Could not query VDS Volume Interface: %u", LASTERR);
+						}
+						else {
+							r = callback(pVolume, NULL, data);
+							IVdsVolume_Release(pVolume);
+						}
+					}
+				}
+
+				CoTaskMemFree(wszPathArray);
+				IVdsVolume_Release(pVolumeMF3);
+				IUnknown_Release(pVolumeUnk);
+
+				if (Find)
+				{
+					goto out;
+				}
+			}
+		}
+	}
+
+out:
+	return r;
 }
 
 
@@ -1222,3 +1386,72 @@ BOOL VDS_FormatVtoyEFIPart(int DriveIndex, UINT64 Offset)
 	return ret;
 }
 
+STATIC BOOL VDS_CallBack_ShrinkVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
+{
+	HRESULT hr, hr2;
+	IVdsVolume* pVolume = (IVdsVolume*)pInterface;
+	ULONG completed;
+	IVdsAsync* pAsync;
+
+	(void)pDiskProp;
+
+	Log("VDS_CallBack_ShrinkVolume (%llu) ...", (ULONGLONG)data);
+
+	hr = IVdsVolume_Shrink(pVolume, (ULONGLONG)data, &pAsync);
+
+	while (SUCCEEDED(hr))
+	{
+		hr = IVdsAsync_QueryStatus(pAsync, &hr2, &completed);
+		if (SUCCEEDED(hr))
+		{
+			hr = hr2;
+			if (hr == S_OK)
+			{
+				Log("ShrinkVolume QueryStatus OK, %lu%%", completed);
+				break;
+			}
+			else if (hr == VDS_E_OPERATION_PENDING)
+			{
+				Log("ShrinkVolume: %lu%%", completed);
+				hr = S_OK;
+			}
+			else
+			{
+				Log("ShrinkVolume invalid status:0x%lx", hr);
+			}
+		}
+		Sleep(1000);
+	}
+
+	if (hr != S_OK)
+	{
+		VDS_SET_ERROR(hr);
+		Log("Could not ShrinkVolume, 0x%x err:0x%lx (%s)", hr, LASTERR, WindowsErrorString(hr));
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL VDS_ShrinkVolume(const char* VolumeGuid, UINT64 ReduceBytes)
+{
+	int i;
+	BOOL ret = FALSE;
+	WCHAR wGuid[128] = { 0 };
+	const char *guid = NULL;
+
+	guid = strstr(VolumeGuid, "{");
+	if (!guid)
+	{
+		return FALSE;
+	}
+
+	for (i = 0; i < 128 && guid[i]; i++)
+	{
+		wGuid[i] = guid[i];
+	}
+
+	ret = VDS_VolumeCommProc(INTF_VOLUME, wGuid, VDS_CallBack_ShrinkVolume, ReduceBytes);
+	Log("VDS_ShrinkVolume ret:%d (%s)", ret, ret ? "SUCCESS" : "FAIL");
+	return ret;
+}

@@ -110,7 +110,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 
 	for (i = 0; i < 4; i++)
 	{
-		Log("=========== Partition Table %d ============", i + 1);
+		Log("=========== Disk%d Partition Table %d ============", PhyDrive, i + 1);
 		Log("PartTbl.Active = 0x%x", MBR.PartTbl[i].Active);
 		Log("PartTbl.FsFlag = 0x%x", MBR.PartTbl[i].FsFlag);
 		Log("PartTbl.StartSectorId = %u", MBR.PartTbl[i].StartSectorId);
@@ -246,7 +246,7 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
         if (LogDrive & 0x01)
         {
             LogLetter[LetterCount] = Letter;
-            PhyDriveId[LetterCount] = GetPhyDriveByLogicalDrive(Letter);
+			PhyDriveId[LetterCount] = GetPhyDriveByLogicalDrive(Letter, NULL);
 
             Log("Logical Drive:%C  ===> PhyDrive:%d", LogLetter[LetterCount], PhyDriveId[LetterCount]);
             LetterCount++;
@@ -332,6 +332,23 @@ PHY_DRIVE_INFO * GetPhyDriveInfoById(int Id)
     return NULL;
 }
 
+
+PHY_DRIVE_INFO * GetPhyDriveInfoByPhyDrive(int PhyDrive)
+{
+	DWORD i;
+	for (i = 0; i < g_PhyDriveCount; i++)
+	{
+		if (g_PhyDriveList[i].PhyDrive == PhyDrive)
+		{
+			return g_PhyDriveList + i;
+		}
+	}
+
+	return NULL;
+}
+
+
+
 int SortPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 {
 	DWORD i, j;
@@ -398,5 +415,8 @@ int Ventoy2DiskInit(void)
 int Ventoy2DiskDestroy(void)
 {
     free(g_PhyDriveList);
+	g_PhyDriveList = NULL;
+	g_PhyDriveCount = 0;
+
     return 0;
 }

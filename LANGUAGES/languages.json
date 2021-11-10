@@ -48,6 +48,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -99,6 +105,12 @@
         "STR_VTSI_CREATE_TIP":"이번에는 장치에 쓰지 않고 VTSI 파일#@만 생성합니다.#@계속하시겠습니까?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI 파일이 성공적으로 생성되었습니다!#@Rufus(3.15+)를 사용하여 장치에 기록하여 Ventoy 설치를 완료할 수 있습니다.",
         "STR_VTSI_CREATE_FAILED":"VTSI 파일을 생성하지 못했습니다.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -150,6 +162,12 @@
         "STR_VTSI_CREATE_TIP":"本操作不会向设备中写入数据，而只会生成一个 VTSI 文件#@是否继续？",
         "STR_VTSI_CREATE_SUCCESS":"VTSI 文件创建成功，你可以使用Rufus(3.15+)将其写入对应设备，从而完成Ventoy的安装",
         "STR_VTSI_CREATE_FAILED":"VTSI 文件创建失败",
+        "STR_MENU_PART_RESIZE":"无损安装",
+        "STR_PART_RESIZE_TIP":"Ventoy将尝试进行无损安装。注意：任何磁盘操作都有一定的风险，对于重要数据建议做好备份。#@是否继续？",
+        "STR_PART_RESIZE_SUCCESS":"恭喜你! Ventoy 成功完成了无损安装。",
+        "STR_PART_RESIZE_FAILED":"Ventoy 无损安装失败。详细信息请查阅 log.txt 文件。",
+        "STR_PART_RESIZE_UNSUPPORTED":"条件不满足，无法进行无损安装。详细信息请查阅 log.txt 文件。",
+
         "STRXXX":""
     },
     {
@@ -201,6 +219,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -252,6 +276,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -303,6 +333,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -354,6 +390,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -405,6 +447,12 @@
         "STR_VTSI_CREATE_TIP":"Şu an aygıta yazılmayacak,sadece bir VTSI dosyası oluşturulacak#@Devam edilsin mi?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI dosyası başarılı bir şekilde oluşturuldu!#@Ventoy'un aygıta kurulumunu tamamlamak için Rufus(3.15+) programını kullanabilirsiniz.",
         "STR_VTSI_CREATE_FAILED":"VTSI dosyası oluşturma başarısız oldu!",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -456,6 +504,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -507,6 +561,12 @@
         "STR_VTSI_CREATE_TIP":"Aqueste còp cap d’escritura al disc, generacion del fichiet VTSI sonque#@Contunhar ?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Fracàs de la creacion del fichièr VTSI.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -558,6 +618,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -609,6 +675,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -660,6 +732,12 @@
         "STR_VTSI_CREATE_TIP":"Esta vez no se escribirá al dispositivo, pero solo generará un archivo VTSI#@¿Continuar?",
         "STR_VTSI_CREATE_SUCCESS":"¡Archivo VTSI creado exitosamente!#@Puedes usar Rufus(3.15+) para escribirlo al dispositivo a fin de completar la instalación de Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Fallo en el archivo VTSI creado.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -711,6 +789,12 @@
         "STR_VTSI_CREATE_TIP":"На этот раз Ventoy не будет установлен на устройство, а будет только создан файл VTSI#@Продолжить?",
         "STR_VTSI_CREATE_SUCCESS":"Файл VTSI создан успешно!#@Вы можете использовать Rufus(3.15+), чтобы записать его на устройство, для завершения установки Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Ошибка создания файла VTSI.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -762,6 +846,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -813,6 +903,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -864,6 +960,12 @@
         "STR_VTSI_CREATE_TIP":"Deze keer wordt er niet naar het apparaat geschreven, maar wordt er alleen een VTSI-bestand gegenereerd#@Doorgaan?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI-bestand met succes aangemaakt!#@U kunt Rufus(3.15+) gebruiken om het bestand naar het apparaat te schrijven om de installatie van Ventoy te voltooien.",
         "STR_VTSI_CREATE_FAILED":"Aanmaken van VTSI-bestand mislukt.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -915,6 +1017,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -966,6 +1074,12 @@
         "STR_VTSI_CREATE_TIP":"VTSIファイルを生成し，記憶装置への書き込みは行いません。#@続行しますか？",
         "STR_VTSI_CREATE_SUCCESS":"VTSIファイルが生成されました。#@Rufus（3.15以上の版）を使って記憶装置に書き込んで，Ventoyの導入を完遂しましょう。",
         "STR_VTSI_CREATE_FAILED":"VTSIファイルを生成できませんでした。",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1017,6 +1131,12 @@
         "STR_VTSI_CREATE_TIP":"Questa volta non scriverà sul dispositivo, ma genererà solo un file VTSI#@Continuare?",
         "STR_VTSI_CREATE_SUCCESS":"File VTSI creato con successo!#@Puoi usare Rufus (versione 3.15 o successiva) per scrivere sul dispositivo in modo da completare l'installazione di Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Creazione File VTSI non riuscito.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1068,6 +1188,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1119,6 +1245,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1170,6 +1302,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1221,6 +1359,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1272,6 +1416,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1323,6 +1473,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1374,6 +1530,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1421,10 +1583,16 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Lỗi giao tiếp: Dịch vụ không sẵn có",
         "STR_WEB_TOKEN_MISMATCH":"Đã cập nhật trạng thái Daemon, vui lòng thử lại sau.",
         "STR_WEB_SERVICE_BUSY":"Dịch vụ bận, vui lòng thử lại sau.",
-	"STR_MENU_VTSI_CREATE":"Tạo tệp VTSI",
+        "STR_MENU_VTSI_CREATE":"Tạo tệp VTSI",
         "STR_VTSI_CREATE_TIP":"Lần này sẽ không ghi vào thiết bị, chỉ tạo một tệp VTSI#@Bạn muốn tiếp tục?",
         "STR_VTSI_CREATE_SUCCESS":"Tạo tệp VTSI thành công!#@Để hoàn thành cài đặt Ventoy, bạn có thể dùng Rufus (3.15+) để ghi tệp này vào thiết bị.",
         "STR_VTSI_CREATE_FAILED":"Tạo tệp VTSI đã gặp lỗi.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1476,6 +1644,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1527,6 +1701,12 @@
         "STR_VTSI_CREATE_TIP":"Овој пат ништо нема да се запише на уредот туку само ќе се генерира VTSI датотека#@Продолжи?",
         "STR_VTSI_CREATE_SUCCESS":"Успешно креирана VTSI датотека!#@Можете да го користите Rufus(3.15+) за да ја запишете на уредот како и да ја комплетирате инсталацијата на Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Креирањето на VTSI датотека е неуспешно.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1578,6 +1758,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1629,6 +1815,12 @@
         "STR_VTSI_CREATE_TIP":"Desta vez não irá gravar no dispositivo, mas apenas gerar um ficheiro VTSI#@Continuar?",
         "STR_VTSI_CREATE_SUCCESS":"Ficheiro VTSI criado com sucesso!#@Pode utilizar o Rufus(3.15+) para o gravar no dispositivo de modo a completar a instalação do Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Falha no ficheiro VTSI criado.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1680,6 +1872,12 @@
         "STR_VTSI_CREATE_TIP":"Saat ini tidak akan menuliskan di perangkat, tetapi hanya membuat berkas VTSI #@Lanjutkan?",
         "STR_VTSI_CREATE_SUCCESS":"Berkas VTSI berhasil dibuat#@Anda bisa menggunakan Rufus(3.15+) untuk menulisnya ke perangkat untuk menyelesaikan instalasi Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Berkas VTSI gagal dibuat.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1731,6 +1929,12 @@
         "STR_VTSI_CREATE_TIP":"Dette vil ikke skrive til enheten, men kun generere en VTSIfil#@Fortsett?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI-fil opprettet.#@Du kan bruke Rufus(3.15+) til å skrive den til enheten for å fullføre installasjonen av Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Noe gikk galt under opprettelse av VTSI-fil.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1782,6 +1986,12 @@
         "STR_VTSI_CREATE_TIP":"Цього разу Ventoy не буде встановлено на пристрій, а лише буде створено файл VTSI#@Продовжити?",
         "STR_VTSI_CREATE_SUCCESS":"Файл VTSI створено успішно!#@Ви можете використати Rufus(3.15+), щоб записати його на пристрій, для завершення встановлення Ventoy",
         "STR_VTSI_CREATE_FAILED":"Не вдалося створити файл VTSI.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1833,6 +2043,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1884,6 +2100,12 @@
         "STR_VTSI_CREATE_TIP":"Den här gången skrivs det inget till enheten, utan det skapas endast en VTSI-fil#@Fortsätta?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI-filen skapad!#@Använd Rufus (3.15+) till att skriva till enheten för att slutföra installationen av Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Misslyckades med att skapa VTSI-filen.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1935,6 +2157,12 @@
         "STR_VTSI_CREATE_TIP":"This time will not write to the device, but only generate a VTSI file#@Continue?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI file created successfully!#@You can use Rufus(3.15+) to write it to the device so as to complete the installation of Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI file created failed.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -1986,6 +2214,12 @@
         "STR_VTSI_CREATE_TIP":"Сега няма да се записва на диска, само ще се генерира VTSI файл#@Продължаваме?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI файла бе създаден успешно!#@Може да използвате Rufus(3.15+) да го запишете на устройството за инсталацията с Ventoy.",
         "STR_VTSI_CREATE_FAILED":"VTSI файла създаване се провали.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -2037,6 +2271,12 @@
         "STR_VTSI_CREATE_TIP":"Այս անգամ չի գրվի կրիչի վրա, այլ միայն կստեղծվի VTSI ֆայլ#@Շարունակել?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI ֆայլը հաջողությամբ ստեղծվեց!#@Դուք կարող եք օգտագործել Rufus (3.15+) կրիչում ձայնագրելու համար, որպեսզի ավարտեք Ventoy-ի տեղադրումը:",
         "STR_VTSI_CREATE_FAILED":"VTSI ֆայլի ստեղծումը ձախողվեց։",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     },
     {
@@ -2088,6 +2328,12 @@
         "STR_VTSI_CREATE_TIP":"Tällä kerralla laitteeseen ei kirjoiteta, vaan luodaan ainoastaan VTSI -tiedosto#@Jatketaanko?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI -tiedosto luotiin onnistuneesti!#@Voit käyttää Rufus-ohjelmaa(3.15+) kirjoittaaksesi sen laitteeseen viimeistelläksesi Ventoy-asennuksen.",
         "STR_VTSI_CREATE_FAILED":"VTSI -tiedoston luominen epäonnistui.",
+        "STR_MENU_PART_RESIZE":"Non-destructive Install",
+        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
+        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        
         "STRXXX":""
     }
 ]
