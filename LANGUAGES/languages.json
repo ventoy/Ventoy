@@ -1131,11 +1131,11 @@
         "STR_VTSI_CREATE_TIP":"Questa volta non scriverà sul dispositivo, ma genererà solo un file VTSI#@Continuare?",
         "STR_VTSI_CREATE_SUCCESS":"File VTSI creato con successo!#@Puoi usare Rufus (versione 3.15 o successiva) per scrivere sul dispositivo in modo da completare l'installazione di Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Creazione File VTSI non riuscito.",
-        "STR_MENU_PART_RESIZE":"Non-destructive Install",
-        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
-        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
-        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_MENU_PART_RESIZE":"Installazione non distruttiva",
+        "STR_PART_RESIZE_TIP":"Ventoy proverà l'installazione non distruttiva se possibile. #@Continuare?",
+        "STR_PART_RESIZE_SUCCESS":"Congratulazioni!#@L'installazione non distruttiva di Ventoy è stata completata.",
+        "STR_PART_RESIZE_FAILED":"L'installazione non distruttiva di Ventoy è fallita. Controlla il file log.txt per maggiori dettagli.",
+        "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy si è fermata perché alcune condizioni non possono essere soddisfatte. Controlla il file log.txt per maggiori dettagli.",
         
         "STRXXX":""
     },
