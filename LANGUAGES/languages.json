@@ -447,11 +447,11 @@
         "STR_VTSI_CREATE_TIP":"Şu an aygıta yazılmayacak,sadece bir VTSI dosyası oluşturulacak#@Devam edilsin mi?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI dosyası başarılı bir şekilde oluşturuldu!#@Ventoy'un aygıta kurulumunu tamamlamak için Rufus(3.15+) programını kullanabilirsiniz.",
         "STR_VTSI_CREATE_FAILED":"VTSI dosyası oluşturma başarısız oldu!",
-        "STR_MENU_PART_RESIZE":"Non-destructive Install",
-        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
-        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
-        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_MENU_PART_RESIZE":"Tahribatsız Kurulum",
+        "STR_PART_RESIZE_TIP":"Ventoy,mümkünse tahribatsız kurulumu deneyecektir. . #@Devam edilsin mi?",
+        "STR_PART_RESIZE_SUCCESS":"Tebrikler!#@Ventoy Tahribatsız Kurulum, başarıyla tamamlandı.",
+        "STR_PART_RESIZE_FAILED":"Tahribatsız kurulum başarısız oldu, ayrıntılar için log.txt dosyasını kontrol edin.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy Tahribatsız Kurulum, bazı koşullar sağlanmadığı için durduruldu. Ayrıntılı bilgi için log.txt dosyasını kontrol edin.",
         
         "STRXXX":""
     },
