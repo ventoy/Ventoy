@@ -23,6 +23,8 @@ else
 fi
 export PATH="./tool/$TOOLDIR:$PATH"
 
+rm -f ./log.txt
+
 
 echo ''
 echo '**********************************************'
