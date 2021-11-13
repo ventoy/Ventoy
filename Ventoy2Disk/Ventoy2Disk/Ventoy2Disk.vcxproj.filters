@@ -90,6 +90,9 @@
     <ClCompile Include="DiskService_wmsa.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="DiskService.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ventoy2Disk.h">

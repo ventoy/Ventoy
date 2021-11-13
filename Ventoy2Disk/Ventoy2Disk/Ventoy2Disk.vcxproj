@@ -335,6 +335,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="crc32.c" />
+    <ClCompile Include="DiskService.c" />
     <ClCompile Include="DiskService_diskpart.c" />
     <ClCompile Include="DiskService_vds.c" />
     <ClCompile Include="DiskService_wmsa.c" />

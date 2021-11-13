@@ -1127,9 +1127,17 @@ static int FormatPart1exFAT(UINT64 DiskSizeBytes)
 
     Log("Formatting Part1 exFAT ...");
 
+	disk_io_reset_write_error();
+
     Ret = f_mkfs(TEXT("0:"), &Option, 0, 8 * 1024 * 1024);
     if (FR_OK == Ret)
     {
+		if (disk_io_is_write_error())
+		{
+			Log("Formatting Part1 exFAT failed, write error.");
+			return 1;
+		}
+
         Log("Formatting Part1 exFAT success");
         return 0;
     }
@@ -1851,7 +1859,18 @@ End:
     }
     else
     {
+		PROGRESS_BAR_SET_POS(PT_LOCK_FOR_CLEAN);
+
         FindProcessOccupyDisk(hDrive, pPhyDrive);
+
+		if (!VDS_IsLastAvaliable())
+		{
+			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
+			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
+			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
+			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
+			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
+		}
     }
 
     if (pGptInfo)
@@ -1917,7 +1936,7 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 	if (pPhyDrive->ResizeNoShrink == FALSE)
 	{
 		Log("Need to shrink the volume");
-		if (VDS_ShrinkVolume(pPhyDrive->ResizeVolumeGuid, RecudeBytes))
+		if (DISK_ShrinkVolume(pPhyDrive->PhyDrive, pPhyDrive->ResizeVolumeGuid, pPhyDrive->Part1DriveLetter, pPhyDrive->ResizeOldPart1Size, RecudeBytes))
 		{
 			Log("Shrink volume success, now check again");
 
@@ -2011,6 +2030,7 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 			memcpy(pMBR->PartTbl + (j + 1), pMBR->PartTbl + j, sizeof(PART_TABLE));
 		}
 
+        memset(pMBR->PartTbl + 1, 0, sizeof(PART_TABLE));
 		VentoyFillMBRLocation(pPhyDrive->SizeInBytes, (UINT32)pPhyDrive->ResizePart2StartSector, VENTOY_EFI_PART_SIZE / 512, pMBR->PartTbl + 1);
 		pMBR->PartTbl[0].Active = 0x80; // bootable
 		pMBR->PartTbl[1].Active = 0x00;
@@ -2048,6 +2068,7 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 		pMBR->BootCode[92] = 0x22;
 
 		// to fix windows issue
+        memset(pGPT->PartTbl + 1, 0, sizeof(VTOY_GPT_PART_TBL));
 		memcpy(&(pGPT->PartTbl[1].PartType), &WindowsDataPartType, sizeof(GUID));
 		CoCreateGuid(&(pGPT->PartTbl[1].PartGuid));
 
@@ -2058,6 +2079,7 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 
 		//Update CRC
 		pGPT->Head.PartTblCrc = VentoyCrc32(pGPT->PartTbl, sizeof(pGPT->PartTbl));
+        pGPT->Head.Crc = 0;
 		pGPT->Head.Crc = VentoyCrc32(&(pGPT->Head), pGPT->Head.Length);
 
 		Log("pGPT->Head.EfiStartLBA=%llu", (ULONGLONG)pGPT->Head.EfiStartLBA);
@@ -2320,6 +2342,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	BOOL Esp2Basic = FALSE;
 	BOOL ChangeAttr = FALSE;
 	BOOL CleanDisk = FALSE;
+	BOOL DelEFI = FALSE;
 	BOOL bWriteBack = TRUE;
 	HANDLE hVolume;
 	HANDLE hDrive;
@@ -2335,6 +2358,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	MBR_HEAD MBR;
 	BYTE *pBackup = NULL;
 	VTOY_GPT_INFO *pGptInfo = NULL;
+	VTOY_GPT_INFO *pGptBkup = NULL;
 	UINT8 ReservedData[4096];
 
 	Log("#####################################################");
@@ -2356,17 +2380,19 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 
 	if (pPhyDrive->PartStyle)
 	{
-		pGptInfo = malloc(sizeof(VTOY_GPT_INFO));
+		pGptInfo = malloc(2 * sizeof(VTOY_GPT_INFO));
 		if (!pGptInfo)
 		{
 			return 1;
 		}
 
-		memset(pGptInfo, 0, sizeof(VTOY_GPT_INFO));
+		memset(pGptInfo, 0, 2 * sizeof(VTOY_GPT_INFO));
+		pGptBkup = pGptInfo + 1;
 
 		// Read GPT Info
 		SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
 		ReadFile(hDrive, pGptInfo, sizeof(VTOY_GPT_INFO), &dwSize, NULL);
+		memcpy(pGptBkup, pGptInfo, sizeof(VTOY_GPT_INFO));
 
 		//MBR will be used to compare with local boot image
 		memcpy(&MBR, &pGptInfo->MBR, sizeof(MBR_HEAD));
@@ -2430,7 +2456,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 		if (TryId == 1)
 		{
 			Log("Change GPT partition type to ESP");
-			if (VDS_ChangeVtoyEFI2ESP(pPhyDrive->PhyDrive, StartSector * 512))
+			if (DISK_ChangeVtoyEFI2ESP(pPhyDrive->PhyDrive, StartSector * 512ULL))
 			{
 				Esp2Basic = TRUE;
 				Sleep(3000);
@@ -2439,13 +2465,18 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 		else if (TryId == 2)
 		{
 			Log("Change GPT partition attribute");
-			if (VDS_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, 0x8000000000000001))
+			if (DISK_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, StartSector * 512ULL, 0x8000000000000001))
 			{
 				ChangeAttr = TRUE;
 				Sleep(2000);
 			}
 		}
 		else if (TryId == 3)
+		{
+			DISK_DeleteVtoyEFIPartition(pPhyDrive->PhyDrive, StartSector * 512ULL);
+			DelEFI = TRUE;
+		}
+		else if (TryId == 4)
 		{
 			Log("Clean disk GPT partition table");
 			if (BackupDataBeforeCleanDisk(pPhyDrive->PhyDrive, pPhyDrive->SizeInBytes, &pBackup))
@@ -2457,11 +2488,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 
 				Log("Success to backup data before clean");
 				CleanDisk = TRUE;
-				if (!VDS_CleanDisk(pPhyDrive->PhyDrive))
-				{
-					Sleep(3000);
-					DSPT_CleanDisk(pPhyDrive->PhyDrive);
-				}
+				DISK_CleanDisk(pPhyDrive->PhyDrive);
 				Sleep(3000);
 			}
 			else
@@ -2502,6 +2529,10 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 			bWriteBack = FALSE;
 		}
 
+		Status = ERROR_NOT_FOUND;
+	}
+	else if (DelEFI)
+	{
 		Status = ERROR_NOT_FOUND;
 	}
 	else if (Esp2Basic)
@@ -2595,7 +2626,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 				CHECK_CLOSE_HANDLE(hDrive);
 
 				Log("Now delete partition 2...");
-				VDS_DeleteVtoyEFIPartition(pPhyDrive->PhyDrive);
+				DISK_DeleteVtoyEFIPartition(pPhyDrive->PhyDrive, StartSector * 512ULL);
 
 				hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, TRUE, FALSE);
 				if (hDrive == INVALID_HANDLE_VALUE)
@@ -2707,6 +2738,37 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 
 		Sleep(1000);
 	}
+	else if (DelEFI)
+	{
+		VTOY_GPT_HDR BackupHdr;
+
+		VentoyFillBackupGptHead(pGptBkup, &BackupHdr);
+		if (!WriteBackupDataToDisk(hDrive, 512 * pGptBkup->Head.EfiBackupLBA, (BYTE*)(&BackupHdr), 512))
+		{
+			bWriteBack = FALSE;
+		}
+
+		if (!WriteBackupDataToDisk(hDrive, 512 * (pGptBkup->Head.EfiBackupLBA - 32), (BYTE*)(pGptBkup->PartTbl), 32 * 512))
+		{
+			bWriteBack = FALSE;
+		}
+
+		if (!WriteBackupDataToDisk(hDrive, 512, (BYTE*)pGptBkup + 512, 33 * 512))
+		{
+			bWriteBack = FALSE;
+		}
+
+		if (bWriteBack)
+		{
+			Log("Write backup partition table success");
+		}
+		else
+		{
+			Log("Write backup partition table failed");
+		}
+
+		Sleep(1000);
+	}
 
     //Refresh Drive Layout
     DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
@@ -2726,6 +2788,7 @@ End:
     }
     else
     {
+		PROGRESS_BAR_SET_POS(PT_LOCK_FOR_CLEAN);
         FindProcessOccupyDisk(hDrive, pPhyDrive);
     }
 
@@ -2734,7 +2797,7 @@ End:
     if (Esp2Basic)
     {
 		Log("Recover GPT partition type to basic");
-		VDS_ChangeVtoyEFI2Basic(pPhyDrive->PhyDrive, StartSector * 512);
+		DISK_ChangeVtoyEFI2Basic(pPhyDrive->PhyDrive, StartSector * 512);
     }
 
 	if (pPhyDrive->PartStyle == 1)
@@ -2742,7 +2805,7 @@ End:
 		if (ChangeAttr || ((pPhyDrive->Part2GPTAttr >> 56) != 0xC0))
 		{
 			Log("Change EFI partition attr %u <0x%llx> to <0x%llx>", ChangeAttr, pPhyDrive->Part2GPTAttr, 0xC000000000000001ULL);
-			if (VDS_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, 0xC000000000000001ULL))
+			if (DISK_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, StartSector * 512ULL, 0xC000000000000001ULL))
 			{
 				Log("Change EFI partition attr success");
 				pPhyDrive->Part2GPTAttr = 0xC000000000000001ULL;
