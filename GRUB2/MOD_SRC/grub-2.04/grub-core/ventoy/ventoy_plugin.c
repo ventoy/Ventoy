@@ -1478,6 +1478,7 @@ static int ventoy_plugin_menualias_entry(VTOY_JSON *json, const char *isodisk)
 
 static int ventoy_plugin_menutip_check(VTOY_JSON *json, const char *isodisk)
 {
+    int type;
     const char *path = NULL;
     const char *tip = NULL;
     VTOY_JSON *pNode = NULL;
@@ -1511,20 +1512,41 @@ static int ventoy_plugin_menutip_check(VTOY_JSON *json, const char *isodisk)
     pNode = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "tips");
     for (pNode = pNode->pstChild; pNode; pNode = pNode->pstNext)
     {
+        type = vtoy_tip_image_file;
         path = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (!path)
+        {
+            path = vtoy_json_get_string_ex(pNode->pstChild, "dir");
+            type = vtoy_tip_directory;
+        }
+        
         if (path && path[0] == '/')
         {
-            if (grub_strchr(path, '*'))
+            if (vtoy_tip_image_file == type)
             {
-                grub_printf("image: <%s> [ * ]\n", path);
-            }
-            else if (ventoy_check_file_exist("%s%s", isodisk, path))
-            {
-                grub_printf("image: <%s> [ OK ]\n", path);
+                if (grub_strchr(path, '*'))
+                {
+                    grub_printf("image: <%s> [ * ]\n", path);
+                }
+                else if (ventoy_is_file_exist("%s%s", isodisk, path))
+                {
+                    grub_printf("image: <%s> [ OK ]\n", path);
+                }
+                else
+                {
+                    grub_printf("image: <%s> [ NOT EXIST ]\n", path);
+                }
             }
             else
             {
-                grub_printf("image: <%s> [ NOT EXIST ]\n", path);
+                if (ventoy_is_dir_exist("%s%s", isodisk, path))
+                {
+                    grub_printf("dir: <%s> [ OK ]\n", path);
+                }
+                else
+                {
+                    grub_printf("dir: <%s> [ NOT EXIST ]\n", path);
+                }
             }
 
             tip = vtoy_json_get_string_ex(pNode->pstChild, "tip");
@@ -1558,6 +1580,7 @@ static int ventoy_plugin_menutip_check(VTOY_JSON *json, const char *isodisk)
 
 static int ventoy_plugin_menutip_entry(VTOY_JSON *json, const char *isodisk)
 {
+    int type;
     const char *path = NULL;
     const char *tip = NULL;
     VTOY_JSON *pNode = NULL;
@@ -1610,12 +1633,20 @@ static int ventoy_plugin_menutip_entry(VTOY_JSON *json, const char *isodisk)
 
     for (pNode = pNode->pstChild; pNode; pNode = pNode->pstNext)
     {
+        type = vtoy_tip_image_file;
         path = vtoy_json_get_string_ex(pNode->pstChild, "image");
+        if (!path)
+        {
+            path = vtoy_json_get_string_ex(pNode->pstChild, "dir");
+            type = vtoy_tip_directory;
+        }
+        
         if (path && path[0] == '/')
         {
             node = grub_zalloc(sizeof(menu_tip));
             if (node)
             {
+                node->type = type;
                 node->pathlen = grub_snprintf(node->isopath, sizeof(node->isopath), "%s", path);
 
                 tip = vtoy_json_get_string_ex(pNode->pstChild, "tip");
@@ -2754,7 +2785,7 @@ const char * ventoy_plugin_get_menu_alias(int type, const char *isopath)
     return NULL;
 }
 
-const menu_tip * ventoy_plugin_get_menu_tip(const char *isopath)
+const menu_tip * ventoy_plugin_get_menu_tip(int type, const char *isopath)
 {
     int len;
     menu_tip *node = NULL;
@@ -2767,7 +2798,8 @@ const menu_tip * ventoy_plugin_get_menu_tip(const char *isopath)
     len = (int)grub_strlen(isopath);
     for (node = g_menu_tip_head; node; node = node->next)
     {
-        if (node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
+        if (node->type == type && node->pathlen && 
+            node->pathlen == len && ventoy_strcmp(node->isopath, isopath) == 0)
         {
             return node;
         }

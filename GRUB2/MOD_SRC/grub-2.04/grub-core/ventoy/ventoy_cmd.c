@@ -1866,7 +1866,7 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
 
             img->alias = ventoy_plugin_get_menu_alias(vtoy_alias_image_file, img->path);
 
-            tip = ventoy_plugin_get_menu_tip(img->path);
+            tip = ventoy_plugin_get_menu_tip(vtoy_tip_image_file, img->path);
             if (tip)
             {
                 img->tip1 = tip->tip1;
@@ -2067,7 +2067,8 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
     const char *dir_class = NULL;
     const char *dir_alias = NULL;
     img_iterator_node *child = NULL;
-
+    const menu_tip *tip = NULL;
+    
     if (node->isocnt == 0 || node->done == 1)
     {
         return 0;
@@ -2107,20 +2108,22 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
             dir_class = "vtoydir";
         }
 
+        tip = ventoy_plugin_get_menu_tip(vtoy_tip_directory, node->dir);
+
         dir_alias = ventoy_plugin_get_menu_alias(vtoy_alias_directory, node->dir);
         if (dir_alias)
         {
             if (g_tree_view_menu_style == 0)
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"%-10s %s\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              "DIR", dir_alias, dir_class, node->dir + offset);
+                              "submenu \"%-10s %s\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              "DIR", dir_alias, dir_class, node->dir + offset, tip);
             }
             else
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"%s\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              dir_alias, dir_class, node->dir + offset);
+                              "submenu \"%s\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              dir_alias, dir_class, node->dir + offset, tip);
             }
         }
         else
@@ -2130,14 +2133,14 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
             if (g_tree_view_menu_style == 0)
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"%-10s [%s]\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              "DIR", dir_alias, dir_class, node->dir + offset);
+                              "submenu \"%-10s [%s]\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              "DIR", dir_alias, dir_class, node->dir + offset, tip);
             }
             else
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"[%s]\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              dir_alias, dir_class, node->dir + offset);
+                              "submenu \"[%s]\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              dir_alias, dir_class, node->dir + offset, tip);
             }
         }
 

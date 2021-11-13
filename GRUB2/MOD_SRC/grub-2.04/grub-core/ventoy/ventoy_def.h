@@ -896,8 +896,11 @@ typedef struct menu_alias
     struct menu_alias *next;
 }menu_alias;
 
+#define vtoy_tip_image_file 0
+#define vtoy_tip_directory  1
 typedef struct menu_tip
 {
+    int type;
     int pathlen;
     char isopath[256];
     char tip1[1024];
@@ -1063,7 +1066,7 @@ int ventoy_fill_windows_rtdata(void *buf, char *isopath);
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);
 const char * ventoy_plugin_get_injection(const char *isopath);
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);
-const menu_tip * ventoy_plugin_get_menu_tip(const char *isopath);
+const menu_tip * ventoy_plugin_get_menu_tip(int type, const char *isopath);
 const char * ventoy_plugin_get_menu_class(int type, const char *name, const char *path);
 int ventoy_plugin_check_memdisk(const char *isopath);
 int ventoy_plugin_get_image_list_index(int type, const char *name);
