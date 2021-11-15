@@ -30,6 +30,20 @@ VTSI_SEGMENT *g_VentoySegment = NULL;
 int g_VentoyMaxSeg = 0;
 int g_VentoyCurSeg = -1;
 UINT64 g_VentoyDataOffset = 0;
+int g_write_error = 0;
+int g_error_print_cnt = 0;
+
+void disk_io_reset_write_error(void)
+{
+	g_write_error = 0;
+	g_error_print_cnt = 0;
+}
+
+
+int disk_io_is_write_error(void)
+{
+	return g_write_error;
+}
 
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount)
 {
@@ -248,9 +262,15 @@ DRESULT disk_write (
 
     bRet = WriteFile(g_hPhyDrive, buff, count * 512, &dwSize, NULL);
 
-    if (dwSize != count * 512)
+    if ((!bRet) || (dwSize != count * 512))
     {
-        Log("WriteFile error bRet:%u WriteSize:%u dwSize:%u ErrCode:%u", bRet, count * 512, dwSize, GetLastError());
+		g_write_error = 1;
+		g_error_print_cnt++;
+
+		if (g_error_print_cnt <= 10)
+		{
+			Log("WriteFile error bRet:%u WriteSize:%u dwSize:%u ErrCode:%u", bRet, count * 512, dwSize, GetLastError());
+		}
     }
 
     return RES_OK;

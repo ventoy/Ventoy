@@ -405,7 +405,9 @@ const char * g_ventoy_tip_msg2 = NULL;
 static const char *g_ventoy_cur_img_path = NULL;
 static void menu_set_chosen_tip(grub_menu_t menu, int entry)
 {
+    int i;
     img_info *img;
+    menu_tip *tip;
     grub_menu_entry_t e = grub_menu_get_entry (menu, entry);
 
     g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
@@ -417,6 +419,26 @@ static void menu_set_chosen_tip(grub_menu_t menu, int entry)
             g_ventoy_tip_msg1 = img->tip1;
             g_ventoy_tip_msg2 = img->tip2;
             g_ventoy_cur_img_path = img->path;
+        }
+    }
+    else if (e && e->id && grub_strncmp(e->id, "DIR_", 4) == 0)
+    {
+        for (i = 0; i < e->argc; i++)
+        {
+            if (e->args[i] && grub_strncmp(e->args[i], "_VTIP_", 6) == 0)
+            {
+                break;
+            }
+        }
+
+        if (i < e->argc)
+        {
+            tip = (menu_tip *)(void *)grub_strtoul(e->args[i] + 6, NULL, 16);
+            if (tip)
+            {
+                g_ventoy_tip_msg1 = tip->tip1;
+                g_ventoy_tip_msg2 = tip->tip2;
+            }
         }
     }
 }

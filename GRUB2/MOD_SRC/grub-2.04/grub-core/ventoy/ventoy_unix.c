@@ -47,6 +47,11 @@ char *g_conf_new_data = NULL;
 int g_mod_new_len = 0;
 char *g_mod_new_data = NULL;
 
+int g_mod_search_magic = 0;
+
+int g_ko_fillmap_len = 0;
+char *g_ko_fillmap_data = NULL;
+
 grub_uint64_t g_mod_override_offset = 0;
 grub_uint64_t g_conf_override_offset = 0;
 
@@ -81,6 +86,15 @@ static grub_uint32_t ventoy_unix_get_override_chunk_count(void)
     if (g_mod_new_len > 0)
     {
         count++;
+    }
+    
+    if (g_ko_fillmap_len > 0)
+    {
+        count += (g_ko_fillmap_len / 512);
+        if ((g_ko_fillmap_len % 512) > 0)
+        {
+            count++;
+        }
     }
 
     return count;
@@ -121,15 +135,49 @@ static grub_uint32_t ventoy_unix_get_virt_chunk_size(void)
     return size;
 }
 
-static void ventoy_unix_fill_override_data(    grub_uint64_t isosize, void *override)
+static void ventoy_unix_fill_map_data(ventoy_chain_head *chain, struct g_ventoy_map *map)
 {
+    grub_uint32_t i;
+    ventoy_img_chunk *chunk = NULL;
+
+    debug("Fill unix map data: <%llu> <%u>\n", (unsigned long long)chain->os_param.vtoy_disk_size, g_img_chunk_list.cur_chunk);
+    
+    map->magic1[0] = map->magic2[0] = map->magic3[0] = VENTOY_UNIX_SEG_MAGIC0;
+    map->magic1[1] = map->magic2[1] = map->magic3[1] = VENTOY_UNIX_SEG_MAGIC1;
+    map->magic1[2] = map->magic2[2] = map->magic3[2] = VENTOY_UNIX_SEG_MAGIC2;
+    map->magic1[3] = map->magic2[3] = map->magic3[3] = VENTOY_UNIX_SEG_MAGIC3;
+
+    map->disksize = chain->os_param.vtoy_disk_size;
+    grub_memcpy(map->diskuuid, chain->os_param.vtoy_disk_guid, 16);
+
+    map->segnum = g_img_chunk_list.cur_chunk;
+    if (g_img_chunk_list.cur_chunk > VENTOY_UNIX_MAX_SEGNUM)
+    {
+        debug("####[FAIL] Too many segments for the ISO file %u\n", g_img_chunk_list.cur_chunk);
+        map->segnum = VENTOY_UNIX_MAX_SEGNUM;
+    }
+    
+    for (i = 0; i < (grub_uint32_t)(map->segnum); i++)
+    {
+        chunk = g_img_chunk_list.chunk + i;
+        map->seglist[i].seg_start_bytes = chunk->disk_start_sector * 512ULL;
+        map->seglist[i].seg_end_bytes = (chunk->disk_end_sector + 1) * 512ULL;        
+    }
+}
+
+static void ventoy_unix_fill_override_data(    grub_uint64_t isosize, ventoy_chain_head *chain)
+{
+    int i;
+    int left;
+    char *data = NULL;
+    grub_uint64_t offset;
     grub_uint64_t sector;
     ventoy_override_chunk *cur;
     ventoy_iso9660_override *dirent;
     
     sector = (isosize + 2047) / 2048;
 
-    cur = (ventoy_override_chunk *)override;
+    cur = (ventoy_override_chunk *)((char *)chain + chain->override_chunk_offset);
 
     if (g_conf_new_len > 0)
     {
@@ -158,6 +206,35 @@ static void ventoy_unix_fill_override_data(    grub_uint64_t isosize, void *over
         sector += (dirent->size + 2047) / 2048;
     }
 
+    if (g_ko_fillmap_len > 0)
+    {
+        data = g_ko_fillmap_data;
+        offset = g_mod_override_offset;
+
+        ventoy_unix_fill_map_data(chain, (struct g_ventoy_map *)data);
+        
+        for (i = 0; i < g_ko_fillmap_len / 512; i++)
+        {
+            cur++;
+            cur->img_offset = offset;
+            cur->override_size = 512;
+            grub_memcpy(cur->override_data, data, 512);
+
+            offset += 512;
+            data += 512;
+        }
+
+        left = (g_ko_fillmap_len % 512);
+        if (left > 0)
+        {
+            cur++;
+            cur->img_offset = offset;
+            cur->override_size = left;
+            grub_memcpy(cur->override_data, data, left);
+            offset += left;
+        }
+    }
+
     return;
 }
 
@@ -182,6 +259,11 @@ static void ventoy_unix_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_h
 
     if (g_mod_new_len > 0)
     {
+        if (g_mod_search_magic > 0)
+        {
+            ventoy_unix_fill_map_data(chain, (struct g_ventoy_map *)(g_mod_new_data + g_mod_search_magic));
+        }
+    
         ventoy_unix_fill_virt(g_mod_new_data, g_mod_new_len);
     }
     
@@ -210,6 +292,12 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
     vtoy_ssprintf(buf, pos, "ventoy_load=\"%s\"\n", "YES");
     vtoy_ssprintf(buf, pos, "ventoy_name=\"%s\"\n", g_ko_mod_path);
 
+    if (g_mod_search_magic)
+    {
+        debug("hint.ventoy NO need\n");
+        goto out;
+    }
+
     disk = isofile->device->disk;
 
     ventoy_get_disk_guid(isofile->name, disk_guid, disk_sig);
@@ -232,8 +320,8 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
             (ulonglong)((chunk->disk_end_sector + 1) * 512));
     }
 
+out:
     grub_file_close(isofile);
-
     return pos;
 }
 
@@ -258,13 +346,16 @@ grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **ar
     (void)argc;
     (void)args;
     
+    g_mod_search_magic = 0;
     g_conf_new_len = 0;
     g_mod_new_len = 0;
     g_mod_override_offset = 0;
     g_conf_override_offset = 0;
+    g_ko_fillmap_len = 0;
 
     check_free(g_mod_new_data, grub_free);
     check_free(g_conf_new_data, grub_free);
+    check_free(g_ko_fillmap_data, grub_free);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -624,6 +715,27 @@ grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, ch
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_unix_search_magic(char *data, int len)
+{
+    int i;
+    grub_uint32_t *magic = NULL;    
+
+    for (i = 0; i < len; i += 65536)
+    {
+        magic = (grub_uint32_t *)(data + i);
+        if (magic[0] == VENTOY_UNIX_SEG_MAGIC0 && magic[1] == VENTOY_UNIX_SEG_MAGIC1 && 
+            magic[2] == VENTOY_UNIX_SEG_MAGIC2 && magic[3] == VENTOY_UNIX_SEG_MAGIC3)
+        {
+            debug("unix find search magic at 0x%x loop:%d\n", i, (i >> 16));
+            g_mod_search_magic = i;
+            return 0;
+        }
+    }
+
+    debug("unix can not find search magic\n");
+    return 1;
+}
+
 grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     char *data;
@@ -673,7 +785,69 @@ grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char
     
     g_mod_new_data = data;
     g_mod_new_len = (int)file->size;
+
+    ventoy_unix_search_magic(g_mod_new_data, g_mod_new_len);
     
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_unix_ko_fillmap(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    grub_file_t file;
+    grub_uint32_t magic[4];
+    grub_uint32_t len;
+
+    (void)ctxt;
+
+    if (argc != 1)
+    {
+        debug("Fillmap ko invalid argc %d\n", argc);
+        return 1;
+    }
+
+    debug("Fillmap ko %s\n", args[0]);
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(loop)%s", args[0]);
+    if (file)
+    {
+        g_mod_override_offset = grub_iso9660_get_last_read_pos(file);
+    }
+    else
+    {   
+        debug("Can't find replace ko file from %s\n", args[0]);
+        return 1;
+    }
+
+    for (i = 0; i < (int)(file->size); i += 65536)
+    {
+        magic[0] = 0;
+        grub_file_seek(file, i);
+        grub_file_read(file, magic, sizeof(magic));
+    
+        if (magic[0] == VENTOY_UNIX_SEG_MAGIC0 && magic[1] == VENTOY_UNIX_SEG_MAGIC1 && 
+            magic[2] == VENTOY_UNIX_SEG_MAGIC2 && magic[3] == VENTOY_UNIX_SEG_MAGIC3)
+        {
+            debug("unix find search magic at 0x%x loop:%d\n", i, (i >> 16));
+            g_mod_override_offset += i;
+            break;
+        }
+    }
+
+    len = (grub_uint32_t)OFFSET_OF(struct g_ventoy_map, seglist) + 
+        (sizeof(struct g_ventoy_seg) * g_img_chunk_list.cur_chunk);
+
+    g_ko_fillmap_len = (int)len;
+    g_ko_fillmap_data = grub_malloc(len);
+    if (!g_ko_fillmap_data)
+    {
+        g_ko_fillmap_len = 0;
+        debug("Failed to malloc fillmap data\n");
+    }
+
+    debug("Fillmap ko segnum:%u, override len:%d", g_img_chunk_list.cur_chunk, g_ko_fillmap_len);
+
+    grub_file_close(file);
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
@@ -908,7 +1082,7 @@ grub_err_t ventoy_cmd_unix_chain_data(grub_extcmd_context_t ctxt, int argc, char
     /* part 4: override chunk */
     chain->override_chunk_offset = chain->img_chunk_offset + img_chunk_size;
     chain->override_chunk_num = override_count;
-    ventoy_unix_fill_override_data(isosize, (char *)chain + chain->override_chunk_offset);
+    ventoy_unix_fill_override_data(isosize, chain);
 
     /* part 5: virt chunk */
     chain->virt_chunk_offset = chain->override_chunk_offset + override_size;

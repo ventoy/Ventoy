@@ -89,9 +89,9 @@ mkdir -p $tmpmnt/tool
 # cp $OPT ./tool/x86_64/mount.exfat-fuse   $tmpmnt/tool/mount.exfat-fuse_x86_64
 # cp $OPT ./tool/aarch64/mount.exfat-fuse  $tmpmnt/tool/mount.exfat-fuse_aarch64
 # to save space
-cp $OPT ./tool/i386/vtoygpt     $tmpmnt/tool/mount.exfat-fuse_i386
-cp $OPT ./tool/x86_64/vtoygpt   $tmpmnt/tool/mount.exfat-fuse_x86_64
-cp $OPT ./tool/aarch64/vtoygpt  $tmpmnt/tool/mount.exfat-fuse_aarch64
+dd status=none bs=1024 count=16  if=./tool/i386/vtoycli    of=$tmpmnt/tool/mount.exfat-fuse_i386
+dd status=none bs=1024 count=16  if=./tool/x86_64/vtoycli  of=$tmpmnt/tool/mount.exfat-fuse_x86_64
+dd status=none bs=1024 count=16  if=./tool/aarch64/vtoycli of=$tmpmnt/tool/mount.exfat-fuse_aarch64
 
 
 rm -f $tmpmnt/grub/i386-pc/*.img

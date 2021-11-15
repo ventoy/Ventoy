@@ -68,10 +68,10 @@ check_tool_work_ok() {
         return
     fi
     
-    if vtoyfat -T; then
-        vtdebug "vtoyfat test ok ..."
+    if vtoycli fat -T; then
+        vtdebug "vtoycli fat test ok ..."
     else
-        vtdebug "vtoyfat test fail ..."
+        vtdebug "vtoycli fat test fail ..."
         ventoy_false
         return
     fi
@@ -183,7 +183,7 @@ check_disk_secure_boot() {
     
     PART2=$(get_disk_part_name $1 2)    
     
-    vtoyfat -s $PART2
+    vtoycli fat -s $PART2
 }
 
 get_disk_ventoy_version() {
@@ -195,7 +195,7 @@ get_disk_ventoy_version() {
     
     PART2=$(get_disk_part_name $1 2)    
     
-    ParseVer=$(vtoyfat $PART2)
+    ParseVer=$(vtoycli fat $PART2)
     if [ $? -eq 0 ]; then
         vtdebug "Ventoy version in $PART2 is $ParseVer"
         echo $ParseVer
@@ -391,7 +391,7 @@ format_ventoy_disk_gpt() {
 
     sync
     
-    vtoygpt -f $DISK
+    vtoycli gpt -f $DISK
     sync
 
     udevadm trigger --name-match=$DISK >/dev/null 2>&1

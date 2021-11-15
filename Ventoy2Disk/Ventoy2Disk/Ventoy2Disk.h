@@ -167,6 +167,8 @@ typedef struct PHY_DRIVE_INFO
     UINT64 Part2GPTAttr;
 
 	BOOL ResizeNoShrink;
+	UINT64 ResizeOldPart1Size;
+	CHAR Part1DriveLetter;
     CHAR ResizeVolumeGuid[64];
 	CHAR FsName[64];
 	UINT64 ResizePart2StartSector;
@@ -319,6 +321,9 @@ void disk_io_reset_imghook(int *psegnum, UINT64 *pDataOffset);
 
 HANDLE GetPhysicalHandle(int Drive, BOOLEAN bLockDrive, BOOLEAN bWriteAccess, BOOLEAN bWriteShare);
 void InitComboxCtrl(HWND hWnd, int PhyDrive);
+int disk_io_is_write_error(void);
+void disk_io_reset_write_error(void);
+const char* GUID2String(void* guid, char* buf, int len);
 
 #define VTSI_SUPPORT 1
 
