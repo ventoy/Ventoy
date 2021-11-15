@@ -915,7 +915,7 @@
         "name":"Dutch (Nederlands)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"UmitCanbolat",
+        "Author":"UmitCanbolat, RockyTDR",
         
         "STR_ERROR":"Fout",
         "STR_WARNING":"Waarschuwing",
@@ -960,11 +960,11 @@
         "STR_VTSI_CREATE_TIP":"Deze keer wordt er niet naar het apparaat geschreven, maar wordt er alleen een VTSI-bestand gegenereerd#@Doorgaan?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI-bestand met succes aangemaakt!#@U kunt Rufus(3.15+) gebruiken om het bestand naar het apparaat te schrijven om de installatie van Ventoy te voltooien.",
         "STR_VTSI_CREATE_FAILED":"Aanmaken van VTSI-bestand mislukt.",
-        "STR_MENU_PART_RESIZE":"Non-destructive Install",
-        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
-        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
-        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_MENU_PART_RESIZE":"Niet-destructieve installatie",
+        "STR_PART_RESIZE_TIP":"Ventoy zal indien mogelijk een niet-destructieve installatie proberen. #@Doorgaan?",
+        "STR_PART_RESIZE_SUCCESS":"Gefeliciteerd!#@De niet-destructieve installatie van Ventoy is met succes voltooid.",
+        "STR_PART_RESIZE_FAILED":"Niet-destructieve installatie mislukt. Controleer log.txt voor details.",
+        "STR_PART_RESIZE_UNSUPPORTED":"De niet-destructieve installatie van Ventoy is gestopt omdat aan sommige voorwaarden niet kan worden voldaan. Controleer log.txt voor details.",
         
         "STRXXX":""
     },
