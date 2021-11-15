@@ -1134,7 +1134,7 @@
         "STR_MENU_PART_RESIZE":"Installazione non distruttiva",
         "STR_PART_RESIZE_TIP":"Ventoy proverà, se possibile, l'installazione non distruttiva.#@Vuoi continuare?",
         "STR_PART_RESIZE_SUCCESS":"Congratulazioni!#@Installazione non distruttiva di Ventoy completata.",
-        "STR_PART_RESIZE_FAILED":"Installazione non distruttiva non riuscita.#@Per i dettagli controlla il file log.txt.",
+        "STR_PART_RESIZE_FAILED":"Installazione non distruttiva fallita.#@Per i dettagli controlla il file log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy è stata interrotta perché alcune condizioni non possono essere soddisfatte.#@Per i dettagli controlla il file log.txt.",
         
         "STRXXX":""
