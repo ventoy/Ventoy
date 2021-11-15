@@ -1088,6 +1088,7 @@ int ventoy_get_disk_guid(const char *filename, grub_uint8_t *guid, grub_uint8_t 
 grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_ko_fillmap(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_fill_image_desc(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_gzip_newko(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_freebsd_ver(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -1127,6 +1128,28 @@ int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
 #define ret_goto_end(a) ret = a; goto end;
 
 extern ventoy_grub_param *g_grub_param;
+
+#pragma pack(1)
+#define VENTOY_UNIX_SEG_MAGIC0    0x11223344
+#define VENTOY_UNIX_SEG_MAGIC1    0x55667788
+#define VENTOY_UNIX_SEG_MAGIC2    0x99aabbcc
+#define VENTOY_UNIX_SEG_MAGIC3    0xddeeff00
+#define VENTOY_UNIX_MAX_SEGNUM    40960
+struct g_ventoy_seg {
+    grub_uint64_t seg_start_bytes;
+    grub_uint64_t seg_end_bytes;
+};
+
+struct g_ventoy_map{
+    grub_uint32_t magic1[4];
+    grub_uint32_t magic2[4];
+    grub_uint64_t segnum;
+    grub_uint64_t disksize;
+    grub_uint8_t diskuuid[16];
+    struct g_ventoy_seg seglist[VENTOY_UNIX_MAX_SEGNUM];
+    grub_uint32_t magic3[4];
+};
+#pragma pack()
 
 #endif /* __VENTOY_DEF_H__ */
 

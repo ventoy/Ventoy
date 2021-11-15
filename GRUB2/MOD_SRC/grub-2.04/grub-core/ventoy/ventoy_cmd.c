@@ -5253,6 +5253,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_unix_reset", ventoy_cmd_unix_reset, 0, NULL, "", "", NULL },
     { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
     { "vt_unix_replace_ko", ventoy_cmd_unix_replace_ko, 0, NULL, "", "", NULL },
+    { "vt_unix_ko_fillmap", ventoy_cmd_unix_ko_fillmap, 0, NULL, "", "", NULL },
     { "vt_unix_fill_image_desc", ventoy_cmd_unix_fill_image_desc, 0, NULL, "", "", NULL },
     { "vt_unix_gzip_new_ko", ventoy_cmd_unix_gzip_newko, 0, NULL, "", "", NULL },
     { "vt_unix_chain_data", ventoy_cmd_unix_chain_data, 0, NULL, "", "", NULL },
