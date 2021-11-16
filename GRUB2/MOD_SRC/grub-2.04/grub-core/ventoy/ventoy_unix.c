@@ -140,12 +140,13 @@ static void ventoy_unix_fill_map_data(ventoy_chain_head *chain, struct g_ventoy_
     grub_uint32_t i;
     ventoy_img_chunk *chunk = NULL;
 
-    debug("Fill unix map data: <%llu> <%u>\n", (unsigned long long)chain->os_param.vtoy_disk_size, g_img_chunk_list.cur_chunk);
+    debug("Fill unix map data: <%llu> <%u> %p\n", 
+        (unsigned long long)chain->os_param.vtoy_disk_size, g_img_chunk_list.cur_chunk, map);
     
-    map->magic1[0] = map->magic2[0] = map->magic3[0] = VENTOY_UNIX_SEG_MAGIC0;
-    map->magic1[1] = map->magic2[1] = map->magic3[1] = VENTOY_UNIX_SEG_MAGIC1;
-    map->magic1[2] = map->magic2[2] = map->magic3[2] = VENTOY_UNIX_SEG_MAGIC2;
-    map->magic1[3] = map->magic2[3] = map->magic3[3] = VENTOY_UNIX_SEG_MAGIC3;
+    map->magic1[0] = map->magic2[0] = VENTOY_UNIX_SEG_MAGIC0;
+    map->magic1[1] = map->magic2[1] = VENTOY_UNIX_SEG_MAGIC1;
+    map->magic1[2] = map->magic2[2] = VENTOY_UNIX_SEG_MAGIC2;
+    map->magic1[3] = map->magic2[3] = VENTOY_UNIX_SEG_MAGIC3;
 
     map->disksize = chain->os_param.vtoy_disk_size;
     grub_memcpy(map->diskuuid, chain->os_param.vtoy_disk_guid, 16);
@@ -190,12 +191,12 @@ static void ventoy_unix_fill_override_data(    grub_uint64_t isosize, ventoy_cha
         dirent->first_sector_be = grub_swap_bytes32(dirent->first_sector);
         dirent->size_be         = grub_swap_bytes32(dirent->size);
         sector += (dirent->size + 2047) / 2048;
+        cur++;
     }
 
     if (g_mod_new_len > 0)
     {
         /* mod.ko */
-        cur++;
         cur->img_offset = g_mod_override_offset;
         cur->override_size = sizeof(ventoy_iso9660_override);
         dirent = (ventoy_iso9660_override *)cur->override_data;
@@ -204,6 +205,7 @@ static void ventoy_unix_fill_override_data(    grub_uint64_t isosize, ventoy_cha
         dirent->first_sector_be = grub_swap_bytes32(dirent->first_sector);
         dirent->size_be         = grub_swap_bytes32(dirent->size);
         sector += (dirent->size + 2047) / 2048;
+        cur++;
     }
 
     if (g_ko_fillmap_len > 0)
@@ -215,23 +217,24 @@ static void ventoy_unix_fill_override_data(    grub_uint64_t isosize, ventoy_cha
         
         for (i = 0; i < g_ko_fillmap_len / 512; i++)
         {
-            cur++;
             cur->img_offset = offset;
             cur->override_size = 512;
             grub_memcpy(cur->override_data, data, 512);
 
             offset += 512;
             data += 512;
+            cur++;
         }
 
         left = (g_ko_fillmap_len % 512);
         if (left > 0)
         {
-            cur++;
             cur->img_offset = offset;
             cur->override_size = left;
             grub_memcpy(cur->override_data, data, left);
+
             offset += left;
+            cur++;
         }
     }
 
@@ -811,6 +814,7 @@ grub_err_t ventoy_cmd_unix_ko_fillmap(grub_extcmd_context_t ctxt, int argc, char
     file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(loop)%s", args[0]);
     if (file)
     {
+        grub_file_read(file, magic, 4); /* read for trigger */
         g_mod_override_offset = grub_iso9660_get_last_read_pos(file);
     }
     else
@@ -845,7 +849,7 @@ grub_err_t ventoy_cmd_unix_ko_fillmap(grub_extcmd_context_t ctxt, int argc, char
         debug("Failed to malloc fillmap data\n");
     }
 
-    debug("Fillmap ko segnum:%u, override len:%d", g_img_chunk_list.cur_chunk, g_ko_fillmap_len);
+    debug("Fillmap ko segnum:%u, override len:%u data:%p\n", g_img_chunk_list.cur_chunk, len, g_ko_fillmap_data);
 
     grub_file_close(file);
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
