@@ -5268,6 +5268,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_sel_wimboot", ventoy_cmd_sel_wimboot, 0, NULL, "", "", NULL },
     { "vt_set_wim_load_prompt", ventoy_cmd_set_wim_prompt, 0, NULL, "", "", NULL },
     { "vt_set_theme", ventoy_cmd_set_theme, 0, NULL, "", "", NULL },
+    { "vt_set_theme_path", ventoy_cmd_set_theme_path, 0, NULL, "", "", NULL },
+    { "vt_select_theme_cfg", ventoy_cmd_select_theme_cfg, 0, NULL, "", "", NULL },
 
     { "vt_get_efi_vdisk_offset", ventoy_cmd_get_efivdisk_offset, 0, NULL, "", "", NULL },
     { "vt_search_replace_initrd", ventoy_cmd_search_replace_initrd, 0, NULL, "", "", NULL },

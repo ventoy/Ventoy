@@ -57,6 +57,7 @@ static auto_memdisk *g_auto_memdisk_head = NULL;
 static image_list *g_image_list_head = NULL;
 static conf_replace *g_conf_replace_head = NULL;
 
+static int g_theme_id = 0;
 static int g_theme_num = 0;
 static theme_list *g_theme_head = NULL;
 static int g_theme_random = vtoy_theme_random_boot_second;
@@ -281,6 +282,7 @@ static int ventoy_plugin_theme_check(VTOY_JSON *json, const char *isodisk)
 static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
 {
     const char *value;
+    char val[64];
     char filepath[256];
     VTOY_JSON *node = NULL;
     theme_list *tail = NULL;
@@ -364,6 +366,18 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
                     g_theme_random = vtoy_theme_random_boot_month;
                 }
             }
+        }
+    }
+
+    grub_snprintf(val, sizeof(val), "%d", g_theme_num);
+    grub_env_set("VTOY_THEME_COUNT", val);
+    grub_env_export("VTOY_THEME_COUNT");
+    if (g_theme_num > 0)
+    {
+        vtoy_json_get_int(json->pstChild, "default_file", &g_theme_id);
+        if (g_theme_id > g_theme_num || g_theme_id < 0)
+        {
+            g_theme_id = 0;
         }
     }
     
@@ -3277,6 +3291,65 @@ end:
     return 0;
 }
 
+grub_err_t ventoy_cmd_select_theme_cfg(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int pos = 0;
+    int bufsize = 0;
+    char *name = NULL;
+    char *buf = NULL;
+    theme_list *node = NULL;
+
+    (void)argc;
+    (void)args;
+    (void)ctxt;
+
+    if (g_theme_single_file[0])
+    {
+        return 0;
+    }
+
+    if (g_theme_num < 2)
+    {
+        return 0;
+    }
+
+    bufsize = (g_theme_num + 1) * 1024;
+    buf = grub_malloc(bufsize);
+    if (!buf)
+    {
+        return 0;
+    }
+    
+    for (node = g_theme_head; node; node = node->next)
+    {
+        name = grub_strstr(node->theme.path, ")/");
+        if (name)
+        {
+            name++;
+        }
+        else
+        {
+            name = node->theme.path;
+        }
+    
+        pos += grub_snprintf(buf + pos, bufsize - pos, 
+            "menuentry \"%s\" --class=debug_theme_item --class=debug_theme_select --class=F5tool {\n"
+                "vt_set_theme_path \"%s\"\n"
+            "}\n",
+            name, node->theme.path);
+    }
+
+    pos += grub_snprintf(buf + pos, bufsize - pos, 
+            "menuentry 'Return to previous menu [Esc]' --class=vtoyret VTOY_RET {\n"
+                "echo 'Return ...'\n"
+            "}\n");
+
+    grub_script_execute_sourcecode(buf);
+    grub_free(buf);
+    
+    return 0;
+}
+
 grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     grub_uint32_t i = 0;
@@ -3299,6 +3372,17 @@ grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **arg
     
     if (g_theme_num == 0)
     {
+        goto end;
+    }
+    
+    if (g_theme_id > 0 && g_theme_id <= g_theme_num)
+    {
+        for (i = 0; i < (grub_uint32_t)(g_theme_id - 1) && node; i++)
+        {
+            node = node->next;
+        }
+
+        grub_env_set("theme", node->theme.path);
         goto end;
     }
 
@@ -3332,7 +3416,25 @@ grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **arg
     grub_env_set("theme", node->theme.path);
 
 end:
+
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+extern char g_ventoy_theme_path[256];
+grub_err_t ventoy_cmd_set_theme_path(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)argc;
+    (void)ctxt;
+
+    if (argc == 0)
+    {
+        g_ventoy_theme_path[0] = 0;
+    }
+    else
+    {
+        grub_snprintf(g_ventoy_theme_path, sizeof(g_ventoy_theme_path), "%s", args[0]);
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
 
