@@ -241,6 +241,11 @@ format_ventoy_disk_mbr() {
     vtdebug "part1_start_sector=$part1_start_sector  part1_end_sector=$part1_end_sector"
     vtdebug "part2_start_sector=$part2_start_sector  part2_end_sector=$part2_end_sector"
 
+    if [ -e $PART1 ]; then
+        echo "delete $PART1"
+        rm -f $PART1
+    fi
+
     if [ -e $PART2 ]; then
         echo "delete $PART2"
         rm -f $PART2
@@ -293,27 +298,34 @@ EOF
     sleep 3
     echo "Done"
 
-    echo 'mkfs on disk partitions ...'
-    for i in 1 2 3 4 5 6 7; do
-        if [ -b $PART2 ]; then
+
+    echo 'Wait for partitions ...'
+    for i in 0 1 2 3 4 5 6 7 8 9; do
+        if [ -b $PART1 -a -b $PART2 ]; then
             break
         else
-            echo "wait $PART2 ..."
+            echo "Wait for $PART1/$PART2 ..."
             sleep 1
         fi
     done
 
-
+    if ! [ -b $PART1 ]; then
+        MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART1#/dev/}/dev)        
+        echo "mknod -m 0660 $PART1 b $MajorMinor ..."
+        mknod -m 0660 $PART1 b $MajorMinor
+    fi
+    
     if ! [ -b $PART2 ]; then
         MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART2#/dev/}/dev)        
         echo "mknod -m 0660 $PART2 b $MajorMinor ..."
-        mknod -m 0660 $PART2 b $MajorMinor
-        
-        if ! [ -b $PART1 ]; then
-            MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART1#/dev/}/dev)        
-            echo "mknod -m 0660 $PART1 b $MajorMinor ..."
-            mknod -m 0660 $PART1 b $MajorMinor
-        fi
+        mknod -m 0660 $PART2 b $MajorMinor        
+    fi
+
+    if [ -b $PART1 -a -b $PART2 ]; then
+        echo "partition exist OK"
+    else
+        echo "[FAIL] $PART1/$PART2 does not exist"
+        exit 1
     fi
 
     echo "create efi fat fs $PART2 ..."
@@ -366,6 +378,11 @@ format_ventoy_disk_gpt() {
     vtdebug "part1_start_sector=$part1_start_sector  part1_end_sector=$part1_end_sector"
     vtdebug "part2_start_sector=$part2_start_sector  part2_end_sector=$part2_end_sector"
 
+    if [ -e $PART1 ]; then
+        echo "delete $PART1"
+        rm -f $PART1
+    fi
+
     if [ -e $PART2 ]; then
         echo "delete $PART2"
         rm -f $PART2
@@ -399,27 +416,33 @@ format_ventoy_disk_gpt() {
     sleep 3
     echo "Done"
 
-    echo 'mkfs on disk partitions ...'
-    for i in 1 2 3 4 5 6 7; do
-        if [ -b $PART2 ]; then
+    echo 'Wait for partitions ...'
+    for i in 0 1 2 3 4 5 6 7 8 9; do
+        if [ -b $PART1 -a -b $PART2 ]; then
             break
         else
-            echo "wait $PART2 ..."
+            echo "Wait for $PART1/$PART2 ..."
             sleep 1
         fi
     done
 
-
+    if ! [ -b $PART1 ]; then
+        MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART1#/dev/}/dev)        
+        echo "mknod -m 0660 $PART1 b $MajorMinor ..."
+        mknod -m 0660 $PART1 b $MajorMinor
+    fi
+    
     if ! [ -b $PART2 ]; then
         MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART2#/dev/}/dev)        
         echo "mknod -m 0660 $PART2 b $MajorMinor ..."
-        mknod -m 0660 $PART2 b $MajorMinor
-        
-        if ! [ -b $PART1 ]; then
-            MajorMinor=$(sed "s/:/ /" /sys/class/block/${PART1#/dev/}/dev)        
-            echo "mknod -m 0660 $PART1 b $MajorMinor ..."
-            mknod -m 0660 $PART1 b $MajorMinor
-        fi
+        mknod -m 0660 $PART2 b $MajorMinor        
+    fi
+
+    if [ -b $PART1 -a -b $PART2 ]; then
+        echo "partition exist OK"
+    else
+        echo "[FAIL] $PART1/$PART2 does not exist"
+        exit 1
     fi
 
     echo "create efi fat fs $PART2 ..."
