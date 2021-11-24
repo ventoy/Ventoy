@@ -721,11 +721,18 @@ g_ventoy_destroy_geom(struct gctl_req *req __unused,
 static bool g_vtoy_check_disk(struct g_class *mp, struct g_provider *pp)
 {
     int i;
+    bool ret = true;
     uint8_t *buf;
     char uuid[64];
     const char *value;
     struct g_consumer *cp;
 	struct g_geom *gp;
+    uint8_t mbrdata[] = {
+        0xEB, 0x63, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    
+        0x56, 0x54, 0x00, 0x47, 0x65, 0x00, 0x48, 0x44, 0x00, 0x52, 0x64, 0x00, 0x20, 0x45, 0x72, 0x0D,
+    };
     
     if (g_ventoy_disk_size == 0)
     {
@@ -799,14 +806,25 @@ static bool g_vtoy_check_disk(struct g_class *mp, struct g_provider *pp)
     {
         sprintf(uuid + i * 2, "%02x", buf[0x180 + i]);
     }
-    g_free(buf);
-    
-    if (strncmp(g_ventoy_disk_uuid, uuid, 32) == 0)
+
+    if (strncmp(g_ventoy_disk_uuid, uuid, 32))
     {
-        return true;
+        ret = false;
     }
 
-    return false;
+    if (memcmp(mbrdata, buf, 0x30) || memcmp(mbrdata + 0x30, buf + 0x190, 16))
+    {
+        ret = false;
+    }
+
+    g_free(buf);
+
+    if (ret)
+    {
+        G_DEBUG("ventoy disk check OK\n");
+    }
+
+    return ret;
 }
 
 static struct g_geom *
