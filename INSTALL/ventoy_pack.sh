@@ -36,6 +36,11 @@ sh language.sh || exit 1
 sh build.sh
 cd -
 
+cd ../Plugson
+sh build.sh
+sh pack.sh
+cd -
+
 
 LOOP=$(losetup -f)
 
@@ -72,6 +77,13 @@ ls -1 ./grub/ | grep -v 'grub\.cfg' | while read line; do
     cp $OPT ./grub/$line $tmpmnt/grub/
 done
 
+#tar help txt
+cd $tmpmnt/grub/
+tar czf help.tar.gz ./help/
+rm -rf ./help
+cd ../../
+
+
 cp $OPT ./ventoy   $tmpmnt/
 cp $OPT ./EFI   $tmpmnt/
 cp $OPT ./tool/ENROLL_THIS_KEY_IN_MOKMANAGER.cer $tmpmnt/
@@ -82,9 +94,9 @@ mkdir -p $tmpmnt/tool
 # cp $OPT ./tool/x86_64/mount.exfat-fuse   $tmpmnt/tool/mount.exfat-fuse_x86_64
 # cp $OPT ./tool/aarch64/mount.exfat-fuse  $tmpmnt/tool/mount.exfat-fuse_aarch64
 # to save space
-cp $OPT ./tool/i386/vtoygpt     $tmpmnt/tool/mount.exfat-fuse_i386
-cp $OPT ./tool/x86_64/vtoygpt   $tmpmnt/tool/mount.exfat-fuse_x86_64
-cp $OPT ./tool/aarch64/vtoygpt  $tmpmnt/tool/mount.exfat-fuse_aarch64
+dd status=none bs=1024 count=16  if=./tool/i386/vtoycli    of=$tmpmnt/tool/mount.exfat-fuse_i386
+dd status=none bs=1024 count=16  if=./tool/x86_64/vtoycli  of=$tmpmnt/tool/mount.exfat-fuse_x86_64
+dd status=none bs=1024 count=16  if=./tool/aarch64/vtoycli of=$tmpmnt/tool/mount.exfat-fuse_aarch64
 
 
 rm -f $tmpmnt/grub/i386-pc/*.img
@@ -105,6 +117,7 @@ cp $OPT ./tool $tmpdir/
 rm -f $tmpdir/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
 cp $OPT Ventoy2Disk.sh $tmpdir/
 cp $OPT VentoyWeb.sh $tmpdir/
+cp $OPT VentoyPlugson.sh $tmpdir/
 cp $OPT VentoyGUI* $tmpdir/
 
 
@@ -114,6 +127,7 @@ cp $OPT CreatePersistentImg.sh $tmpdir/
 cp $OPT ExtendPersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
 dos2unix -q $tmpdir/VentoyWeb.sh
+dos2unix -q $tmpdir/VentoyPlugson.sh
 
 
 dos2unix -q $tmpdir/CreatePersistentImg.sh
@@ -152,6 +166,7 @@ find $tmpdir/ -type d -exec chmod 755 "{}" +
 find $tmpdir/ -type f -exec chmod 644 "{}" +
 chmod +x $tmpdir/Ventoy2Disk.sh
 chmod +x $tmpdir/VentoyWeb.sh
+chmod +x $tmpdir/VentoyPlugson.sh
 chmod +x $tmpdir/VentoyGUI*
 
 cp $OPT $LANG_DIR/languages.json $tmpdir/tool/
@@ -165,7 +180,15 @@ tar -czvf ventoy-${curver}-linux.tar.gz $tmpdir
 
 
 rm -f ventoy-${curver}-windows.zip
-cp $OPT Ventoy2Disk*.exe $tmpdir/
+
+cp $OPT Ventoy2Disk.exe $tmpdir/
+cp $OPT VentoyPlugson.exe $tmpdir/
+cp $OPT FOR_X64_ARM.txt $tmpdir/
+mkdir -p $tmpdir/altexe
+cp $OPT Ventoy2Disk_*.exe $tmpdir/altexe/
+
+
+
 cp $OPT $LANG_DIR/languages.json $tmpdir/ventoy/
 rm -rf $tmpdir/tool
 rm -f $tmpdir/*.sh

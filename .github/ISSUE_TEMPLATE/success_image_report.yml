@@ -1,0 +1,101 @@
+name: Success Image Report
+description: To report an image file that boot successfully in Ventoy and is not yet listed in https://www.ventoy.net/en/isolist.html
+title: "[Success Image Report]: "
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        I list all the successfully tested image files in the official website: https://www.ventoy.net/en/isolist.html   
+        If you successfully test an image file which is not listed in the above page, you can tell me and I will be very glad to add it to the tested list.
+  - type: checkboxes
+    id: faq
+    attributes:
+      label: Official Website List
+      description: Have you checked the list at [https://www.ventoy.net/en/isolist.html](https://www.ventoy.net/en/isolist.html) and the image file is not listed?
+      options:
+        - label: I have checked the list in official website and the image file is not listed there. 
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: Ventoy Version
+      description: What version of ventoy did you test with the image file.
+      placeholder: 1.0.57
+    validations:
+      required: true
+  - type: dropdown
+    id: bios
+    attributes:
+      label: BIOS Mode
+      description: In which BIOS mode did you successfully test the image file? (It's recommended to test in both mode)
+      options:
+        - Legacy BIOS Mode
+        - UEFI Mode
+        - Both
+    validations:
+      required: true
+  - type: dropdown
+    id: partstyle
+    attributes:
+      label: Partition Style
+      description: Which partition style did you use with Ventoy?
+      options:
+        - MBR
+        - GPT
+    validations:
+      required: true
+  - type: input
+    id: filename
+    attributes:
+      label: Image file name
+      description: The successfully tested image file name.
+      placeholder: xxxx.iso
+    validations:
+      required: true
+  - type: dropdown
+    id: checksum
+    attributes:
+      label: Image file checksum type
+      description: 
+      options:
+        - MD5
+        - SHA1        
+        - SHA256        
+        - SHA512        
+    validations:
+      required: true
+  - type: input
+    id: checkvalue
+    attributes:
+      label: Image file checksum value
+      description: What is the image file checksum value corresponding to the above checksum type?
+      placeholder: xxxx
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Image file download link (if applicable)
+      description: What is the image file download link?
+      placeholder: https://xxx
+    validations:
+      required: false
+  - type: input
+    id: testenv
+    attributes:
+      label: Test envrionment
+      description: The manufacturer/model and other details about your computer (or VM).
+      placeholder: Lenovo Thinkpad T420 laptop
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: More Details?
+      description: You can give more details here.
+      value: "This image file booted successfully in Ventoy."
+    validations:
+      required: false
+

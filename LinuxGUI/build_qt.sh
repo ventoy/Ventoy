@@ -157,7 +157,9 @@ if [ "$1" = "VENTOY_I386_QT_BUILD" ]; then
     exit 0
 fi
 
-
+if [ ! -f /opt/CentOS8/LinuxGUI/build.sh ]; then
+    mount --bind /home/share/Ventoy/LinuxGUI /opt/CentOS8/LinuxGUI
+fi
 
 chroot /opt/CentOS8 sh /buildqt.sh
 force_copy ./Ventoy2Disk.qt5_32 ../INSTALL/tool/i386/Ventoy2Disk.qt5

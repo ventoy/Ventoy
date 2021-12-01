@@ -51,35 +51,11 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
-static grub_uint8_t g_check_mbr_data[440] = {
+static grub_uint8_t g_check_mbr_data[] = {
     0xEB, 0x63, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x01, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0xFF, 0xFA, 0x90, 0x90, 0xF6, 0xC2, 0x80, 0x74, 0x05, 0xF6, 0xC2, 0x70,
-    0x74, 0x02, 0xB2, 0x80, 0xEA, 0x79, 0x7C, 0x00, 0x00, 0x31, 0xC0, 0x8E, 0xD8, 0x8E, 0xD0, 0xBC,
-    0x00, 0x20, 0xFB, 0xA0, 0x64, 0x7C, 0x3C, 0xFF, 0x74, 0x02, 0x88, 0xC2, 0x52, 0xBE, 0x90, 0x7D,
-    0xE8, 0x16, 0x01, 0xBE, 0x05, 0x7C, 0xB4, 0x41, 0xBB, 0xAA, 0x55, 0xCD, 0x13, 0x5A, 0x52, 0x72,
-    0x3D, 0x81, 0xFB, 0x55, 0xAA, 0x75, 0x37, 0x83, 0xE1, 0x01, 0x74, 0x32, 0x31, 0xC0, 0x89, 0x44,
-    0x04, 0x40, 0x88, 0x44, 0xFF, 0x89, 0x44, 0x02, 0xC7, 0x04, 0x10, 0x00, 0x66, 0x8B, 0x1E, 0x5C,
-    0x7C, 0x66, 0x89, 0x5C, 0x08, 0x66, 0x8B, 0x1E, 0x60, 0x7C, 0x66, 0x89, 0x5C, 0x0C, 0xC7, 0x44,
-    0x06, 0x00, 0x70, 0xB4, 0x42, 0xCD, 0x13, 0x72, 0x05, 0xBB, 0x00, 0x70, 0xEB, 0x76, 0xB4, 0x08,
-    0xCD, 0x13, 0x73, 0x0D, 0x5A, 0x84, 0xD2, 0x0F, 0x83, 0xD8, 0x00, 0xBE, 0x96, 0x7D, 0xE9, 0x82,
-    0x00, 0x66, 0x0F, 0xB6, 0xC6, 0x88, 0x64, 0xFF, 0x40, 0x66, 0x89, 0x44, 0x04, 0x0F, 0xB6, 0xD1,
-    0xC1, 0xE2, 0x02, 0x88, 0xE8, 0x88, 0xF4, 0x40, 0x89, 0x44, 0x08, 0x0F, 0xB6, 0xC2, 0xC0, 0xE8,
-    0x02, 0x66, 0x89, 0x04, 0x66, 0xA1, 0x60, 0x7C, 0x66, 0x09, 0xC0, 0x75, 0x4E, 0x66, 0xA1, 0x5C,
-    0x7C, 0x66, 0x31, 0xD2, 0x66, 0xF7, 0x34, 0x88, 0xD1, 0x31, 0xD2, 0x66, 0xF7, 0x74, 0x04, 0x3B,
-    0x44, 0x08, 0x7D, 0x37, 0xFE, 0xC1, 0x88, 0xC5, 0x30, 0xC0, 0xC1, 0xE8, 0x02, 0x08, 0xC1, 0x88,
-    0xD0, 0x5A, 0x88, 0xC6, 0xBB, 0x00, 0x70, 0x8E, 0xC3, 0x31, 0xDB, 0xB8, 0x01, 0x02, 0xCD, 0x13,
-    0x72, 0x1E, 0x8C, 0xC3, 0x60, 0x1E, 0xB9, 0x00, 0x01, 0x8E, 0xDB, 0x31, 0xF6, 0xBF, 0x00, 0x80,
-    0x8E, 0xC6, 0xFC, 0xF3, 0xA5, 0x1F, 0x61, 0xFF, 0x26, 0x5A, 0x7C, 0xBE, 0x93, 0x7D, 0xEB, 0x03,
-    0xBE, 0x99, 0x7D, 0xE8, 0x33, 0x00, 0xBE, 0x9C, 0x7D, 0xE8, 0x2D, 0x00, 0xCD, 0x18, 0xEB, 0xFE,
-    0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58, 0x58,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    
     0x56, 0x54, 0x00, 0x47, 0x65, 0x00, 0x48, 0x44, 0x00, 0x52, 0x64, 0x00, 0x20, 0x45, 0x72, 0x0D,
-    0x0A, 0x00, 0xBB, 0x01, 0x00, 0xB4, 0x0E, 0xCD, 0x10, 0xAC, 0x3C, 0x00, 0x75, 0xF4, 0xC3, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
 };
 
 initrd_info *g_initrd_img_list = NULL;
@@ -655,12 +631,8 @@ static int ventoy_check_official_device(grub_device_t dev)
     grub_memset(mbr, 0, 512);
     grub_disk_read(disk, 0, 0, 512, mbr);
     grub_disk_close(disk);
-
-    g_check_mbr_data[92] = mbr[92];
-    g_check_mbr_data[102] = mbr[102];
-    g_check_mbr_data[103] = mbr[103];
-    grub_memcpy(g_check_mbr_data + 0x180, mbr + 0x180, 16);
-    if (grub_memcmp(g_check_mbr_data, mbr, 440))
+    
+    if (grub_memcmp(g_check_mbr_data, mbr, 0x30) || grub_memcmp(g_check_mbr_data + 0x30, mbr + 0x190, 16))
     {
         return ventoy_set_check_result(12);
     }
@@ -1866,7 +1838,7 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
 
             img->alias = ventoy_plugin_get_menu_alias(vtoy_alias_image_file, img->path);
 
-            tip = ventoy_plugin_get_menu_tip(img->path);
+            tip = ventoy_plugin_get_menu_tip(vtoy_tip_image_file, img->path);
             if (tip)
             {
                 img->tip1 = tip->tip1;
@@ -2067,7 +2039,8 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
     const char *dir_class = NULL;
     const char *dir_alias = NULL;
     img_iterator_node *child = NULL;
-
+    const menu_tip *tip = NULL;
+    
     if (node->isocnt == 0 || node->done == 1)
     {
         return 0;
@@ -2107,20 +2080,22 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
             dir_class = "vtoydir";
         }
 
+        tip = ventoy_plugin_get_menu_tip(vtoy_tip_directory, node->dir);
+
         dir_alias = ventoy_plugin_get_menu_alias(vtoy_alias_directory, node->dir);
         if (dir_alias)
         {
             if (g_tree_view_menu_style == 0)
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"%-10s %s\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              "DIR", dir_alias, dir_class, node->dir + offset);
+                              "submenu \"%-10s %s\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              "DIR", dir_alias, dir_class, node->dir + offset, tip);
             }
             else
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"%s\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              dir_alias, dir_class, node->dir + offset);
+                              "submenu \"%s\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              dir_alias, dir_class, node->dir + offset, tip);
             }
         }
         else
@@ -2130,14 +2105,14 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
             if (g_tree_view_menu_style == 0)
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"%-10s [%s]\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              "DIR", dir_alias, dir_class, node->dir + offset);
+                              "submenu \"%-10s [%s]\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              "DIR", dir_alias, dir_class, node->dir + offset, tip);
             }
             else
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                              "submenu \"[%s]\" --class=\"%s\" --id=\"DIR_%s\" {\n", 
-                              dir_alias, dir_class, node->dir + offset);
+                              "submenu \"[%s]\" --class=\"%s\" --id=\"DIR_%s\" _VTIP_%p {\n", 
+                              dir_alias, dir_class, node->dir + offset, tip);
             }
         }
 
@@ -2699,6 +2674,22 @@ grub_uint32_t ventoy_get_iso_boot_catlog(grub_file_t file)
     }
 
     return desc.sector;    
+}
+
+static grub_uint32_t ventoy_get_bios_eltorito_rba(grub_file_t file, grub_uint32_t sector)
+{
+    grub_uint8_t buf[512];
+
+    grub_file_seek(file, sector * 2048);
+    grub_file_read(file, buf, sizeof(buf));
+
+    if (buf[0] == 0x01 && buf[1] == 0x00 && 
+        buf[30] == 0x55 && buf[31] == 0xaa && buf[32] == 0x88)
+    {
+        return *((grub_uint32_t *)(buf + 40));
+    }
+
+    return 0;
 }
 
 int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector)
@@ -4866,7 +4857,7 @@ static int ventoy_chk_case_file(const char *filename, const struct grub_dirhook_
         return 1;
     }
 
-    if (0 == info->dir && grub_strncasecmp(filename, "ventoy.json", 11) == 0)
+    if (0 == info->dir && grub_strcasecmp(filename, "ventoy.json") == 0)
     {
         grub_snprintf(g_json_case_mis_path, 32, "%s/%s", (char *)data, filename);
         return 1;
@@ -4886,7 +4877,7 @@ static int ventoy_chk_case_dir(const char *filename, const struct grub_dirhook_i
 
     if (info->dir && (filename[0] == 'v' || filename[0] == 'V'))
     {
-        if (grub_strncasecmp(filename, "ventoy", 6) == 0)
+        if (grub_strcasecmp(filename, "ventoy") == 0)
         {
             grub_snprintf(path, sizeof(path), "/%s", filename);
             fs_dir->fs->fs_dir(fs_dir->dev, path, ventoy_chk_case_file, path);
@@ -5007,26 +4998,71 @@ static grub_err_t grub_cmd_gptpriority(grub_extcmd_context_t ctxt, int argc, cha
 }
 
 
-
-/* <BEGIN>: Deleted by longpanda, 20210916 PN:XX LABEL:XX */
-#if 0
-void ventoy_tip_set_menu_label(const char *vid)
+static grub_err_t grub_cmd_syslinux_nojoliet(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    img_info *node;
+    int ret = 1;
+    int joliet = 0;
+    grub_file_t file = NULL;
+    grub_uint32_t loadrba = 0;
+    grub_uint32_t boot_catlog = 0;
+    grub_uint8_t sector[512];
+    boot_info_table *info = NULL;
+    
+    (void)ctxt;
+    (void)argc;
 
-    g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
-    if (vid)
+    /* This also trigger a iso9660 fs parse */
+    if (ventoy_check_file_exist("(loop)/isolinux/isolinux.cfg"))
     {
-        node = (img_info *)(void *)grub_strtoul(vid + 4, NULL, 16);
-        if (node)
-        {
-           g_ventoy_tip_msg1 = node->tip1;
-           g_ventoy_tip_msg2 = node->tip2;
-        }
+        return 0;
     }
+
+    joliet = grub_iso9660_is_joliet();
+    if (joliet == 0)
+    {
+        return 1;
+    }
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        debug("failed to open %s\n", args[0]);
+        return 1;
+    }
+
+    boot_catlog = ventoy_get_iso_boot_catlog(file);
+    if (boot_catlog == 0)
+    {
+        debug("no bootcatlog found %u\n", boot_catlog);
+        goto out;
+    }
+    
+    loadrba = ventoy_get_bios_eltorito_rba(file, boot_catlog);
+    if (loadrba == 0)
+    {
+        debug("no bios eltorito rba found %u\n", loadrba);
+        goto out;
+    }
+
+    grub_file_seek(file, loadrba * 2048);
+    grub_file_read(file, sector, 512);
+
+    info = (boot_info_table *)sector;
+    if (info->bi_data0 == 0x7c6ceafa && 
+        info->bi_data1 == 0x90900000 && 
+        info->bi_PrimaryVolumeDescriptor == 16 && 
+        info->bi_BootFileLocation == loadrba)
+    {
+        debug("bootloader is syslinux, %u.\n", loadrba);
+        ret = 0;
+    }
+
+out:
+
+    grub_file_close(file);
+    grub_errno = GRUB_ERR_NONE;
+    return ret;
 }
-#endif /* #if 0 */
-/* <END>  : Deleted by longpanda, 20210916 PN:XX LABEL:XX */
 
 int ventoy_env_init(void)
 {
@@ -5189,6 +5225,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_unix_reset", ventoy_cmd_unix_reset, 0, NULL, "", "", NULL },
     { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
     { "vt_unix_replace_ko", ventoy_cmd_unix_replace_ko, 0, NULL, "", "", NULL },
+    { "vt_unix_ko_fillmap", ventoy_cmd_unix_ko_fillmap, 0, NULL, "", "", NULL },
     { "vt_unix_fill_image_desc", ventoy_cmd_unix_fill_image_desc, 0, NULL, "", "", NULL },
     { "vt_unix_gzip_new_ko", ventoy_cmd_unix_gzip_newko, 0, NULL, "", "", NULL },
     { "vt_unix_chain_data", ventoy_cmd_unix_chain_data, 0, NULL, "", "", NULL },
@@ -5203,6 +5240,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_sel_wimboot", ventoy_cmd_sel_wimboot, 0, NULL, "", "", NULL },
     { "vt_set_wim_load_prompt", ventoy_cmd_set_wim_prompt, 0, NULL, "", "", NULL },
     { "vt_set_theme", ventoy_cmd_set_theme, 0, NULL, "", "", NULL },
+    { "vt_set_theme_path", ventoy_cmd_set_theme_path, 0, NULL, "", "", NULL },
+    { "vt_select_theme_cfg", ventoy_cmd_select_theme_cfg, 0, NULL, "", "", NULL },
 
     { "vt_get_efi_vdisk_offset", ventoy_cmd_get_efivdisk_offset, 0, NULL, "", "", NULL },
     { "vt_search_replace_initrd", ventoy_cmd_search_replace_initrd, 0, NULL, "", "", NULL },
@@ -5211,6 +5250,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_check_json_path_case", ventoy_cmd_chk_json_pathcase, 0, NULL, "", "", NULL },
     { "vt_append_extra_sector", ventoy_cmd_append_ext_sector, 0, NULL, "", "", NULL },
     { "gptpriority", grub_cmd_gptpriority, 0, NULL, "", "", NULL },
+    { "vt_syslinux_need_nojoliet", grub_cmd_syslinux_nojoliet, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

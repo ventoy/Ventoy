@@ -42,6 +42,9 @@
     <ClCompile Include="fat_io_lib\fat_write.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="xz-embedded-20130513\linux\lib\decompress_unxz.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vtoyjump.h">

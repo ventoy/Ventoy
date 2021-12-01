@@ -22,6 +22,11 @@ Please refer https://www.ventoy.net/en/doc_start.html for details.
 2. open your browser and visit http://127.0.0.1:24680
 
 
+========== VentoyPlugson.sh ===============
+1. sudo sh VentoyPlugson.sh 
+2. open your browser and visit http://127.0.0.1:24681
+
+
 ========= VentoyGUI ===================
 VentoyGUI is native GUI program for Linux (GTK/QT)
 1. Just double-click the file (e.g. VentoyGUI.x86_64)

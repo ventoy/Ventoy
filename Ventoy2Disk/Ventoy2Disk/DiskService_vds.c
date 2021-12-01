@@ -36,6 +36,10 @@
 // 3. Filter out the crap we don't need.
 static const char *GetVdsError(DWORD error_code)
 {
+	static char code[32];
+
+	sprintf_s(code, sizeof(code), "[0x%08x]", error_code);
+
 	switch (error_code) {
 	case 0x80042400:	// VDS_E_NOT_SUPPORTED
 		return "The operation is not supported by the object.";
@@ -386,6 +390,10 @@ static const char *GetVdsError(DWORD error_code)
 		return "The offline operation failed.";
 	case 0x80042598:	// VDS_E_BAD_REVISION_NUMBER
 		return "The operation could not be completed because the specified revision number is not supported.";
+	case 0x80042599:    // VDS_E_SHRINK_USER_CANCELLED
+		return "The shrink operation was cancelled by the user.";
+	case 0x8004259a:    // VDS_E_SHRINK_DIRTY_VOLUME
+		return "The volume you have selected to shrink may be corrupted. Use Chkdsk to fix the corruption problem, and then try again.";
 	case 0x00042700:	// VDS_S_NAME_TRUNCATED
 		return "The name was set successfully but had to be truncated.";
 	case 0x80042701:	// VDS_E_NAME_NOT_UNIQUE
@@ -450,7 +458,7 @@ static const char *GetVdsError(DWORD error_code)
 	case 0x80042918:	// VDS_E_COMPRESSION_NOT_SUPPORTED
 		return "The specified file system does not support compression.";
 	default:
-		return NULL;
+		return code;
 	}
 }
 
@@ -537,6 +545,8 @@ const char *WindowsErrorString(DWORD error_code)
 #define INTF_ADVANCEDDISK2  2
 #define INTF_CREATEPARTITIONEX  3
 #define INTF_PARTITIONMF 4
+#define INTF_VOLUME 5
+#define INTF_VOLUME_MF3 6
 
 /* 
  * Some code and functions in the file are copied from rufus.
@@ -588,10 +598,19 @@ const char *WindowsErrorString(DWORD error_code)
 #define IVdsAsync_Wait(This,pHrResult,pAsyncOut) (This)->lpVtbl->Wait(This,pHrResult,pAsyncOut)
 #define IVdsAsync_Release(This) (This)->lpVtbl->Release(This)
 
+#define IVdsVolume_Shrink(This, ullNumberOfBytesToRemove, ppAsync) (This)->lpVtbl->Shrink(This, ullNumberOfBytesToRemove, ppAsync)
+
 #define IUnknown_QueryInterface(This, a, b) (This)->lpVtbl->QueryInterface(This,a,b)
 #define IUnknown_Release(This) (This)->lpVtbl->Release(This)
 
 typedef BOOL(*VDS_Callback_PF)(void *pInterface, VDS_DISK_PROP *pDiskProp, UINT64 data);
+
+static BOOL g_vds_available = TRUE;
+
+BOOL VDS_IsLastAvaliable(void)
+{
+	return g_vds_available;
+}
 
 STATIC IVdsService * VDS_InitService(void)
 {
@@ -619,6 +638,7 @@ STATIC IVdsService * VDS_InitService(void)
     {
         VDS_SET_ERROR(hr);
         Log("Could not load VDS Service: 0x%x", LASTERR);
+		g_vds_available = FALSE;
         return NULL;
     }
 
@@ -632,7 +652,164 @@ STATIC IVdsService * VDS_InitService(void)
     }
 
     Log("VDS init OK, service %p", pService);
+	g_vds_available = TRUE;
     return pService;
+}
+
+STATIC BOOL VDS_VolumeCommProc(int intf, const WCHAR* wVolumeGuid, VDS_Callback_PF callback, UINT64 data)
+{
+	int Pos = 0;
+	BOOL Find = FALSE;
+	BOOL r = FALSE;
+	HRESULT hr;
+	ULONG ulFetched;
+	IUnknown* pUnk = NULL;
+	IEnumVdsObject* pEnum = NULL;
+	IVdsService* pService = NULL;
+
+	pService = VDS_InitService();
+	if (!pService)
+	{
+		Log("Could not query VDS Service");
+		goto out;
+	}
+
+	// Query the VDS Service Providers
+	hr = IVdsService_QueryProviders(pService, VDS_QUERY_SOFTWARE_PROVIDERS, &pEnum);
+	if (hr != S_OK)
+	{
+		VDS_SET_ERROR(hr);
+		Log("Could not query VDS Service Providers: 0x%lx %u", hr, LASTERR);
+		goto out;
+	}
+
+	while (IEnumVdsObject_Next(pEnum, 1, &pUnk, &ulFetched) == S_OK)
+	{
+		IVdsProvider* pProvider;
+		IVdsSwProvider* pSwProvider;
+		IEnumVdsObject* pEnumPack;
+		IUnknown* pPackUnk;
+
+		// Get VDS Provider
+		hr = IUnknown_QueryInterface(pUnk, &IID_IVdsProvider, (void**)&pProvider);
+		IUnknown_Release(pUnk);
+		if (hr != S_OK)
+		{
+			VDS_SET_ERROR(hr);
+			Log("Could not get VDS Provider: %u", LASTERR);
+			goto out;
+		}
+
+		// Get VDS Software Provider
+		hr = IVdsSwProvider_QueryInterface(pProvider, &IID_IVdsSwProvider, (void**)&pSwProvider);
+		IVdsProvider_Release(pProvider);
+		if (hr != S_OK)
+		{
+			VDS_SET_ERROR(hr);
+			Log("Could not get VDS Software Provider: %u", LASTERR);
+			goto out;
+		}
+
+		// Get VDS Software Provider Packs
+		hr = IVdsSwProvider_QueryPacks(pSwProvider, &pEnumPack);
+		IVdsSwProvider_Release(pSwProvider);
+		if (hr != S_OK)
+		{
+			VDS_SET_ERROR(hr);
+			Log("Could not get VDS Software Provider Packs: %u", LASTERR);
+			goto out;
+		}
+
+		// Enumerate Provider Packs
+		while (IEnumVdsObject_Next(pEnumPack, 1, &pPackUnk, &ulFetched) == S_OK)
+		{
+			IVdsPack* pPack;
+			IEnumVdsObject* pEnumVolume;
+			IUnknown* pVolumeUnk;
+
+			hr = IUnknown_QueryInterface(pPackUnk, &IID_IVdsPack, (void**)&pPack);
+			IUnknown_Release(pPackUnk);
+			if (hr != S_OK)
+			{
+				VDS_SET_ERROR(hr);
+				Log("Could not query VDS Software Provider Pack: %u", LASTERR);
+				goto out;
+			}
+
+			// Use the pack interface to access the volume
+			hr = IVdsPack_QueryVolumes(pPack, &pEnumVolume);;
+			if (hr != S_OK) {
+				VDS_SET_ERROR(hr);
+				Log("Could not query VDS volume: %u", LASTERR);
+				goto out;
+			}
+
+			// List disks
+			while (IEnumVdsObject_Next(pEnumVolume, 1, &pVolumeUnk, &ulFetched) == S_OK)
+			{
+				IVdsVolume* pVolume;
+				IVdsVolumeMF3* pVolumeMF3;
+				LPWSTR* wszPathArray;
+				ULONG ulNumberOfPaths;
+
+				// Get the disk interface.
+				hr = IUnknown_QueryInterface(pVolumeUnk, &IID_IVdsVolumeMF3, (void**)&pVolumeMF3);
+				if (hr != S_OK) {
+					VDS_SET_ERROR(hr);
+					Log("Could not query VDS Volume Interface: %u", LASTERR);
+					goto out;
+				}
+
+				// Get the volume properties
+				hr = IVdsVolumeMF3_QueryVolumeGuidPathnames(pVolumeMF3, &wszPathArray, &ulNumberOfPaths);
+				if ((hr != S_OK) && (hr != VDS_S_PROPERTIES_INCOMPLETE)) 
+				{
+					Log("Could not query VDS VolumeMF3 GUID PathNames: %s", GetVdsError(hr));
+					IVdsVolume_Release(pVolumeMF3);
+					IUnknown_Release(pVolumeUnk);
+					continue;
+				}
+
+				Log("Get Volume %d %lu <%S>", intf, ulNumberOfPaths, wszPathArray[0]);
+
+				if ((ulNumberOfPaths >= 1) && wcsstr(wszPathArray[0], wVolumeGuid))
+				{
+					Find = TRUE;
+					Log("Call back for this Volume %d <%S>", intf, wVolumeGuid);
+
+					if (INTF_VOLUME_MF3 == intf)
+					{
+						r = callback(pVolumeMF3, NULL, data);
+					}
+					else if (INTF_VOLUME == intf)
+					{
+						// Get the disk interface.
+						hr = IUnknown_QueryInterface(pVolumeUnk, &IID_IVdsVolume, (void**)&pVolume);
+						if (hr != S_OK) {
+							VDS_SET_ERROR(hr);
+							Log("Could not query VDS Volume Interface: %u", LASTERR);
+						}
+						else {
+							r = callback(pVolume, NULL, data);
+							IVdsVolume_Release(pVolume);
+						}
+					}
+				}
+
+				CoTaskMemFree(wszPathArray);
+				IVdsVolume_Release(pVolumeMF3);
+				IUnknown_Release(pVolumeUnk);
+
+				if (Find)
+				{
+					goto out;
+				}
+			}
+		}
+	}
+
+out:
+	return r;
 }
 
 
@@ -897,16 +1074,16 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
     HRESULT hr;
     VDS_PARTITION_PROP* prop_array = NULL;
     LONG i, prop_array_size;
-    ULONG PartNumber = (ULONG)data;
+    UINT64 PartOffset = data;
 	IVdsAdvancedDisk *pAdvancedDisk = (IVdsAdvancedDisk *)pInterface;
 
-    if (PartNumber == 0)
+	if (PartOffset == 0)
     {
         Log("Deleting ALL partitions from disk '%S':", pDiskProp->pwszName);
     }
     else
     {
-		Log("Deleting partition(%ld) from disk '%S':", PartNumber, pDiskProp->pwszName);
+		Log("Deleting partition(offset=%llu) from disk '%S':", PartOffset, pDiskProp->pwszName);
     }
 
     // Query the partition data, so we can get the start offset, which we need for deletion
@@ -916,7 +1093,7 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
 		r = TRUE;
         for (i = 0; i < prop_array_size; i++) 
         {
-            if (PartNumber == 0 || PartNumber == prop_array[i].ulPartitionNumber)
+			if (PartOffset == 0 || PartOffset == prop_array[i].ullOffset)
             {
                 Log("* Partition %d (offset: %lld, size: %llu) delete it.",
                     prop_array[i].ulPartitionNumber, prop_array[i].ullOffset, (ULONGLONG)prop_array[i].ullSize);
@@ -963,9 +1140,9 @@ BOOL VDS_DeleteAllPartitions(int DriveIndex)
     return ret;
 }
 
-BOOL VDS_DeleteVtoyEFIPartition(int DriveIndex)
+BOOL VDS_DeleteVtoyEFIPartition(int DriveIndex, UINT64 EfiPartOffset)
 {
-	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_DeletePartition, 2);
+	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_DeletePartition, EfiPartOffset);
 	Log("VDS_DeleteVtoyEFIPartition %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
     return ret;
 }
@@ -974,6 +1151,7 @@ STATIC BOOL VDS_CallBack_ChangeEFIAttr(void *pInterface, VDS_DISK_PROP *pDiskPro
 {
     BOOL r = FALSE;
     HRESULT hr;
+	VDS_PARA *VdsPara = (VDS_PARA *)data;
     VDS_PARTITION_PROP* prop_array = NULL;
     LONG i, prop_array_size;
     CHANGE_ATTRIBUTES_PARAMETERS AttrPara;
@@ -987,12 +1165,13 @@ STATIC BOOL VDS_CallBack_ChangeEFIAttr(void *pInterface, VDS_DISK_PROP *pDiskPro
         {
             if (prop_array[i].ullSize == VENTOY_EFI_PART_SIZE &&
                 prop_array[i].PartitionStyle == VDS_PST_GPT &&
-                memcmp(prop_array[i].Gpt.name, L"VTOYEFI", 7 * 2) == 0)
+                memcmp(prop_array[i].Gpt.name, L"VTOYEFI", 7 * 2) == 0 &&
+				VdsPara->Offset == prop_array[i].ullOffset)
             {
-                Log("* Partition %d (offset: %lld, size: %llu, Attr:0x%llx)", prop_array[i].ulPartitionNumber,
+                Log("** Partition %d (offset: %lld, size: %llu, Attr:0x%llx)", prop_array[i].ulPartitionNumber,
                     prop_array[i].ullOffset, (ULONGLONG)prop_array[i].ullSize, prop_array[i].Gpt.attributes);
 
-                if (prop_array[i].Gpt.attributes == data)
+				if (prop_array[i].Gpt.attributes == VdsPara->Attr)
                 {
                     Log("Attribute match, No need to change.");
                     r = TRUE;
@@ -1000,7 +1179,7 @@ STATIC BOOL VDS_CallBack_ChangeEFIAttr(void *pInterface, VDS_DISK_PROP *pDiskPro
                 else
                 {
                     AttrPara.style = VDS_PST_GPT;
-                    AttrPara.GptPartInfo.attributes = data;
+					AttrPara.GptPartInfo.attributes = VdsPara->Attr;
                     hr = IVdsAdvancedDisk_ChangeAttributes(pAdvancedDisk, prop_array[i].ullOffset, &AttrPara);
                     if (hr == S_OK)
                     {
@@ -1027,10 +1206,15 @@ STATIC BOOL VDS_CallBack_ChangeEFIAttr(void *pInterface, VDS_DISK_PROP *pDiskPro
     return r;
 }
 
-BOOL VDS_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Attr)
+BOOL VDS_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Offset, UINT64 Attr)
 {
-	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_ChangeEFIAttr, Attr);    
-	Log("VDS_ChangeVtoyEFIAttr %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
+	VDS_PARA Para;
+
+	Para.Attr = Attr;
+	Para.Offset = Offset;
+
+	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_ChangeEFIAttr, (UINT64)&Para);
+	Log("VDS_ChangeVtoyEFIAttr %d (offset:%llu) ret:%d (%s)", DriveIndex, Offset, ret, ret ? "SUCCESS" : "FAIL");
     return ret;
 }
 
@@ -1041,7 +1225,7 @@ STATIC BOOL VDS_CallBack_ChangeEFIType(void *pInterface, VDS_DISK_PROP *pDiskPro
 	BOOL r = FALSE;
 	HRESULT hr;
 	IVdsAdvancedDisk2 *pAdvancedDisk2 = (IVdsAdvancedDisk2 *)pInterface;
-	VDS_PARA *VdsPara = (VDS_PARA *)(ULONG)data;
+	VDS_PARA *VdsPara = (VDS_PARA *)data;
 	CHANGE_PARTITION_TYPE_PARAMETERS para;
 
 	para.style = VDS_PST_GPT;
@@ -1069,10 +1253,11 @@ BOOL VDS_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset)
 	memcpy(&(Para.Type), &EspPartType, sizeof(GUID));
 	Para.Offset = Offset;
 
-	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK2, DriveIndex, VDS_CallBack_ChangeEFIType, (ULONG)&Para);
+	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK2, DriveIndex, VDS_CallBack_ChangeEFIType, (UINT64)&Para);
 	Log("VDS_ChangeVtoyEFI2ESP %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
+
 
 BOOL VDS_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset)
 {
@@ -1082,98 +1267,55 @@ BOOL VDS_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset)
 	memcpy(&(Para.Type), &WindowsDataPartType, sizeof(GUID));
 	Para.Offset = Offset;
 
-	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK2, DriveIndex, VDS_CallBack_ChangeEFIType, (ULONG)&Para);
+	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK2, DriveIndex, VDS_CallBack_ChangeEFIType, (UINT64)&Para);
 	Log("VDS_ChangeVtoyEFI2Basic %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
 
-
-STATIC BOOL VDS_CallBack_CreateVtoyEFI(void *pInterface, VDS_DISK_PROP *pDiskProp, UINT64 data)
+STATIC BOOL CHKDSK_Volume(CHAR LogicalDrive)
 {
-    HRESULT hr, hr2;
-    ULONG completed;
-    IVdsAsync* pAsync;
-	CREATE_PARTITION_PARAMETERS para;
-	IVdsCreatePartitionEx *pCreatePartitionEx = (IVdsCreatePartitionEx *)pInterface;
-    VDS_PARA *VdsPara = (VDS_PARA *)(ULONG)data;
+	CHAR CmdBuf[1024];
+	STARTUPINFOA Si;
+	PROCESS_INFORMATION Pi;
 
-    (void)pDiskProp;
+	if ((!IsFileExist("C:\\Windows\\System32\\chkdsk.exe")) || (LogicalDrive == 0))
+	{
+		return FALSE;
+	}
 
-    memset(&para, 0, sizeof(para));
-    para.style = VDS_PST_GPT;
-    memcpy(&(para.GptPartInfo.partitionType), &VdsPara->Type, sizeof(GUID));
-    memcpy(&(para.GptPartInfo.partitionId), &VdsPara->Id, sizeof(GUID));
-	para.GptPartInfo.attributes = VdsPara->Attr;
-	memcpy(para.GptPartInfo.name, VdsPara->Name, sizeof(WCHAR)* VdsPara->NameLen);
+	GetStartupInfoA(&Si);
+	Si.dwFlags |= STARTF_USESHOWWINDOW;
+	Si.wShowWindow = SW_HIDE;
 
-	hr = IVdsCreatePartitionEx_CreatePartitionEx(pCreatePartitionEx, VdsPara->Offset, VENTOY_EFI_PART_SIZE, 512, &para, &pAsync);
-    while (SUCCEEDED(hr))
-    {
-        hr = IVdsAsync_QueryStatus(pAsync, &hr2, &completed);
-        if (SUCCEEDED(hr))
-        {
-            hr = hr2;
-            if (hr == S_OK)
-            {
-				Log("Disk create partition QueryStatus OK, %lu%%", completed);
-                break;
-            }
-            else if (hr == VDS_E_OPERATION_PENDING)
-            {
-				Log("Disk partition finish: %lu%%", completed);
-                hr = S_OK;
-            }
-            else
-            {
-                Log("QueryStatus invalid status:0x%lx", hr);
-            }
-        }
-        Sleep(1000);
-    }
+	sprintf_s(CmdBuf, sizeof(CmdBuf), "C:\\Windows\\System32\\chkdsk.exe %C: /f", LogicalDrive);
 
-    if (hr != S_OK)
-    {
-        VDS_SET_ERROR(hr);
-		Log("Could not create partition, err:0x%lx(%s)", LASTERR, WindowsErrorString(hr));
-        return FALSE;
-    }
+	Log("CreateProcess <%s>", CmdBuf);
+	CreateProcessA(NULL, CmdBuf, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
 
-    return TRUE;
+	Log("Wair process ...");
+	WaitForSingleObject(Pi.hProcess, INFINITE);
+	Log("Process finished...");
+
+	CHECK_CLOSE_HANDLE(Pi.hProcess);
+	CHECK_CLOSE_HANDLE(Pi.hThread);
+
+	return TRUE;
 }
 
-BOOL VDS_CreateVtoyEFIPart(int DriveIndex, UINT64 Offset)
-{
-    VDS_PARA Para;
-    GUID WindowsDataPartType = { 0xebd0a0a2, 0xb9e5, 0x4433, { 0x87, 0xc0, 0x68, 0xb6, 0xb7, 0x26, 0x99, 0xc7 } };
-	GUID EspPartType = { 0xc12a7328, 0xf81f, 0x11d2, { 0xba, 0x4b, 0x00, 0xa0, 0xc9, 0x3e, 0xc9, 0x3b } };
-
-	Log("VDS_CreateVtoyEFIPart %u Offset:%llu Sector:%llu", DriveIndex, Offset, Offset / 512);
-
-    memset(&Para, 0, sizeof(Para));
-    Para.Attr = 0x8000000000000000ULL;
-    Para.Offset = Offset;
-    memcpy(Para.Name, L"VTOYEFI", 7 * 2);
-	Para.NameLen = 7;
-	memcpy(&(Para.Type), &EspPartType, sizeof(GUID));
-    CoCreateGuid(&(Para.Id));
-
-	BOOL ret = VDS_DiskCommProc(INTF_CREATEPARTITIONEX, DriveIndex, VDS_CallBack_CreateVtoyEFI, (ULONG)&Para);    
-	Log("VDS_CreateVtoyEFIPart %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
-    return ret; 
-}
-
-
-STATIC BOOL VDS_CallBack_FormatVtoyEFI(void *pInterface, VDS_DISK_PROP *pDiskProp, UINT64 data)
+STATIC HRESULT VDS_RealShrinkVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
 {
 	HRESULT hr, hr2;
+	IVdsVolume* pVolume = (IVdsVolume*)pInterface;
 	ULONG completed;
-	IVdsAsync* pAsync;	
-	IVdsDiskPartitionMF *pPartitionMF = (IVdsDiskPartitionMF *)pInterface;
-	VDS_PARA *VdsPara = (VDS_PARA *)(ULONG)data;
+	IVdsAsync* pAsync;
+	VDS_PARA* VdsPara = (VDS_PARA*)data;
 
 	(void)pDiskProp;
-	
-	hr = IVdsPartitionMF_FormatPartitionEx(pPartitionMF, VdsPara->Offset, L"FAT", 0x0100, 0, VdsPara->Name, TRUE, TRUE, FALSE, &pAsync);
+
+	Log("VDS_ShrinkVolume (%C:) (%llu) ...", VdsPara->DriveLetter, (ULONGLONG)VdsPara->Offset);
+
+	hr = IVdsVolume_Shrink(pVolume, (ULONGLONG)VdsPara->Offset, &pAsync);
+
 	while (SUCCEEDED(hr))
 	{
 		hr = IVdsAsync_QueryStatus(pAsync, &hr2, &completed);
@@ -1182,43 +1324,91 @@ STATIC BOOL VDS_CallBack_FormatVtoyEFI(void *pInterface, VDS_DISK_PROP *pDiskPro
 			hr = hr2;
 			if (hr == S_OK)
 			{
-				Log("Disk format partition QueryStatus OK, %lu%%", completed);
+				Log("ShrinkVolume QueryStatus OK, %lu%%", completed);
 				break;
 			}
 			else if (hr == VDS_E_OPERATION_PENDING)
 			{
-				Log("Disk format finish: %lu%%", completed);
+				Log("ShrinkVolume: %lu%%", completed);
 				hr = S_OK;
 			}
 			else
 			{
-				Log("QueryStatus invalid status:0x%lx", hr);
+				Log("ShrinkVolume invalid status:0x%lx", hr);
 			}
 		}
 		Sleep(1000);
 	}
 
+	return hr;
+}
+
+STATIC BOOL VDS_CallBack_ShrinkVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
+{
+	int i;
+	HRESULT hr;
+	VDS_PARA *VdsPara = (VDS_PARA *)data;
+
+	Log("VDS_CallBack_ShrinkVolume (%C:) (%llu) ...", VdsPara->DriveLetter, (ULONGLONG)VdsPara->Offset);
+
+	hr = VDS_RealShrinkVolume(pInterface, pDiskProp, data);
+	if (hr == VDS_E_SHRINK_DIRTY_VOLUME)
+	{
+		Log("Volume %C: is dirty, run chkdsk and retry.", VdsPara->DriveLetter);
+		CHKDSK_Volume(VdsPara->DriveLetter);
+
+		hr = VDS_RealShrinkVolume(pInterface, pDiskProp, data);
+		if (hr == VDS_E_SHRINK_DIRTY_VOLUME)
+		{
+			Log("################################################################");
+			Log("################################################################");
+			for (i = 0; i < 20; i++)
+			{
+				Log("###### Volume dirty, Please run \"chkdsk /f %C:\" and retry. ######", VdsPara->Name[0]);
+			}
+			Log("################################################################");
+			Log("################################################################");
+		}
+	}
+
 	if (hr != S_OK)
 	{
 		VDS_SET_ERROR(hr);
-		Log("Could not format partition, err:0x%lx (%s)", LASTERR, WindowsErrorString(hr));
+		Log("Could not ShrinkVolume, 0x%x err:0x%lx (%s)", hr, LASTERR, WindowsErrorString(hr));
+
+		VDS_SET_ERROR(hr);
 		return FALSE;
 	}
 
 	return TRUE;
 }
 
-// Not supported for removable disk
-BOOL VDS_FormatVtoyEFIPart(int DriveIndex, UINT64 Offset)
+BOOL VDS_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes)
 {
+	int i;
+	BOOL ret = FALSE;
+	WCHAR wGuid[128] = { 0 };
+	const char *guid = NULL;
 	VDS_PARA Para;
 
-	memset(&Para, 0, sizeof(Para));
-	Para.Offset = Offset;
-	memcpy(Para.Name, L"VTOYEFI", 7 * 2);
+	(VOID)DriveIndex;
+	(VOID)OldBytes;
 
-	BOOL ret = VDS_DiskCommProc(INTF_PARTITIONMF, DriveIndex, VDS_CallBack_FormatVtoyEFI, (ULONG)&Para);	
-	Log("VDS_FormatVtoyEFIPart %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
+	guid = strstr(VolumeGuid, "{");
+	if (!guid)
+	{
+		return FALSE;
+	}
+
+	for (i = 0; i < 128 && guid[i]; i++)
+	{
+		wGuid[i] = guid[i];
+	}
+
+	Para.Offset = ReduceBytes;
+	Para.DriveLetter = DriveLetter;
+
+	ret = VDS_VolumeCommProc(INTF_VOLUME, wGuid, VDS_CallBack_ShrinkVolume, (UINT64)&Para);
+	Log("VDS_ShrinkVolume %C: ret:%d (%s)", DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
-
