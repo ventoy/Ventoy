@@ -1302,39 +1302,19 @@ STATIC BOOL CHKDSK_Volume(CHAR LogicalDrive)
 	return TRUE;
 }
 
-
-STATIC BOOL VDS_CallBack_ShrinkVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
+STATIC HRESULT VDS_RealShrinkVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
 {
-	int i;
 	HRESULT hr, hr2;
 	IVdsVolume* pVolume = (IVdsVolume*)pInterface;
 	ULONG completed;
 	IVdsAsync* pAsync;
-	VDS_PARA *VdsPara = (VDS_PARA *)data;
+	VDS_PARA* VdsPara = (VDS_PARA*)data;
 
 	(void)pDiskProp;
 
-	Log("VDS_CallBack_ShrinkVolume (%C:) (%llu) ...", VdsPara->DriveLetter, (ULONGLONG)VdsPara->Offset);
+	Log("VDS_ShrinkVolume (%C:) (%llu) ...", VdsPara->DriveLetter, (ULONGLONG)VdsPara->Offset);
 
 	hr = IVdsVolume_Shrink(pVolume, (ULONGLONG)VdsPara->Offset, &pAsync);
-	if (hr == VDS_E_SHRINK_DIRTY_VOLUME)
-	{
-		Log("Volume %C: is dirty, run chkdsk and retry.", VdsPara->DriveLetter);
-		CHKDSK_Volume(VdsPara->DriveLetter);
-
-		hr = IVdsVolume_Shrink(pVolume, (ULONGLONG)VdsPara->Offset, &pAsync);
-		if (hr == VDS_E_SHRINK_DIRTY_VOLUME)
-		{
-			Log("################################################################");
-			Log("################################################################");
-			for (i = 0; i < 20; i++)
-			{
-				Log("###### Volume dirty, Please run \"chkdsk /f %C:\" and retry. ######", VdsPara->Name[0]);
-			}
-			Log("################################################################");
-			Log("################################################################");
-		}
-	}
 
 	while (SUCCEEDED(hr))
 	{
@@ -1358,6 +1338,37 @@ STATIC BOOL VDS_CallBack_ShrinkVolume(void* pInterface, VDS_DISK_PROP* pDiskProp
 			}
 		}
 		Sleep(1000);
+	}
+
+	return hr;
+}
+
+STATIC BOOL VDS_CallBack_ShrinkVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
+{
+	int i;
+	HRESULT hr;
+	VDS_PARA *VdsPara = (VDS_PARA *)data;
+
+	Log("VDS_CallBack_ShrinkVolume (%C:) (%llu) ...", VdsPara->DriveLetter, (ULONGLONG)VdsPara->Offset);
+
+	hr = VDS_RealShrinkVolume(pInterface, pDiskProp, data);
+	if (hr == VDS_E_SHRINK_DIRTY_VOLUME)
+	{
+		Log("Volume %C: is dirty, run chkdsk and retry.", VdsPara->DriveLetter);
+		CHKDSK_Volume(VdsPara->DriveLetter);
+
+		hr = VDS_RealShrinkVolume(pInterface, pDiskProp, data);
+		if (hr == VDS_E_SHRINK_DIRTY_VOLUME)
+		{
+			Log("################################################################");
+			Log("################################################################");
+			for (i = 0; i < 20; i++)
+			{
+				Log("###### Volume dirty, Please run \"chkdsk /f %C:\" and retry. ######", VdsPara->Name[0]);
+			}
+			Log("################################################################");
+			Log("################################################################");
+		}
 	}
 
 	if (hr != S_OK)

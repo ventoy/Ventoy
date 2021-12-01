@@ -1,0 +1,22 @@
+File IO Lib API
+-=-=-=-=-=-=-=-=-
+
+void fl_init(void)
+
+  Called to initialize FAT IO library.
+  This should be called prior to any other functions.
+
+void fl_attach_locks(void (*lock)(void), void (*unlock)(void))
+
+  [Optional] File system thread safety locking functions.
+  For thread safe operation, you should provide lock() and unlock() functions.
+  Note that locking primitive used must support recursive locking, i.e lock() called within an already ‘locked’ region.
+
+int fl_attach_media(fn_diskio_read rd, fn_diskio_write wr)
+
+  This function is used to attach system specific disk/media access functions.  
+  This should be done subsequent to calling fl_init() and fl_attach_locks() (if locking required).
+
+void fl_shutdown(void)
+
+  Shutdown the FAT IO library. This purges any un-saved data back to disk.
