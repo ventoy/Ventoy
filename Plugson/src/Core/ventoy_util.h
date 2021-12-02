@@ -20,6 +20,8 @@
 #ifndef __VENTOY_UTIL_H__
 #define __VENTOY_UTIL_H__
 
+#define PLUGSON_TXZ "plugson.tar.xz"
+
 #define check_free(p) if (p) free(p)
 #define vtoy_safe_close_fd(fd) \
 {\
@@ -137,16 +139,6 @@ typedef struct tag_tar_head
     char prefix[155];
     char padding[12];
 }VENTOY_TAR_HEAD;
-
-
-
-typedef struct VENTOY_MAGIC
-{
-    uint32_t magic1;  // 0x51 0x52 0x53 0x54
-    uint32_t xzlen;   // 
-    uint32_t magic2;  // 0xa1 0xa2 0xa3 0xa4
-}VENTOY_MAGIC;
-
 
 
 #pragma pack()

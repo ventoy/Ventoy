@@ -189,6 +189,7 @@ cp $OPT Ventoy2Disk_*.exe $tmpdir/altexe/
 
 
 
+cp $OPT $tmpdir/tool/plugson.tar.xz $tmpdir/ventoy/
 cp $OPT $LANG_DIR/languages.json $tmpdir/ventoy/
 rm -rf $tmpdir/tool
 rm -f $tmpdir/*.sh

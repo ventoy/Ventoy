@@ -143,6 +143,48 @@ ventoy_file * ventoy_tar_find_file(const char *path)
 }
 
 
+int ventoy_decompress_tar(char *tarbuf, int buflen, int *tarsize)
+{
+    int rc = 1;
+	int inused = 0;
+	int BufLen = 0;
+	unsigned char *buffer = NULL;
+    char tarxz[MAX_PATH];
+
+#if defined(_MSC_VER) || defined(WIN32)
+    scnprintf(tarxz, sizeof(tarxz), "%s\\ventoy\\%s", g_ventoy_dir, PLUGSON_TXZ);
+#else
+    scnprintf(tarxz, sizeof(tarxz), "%s/tool/%s", g_ventoy_dir, PLUGSON_TXZ);
+#endif
+
+    if (ventoy_read_file_to_buf(tarxz, 0, (void **)&buffer, &BufLen))
+    {
+        vlog("Failed to read file <%s>\n", tarxz);
+        return 1;
+    }
+
+    g_unxz_buffer = (unsigned char *)tarbuf;
+    g_unxz_len = 0;
+
+    unxz(buffer, BufLen, NULL, unxz_flush, NULL, &inused, unxz_error);
+    vlog("xzlen:%u rawdata size:%d\n", BufLen, g_unxz_len);
+
+    if (inused != BufLen)
+    {
+        vlog("Failed to unxz data %d %d\n", inused, BufLen);
+        rc = 1;
+    }
+    else
+    {
+        *tarsize = g_unxz_len;
+        rc = 0;        
+    }
+
+	free(buffer);
+
+    return rc;
+}
+
 int ventoy_www_init(void)
 {
     int i = 0;

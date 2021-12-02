@@ -10,6 +10,8 @@
 #include <ventoy_disk.h>
 #include <ventoy_http.h>
 
+char g_ventoy_dir[MAX_PATH];
+
 static BOOL g_running = FALSE;
 static HWND g_refresh_button;
 static HWND g_start_button;
@@ -34,6 +36,7 @@ typedef enum MSGID
 	MSGID_BTN_STOP_TIP, 
 	MSGID_BTN_EXIT_TIP,
 	MSGID_RUNNING_TIP,
+	MSGID_NO_TARXZ_TIP,
 
     MSGID_BUTT
 }MSGID;
@@ -56,6 +59,7 @@ const WCHAR *g_msg_cn[MSGID_BUTT] =
 	L"停止运行后浏览器页面将会关闭，是否继续？",
 	L"当前服务正在运行，是否退出？",
 	L"请先关闭正在运行的 VentoyPlugson 程序！",
+	L"ventoy\\plugson.tar.xz 文件不存在，请在正确的目录下运行！",
 };
 const WCHAR *g_msg_en[MSGID_BUTT] =
 {
@@ -74,6 +78,7 @@ const WCHAR *g_msg_en[MSGID_BUTT] =
 	L"The browser page will close after stop, continue?",
 	L"Service is running, continue?",
 	L"Please close another running VentoyPlugson instance!",
+	L"ventoy\\plugson.tar.xz does not exist, please run under the correct directory!",
 };
 
 const WCHAR **g_msg_lang = NULL;
@@ -485,9 +490,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	GetCurrentDirectoryA(MAX_PATH, g_cur_dir);
+	sprintf_s(g_ventoy_dir, sizeof(g_ventoy_dir), "%s", g_cur_dir);
 	sprintf_s(g_log_file, sizeof(g_log_file), "%s\\%s", g_cur_dir, LOG_FILE);
 	ventoy_log_init();
 
+    if (!ventoy_is_file_exist("%s\\ventoy\\%s", g_ventoy_dir, PLUGSON_TXZ))
+    {        
+		MessageBoxW(NULL, g_msg_lang[MSGID_NO_TARXZ_TIP], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        return 1;
+    }
 
 	ParseCmdLine(lpCmdLine, g_sysinfo.ip, g_sysinfo.port);
 	if (g_sysinfo.ip[0] == 0)

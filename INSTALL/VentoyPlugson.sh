@@ -187,7 +187,7 @@ fi
 
 #change current directory to Ventoy disk
 cd "$mtpnt"
-LANG=en_US $OLDDIR/tool/$TOOLDIR/Plugson "$HOST" "$PORT" "$OLDDIR" "$DISK" $version "$fstype" $partstyle $secureboot   &
+$OLDDIR/tool/$TOOLDIR/Plugson "$HOST" "$PORT" "$OLDDIR" "$DISK" $version "$fstype" $partstyle $secureboot   &
 wID=$!
 sleep 1
 
