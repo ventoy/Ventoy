@@ -3,6 +3,8 @@
 #define __UTIL_H__
 
 extern int boot_verbose;
+//#define vdebug(fmt, ...) 
+//#define verror
 #define vdebug(fmt, ...) if (boot_verbose) { printf(fmt, ##__VA_ARGS__); usleep(500000); }
 #define verror printf
 
