@@ -292,6 +292,41 @@ void ventoy_stop_writeback_thread(void)
 }
 
 
+
+int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen)
+{
+    int FileSize;
+    FILE *fp = NULL;
+    void *Data = NULL;
+
+    fp = fopen(FileName, "rb");
+    if (fp == NULL)
+    {
+        vlog("Failed to open file %s", FileName);
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    FileSize = (int)ftell(fp);
+
+    Data = malloc(FileSize + ExtLen);
+    if (!Data)
+    {
+        fclose(fp);
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_SET);
+    fread(Data, 1, FileSize, fp);
+
+    fclose(fp);
+
+    *Bufer = Data;
+    *BufLen = FileSize;
+
+    return 0;
+}
+
 int ventoy_copy_file(const char *a, const char *b)
 {
     int len = 0;

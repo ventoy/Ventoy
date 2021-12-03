@@ -468,6 +468,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 {
     int rc;
 	HANDLE hMutex;
+	WCHAR CurDir[MAX_PATH];
 
     UNREFERENCED_PARAMETER(hPrevInstance);
 
@@ -489,7 +490,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		return 1;
 	}
 
-	GetCurrentDirectoryA(MAX_PATH, g_cur_dir);
+	GetCurrentDirectoryW(MAX_PATH, CurDir);
+	WideCharToMultiByte(CP_UTF8, 0, CurDir, -1, g_cur_dir, MAX_PATH, NULL, 0);
+
 	sprintf_s(g_ventoy_dir, sizeof(g_ventoy_dir), "%s", g_cur_dir);
 	sprintf_s(g_log_file, sizeof(g_log_file), "%s\\%s", g_cur_dir, LOG_FILE);
 	ventoy_log_init();

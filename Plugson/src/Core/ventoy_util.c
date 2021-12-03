@@ -80,44 +80,6 @@ uint64_t ventoy_get_human_readable_gb(uint64_t SizeBytes)
     return (uint64_t)GB;
 }
 
-int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen)
-{
-    int FileSize;
-    FILE *fp = NULL;
-    void *Data = NULL;
-
-#if defined(_MSC_VER) || defined(WIN32)
-    fopen_s(&fp, FileName, "rb");
-#else
-    fp = fopen(FileName, "rb");
-#endif
-    if (fp == NULL)
-    {
-        vlog("Failed to open file %s", FileName);
-        return 1;
-    }
-
-    fseek(fp, 0, SEEK_END);
-    FileSize = (int)ftell(fp);
-
-    Data = malloc(FileSize + ExtLen);
-    if (!Data)
-    {
-        fclose(fp);
-        return 1;
-    }
-
-    fseek(fp, 0, SEEK_SET);
-    fread(Data, 1, FileSize, fp);
-
-    fclose(fp);
-
-    *Bufer = Data;
-    *BufLen = FileSize;
-
-    return 0;
-}
-
 ventoy_file * ventoy_tar_find_file(const char *path)
 {
     int i;
@@ -211,6 +173,7 @@ int ventoy_www_init(void)
 
     if (ventoy_decompress_tar(g_tar_buffer, TAR_BUF_MAX, &tarsize))
     {
+        vlog("Failed to decompress tar\n");
         return 1;
     }
 
