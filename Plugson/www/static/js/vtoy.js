@@ -896,6 +896,7 @@ function VtoyCommonChangeLanguage(newlang) {
             utfmaxlen: $.validator.format("The string exceeds the maximum supported length"),
             start_slash: $.validator.format("Must start with /"),
             noquotes: $.validator.format("Can not include double quotes"),
+            filenamepart:$.validator.format("As part of file name, can not include invalid characters"),
             printascii: $.validator.format("Can not include non-ascii characters.")
         });
 
@@ -941,6 +942,7 @@ function VtoyCommonChangeLanguage(newlang) {
             utfmaxlen: $.validator.format("超过最大长度"),
             start_slash: $.validator.format("必须以反斜杠 / 开头"),
             noquotes: $.validator.format("不能包含双引号"),
+            filenamepart:$.validator.format("作为文件名的一部分，不能包含特殊的符号"),
             printascii: $.validator.format("不能包含中文或其他非 ascii 字符。")
         });
         
@@ -1102,7 +1104,8 @@ var g_set_key_validator = $("#SetKeyForm").validate({
         },
         SetKeyValue : {
             required: true,
-            utfmaxlen: true          
+            utfmaxlen: true,
+            filenamepart: true        
         }
     },
 

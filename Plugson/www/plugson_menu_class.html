@@ -169,11 +169,6 @@
       }
     }
 
-    if (extra.indexOf("\"") >= 0) {
-      Message.error(g_current_language === 'en' ? "Class can not contains double quotes." : "Class 不能包含双引号。");
-      return;
-    }
-
     callVtoy({
       method : 'class_add',
       index: current_tab_index,
@@ -188,6 +183,11 @@
   }
 
   function OnAddKeyClass(key, value) {
+    if (!ventoy_check_file_name_char(key)) {
+      Message.error(g_current_language === 'en' ? "As part of file name, key can not include invalid characters!" : "作为文件名的一部分，key 中不能包含特殊的符号!");
+      return;
+    }
+
     AddClassEntry(key, 0, 1, value);
   }
 
