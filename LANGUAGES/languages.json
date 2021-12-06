@@ -1701,11 +1701,11 @@
         "STR_VTSI_CREATE_TIP":"Овој пат ништо нема да се запише на уредот туку само ќе се генерира VTSI датотека#@Продолжи?",
         "STR_VTSI_CREATE_SUCCESS":"Успешно креирана VTSI датотека!#@Можете да го користите Rufus(3.15+) за да ја запишете на уредот како и да ја комплетирате инсталацијата на Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Креирањето на VTSI датотека е неуспешно.",
-        "STR_MENU_PART_RESIZE":"Non-destructive Install",
-        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
-        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
-        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_MENU_PART_RESIZE":"Недеструктивна инсталација",
+        "STR_PART_RESIZE_TIP":"Ventoy ќе се обиде со недеструктивна инсталација доколку е возможно. #@Продолжи?",
+        "STR_PART_RESIZE_SUCCESS":"Честитки! Недеструктивната инсталација е успешно завршена.",
+        "STR_PART_RESIZE_FAILED":"Недеструктивната инсталација не успеа. Проверете го log.txt за детали.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Недеструктивната инсталација на Ventoy е запрена бидејќи некои услови не се исполнети. Проверете го log.txt за детали.",
         
         "STRXXX":""
     },
