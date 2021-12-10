@@ -655,102 +655,6 @@ int CheckRuntimeEnvironment(char Letter, ventoy_disk *disk)
 }
 
 
-int ventoy_write_buf_to_file(const char *FileName, void *Bufer, int BufLen)
-{
-    BOOL bRet;
-    DWORD dwBytes;
-    HANDLE hFile;
-
-    hFile = CreateFileA(FileName, GENERIC_READ | GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
-		vlog("CreateFile %s failed %u\n", FileName, LASTERR);
-        return 1;
-    }
-
-    bRet = WriteFile(hFile, Bufer, (DWORD)BufLen, &dwBytes, NULL);
-
-    if ((!bRet) || ((DWORD)BufLen != dwBytes))
-    {
-        vlog("Failed to write file <%s> %u err:%u", FileName, dwBytes, LASTERR);
-        CloseHandle(hFile);
-        return 1;
-    }
-    
-    FlushFileBuffers(hFile);
-    CloseHandle(hFile);
-
-    return 0;
-}
-
-int ventoy_decompress_tar(char *tarbuf, int buflen, int *tarsize)
-{
-    int rc = 1;
-	int inused;
-	HANDLE hFile;
-	DWORD dwSize;
-	DWORD dwRead;
-	WCHAR FullPath[MAX_PATH];
-	BYTE *buffer;
-    VENTOY_MAGIC Magic;
-
-	GetModuleFileNameW(NULL, FullPath, MAX_PATH);	
-	hFile = CreateFileW(FullPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		vlog("Failed to open self %u\n", LASTERR);
-		return 1;
-	}
-
-	dwSize = GetFileSize(hFile, NULL);
-	if (dwSize == INVALID_FILE_SIZE)
-	{
-		vlog("Invalid self exe size %u\n", LASTERR);
-		CHECK_CLOSE_HANDLE(hFile);
-		return 1;
-	}
-    
-	buffer = malloc(dwSize);
-	if (!buffer)
-	{
-		vlog("Failed to malloc %u\n", dwSize);
-		CHECK_CLOSE_HANDLE(hFile);
-		return 1;
-	}
-	ReadFile(hFile, buffer, dwSize, &dwRead, NULL);
-
-    memcpy(&Magic, buffer + dwSize - sizeof(Magic), sizeof(Magic));
-    if (Magic.magic1 == 0x54535251 && Magic.magic2 == 0xa4a3a2a1)
-    {
-        g_unxz_buffer = (UCHAR *)tarbuf;
-        g_unxz_len = 0;
-
-        unxz(buffer + dwSize - Magic.xzlen - sizeof(Magic), Magic.xzlen, NULL, unxz_flush, NULL, &inused, unxz_error);
-        vlog("bigexe:%u xzlen:%u rawdata size:%d\n", dwSize, Magic.xzlen, g_unxz_len);
-
-        if (inused != Magic.xzlen)
-        {
-            vlog("Failed to unxz www %d\n", inused);
-            rc = 1;
-        }
-        else
-        {
-            *tarsize = g_unxz_len;
-            rc = 0;
-        }
-    }
-    else
-    {
-        vlog("Invalid magic 0x%x 0x%x\n", Magic.magic1, Magic.magic2);
-        rc = 1;
-    }
-	
-	free(buffer);
-	CHECK_CLOSE_HANDLE(hFile);
-
-    return rc;
-}
-
 
 static volatile int g_thread_stop = 0;
 static HANDLE g_writeback_thread;
@@ -804,6 +708,85 @@ void ventoy_stop_writeback_thread(void)
     CHECK_CLOSE_HANDLE(g_writeback_event);
 }
 
+int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen)
+{
+    int UTF8 = 0;
+    int Size = 0;
+    BOOL bRet;
+    DWORD dwBytes;
+    HANDLE hFile;
+    char *buffer = NULL;
+    WCHAR FilePathW[MAX_PATH];
+
+    UTF8 = IsUTF8Encode(FileName);
+    if (UTF8)
+    {
+        Utf8ToUtf16(FileName, FilePathW);
+        hFile = CreateFileW(FilePathW, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    }
+    else
+    {
+        hFile = CreateFileA(FileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    }
+
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+		vlog("Failed to open %s %u\n", FileName, LASTERR);
+        return 1;
+    }
+
+    Size = (int)GetFileSize(hFile, NULL);
+    buffer = malloc(Size + ExtLen);
+    if (!buffer)
+    {
+        vlog("Failed to alloc file buffer\n");
+        CloseHandle(hFile);
+        return 1;
+    }
+
+    bRet = ReadFile(hFile, buffer, (DWORD)Size, &dwBytes, NULL);
+    if ((!bRet) || ((DWORD)Size != dwBytes))
+    {
+        vlog("Failed to read file <%s> %u err:%u", FileName, dwBytes, LASTERR);
+        CloseHandle(hFile);
+        free(buffer);
+        return 1;
+    }
+
+    *Bufer = buffer;
+    *BufLen = Size;
+    
+    CloseHandle(hFile);
+    return 0;
+}
+
+int ventoy_write_buf_to_file(const char *FileName, void *Bufer, int BufLen)
+{
+    BOOL bRet;
+    DWORD dwBytes;
+    HANDLE hFile;
+
+    hFile = CreateFileA(FileName, GENERIC_READ | GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+		vlog("CreateFile %s failed %u\n", FileName, LASTERR);
+        return 1;
+    }
+
+    bRet = WriteFile(hFile, Bufer, (DWORD)BufLen, &dwBytes, NULL);
+
+    if ((!bRet) || ((DWORD)BufLen != dwBytes))
+    {
+        vlog("Failed to write file <%s> %u err:%u", FileName, dwBytes, LASTERR);
+        CloseHandle(hFile);
+        return 1;
+    }
+    
+    FlushFileBuffers(hFile);
+    CloseHandle(hFile);
+
+    return 0;
+}
 
 int ventoy_copy_file(const char *a, const char *b)
 {

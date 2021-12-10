@@ -80,44 +80,6 @@ uint64_t ventoy_get_human_readable_gb(uint64_t SizeBytes)
     return (uint64_t)GB;
 }
 
-int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen)
-{
-    int FileSize;
-    FILE *fp = NULL;
-    void *Data = NULL;
-
-#if defined(_MSC_VER) || defined(WIN32)
-    fopen_s(&fp, FileName, "rb");
-#else
-    fp = fopen(FileName, "rb");
-#endif
-    if (fp == NULL)
-    {
-        vlog("Failed to open file %s", FileName);
-        return 1;
-    }
-
-    fseek(fp, 0, SEEK_END);
-    FileSize = (int)ftell(fp);
-
-    Data = malloc(FileSize + ExtLen);
-    if (!Data)
-    {
-        fclose(fp);
-        return 1;
-    }
-
-    fseek(fp, 0, SEEK_SET);
-    fread(Data, 1, FileSize, fp);
-
-    fclose(fp);
-
-    *Bufer = Data;
-    *BufLen = FileSize;
-
-    return 0;
-}
-
 ventoy_file * ventoy_tar_find_file(const char *path)
 {
     int i;
@@ -142,6 +104,48 @@ ventoy_file * ventoy_tar_find_file(const char *path)
     return NULL;
 }
 
+
+int ventoy_decompress_tar(char *tarbuf, int buflen, int *tarsize)
+{
+    int rc = 1;
+	int inused = 0;
+	int BufLen = 0;
+	unsigned char *buffer = NULL;
+    char tarxz[MAX_PATH];
+
+#if defined(_MSC_VER) || defined(WIN32)
+    scnprintf(tarxz, sizeof(tarxz), "%s\\ventoy\\%s", g_ventoy_dir, PLUGSON_TXZ);
+#else
+    scnprintf(tarxz, sizeof(tarxz), "%s/tool/%s", g_ventoy_dir, PLUGSON_TXZ);
+#endif
+
+    if (ventoy_read_file_to_buf(tarxz, 0, (void **)&buffer, &BufLen))
+    {
+        vlog("Failed to read file <%s>\n", tarxz);
+        return 1;
+    }
+
+    g_unxz_buffer = (unsigned char *)tarbuf;
+    g_unxz_len = 0;
+
+    unxz(buffer, BufLen, NULL, unxz_flush, NULL, &inused, unxz_error);
+    vlog("xzlen:%u rawdata size:%d\n", BufLen, g_unxz_len);
+
+    if (inused != BufLen)
+    {
+        vlog("Failed to unxz data %d %d\n", inused, BufLen);
+        rc = 1;
+    }
+    else
+    {
+        *tarsize = g_unxz_len;
+        rc = 0;        
+    }
+
+	free(buffer);
+
+    return rc;
+}
 
 int ventoy_www_init(void)
 {
@@ -169,6 +173,7 @@ int ventoy_www_init(void)
 
     if (ventoy_decompress_tar(g_tar_buffer, TAR_BUF_MAX, &tarsize))
     {
+        vlog("Failed to decompress tar\n");
         return 1;
     }
 

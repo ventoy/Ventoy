@@ -234,42 +234,6 @@ int ventoy_write_buf_to_file(const char *FileName, void *Bufer, int BufLen)
     return 0;
 }
 
-int ventoy_decompress_tar(char *tarbuf, int buflen, int *tarsize)
-{
-    int rc = 1;
-	int inused = 0;
-	int BufLen = 0;
-	unsigned char *buffer = NULL;
-    char tarxz[MAX_PATH];
-
-    scnprintf(tarxz, sizeof(tarxz), "%s/tool/plugson.tar.xz", g_ventoy_dir);
-    if (ventoy_read_file_to_buf(tarxz, 0, (void **)&buffer, &BufLen))
-    {
-        vlog("Failed to read file <%s>\n", tarxz);
-        return 1;
-    }
-
-    g_unxz_buffer = (unsigned char *)tarbuf;
-    g_unxz_len = 0;
-
-    unxz(buffer, BufLen, NULL, unxz_flush, NULL, &inused, unxz_error);
-    vlog("xzlen:%u rawdata size:%d\n", BufLen, g_unxz_len);
-
-    if (inused != BufLen)
-    {
-        vlog("Failed to unxz data %d %d\n", inused, BufLen);
-        rc = 1;
-    }
-    else
-    {
-        *tarsize = g_unxz_len;
-        rc = 0;        
-    }
-
-	free(buffer);
-
-    return rc;
-}
 
 static volatile int g_thread_stop = 0;
 static pthread_t g_writeback_thread;
@@ -327,6 +291,41 @@ void ventoy_stop_writeback_thread(void)
     pthread_mutex_destroy(&g_writeback_mutex);
 }
 
+
+
+int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen)
+{
+    int FileSize;
+    FILE *fp = NULL;
+    void *Data = NULL;
+
+    fp = fopen(FileName, "rb");
+    if (fp == NULL)
+    {
+        vlog("Failed to open file %s", FileName);
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    FileSize = (int)ftell(fp);
+
+    Data = malloc(FileSize + ExtLen);
+    if (!Data)
+    {
+        fclose(fp);
+        return 1;
+    }
+
+    fseek(fp, 0, SEEK_SET);
+    fread(Data, 1, FileSize, fp);
+
+    fclose(fp);
+
+    *Bufer = Data;
+    *BufLen = FileSize;
+
+    return 0;
+}
 
 int ventoy_copy_file(const char *a, const char *b)
 {

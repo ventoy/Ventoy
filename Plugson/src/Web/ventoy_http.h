@@ -22,6 +22,7 @@
 
 #include <civetweb.h>
 
+#define MAX_LANGUAGE  128
 
 #define L1 "    "
 #define L2 "        "

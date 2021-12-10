@@ -76,4 +76,3 @@ build_func "gcc -m32" '32' 'i386'
 build_func "aarch64-linux-gnu-gcc" 'aa64' 'aarch64'
 build_func "mips-linux-gnu-gcc -mips64r2 -mabi=64" 'm64e' 'mips64el'
 
-

@@ -39,7 +39,9 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 # Tested Image Report
 [【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
   
-  
+# VentoyPlugson
+A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
+
 # Features
 * 100% open source
 * Simple to use
@@ -61,7 +63,7 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 * Not only boot but also complete installation process
 * Menu dynamically switchable between List/TreeView mode
 * "Ventoy Compatible" concept
-* Plugin Framework
+* Plugin Framework and GUI plugin configurator
 * Injection files to runtime environment
 * Boot configuration file dynamically replacement
 * Highly customizable theme and menu

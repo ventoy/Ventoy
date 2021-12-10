@@ -429,10 +429,10 @@ var g_vtoy_cur_language_en =
 
     "STR_PATH_TOO_LONG": "The path exceeds the maximum supported length, please check!",
     "STR_INPUT_TOO_LONG": "The string exceeds the maximum supported length, please check!",
-    "STR_INVALID_FILE_PATH": "Invalid full file path, please check!",
-    "STR_INVALID_FILE_PATH1": "The 1st file path is invalid!",    
-    "STR_INVALID_FILE_PATH2": "The 2nd file path is invalid!",    
-    "STR_INVALID_NEW_FILE_PATH": "The full file path of new is invalid, please check!",
+    "STR_INVALID_FILE_PATH": "Invalid or nonexist full file path, please check!",
+    "STR_INVALID_FILE_PATH1": "The 1st file path is invalid or nonexist!",    
+    "STR_INVALID_FILE_PATH2": "The 2nd file path is invalid or nonexist!",    
+    "STR_INVALID_NEW_FILE_PATH": "The full file path of new is invalid or nonexist, please check!",
     "STR_INVALID_DIR_PATH": "Invalid directory path, please check!",
     "STR_INVALID_NUMBER": "Please input valid non-negative integer!",
     "STR_INVALID_AUTOSEL": "autosel exceeds the length of the list!",
@@ -446,7 +446,7 @@ var g_vtoy_cur_language_en =
     "STR_SET_TIP_FOR_DIR": "Set Menu Tip For Directory",
     "STR_SET_INJECTION_FOR_FILE": "[image] Set injection for a file",
     "STR_SET_INJECTION_FOR_DIR": "[parent] Set the same injection for all the files under a directory.",
-    "STR_INVALID_ARCHIVE_PATH": "Invalid archive file path, please check!",
+    "STR_INVALID_ARCHIVE_PATH": "Invalid or nonexist archive file path, please check!",
     "STR_SET_PWD_FOR_FILE": "[file] Set password for a file.",
     "STR_SET_PWD_FOR_DIR": "[parent] Set the same password for all the files under a directory.",
     "STR_SET_AUTO_INSTALL_FOR_FILE": "[image] Set auto install template for a file",
@@ -563,10 +563,10 @@ var g_vtoy_cur_language_cn =
 
     "STR_PATH_TOO_LONG": "路径超过最大支持长度，请检查！",
     "STR_INPUT_TOO_LONG": "字符串超过最大支持长度，请检查！",
-    "STR_INVALID_FILE_PATH": "文件路径不合法，请检查！",    
-    "STR_INVALID_FILE_PATH1": "第1个文件路径不合法，请检查！",    
-    "STR_INVALID_FILE_PATH2": "第2个文件路径不合法，请检查！",    
-    "STR_INVALID_NEW_FILE_PATH": "new 文件路径不合法，请检查！",    
+    "STR_INVALID_FILE_PATH": "文件路径不合法或不存在，请检查！",    
+    "STR_INVALID_FILE_PATH1": "第1个文件路径不合法或不存在，请检查！",    
+    "STR_INVALID_FILE_PATH2": "第2个文件路径不合法或不存在，请检查！",    
+    "STR_INVALID_NEW_FILE_PATH": "new 文件路径不合法或不存在，请检查！",    
     "STR_INVALID_DIR_PATH": "文件夹路径不合法，请检查！",
     "STR_INVALID_NUMBER": "请输入合法的非负整数！",
     "STR_INVALID_AUTOSEL": "autosel 的值超过了列表实际长度！",
@@ -580,7 +580,7 @@ var g_vtoy_cur_language_cn =
     "STR_SET_TIP_FOR_DIR": "为目录设置菜单提示信息",
     "STR_SET_INJECTION_FOR_FILE": "[image] 为某一个文件设置注入",
     "STR_SET_INJECTION_FOR_DIR": "[parent] 为某个目录下的所有文件设置相同的注入",
-    "STR_INVALID_ARCHIVE_PATH": "Archive 文件路径非法，请检查！",
+    "STR_INVALID_ARCHIVE_PATH": "Archive 文件路径非法或不存在，请检查！",
     "STR_SET_PWD_FOR_FILE": "[file] 为指定文件设置密码",
     "STR_SET_PWD_FOR_DIR": "[parent] 为某个目录下的所有文件设置相同的密码",
     "STR_SET_AUTO_INSTALL_FOR_FILE": "[image] 为某个镜像文件设置自动安装脚本",
@@ -896,6 +896,7 @@ function VtoyCommonChangeLanguage(newlang) {
             utfmaxlen: $.validator.format("The string exceeds the maximum supported length"),
             start_slash: $.validator.format("Must start with /"),
             noquotes: $.validator.format("Can not include double quotes"),
+            filenamepart:$.validator.format("As part of file name, can not include invalid characters"),
             printascii: $.validator.format("Can not include non-ascii characters.")
         });
 
@@ -941,6 +942,7 @@ function VtoyCommonChangeLanguage(newlang) {
             utfmaxlen: $.validator.format("超过最大长度"),
             start_slash: $.validator.format("必须以反斜杠 / 开头"),
             noquotes: $.validator.format("不能包含双引号"),
+            filenamepart:$.validator.format("作为文件名的一部分，不能包含特殊的符号"),
             printascii: $.validator.format("不能包含中文或其他非 ascii 字符。")
         });
         
@@ -1102,7 +1104,8 @@ var g_set_key_validator = $("#SetKeyForm").validate({
         },
         SetKeyValue : {
             required: true,
-            utfmaxlen: true          
+            utfmaxlen: true,
+            filenamepart: true        
         }
     },
 

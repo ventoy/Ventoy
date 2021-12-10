@@ -60,12 +60,7 @@ static const char *g_ventoy_kbd_layout[] =
     NULL
 };
 
-static const char *g_ventoy_help_lang[] =
-{
-    "de_DE", "en_US", "fr_FR", "hr_HR", "id_ID", "pt_PT", "sr_CY", "sr_SR", "tr_TR", "zh_CN", 
-        
-    NULL
-};
+static char g_ventoy_help_lang[MAX_LANGUAGE][8];
 
 static char g_pub_path[2 * MAX_PATH];
 static data_control g_data_control[bios_max + 1];
@@ -622,7 +617,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_KEY("help_list");
     VTOY_JSON_FMT_ARY_BEGIN();
 
-    for (i = 0; g_ventoy_help_lang[i]; i++)
+    for (i = 0; g_ventoy_help_lang[i][0]; i++)
     {
         VTOY_JSON_FMT_ITEM(g_ventoy_help_lang[i]);        
     }
@@ -3839,7 +3834,7 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
             }
             else if (strcmp(child->pcName, "VTOY_HELP_TXT_LANGUAGE") == 0)
             {
-                for (i = 0; g_ventoy_help_lang[i]; i++)
+                for (i = 0; g_ventoy_help_lang[i][0]; i++)
                 {
                     if (strcmp(child->unData.pcStrVal, g_ventoy_help_lang[i]) == 0)
                     {
@@ -5051,11 +5046,41 @@ int ventoy_http_stop(void)
 
 int ventoy_http_init(void)
 {
+    int i = 0;
+    
+#ifdef VENTOY_SIM
+    char *Buffer = NULL;
+    int BufLen = 0;
+
+    ventoy_read_file_to_buf("www/helplist", 4, (void **)&Buffer, &BufLen);
+    if (Buffer)
+    {
+        for (i = 0; i < BufLen / 5; i++)
+        {
+            memcpy(g_ventoy_help_lang[i], Buffer + i * 5, 5);
+            g_ventoy_help_lang[i][5] = 0;
+        }
+        free(Buffer);
+    }
+#else
+    ventoy_file *file;
+    file = ventoy_tar_find_file("www/helplist");
+    if (file)
+    {
+        for (i = 0; i < file->size / 5; i++)
+        {
+            memcpy(g_ventoy_help_lang[i], (char *)(file->addr) + i * 5, 5);
+            g_ventoy_help_lang[i][5] = 0;
+        }
+    }
+#endif
+
     if (!g_pub_json_buffer)
     {
         g_pub_json_buffer = malloc(JSON_BUF_MAX * 2);
         g_pub_save_buffer = g_pub_json_buffer + JSON_BUF_MAX;
-    }
+    }   
+
 
     pthread_mutex_init(&g_api_mutex, NULL);
     return 0;
