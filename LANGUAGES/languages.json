@@ -2343,7 +2343,7 @@
         "Author":"gbrea",
         
         "STR_ERROR":"Erro",
-        "STR_WARNING":"Aviso",
+        "STR_WARNING":"Atención",
         "STR_INFO":"Info",
         "STR_INCORRECT_DIR":"Por favor, execute no directorio correto!",
         "STR_INCORRECT_TREE_DIR":"Non me executes aquí, por favor transfire o pacote de instalación, e execute alí.",
@@ -2381,6 +2381,16 @@
         "STR_WEB_SERVICE_UNAVAILABLE":"Erro de comunicación: Servizo non dispoñible",
         "STR_WEB_TOKEN_MISMATCH":"Estado do daemon actualizado, por favor inténtao máis tarde.",
         "STR_WEB_SERVICE_BUSY":"O servizo está ocupado, por favor inténtao máis tarde.",
+        "STR_MENU_VTSI_CREATE":"Xerar arquivo VTSI",
+        "STR_VTSI_CREATE_TIP":"Non será grabado no dispositivo, desta vez, apenas se xerará un ficheiro VTSI#@Continuar?",
+        "STR_VTSI_CREATE_SUCCESS":"Arquivo VTSI creado con suceso!#@Podes usar Rufus(3.15+) para grabalo no dispositivo e completar a instalación do Ventoy.",
+        "STR_VTSI_CREATE_FAILED":"Erro na creación do arquivo VTSI.",
+        "STR_MENU_PART_RESIZE":"Instalación non destructiva",
+        "STR_PART_RESIZE_TIP":"Ventoy tentará unha instalación non destructiva, se é posible.#@Continuar?",
+        "STR_PART_RESIZE_SUCCESS":"Parabéns!#@Instalación non destructiva do Ventoy concluida con suceso.",
+        "STR_PART_RESIZE_FAILED":"Erro na instalación non destructiva, revisa o arquivo log.txt para ver os detalles.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Instalación non destructiva do Ventoy interrompida porque non se poden cumprir algunhas condicións. Revisa o arquivo log.txt para mais detalles.",
+        
         "STRXXX":""
     }
 ]
