@@ -1,0 +1,53 @@
+File IO Lib Options
+-=-=-=-=-=-=-=-=-=-
+
+See defines in fat_opts.h:
+
+FATFS_IS_LITTLE_ENDIAN 	[1/0]
+  Which endian is your system? Set to 1 for little endian, 0 for big endian.
+
+FATFS_MAX_LONG_FILENAME	[260]
+  By default, 260 characters (max LFN length). Increase this to support greater path depths.
+
+FATFS_MAX_OPEN_FILES 	
+  The more files you wish to have concurrently open, the greater this number should be.
+  This increases the number of FL_FILE file structures in the library, each of these is around 1K in size (assuming 512 byte sectors).
+
+FAT_BUFFER_SECTORS
+  Minimum is 1, more increases performance.
+  This defines how many FAT sectors can be buffered per FAT_BUFFER entry.
+
+FAT_BUFFERS
+  Minimum is 1, more increases performance.
+  This defines how many FAT buffer entries are available.
+  Memory usage is FAT_BUFFERS * FAT_BUFFER_SECTORS * FAT_SECTOR_SIZE
+
+FATFS_INC_WRITE_SUPPORT
+  Support file write functionality.
+
+FAT_SECTOR_SIZE
+  Sector size used by buffers. Most likely to be 512 bytes (standard for ATA/IDE).
+
+FAT_PRINTF
+  A define that allows the File IO library to print to console/stdout. 
+  Provide your own printf function if printf not available.
+
+FAT_CLUSTER_CACHE_ENTRIES
+  Size of cluster chain cache (can be undefined if not required).
+  Mem used = FAT_CLUSTER_CACHE_ENTRIES * 4 * 2
+  Improves access speed considerably.
+
+FATFS_INC_LFN_SUPPORT 	[1/0]
+  Enable/Disable support for long filenames.
+
+FATFS_DIR_LIST_SUPPORT 	[1/0]
+  Include support for directory listing.
+
+FATFS_INC_TIME_DATE_SUPPORT  [1/0]
+  Use time/date functions provided by time.h to update creation & modification timestamps.
+
+FATFS_INC_FORMAT_SUPPORT
+  Include support for formatting disks (FAT16 only).
+
+FAT_PRINTF_NOINC_STDIO
+  Disable use of printf & inclusion of stdio.h

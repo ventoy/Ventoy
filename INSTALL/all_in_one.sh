@@ -38,13 +38,10 @@ sh buildedk.sh >> $LOG 2>&1 || exit 1
 #cd $VTOY_PATH/VtoyTool
 #sh build.sh || exit 1
 
-#cd $VTOY_PATH/vtoyfat/fat_io_lib
+#cd $VTOY_PATH/vtoycli/fat_io_lib
 #sh buildlib.sh
 
-#cd $VTOY_PATH/vtoyfat
-#sh build.sh || exit 1
-
-#cd $VTOY_PATH/vtoygpt
+#cd $VTOY_PATH/vtoycli
 #sh build.sh || exit 1
 
 #cd $VTOY_PATH/FUSEISO

@@ -1,0 +1,245 @@
+<div class="box box-primary" id="control">
+    <div class="box-header">
+        <div class="col-sm-10" style="padding-top:8px;">
+            <i class="fa fa-plus-circle">&nbsp;&nbsp;</i>
+            <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">x</h1>
+        </div>
+        
+        <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
+            <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/en/plugin_injection.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
+        </div>
+    </div>
+    <legend></legend>
+    
+    <div class="box-body">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" id="id_tab_injection">
+            <li class=""><a href="#tab_0" data-toggle="tab" aria-expanded="false" style="font-weight:bold" >injection</a></li>
+            <li class=""><a href="#tab_1" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">injection_legacy</a></li>
+            <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">injection_uefi</a></li>
+            <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">injection_ia32</a></li>
+            <li class=""><a href="#tab_4" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">injection_aa64</a></li>
+            <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">injection_mips</a></li>
+        </ul>
+      </div>
+
+      <table id="id_injection_tbl" class="table table-bordered">
+        <thead>
+          <tr>
+            <th style="width: 2%;">#</th>
+            <th id="id_th_injection_type" style="width: 5%;"></th>
+            <th id="id_th_injection_path" style="width: 35%;"></th>
+            <th id="id_th_status" style="width: 5%;"></th>
+            <th id="id_th_injection_archive" style="width: 40%;"></th>
+            <th id="id_th_status" style="width: 5%;"></th>            
+            <th id="id_th_operation" style="width: 5%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+</div>
+<script type="text/javascript">
+    
+  function VtoyPageLanguageChange(newlang) {
+    VtoyCommonChangeLanguage(newlang);
+    $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_INJECTION);
+
+    $("span[id=id_span_file_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_EXIST);
+    });
+    $("span[id=id_span_file_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_NONEXIST);
+    });
+    $("span[id=id_span_file_fuzzy]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_FUZZY);
+    });
+
+    $("span[id=id_span_dir_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_EXIST);
+    });
+    
+    $("span[id=id_span_dir_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_NONEXIST);
+    });
+
+    if (newlang === 'en') {
+      $('#id_th_injection_path').text('Absolute Path');
+      $('#id_th_injection_archive').text('Archive');
+      $('#id_th_injection_type').text('Type');
+    } else {
+      $('#id_th_injection_path').text('绝对路径');
+      $('#id_th_injection_archive').text('注入文件');
+      $('#id_th_injection_type').text('类型');
+      
+    }
+  }
+  
+  function FillInjectionTable(data) {
+    var addbtn = ventoy_get_xslg_addbtn('InjectionAddBtn');
+    var delbtn = ventoy_get_xslg_delbtn('InjectionDelBtn');
+
+    var td1, td2, td3, td4, td5, td6, td7;
+    var $tbl = $("#id_injection_tbl tbody");
+    $tbl.empty();
+
+    for (var i = 0; i < data.length; i++) {
+      var $tr;
+      td1 = '<td>' + (i + 1) + '</td>';
+      td2 = (data[i].type === 0) ? '<td>image</td>' : '<td>parent</td>';
+      td3 = '<td>' + data[i].path + '</td>';
+      td4 = '<td>' + ventoy_get_status_line(data[i].type, data[i].valid) + '</td>';
+      td5 = '<td>' + data[i].archive + '</td>';      
+      td6 = '<td>' + ventoy_get_status_line(0, data[i].archive_valid) + '</td>';
+      td7 = '<td>' + delbtn + '</td>';
+
+      $tr = $('<tr>' + td1 + td2 + td3 + td4 + td5 + td6 + td7 + '</tr>');
+
+      $tr.data('path', data[i].path);
+      $tr.data('index', i);
+      $tbl.append($tr);
+    }
+
+    $tbl.append('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td>' + addbtn + '</td></tr>');
+  }
+
+  function VtoyFillCurrentPageItem(data) {
+    FillInjectionTable(data);
+  }
+
+
+  function OnClickMultiModeTab() {
+    var href = $(this).attr('href');
+    var index = parseInt(href.substr(5, 1));
+
+    if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
+      return;
+    }
+    
+    current_tab_index = index;
+    VtoyFillCurrentPageItem(m_data_injection[index]);
+  }
+
+  //Main process
+  var m_injection_root;
+  var m_injection_extra;
+  var m_injection_valid;
+  var m_data_injection;
+  var current_tab_index = 0;
+  callVtoySync({method : 'get_injection'}, function(data) {
+    m_data_injection = data;
+  });
+  
+
+  function AddInjectionEntry(root, type, valid, extra) {
+    var list = m_data_injection[current_tab_index];
+    var data = {
+      "path": root.substr(g_current_dir.length),
+      "archive": extra.substr(g_current_dir.length),
+      "type": type,
+      "valid": valid,
+      "archive_valid": 1
+    };
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].path === data.path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'injection_add',
+      index: current_tab_index,
+      path: data.path,
+      archive: data.archive,
+      type: type
+    }, function(e) {
+      list.push(data);
+      FillInjectionTable(list);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAddImageInjection(exist1, path1, path2) {
+    AddInjectionEntry(path1, 0, exist1, path2);
+  }
+
+  function OnAddDirInjection(path1, path2) {
+    AddInjectionEntry(path1, 1, 1, path2);
+  }
+
+  function OnAddInjectionBtnClick(sel)  {
+    var tip3 = (g_current_os === 'windows') ? '\\ISO\\injection.zip' : "/ISO/injection.tar.gz";
+    if (sel === 0) {
+      var tip1 = (g_current_os === 'windows') ? '\\ISO\\Windows11.iso' : "/ISO/Ubuntu-20.04-desktop-amd64.iso";
+      var tip2 = (g_current_os === 'windows') ? '\\ISO\\Windows**.iso' : "/ISO/Ubuntu-*****-desktop-amd64.iso";
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_INJECTION,
+          "label1": g_vtoy_cur_language.STR_FILE_PATH,
+          "label2": 'Archive',
+          "tip1": g_current_dir + tip1,
+          "tip2": g_current_dir + tip2,
+          "tip3": g_current_dir + tip3
+      };
+      VtoySetFileFile(OnAddImageInjection, para);
+    } else {
+      var tip = (g_current_os === 'windows') ? '\\ISO\\Windows' : "/ISO/Linux";      
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_INJECTION,
+          "label1": g_vtoy_cur_language.STR_DIR_PATH,
+          "label2": 'Archive',
+          "tip1": g_current_dir + tip,
+          "tip2": g_current_dir + tip3
+      };
+      VtoySetDirFile(OnAddDirInjection, para);
+    }
+  }
+
+  $("#id_injection_tbl").on('click', '.InjectionAddBtn', function() {
+    var para = [
+      {
+        "selected": true,
+        "tip": g_vtoy_cur_language.STR_SET_INJECTION_FOR_FILE
+      },
+      {
+        "selected": false,
+        "tip": g_vtoy_cur_language.STR_SET_INJECTION_FOR_DIR
+      }
+    ];
+
+    VtoySelectType(OnAddInjectionBtnClick, para);
+  });
+
+  $("#id_injection_tbl").on('click', '.InjectionDelBtn', function() {
+    var $tr = $(this).closest('tr');
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+
+    callVtoySync({
+        method : 'injection_del',
+        index: current_tab_index,
+        path: path
+    }, function(data) {
+      m_data_injection[current_tab_index].splice(index, 1);
+      FillInjectionTable(m_data_injection[current_tab_index]);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  });
+
+
+
+
+  $('#id_tab_injection a[href="#tab_0"]').click(OnClickMultiModeTab);
+  $('#id_tab_injection a[href="#tab_1"]').click(OnClickMultiModeTab);
+  $('#id_tab_injection a[href="#tab_2"]').click(OnClickMultiModeTab);
+  $('#id_tab_injection a[href="#tab_3"]').click(OnClickMultiModeTab);
+  $('#id_tab_injection a[href="#tab_4"]').click(OnClickMultiModeTab);
+  $('#id_tab_injection a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  $('#id_tab_injection a[href="#tab_0"]').tab('show');
+  VtoyFillCurrentPageItem(m_data_injection[0]);
+  VtoyPageLanguageChange(g_current_language);
+
+</script>

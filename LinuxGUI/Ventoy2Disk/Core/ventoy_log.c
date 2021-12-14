@@ -26,8 +26,10 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <time.h>
+#include <linux/limits.h>
 #include <ventoy_define.h>
 
+extern char g_log_file[PATH_MAX];
 static int g_ventoy_log_level = VLOG_DEBUG;
 static pthread_mutex_t g_log_mutex;
 
@@ -68,7 +70,7 @@ void ventoy_syslog_newline(int level, const char *Fmt, ...)
     va_end(arg);
 
     pthread_mutex_lock(&g_log_mutex);
-    fp = fopen(VTOY_LOG_FILE, "a+");
+    fp = fopen(g_log_file, "a+");
     if (fp)
     {
         fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s\n", 
@@ -96,7 +98,7 @@ void ventoy_syslog_printf(const char *Fmt, ...)
     va_end(arg);
 
     pthread_mutex_lock(&g_log_mutex);
-    fp = fopen(VTOY_LOG_FILE, "a+");
+    fp = fopen(g_log_file, "a+");
     if (fp)
     {
         fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
@@ -129,11 +131,11 @@ void ventoy_syslog(int level, const char *Fmt, ...)
     va_end(arg);
 
     pthread_mutex_lock(&g_log_mutex);
-    fp = fopen(VTOY_LOG_FILE, "a+");
+    fp = fopen(g_log_file, "a+");
     if (fp)
     {
         fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
-           ttm.tm_year, ttm.tm_mon, ttm.tm_mday,
+           ttm.tm_year + 1900, ttm.tm_mon, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            log);
         fclose(fp);

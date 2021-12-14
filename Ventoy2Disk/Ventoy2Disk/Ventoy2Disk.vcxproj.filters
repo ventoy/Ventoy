@@ -81,6 +81,18 @@
     <ClCompile Include="VentoyJson.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="DiskService_diskpart.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DiskService_vds.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DiskService_wmsa.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DiskService.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ventoy2Disk.h">
@@ -141,6 +153,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="VentoyJson.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DiskService.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

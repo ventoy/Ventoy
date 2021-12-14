@@ -11,6 +11,8 @@
 
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
+#include "../Ventoy2Disk.h"
+
 
 /* Definitions of physical drive number for each drive */
 #define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
@@ -23,10 +25,53 @@ static UINT8 g_MbrSector[512];
 HANDLE g_hPhyDrive;
 UINT64 g_SectorCount;
 
+FILE *g_VentoyImgFp = NULL;
+VTSI_SEGMENT *g_VentoySegment = NULL;
+int g_VentoyMaxSeg = 0;
+int g_VentoyCurSeg = -1;
+UINT64 g_VentoyDataOffset = 0;
+int g_write_error = 0;
+int g_error_print_cnt = 0;
+
+void disk_io_reset_write_error(void)
+{
+	g_write_error = 0;
+	g_error_print_cnt = 0;
+}
+
+
+int disk_io_is_write_error(void)
+{
+	return g_write_error;
+}
+
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount)
 {
     g_hPhyDrive = Handle;
     g_SectorCount = SectorCount;
+}
+
+void disk_io_set_imghook(FILE *fp, VTSI_SEGMENT *segment, int maxseg, UINT64 data_offset)
+{
+    g_VentoyImgFp = fp;
+    g_VentoySegment = segment;
+    g_VentoyMaxSeg = maxseg;
+
+    memset(segment, 0, maxseg * sizeof(VTSI_SEGMENT));
+    g_VentoyCurSeg = -1;
+    g_VentoyDataOffset = data_offset;
+}
+
+void disk_io_reset_imghook(int *psegnum, UINT64 *pDataOffset)
+{
+    *psegnum = g_VentoyCurSeg + 1;
+    *pDataOffset = g_VentoyDataOffset;
+
+    g_VentoyImgFp = NULL;
+    g_VentoySegment = NULL;
+    g_VentoyMaxSeg = 0;
+    g_VentoyCurSeg = -1;
+    g_VentoyDataOffset = 0;
 }
 
 /*-----------------------------------------------------------------------*/
@@ -126,6 +171,13 @@ DRESULT disk_read (
     BOOL bRet;
     LARGE_INTEGER liCurrentPosition;
 
+    //Log("xxx disk_read: sector:%ld count:%ld", (long)sector, (long)count);
+
+    if (g_VentoyImgFp)
+    {
+        return RES_OK;
+    }
+
     liCurrentPosition.QuadPart = sector * 512;
     SetFilePointerEx(g_hPhyDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN);
 
@@ -162,6 +214,9 @@ DRESULT disk_write (
     DWORD dwSize;
     BOOL bRet;
     LARGE_INTEGER liCurrentPosition;
+    VTSI_SEGMENT *CurSeg = NULL;
+
+    //Log("==== disk_write: sector:%ld count:%ld", (long)sector, (long)count);
 
     // skip MBR
     if (sector == 0)
@@ -177,14 +232,45 @@ DRESULT disk_write (
         count--;
     }
 
+    if (g_VentoyImgFp)
+    {
+        CurSeg = g_VentoySegment + g_VentoyCurSeg;
+
+        if (g_VentoyCurSeg >= 0 && CurSeg->sector_num > 0 && sector == CurSeg->disk_start_sector + CurSeg->sector_num)
+        {
+            CurSeg->sector_num += count; //merge
+        }
+        else
+        {
+            g_VentoyCurSeg++;
+            CurSeg++;
+
+            CurSeg->disk_start_sector = sector;
+            CurSeg->data_offset = g_VentoyDataOffset;
+            CurSeg->sector_num = count;
+        }
+
+        g_VentoyDataOffset += count * 512;
+
+        fwrite(buff, 1, count * 512, g_VentoyImgFp);
+        return RES_OK;
+    }
+
+
     liCurrentPosition.QuadPart = sector * 512;
     SetFilePointerEx(g_hPhyDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN);
 
     bRet = WriteFile(g_hPhyDrive, buff, count * 512, &dwSize, NULL);
 
-    if (dwSize != count * 512)
+    if ((!bRet) || (dwSize != count * 512))
     {
-        Log("WriteFile error bRet:%u WriteSize:%u dwSize:%u ErrCode:%u", bRet, count * 512, dwSize, GetLastError());
+		g_write_error = 1;
+		g_error_print_cnt++;
+
+		if (g_error_print_cnt <= 10)
+		{
+			Log("WriteFile error bRet:%u WriteSize:%u dwSize:%u ErrCode:%u", bRet, count * 512, dwSize, GetLastError());
+		}
     }
 
     return RES_OK;

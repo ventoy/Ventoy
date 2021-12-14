@@ -21,7 +21,7 @@ elif uname -m | egrep -q 'mips64'; then
 else
     export TOOLDIR=i386
 fi
-export PATH=./tool/$TOOLDIR:$PATH
+export PATH="./tool/$TOOLDIR:$PATH"
 
 
 echo ''
@@ -46,22 +46,24 @@ echo "############# Ventoy2Disk $* [$TOOLDIR] ################" >> ./log.txt
 date >> ./log.txt
 
 #decompress tool
-if [ -f ./tool/$TOOLDIR/ash ]; then
-    echo "no need to decompress tools" >> ./log.txt
-else
-    cd ./tool/$TOOLDIR
-    
+echo "decompress tools" >> ./log.txt
+cd ./tool/$TOOLDIR
+
+ls *.xz > /dev/null 2>&1
+if [ $? -eq 0 ]; then
     [ -f ./xzcat ] && chmod +x ./xzcat
-    
+
     for file in $(ls *.xz); do
+        echo "decompress $file" >> ./log.txt
         xzcat $file > ${file%.xz}
         [ -f ./${file%.xz} ] && chmod +x ./${file%.xz}
         [ -f ./$file ] && rm -f ./$file
     done
-    cd ../../
-    
-    chmod +x -R ./tool/$TOOLDIR
 fi
+
+cd ../../
+chmod +x -R ./tool/$TOOLDIR
+
 
 if [ -f /bin/bash ]; then
     /bin/bash ./tool/VentoyWorker.sh $*

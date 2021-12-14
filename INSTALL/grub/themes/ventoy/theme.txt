@@ -30,13 +30,15 @@ terminal-box: "terminal_box_*.png"
   scrollbar_thumb = "slider_*.png"
 }
 
+
+
 + progress_bar {
   id = "__timeout__"
   text = "@TIMEOUT_NOTIFICATION_SHORT@"
 
-  left = 20%
-  width = 60%
-  top = 85%
+  left = 90%
+  width = 10%
+  top = 90%
 
   text_color = "red"
   bar_style = "*"
@@ -44,7 +46,7 @@ terminal-box: "terminal_box_*.png"
 }
 
 + hbox{ 
-    left = 30%
+    left = 28%
     top = 95%
     width = 10%
     height = 25
@@ -93,4 +95,3 @@ terminal-box: "terminal_box_*.png"
     height = 25
     + label {text = "@VTOY_ISO_UEFI_DRV@" color = "red" align = "left"} 
 }
-

@@ -16,6 +16,7 @@ print_usage() {
     echo '   -s/-S       enable/disable secure boot support (default is disabled)'
     echo '   -g          use GPT partition style, default is MBR (only for install)'
     echo '   -L          Label of the 1st exfat partition (default is Ventoy)'
+    echo '   -n          try non-destructive installation (only for install)'
     echo ''
 }
 
@@ -28,6 +29,8 @@ while [ -n "$1" ]; do
     elif [ "$1" = "-I" ]; then
         MODE="install"
         FORCE="Y"
+    elif [ "$1" = "-n" ]; then
+        NONDESTRUCTIVE="Y"
     elif [ "$1" = "-u" ]; then
         MODE="update"
     elif [ "$1" = "-l" ]; then
@@ -162,7 +165,7 @@ if [ -d ./tmp_mnt ]; then
 fi
 
 
-if [ "$MODE" = "install" ]; then
+if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     vtdebug "install Ventoy ..."
 
     if [ -n "$VTGPT" ]; then
@@ -255,7 +258,10 @@ if [ "$MODE" = "install" ]; then
         exit 1
     fi
 
-    if ! dd if=/dev/zero of=$DISK bs=1 count=512 status=none conv=fsync; then
+    # check and umount
+    check_umount_disk "$DISK"
+
+    if ! dd if=/dev/zero of=$DISK bs=64 count=512 status=none conv=fsync; then
         vterr "Write data to $DISK failed, please check whether it's in use."
         exit 1
     fi
@@ -281,10 +287,14 @@ if [ "$MODE" = "install" ]; then
     PART1=$(get_disk_part_name $DISK 1)  
     PART2=$(get_disk_part_name $DISK 2)  
 
+    #clean part2
+    dd status=none conv=fsync if=/dev/zero of=$DISK bs=512 count=32 seek=$part2_start_sector
+
+    #format part1
+    vtinfo "Format partition 1 ..."
     mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
 
-    vtinfo "writing data to disk ..."
-    
+    vtinfo "writing data to disk ..."    
     dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=446
     
     if [ -n "$VTGPT" ]; then
@@ -314,51 +324,181 @@ if [ "$MODE" = "install" ]; then
     sync
     
     vtinfo "esp partition processing ..."
-    
-    sleep 1
-    check_umount_disk "$DISK"    
-    
-    if [ "$SECUREBOOT" != "YES" ]; then        
-        mkdir ./tmp_mnt
-        
-        vtdebug "mounting part2 ...."
-        for tt in 1 2 3 4 5; do            
-            if mount ${PART2} ./tmp_mnt > /dev/null 2>&1; then
-                vtdebug "mounting part2 success"
-                break
-            fi
-            
-            check_umount_disk "$DISK"            
-            sleep 2
-        done
-        
-        rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
-        rm -f ./tmp_mnt/EFI/BOOT/grubx64.efi
-        rm -f ./tmp_mnt/EFI/BOOT/BOOTIA32.EFI
-        rm -f ./tmp_mnt/EFI/BOOT/grubia32.efi
-        rm -f ./tmp_mnt/EFI/BOOT/MokManager.efi
-        rm -f ./tmp_mnt/EFI/BOOT/mmia32.efi
-        rm -f ./tmp_mnt/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
-        mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
-        mv ./tmp_mnt/EFI/BOOT/grubia32_real.efi  ./tmp_mnt/EFI/BOOT/BOOTIA32.EFI
-        
-        sync
-        
-        for tt in 1 2 3; do
-            if umount ./tmp_mnt; then
-                vtdebug "umount part2 success"
-                rm -rf ./tmp_mnt
-                break
-            else
-                vtdebug "umount part2 failed, now retry..."
-                sleep 1
-            fi
-        done
+    if [ "$SECUREBOOT" != "YES" ]; then 
+        sleep 2
+        check_umount_disk "$DISK"  
+        vtoycli partresize -s $DISK $part2_start_sector
     fi
 
     echo ""
     vtinfo "Install Ventoy to $DISK successfully finished."
     echo ""
+
+elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
+    vtdebug "non-destructive install Ventoy ..."
+
+    version=$(get_disk_ventoy_version $DISK)
+    if [ $? -eq 0 ]; then
+        if [ -z "$FORCE" ]; then
+            vtwarn "$DISK already contains a Ventoy with version $version."
+            vtwarn "You can not do and don not need non-destructive installation."
+            vtwarn ""
+            exit 1
+        fi
+    fi
+    
+    disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size)
+    disk_size_gb=$(expr $disk_sector_num / 2097152)
+
+    if vtoycli partresize -t $DISK; then
+        OldStyle="GPT"
+    else
+        OldStyle="MBR"
+    fi
+
+    #Print disk info
+    echo "Disk : $DISK"
+    parted -s $DISK p 2>&1 | grep Model
+    echo "Size : $disk_size_gb GB" 
+    echo "Style: $OldStyle"    
+    echo ''
+
+    vtwarn "Attention:"
+    vtwarn "Ventoy will try non-destructive installation on $DISK if possible."
+    echo ""
+
+    read -p 'Continue? (y/n) '  Answer
+    if [ "$Answer" != "y" ]; then
+        if [ "$Answer" != "Y" ]; then
+            exit 0
+        fi
+    fi
+
+    if [ $disk_sector_num -le $VENTOY_SECTOR_NUM ]; then  
+        vterr "No enough space in disk $DISK"
+        exit 1
+    fi
+
+    PART1=$(get_disk_part_name $DISK 1)  
+    PART2=$(get_disk_part_name $DISK 2)  
+
+    #Part1 size in MB aligned with 4KB
+    PART1_SECTORS=$(cat /sys/class/block/${PART1#/dev/}/size)
+    PART1_4K=$(expr $PART1_SECTORS / 8)
+    PART1_MB=$(expr $PART1_4K / 256)
+    PART1_NEW_MB=$(expr $PART1_MB - 32)
+
+    echo "$PART1 is ${PART1_MB}MB"
+
+    #check partition layout
+    echo "check partition layout ..."
+    vtoycli partresize -c $DISK
+    vtRet=$?
+    if [ $vtRet -eq 0 ]; then
+        exit 1
+    else
+        # check and umount
+        check_umount_disk "$DISK"
+        sleep 1
+        check_umount_disk "$DISK"
+    
+        if [ $vtRet -eq 1 ]; then
+            echo "Free space enough, start install..."
+            part2_start_sector=$(expr $PART1_SECTORS + 2048)
+        elif [ $vtRet -eq 2 ]; then
+            echo "We need to shrink partition 1 firstly ..."
+            
+            PART1_BLKID=$(blkid $PART1)
+            blkid $PART1
+            
+            if echo $PART1_BLKID | egrep -q -i 'TYPE=ntfs|TYPE=.ntfs'; then
+                echo "Partition 1 contains NTFS filesystem"
+                
+                which ntfsresize
+                if [ $? -ne 0 ]; then
+                    echo "###[FAIL] ntfsresize not found. Please install ntfs-3g package."
+                    exit 1
+                fi
+                
+                echo "ntfsfix -b -d $PART1 ..."
+                ntfsfix -b -d $PART1
+                
+                echo "ntfsresize --size ${PART1_NEW_MB}Mi $PART1 ..."
+                ntfsresize -f --size ${PART1_NEW_MB}Mi $PART1
+                if [ $? -ne 0 ]; then
+                    echo "###[FAIL] ntfsresize failed." 
+                    exit 1
+                fi
+            elif echo $PART1_BLKID | egrep -q -i 'TYPE=ext[2-4]|TYPE=.ext[2-4]'; then
+                echo "Partition 1 contains EXT filesystem"
+                
+                which resize2fs
+                if [ $? -ne 0 ]; then
+                    echo "###[FAIL] resize2fs not found. Please install e2fsprogs package."
+                    exit 1
+                fi
+                
+                echo "e2fsck -f $PART1 ..."
+                e2fsck -f $PART1
+                
+                echo "resize2fs $PART1 ${PART1_NEW_MB}M ..."
+                resize2fs $PART1 ${PART1_NEW_MB}M
+                if [ $? -ne 0 ]; then
+                    echo "###[FAIL] resize2fs failed." 
+                    exit 1
+                fi
+            else
+                echo "###[FAIL] Unsupported filesystem in partition 1."
+                exit 1
+            fi
+            
+            sync
+            PART1_NEW_END_MB=$(expr $PART1_NEW_MB + 1)
+            part2_start_sector=$(expr $PART1_NEW_END_MB \* 2048)
+        fi
+    fi
+
+    vtinfo "writing data to disk part2_start=$part2_start_sector ..."
+    
+    dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
+    
+    if [ "$OldStyle" = "GPT" ]; then
+        echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92        
+        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
+        echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
+    else
+        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
+    fi
+    
+    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
+    
+    #test UUID
+    testUUIDStr=$(vtoy_gen_uuid | hexdump -C)
+    vtdebug "test uuid: $testUUIDStr"
+    
+    #disk uuid
+    vtoy_gen_uuid | dd status=none conv=fsync of=${DISK} seek=384 bs=1 count=16
+    
+    vtinfo "sync data ..."
+    sync
+    
+    vtinfo "esp partition processing ..."
+    if [ "$SECUREBOOT" != "YES" ]; then
+        vtoycli partresize -s $DISK $part2_start_sector
+    fi
+
+    vtinfo "update partition table $DISK $part2_start_sector ..."
+    vtoycli partresize -p $DISK $part2_start_sector
+    if [ $? -eq 0 ]; then
+        sync
+        echo ""
+        vtinfo "Ventoy non-destructive installation on $DISK successfully finished."
+        echo ""
+    else
+        echo ""
+        vterr "Ventoy non-destructive installation on $DISK failed."
+        echo ""
+    fi
     
 else
     vtdebug "update Ventoy ..."
@@ -441,47 +581,13 @@ else
     check_umount_disk "$DISK"
     
     xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
-
     sync
 
+    vtinfo "esp partition processing ..."
     if [ "$SECUREBOOT" != "YES" ]; then
-        mkdir ./tmp_mnt
-        
-        vtdebug "mounting part2 ...."        
-        for tt in 1 2 3 4 5; do
-            check_umount_disk "$DISK"
-
-            if mount ${PART2} ./tmp_mnt > /dev/null 2>&1; then
-                vtdebug "mounting part2 success"
-                break
-            else
-                vtdebug "mounting part2 failed, now wait and retry..."
-            fi
-            sleep 2            
-        done
-        
-        rm -f ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
-        rm -f ./tmp_mnt/EFI/BOOT/grubx64.efi
-        rm -f ./tmp_mnt/EFI/BOOT/BOOTIA32.EFI
-        rm -f ./tmp_mnt/EFI/BOOT/grubia32.efi
-        rm -f ./tmp_mnt/EFI/BOOT/MokManager.efi
-        rm -f ./tmp_mnt/EFI/BOOT/mmia32.efi
-        rm -f ./tmp_mnt/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
-        mv ./tmp_mnt/EFI/BOOT/grubx64_real.efi  ./tmp_mnt/EFI/BOOT/BOOTX64.EFI
-        mv ./tmp_mnt/EFI/BOOT/grubia32_real.efi  ./tmp_mnt/EFI/BOOT/BOOTIA32.EFI
-        
-        sync
-        
-        for tt in 1 2 3; do
-            if umount ./tmp_mnt > /dev/null 2>&1; then
-                vtdebug "umount part2 success"
-                rm -rf ./tmp_mnt
-                break
-            else
-                vtdebug "umount part2 failed, now retry..."
-                sleep 1
-            fi
-        done        
+        sleep 2
+        check_umount_disk "$DISK"
+        vtoycli partresize -s $DISK $part2_start
     fi
 
     echo ""

@@ -152,6 +152,23 @@ static int vtoy_json_parse_string
         return JSON_FAILED;
     }
 
+    if (*(pcPos - 1) == '\\')
+    {
+        for (pcPos++; *pcPos; pcPos++)
+        {
+            if (*pcPos == '"' && *(pcPos - 1) != '\\')
+            {
+                break;
+            }
+        }
+        
+        if (*pcPos == 0 || pcPos < pcTmp)
+        {
+            json_debug("Invalid quotes string %s.", pcData);
+            return JSON_FAILED;
+        }
+    }
+
     *ppcEnd = pcPos + 1;
     uiLen = (grub_uint32_t)(unsigned long)(pcPos - pcTmp);    
     

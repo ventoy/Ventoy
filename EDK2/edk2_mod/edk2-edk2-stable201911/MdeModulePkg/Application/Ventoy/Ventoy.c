@@ -34,6 +34,7 @@
 #include <Protocol/BlockIo.h>
 #include <Protocol/RamDisk.h>
 #include <Protocol/SimpleFileSystem.h>
+#include <Protocol/DriverBinding.h>
 #include <Ventoy.h>
 
 BOOLEAN gDebugPrint = FALSE;
@@ -57,6 +58,9 @@ static grub_env_set_pf grub_env_set = NULL;
 
 ventoy_grub_param_file_replace *g_file_replace_list = NULL;
 ventoy_efi_file_replace g_efi_file_replace;
+
+ventoy_grub_param_file_replace *g_img_replace_list = NULL;
+ventoy_efi_file_replace g_img_file_replace;
 
 CONST CHAR16 gIso9660EfiDriverPath[] = ISO9660_EFI_DRIVER_PATH;
 CONST CHAR16 gUdfEfiDriverPath[] = UDF_EFI_DRIVER_PATH;
@@ -362,10 +366,22 @@ EFI_HANDLE EFIAPI ventoy_get_parent_handle(IN EFI_DEVICE_PATH_PROTOCOL *pDevPath
     return Handle;
 }
 
+STATIC ventoy_ram_disk g_backup_ramdisk_param;
+STATIC ventoy_os_param g_backup_os_param_var;
+
+
 EFI_STATUS EFIAPI ventoy_save_ramdisk_param(VOID)
 {
+    UINTN DataSize;
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
+
+    DataSize = sizeof(g_backup_ramdisk_param);
+    Status = gRT->GetVariable(L"VentoyRamDisk", &VarGuid, NULL, &DataSize, &g_backup_ramdisk_param);
+    if (!EFI_ERROR(Status))
+    {
+        debug("find previous ramdisk variable <%llu>", g_backup_ramdisk_param.DiskSize);
+    }
     
     Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
@@ -379,21 +395,38 @@ EFI_STATUS EFIAPI ventoy_delete_ramdisk_param(VOID)
 {
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
-    
-    Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+
+    if (g_backup_ramdisk_param.DiskSize > 0 && g_backup_ramdisk_param.PhyAddr > 0)
+    {
+        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
+                  sizeof(g_backup_ramdisk_param), &g_backup_ramdisk_param);
+        debug("resotre ramdisk variable %r", Status);
+    }
+    else
+    {
+        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   0, NULL);
-    debug("delete efi variable %r", Status);
+        debug("delete ramdisk variable %r", Status);
+    }
 
     return Status;
 }
 
-
 EFI_STATUS EFIAPI ventoy_save_variable(VOID)
 {
+    UINTN DataSize;
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
-    
+
+    DataSize = sizeof(g_backup_os_param_var);
+    Status = gRT->GetVariable(L"VentoyOsParam", &VarGuid, NULL, &DataSize, &g_backup_os_param_var);
+    if (!EFI_ERROR(Status))
+    {
+        debug("find previous efi variable <%a>", g_backup_os_param_var.vtoy_img_path);
+    }
+
     Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_chain->os_param), &(g_chain->os_param));
@@ -406,11 +439,21 @@ EFI_STATUS EFIAPI ventoy_delete_variable(VOID)
 {
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_GUID VarGuid = VENTOY_GUID;
-    
-    Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
+
+    if (0 == CompareMem(&(g_backup_os_param_var.guid), &VarGuid, sizeof(EFI_GUID)))
+    {
+        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
+                  sizeof(g_backup_os_param_var), &(g_backup_os_param_var));
+        debug("restore efi variable %r", Status);
+    }
+    else
+    {
+        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   0, NULL);
-    debug("delete efi variable %r", Status);
+        debug("delete efi variable %r", Status);
+    }
 
     return Status;
 }
@@ -667,6 +710,35 @@ STATIC EFI_STATUS EFIAPI ventoy_load_isoefi_driver(IN EFI_HANDLE ImageHandle)
     return EFI_SUCCESS;
 }
 
+STATIC EFI_STATUS ventoy_proc_img_replace_name(ventoy_grub_param_file_replace *replace)
+{
+    UINT32 i;
+    char tmp[256];
+
+    if (replace->magic != GRUB_IMG_REPLACE_MAGIC)
+    {
+        return EFI_SUCCESS;
+    }
+
+    if (replace->old_file_name[0][0] == 0)
+    {
+        return EFI_SUCCESS;
+    }
+
+    AsciiStrCpyS(tmp, sizeof(tmp), replace->old_file_name[0]);
+    
+    for (i = 0; i < 256 && tmp[i]; i++)
+    {
+        if (tmp[i] == '/')
+        {
+            tmp[i] = '\\';
+        }
+    }
+
+    AsciiStrCpyS(replace->old_file_name[0], 256, tmp);
+    return EFI_SUCCESS;
+}
+
 STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
 {   
     UINT32 i = 0;
@@ -777,6 +849,19 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         old_cnt > 3 ? g_file_replace_list->old_file_name[3] : ""
         );
 
+    g_img_replace_list = &pGrubParam->img_replace;
+    ventoy_proc_img_replace_name(g_img_replace_list);
+    old_cnt = g_img_replace_list->old_file_cnt;
+    debug("img replace: magic:0x%x virtid:%u name count:%u <%a> <%a> <%a> <%a>",
+        g_img_replace_list->magic,
+        g_img_replace_list->new_file_virtual_id,
+        old_cnt,
+        old_cnt > 0 ? g_img_replace_list->old_file_name[0] : "",
+        old_cnt > 1 ? g_img_replace_list->old_file_name[1] : "",
+        old_cnt > 2 ? g_img_replace_list->old_file_name[2] : "",
+        old_cnt > 3 ? g_img_replace_list->old_file_name[3] : ""
+        );
+    
     pPos = StrStr(pCmdLine, L"mem:");
     chain = (ventoy_chain_head *)StrHexToUintn(pPos + 4);
 
@@ -1010,7 +1095,8 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
                 gST->ConIn->Reset(gST->ConIn, FALSE);
             }
             
-            if (g_file_replace_list && g_file_replace_list->magic == GRUB_FILE_REPLACE_MAGIC)
+            if ((g_file_replace_list && g_file_replace_list->magic == GRUB_FILE_REPLACE_MAGIC) ||
+                (g_img_replace_list && g_img_replace_list->magic == GRUB_IMG_REPLACE_MAGIC))
             {
                 ventoy_wrapper_push_openvolume(pFile->OpenVolume);
                 pFile->OpenVolume = ventoy_wrapper_open_volume;
@@ -1085,6 +1171,8 @@ EFI_STATUS EFIAPI VentoyEfiMain
         return Status;
     }
 
+    ventoy_disable_ex_filesystem();
+
     if (gMemdiskMode)
     {
         g_ramdisk_param.PhyAddr = (UINT64)(UINTN)g_iso_data_buf;
@@ -1158,6 +1246,8 @@ EFI_STATUS EFIAPI VentoyEfiMain
     {
         grub_env_set("vtoy_dotefi_retry", "YES");            
     }
+
+    ventoy_enable_ex_filesystem();
 
     return EFI_SUCCESS;
 }

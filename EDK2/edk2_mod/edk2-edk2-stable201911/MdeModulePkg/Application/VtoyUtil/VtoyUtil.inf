@@ -28,6 +28,7 @@
 [Sources]
   VtoyUtil.h
   VtoyUtil.c
+  VtoyDrv.c
   Memhole.c
 
 [Packages]

@@ -32,7 +32,7 @@ build_func() {
         -I ./Ventoy2Disk/Lib/fat_io_lib \
         \
         -L ./Ventoy2Disk/Lib/fat_io_lib/lib \
-        Ventoy2Disk/*.c \
+        Ventoy2Disk/main_webui.c \
         Ventoy2Disk/Core/*.c \
         Ventoy2Disk/Web/*.c \
         Ventoy2Disk/Lib/xz-embedded/linux/lib/decompress_unxz.c \

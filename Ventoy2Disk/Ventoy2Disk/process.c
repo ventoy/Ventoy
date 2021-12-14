@@ -25,6 +25,7 @@
 
 
 #include <Windows.h>
+#include <time.h>
 #include <winternl.h>
 #include <commctrl.h>
 #include <initguid.h>
@@ -471,6 +472,7 @@ int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive)
     char cmdline[MAX_PATH] = { 0 };
     wchar_t wexe_path[MAX_PATH], *wcmdline;
     int cur_pid;
+	time_t starttime, curtime;
 
 
     Log("FindProcessOccupyDisk for PhyDrive %d", pPhyDrive->PhyDrive);
@@ -504,10 +506,29 @@ int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive)
     if (buffer == NULL)
         goto out;
 
-    for (i = 0;; i++) {
+	Log("handles->NumberOfHandles = %lu", (ULONG)handles->NumberOfHandles);
+
+	if (handles->NumberOfHandles > 10000)
+	{
+		goto out;
+	}
+
+	starttime = time(NULL);
+
+	for (i = 0; i < handles->NumberOfHandles; i++) {
         ULONG attempts = 8;
         PSYSTEM_HANDLE_TABLE_ENTRY_INFO_EX handleInfo =
             (i < handles->NumberOfHandles) ? &handles->Handles[i] : NULL;
+
+		//limit the search time
+		if ((i % 100) == 0)
+		{
+			curtime = time(NULL);
+			if (curtime - starttime > 10)
+			{
+				break;
+			}
+		}
 
         if ((dupHandle != NULL) && (processHandle != NtCurrentProcess())) {
             pfNtClose(dupHandle);
@@ -663,8 +684,12 @@ out:
     else
         Log("NOTE: Could not identify the process(es) or service(s) accessing %S", _wHandleName);
 
-    PhFree(buffer);
-    PhFree(handles);
+	if (buffer)
+		PhFree(buffer);
+
+	if (handles)
+		PhFree(handles);
+
     PhDestroyHeap();
 
     return 0;

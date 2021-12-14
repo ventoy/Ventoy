@@ -21,19 +21,19 @@ ln -s sbin/init linuxrc
 
 cd ventoy
 
-find ./loop | cpio  -o -H newc>loop.cpio
+find ./loop | cpio  -o -H newc --owner=root:root >loop.cpio
 xz loop.cpio
 rm -rf loop
 
 xz ventoy_chain.sh
 xz ventoy_loop.sh
 
-find ./hook | cpio  -o -H newc>hook.cpio
+find ./hook | cpio  -o -H newc --owner=root:root >hook.cpio
 xz hook.cpio
 rm -rf hook
 cd ..
 
-find .| cpio  -o -H newc>../ventoy.cpio
+find .| cpio  -o -H newc --owner=root:root >../ventoy.cpio
 
 cd ..
 rm -rf cpio_tmp
@@ -62,14 +62,17 @@ cp -a $VENTOY_PATH/VBLADE/vblade-master/vblade_64 tool/
 cp -a $VENTOY_PATH/LZIP/lunzip32 tool/
 cp -a $VENTOY_PATH/LZIP/lunzip64 tool/
 
+cp -a $VENTOY_PATH/cryptsetup/veritysetup32 tool/
+cp -a $VENTOY_PATH/cryptsetup/veritysetup64 tool/
+
 chmod -R 777 ./tool
 
-find ./tool | cpio  -o -H newc>tool.cpio
+find ./tool | cpio  -o -H newc --owner=root:root >tool.cpio
 xz tool.cpio
 rm -rf tool
 
 cd ..
-find .| cpio  -o -H newc>../ventoy_x86.cpio
+find .| cpio  -o -H newc --owner=root:root >../ventoy_x86.cpio
 
 cd ..
 rm -rf cpio_tmp
@@ -95,12 +98,12 @@ cp -a $VENTOY_PATH/LZIP/lunzipaa64 tool/
 
 chmod -R 777 ./tool
 
-find ./tool | cpio  -o -H newc>tool.cpio
+find ./tool | cpio  -o -H newc --owner=root:root >tool.cpio
 xz tool.cpio
 rm -rf tool
 
 cd ..
-find .| cpio  -o -H newc>../ventoy_arm64.cpio
+find .| cpio  -o -H newc --owner=root:root >../ventoy_arm64.cpio
 
 cd ..
 rm -rf cpio_tmp
@@ -127,12 +130,12 @@ rm -f tool/vtoytool/00/vtoytool_aa64
 
 chmod -R 777 ./tool
 
-find ./tool | cpio  -o -H newc>tool.cpio
+find ./tool | cpio  -o -H newc --owner=root:root >tool.cpio
 xz tool.cpio
 rm -rf tool
 
 cd ..
-find .| cpio  -o -H newc>../ventoy_mips64.cpio
+find .| cpio  -o -H newc --owner=root:root >../ventoy_mips64.cpio
 
 cd ..
 rm -rf cpio_tmp

@@ -435,6 +435,24 @@ static int vtoy_printf_iso_path(ventoy_os_param *param)
     return 0;
 }
 
+static int vtoy_printf_fs(ventoy_os_param *param)
+{
+    const char *fs[] = 
+    {
+        "exfat", "ntfs", "ext", "xfs", "udf", "fat"
+    };
+
+    if (param->vtoy_disk_part_type < 6)
+    {
+        printf("%s\n", fs[param->vtoy_disk_part_type]);
+    }
+    else
+    {
+        printf("unknown\n");
+    }
+    return 0;
+}
+
 static int vtoy_check_device(ventoy_os_param *param, const char *device)
 {
     unsigned long long size; 
@@ -551,12 +569,13 @@ int vtoydump_main(int argc, char **argv)
     int rc;
     int ch;
     int print_path = 0;
+    int print_fs = 0;
     char filename[256] = {0};
     char diskname[256] = {0};
     char device[64] = {0};
     ventoy_os_param *param = NULL;
 
-    while ((ch = getopt(argc, argv, "c:f:p:v::")) != -1)
+    while ((ch = getopt(argc, argv, "c:f:p:s:v::")) != -1)
     {
         if (ch == 'f')
         {
@@ -573,6 +592,11 @@ int vtoydump_main(int argc, char **argv)
         else if (ch == 'p')
         {
             print_path = 1;
+            strncpy(filename, optarg, sizeof(filename) - 1);
+        }
+        else if (ch == 's')
+        {
+            print_fs = 1;
             strncpy(filename, optarg, sizeof(filename) - 1);
         }
         else
@@ -626,6 +650,10 @@ int vtoydump_main(int argc, char **argv)
     if (print_path)
     {
         rc = vtoy_printf_iso_path(param);
+    }
+    else if (print_fs)
+    {
+        rc = vtoy_printf_fs(param);
     }
     else if (device[0])
     {

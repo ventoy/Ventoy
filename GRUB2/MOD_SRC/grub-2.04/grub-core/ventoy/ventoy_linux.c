@@ -38,6 +38,9 @@
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
+#define VTOY_APPEND_EXT_SIZE 4096
+static int g_append_ext_sector = 0;
+
 char * ventoy_get_line(char *start)
 {
     if (start == NULL)
@@ -333,7 +336,9 @@ end:
 static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
 {
     int i = 0;
+    int len = 0;
     int dollar = 0;
+    int quotation = 0;
     grub_file_t file = NULL;
     char *buf = NULL;
     char *start = NULL;
@@ -382,6 +387,12 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
             start++;
         }
 
+        if (*start == '"')
+        {
+            quotation = 1;
+            start++;
+        }
+
         while (*start)
         {
             img = grub_zalloc(sizeof(initrd_info));
@@ -398,6 +409,16 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
                 {
                     dollar = 1;
                 }
+            }
+
+            if (quotation)
+            {
+                len = (int)grub_strlen(img->name);
+                if (len > 2 && img->name[len - 1] == '"')
+                {
+                    img->name[len - 1] = 0;
+                }
+                debug("Remove quotation <%s>\n", img->name);
             }
 
             if (dollar == 1 || ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
@@ -640,6 +661,11 @@ static grub_uint32_t ventoy_linux_get_virt_chunk_count(void)
         count++;
     }
     
+    if (g_append_ext_sector > 0)
+    {
+        count++;
+    }
+    
     return count;
 }
 
@@ -653,6 +679,11 @@ static grub_uint32_t ventoy_linux_get_virt_chunk_size(void)
     {
         size += sizeof(ventoy_virt_chunk) + g_conf_replace_new_len_align;
     }
+    
+    if (g_append_ext_sector > 0)
+    {
+        size += sizeof(ventoy_virt_chunk) + VTOY_APPEND_EXT_SIZE;
+    }
 
     return size;
 }
@@ -660,6 +691,7 @@ static grub_uint32_t ventoy_linux_get_virt_chunk_size(void)
 static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_head *chain)
 {
     int id = 0;
+    int virtid = 0;
     initrd_info *node;
     grub_uint64_t sector;
     grub_uint32_t offset;
@@ -707,6 +739,29 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
         offset += g_ventoy_cpio_size;
         sector += cpio_secs + initrd_secs;
         cur++;
+        virtid++;
+    }
+
+    /* Lenovo EasyStartup need an addional sector for boundary check */
+    if (g_append_ext_sector > 0)
+    {
+        cpio_secs = VTOY_APPEND_EXT_SIZE / 2048;
+    
+        cur->mem_sector_start   = sector;
+        cur->mem_sector_end     = cur->mem_sector_start + cpio_secs;
+        cur->mem_sector_offset  = offset;
+        cur->remap_sector_start = 0;
+        cur->remap_sector_end   = 0;
+        cur->org_sector_start   = 0;
+
+        grub_memset(override + offset, 0, VTOY_APPEND_EXT_SIZE);
+
+        chain->virt_img_size_in_bytes += VTOY_APPEND_EXT_SIZE;
+
+        offset += VTOY_APPEND_EXT_SIZE;
+        sector += cpio_secs;
+        cur++;
+        virtid++;
     }
 
     if (g_conf_replace_offset > 0)
@@ -724,9 +779,15 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
 
         chain->virt_img_size_in_bytes += g_conf_replace_new_len_align;
 
+        if (g_grub_param->img_replace.magic == GRUB_IMG_REPLACE_MAGIC)
+        {
+            g_grub_param->img_replace.new_file_virtual_id = virtid;
+        }
+
         offset += g_conf_replace_new_len_align;
         sector += cpio_secs;
         cur++;
+        virtid++;
     }
 
     return;
@@ -926,6 +987,12 @@ static grub_err_t ventoy_linux_locate_initrd(int filt, int *filtcnt)
             }
         }
 
+        /* skip hdt.img */
+        if (file->size <= VTOY_SIZE_1MB && grub_strcmp(node->name, "/boot/hdt.img") == 0)
+        {
+            continue;
+        }
+
         if (grub_strcmp(file->fs->name, "iso9660") == 0)
         {
             node->iso_type = 0;
@@ -1097,6 +1164,24 @@ grub_err_t ventoy_cmd_skip_svd(grub_extcmd_context_t ctxt, int argc, char **args
     }
 
     grub_file_close(file);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_append_ext_sector(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (args[0][0] == '1')
+    {
+        g_append_ext_sector = 1;        
+    }
+    else
+    {
+        g_append_ext_sector = 0;
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -1441,9 +1526,9 @@ grub_err_t ventoy_cmd_trailer_cpio(grub_extcmd_context_t ctxt, int argc, char **
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-
 grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int len = 0;
     int ventoy_compatible = 0;
     grub_uint32_t size = 0;
     grub_uint64_t isosize = 0;
@@ -1483,23 +1568,31 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
 
     isosize = file->size;
 
-    boot_catlog = ventoy_get_iso_boot_catlog(file);
-    if (boot_catlog)
+    len = (int)grub_strlen(args[0]);
+    if (len >= 4 && 0 == grub_strcasecmp(args[0] + len - 4, ".img"))
     {
-        if (ventoy_is_efi_os() && (!ventoy_has_efi_eltorito(file, boot_catlog)))
-        {
-            grub_env_set("LoadIsoEfiDriver", "on");
-        }
+        debug("boot catlog %u for img file\n", boot_catlog);
     }
     else
     {
-        if (ventoy_is_efi_os())
+        boot_catlog = ventoy_get_iso_boot_catlog(file);
+        if (boot_catlog)
         {
-            grub_env_set("LoadIsoEfiDriver", "on");
+            if (ventoy_is_efi_os() && (!ventoy_has_efi_eltorito(file, boot_catlog)))
+            {
+                grub_env_set("LoadIsoEfiDriver", "on");
+            }
         }
         else
         {
-            return grub_error(GRUB_ERR_BAD_ARGUMENT, "File %s is not bootable", args[0]);
+            if (ventoy_is_efi_os())
+            {
+                grub_env_set("LoadIsoEfiDriver", "on");
+            }
+            else
+            {
+                return grub_error(GRUB_ERR_BAD_ARGUMENT, "File %s is not bootable", args[0]);
+            }
         }
     }
     

@@ -84,7 +84,7 @@ static int setctty(const char *name)
 	return fd;
 }
 
-static void ventoy_init(char **argv_orig)
+static void ventoy_init(void)
 {
 	pid_t pid, wpid;
 	int status, error;
@@ -155,40 +155,12 @@ static void ventoy_init(char **argv_orig)
 
     /* step 7: swich_root */
     vdebug("[VTOY] step 7: switch root ...\n");
-	error = chdir("/new_root");
-	if (error)
-	{
-	    printf("[VTOY] chdir /new_root failed %d\n", error);
-	    goto chroot_failed;
-    }
-
-	error = chroot_kernel("/new_root");
-	if (error)
-	{
-	    printf("[VTOY] chroot_kernel /new_root failed %d\n", error);
-	    goto chroot_failed;
-    }
-
-	error = chroot("/new_root");
-	if (error)
-    {
-        printf("[VTOY] chroot /new_root failed %d\n", error);
-        goto chroot_failed;
-    }
-
-    vdebug("[VTOY] step 8: now run /sbin/init ...\n");
-	execv("/sbin/init", __DECONST(char **, argv_orig));
-
-	/* We failed to exec /sbin/init in the chroot, sleep forever */
-chroot_failed:
-    printf("[VTOY] ################### DEAD ################\n");
-	while(1) {
-		sleep(3);
-	};
 }
 
 int main(int argc __unused, char **argv)
 {
+	pid_t pid, wpid;
+	int status, error;
     size_t varsize = sizeof(int);
 
 	/* Dispose of random users. */
@@ -198,13 +170,40 @@ int main(int argc __unused, char **argv)
 	/* Init is not allowed to die, it would make the kernel panic */
 	signal(SIGTERM, SIG_IGN);
 
-    setctty(_PATH_CONSOLE);
+    if ((pid = fork()) == 0) {
     
-    sysctlbyname("debug.bootverbose", &boot_verbose, &varsize, NULL, 0);
+        setctty(_PATH_CONSOLE);
+        sysctlbyname("debug.bootverbose", &boot_verbose, &varsize, NULL, 0);
 
-    vdebug("======= Ventoy Init Start ========\n");
+        vdebug("======= Ventoy Init Start ========\n");
 
-	ventoy_init(argv);
+    	ventoy_init();
+        exit(1);	/* force single user mode */
+	}
+
+	do {
+		wpid = waitpid(-1, &status, WUNTRACED);
+	} while (wpid != pid);
+
+    error = chdir("/new_root");
+	if (error)
+	    goto chroot_failed;
+
+	error = chroot_kernel("/new_root");
+	if (error)
+	    goto chroot_failed;
+
+	error = chroot("/new_root");
+	if (error)
+        goto chroot_failed;
+
+	execv("/sbin/init", __DECONST(char **, argv));
+
+	/* We failed to exec /sbin/init in the chroot, sleep forever */
+chroot_failed:
+	while(1) {
+		sleep(3);
+	};
 	return 1;
 }
 

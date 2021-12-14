@@ -69,7 +69,8 @@ typedef struct ventoy_windows_data
 {
     char auto_install_script[384];
     char injection_archive[384];
-    UINT8 reserved[256];
+    UINT8 windows11_bypass_check;
+    UINT8 reserved[255];
 }ventoy_windows_data;
 
 
@@ -151,5 +152,11 @@ typedef struct VTOY_GPT_INFO
 }
 
 #define LASTERR     GetLastError()
+
+int unxz(unsigned char *in, int in_size,
+    int(*fill)(void *dest, unsigned int size),
+    int(*flush)(void *src, unsigned int size),
+    unsigned char *out, int *in_used,
+    void(*error)(char *x));
 
 #endif

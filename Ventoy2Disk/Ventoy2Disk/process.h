@@ -365,11 +365,12 @@ if ((pf##proc == NULL) && (NT_SUCCESS(status))) status = STATUS_NOT_IMPLEMENTED;
 #define GB             1073741824LL
 #define TB          1099511627776LL
 
+#ifndef _WINTERNL_
 typedef struct _CLIENT_ID {
     HANDLE UniqueProcess;
     HANDLE UniqueThread;
 } CLIENT_ID;
-
+#endif
 
 
 
