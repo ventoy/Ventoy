@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{321D6EE2-2AB3-4103-9F05-EC4EC67A75E1}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>VentoyPlugson</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\..\src\Core;..\..\..\src\Web;..\..\..\src\Include;..\..\..\src\Lib\xz-embedded\linux\include;..\..\..\src\Lib\xz-embedded\linux\include\linux;..\..\..\src\Lib\xz-embedded\userspace;..\..\..\src\Lib\fat_io_lib;..\..\..\src\Lib\libhttp\include;$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\..\src\Core;..\..\..\src\Web;..\..\..\src\Include;..\..\..\src\Lib\xz-embedded\linux\include;..\..\..\src\Lib\xz-embedded\linux\include\linux;..\..\..\src\Lib\xz-embedded\userspace;..\..\..\src\Lib\fat_io_lib;..\..\..\src\Lib\libhttp\include;$(ProjectDir);$(IncludePath);$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;INIT;STATIC=static;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;INIT;STATIC=static;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\Core\ventoy_crc32.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_disk.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_disk_windows.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_json.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_log.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_md5.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_util.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_util_windows.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_access.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_cache.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_filelib.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_format.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_misc.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_string.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_table.c" />
+    <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_write.c" />
+    <ClCompile Include="..\..\..\src\Lib\libhttp\include\civetweb.c" />
+    <ClCompile Include="..\..\..\src\Lib\xz-embedded\linux\lib\decompress_unxz.c" />
+    <ClCompile Include="..\..\..\src\main_windows.c" />
+    <ClCompile Include="..\..\..\src\Web\ventoy_http.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\Core\ventoy_define.h" />
+    <ClInclude Include="..\..\..\src\Core\ventoy_disk.h" />
+    <ClInclude Include="..\..\..\src\Core\ventoy_json.h" />
+    <ClInclude Include="..\..\..\src\Core\ventoy_util.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_access.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_cache.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_defs.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_filelib.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_format.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_list.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_misc.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_opts.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_string.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_table.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_types.h" />
+    <ClInclude Include="..\..\..\src\Lib\fat_io_lib\fat_write.h" />
+    <ClInclude Include="..\..\..\src\Lib\libhttp\include\civetweb.h" />
+    <ClInclude Include="..\..\..\src\Web\ventoy_http.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\src\Lib\fat_io_lib\API.txt" />
+    <Text Include="..\..\..\src\Lib\fat_io_lib\Configuration.txt" />
+    <Text Include="..\..\..\src\Lib\fat_io_lib\COPYRIGHT.txt" />
+    <Text Include="..\..\..\src\Lib\fat_io_lib\History.txt" />
+    <Text Include="..\..\..\src\Lib\fat_io_lib\License.txt" />
+    <Text Include="..\..\..\src\Lib\fat_io_lib\Media Access API.txt" />
+    <Text Include="..\..\..\src\Lib\fat_io_lib\version.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\src\Lib\libhttp\include\handle_form.inl" />
+    <None Include="..\..\..\src\Lib\libhttp\include\md5.inl" />
+    <None Include="..\..\..\src\Lib\libhttp\include\mod_duktape.inl" />
+    <None Include="..\..\..\src\Lib\libhttp\include\mod_lua.inl" />
+    <None Include="..\..\..\src\Lib\libhttp\include\timer.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VentoyPlugson.rc" />
+  </ItemGroup>
+  <ItemGroup>   
+    <Image Include="Res\plugson.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

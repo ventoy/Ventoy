@@ -1110,11 +1110,31 @@ static BOOL check_tar_archive(const char *archive, CHAR *tarName)
     return FALSE;
 }
 
+static UCHAR *g_unxz_buffer = NULL;
+static int g_unxz_len = 0;
+
+static void unxz_error(char *x)
+{
+    Log("%s", x);
+}
+
+static int unxz_flush(void *src, unsigned int size)
+{
+    memcpy(g_unxz_buffer + g_unxz_len, src, size);
+    g_unxz_len += (int)size;
+
+    return (int)size;
+}
+
 static int DecompressInjectionArchive(const char *archive, DWORD PhyDrive)
 {
     int rc = 1;
+    int writelen = 0;
+    UCHAR *Buffer = NULL;
+    UCHAR *RawBuffer = NULL;
     BOOL bRet;
     DWORD dwBytes;
+    DWORD dwSize;
     HANDLE hDrive;
     HANDLE hOut;
     DWORD flags = CREATE_NO_WINDOW;
@@ -1154,11 +1174,40 @@ static int DecompressInjectionArchive(const char *archive, DWORD PhyDrive)
     {
 		if (g_system_bit == 64)
         {
-            CopyFileFromFatDisk("/ventoy/7z/64/7za.exe", "ventoy\\7za.exe");
+            CopyFileFromFatDisk("/ventoy/7z/64/7za.xz", "ventoy\\7za.xz");
         }
         else
         {
-            CopyFileFromFatDisk("/ventoy/7z/32/7za.exe", "ventoy\\7za.exe");
+            CopyFileFromFatDisk("/ventoy/7z/32/7za.xz", "ventoy\\7za.xz");
+        }
+
+        ReadWholeFile2Buf("ventoy\\7za.xz", &Buffer, &dwSize);
+        Log("7za.xz file size:%u", dwSize);
+
+        RawBuffer = malloc(SIZE_1MB * 4);
+        if (RawBuffer)
+        {
+            g_unxz_buffer = RawBuffer;
+            g_unxz_len = 0;
+            unxz(Buffer, (int)dwSize, NULL, unxz_flush, NULL, &writelen, unxz_error);
+            if (writelen == (int)dwSize)
+            {
+                Log("Decompress success 7za.xz(%u) ---> 7za.exe(%d)", dwSize, g_unxz_len);
+            }
+            else
+            {
+                Log("Decompress failed 7za.xz(%u) ---> 7za.exe(%u)", dwSize, dwSize);
+            }
+
+            SaveBuffer2File("ventoy\\7za.exe", RawBuffer, (DWORD)g_unxz_len);
+
+            g_unxz_buffer = NULL;
+            g_unxz_len = 0;
+            free(RawBuffer);
+        }
+        else
+        {
+            Log("Failed to alloc 4MB memory");
         }
 
         sprintf_s(StrBuf, sizeof(StrBuf), "ventoy\\7za.exe x -y -aoa -oX:\\ %s", archive);

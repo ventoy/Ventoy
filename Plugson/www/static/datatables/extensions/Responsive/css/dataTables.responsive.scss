@@ -1,0 +1,149 @@
+
+//
+// Mixins
+//
+@mixin control() {
+	display: block;
+	position: absolute;
+	color: white;
+	border: 2px solid white;
+	border-radius: 16px;
+	text-align: center;
+	line-height: 14px;
+	box-shadow: 0 0 3px #444;
+	box-sizing: content-box;
+}
+
+@mixin control-open() {
+	content: '+';
+	background-color: #31b131;
+}
+
+@mixin control-close() {
+	content: '-';
+	background-color: #d33333;
+}
+
+
+//
+// Table styles
+//
+table.dataTable {
+	// Styling for the `inline` type
+	&.dtr-inline.collapsed > tbody {
+		> tr > td:first-child,
+		> tr > th:first-child {
+			position: relative;
+			padding-left: 30px;
+			cursor: pointer;
+
+			&:before {
+				top: 8px;
+				left: 4px;
+				height: 16px;
+				width: 16px;
+				@include control;
+				@include control-open;
+			}
+
+			&.dataTables_empty:before {
+				display: none;
+			}
+		}
+
+		> tr.parent {
+			> td:first-child:before,
+			> th:first-child:before {
+				@include control-close;
+			}
+		}
+
+		> tr.child td:before {
+			display: none;
+		}
+	}
+
+	// DataTables' `compact` styling
+	&.dtr-inline.collapsed.compact > tbody {
+		> tr > td:first-child,
+		> tr > th:first-child {
+			padding-left: 27px;
+
+			&:before {
+				top: 5px;
+				left: 4px;
+				height: 14px;
+				width: 14px;
+				border-radius: 14px;
+				line-height: 12px;
+			}
+		}
+	}
+
+
+	// Styling for the `column` type
+	&.dtr-column > tbody {
+		> tr > td.control,
+		> tr > th.control {
+			position: relative;
+			cursor: pointer;
+
+			&:before {
+				top: 50%;
+				left: 50%;
+				height: 16px;
+				width: 16px;
+				margin-top: -10px;
+				margin-left: -10px;
+				@include control;
+				@include control-open;
+			}
+		}
+
+		> tr.parent {
+			td.control:before,
+			th.control:before {
+				@include control-close;
+			}
+		}
+	}
+
+
+	// Child row styling
+	> tbody > tr.child {
+		padding: 0.5em 1em;
+
+		&:hover {
+			background: transparent !important;
+		}
+
+		ul {
+			display: inline-block;
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+
+			li {
+				border-bottom: 1px solid #efefef;
+				padding: 0.5em 0;
+
+				&:first-child {
+					padding-top: 0;
+				}
+
+				&:last-child {
+					border-bottom: none;
+				}
+			}
+		}
+
+		span.dtr-title {
+			display: inline-block;
+			min-width: 75px;
+			font-weight: bold;
+		}
+
+		span.dtr-data {}
+	}
+}
+

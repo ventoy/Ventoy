@@ -1,0 +1,1 @@
+div.AutoFill_filler{display:none;position:absolute;height:14px;width:14px;background:url(../images/filler.png) no-repeat center center;z-index:1002}div.AutoFill_border{display:none;position:absolute;background-color:#0063dc;z-index:1001;box-shadow:0px 0px 5px #76b4ff;-moz-box-shadow:0px 0px 5px #76b4ff;-webkit-box-shadow:0px 0px 5px #76b4ff}

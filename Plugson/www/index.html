@@ -1,0 +1,897 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- HTTP 1.1 -->  
+    <meta http-equiv="pragma" content="no-cache">  
+    <!-- HTTP 1.0 -->  
+    <meta http-equiv="cache-control" content="no-cache">  
+    <title>Ventoy Plugson</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="static/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="static/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="static/AdminLTE/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="static/AdminLTE/css/skins/skin-blue.min.css">
+    <link rel="stylesheet" href="static/datatables/dataTables.bootstrap.css">
+    <link rel="stylesheet" href="static/css/vtoy.css">
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+    * {
+         font-family: 'Arial','Microsoft YaHei','黑体','宋体',sans-serif;
+     }
+    .modal {
+        padding-top: 80px;
+    }
+    .treeview-menu a {
+        margin-left: 20px;
+    }
+    </style>
+</head>
+
+<body class="sidebar-mini skin-blue">
+    <div class="wrapper">
+
+        <header class="main-header" style="position: fixed; right: 0; left: 0;">
+            <!-- Logo -->
+            <a href="." class="logo">
+                <!-- logo for regular state and mobile devices -->   
+                <span class="logo-lg" > <img src="/static/img/logo_32.png" > &nbsp;Ventoy Plugson</span>
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                <!-- Navbar Right Menu -->
+                
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown user user-menu">
+                            <a href="javascript:void(0)" id="id_a_language">
+                                <span class="fa fa-language"></span>&nbsp;&nbsp;
+                                <span id="id_span_language" class="hidden-xs">English</span>
+                                <span class="hidden-xs">&nbsp;&nbsp;&nbsp;</span>
+                            </a>                        
+                        </li>
+
+                        <li class="dropdown user user-menu">
+                            <a id="id_top_donation" href="#plugson_donation" data-href="#plugson_donation">
+                                <span class="fa fa-paypal"></span>&nbsp;
+                                <span id="id_span_donation" class="hidden-xs">捐助</span>
+                            </a>                        
+                        </li>
+
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="https://www.ventoy.net" target="_blank" >
+                                <span class="fa fa-link"></span>&nbsp;
+                                <span class="hidden-xs">Ventoy</span>
+                            </a>                        
+                        </li>
+                    </ul>
+                </div>
+                
+                
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar" style="position:fixed;">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar" style="height: auto;" id="plugson-menu">
+                <!-- 菜单 -->
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#plugson_main" data-href="#plugson_main">
+                            <i class="fa fa-bank"></i> <span id="id_span_menu_device">设备信息</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_control" data-href="#plugson_control">
+                            <i class="fa fa-wrench"></i> <span id="id_span_menu_control">全局控制插件</span>
+                        </a>
+                    </li> 
+                    <li>
+                        <a href="#plugson_theme" data-href="#plugson_theme">
+                            <i class="fa fa-file-image-o"></i> <span id="id_span_menu_theme">主题插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_menu_alias" data-href="#plugson_menu_alias">
+                            <i class="fa fa-clone"></i> <span id="id_span_menu_alias">菜单别名插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_menu_tip" data-href="#plugson_menu_tip">
+                            <i class="fa fa-commenting"></i> <span id="id_span_menu_tip">菜单提示插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_menu_class" data-href="#plugson_menu_class">
+                            <i class="fa fa-list-ul"></i> <span id="id_span_menu_class">菜单类型插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_auto_install" data-href="#plugson_auto_install">
+                            <i class="fa fa-desktop"></i> <span id="id_span_menu_auto_install">自动安装插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_persistence" data-href="#plugson_persistence">
+                            <i class="fa fa-database"></i> <span id="id_span_menu_persistence">数据持久化插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_injection" data-href="#plugson_injection">
+                            <i class="fa fa-plus-circle"></i> <span id="id_span_menu_injection">文件注入插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_conf_replace" data-href="#plugson_conf_replace">
+                            <i class="fa fa-retweet"></i> <span id="id_span_menu_conf_replace">启动配置替换插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_password" data-href="#plugson_password">
+                            <i class="glyphicon glyphicon-lock"></i> <span id="id_span_menu_password">密码插件</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="#plugson_image_list" data-href="#plugson_image_list">
+                            <i class="fa fa-list-alt"></i> <span id="id_span_menu_imagelist">文件列表插件</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a href="#plugson_auto_memdisk" data-href="#plugson_auto_memdisk">
+                            <i class="fa fa-floppy-o"></i> <span id="id_span_menu_auto_memdisk">自动 Memdisk 插件</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#plugson_dud" data-href="#plugson_dud">
+                            <i class="glyphicon glyphicon-cd"></i> <span id="id_span_menu_dud">Driver Update Disk 插件</span>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+
+        <div class="modal" id="SetPwdModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="SetPwdForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b id="SetPwdForm_title"></b> </h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div id="id_div_pwd_path">
+                                <div class="form-group">
+                                    <div class="col-sm-3">
+                                        <label id="SetPwdForm_path" class="control-label"></label>
+                                    </div>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="PwdPath" name="PwdPath" />
+                                    </div>                                
+                                </div>
+                                
+                                <div class="form-group" id="id_note_pwdfile_cn">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9">
+                                        请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                        <span id="id_span_pwdfile_tip1" style="color:red;"></span><br/>
+                                        <span id="id_span_pwdfile_tip2" style="color:red;"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="id_note_pwdfile_en">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9">
+                                        Please input the full absolute file path. For example:<br/> 
+                                        <span id="id_span_pwdfile_tip1" style="color:red;"></span><br/>
+                                        <span id="id_span_pwdfile_tip2" style="color:red;"></span><br/>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="id_note_pwddir_cn">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9">
+                                        请输入文件夹在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
+                                        <span id="id_span_pwddir_tip" style="color:red;"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="id_note_pwddir_en">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9">
+                                        Please input the full absolute directory path. For example: <br/>
+                                        <span id="id_span_pwddir_tip" style="color:red;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-3">
+                                    <label id="SetPwdForm_pwd" class="control-label">xx</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="PwdPwd" name="PwdPwd" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-3">
+                                    <label id="SetPwdForm_type" class="control-label">xx</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <label class="radio-inline">
+                                        <input type="radio" id="id_radio_pwd_type0" name="id_radio_pwd_type" selected="selected" data-type="0" value="0"/> <span style="font-weight:bold;">TXT</span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" id="id_radio_pwd_type1" name="id_radio_pwd_type" data-type="1" value="1"/> <span style="font-weight:bold;">MD5</span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" id="id_radio_pwd_type2" name="id_radio_pwd_type" data-type="2" value="2"/> <span style="font-weight:bold;">Salt MD5</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="SetPwdForm_ok" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="SetPwdForm_cancel" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="modal" id="SetFileModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="SetFileForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b id="SetFileForm_lang_1">设置文件路径</b> </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetFileForm_lang_2" class="control-label">文件路径</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="FilePath" name="FilePath" />
+                                </div>                                
+                            </div>
+                            
+                            <div class="form-group" id="id_note_setfile_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_filepath_tip1" style="color:red;"></span><br/>
+                                    <span id="id_span_filepath_tip2" style="color:red;"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="id_note_setfile_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_filepath_tip1" style="color:red;"></span><br/>
+                                    <span id="id_span_filepath_tip2" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="id_div_file_extra">
+                                <div class="col-sm-2">
+                                    <label id="SetFileForm_extra" class="control-label">xx</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="FileExtra" name="FileExtra" />
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="id_note_tip3_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_filepath_tip3" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            <div class="form-group" id="id_note_tip3_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_filepath_tip3" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button id="SetFileForm_lang_3" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="SetFileForm_lang_4" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal" id="SetFileFileModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="SetFileFileForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b id="SetFileFileForm_title">x</b> </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetFileFileForm_label1" class="control-label">x</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="FileFilePath1" name="FileFilePath1" />
+                                </div>                                
+                            </div>
+                            
+                            <div class="form-group" id="id_note_filefile_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_filefile_tip1" style="color:red;"></span><br/>
+                                    <span id="id_span_filefile_tip2" style="color:red;"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="id_note_filefile_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_filefile_tip1" style="color:red;"></span><br/>
+                                    <span id="id_span_filefile_tip2" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetFileFileForm_label2" class="control-label">xx</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="FileFilePath2" name="FileFilePath2" />
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="id_note_filefile_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_filefile_tip3" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            <div class="form-group" id="id_note_filefile_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_filefile_tip3" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button id="SetFileFileForm_ok" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="SetFileFileForm_cancel" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal" id="SetDirFileModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="SetDirFileForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b id="SetDirFileForm_title">x</b> </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetDirFileForm_label1" class="control-label">x</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="DirFilePath1" name="DirFilePath1" />
+                                </div>                                
+                            </div>
+                            
+                            <div class="form-group" id="id_note_dirfile_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入对应目录在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_dirfile_tip1" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="id_note_dirfile_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute directory path. For example:<br/> 
+                                    <span id="id_span_dirfile_tip1" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetDirFileForm_label2" class="control-label">xx</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="DirFilePath2" name="DirFilePath2" />
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="id_note_dirfile_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_dirfile_tip2" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            <div class="form-group" id="id_note_dirfile_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_dirfile_tip2" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button id="SetDirFileForm_ok" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="SetDirFileForm_cancel" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="modal" id="ConfReplaceModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="ConfReplaceForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b>Boot Conf Replace</b> </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="ConfReplaceForm_lang_1" class="control-label">文件路径</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="IsoPath" name="IsoPath" />
+                                </div>                                
+                            </div>
+                            
+                            <div class="form-group" id="id_note_conf_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_conf_tip1" style="color:red;"></span><br/>
+                                    <span id="id_span_conf_tip2" style="color:red;"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="id_note_conf_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_conf_tip1" style="color:red;"></span><br/>
+                                    <span id="id_span_conf_tip2" style="color:red;"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label class="control-label">org</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="OrgPath" name="OrgPath" />
+                                </div>                                
+                            </div>
+                            <div class="form-group" id="id_note_conf_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    要替换的文件在 ISO 内的路径（以 / 开头），例如：
+                                    <span style="color:red;">/boot/grub/grub.cfg</span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="id_note_conf_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    The original file path inside the ISO (start with /), for example:
+                                    <span style="color:red;">/boot/grub/grub.cfg</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label class="control-label">new</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="NewPath" name="NewPath" />
+                                </div>                                
+                            </div>
+                            <div class="form-group" id="id_note_conf_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    新文件在当前系统中的全路径（注意是完整的绝对路径）例如：<br/> 
+                                    <span id="id_span_conf_tip3" style="color:red;"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="id_note_conf_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_conf_tip3" style="color:red;"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button id="ConfReplaceForm_lang_2" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="ConfReplaceForm_lang_3" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="modal" id="SetDirModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="SetDirForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b id="SetDirForm_lang_1">设置文件夹路径</b> </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetDirForm_lang_2" class="control-label">文件夹路径</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="DirPath" name="DirPath" />
+                                </div>                                
+                            </div>
+                            
+                            <div class="form-group" id="id_note_setfile_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入文件夹在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
+                                    <span id="id_span_dirpath_tip" style="color:red;"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="id_note_setfile_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute directory path. For example: <br/>
+                                    <span id="id_span_dirpath_tip" style="color:red;"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="id_div_dir_extra">
+                                <div class="col-sm-2">
+                                    <label id="SetDirForm_extra" class="control-label">xx</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="DirExtra" name="DirExtra" />
+                                </div>                                
+                            </div>
+
+                            <div class="form-group" id="id_note_tip3_cn">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    <span id="id_span_dirpath_tip3" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+                            <div class="form-group" id="id_note_tip3_en">
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-9">
+                                    Please input the full absolute file path. For example:<br/> 
+                                    <span id="id_span_dirpath_tip3" style="color:red;"></span><br/>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button id="SetDirForm_lang_3" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="SetDirForm_lang_4" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal" id="SetKeyModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="SetKeyForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b id="SetKeyForm_lang_1">xx</b> </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetKeyForm_lang_2" class="control-label">关键字</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="SetKeyKey" name="SetKeyKey" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label id="SetKeyForm_lang_3" class="control-label">菜单类型</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="SetKeyValue" name="SetKeyValue" />
+                                </div>                                
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="SetKeyForm_lang_4" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="SetKeyForm_lang_5" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="TypeSelectModal">
+            <div class="modal-dialog" style="width: 800px;">
+                <div class="modal-content">
+                    <form id="TypeSelectForm" class="form-horizontal">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4><b id="TypeSelForm_lang_1">请选择</b> </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <div class="col-sm-1"></div>
+                                <div class="col-sm-10">
+                                    <table id="id_type_select_table" class="table" rules=none>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-1"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="TypeSelForm_lang_2" type="submit" class="btn btn-primary btn-flat">确定</button>
+                            <button id="TypeSelForm_lang_3" type="button" class="btn btn-default btn-flat" data-dismiss="modal">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper clearfix" style="min-height: 385px; margin-top: 50px;">
+            <!-- Main content -->
+            <section class="content" id="plugson-content">
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b id="plugson_build_date">20211203 17:44:10</b>
+            </div>
+            <strong><a href="https://www.ventoy.net" target="_blank">https://www.ventoy.net</a></strong>
+        </footer>
+
+        <!-- Control Sidebar -->
+        <!-- /.control-sidebar -->
+        <!-- Add the sidebar's background. This div must be placed
+           immediately after the control sidebar -->
+        <div class="control-sidebar-bg" style="position: fixed; height: auto;"></div>
+
+    </div>
+    <!-- ./wrapper -->
+
+    
+
+    <!-- jQuery 2.1.4 -->
+    <script src="/static/js/jQuery-2.1.4.min.js"></script>
+    <!-- jquery validate -->
+    <script src="/static/js/jquery.validate.min.js"></script>    
+    <script src="/static/js/jquery.validate.vtoymethods.js"></script>
+
+    <script src="/static/js/vtoy.js"></script>
+    <script src="/static/js/jquery.vtoy.alert.js"></script>
+    <script src="/static/js/md5.min.js"></script>
+
+    <!-- Bootstrap 3.3.5 -->
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/static/AdminLTE/js/app.min.js"></script>
+    <script src="/static/AdminLTE/plugins/chartjs/Chart.min.js"></script>
+    
+    <script src="/static/datatables/jquery.dataTables.min.js"></script>
+    <script src="/static/datatables/dataTables.bootstrap.min.js"></script>
+    
+    <script type="text/javascript">
+
+    function VtoyLanguageClick() {
+        var defaultPage = window.location.hash;
+        
+        if (g_current_language === 'cn') {
+            g_current_language = 'en';
+        } else {
+            g_current_language = 'cn';
+        }
+
+        if (typeof(VtoyPageLanguageChange)==='function') {
+            VtoyPageLanguageChange(g_current_language);
+        }
+    }
+
+
+    //Main process
+    var m_syntax_error;
+    callVtoySync({
+        method : 'sysinfo'
+    }, function(data) {
+        g_current_language = data.language;
+        g_current_dir = data.curdir;
+        g_current_os = data.os;
+        m_syntax_error = data.syntax_error;
+
+        
+
+    });
+ 
+    $('#id_a_language').click(VtoyLanguageClick);
+    
+    $("#plugson-menu a").click(function() {
+        var href = $(this).data("href");
+        if (href && href !== '#') {
+            loadContent(href.substring(1));
+        }
+    });
+
+    $('#id_top_donation').click(function() {
+        var href = $(this).data("href");
+        if (href && href !== '#') {
+            loadContent(href.substring(1));
+        }
+    });
+    
+    (function openDefaultPage() {
+        var defaultPage = window.location.hash;
+        if (defaultPage) {
+            defaultPage = defaultPage.substring(1, defaultPage.length);
+        }
+        defaultPage = defaultPage || 'plugson_main';
+        loadContent(defaultPage);
+    })();
+    
+
+    (function ventoy_handshake() {
+
+        if (m_syntax_error === 1) {
+            
+        }
+
+        callVtoyCatchErr({
+            method : 'handshake'
+        },         
+        function(data) {  
+            
+            if (m_syntax_error === 1 && typeof(Modal) === 'object') {
+                var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
+                var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_SYNTAX_ERROR_TIP : g_vtoy_cur_language_cn.STR_SYNTAX_ERROR_TIP;
+                Modal.alert({title:title,msg:msg}).on(function(e) {
+                });
+                m_syntax_error = 0;
+            }
+
+            setTimeout(function() {
+                ventoy_handshake();
+            }, 1000);
+        },
+
+        function(xmlHttpRequest, textStatus, errorThrown) {
+            if (undefined === errorThrown)
+            {
+                Message.error(g_vtoy_cur_language.STR_WEB_REMOTE_ABNORMAL);
+            }
+            else if(undefined === errorThrown.length)
+            {
+                
+            }
+            else if('' == errorThrown.trim())
+            {
+            }
+            else
+            {
+                switch(errorThrown)
+                {
+                    case 'timeout':
+                    {
+                        Message.error(g_vtoy_cur_language.STR_WEB_REQUEST_TIMEOUT);
+                        break;
+                    }
+                    case 'Service Unavailable':
+                    {
+                        Message.error(g_vtoy_cur_language.STR_WEB_SERVICE_UNAVAILABLE);
+                        break;
+                    }
+                    case 'abort':
+                    {
+                        break;
+                    }
+                    default:
+                    {
+                        Message.error(g_vtoy_cur_language.STR_WEB_COMMUNICATION_ERR + errorThrown);
+                        break;
+                    }
+                }
+            }
+
+            Modal.confirm({msg:g_vtoy_cur_language.STR_CLOSE_TIP}).on(function(e) {
+                if(navigator.userAgent.indexOf("Firefox") != -1 || navigator.userAgent.indexOf("Chrome") != -1){
+                    window.location.href = "about:blank";
+                    window.close();
+                }else{
+                    window.opener = null;
+                    window.open("", "_self");
+                    window.close();
+                }
+            });
+        });
+    })();
+
+
+    </script>
+</body>
+
+</html>

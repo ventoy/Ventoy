@@ -81,6 +81,8 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
     UINT32 PartStartSector;
     UINT32 PartSectorCount;
     CHAR PhyDrivePath[128];
+    CHAR GUIDStr[128];
+    GUID ZeroGuid = { 0 };
 	VTOY_GPT_INFO *pGpt = NULL;
 
     safe_sprintf(PhyDrivePath, "\\\\.\\PhysicalDrive%d", PhyDrive);
@@ -108,20 +110,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
         return FALSE;
     }
 
-	for (i = 0; i < 4; i++)
-	{
-		Log("=========== Disk%d Partition Table %d ============", PhyDrive, i + 1);
-		Log("PartTbl.Active = 0x%x", MBR.PartTbl[i].Active);
-		Log("PartTbl.FsFlag = 0x%x", MBR.PartTbl[i].FsFlag);
-		Log("PartTbl.StartSectorId = %u", MBR.PartTbl[i].StartSectorId);
-		Log("PartTbl.SectorCount = %u", MBR.PartTbl[i].SectorCount);
-		Log("PartTbl.StartHead = %u", MBR.PartTbl[i].StartHead);
-		Log("PartTbl.StartSector = %u", MBR.PartTbl[i].StartSector);
-		Log("PartTbl.StartCylinder = %u", MBR.PartTbl[i].StartCylinder);
-		Log("PartTbl.EndHead = %u", MBR.PartTbl[i].EndHead);
-		Log("PartTbl.EndSector = %u", MBR.PartTbl[i].EndSector);
-		Log("PartTbl.EndCylinder = %u", MBR.PartTbl[i].EndCylinder);
-	}
+    
 
 	if (MBR.PartTbl[0].FsFlag == 0xEE)
 	{
@@ -146,6 +135,23 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 			Log("Invalid GPT signature");
 			return FALSE;
 		}
+
+        for (i = 0; i < 128; i++)
+        {
+            if (memcmp(&(pGpt->PartTbl[i].PartGuid), &ZeroGuid, sizeof(GUID)) == 0)
+            {
+                continue;
+            }
+
+            Log("=========== Disk%d GPT Partition %d ============", PhyDrive, i + 1);
+            
+            Log("PartTbl.PartType = %s", GUID2String(&pGpt->PartTbl[i].PartType, GUIDStr, sizeof(GUIDStr)));
+            Log("PartTbl.PartGuid = %s", GUID2String(&pGpt->PartTbl[i].PartGuid, GUIDStr, sizeof(GUIDStr)));
+            Log("PartTbl.StartLBA = %llu", (ULONGLONG)pGpt->PartTbl[i].StartLBA);
+            Log("PartTbl.LastLBA = %llu", (ULONGLONG)pGpt->PartTbl[i].LastLBA);
+            Log("PartTbl.Attribute = 0x%llx", pGpt->PartTbl[i].Attr);
+            Log("PartTbl.Name = %S", pGpt->PartTbl[i].Name);
+        }
 
 		if (memcmp(pGpt->PartTbl[1].Name, L"VTOYEFI", 7 * 2))
 		{
@@ -186,6 +192,21 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 	else
 	{
 		CHECK_CLOSE_HANDLE(hDrive);
+
+        for (i = 0; i < 4; i++)
+        {
+            Log("=========== Disk%d MBR Partition %d ============", PhyDrive, i + 1);
+            Log("PartTbl.Active = 0x%x", MBR.PartTbl[i].Active);
+            Log("PartTbl.FsFlag = 0x%x", MBR.PartTbl[i].FsFlag);
+            Log("PartTbl.StartSectorId = %u", MBR.PartTbl[i].StartSectorId);
+            Log("PartTbl.SectorCount = %u", MBR.PartTbl[i].SectorCount);
+            Log("PartTbl.StartHead = %u", MBR.PartTbl[i].StartHead);
+            Log("PartTbl.StartSector = %u", MBR.PartTbl[i].StartSector);
+            Log("PartTbl.StartCylinder = %u", MBR.PartTbl[i].StartCylinder);
+            Log("PartTbl.EndHead = %u", MBR.PartTbl[i].EndHead);
+            Log("PartTbl.EndSector = %u", MBR.PartTbl[i].EndSector);
+            Log("PartTbl.EndCylinder = %u", MBR.PartTbl[i].EndCylinder);
+        }
 
 		if (MBR.PartTbl[0].StartSectorId != 2048)
 		{

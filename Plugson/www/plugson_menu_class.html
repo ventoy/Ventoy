@@ -1,0 +1,278 @@
+<div class="box box-primary" id="control">
+    <div class="box-header">
+        <div class="col-sm-10" style="padding-top:8px;">
+            <i class="fa fa-list-ul">&nbsp;&nbsp;</i>
+            <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">xx</h1>
+        </div>
+        
+        <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
+            <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/en/plugin_menuclass.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
+        </div>
+    </div>
+    <legend></legend>
+    
+    <div class="box-body">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" id="id_tab_menu_class">
+            <li class=""><a href="#tab_0" data-toggle="tab" aria-expanded="false" style="font-weight:bold" >menu_class</a></li>
+            <li class=""><a href="#tab_1" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_class_legacy</a></li>
+            <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_class_uefi</a></li>
+            <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_class_ia32</a></li>
+            <li class=""><a href="#tab_4" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_class_aa64</a></li>
+            <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_class_mips</a></li>
+        </ul>
+      </div>
+
+      <table id="id_class_tbl" class="table table-bordered">
+        <thead>
+          <tr>
+            <th style="width: 2%;">#</th>
+            <th id="id_th_class_type" style="width: 5%;"></th>
+            <th id="id_th_class_path" style="width: 35%;"></th>
+            <th id="id_th_status" style="width: 5%;"></th>
+            <th id="id_th_class_class" style="width: 40%;"></th>
+            <th id="id_th_operation" style="width: 5%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+</div>
+<script type="text/javascript">
+    
+  function VtoyPageLanguageChange(newlang) {
+    VtoyCommonChangeLanguage(newlang);
+    $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_CLASS);
+
+    $("span[id=id_span_file_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_EXIST);
+    });
+    $("span[id=id_span_file_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_NONEXIST);
+    });
+    $("span[id=id_span_file_fuzzy]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_FUZZY);
+    });
+
+    $("span[id=id_span_dir_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_EXIST);
+    });
+    
+    $("span[id=id_span_dir_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_NONEXIST);
+    });
+
+    if (newlang === 'en') {
+      $('#id_th_class_path').text('Key/Absolute Path');
+      $('#id_th_class_class').text('Menu Class');
+      $('#id_th_class_type').text('Type');
+    } else {
+      $('#id_th_class_path').text('关键字/绝对路径');
+      $('#id_th_class_class').text('菜单类型');
+      $('#id_th_class_type').text('类型');
+      
+    }
+  }
+  
+  function FillClassTable(data) {
+    
+    var direxist = ventoy_get_status_line(1, 1);
+    var dirnonexist = ventoy_get_status_line(1, 0);
+
+    var addbtn = ventoy_get_xslg_addbtn('ClassAddBtn');
+    var delbtn = ventoy_get_xslg_delbtn('ClassDelBtn');
+
+    var td1, td2, td3, td4, td5, td6;
+    var $tbl = $("#id_class_tbl tbody");
+    $tbl.empty();
+
+    for (var i = 0; i < data.length; i++) {
+      var $tr;
+      td1 = '<td>' + (i + 1) + '</td>';
+
+      td3 = '<td>' + data[i].path + '</td>';
+      if (data[i].type === 0) {
+        td2 = '<td>key</td>';
+        td4 = '<td></td>';
+      } else {
+        if (data[i].type === 1) {
+          td2 = '<td>dir</td>';
+        } else {
+          td2 = '<td>parent</td>';
+        }
+        
+        if (data[i].valid === 0) {
+          td4 = '<td>' + dirnonexist + '</td>';
+        } else {
+          td4 = '<td>' + direxist + '</td>';
+        }
+      }
+
+      td5 = '<td>' + data[i].class + '</td>';
+      td6 = '<td>' + delbtn + '</td>';
+
+      $tr = $('<tr>' + td1 + td2 + td3 + td4 + td5 + td6 + '</tr>');
+
+      $tr.data('path', data[i].path);
+      $tr.data('index', i);
+      $tbl.append($tr);
+    }
+
+    $tbl.append('<tr><td></td><td></td><td></td><td></td><td></td><td>' + addbtn + '</td></tr>');
+  }
+
+  function VtoyFillCurrentPageItem(data) {
+    FillClassTable(data);
+  }
+
+
+  function OnClickMultiModeTab() {
+    var href = $(this).attr('href');
+    var index = parseInt(href.substr(5, 1));
+
+    if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
+      return;
+    }
+    
+    current_tab_index = index;
+    VtoyFillCurrentPageItem(m_data_class[index]);
+  }
+
+  //Main process
+  var m_data_class;
+  var current_tab_index = 0;
+  callVtoySync({method : 'get_class'}, function(data) {
+    m_data_class = data;
+  });
+  
+
+  function AddClassEntry(root, type, valid, extra) {
+    var list = m_data_class[current_tab_index];
+    var data = {
+      "path": '',
+      "class": extra,
+      "type": type,
+      "valid": valid
+    };
+
+    if (type === 0) {
+      data.path = root;
+    } else {
+      data.path = root.substr(g_current_dir.length);
+    }
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].path === data.path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'class_add',
+      index: current_tab_index,
+      path: data.path,
+      class: data.class,
+      type: type
+    }, function(e) {
+      list.push(data);
+      FillClassTable(list);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAddKeyClass(key, value) {
+    if (!ventoy_check_file_name_char(key)) {
+      Message.error(g_current_language === 'en' ? "As part of file name, key can not include invalid characters!" : "作为文件名的一部分，key 中不能包含特殊的符号!");
+      return;
+    }
+
+    AddClassEntry(key, 0, 1, value);
+  }
+
+  function OnAddDirClassDir(root, extra) {
+    AddClassEntry(root, 1, 1, extra);
+  }
+  function OnAddDirClassParent(root, extra) {
+    AddClassEntry(root, 2, 1, extra);
+  }
+
+  function OnAddClassBtnClick(sel)  {
+    if (sel === 0) {
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_CLASS,
+          "title1": "Key",
+          "title2": g_vtoy_cur_language.STR_CLASS
+      };
+
+      VtoySetKey(OnAddKeyClass, para);
+    } else {
+      var tip = (g_current_os === 'windows') ? '\\ISO\\Windows' : "/ISO/Linux";
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_CLASS,
+          "tip": g_current_dir + tip,
+          "tip3": '',
+          "extra": true,
+          "extra_title": g_vtoy_cur_language.STR_CLASS
+      };
+
+      if (sel === 1) {
+        VtoySelectDirPath(OnAddDirClassDir, para);
+      } else {
+        VtoySelectDirPath(OnAddDirClassParent, para);
+      }
+      
+    }
+  }
+
+  $("#id_class_tbl").on('click', '.ClassAddBtn', function() {
+    var para = [
+      {
+        "selected": true,
+        "tip": g_vtoy_cur_language.STR_SET_CLASS_BY_KEY
+      },
+      {
+        "selected": false,
+        "tip": g_vtoy_cur_language.STR_SET_CLASS_BY_DIR
+      },
+      {
+        "selected": false,
+        "tip": g_vtoy_cur_language.STR_SET_CLASS_BY_PARENT
+      }
+    ];
+
+    VtoySelectType(OnAddClassBtnClick, para);
+  });
+
+  $("#id_class_tbl").on('click', '.ClassDelBtn', function() {
+    var $tr = $(this).closest('tr');
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+
+    callVtoySync({
+        method : 'class_del',
+        index: current_tab_index,
+        path: path
+    }, function(data) {
+      m_data_class[current_tab_index].splice(index, 1);
+      FillClassTable(m_data_class[current_tab_index]);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  });
+
+
+
+
+  $('#id_tab_menu_class a[href="#tab_0"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_class a[href="#tab_1"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_class a[href="#tab_2"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_class a[href="#tab_3"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_class a[href="#tab_4"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_class a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  $('#id_tab_menu_class a[href="#tab_0"]').tab('show');
+  VtoyFillCurrentPageItem(m_data_class[0]);
+  VtoyPageLanguageChange(g_current_language);
+
+</script>

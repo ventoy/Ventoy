@@ -29,13 +29,21 @@ for i in 0 1 2 3 4 5 6 7 8 9; do
     fi
 done
 
-ventoy_extract_vtloopex ${vtdiskname}2  crux
+# no need since 3.6.1
+$BUSYBOX_PATH/modprobe dax      > /dev/null 2>&1
+$BUSYBOX_PATH/modprobe dm-mod   > /dev/null 2>&1
 
+if $GREP -q 'device-mapper' /proc/devices; then
+    vtlog "dm-mod module check success ..."
+else
+    vtlog "Need to load dm-mod module ..."
+    ventoy_extract_vtloopex ${vtdiskname}2  crux
 
-vtKver=$(uname -r)
-vtLoopExDir=$VTOY_PATH/vtloopex/crux/vtloopex
+    vtKver=$(uname -r)
+    vtLoopExDir=$VTOY_PATH/vtloopex/crux/vtloopex
 
-ventoy_check_install_module_xz $vtLoopExDir/dm-mod/$vtKver/64/dax.ko
-ventoy_check_install_module_xz $vtLoopExDir/dm-mod/$vtKver/64/dm-mod.ko
+    ventoy_check_install_module_xz $vtLoopExDir/dm-mod/$vtKver/64/dax.ko
+    ventoy_check_install_module_xz $vtLoopExDir/dm-mod/$vtKver/64/dm-mod.ko
+fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"

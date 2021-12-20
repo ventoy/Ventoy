@@ -73,6 +73,17 @@ void Log(const char *Fmt, ...)
 
 }
 
+const char* GUID2String(void *guid, char *buf, int len)
+{
+    GUID* pGUID = (GUID*)guid;
+    sprintf_s(buf, len, "{%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x}",
+        pGUID->Data1, pGUID->Data2, pGUID->Data3,
+        pGUID->Data4[0], pGUID->Data4[1],
+        pGUID->Data4[2], pGUID->Data4[3], pGUID->Data4[4], pGUID->Data4[5], pGUID->Data4[6], pGUID->Data4[7]
+    );
+    return buf;
+}
+
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...)
 {
     va_list Arg;
@@ -231,12 +242,22 @@ BOOL IsWow64(void)
     typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
     LPFN_ISWOW64PROCESS fnIsWow64Process;
     BOOL bIsWow64 = FALSE;
+	CHAR Wow64Dir[MAX_PATH];
 
     fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandleA("kernel32"), "IsWow64Process");
     if (NULL != fnIsWow64Process)
     {
         fnIsWow64Process(GetCurrentProcess(), &bIsWow64);
     }
+
+	if (!bIsWow64)
+	{
+		if (GetSystemWow64DirectoryA(Wow64Dir, sizeof(Wow64Dir)))
+		{
+			Log("GetSystemWow64DirectoryA=<%s>", Wow64Dir);
+			bIsWow64 = TRUE;
+		}
+	}
 
     return bIsWow64;
 }

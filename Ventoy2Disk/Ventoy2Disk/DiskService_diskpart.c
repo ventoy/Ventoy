@@ -64,6 +64,9 @@ STATIC BOOL DSPT_CommProc(const char *Cmd)
     WaitForSingleObject(Pi.hProcess, INFINITE);
     Log("Process finished...");
 
+    CHECK_CLOSE_HANDLE(Pi.hProcess);
+    CHECK_CLOSE_HANDLE(Pi.hThread);
+
     DeleteFileA(CmdFile);
     return TRUE;
 }
