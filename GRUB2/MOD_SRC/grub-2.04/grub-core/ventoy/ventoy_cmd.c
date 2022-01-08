@@ -2748,6 +2748,7 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
 {
     char *pos;
     const char *fs = NULL;
+    const char *val = NULL;
     const char *cdprompt = NULL;
     grub_uint32_t i;
     grub_uint8_t  chksum = 0;
@@ -2792,6 +2793,13 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
     if (fs && grub_strcmp(fs, "udf") == 0)
     {
         param->vtoy_reserved[3] = 1;
+    }
+
+    param->vtoy_reserved[5] = 0;
+    val = ventoy_get_env("VTOY_LINUX_REMOUNT");
+    if (val && val[0] == '1' && val[1] == 0)
+    {
+        param->vtoy_reserved[5] = 1;
     }
 
     /* calculate checksum */

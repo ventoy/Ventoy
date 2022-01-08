@@ -71,6 +71,9 @@ STATIC BOOLEAN g_hook_keyboard = FALSE;
 
 CHAR16 gFirstTryBootFile[256] = {0};
 
+STATIC EFI_GET_VARIABLE g_org_get_variable = NULL;
+STATIC EFI_EXIT_BOOT_SERVICES g_org_exit_boot_service = NULL;
+
 /* Boot filename */
 UINTN gBootFileStartIndex = 1;
 CONST CHAR16 *gEfiBootFileName[] = 
@@ -739,6 +742,77 @@ STATIC EFI_STATUS ventoy_proc_img_replace_name(ventoy_grub_param_file_replace *r
     return EFI_SUCCESS;
 }
 
+EFI_STATUS EFIAPI ventoy_get_variable_wrapper
+(
+    IN     CHAR16                      *VariableName,
+    IN     EFI_GUID                    *VendorGuid,
+    OUT    UINT32                      *Attributes,    OPTIONAL
+    IN OUT UINTN                       *DataSize,
+    OUT    VOID                        *Data           OPTIONAL
+)
+{
+    EFI_STATUS Status = EFI_SUCCESS;
+    
+    Status = g_org_get_variable(VariableName, VendorGuid, Attributes, DataSize, Data);
+    if (StrCmp(VariableName, L"SecureBoot") == 0)
+    {
+        if ((*DataSize == 1) && Data)
+        {
+            *(UINT8 *)Data = 0;
+        }
+    }
+
+    return Status;
+}
+
+EFI_STATUS EFIAPI ventoy_exit_boot_service_wrapper
+(
+    IN  EFI_HANDLE                   ImageHandle,
+    IN  UINTN                        MapKey
+)
+{
+    if (g_org_get_variable)
+    {
+        gRT->GetVariable = g_org_get_variable;
+        g_org_get_variable = NULL;
+    }
+    
+    return g_org_exit_boot_service(ImageHandle, MapKey);
+}
+
+STATIC EFI_STATUS EFIAPI ventoy_disable_secure_boot(IN EFI_HANDLE ImageHandle)
+{
+    UINT8 Value = 0;
+    UINTN DataSize = 1;
+    EFI_STATUS Status = EFI_SUCCESS;
+
+    Status = gRT->GetVariable(L"SecureBoot", &gEfiGlobalVariableGuid, NULL, &DataSize, &Value);
+    if (!EFI_ERROR(Status))
+    {
+        if (DataSize == 1 && Value == 0)
+        {
+            debug("Current secure boot is off, no need to disable");
+            return EFI_SUCCESS;
+        }
+    }
+
+    debug("ventoy_disable_secure_boot");
+
+    /* step1: wrapper security protocol. */
+    /* Do we still need it since we have been loaded ? */
+    
+    
+    /* step2: fake SecureBoot variable */
+    g_org_exit_boot_service = gBS->ExitBootServices;
+    gBS->ExitBootServices = ventoy_exit_boot_service_wrapper;
+    
+    g_org_get_variable = gRT->GetVariable;
+    gRT->GetVariable = ventoy_get_variable_wrapper;
+
+    return EFI_SUCCESS;
+}
+
+
 STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
 {   
     UINT32 i = 0;
@@ -908,6 +982,11 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         if (g_os_param_reserved[2] == ventoy_chain_windows && g_os_param_reserved[4] != 1)
         {
             g_hook_keyboard = TRUE;
+        }
+        
+        if (g_os_param_reserved[5] == 1 && g_os_param_reserved[2] == ventoy_chain_linux)
+        {
+            ventoy_disable_secure_boot(ImageHandle);
         }
 
         debug("internal param: secover:%u keyboard:%u", g_fixup_iso9660_secover_enable, g_hook_keyboard);

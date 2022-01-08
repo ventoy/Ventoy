@@ -505,6 +505,7 @@ int ventoy_data_cmp_control(data_control *data1, data_control *data2)
         data1->filter_vhd != data2->filter_vhd ||
         data1->filter_vtoy != data2->filter_vtoy ||
         data1->win11_bypass_check != data2->win11_bypass_check ||
+        data1->linux_remount != data2->linux_remount ||
         data1->menu_timeout != data2->menu_timeout)
     {
         return 1;
@@ -549,6 +550,7 @@ int ventoy_data_save_control(data_control *data, const char *title, char *buf, i
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_VHD", filter_vhd);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_VTOY", filter_vtoy);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_WIN11_BYPASS_CHECK",  win11_bypass_check);
+    VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_LINUX_REMOUNT",  linux_remount);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_MENU_TIMEOUT",  menu_timeout);
 
     VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_DEFAULT_KBD_LAYOUT", default_kbd_layout);        
@@ -593,6 +595,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_SINT("filter_vhd", ctrl->filter_vhd);
     VTOY_JSON_FMT_SINT("filter_vtoy", ctrl->filter_vtoy);
     VTOY_JSON_FMT_SINT("win11_bypass_check",  ctrl->win11_bypass_check);
+    VTOY_JSON_FMT_SINT("linux_remount",  ctrl->linux_remount);
     VTOY_JSON_FMT_SINT("menu_timeout",  ctrl->menu_timeout);
     VTOY_JSON_FMT_STRN("default_kbd_layout",  ctrl->default_kbd_layout);
     VTOY_JSON_FMT_STRN("help_text_language",  ctrl->help_text_language);
@@ -658,6 +661,7 @@ static int ventoy_api_save_control(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_INT("filter_vhd", ctrl->filter_vhd);
     VTOY_JSON_INT("filter_vtoy", ctrl->filter_vtoy);
     VTOY_JSON_INT("win11_bypass_check", ctrl->win11_bypass_check);
+    VTOY_JSON_INT("linux_remount", ctrl->linux_remount);
     VTOY_JSON_INT("menu_timeout", ctrl->menu_timeout);
 
     VTOY_JSON_STR("default_image", ctrl->default_image);
@@ -3789,6 +3793,10 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
             else if (strcmp(child->pcName, "VTOY_WIN11_BYPASS_CHECK") == 0)
             {
                 CONTROL_PARSE_INT(child, data->win11_bypass_check);
+            }
+            else if (strcmp(child->pcName, "VTOY_LINUX_REMOUNT") == 0)
+            {
+                CONTROL_PARSE_INT(child, data->linux_remount);
             }
             else if (strcmp(child->pcName, "VTOY_TREE_VIEW_MENU_STYLE") == 0)
             {

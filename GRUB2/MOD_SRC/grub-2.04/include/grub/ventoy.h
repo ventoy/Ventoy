@@ -121,6 +121,7 @@ typedef struct ventoy_os_param
      * vtoy_reserved[2]: vtoy_chain_type     0:Linux    1:Windows  2:wimfile
      * vtoy_reserved[3]: vtoy_iso_format     0:iso9660  1:udf
      * vtoy_reserved[4]: vtoy_windows_cd_prompt
+     * vtoy_reserved[5]: vtoy_linux_remount
      *
      */
     grub_uint8_t   vtoy_reserved[32];    // Internal use by ventoy
