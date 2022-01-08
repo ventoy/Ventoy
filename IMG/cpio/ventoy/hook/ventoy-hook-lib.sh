@@ -309,7 +309,17 @@ ventoy_dm_patch() {
 
 
     vtKv=$($BUSYBOX_PATH/uname -r)
-    vtModPath=$($FIND /lib/modules/$vtKv/kernel/fs/ -name "*.ko*" | $HEAD -n1)
+    
+    if [ -d /lib/modules/$vtKv/kernel/fs ]; then
+        vtModPath=$($FIND /lib/modules/$vtKv/kernel/fs/ -name "*.ko*" | $HEAD -n1)
+    else
+        vtModPath=$($FIND /lib/modules/$vtKv/kernel/ -name "xfs.ko*" | $HEAD -n1)
+    fi
+    
+    if [ -z "$vtModPath" ]; then
+        vtModPath=$($FIND /lib/modules/$vtKv/kernel/ -name "*.ko*" | $HEAD -n1)
+    fi
+    
     vtModName=$($BUSYBOX_PATH/basename $vtModPath)
     
     vtlog "template module is $vtModPath $vtModName"
