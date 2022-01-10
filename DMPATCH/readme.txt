@@ -9,6 +9,7 @@
 6. modify ./scripts/mod/modpost.c
     1. skip add_srcversion (just return)
     2. force add_retpoline (#ifdef --> #ifndef)
+    3. force add_intree_flag
 
 7. make modules_prepare LOCALVERSION=-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
