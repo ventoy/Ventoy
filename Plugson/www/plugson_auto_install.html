@@ -156,9 +156,11 @@
     if (id.startsWith('id_timeout_en_')) {
       textid = 'input[id=id_text_timeout_' + index + ']';
       value = data.timeout;
+      data.timeouten = checked;
     } else {
       textid = 'input[id=id_text_autosel_' + index + ']';
       value = data.autosel;
+      data.autoselen = checked;
     }
     
     if (checked) {
