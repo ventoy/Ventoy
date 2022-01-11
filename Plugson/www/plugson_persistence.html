@@ -108,7 +108,7 @@
     var value = $(this).val();
     var intval;
     
-    if (id.length <= 16) {
+    if (typeof(id) == 'undefined' || id.length <= 16) {
       return;
     }
 
@@ -146,7 +146,7 @@
     var id = $(this).attr('id');
     var checked = $(this).is(':checked');
 
-    if (id.length <= 14) {
+    if (typeof(id) == 'undefined' || id.length <= 14) {
       return;
     }
 
@@ -280,6 +280,9 @@
 
     $('input[type=text]').each(function (){
       var id = $(this).attr('id');
+      if (typeof(id) == 'undefined') {
+        retunrn;
+      }
       
       if (id.startsWith('id_text_timeout_') || id.startsWith('id_text_autosel_')) {
         $(this).change(OnInputTextChange);

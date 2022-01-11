@@ -176,7 +176,7 @@
 
   $('input[type=radio]').each(function(){
     var id = $(this).attr('id');
-    if (id.startsWith('id_image_list_type')) {
+    if (typeof(id) != 'undefined' && id.startsWith('id_image_list_type')) {
       $(this).change(VtoySaveCurrentPage);
     }
   });
