@@ -68,9 +68,17 @@ static volatile ko_param g_ko_param =
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-
+#if defined(CONFIG_X86_64)
+#define PATCH_OP_POS    3
 #define CODE_MATCH(code, i) \
     (code[i] == 0x40 && code[i + 1] == 0x80 && code[i + 2] == 0xce && code[i + 3] == 0x80)
+#elif defined(CONFIG_X86_32)
+#define PATCH_OP_POS    2
+#define CODE_MATCH(code, i) \
+    (code[i] == 0x80 && code[i + 1] == 0xca && code[i + 2] == 0x80 && code[i + 3] == 0xe8)
+#else
+#error "unsupported arch"
+#endif
 
 #define vdebug(fmt, args...) if(kprintf) kprintf(KERN_ERR fmt, ##args)
 
@@ -88,7 +96,7 @@ static int notrace dmpatch_replace_code(unsigned long addr, unsigned long size, 
     {
         if (CODE_MATCH(opCode, i) && cnt < MAX_PATCH)
         {
-            patch[cnt] = opCode + i + 3;
+            patch[cnt] = opCode + i + PATCH_OP_POS;
             cnt++;
         }
     }

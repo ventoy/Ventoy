@@ -1,5 +1,5 @@
 1. install ubuntu 21.10
-2. apt-get install build-essential flex ncurse linux-headers-generic linux-source ...... and so on
+2. apt-get install build-essential flex libncurses-dev linux-headers-generic linux-source libssl-dev ...... and so on
 3. cp /lib/modules/5.13.0-23-generic/build/Module.symvers ./
 4. /boot/config-5.13.0-23-generic as .config   make oldconfig
 5. make menuconfig 

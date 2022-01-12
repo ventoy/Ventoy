@@ -256,6 +256,8 @@ ventoy_dm_patch() {
 
     if echo $vtMType | $EGREP -i -q "x86.64|amd64"; then
         vtKoName=dm_patch_64.ko
+    elif echo $vtMType | $EGREP -i -q "i[3-6]86"; then
+        vtKoName=dm_patch_32.ko
     else
         vtlog "unsupported machine type $vtMType"
         return
