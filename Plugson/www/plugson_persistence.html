@@ -281,7 +281,7 @@
     $('input[type=text]').each(function (){
       var id = $(this).attr('id');
       if (typeof(id) == 'undefined') {
-        retunrn;
+        return;
       }
       
       if (id.startsWith('id_text_timeout_') || id.startsWith('id_text_autosel_')) {
