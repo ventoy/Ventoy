@@ -61,15 +61,17 @@
                       <td class="td_ctrl_col">选项说明</td>
                       <td>
                         指定搜索ISO文件的根目录。默认Ventoy会搜索U盘上的所有目录和子目录，当你U盘上有海量的文件时，这个过程会很慢。<br/>
-                        这种情况下你可以把ISO文件单独放在某个目录下，然后通过这个变量来指定搜索路径，此时Ventoy就只会搜索该目录及其子目录。
+                        这种情况下你可以把ISO文件单独放在某个子目录下，然后通过这个变量来指定搜索路径，此时Ventoy就只会搜索该目录及其子目录。<br/>
+                        注意这里不能设置为U盘根目录，必须为一个子目录。
                       </td>
                     </tr>
                     <tr id="tr_title_desc_en">
                       <td class="td_ctrl_col">Option Description</td>
                       <td>
                         The root path where to search the image files. By default, Ventoy will search all the directories and subdirectories in the USB. This will be very slow when you have huge number of files in the USB. 
-                        In this case, you can put all the image files in one directory and use this to specify the search path. 
-                        After that Ventoy will only search this directory and its subdirectories for image files.
+                        In this case, you can put all the image files in one subdirectory and use this to specify the search path. 
+                        After that Ventoy will only search this directory and its subdirectories for image files.<br/>
+                        Note: the path must not be the mountpoint of the first partition, but a subdirectory.
                       </td>
                     </tr>
                 </table>
