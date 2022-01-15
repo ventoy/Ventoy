@@ -56,10 +56,15 @@ fi
 
 # check size
 if echo $size | grep -q "^[0-9][0-9]*$"; then
-    if [ $size -le 1 ]; then
-        echo "Invalid size $size"
-        exit 1
+    vtMinSize=1
+    if echo $fstype | grep -q '^xfs$'; then
+        vtMinSize=16
     fi
+    
+    if [ $size -lt $vtMinSize ]; then
+        echo "size too small ($size)"
+        exit 1
+    fi    
 else
     echo "Invalid size $size"
     exit 1
