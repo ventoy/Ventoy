@@ -2384,11 +2384,11 @@
         "STR_VTSI_CREATE_TIP":"Tällä kerralla laitteeseen ei kirjoiteta, vaan luodaan ainoastaan VTSI -tiedosto#@Jatketaanko?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI -tiedosto luotiin onnistuneesti!#@Voit käyttää Rufus-ohjelmaa(3.15+) kirjoittaaksesi sen laitteeseen viimeistelläksesi Ventoy-asennuksen.",
         "STR_VTSI_CREATE_FAILED":"VTSI -tiedoston luominen epäonnistui.",
-        "STR_MENU_PART_RESIZE":"Non-destructive Install",
-        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
-        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
-        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_MENU_PART_RESIZE":"Ei-tuhoisa asennus",
+        "STR_PART_RESIZE_TIP":"Ventoy kokeilee ei-tuhoisaa asennusta mikäli tämä on mahdollista. #@Jatketaanko?",
+        "STR_PART_RESIZE_SUCCESS":"Onnittelut!#@Ventoyn ei-tuhoisa asennus saapui päätökseen onnistuneesti.",
+        "STR_PART_RESIZE_FAILED":"Ei-tuhoisa asennusmuoto epäonnistui, tarkista log.txt nähdäksesi yksityiskohtaiset tiedot.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ventoyn ei-tuhoisa asennus pysähtyi koska jotkut ehdot eivät täyttyneet. Tarkista log.txt nähdäksesi yksityiskohdat.",
         
         "STRXXX":""
     },
