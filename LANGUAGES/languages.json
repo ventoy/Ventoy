@@ -2156,11 +2156,11 @@
         "STR_VTSI_CREATE_TIP":"Den här gången skrivs det inget till enheten, utan det skapas endast en VTSI-fil#@Fortsätta?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI-filen skapad!#@Använd Rufus (3.15+) till att skriva till enheten för att slutföra installationen av Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Misslyckades med att skapa VTSI-filen.",
-        "STR_MENU_PART_RESIZE":"Non-destructive Install",
-        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
-        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
-        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_MENU_PART_RESIZE":"Icke-förstörande installation",
+        "STR_PART_RESIZE_TIP":"Om det är möjligt kommer Ventoy att försöka göra en icke-förstörande installation. #@Fortsätta?",
+        "STR_PART_RESIZE_SUCCESS":"Gratulerar!#@Ventoy lyckades slutföra en icke-förstörande installation.",
+        "STR_PART_RESIZE_FAILED":"Ventoy misslyckades slutföra en icke-förstörande installation. Mer information finns i log.txt.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Icke-förstörande installation stoppades eftersom vissa villkor inte kunde uppfyllas. Mer information finns i log.txt.",
         
         "STRXXX":""
     },
