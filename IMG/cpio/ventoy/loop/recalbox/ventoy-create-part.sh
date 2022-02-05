@@ -19,32 +19,27 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if is_ventoy_hook_finished; then
-    exit 0
-fi
-
-vtlog "####### $0 $* ########"
-
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-wait_for_usb_disk_ready
-
-vtdiskname=$(get_ventoy_disk_name)
-if [ "$vtdiskname" = "unknown" ]; then
-    vtlog "ventoy disk not found"
-    PATH=$VTPATH_OLD
+if [ -f /vtoy_dm_table ]; then
+    vtPartCnt=$(cat /vtoy_dm_table | wc -l)
+    if [ $vtPartCnt -ne 1 ]; then
+        exit 0
+    fi
+else
     exit 0
 fi
 
-if [ -f $VTOY_PATH/modules/dm-mod.ko ]; then
-    insmod $VTOY_PATH/modules/dm-mod.ko
+vtlog "try patch init script"
+
+if [ -f /new_root/etc/init.d/S11share ]; then
+    cp -a /new_root/etc/init.d/S11share /new_root/overlay/S11share
+    sed "/^ *createMissingPartitions *$/r $VTOY_PATH/loop/recalbox/ventoy-share.sh" -i /new_root/overlay/S11share
+    
+    vtFile=$(ls -1 /new_root/etc/init.d/ | grep -m1 S01)
+    
+    mount --bind /new_root/overlay/S11share  /new_root/etc/init.d/$vtFile
+    vtlog "patch S11share to $vtFile"
 fi
 
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
-
-ventoy_create_dev_ventoy_part
-
-
 PATH=$VTPATH_OLD
-
-set_ventoy_hook_finish

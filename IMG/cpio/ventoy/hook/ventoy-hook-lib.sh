@@ -312,7 +312,10 @@ ventoy_dm_patch() {
 
     vtKv=$($BUSYBOX_PATH/uname -r)
     
-    if [ -d /lib/modules/$vtKv/kernel/fs ]; then
+    if [ ! -d /lib/modules/$vtKv ]; then
+        vtlog "No modules directory found"
+        return
+    elif [ -d /lib/modules/$vtKv/kernel/fs ]; then
         vtModPath=$($FIND /lib/modules/$vtKv/kernel/fs/ -name "*.ko*" | $HEAD -n1)
     else
         vtModPath=$($FIND /lib/modules/$vtKv/kernel/ -name "xfs.ko*" | $HEAD -n1)
@@ -326,7 +329,10 @@ ventoy_dm_patch() {
     
     vtlog "template module is $vtModPath $vtModName"
     
-    if echo $vtModPath | $GREP -q "[.]ko$"; then
+    if [ -z "$vtModPath" ]; then
+        vtlog "No template module found"
+        return
+    elif echo $vtModPath | $GREP -q "[.]ko$"; then
         $BUSYBOX_PATH/cp -a $vtModPath  $VTOY_PATH/$vtModName
     elif echo $vtModPath | $GREP -q "[.]ko[.]xz$"; then
         $BUSYBOX_PATH/xzcat $vtModPath > $VTOY_PATH/$vtModName

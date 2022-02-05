@@ -124,6 +124,7 @@ static int g_list_script_pos = 0;
 
 static char *g_part_list_buf = NULL;
 static int g_part_list_pos = 0;
+static grub_uint64_t g_part_end_max = 0;
 
 static int g_video_mode_max = 0;
 static int g_video_mode_num = 0;
@@ -3646,6 +3647,7 @@ end:
 
 static int ventoy_img_partition_callback (struct grub_disk *disk, const grub_partition_t partition, void *data)
 {
+    grub_uint64_t end_max = 0;
     int *pCnt = (int *)data;
     
     (void)disk;
@@ -3654,6 +3656,12 @@ static int ventoy_img_partition_callback (struct grub_disk *disk, const grub_par
     g_part_list_pos += grub_snprintf(g_part_list_buf + g_part_list_pos, VTOY_MAX_SCRIPT_BUF - g_part_list_pos,
         "0 %llu linear /dev/ventoy %llu\n",
         (ulonglong)partition->len, (ulonglong)partition->start);
+
+    end_max = (partition->len + partition->start) * 512;
+    if (end_max > g_part_end_max)
+    {
+        g_part_end_max = end_max;
+    }
         
     return 0;
 }
@@ -3668,6 +3676,7 @@ static grub_err_t ventoy_cmd_img_part_info(grub_extcmd_context_t ctxt, int argc,
     (void)ctxt;
 
     g_part_list_pos = 0;
+    g_part_end_max = 0;
     grub_env_unset("vtoy_img_part_file");
 
     if (argc != 1)
@@ -3696,6 +3705,9 @@ static grub_err_t ventoy_cmd_img_part_info(grub_extcmd_context_t ctxt, int argc,
 
     grub_snprintf(buf, sizeof(buf), "%d", cnt);
     grub_env_set("vtoy_img_part_cnt", buf);
+    
+    grub_snprintf(buf, sizeof(buf), "%llu", (ulonglong)g_part_end_max);
+    grub_env_set("vtoy_img_max_part_end", buf);
 
 end:
 
