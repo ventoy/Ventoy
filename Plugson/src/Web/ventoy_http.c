@@ -322,6 +322,9 @@ static int ventoy_api_sysinfo(struct mg_connection *conn, VTOY_JSON *json)
     //read clear
     VTOY_JSON_FMT_SINT("syntax_error", g_sysinfo.syntax_error);
     g_sysinfo.syntax_error = 0;
+    
+    VTOY_JSON_FMT_SINT("invalid_config", g_sysinfo.invalid_config);
+    g_sysinfo.invalid_config = 0;
 
 
     #if defined(_MSC_VER) || defined(WIN32)
@@ -4917,6 +4920,7 @@ static int ventoy_load_old_json(const char *filename)
     unsigned char *start = NULL;
     VTOY_JSON *json = NULL;
     VTOY_JSON *node = NULL;
+    VTOY_JSON *next = NULL;
 
     ret = ventoy_read_file_to_buf(filename, 4, (void **)&buffer, &buflen);
     if (ret)
@@ -4951,6 +4955,18 @@ static int ventoy_load_old_json(const char *filename)
         vlog("parse ventoy.json success\n");
 
         for (node = json->pstChild; node; node = node->pstNext)
+        for (next = node->pstNext; next; next = next->pstNext)
+        {
+            if (node->pcName && next->pcName && strcmp(node->pcName, next->pcName) == 0)
+            {
+                vlog("ventoy.json contains duplicate key <%s>.\n", node->pcName);
+                g_sysinfo.invalid_config = 1;
+                ret = 1;
+                goto end;
+            }
+        }
+
+        for (node = json->pstChild; node; node = node->pstNext)
         {
             ventoy_parse_json(control);
             ventoy_parse_json(theme);
@@ -4975,6 +4991,7 @@ static int ventoy_load_old_json(const char *filename)
         ret = 1;
     }
 
+end:
     vtoy_json_destroy(json);
 
     free(buffer);
