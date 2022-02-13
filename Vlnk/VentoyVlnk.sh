@@ -153,11 +153,23 @@ if [ "$CMD" = "c" ]; then
     
     #check fs
     if grep -q " ${FULLDIR} " /proc/mounts; then
+        DEV=$(grep " ${FULLDIR} " /proc/mounts | awk '{print $1}')
         FS=$(grep " ${FULLDIR} " /proc/mounts | awk '{print $3}')
-        vlog "File system is $FS"
+        vlog "File system of $DEV is $FS"
         
         if echo $FS | egrep -q "ext2|ext3|ext4|exfat|vfat|fat32|fat16|fat12|ntfs|xfs|udf"; then
             vlog "FS OK"
+        elif [ "$FS" = "fuseblk" ]; then
+            vlog "$DEV is fuseblk"
+            if hexdump -C -n 8 $DEV | grep -q "NTFS"; then
+                vlog "$DEV is NTFS OK"
+            elif hexdump -C -n 8 $DEV | grep -q "EXFAT"; then
+                vlog "$DEV is exFAT OK"
+            else
+                echo "$DEV is not supported!"
+                hexdump -C -n 8 $DEV
+                exit 1
+            fi
         else
             echo "$FS is not supported!"
             exit 1
