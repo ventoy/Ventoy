@@ -60,6 +60,12 @@ while [ -n "$1" ]; do
             exit 1
         fi
         DISK=$1
+        # Resolve symlinks now, will be needed to look up information about the device in
+        # the /sys/ filesystem, for example /sys/class/block/${DISK#/dev/}/start
+        # The main use case is supporting /dev/disk/by-id/ symlinks instead of raw devices
+        if [ -L "$DISK" ]; then
+            DISK=$(readlink -e -n "$DISK")
+        fi
     fi
     
     shift
