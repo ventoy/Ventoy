@@ -21,7 +21,7 @@ body:
     attributes:
       label: Ventoy Version
       description: What version of ventoy are you running?
-      placeholder: 1.0.65
+      placeholder: 1.0.66
     validations:
       required: true
   - type: dropdown

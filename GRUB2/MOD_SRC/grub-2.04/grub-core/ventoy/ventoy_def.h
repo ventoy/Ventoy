@@ -304,6 +304,7 @@ extern ventoy_guid  g_ventoy_guid;
 extern ventoy_img_chunk_list g_img_chunk_list;
 extern ventoy_img_chunk_list g_wimiso_chunk_list;
 extern char *g_wimiso_path;
+extern grub_uint32_t g_wimiso_size;
 extern char g_arch_mode_suffix[64];
 extern const char *g_menu_prefix[img_type_max];
 
@@ -604,7 +605,6 @@ grub_err_t ventoy_cmd_trailer_cpio(grub_extcmd_context_t ctxt, int argc, char **
 int ventoy_cpio_newc_fill_head(void *buf, int filesize, const void *filedata, const char *name);
 grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...);
 grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...);
-int ventoy_is_file_exist(const char *fmt, ...);
 int ventoy_is_dir_exist(const char *fmt, ...);
 int ventoy_fill_data(grub_uint32_t buflen, char *buffer);
 grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -826,6 +826,7 @@ typedef struct ventoy_video_mode
 typedef struct file_fullpath
 {
     char path[256];
+    int vlnk_add;
 }file_fullpath;
 
 typedef struct theme_list
@@ -1152,6 +1153,21 @@ struct g_ventoy_map{
     grub_uint32_t magic3[4];
 };
 #pragma pack()
+
+typedef struct ventoy_vlnk_part
+{
+    grub_uint32_t disksig;
+    grub_uint64_t partoffset;
+    char disk[64];
+    char device[64];
+    grub_device_t dev;
+    grub_fs_t fs;
+    int probe;
+    struct ventoy_vlnk_part *next;
+}ventoy_vlnk_part;
+
+extern char g_iso_path[256];
+int ventoy_add_vlnk_file(char *dir, const char *name);
 
 #endif /* __VENTOY_DEF_H__ */
 

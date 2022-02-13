@@ -128,5 +128,6 @@ grub_fs_unregister (grub_fs_t fs)
 #define FOR_FILESYSTEMS(var) FOR_LIST_ELEMENTS((var), (grub_fs_list))
 
 grub_fs_t EXPORT_FUNC(grub_fs_probe) (grub_device_t device);
+grub_fs_t EXPORT_FUNC(grub_fs_list_probe) (grub_device_t device, const char **list);
 
 #endif /* ! GRUB_FS_HEADER */

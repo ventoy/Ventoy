@@ -31,6 +31,7 @@ HEAD=$BUSYBOX_PATH/head
 VTOY_DM_PATH=/dev/mapper/ventoy
 VTOY_DEBUG_LEVEL=$($BUSYBOX_PATH/hexdump -n 1 -s 450 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 VTOY_LINUX_REMOUNT=$($BUSYBOX_PATH/hexdump -n 1 -s 454 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+VTOY_VLNK_BOOT=$($BUSYBOX_PATH/hexdump -n 1 -s 455 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 
 if [ "$VTOY_DEBUG_LEVEL" = "01" ]; then
     if [ -e /dev/console ]; then
@@ -65,12 +66,16 @@ set_ventoy_hook_finish() {
     echo 'Y' > $VTOY_PATH/hook_finish
 }
 
-get_ventoy_disk_name() {    
-    line=$($VTOY_PATH/tool/vtoydump -f /ventoy/ventoy_os_param)
-    if [ $? -eq 0 ]; then
-        echo ${line%%#*}
-    else    
-        echo "unknown"
+get_ventoy_disk_name() {
+    if [ "$VTOY_VLNK_BOOT" = "01" ]; then
+        $VTOY_PATH/tool/vtoydump -t /ventoy/ventoy_os_param
+    else
+        line=$($VTOY_PATH/tool/vtoydump -f /ventoy/ventoy_os_param)
+        if [ $? -eq 0 ]; then
+            echo ${line%%#*}
+        else    
+            echo "unknown"
+        fi
     fi
 }
 
@@ -121,14 +126,6 @@ check_usb_disk_ready() {
     [ -e "${vtpart2}" ]
 }
 
-is_ventoy_disk() {
-    if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$1"; then
-        $BUSYBOX_PATH/true
-    else
-        $BUSYBOX_PATH/false
-    fi
-}
-
 not_ventoy_disk() {
     if echo $1 | $EGREP -q "nvme.*p$|mmc.*p$|nbd.*p$"; then
         vtDiskName=${1:0:-1}
@@ -136,10 +133,15 @@ not_ventoy_disk() {
         vtDiskName=$1
     fi
 
-    if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$vtDiskName"; then
-        $BUSYBOX_PATH/false
+    if [ "$VTOY_VLNK_BOOT" = "01" ]; then
+        vtVtoyDisk=$($VTOY_PATH/tool/vtoydump -t $VTOY_PATH/ventoy_os_param)
+        [ "$vtVtoyDisk" != "/dev/$vtDiskName" ]
     else
-        $BUSYBOX_PATH/true
+        if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$vtDiskName"; then
+            $BUSYBOX_PATH/false
+        else
+            $BUSYBOX_PATH/true
+        fi
     fi
 }
 
@@ -803,7 +805,12 @@ is_inotify_ventoy_part() {
                 fi
                 
                 if [ -e /dev/$vtShortName ]; then
-                    $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c $vtShortName
+                    if [ "$VTOY_VLNK_BOOT" = "01" ]; then
+                        vtOrgDiskName=$($VTOY_PATH/tool/vtoydump -t $VTOY_PATH/ventoy_os_param)
+                        [ "$vtOrgDiskName" = "/dev/$vtShortName" ]
+                    else
+                        $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c $vtShortName
+                    fi
                     return
                 fi
             fi

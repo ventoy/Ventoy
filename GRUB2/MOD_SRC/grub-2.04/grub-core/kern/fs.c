@@ -42,6 +42,44 @@ probe_dummy_iter (const char *filename __attribute__ ((unused)),
   return 1;
 }
 
+grub_fs_t grub_fs_list_probe(grub_device_t device, const char **list)
+{
+    int i;
+    grub_fs_t p;
+
+    if (!device->disk)
+        return 0;
+
+    for (p = grub_fs_list; p; p = p->next) 
+    {
+        for (i = 0; list[i]; i++) 
+        {
+            if (grub_strcmp(p->name, list[i]) == 0)
+                break;
+        }
+
+        if (list[i] == NULL)
+            continue;
+        
+        grub_dprintf("fs", "Detecting %s...\n", p->name);
+
+	    (p->fs_dir) (device, "/", probe_dummy_iter, NULL);
+	    if (grub_errno == GRUB_ERR_NONE)
+	        return p;
+
+        grub_error_push ();
+        grub_dprintf ("fs", "%s detection failed.\n", p->name);
+        grub_error_pop ();
+
+        if (grub_errno != GRUB_ERR_BAD_FS && grub_errno != GRUB_ERR_OUT_OF_RANGE) {
+            return 0;
+        }
+	    grub_errno = GRUB_ERR_NONE;
+	}
+
+    return 0;
+}
+
 grub_fs_t
 grub_fs_probe (grub_device_t device)
 {

@@ -123,7 +123,7 @@ crypto:
 part_bsd: part_msdos
 cs5536: pci
 biosdisk:
-ventoy: elf fshelp ext2 btrfs font crypto gcry_md5 exfat udf extcmd datetime div normal video gcry_sha1 iso9660 acpi
+ventoy: elf fshelp ext2 btrfs font crypto gcry_md5 exfat udf div extcmd datetime normal video gcry_sha1 iso9660 acpi
 lsapm:
 gcry_sha512: crypto
 password: crypto normal

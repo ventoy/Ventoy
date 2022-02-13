@@ -229,12 +229,14 @@ static void EFIAPI ventoy_dump_chain(ventoy_chain_head *chain)
     debug("os_param->vtoy_img_size=<%llu>",    chain->os_param.vtoy_img_size);
     debug("os_param->vtoy_img_location_addr=<0x%llx>", chain->os_param.vtoy_img_location_addr);
     debug("os_param->vtoy_img_location_len=<%u>",    chain->os_param.vtoy_img_location_len);
-    debug("os_param->vtoy_reserved=<%u %u %u %u %u>",    
+    debug("os_param->vtoy_reserved=<%u %u %u %u %u %u %u>",    
           g_os_param_reserved[0], 
           g_os_param_reserved[1], 
           g_os_param_reserved[2], 
           g_os_param_reserved[3],
-          g_os_param_reserved[4]
+          g_os_param_reserved[4],
+          g_os_param_reserved[5],
+          g_os_param_reserved[6]
           );
 
     ventoy_debug_pause();
@@ -578,7 +580,7 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
         if (CompareMem(g_chain->os_param.vtoy_disk_guid, pBuffer + 0x180, 16) == 0)
         {
             pMBR = (MBR_HEAD *)pBuffer;
-            if (pMBR->PartTbl[0].FsFlag != 0xEE)
+            if (g_os_param_reserved[6] == 0 && pMBR->PartTbl[0].FsFlag != 0xEE)
             {
                 if (pMBR->PartTbl[0].StartSectorId != 2048 ||
                     pMBR->PartTbl[1].SectorCount != 65536 ||
@@ -956,6 +958,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         debug("memdisk mode iso_buf_size:%u", g_iso_buf_size);
 
         g_chain = chain;
+        g_os_param_reserved = (UINT8 *)(g_chain->os_param.vtoy_reserved);
         gMemdiskMode = TRUE;
     }
     else

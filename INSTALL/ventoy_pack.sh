@@ -41,6 +41,11 @@ sh build.sh
 sh pack.sh
 cd -
 
+cd ../Vlnk
+sh build.sh
+sh pack.sh
+cd -
+
 
 LOOP=$(losetup -f)
 
@@ -118,6 +123,7 @@ rm -f $tmpdir/ENROLL_THIS_KEY_IN_MOKMANAGER.cer
 cp $OPT Ventoy2Disk.sh $tmpdir/
 cp $OPT VentoyWeb.sh $tmpdir/
 cp $OPT VentoyPlugson.sh $tmpdir/
+cp $OPT VentoyVlnk.sh $tmpdir/
 cp $OPT VentoyGUI* $tmpdir/
 
 
@@ -128,6 +134,7 @@ cp $OPT ExtendPersistentImg.sh $tmpdir/
 dos2unix -q $tmpdir/Ventoy2Disk.sh
 dos2unix -q $tmpdir/VentoyWeb.sh
 dos2unix -q $tmpdir/VentoyPlugson.sh
+dos2unix -q $tmpdir/VentoyVlnk.sh
 
 
 dos2unix -q $tmpdir/CreatePersistentImg.sh
@@ -167,6 +174,7 @@ find $tmpdir/ -type f -exec chmod 644 "{}" +
 chmod +x $tmpdir/Ventoy2Disk.sh
 chmod +x $tmpdir/VentoyWeb.sh
 chmod +x $tmpdir/VentoyPlugson.sh
+chmod +x $tmpdir/VentoyVlnk.sh
 chmod +x $tmpdir/VentoyGUI*
 
 cp $OPT $LANG_DIR/languages.json $tmpdir/tool/
@@ -183,6 +191,7 @@ rm -f ventoy-${curver}-windows.zip
 
 cp $OPT Ventoy2Disk.exe $tmpdir/
 cp $OPT VentoyPlugson.exe $tmpdir/
+cp $OPT VentoyVlnk.exe $tmpdir/
 cp $OPT FOR_X64_ARM.txt $tmpdir/
 mkdir -p $tmpdir/altexe
 cp $OPT Ventoy2Disk_*.exe $tmpdir/altexe/

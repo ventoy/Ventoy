@@ -102,6 +102,7 @@ ventoy_img_chunk_list g_img_chunk_list;
 int g_wimboot_enable = 0;
 ventoy_img_chunk_list g_wimiso_chunk_list;
 char *g_wimiso_path = NULL;
+grub_uint32_t g_wimiso_size = 0;
 
 int g_vhdboot_enable = 0;
 
@@ -154,6 +155,8 @@ static int g_vtoy_load_prompt = 0;
 static char g_vtoy_prompt_msg[64];
 
 static char g_json_case_mis_path[32];
+
+static ventoy_vlnk_part *g_vlnk_part_list = NULL;
 
 static int ventoy_get_fs_type(const char *fs)
 {
@@ -699,32 +702,6 @@ grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...
     return file;
 }
 
-int ventoy_is_file_exist(const char *fmt, ...)
-{
-    va_list ap;
-    int len;
-    char *pos = NULL;
-    char buf[256] = {0};
-
-    grub_snprintf(buf, sizeof(buf), "%s", "[ -f \"");
-    pos = buf + 6;
-
-    va_start (ap, fmt);
-    len = grub_vsnprintf(pos, 255, fmt, ap);
-    va_end (ap);
-
-    grub_strncpy(pos + len, "\" ]", 3);
-
-    debug("script exec %s\n", buf);
-
-    if (0 == grub_script_execute_sourcecode(buf))
-    {
-        return 1;
-    }
-
-    return 0;
-}
-
 int ventoy_is_dir_exist(const char *fmt, ...)
 {
     va_list ap;
@@ -1007,6 +984,7 @@ static grub_err_t ventoy_cmd_load_wimboot(grub_extcmd_context_t ctxt, int argc, 
     (void)args;
 
     g_wimboot_enable = 0;
+    g_wimiso_size = 0;
     grub_check_free(g_wimiso_path);
     grub_check_free(g_wimiso_chunk_list.chunk);
 
@@ -1030,7 +1008,7 @@ static grub_err_t ventoy_cmd_load_wimboot(grub_extcmd_context_t ctxt, int argc, 
 
     g_wimboot_enable = 1;
     g_wimiso_path = grub_strdup(args[0]);
-    
+    g_wimiso_size = (grub_uint32_t)(file->size);
     grub_file_close(file);
 
     return 0;
@@ -1072,6 +1050,11 @@ static grub_err_t ventoy_cmd_concat_efi_iso(grub_extcmd_context_t ctxt, int argc
     {
         debug("failed to open file <%s>\n", args[0]);
         return 1;
+    }
+
+    if (grub_strncmp(args[0], g_iso_path, grub_strlen(g_iso_path)))
+    {
+        file->vlnk = 1;
     }
 
     totlen += ventoy_align_2k(file->size);
@@ -1611,12 +1594,231 @@ static int ventoy_img_name_valid(const char *filename, grub_size_t namelen)
     return 1;
 }
 
+static int ventoy_vlnk_iterate_partition(struct grub_disk *disk, const grub_partition_t partition, void *data)
+{
+    ventoy_vlnk_part *node = NULL;
+    grub_uint32_t *pSig = (grub_uint32_t *)data;
+
+    node = grub_zalloc(sizeof(ventoy_vlnk_part));
+    if (node)
+    {
+        node->disksig = *pSig;
+        node->partoffset = (partition->start << GRUB_DISK_SECTOR_BITS);
+        grub_snprintf(node->disk, sizeof(node->disk) - 1, "%s", disk->name);
+        grub_snprintf(node->device, sizeof(node->device) - 1, "%s,%d", disk->name, partition->number + 1);
+
+        node->next = g_vlnk_part_list;
+        g_vlnk_part_list = node;
+    }
+
+    return 0;
+}
+
+static int ventoy_vlnk_iterate_disk(const char *name, void *data)
+{
+    grub_disk_t disk;
+    grub_uint32_t sig;
+
+    (void)data;
+
+    disk = grub_disk_open(name);
+    if (disk)
+    {
+        grub_disk_read(disk, 0, 0x1b8, 4, &sig);
+
+        /* skip ventoy device self */
+        if (sig != *(grub_uint32_t *)data)
+        {
+            grub_partition_iterate(disk, ventoy_vlnk_iterate_partition, &sig);
+        }
+        
+        grub_disk_close(disk);
+    }
+
+    return 0;
+}
+
+static int ventoy_vlnk_probe_fs(ventoy_vlnk_part *cur)
+{
+    const char *fs[ventoy_fs_max + 1] = 
+    {
+        "exfat", "ntfs", "ext2", "xfs", "udf", "fat", NULL
+    };
+
+    if (!cur->dev)
+    {
+        cur->dev = grub_device_open(cur->device);
+    }
+
+    if (cur->dev)
+    {
+        cur->fs = grub_fs_list_probe(cur->dev, fs);
+    }
+
+    return 0;
+}
+
+static int ventoy_check_vlnk_data(ventoy_vlnk *vlnk, int print, char *dst, int size)
+{
+    int diskfind = 0;
+    int partfind = 0;
+    int filefind = 0;
+    char *disk, *device;
+    grub_uint32_t readcrc, calccrc;
+    ventoy_vlnk_part *cur;
+    grub_fs_t fs = NULL;
+    
+    if (grub_memcmp(&(vlnk->guid), &g_ventoy_guid, sizeof(ventoy_guid)))
+    {
+        if (print)
+        {
+            grub_printf("VLNK invalid guid\n");
+            grub_refresh();
+        }
+        return 1;
+    }
+
+    readcrc = vlnk->crc32;
+    vlnk->crc32 = 0;
+    calccrc = grub_getcrc32c(0, vlnk, sizeof(ventoy_vlnk));
+    if (readcrc != calccrc)
+    {
+        if (print)
+        {
+            grub_printf("VLNK invalid crc 0x%08x 0x%08x\n", calccrc, readcrc);
+            grub_refresh();
+        }
+        return 1;
+    }
+
+    if (!g_vlnk_part_list)
+    {
+        grub_disk_dev_iterate(ventoy_vlnk_iterate_disk, g_ventoy_part_info->MBR.BootCode + 0x1b8);
+    }
+
+    for (cur = g_vlnk_part_list; cur && filefind == 0; cur = cur->next)
+    {
+        if (cur->disksig == vlnk->disk_signature)
+        {
+            diskfind = 1;
+            disk = cur->disk;
+            if (cur->partoffset == vlnk->part_offset)
+            {
+                partfind = 1;
+                device = cur->device;
+
+                if (cur->probe == 0)
+                {
+                    cur->probe = 1;
+                    ventoy_vlnk_probe_fs(cur);
+                }
+    
+                if (!fs)
+                {
+                    fs = cur->fs;
+                }
+                
+                if (cur->fs)
+                {
+                    struct grub_file file;
+
+                    grub_memset(&file, 0, sizeof(file));
+                    file.device = cur->dev;
+                    if (cur->fs->fs_open(&file, vlnk->filepath) == GRUB_ERR_NONE)
+                    {
+                        filefind = 1;
+                        cur->fs->fs_close(&file);
+                        grub_snprintf(dst, size - 1, "(%s)%s", cur->device, vlnk->filepath);
+                    }
+                }
+            }
+        }
+    }
+
+    if (print)
+    {
+        grub_printf("\n==== VLNK Information ====\n"
+                    "Disk Signature: %08x\n"
+                    "Partition Offset: %llu\n"
+                    "File Path: <%s>\n\n",
+                    vlnk->disk_signature, (ulonglong)vlnk->part_offset, vlnk->filepath);
+
+        if (diskfind)
+        {
+            grub_printf("Disk Find: [ YES ] [ %s ]\n", disk);
+        }
+        else
+        {
+            grub_printf("Disk Find: [ NO ]\n");
+        }
+        
+        if (partfind)
+        {
+            grub_printf("Part Find: [ YES ] [ %s ] [ %s ]\n", device, fs ? fs->name : "N/A");
+        }
+        else
+        {
+            grub_printf("Part Find: [ NO ]\n");
+        }
+        grub_printf("File Find: [ %s ]\n", filefind ? "YES" : "NO");
+        if (filefind)
+        {
+            grub_printf("VLNK File: <%s>\n", dst);
+        }
+        
+        grub_printf("\n");
+        grub_refresh();
+    }
+
+    return (1 - filefind);
+}
+
+int ventoy_add_vlnk_file(char *dir, const char *name)
+{
+    int rc = 1;
+    char src[512];
+    char dst[512];
+    grub_file_t file = NULL;
+    ventoy_vlnk vlnk;
+
+    if (!dir)
+    {
+        grub_snprintf(src, sizeof(src), "%s%s", g_iso_path, name);
+    }
+    else if (dir[0] == '/')
+    {
+        grub_snprintf(src, sizeof(src), "%s%s%s", g_iso_path, dir, name);
+    }
+    else
+    {
+        grub_snprintf(src, sizeof(src), "%s/%s%s", g_iso_path, dir, name);
+    }
+
+    file = grub_file_open(src, VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        return 1;
+    }
+
+    grub_memset(&vlnk, 0, sizeof(vlnk));
+    grub_file_read(file, &vlnk, sizeof(vlnk));
+    grub_file_close(file);
+
+    if (ventoy_check_vlnk_data(&vlnk, 0, dst, sizeof(dst)) == 0)
+    {
+        rc = grub_file_add_vlnk(src, dst);        
+    }
+
+    return rc;
+}
+
 static int ventoy_collect_img_files(const char *filename, const struct grub_dirhook_info *info, void *data)
 {
     //int i = 0;
     int type = 0;
     int ignore = 0;
     int index = 0;
+    int vlnk = 0;
     grub_size_t len;
     img_info *img;
     img_info *tail;
@@ -1785,6 +1987,18 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
                 return 0; 
             }
         }
+
+        if (info->size == VTOY_FILT_MIN_FILE_SIZE || info->size == 0)
+        {
+            if (grub_file_is_vlnk_suffix(filename, len))
+            {
+                vlnk = 1;
+                if (ventoy_add_vlnk_file(node->dir, filename) != 0)
+                {
+                    return 0;
+                }
+            }
+        }
         
         img = grub_zalloc(sizeof(img_info));
         if (img)
@@ -1796,9 +2010,16 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
             img->pathlen = grub_snprintf(img->path, sizeof(img->path), "%s%s", node->dir, img->name);
 
             img->size = info->size;
-            if (0 == img->size)
+            if (vlnk || 0 == img->size)
             {
-                img->size = ventoy_grub_get_file_size("%s/%s%s", g_iso_path, node->dir, filename);
+                if (node->dir[0] == '/')
+                {
+                    img->size = ventoy_grub_get_file_size("%s%s%s", g_iso_path, node->dir, filename);                    
+                }
+                else
+                {
+                    img->size = ventoy_grub_get_file_size("%s/%s%s", g_iso_path, node->dir, filename);                    
+                }
             }
 
             if (img->size < VTOY_FILT_MIN_FILE_SIZE)
@@ -2802,6 +3023,10 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
     {
         param->vtoy_reserved[5] = 1;
     }
+
+    /* ventoy_disk_signature used for vlnk */
+    param->vtoy_reserved[6] = file->vlnk;
+    grub_memcpy(param->vtoy_reserved + 7, g_ventoy_part_info->MBR.BootCode + 0x1b8, 4);
 
     /* calculate checksum */
     for (i = 0; i < sizeof(ventoy_os_param); i++)
@@ -5084,6 +5309,114 @@ out:
     return ret;
 }
 
+static grub_err_t grub_cmd_vlnk_dump_part(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int n = 0;
+    ventoy_vlnk_part *node;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    for (node = g_vlnk_part_list; node; node = node->next)
+    {
+        grub_printf("[%d] %s  disksig:%08x  offset:%llu  fs:%s\n", 
+                    ++n, node->device, node->disksig, 
+                    (ulonglong)node->partoffset, (node->fs ? node->fs->name : "N/A"));
+    }
+
+    return 0;
+}
+
+static grub_err_t grub_cmd_is_vlnk_name(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len = 0;
+    
+    (void)ctxt;
+
+    if (argc == 1)
+    {
+        len = (int)grub_strlen(args[0]);
+        if (grub_file_is_vlnk_suffix(args[0], len))
+        {
+            return 0;
+        }        
+    }
+
+    return 1;
+}
+
+static grub_err_t grub_cmd_get_vlnk_dst(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int vlnk = 0;
+    const char *name = NULL;
+    
+    (void)ctxt;
+
+    if (argc == 2)
+    {
+        grub_env_unset(args[1]);
+        name = grub_file_get_vlnk(args[0], &vlnk);
+        if (vlnk)
+        {
+            debug("VLNK SRC: <%s>\n", args[0]);
+            debug("VLNK DST: <%s>\n", name);
+            grub_env_set(args[1], name);
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+static grub_err_t grub_cmd_check_vlnk(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int ret = 1;
+    int len = 0;
+    grub_file_t file = NULL;
+    ventoy_vlnk vlnk;
+    char dst[512];
+    
+    (void)ctxt;
+
+    if (argc != 1)
+    {
+        goto out;
+    }
+
+    len = (int)grub_strlen(args[0]);
+    if (!grub_file_is_vlnk_suffix(args[0], len))
+    {
+        grub_printf("Invalid vlnk suffix\n");
+        goto out;
+    }
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE | GRUB_FILE_TYPE_NO_VLNK);
+    if (!file)
+    {
+        grub_printf("Failed to open %s\n", args[0]);
+        goto out;
+    }
+
+    if (file->size != 32768)
+    {
+        grub_printf("Invalid vlnk file (size=%llu).\n", (ulonglong)file->size);
+        goto out;
+    }
+
+    grub_memset(&vlnk, 0, sizeof(vlnk));
+    grub_file_read(file, &vlnk, sizeof(vlnk));
+
+    ret = ventoy_check_vlnk_data(&vlnk, 1, dst, sizeof(dst));
+
+out:
+
+    grub_refresh();
+    check_free(file, grub_file_close);
+    grub_errno = GRUB_ERR_NONE;
+    return ret;
+}
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -5271,6 +5604,10 @@ static cmd_para ventoy_cmds[] =
     { "vt_append_extra_sector", ventoy_cmd_append_ext_sector, 0, NULL, "", "", NULL },
     { "gptpriority", grub_cmd_gptpriority, 0, NULL, "", "", NULL },
     { "vt_syslinux_need_nojoliet", grub_cmd_syslinux_nojoliet, 0, NULL, "", "", NULL },
+    { "vt_vlnk_check", grub_cmd_check_vlnk, 0, NULL, "", "", NULL },
+    { "vt_vlnk_dump_part", grub_cmd_vlnk_dump_part, 0, NULL, "", "", NULL },
+    { "vt_is_vlnk_name", grub_cmd_is_vlnk_name, 0, NULL, "", "", NULL },
+    { "vt_get_vlnk_dst", grub_cmd_get_vlnk_dst, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)
