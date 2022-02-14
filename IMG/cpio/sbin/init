@@ -115,6 +115,8 @@ fi
 
 if [ "$VTOY_ARCH" = "x86_64" ]; then
     echo "Use x86_64 busybox toolkit ..." >>$VTLOG
+    $BUSYBOX_PATH/xzcat $BUSYBOX_PATH/xzcat64_musl.xz > $BUSYBOX_PATH/xzcat_musl
+    $BUSYBOX_PATH/chmod +x $BUSYBOX_PATH/xzcat_musl
     ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
@@ -124,6 +126,8 @@ if [ "$VTOY_ARCH" = "x86_64" ]; then
     ln -s $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
 elif [ "$VTOY_ARCH" = "i386" ]; then
     echo "Use i386 busybox toolkit ..." >>$VTLOG
+    $BUSYBOX_PATH/xzcat $BUSYBOX_PATH/xzcat32_musl.xz > $BUSYBOX_PATH/xzcat_musl
+    $BUSYBOX_PATH/chmod +x $BUSYBOX_PATH/xzcat_musl
     ln -s $BUSYBOX_PATH/xzminidec32 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup32 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzip32 $VTOY_PATH/tool/lunzip
