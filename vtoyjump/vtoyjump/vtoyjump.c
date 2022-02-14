@@ -1418,6 +1418,40 @@ End:
     return Ret; 
 }
 
+static BOOL CheckVentoyDisk(DWORD DiskNum)
+{
+    DWORD dwSize = 0;
+    CHAR PhyPath[128];
+    UINT8 SectorBuf[512];
+    HANDLE Handle;
+    UINT8 check[8] = { 0x56, 0x54, 0x00, 0x47, 0x65, 0x00, 0x48, 0x44 };
+
+    sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", DiskNum);
+    Handle = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    if (Handle == INVALID_HANDLE_VALUE)
+    {
+        Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
+        return FALSE;
+    }
+
+    if (!ReadFile(Handle, SectorBuf, sizeof(SectorBuf), &dwSize, NULL))
+    {
+        Log("ReadFile failed, dwSize:%u  error:%u", dwSize, GetLastError());
+        CloseHandle(Handle);
+        return FALSE;
+    }
+
+    CloseHandle(Handle);
+
+    if (memcmp(SectorBuf + 0x190, check, 8) == 0)
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
 static int VentoyHook(ventoy_os_param *param)
 {
     int i;
@@ -1429,6 +1463,7 @@ static int VentoyHook(ventoy_os_param *param)
     CHAR VtoyLetter;
     DWORD Drives;
     DWORD NewDrives;
+    DWORD VtoyDiskNum;
     UINT32 DiskSig;
     UINT32 VtoySig;
 	DISK_EXTENT DiskExtent;
@@ -1457,6 +1492,8 @@ static int VentoyHook(ventoy_os_param *param)
                 if (IsFileExist("%s", IsoPath))
                 {
                     Log("File exist under %C:", Letter);
+                    memset(UUID, 0, sizeof(UUID));
+                    memset(&DiskExtent, 0, sizeof(DiskExtent));
                     if (GetPhyDiskUUID(Letter, UUID, NULL, &DiskExtent) == 0)
                     {
                         if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
@@ -1510,6 +1547,9 @@ static int VentoyHook(ventoy_os_param *param)
             {
                 if (Drives & 0x01)
                 {
+                    memset(UUID, 0, sizeof(UUID));
+                    memset(&VtoyDiskExtent, 0, sizeof(VtoyDiskExtent));
+                    DiskSig = 0;
                     if (GetPhyDiskUUID(VtoyLetter, UUID, &DiskSig, &VtoyDiskExtent) == 0)
                     {
                         Log("DiskSig=%08X PartStart=%lld", DiskSig, VtoyDiskExtent.StartingOffset.QuadPart);
@@ -1543,11 +1583,25 @@ static int VentoyHook(ventoy_os_param *param)
             Log("Failed to find ventoy disk");
             return 1;
         }
+
+        VtoyDiskNum = VtoyDiskExtent.DiskNumber;
     }
     else
     {
         VtoyLetter = Letter;
         Log("No vlnk mode %C", Letter);
+
+        VtoyDiskNum = DiskExtent.DiskNumber;
+    }
+
+    if (CheckVentoyDisk(VtoyDiskNum))
+    {
+        Log("Disk check OK %C: %u", VtoyLetter, VtoyDiskNum);
+    }
+    else
+    {
+        Log("Failed to check ventoy disk %u", VtoyDiskNum);
+        return 1;
     }
 
     Drives = GetLogicalDrives();
@@ -1588,7 +1642,7 @@ static int VentoyHook(ventoy_os_param *param)
     }
 
     // for protect
-    rc = DeleteVentoyPart2MountPoint(VtoyDiskExtent.DiskNumber);
+    rc = DeleteVentoyPart2MountPoint(VtoyDiskNum);
     Log("Delete ventoy mountpoint: %s", rc == 0 ? "SUCCESS" : "NO NEED");
     
     if (g_windows_data.auto_install_script[0])
@@ -1615,7 +1669,7 @@ static int VentoyHook(ventoy_os_param *param)
         if (IsFileExist("%s", IsoPath))
         {
             Log("decompress injection archive %s...", IsoPath);
-            DecompressInjectionArchive(IsoPath, VtoyDiskExtent.DiskNumber);
+            DecompressInjectionArchive(IsoPath, VtoyDiskNum);
 
             if (IsFileExist("%s", AUTO_RUN_BAT))
             {

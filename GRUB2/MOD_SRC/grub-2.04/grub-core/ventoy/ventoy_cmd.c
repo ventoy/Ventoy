@@ -134,14 +134,14 @@ static ventoy_video_mode *g_video_mode_list = NULL;
 static int g_enumerate_time_checked = 0;
 static grub_uint64_t g_enumerate_start_time_ms;
 static grub_uint64_t g_enumerate_finish_time_ms;
-static int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
+int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
 
 static int g_pager_flag = 0;
 static char g_old_pager[32];
 
 static const char *g_vtoy_winpeshl_ini = "[LaunchApps]\r\nvtoyjump.exe";
 
-static const char *g_menu_class[] = 
+const char *g_menu_class[img_type_max] = 
 {
     "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg", "vtoyvhd", "vtoyvtoy"
 };
@@ -158,7 +158,7 @@ static char g_json_case_mis_path[32];
 
 static ventoy_vlnk_part *g_vlnk_part_list = NULL;
 
-static int ventoy_get_fs_type(const char *fs)
+int ventoy_get_fs_type(const char *fs)
 {
     if (NULL == fs)
     {
@@ -686,10 +686,10 @@ grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...
 {
     va_list ap;
     grub_file_t file;
-    char fullpath[256] = {0};
+    char fullpath[512] = {0};
 
     va_start (ap, fmt);
-    grub_vsnprintf(fullpath, 255, fmt, ap);
+    grub_vsnprintf(fullpath, 511, fmt, ap);
     va_end (ap);
 
     file = grub_file_open(fullpath, type);
@@ -707,13 +707,13 @@ int ventoy_is_dir_exist(const char *fmt, ...)
     va_list ap;
     int len;
     char *pos = NULL;
-    char buf[256] = {0};
+    char buf[512] = {0};
 
     grub_snprintf(buf, sizeof(buf), "%s", "[ -d \"");
     pos = buf + 6;
 
     va_start (ap, fmt);
-    len = grub_vsnprintf(pos, 255, fmt, ap);
+    len = grub_vsnprintf(pos, 511, fmt, ap);
     va_end (ap);
 
     grub_strncpy(pos + len, "\" ]", 3);
@@ -1582,7 +1582,7 @@ void ventoy_swap_img(img_info *img1, img_info *img2)
     grub_memcpy(img2, &g_img_swap_tmp, sizeof(img_info));
 }
 
-static int ventoy_img_name_valid(const char *filename, grub_size_t namelen)
+int ventoy_img_name_valid(const char *filename, grub_size_t namelen)
 {
     (void)namelen;
     
@@ -2564,6 +2564,40 @@ static grub_err_t ventoy_cmd_ext_select_img_path(grub_extcmd_context_t ctxt, int
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static char g_fake_vlnk_src[512];
+static char g_fake_vlnk_dst[512];
+static grub_uint64_t g_fake_vlnk_size;
+static grub_err_t ventoy_cmd_set_fake_vlnk(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    g_fake_vlnk_size = (grub_uint64_t)grub_strtoull(args[2], NULL, 10);
+
+    grub_strncpy(g_fake_vlnk_dst, args[0], sizeof(g_fake_vlnk_dst));
+    grub_snprintf(g_fake_vlnk_src, sizeof(g_fake_vlnk_src), "%s/________VENTOYVLNK.vlnk.%s", g_iso_path, args[1]);
+
+    grub_file_vtoy_vlnk(g_fake_vlnk_src, g_fake_vlnk_dst);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+static grub_err_t ventoy_cmd_reset_fake_vlnk(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    g_fake_vlnk_src[0] = 0;
+    g_fake_vlnk_dst[0] = 0;
+    g_fake_vlnk_size = 0;
+    grub_file_vtoy_vlnk(NULL, NULL);
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+
 static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     char value[32];
@@ -2576,6 +2610,18 @@ static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int arg
     if (argc < 1 || argc > 2)
     {
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s {var}", cmd_raw_name);
+    }
+
+    if (g_fake_vlnk_src[0] && g_fake_vlnk_dst[0])
+    {
+        grub_env_set(args[0], grub_strchr(g_fake_vlnk_src, '/'));
+        if (argc > 1)
+        {
+            grub_snprintf(value, sizeof(value), "%llu", (ulonglong)(g_fake_vlnk_size));
+            grub_env_set(args[1], value);        
+        }
+
+        goto end;
     }
 
     id = grub_env_get("chosen");
@@ -2603,6 +2649,7 @@ static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int arg
         grub_env_set(args[1], value);        
     }
 
+end:
     g_svd_replace_offset = 0;
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
@@ -5468,6 +5515,8 @@ int ventoy_env_init(void)
 
 static cmd_para ventoy_cmds[] = 
 {
+    { "vt_browser_disk",  ventoy_cmd_browser_disk,  0, NULL, "",   "",    NULL },
+    { "vt_browser_dir",  ventoy_cmd_browser_dir,  0, NULL, "",   "",    NULL },
     { "vt_incr",  ventoy_cmd_incr,  0, NULL, "{Var} {INT}",   "Increase integer variable",    NULL },
     { "vt_mod",  ventoy_cmd_mod,  0, NULL, "{Int} {Int} {Var}",   "mod integer variable",    NULL },
     { "vt_strstr",  ventoy_cmd_strstr,  0, NULL, "",   "",    NULL },
@@ -5608,6 +5657,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_vlnk_dump_part", grub_cmd_vlnk_dump_part, 0, NULL, "", "", NULL },
     { "vt_is_vlnk_name", grub_cmd_is_vlnk_name, 0, NULL, "", "", NULL },
     { "vt_get_vlnk_dst", grub_cmd_get_vlnk_dst, 0, NULL, "", "", NULL },
+    { "vt_set_fake_vlnk", ventoy_cmd_set_fake_vlnk, 0, NULL, "", "", NULL },
+    { "vt_reset_fake_vlnk", ventoy_cmd_reset_fake_vlnk, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

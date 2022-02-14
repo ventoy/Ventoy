@@ -114,6 +114,7 @@ typedef struct grub_vlnk
     struct grub_vlnk *next;
 }grub_vlnk;
 
+static grub_vlnk g_vtoy_vlnk;
 static grub_vlnk *g_vlnk_list;
 
 int grub_file_is_vlnk_suffix(const char *name, int len)
@@ -146,6 +147,23 @@ int grub_file_is_vlnk_suffix(const char *name, int len)
     return 0;
 }
 
+int grub_file_vtoy_vlnk(const char *src, const char *dst)
+{
+    if (src)
+    {
+        g_vtoy_vlnk.srclen = (int)grub_strlen(src);
+        grub_strncpy(g_vtoy_vlnk.src, src, sizeof(g_vtoy_vlnk.src) - 1);
+        grub_strncpy(g_vtoy_vlnk.dst, dst, sizeof(g_vtoy_vlnk.dst) - 1);        
+    }
+    else
+    {
+        g_vtoy_vlnk.srclen = 0;
+        g_vtoy_vlnk.src[0] = 0;
+        g_vtoy_vlnk.dst[0] = 0;
+    }
+    return 0;
+}
+
 int grub_file_add_vlnk(const char *src, const char *dst)
 {
     grub_vlnk *node = NULL;
@@ -174,9 +192,16 @@ const char *grub_file_get_vlnk(const char *name, int *vlnk)
     grub_vlnk *node = g_vlnk_list;
 
     len = grub_strlen(name);
+
     if (!grub_file_is_vlnk_suffix(name, len))
     {
         return name;
+    }
+
+    if (len == g_vtoy_vlnk.srclen && grub_strcmp(name, g_vtoy_vlnk.src) == 0)
+    {
+        *vlnk = 1;
+        return g_vtoy_vlnk.dst; 
     }
     
     while (node)
@@ -207,7 +232,7 @@ grub_file_open (const char *name, enum grub_file_type type)
       return grub_memfile_open(name);
   }
 
-  if (g_vlnk_list && (type & GRUB_FILE_TYPE_NO_VLNK) == 0)
+  if ((g_vlnk_list || g_vtoy_vlnk.srclen) && (type & GRUB_FILE_TYPE_NO_VLNK) == 0)
     name = grub_file_get_vlnk(name, &vlnk);
 
   device_name = grub_file_get_device_name (name);

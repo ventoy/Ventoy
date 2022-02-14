@@ -1,6 +1,6 @@
  h - Prikazuje ove informacije
 F1 - Memdisk način rada (samo za male WinPE/LiveCD imidž fajlove)
-F2 - Ponovno pokretanje/isključivanje
+F2 - Browse and boot files in local disk
 F3 - Mijenja meni između TreeView <-> ListView
 F4 - Pokreće Windows/Linux na lokalnom disku
 F5 - Postavke

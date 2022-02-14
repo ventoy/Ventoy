@@ -218,6 +218,7 @@ grub_err_t EXPORT_FUNC(grub_file_close) (grub_file_t file);
 
 int EXPORT_FUNC(grub_file_is_vlnk_suffix)(const char *name, int len);
 int EXPORT_FUNC(grub_file_add_vlnk)(const char *src, const char *dst);
+int EXPORT_FUNC(grub_file_vtoy_vlnk)(const char *src, const char *dst);
 const char * EXPORT_FUNC(grub_file_get_vlnk)(const char *name, int *vlnk);
 
 /* Return value of grub_file_size() in case file size is unknown. */

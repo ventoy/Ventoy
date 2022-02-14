@@ -485,9 +485,7 @@ void ventoy_data_default_control(data_control *data)
 {
     memset(data, 0, sizeof(data_control));
 
-    data->default_menu_mode = 1;
     data->filter_dot_underscore = 1;
-    data->treeview_style = 1;
     data->max_search_level = -1;
     data->menu_timeout = 0;
     

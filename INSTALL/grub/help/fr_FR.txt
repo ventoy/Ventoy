@@ -1,6 +1,6 @@
  h - Afficher cette aide
 F1 - Mode Memdisk (Seulement pour WinPE/LiveCD ISO/IMG)
-F2 - Redémarrer/arrêter
+F2 - Browse and boot files in local disk
 F3 - Basculer l'affichage 'Vue en arbre' <-> 'Vue en liste'
 F4 - Démarrer le système Windows/Linux local
 F5 - Utilitaires

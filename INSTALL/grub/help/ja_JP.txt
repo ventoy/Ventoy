@@ -1,6 +1,6 @@
  h - この画面を表示する
 F1 - 主記憶装置上に記憶域を作成する（容量の小さなWinPE・LiveCD専用）
-F2 - 再起動・電源断
+F2 - Browse and boot files in local disk
 F3 - 表示形式を切り替える（一覧 ↔ 階層）
 F4 - 手元の記憶装置にあるOSを起動する
 F5 - 諸機能
