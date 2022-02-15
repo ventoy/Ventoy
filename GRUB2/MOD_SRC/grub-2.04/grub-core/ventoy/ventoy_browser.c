@@ -40,8 +40,10 @@ GRUB_MOD_LICENSE ("GPLv3+");
 
 #define BROWSER_MENU_BUF    65536
 
+static const char *g_vtoy_dev = NULL;
 static grub_fs_t g_menu_fs = NULL;
 static char *g_menu_device = NULL;
+static grub_device_t g_menu_dev = NULL;
 static char g_menu_path_buf[1024];
 static int g_menu_path_len = 0;
 static browser_node *g_browser_list = NULL;
@@ -93,13 +95,13 @@ static int ventoy_browser_mbuf_alloc(browser_mbuf *mbuf)
     return 1;
 }
 
-static void ventoy_browser_mbuf_free(browser_mbuf *mbuf)
+static inline void ventoy_browser_mbuf_free(browser_mbuf *mbuf)
 {
     if (mbuf)
         grub_check_free(mbuf->buf)
 }
 
-static int ventoy_browser_mbuf_extend(browser_mbuf *mbuf)
+static inline int ventoy_browser_mbuf_extend(browser_mbuf *mbuf)
 {
     if (mbuf->max - mbuf->pos <= VTOY_SIZE_1KB)
     {
@@ -202,7 +204,12 @@ static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_p
     browser_mbuf *mbuf = (browser_mbuf *)data;
 
     (void)data;
-    
+
+    if (partition->number < 2 && g_vtoy_dev && grub_strcmp(disk->name, g_vtoy_dev) == 0)
+    {
+        return 0;
+    }
+
     grub_snprintf(partname, sizeof(partname) - 1, "%s,%d", disk->name, partition->number + 1);
 
     dev = grub_device_open(partname);
@@ -246,14 +253,9 @@ static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_p
     return 0;
 }
 
-
 static int ventoy_browser_iterate_disk(const char *name, void *data)
 {
     grub_disk_t disk;
-    grub_uint32_t sig;
-    grub_uint32_t selfsig;
-
-    grub_memcpy(&selfsig, g_ventoy_part_info->MBR.BootCode + 0x1b8, 4);
 
     if (name[0] != 'h')
     {
@@ -263,14 +265,7 @@ static int ventoy_browser_iterate_disk(const char *name, void *data)
     disk = grub_disk_open(name);
     if (disk)
     {
-        grub_disk_read(disk, 0, 0x1b8, 4, &sig);
-
-        /* skip ventoy device self */
-        if (sig != selfsig)
-        {
-            grub_partition_iterate(disk, ventoy_browser_iterate_partition, data);
-        }
-        
+        grub_partition_iterate(disk, ventoy_browser_iterate_partition, data);
         grub_disk_close(disk);
     }
 
@@ -325,28 +320,9 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
     }
     else
     {
-        grub_uint64_t fsize;
-        grub_file_t file = NULL;
+        grub_uint64_t fsize = info->size;
         
         if (ventoy_browser_check_filename(filename, len, &type) == 0)
-        {
-            return 0;
-        }
-
-        fsize = info->size;
-        if (fsize == 0)
-        {
-            file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(%s)%s/%s", g_menu_device, g_menu_path_buf, filename);
-            if (!file)
-            {
-                return 0;
-            }
-
-            fsize = file->size;
-            grub_file_close(file);
-        }
-
-        if (fsize < VTOY_FILT_MIN_FILE_SIZE)
         {
             return 0;
         }
@@ -357,6 +333,20 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
             return 0;
         }
 
+        if (fsize == 0)
+        {
+            struct grub_file file;
+
+            grub_memset(&file, 0, sizeof(file));
+            file.device = g_menu_dev;
+            grub_snprintf(node->menuentry, sizeof(node->menuentry), "%s/%s", g_menu_path_buf, filename);
+            if (g_menu_fs->fs_open(&file, node->menuentry) == GRUB_ERR_NONE)
+            {
+                fsize = file.size;
+                g_menu_fs->fs_close(&file);
+            }
+        }
+        
         node->dir = 0;
         grub_strncpy(node->filename, filename, sizeof(node->filename));
         grub_snprintf(node->menuentry, sizeof(node->menuentry),
@@ -368,7 +358,6 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
             grub_get_human_size(fsize, GRUB_HUMAN_SIZE_SHORT), filename, g_menu_class[type],
             g_menu_device, g_menu_path_buf, filename, g_menu_prefix[type], (ulonglong)fsize,
             g_menu_prefix[type]);
-
     }
 
     node->prev = NULL;
@@ -415,6 +404,7 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
     
     g_menu_fs = fs;
     g_menu_device = args[0];
+    g_menu_dev = dev;
     g_browser_list = NULL;
 
     if (args[2][0] == '/' && args[2][1] == 0)
@@ -440,8 +430,9 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
             node = ventoy_browser_find_top_node(i);
             if (node)
             {
-                grub_printf("Find Node <%s>\n", node->filename);
                 browser_ssprintf(&mbuf, "%s", node->menuentry);
+                ventoy_browser_mbuf_extend(&mbuf);
+                
                 if (node->prev)
                 {
                     node->prev->next = node->next;
@@ -485,6 +476,8 @@ grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **
     {
         return 1;
     }
+
+    g_vtoy_dev = grub_env_get("vtoydev");
 
     browser_ssprintf(&mbuf, "menuentry \"%-10s [Return]\" --class=\"vtoyret\" VTOY_RET {\n  "
                      "  echo 'return ...' \n}\n", "<--");

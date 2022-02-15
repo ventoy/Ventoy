@@ -1597,7 +1597,15 @@ int ventoy_img_name_valid(const char *filename, grub_size_t namelen)
 static int ventoy_vlnk_iterate_partition(struct grub_disk *disk, const grub_partition_t partition, void *data)
 {
     ventoy_vlnk_part *node = NULL;
+    grub_uint32_t SelfSig;
     grub_uint32_t *pSig = (grub_uint32_t *)data;
+
+    /* skip Ventoy partition 1/2 */
+    grub_memcpy(&SelfSig, g_ventoy_part_info->MBR.BootCode + 0x1b8, 4);
+    if (partition->number < 2 && SelfSig == *pSig)
+    {
+        return 0;
+    }
 
     node = grub_zalloc(sizeof(ventoy_vlnk_part));
     if (node)
@@ -1625,13 +1633,7 @@ static int ventoy_vlnk_iterate_disk(const char *name, void *data)
     if (disk)
     {
         grub_disk_read(disk, 0, 0x1b8, 4, &sig);
-
-        /* skip ventoy device self */
-        if (sig != *(grub_uint32_t *)data)
-        {
-            grub_partition_iterate(disk, ventoy_vlnk_iterate_partition, &sig);
-        }
-        
+        grub_partition_iterate(disk, ventoy_vlnk_iterate_partition, &sig);
         grub_disk_close(disk);
     }
 
@@ -1693,7 +1695,7 @@ static int ventoy_check_vlnk_data(ventoy_vlnk *vlnk, int print, char *dst, int s
 
     if (!g_vlnk_part_list)
     {
-        grub_disk_dev_iterate(ventoy_vlnk_iterate_disk, g_ventoy_part_info->MBR.BootCode + 0x1b8);
+        grub_disk_dev_iterate(ventoy_vlnk_iterate_disk, NULL);
     }
 
     for (cur = g_vlnk_part_list; cur && filefind == 0; cur = cur->next)

@@ -995,8 +995,19 @@ grub_ntfs_dir_iter (const char *filename, enum grub_fshelp_filetype filetype,
   info.mtime = grub_divmod64 (node->mtime, 10000000, 0) 
     - 86400ULL * 365 * (1970 - 1601)
     - 86400ULL * ((1970 - 1601) / 4) + 86400ULL * ((1970 - 1601) / 100);
+
   if (!info.dir) 
-    info.size = node->size;
+  {
+    struct grub_ntfs_file *mft = (struct grub_ntfs_file *)node;
+    info.size = mft->size;
+    if (!mft->inode_read)
+    {
+        init_file(mft, mft->ino);
+        info.size = mft->size;
+        free_file(mft);
+    }
+  }
+  
   grub_free (node);
   return ctx->hook (filename, &info, ctx->hook_data);
 }
