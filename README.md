@@ -13,6 +13,7 @@
 Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files. <br/>
 With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
 You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
+You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.<br/>
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
@@ -38,6 +39,9 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 
 # Tested Image Report
 [【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
+
+# Ventoy Browser
+With Ventoy you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
   
 # VentoyPlugson
 A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
@@ -48,6 +52,7 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * Fast (limited only by the speed of copying iso file)
 * Can be installed in USB/Local Disk/SSD/NVMe/SD Card
 * Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
+* Support to browse and boot ISO/WIM/IMG/VHD(x)/EFI files in local disk
 * No need to be continuous in disk for ISO/WIM/IMG/VHD(x)/EFI files
 * MBR and GPT partition style supported (1.0.15+)
 * x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI, MIPS64EL UEFI supported
