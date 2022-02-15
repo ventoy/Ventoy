@@ -138,62 +138,6 @@ static browser_node * ventoy_browser_find_top_node(int dir)
     return sel;
 }
 
-static int ventoy_browser_check_filename(const char *filename, int len, int *type)
-{
-    if (len < 4)
-    {
-        return 0;
-    }
-
-    if (FILE_FLT(ISO) && 0 == grub_strcasecmp(filename + len - 4, ".iso"))
-    {
-        *type = img_type_iso;
-    }
-    else if (FILE_FLT(WIM) && g_wimboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".wim")))
-    {
-        *type = img_type_wim;
-    }
-    else if (FILE_FLT(VHD) && g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") || 
-            (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vhdx"))))
-    {
-        *type = img_type_vhd;
-    }
-    #ifdef GRUB_MACHINE_EFI
-    else if (FILE_FLT(EFI) && 0 == grub_strcasecmp(filename + len - 4, ".efi"))
-    {
-        *type = img_type_efi;
-    }
-    #endif
-    else if (FILE_FLT(IMG) && 0 == grub_strcasecmp(filename + len - 4, ".img"))
-    {
-        if (len == 18 && grub_strncmp(filename, "ventoy_", 7) == 0)
-        {
-            if (grub_strncmp(filename + 7, "wimboot", 7) == 0 ||
-                grub_strncmp(filename + 7, "vhdboot", 7) == 0)
-            {
-                return 0;
-            }
-        }
-        *type = img_type_img;
-    }
-    else if (FILE_FLT(VTOY) && len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vtoy"))
-    {
-        *type = img_type_vtoy;
-    }
-    else
-    {
-        return 0;
-    }
-
-    if (g_filt_dot_underscore_file && filename[0] == '.' && filename[1] == '_')
-    {
-        return 0;
-    }
-
-    return 1;
-}
-
-
 static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_partition_t partition, void *data)
 {
     char partname[64];
@@ -272,6 +216,91 @@ static int ventoy_browser_iterate_disk(const char *name, void *data)
     return 0;
 }
 
+static int ventoy_browser_valid_dirname(const char *name, int len)
+{
+    if ((len == 1 && name[0] == '.') ||
+        (len == 2 && name[0] == '.' && name[1] == '.'))
+    {
+        return 0;
+    }
+
+    if (!ventoy_img_name_valid(name, len))
+    {
+        return 0;
+    }
+
+    if (name[0] == '$')
+    {
+        if (0 == grub_strncmp(name, "$RECYCLE.BIN", 12) ||
+            0 == grub_strncasecmp(name, "$Extend", 7))
+        {
+            return 0;
+        }
+    }
+
+    if (len == 25 && grub_strncmp(name, "System Volume Information", 25) == 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+static int ventoy_browser_valid_filename(const char *filename, int len, int *type)
+{
+    if (len < 4)
+    {
+        return 0;
+    }
+
+    if (FILE_FLT(ISO) && 0 == grub_strcasecmp(filename + len - 4, ".iso"))
+    {
+        *type = img_type_iso;
+    }
+    else if (FILE_FLT(WIM) && g_wimboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".wim")))
+    {
+        *type = img_type_wim;
+    }
+    else if (FILE_FLT(VHD) && g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") || 
+            (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vhdx"))))
+    {
+        *type = img_type_vhd;
+    }
+    #ifdef GRUB_MACHINE_EFI
+    else if (FILE_FLT(EFI) && 0 == grub_strcasecmp(filename + len - 4, ".efi"))
+    {
+        *type = img_type_efi;
+    }
+    #endif
+    else if (FILE_FLT(IMG) && 0 == grub_strcasecmp(filename + len - 4, ".img"))
+    {
+        if (len == 18 && grub_strncmp(filename, "ventoy_", 7) == 0)
+        {
+            if (grub_strncmp(filename + 7, "wimboot", 7) == 0 ||
+                grub_strncmp(filename + 7, "vhdboot", 7) == 0)
+            {
+                return 0;
+            }
+        }
+        *type = img_type_img;
+    }
+    else if (FILE_FLT(VTOY) && len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vtoy"))
+    {
+        *type = img_type_vtoy;
+    }
+    else
+    {
+        return 0;
+    }
+
+    if (g_filt_dot_underscore_file && filename[0] == '.' && filename[1] == '_')
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
 static int ventoy_browser_iterate_dir(const char *filename, const struct grub_dirhook_info *info, void *data)
 {
     int type;
@@ -284,24 +313,9 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
     
     if (info->dir)
     {
-        if ((len == 1 && filename[0] == '.') ||
-            (len == 2 && filename[0] == '.' && filename[1] == '.'))
+        if (!ventoy_browser_valid_dirname(filename, len))
         {
             return 0;
-        }
-
-        if (!ventoy_img_name_valid(filename, len))
-        {
-            return 0;
-        }
-
-        if (filename[0] == '$')
-        {
-            if (0 == grub_strncmp(filename, "$RECYCLE.BIN", 12) ||
-                0 == grub_strncasecmp(filename, "$Extend", 7))
-            {
-                return 0;
-            }
         }
 
         node = grub_zalloc(sizeof(browser_node));
@@ -322,7 +336,7 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
     {
         grub_uint64_t fsize = info->size;
         
-        if (ventoy_browser_check_filename(filename, len, &type) == 0)
+        if (!ventoy_browser_valid_filename(filename, len, &type))
         {
             return 0;
         }
