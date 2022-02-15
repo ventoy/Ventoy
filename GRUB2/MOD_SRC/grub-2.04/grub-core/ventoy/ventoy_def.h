@@ -1187,6 +1187,9 @@ typedef struct browser_node
     struct browser_node *next;
 }browser_node;
 
+extern char *g_tree_script_buf;
+extern int g_tree_script_pos;
+extern int g_tree_script_pre;
 extern int g_tree_view_menu_style;
 extern int g_sort_case_sensitive;
 extern int g_wimboot_enable;

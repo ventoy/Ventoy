@@ -117,8 +117,9 @@ ventoy_gpt_info *g_ventoy_part_info = NULL;
 grub_uint64_t g_ventoy_disk_size = 0;
 grub_uint64_t g_ventoy_disk_part_size[2];
 
-static char *g_tree_script_buf = NULL;
-static int g_tree_script_pos = 0;
+char *g_tree_script_buf = NULL;
+int g_tree_script_pos = 0;
+int g_tree_script_pre = 0;
 
 static char *g_list_script_buf = NULL;
 static int g_list_script_pos = 0;
@@ -2294,6 +2295,8 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
                               "}\n", "return");
             }
         }
+
+        g_tree_script_pre = g_tree_script_pos;
     }
     else
     {

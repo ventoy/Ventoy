@@ -149,7 +149,7 @@ static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_p
 
     (void)data;
 
-    if (partition->number < 2 && g_vtoy_dev && grub_strcmp(disk->name, g_vtoy_dev) == 0)
+    if (partition->number == 1 && g_vtoy_dev && grub_strcmp(disk->name, g_vtoy_dev) == 0)
     {
         return 0;
     }
@@ -423,6 +423,43 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
     return 0;
 }
 
+static grub_err_t ventoy_browser_iso_part(void)
+{
+    char cfgfile[64];
+    char *buffer = NULL;
+    int pos = 0;
+    int buflen = 0;
+    int cfglen = 0;
+
+    cfglen = g_tree_script_pos - g_tree_script_pre;
+    buflen = cfglen + 512;
+    buffer = grub_malloc(buflen);
+    if (!buffer)
+    {
+        return 1;
+    }
+
+    if (g_tree_view_menu_style == 0)
+    {
+        pos = grub_snprintf(buffer, buflen, "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                            "  echo 'return ...' \n}\n", "<--");        
+    }
+    else
+    {
+        pos = grub_snprintf(buffer, buflen, "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                            "  echo 'return ...' \n}\n");        
+    }
+
+    grub_memcpy(buffer + pos, g_tree_script_buf + g_tree_script_pre, cfglen);
+    pos += cfglen;
+
+    grub_snprintf(cfgfile, sizeof(cfgfile), "configfile mem:0x%lx:size:%d", (ulong)buffer, pos);
+    grub_script_execute_sourcecode(cfgfile);
+
+    grub_free(buffer);
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i;
@@ -434,6 +471,15 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
 
     (void)ctxt;
     (void)argc;
+
+    if (args[2][0] == '/' && args[2][1] == 0)
+    {
+        grub_snprintf(cfgfile, sizeof(cfgfile), "(%s)", args[0]);
+        if (grub_strcmp(cfgfile, g_iso_path) == 0)
+        {
+            return ventoy_browser_iso_part();
+        }
+    }
 
     if (!ventoy_browser_mbuf_alloc(&mbuf))
     {
