@@ -1187,6 +1187,7 @@ typedef struct browser_node
     struct browser_node *next;
 }browser_node;
 
+extern int g_tree_view_menu_style;
 extern int g_sort_case_sensitive;
 extern int g_wimboot_enable;
 extern int g_filt_dot_underscore_file;

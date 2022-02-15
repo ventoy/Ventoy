@@ -171,10 +171,20 @@ static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_p
 
     fs->fs_label(dev, &Label);
 
-    grub_snprintf(title, sizeof(title), "%-10s (%s,%s%d) [%s] %s %s", 
-        "DISK", disk->name, partition->msdostype == 0xee ? "gpt" : "msdos", 
-        partition->number + 1, (Label ? Label : ""), fs->name, 
-        grub_get_human_size(partition->len << disk->log_sector_size, GRUB_HUMAN_SIZE_SHORT));
+    if (g_tree_view_menu_style == 0)
+    {
+        grub_snprintf(title, sizeof(title), "%-10s (%s,%s%d) [%s] %s %s", 
+            "DISK", disk->name, partition->msdostype == 0xee ? "gpt" : "msdos", 
+            partition->number + 1, (Label ? Label : ""), fs->name, 
+            grub_get_human_size(partition->len << disk->log_sector_size, GRUB_HUMAN_SIZE_SHORT));
+    }
+    else
+    {
+        grub_snprintf(title, sizeof(title), "(%s,%s%d) [%s] %s %s", 
+            disk->name, partition->msdostype == 0xee ? "gpt" : "msdos", 
+            partition->number + 1, (Label ? Label : ""), fs->name, 
+            grub_get_human_size(partition->len << disk->log_sector_size, GRUB_HUMAN_SIZE_SHORT));
+    }
 
     if (ventoy_get_fs_type(fs->name) >= ventoy_fs_max)
     {
@@ -326,11 +336,23 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
 
         node->dir = 1;
         grub_strncpy(node->filename, filename, sizeof(node->filename));
-        grub_snprintf(node->menuentry, sizeof(node->menuentry),
-            "menuentry \"%-10s [%s]\" --class=vtoydir {\n"
-            "  vt_browser_dir %s 0x%lx \"%s/%s\"\n"
-            "}\n",
-            "DIR", filename, g_menu_device, (ulong)g_menu_fs, g_menu_path_buf, filename);
+
+        if (g_tree_view_menu_style == 0)
+        {
+            grub_snprintf(node->menuentry, sizeof(node->menuentry),
+                "menuentry \"%-10s [%s]\" --class=vtoydir {\n"
+                "  vt_browser_dir %s 0x%lx \"%s/%s\"\n"
+                "}\n",
+                "DIR", filename, g_menu_device, (ulong)g_menu_fs, g_menu_path_buf, filename);
+        }
+        else
+        {
+            grub_snprintf(node->menuentry, sizeof(node->menuentry),
+                "menuentry \"[%s]\" --class=vtoydir {\n"
+                "  vt_browser_dir %s 0x%lx \"%s/%s\"\n"
+                "}\n",
+                filename, g_menu_device, (ulong)g_menu_fs, g_menu_path_buf, filename);
+        }
     }
     else
     {
@@ -363,15 +385,31 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
         
         node->dir = 0;
         grub_strncpy(node->filename, filename, sizeof(node->filename));
-        grub_snprintf(node->menuentry, sizeof(node->menuentry),
-            "menuentry \"%-10s %s\" --class=%s {\n"
-            "  vt_set_fake_vlnk \"(%s)%s/%s\" %s %llu\n"
-            "  %s_common_menuentry\n"
-            "  vt_reset_fake_vlnk\n"
-            "}\n",
-            grub_get_human_size(fsize, GRUB_HUMAN_SIZE_SHORT), filename, g_menu_class[type],
-            g_menu_device, g_menu_path_buf, filename, g_menu_prefix[type], (ulonglong)fsize,
-            g_menu_prefix[type]);
+
+        if (g_tree_view_menu_style == 0)
+        {
+            grub_snprintf(node->menuentry, sizeof(node->menuentry),
+                "menuentry \"%-10s %s\" --class=%s {\n"
+                "  vt_set_fake_vlnk \"(%s)%s/%s\" %s %llu\n"
+                "  %s_common_menuentry\n"
+                "  vt_reset_fake_vlnk\n"
+                "}\n",
+                grub_get_human_size(fsize, GRUB_HUMAN_SIZE_SHORT), filename, g_menu_class[type],
+                g_menu_device, g_menu_path_buf, filename, g_menu_prefix[type], (ulonglong)fsize,
+                g_menu_prefix[type]);
+        }
+        else
+        {
+            grub_snprintf(node->menuentry, sizeof(node->menuentry),
+                "menuentry \"%s\" --class=%s {\n"
+                "  vt_set_fake_vlnk \"(%s)%s/%s\" %s %llu\n"
+                "  %s_common_menuentry\n"
+                "  vt_reset_fake_vlnk\n"
+                "}\n",
+                filename, g_menu_class[type],
+                g_menu_device, g_menu_path_buf, filename, g_menu_prefix[type], (ulonglong)fsize,
+                g_menu_prefix[type]);
+        }
     }
 
     node->prev = NULL;
@@ -434,8 +472,16 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
     }
     grub_device_close(dev);
 
-    browser_ssprintf(&mbuf, "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                     "  echo 'return ...' \n}\n", "<--");
+    if (g_tree_view_menu_style == 0)
+    {
+        browser_ssprintf(&mbuf, "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                         "  echo 'return ...' \n}\n", "<--");        
+    }
+    else
+    {
+        browser_ssprintf(&mbuf, "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                         "  echo 'return ...' \n}\n");        
+    }
 
     for (i = 1; i >= 0; i--)
     {
@@ -493,8 +539,16 @@ grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **
 
     g_vtoy_dev = grub_env_get("vtoydev");
 
-    browser_ssprintf(&mbuf, "menuentry \"%-10s [Return]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                     "  echo 'return ...' \n}\n", "<--");
+    if (g_tree_view_menu_style == 0)
+    {
+        browser_ssprintf(&mbuf, "menuentry \"%-10s [Return]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                         "  echo 'return ...' \n}\n", "<--");        
+    }
+    else
+    {
+        browser_ssprintf(&mbuf, "menuentry \"[Return]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                         "  echo 'return ...' \n}\n");      
+    }
 
     grub_disk_dev_iterate(ventoy_browser_iterate_disk, &mbuf);
 
