@@ -1,6 +1,6 @@
  h - Yardım bilgilerini göster
 F1 - Memdisk Modu başlatır(Yalnızca küçük WinPE/LiveCD ISO/IMG ler için bu modu kullanabilirsiniz)
-F2 - Browse and boot files in local disk
+F2 - Yerel diskteki dosyalara GÖZAT ve ÖNYÜKLE'meyi sağlar
 F3 - Ventoy Menü modu olarak,Klasör görünümü(Treeview) ile Liste görünümü(ListView) arasında geçiş yapmayı sağlar.
 F4 - Bilgisayarınızda yüklü olan Windows yada Linux işletim sistemini, sabit diskten başlatır.
 F5 - Ventoy Araçlar menüsü
