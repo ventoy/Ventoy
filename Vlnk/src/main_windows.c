@@ -393,12 +393,12 @@ static BOOL IsSupportedVlnkSuffix(WCHAR *FileName)
 
     if (len > 9)
     {
-        if (lstrcmp(FileName - 9, L".vlnk.iso") == 0 ||
-            lstrcmp(FileName - 9, L".vlnk.img") == 0 || 
-            lstrcmp(FileName - 9, L".vlnk.wim") == 0 || 
-            lstrcmp(FileName - 9, L".vlnk.vhd") == 0 || 
-            lstrcmp(FileName - 9, L".vlnk.efi") == 0 || 
-            lstrcmp(FileName - 9, L".vlnk.dat") == 0)
+        if (lstrcmp(FileName + len - 9, L".vlnk.iso") == 0 ||
+            lstrcmp(FileName + len - 9, L".vlnk.img") == 0 ||
+            lstrcmp(FileName + len - 9, L".vlnk.wim") == 0 ||
+            lstrcmp(FileName + len - 9, L".vlnk.vhd") == 0 ||
+            lstrcmp(FileName + len - 9, L".vlnk.efi") == 0 ||
+            lstrcmp(FileName + len - 9, L".vlnk.dat") == 0)
         {
             return TRUE;
         }
@@ -407,8 +407,8 @@ static BOOL IsSupportedVlnkSuffix(WCHAR *FileName)
 
     if (len > 10)
     {
-        if (lstrcmp(FileName - 10, L".vlnk.vhdx") == 0 ||
-            lstrcmp(FileName - 9, L".vlnk.vtoy") == 0)
+        if (lstrcmp(FileName + len - 10, L".vlnk.vhdx") == 0 ||
+            lstrcmp(FileName + len - 10, L".vlnk.vtoy") == 0)
         {
             return TRUE;
         }
@@ -876,6 +876,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         {
             LogW(L"File <<%ls>> does not exist!\n", g_CmdInFile);
             VtoyMessageBox(NULL, g_msg_lang[MSGID_SRC_NONEXIST], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+            return 1;
+        }
+
+        if (!IsSupportedVlnkSuffix(g_CmdOutFile))
+        {
+            LogW(L"File <<%ls>> contains invalid vlnk suffix!\n", g_CmdOutFile);
+            VtoyMessageBox(NULL, g_msg_lang[MSGID_INVALID_SUFFIX], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
             return 1;
         }
 
