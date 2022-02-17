@@ -13,12 +13,17 @@ static CHAR g_LogFile[MAX_PATH];
 static HWND g_create_button;
 static HWND g_parse_button;
 
+static BOOL g_ShowHelp = FALSE;
+static WCHAR g_CmdInFile[MAX_PATH];
+static WCHAR g_CmdOutFile[MAX_PATH];
+
 typedef enum MSGID
 {
     MSGID_ERROR = 0,
 	MSGID_INFO,
 	MSGID_BTN_CREATE,
 	MSGID_BTN_PARSE,
+    MSGID_SRC_NONEXIST,
     MSGID_SRC_UNSUPPORTED,
     MSGID_FS_UNSUPPORTED,
     MSGID_SUFFIX_UNSUPPORTED,
@@ -42,6 +47,7 @@ const WCHAR *g_msg_cn[MSGID_BUTT] =
 	L"提醒",
 	L"创建",
 	L"解析",	
+    L"指定的文件不存在", 
     L"不支持为此文件创建vlnk",
     L"不支持的文件系统",
     L"不支持的文件后缀名",
@@ -61,6 +67,7 @@ const WCHAR *g_msg_en[MSGID_BUTT] =
 	L"Info",   
 	L"Create",
 	L"Parse",
+    L"The specified file is not exist!",
     L"This file is not supported for vlnk",
     L"Unsupported file system!", 
     L"Unsupported file suffix!",
@@ -78,6 +85,22 @@ const WCHAR *g_msg_en[MSGID_BUTT] =
 const WCHAR **g_msg_lang = NULL;
 
 HINSTANCE g_hInst;
+
+static int VtoyMessageBox
+(
+    _In_opt_ HWND hWnd,
+    _In_opt_ LPCWSTR lpText,
+    _In_opt_ LPCWSTR lpCaption,
+    _In_ UINT uType
+)
+{
+    if (g_CmdInFile[0] && g_CmdOutFile[0])
+    {
+        return 0;
+    }
+
+    return MessageBox(hWnd, lpText, lpCaption, uType);
+}
 
 static void Log2File(const char *log)
 {
@@ -340,7 +363,7 @@ End:
 }
 
 
-static int CreateVlnk(HWND hWnd, WCHAR *Dir)
+static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
 {
     int i;
     int end;
@@ -358,20 +381,27 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir)
     WCHAR *Pos = NULL;
     ventoy_vlnk *vlnk = NULL;
 
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = hWnd;
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"Vlnk Source File\0*.iso;*.img;*.wim;*.vhd;*.vhdx;*.vtoy;*.efi;*.dat\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    if (GetOpenFileName(&ofn) != TRUE)
+    if (InFile)
     {
-        return 1;
+        wcscpy_s(szFile, MAX_PATH, InFile);
+    }
+    else
+    {
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = hWnd;
+        ofn.lpstrFile = szFile;
+        ofn.nMaxFile = sizeof(szFile);
+        ofn.lpstrFilter = L"Vlnk Source File\0*.iso;*.img;*.wim;*.vhd;*.vhdx;*.vtoy;*.efi;*.dat\0";
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+        if (GetOpenFileName(&ofn) != TRUE)
+        {
+            return 1;
+        }
     }
 
     LogW(L"Create vlnk for <%ls>\n", szFile);
@@ -380,7 +410,7 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir)
 
     if (len < 5 || szFile[0] == '.' || szFile[1] != ':')
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_SRC_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_SRC_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
     
@@ -406,7 +436,7 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir)
     }
     else
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_FS_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_FS_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
@@ -419,13 +449,13 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir)
 
     if (!IsSupportedImgSuffix(suffix))
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_SUFFIX_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_SUFFIX_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
     if (IsVlnkFile(szFile, NULL))
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_ALREADY_VLNK], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_ALREADY_VLNK], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
@@ -459,14 +489,14 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir)
     if (len >= VLNK_NAME_MAX)
     {
         LogA("File name length %d overflow\n", len);
-        MessageBox(hWnd, g_msg_lang[MSGID_FILE_NAME_TOO_LONG], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_FILE_NAME_TOO_LONG], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
     DiskExtend.StartingOffset.QuadPart = 0;
     if (GetPhyDiskInfo((char)szFile[0], &DiskSig, &DiskExtend))
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_DISK_INFO_ERR], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_DISK_INFO_ERR], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
@@ -477,22 +507,38 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir)
         vlnk = (ventoy_vlnk *)Buf;
         ventoy_create_vlnk(DiskSig, (uint64_t)DiskExtend.StartingOffset.QuadPart, UTF8Path, vlnk);
 
-        DefaultVlnkDstFullPath(Pos + 1, Dir, DstFullPath);
+        if (OutFile)
+        {
+            wcscpy_s(DstFullPath, MAX_PATH, OutFile);
+        }
+        else
+        {
+            DefaultVlnkDstFullPath(Pos + 1, Dir, DstFullPath);
+        }
+
         LogW(L"vlnk output file path is <%ls>\n", DstFullPath);
 
         if (SaveBuffer2File(DstFullPath, Buf, VLNK_FILE_LEN) == 0)
         {
             WCHAR Msg[1024];
 
-            swprintf_s(Msg, 1024, L"%ls\r\n\r\n%ls", g_msg_lang[MSGID_VLNK_SUCCESS], DstFullPath + lstrlen(Dir) + 1);
-
             LogW(L"Vlnk file create success <%ls>\n", DstFullPath);
-            MessageBox(hWnd, Msg, g_msg_lang[MSGID_INFO], MB_OK | MB_ICONINFORMATION);
+
+            if (OutFile)
+            {
+                swprintf_s(Msg, 1024, L"%ls\r\n\r\n%ls", g_msg_lang[MSGID_VLNK_SUCCESS], DstFullPath);
+                VtoyMessageBox(hWnd, Msg, g_msg_lang[MSGID_INFO], MB_OK | MB_ICONINFORMATION);
+            }
+            else
+            {
+                swprintf_s(Msg, 1024, L"%ls\r\n\r\n%ls", g_msg_lang[MSGID_VLNK_SUCCESS], DstFullPath + lstrlen(Dir) + 1);
+                VtoyMessageBox(hWnd, Msg, g_msg_lang[MSGID_INFO], MB_OK | MB_ICONINFORMATION);
+            }
         }
         else
         {
             LogA("Vlnk file save failed\n");
-            MessageBox(hWnd, g_msg_lang[MSGID_CREATE_FILE_ERR], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+            VtoyMessageBox(hWnd, g_msg_lang[MSGID_CREATE_FILE_ERR], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         }
 
         free(Buf);
@@ -567,7 +613,7 @@ static int ParseVlnk(HWND hWnd)
 
     if (!IsVlnkFile(szFile, &vlnk))
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_INVALID_VLNK], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_INVALID_VLNK], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
@@ -581,7 +627,7 @@ static int ParseVlnk(HWND hWnd)
 
     if (!IsSupportedImgSuffix(suffix))
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_SUFFIX_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_SUFFIX_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
@@ -598,7 +644,7 @@ static int ParseVlnk(HWND hWnd)
     Letter = GetDriveLetter(vlnk.disk_signature, vlnk.part_offset);
     if (Letter == 0)
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_VLNK_NO_DST], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_VLNK_NO_DST], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
 
@@ -609,13 +655,13 @@ static int ParseVlnk(HWND hWnd)
     hFile = CreateFileW(szDst, FILE_READ_EA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
     if (INVALID_HANDLE_VALUE == hFile)
     {
-        MessageBox(hWnd, g_msg_lang[MSGID_VLNK_NO_DST], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        VtoyMessageBox(hWnd, g_msg_lang[MSGID_VLNK_NO_DST], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
     CloseHandle(hFile);
 
     swprintf_s(Msg, 1024, L"%ls %ls", g_msg_lang[MSGID_VLNK_POINT_TO], szDst);
-    MessageBox(hWnd, Msg, g_msg_lang[MSGID_INFO], MB_OK | MB_ICONINFORMATION);
+    VtoyMessageBox(hWnd, Msg, g_msg_lang[MSGID_INFO], MB_OK | MB_ICONINFORMATION);
 
     return 0;
 }
@@ -637,7 +683,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
 				if (CtrlID == IDC_BUTTON1)
 				{
                     EnableWindow(g_create_button, FALSE);
-                    CreateVlnk(hWnd, g_CurDirW);
+                    CreateVlnk(hWnd, g_CurDirW, NULL, NULL);
                     EnableWindow(g_create_button, TRUE);
 				}
 				else if (CtrlID == IDC_BUTTON2)
@@ -664,9 +710,46 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
     return 0;
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
+static int ParseCmdLine(LPSTR lpCmdLine)
 {
     int i;
+    int argc = 0;
+    LPWSTR *lpszArgv = NULL;
+    
+    lpszArgv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+    for (i = 0; i < argc; i++)
+    {
+        if (lstrcmp(lpszArgv[i], L"-q") == 0 || lstrcmp(lpszArgv[i], L"-Q") == 0)
+        {
+            g_LogFile[0] = 0;
+        }
+        else if (lstrcmp(lpszArgv[i], L"-h") == 0 || lstrcmp(lpszArgv[i], L"-H") == 0)
+        {
+            g_ShowHelp = TRUE;
+        }
+        else if (lstrcmp(lpszArgv[i], L"-i") == 0 || lstrcmp(lpszArgv[i], L"-I") == 0)
+        {
+            if (i + 1 < argc)
+            {
+                wcscpy_s(g_CmdInFile, MAX_PATH, lpszArgv[i + 1]);
+            }
+        }
+        else if (lstrcmp(lpszArgv[i], L"-o") == 0 || lstrcmp(lpszArgv[i], L"-O") == 0)
+        {
+            if (i + 1 < argc)
+            {
+                wcscpy_s(g_CmdOutFile, MAX_PATH, lpszArgv[i + 1]);
+            }
+        }
+    }
+
+    return argc;
+}
+
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
+{
+    DWORD dwAttrib;
 	HANDLE hMutex;
 
     UNREFERENCED_PARAMETER(hPrevInstance);
@@ -680,32 +763,45 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         g_msg_lang = g_msg_en;
     }
 
-	hMutex = CreateMutexA(NULL, TRUE, "VtoyVlnkMUTEX");
-	if ((hMutex != NULL) && (GetLastError() == ERROR_ALREADY_EXISTS))
-	{
-		MessageBoxW(NULL, g_msg_lang[MSGID_RUNNING_TIP], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
-		return 1;
-	}
+    hMutex = CreateMutexA(NULL, TRUE, "VtoyVlnkMUTEX");
+    if ((hMutex != NULL) && (GetLastError() == ERROR_ALREADY_EXISTS))
+    {
+        MessageBoxW(NULL, g_msg_lang[MSGID_RUNNING_TIP], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+        return 1;
+    }
 
     GetCurrentDirectoryA(MAX_PATH, g_CurDirA);
     GetCurrentDirectoryW(MAX_PATH, g_CurDirW);
     sprintf_s(g_LogFile, sizeof(g_LogFile), "%s\\VentoyVlnk.log", g_CurDirA);
 
-    for (i = 0; i < __argc; i++)
-    {
-        if (strncmp(__argv[i], "-Q", 2) == 0 ||
-            strncmp(__argv[i], "-q", 2) == 0)
-        {
-            g_LogFile[0] = 0;
-            break;
-        }
-    }
+    ParseCmdLine(lpCmdLine);
     
-
-    LogA("========= VentoyVlnk =========\n");
-
     g_hInst = hInstance;
-    DialogBoxA(hInstance, MAKEINTRESOURCEA(IDD_DIALOG1), NULL, DialogProc);
 
-    return 0;
+    if (g_ShowHelp)
+    {
+        VtoyMessageBox(NULL, L"VentoyVlnk.exe  CMD\r\n  -i  Input file path\r\n  -o  Output vlnk file path\r\n  -q  Quite mode (no log)", L"Tip", MB_OK);
+        return 0;
+    }
+    else if (g_CmdInFile[0] && g_CmdOutFile[0])
+    {
+        LogA("========= VentoyVlnk Cmdline Mode =========\n");
+
+        dwAttrib = GetFileAttributesW(g_CmdInFile);
+        if (dwAttrib == INVALID_FILE_ATTRIBUTES || (dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
+        {
+            LogW(L"File <<%ls>> does not exist!\n", g_CmdInFile);
+            VtoyMessageBox(NULL, g_msg_lang[MSGID_SRC_NONEXIST], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+            return 1;
+        }
+
+        return CreateVlnk(NULL, g_CurDirW, g_CmdInFile, g_CmdOutFile);
+    }
+    else
+    {
+        LogA("========= VentoyVlnk GUI Mode =========\n");
+
+        DialogBoxA(hInstance, MAKEINTRESOURCEA(IDD_DIALOG1), NULL, DialogProc);
+        return 0;
+    }
 }
