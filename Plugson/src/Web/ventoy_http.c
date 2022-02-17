@@ -1775,7 +1775,9 @@ int ventoy_data_cmp_image_list(data_image_list *data1, data_image_list *data2)
 int ventoy_data_save_image_list(data_image_list *data, const char *title, char *buf, int buflen)
 {
     int pos = 0;
+    int prelen;
     path_node *node = NULL;
+    char newtitle[64];
 
     (void)title;
 
@@ -1783,17 +1785,20 @@ int ventoy_data_save_image_list(data_image_list *data, const char *title, char *
     {
         return 0;
     }
-    
+
+    prelen = (int)strlen("image_list");
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     if (data->type == 0)
     {
-        VTOY_JSON_FMT_KEY_L(L1, "image_list");
+        scnprintf(newtitle, sizeof(newtitle), "image_list%s", title + prelen);
     }
     else
     {
-        VTOY_JSON_FMT_KEY_L(L1, "image_blacklist");
+        scnprintf(newtitle, sizeof(newtitle), "image_blacklist%s", title + prelen);
     }
+    VTOY_JSON_FMT_KEY_L(L1, newtitle);
     
     VTOY_JSON_FMT_ARY_BEGIN_N();
 
