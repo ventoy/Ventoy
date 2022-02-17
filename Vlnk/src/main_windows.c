@@ -37,6 +37,7 @@ typedef enum MSGID
     MSGID_VLNK_POINT_TO,
     MSGID_VLNK_NO_DST,
     MSGID_FILE_NAME_TOO_LONG,
+    MSGID_INVALID_SUFFIX,
 
     MSGID_BUTT
 }MSGID;
@@ -61,6 +62,7 @@ const WCHAR *g_msg_cn[MSGID_BUTT] =
     L"此 vlnk 文件指向 ",
     L"此 vlnk 指向的文件不存在！",
     L"文件路径太长！",
+    L"非法的vlnk文件后缀名!",
 };
 const WCHAR *g_msg_en[MSGID_BUTT] =
 {
@@ -81,6 +83,7 @@ const WCHAR *g_msg_en[MSGID_BUTT] =
     L"The vlnk file point to ",
     L"The file pointed by the vlnk does NOT exist!",
     L"The file full path is too long!",
+    L"Invalid vlnk file suffix!",
 };
 
 const WCHAR **g_msg_lang = NULL;
@@ -382,6 +385,38 @@ static BOOL VentoyGetSaveFileName(HWND hWnd, WCHAR *szFile)
     return GetSaveFileName(&ofn);
 }
 
+static BOOL IsSupportedVlnkSuffix(WCHAR *FileName)
+{
+    int len;
+
+    len = lstrlen(FileName);
+
+    if (len > 9)
+    {
+        if (lstrcmp(FileName - 9, L".vlnk.iso") == 0 ||
+            lstrcmp(FileName - 9, L".vlnk.img") == 0 || 
+            lstrcmp(FileName - 9, L".vlnk.wim") == 0 || 
+            lstrcmp(FileName - 9, L".vlnk.vhd") == 0 || 
+            lstrcmp(FileName - 9, L".vlnk.efi") == 0 || 
+            lstrcmp(FileName - 9, L".vlnk.dat") == 0)
+        {
+            return TRUE;
+        }
+    }
+
+
+    if (len > 10)
+    {
+        if (lstrcmp(FileName - 10, L".vlnk.vhdx") == 0 ||
+            lstrcmp(FileName - 9, L".vlnk.vtoy") == 0)
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
 {
     int i;
@@ -542,8 +577,17 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
                 wcscpy_s(szFile, MAX_PATH, DstFullPath);
                 if (VentoyGetSaveFileName(hWnd, szFile))
                 {
-                    wcscpy_s(DstFullPath, MAX_PATH, szFile);
-                    SetOutFile = TRUE;
+                    if (IsSupportedVlnkSuffix(szFile))
+                    {
+                        wcscpy_s(DstFullPath, MAX_PATH, szFile);
+                        SetOutFile = TRUE;
+                    }
+                    else
+                    {
+                        VtoyMessageBox(hWnd, g_msg_lang[MSGID_INVALID_SUFFIX], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
+                        LogA("Invalid vlnk suffix\n");
+                        goto end;
+                    }
                 }
                 else
                 {
@@ -577,6 +621,7 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
             VtoyMessageBox(hWnd, g_msg_lang[MSGID_CREATE_FILE_ERR], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         }
 
+        end:
         free(Buf);
     }
 
