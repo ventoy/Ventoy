@@ -14,6 +14,7 @@ static HWND g_create_button;
 static HWND g_parse_button;
 
 static BOOL g_ShowHelp = FALSE;
+static BOOL g_SaveAs = FALSE;
 static WCHAR g_CmdInFile[MAX_PATH];
 static WCHAR g_CmdOutFile[MAX_PATH];
 
@@ -363,11 +364,30 @@ End:
 }
 
 
+static BOOL VentoyGetSaveFileName(HWND hWnd, WCHAR *szFile)
+{
+    OPENFILENAME ofn = { 0 };
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = L"Vlnk File\0*.vlnk.iso;*.vlnk.img;*.vlnk.wim;*.vlnk.efi;*.vlnk.vhd;*.vlnk.vhdx;*.vlnk.vtoy;*.vlnk.dat\0";
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+
+    return GetSaveFileName(&ofn);
+}
+
 static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
 {
     int i;
     int end;
     int len;
+    BOOL SetOutFile = FALSE;
     UINT32 DiskSig;
     DISK_EXTENT DiskExtend;
     OPENFILENAME ofn = { 0 };
@@ -500,6 +520,7 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
         return 1;
     }
 
+
     Buf = malloc(VLNK_FILE_LEN);
     if (Buf)
     {
@@ -510,10 +531,25 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
         if (OutFile)
         {
             wcscpy_s(DstFullPath, MAX_PATH, OutFile);
+            SetOutFile = TRUE;
         }
         else
         {
             DefaultVlnkDstFullPath(Pos + 1, Dir, DstFullPath);
+
+            if (g_SaveAs)
+            {
+                wcscpy_s(szFile, MAX_PATH, DstFullPath);
+                if (VentoyGetSaveFileName(hWnd, szFile))
+                {
+                    wcscpy_s(DstFullPath, MAX_PATH, szFile);
+                    SetOutFile = TRUE;
+                }
+                else
+                {
+                    LogA("User cancel the save as diaglog, use default name\n");
+                }
+            }
         }
 
         LogW(L"vlnk output file path is <%ls>\n", DstFullPath);
@@ -524,7 +560,7 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
 
             LogW(L"Vlnk file create success <%ls>\n", DstFullPath);
 
-            if (OutFile)
+            if (SetOutFile)
             {
                 swprintf_s(Msg, 1024, L"%ls\r\n\r\n%ls", g_msg_lang[MSGID_VLNK_SUCCESS], DstFullPath);
                 VtoyMessageBox(hWnd, Msg, g_msg_lang[MSGID_INFO], MB_OK | MB_ICONINFORMATION);
@@ -579,7 +615,6 @@ static CHAR GetDriveLetter(UINT32 disksig, UINT64 PartOffset)
 
     return 0;
 }
-
 
 static int ParseVlnk(HWND hWnd)
 {
@@ -727,6 +762,10 @@ static int ParseCmdLine(LPSTR lpCmdLine)
         else if (lstrcmp(lpszArgv[i], L"-h") == 0 || lstrcmp(lpszArgv[i], L"-H") == 0)
         {
             g_ShowHelp = TRUE;
+        }
+        else if (lstrcmp(lpszArgv[i], L"-s") == 0 || lstrcmp(lpszArgv[i], L"-S") == 0)
+        {
+            g_SaveAs = TRUE;
         }
         else if (lstrcmp(lpszArgv[i], L"-i") == 0 || lstrcmp(lpszArgv[i], L"-I") == 0)
         {
