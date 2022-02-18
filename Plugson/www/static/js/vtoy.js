@@ -480,6 +480,7 @@ var g_vtoy_cur_language_en =
     "STR_SECURE_BOOT_DISABLE": "Disable",
     "STR_SYNTAX_ERROR_TIP": "Syntax error detected in ventoy.json, so the configuration is not loaded!",
     "STR_INVALID_CONFIG_TIP": "Invalid configuration detected in ventoy.json, so the configuration is not loaded!",
+    "STR_CONFIG_SAVE_ERROR_TIP": "Failed to write ventoy.json file. Check VentoyPlugson.log for more details!",
 
     "STR_XXX": "xxx"
 };
@@ -615,7 +616,7 @@ var g_vtoy_cur_language_cn =
     "STR_SECURE_BOOT_DISABLE": "未开启",
     "STR_SYNTAX_ERROR_TIP": "ventoy.json 文件中存在语法错误，配置未加载!",
     "STR_INVALID_CONFIG_TIP": "ventoy.json 文件中存在错误配置，配置未加载!",
-
+    "STR_CONFIG_SAVE_ERROR_TIP": "ventoy.json 文件写入失败，详细信息请参考 VentoyPlugson.log 文件!",
 
 
     "STR_XXX": "xxx"

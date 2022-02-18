@@ -325,8 +325,7 @@ static int ventoy_api_sysinfo(struct mg_connection *conn, VTOY_JSON *json)
     
     VTOY_JSON_FMT_SINT("invalid_config", g_sysinfo.invalid_config);
     g_sysinfo.invalid_config = 0;
-
-
+    
     #if defined(_MSC_VER) || defined(WIN32)
     VTOY_JSON_FMT_STRN("os", "windows");
     #else
@@ -349,6 +348,8 @@ static int ventoy_api_handshake(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);
     VTOY_JSON_FMT_OBJ_BEGIN();
     VTOY_JSON_FMT_SINT("status", 0);
+    VTOY_JSON_FMT_SINT("save_error", g_sysinfo.config_save_error);
+    g_sysinfo.config_save_error = 0;
     VTOY_JSON_FMT_OBJ_END();
     VTOY_JSON_FMT_END(pos);
 
@@ -3577,6 +3578,7 @@ int ventoy_http_writeback(void)
     if (ret)
     {
         vlog("Failed to write ventoy.json file.\n");
+        g_sysinfo.config_save_error = 1;
     }
 
     return 0;

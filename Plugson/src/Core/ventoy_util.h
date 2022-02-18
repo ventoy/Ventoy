@@ -88,6 +88,7 @@ typedef struct SYSINFO
     char buildtime[128];
     int syntax_error;
     int invalid_config;
+    int config_save_error;
         
     int language;
     int pathcase;
