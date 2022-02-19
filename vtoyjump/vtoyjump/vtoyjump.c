@@ -1607,7 +1607,7 @@ static int VentoyHook(ventoy_os_param *param)
     Drives = GetLogicalDrives();
     Log("Drives before mount: 0x%x", Drives);
 
-    rc = MountIsoFile(IsoPath, DiskExtent.DiskNumber);
+    rc = MountIsoFile(IsoPath, VtoyDiskNum);
 
     NewDrives = GetLogicalDrives();
     Log("Drives after mount: 0x%x (0x%x)", NewDrives, (NewDrives ^ Drives));
