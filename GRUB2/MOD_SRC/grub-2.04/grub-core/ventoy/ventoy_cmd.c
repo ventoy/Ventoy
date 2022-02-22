@@ -137,6 +137,10 @@ static grub_uint64_t g_enumerate_start_time_ms;
 static grub_uint64_t g_enumerate_finish_time_ms;
 int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT] = {0};
 
+static char g_iso_vd_id_publisher[130];
+static char g_iso_vd_id_prepare[130];
+static char g_iso_vd_id_application[130];
+
 static int g_pager_flag = 0;
 static char g_old_pager[32];
 
@@ -5469,6 +5473,84 @@ out:
     return ret;
 }
 
+static grub_err_t ventoy_iso_vd_id_clear(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    g_iso_vd_id_publisher[0] = 0;
+    g_iso_vd_id_prepare[0] = 0;
+    g_iso_vd_id_application[0] = 0;
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_iso_vd_id_parse(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int ret = 1;
+    int offset = 318;
+    grub_file_t file = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        grub_printf("Failed to open %s\n", args[0]);
+        goto out;
+    }
+
+    grub_file_seek(file, 16 * 2048 + offset);
+    grub_file_read(file, g_iso_vd_id_publisher, 128);
+
+    offset += 128;
+    grub_file_seek(file, 16 * 2048 + offset);
+    grub_file_read(file, g_iso_vd_id_prepare, 128);
+
+    offset += 128;
+    grub_file_seek(file, 16 * 2048 + offset);
+    grub_file_read(file, g_iso_vd_id_application, 128);
+
+out:
+
+    check_free(file, grub_file_close);
+    grub_errno = GRUB_ERR_NONE;
+    return ret;
+}
+
+static grub_err_t ventoy_cmd_iso_vd_id_begin(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int ret = 1;
+    char *id = g_iso_vd_id_publisher;
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (args[0][0] == '1')
+    {
+        id = g_iso_vd_id_prepare;
+    }
+    else if (args[0][0] == '2')
+    {
+        id = g_iso_vd_id_application;
+    }
+
+    if (args[1][0] == '0' && grub_strncasecmp(id, args[2], grub_strlen(args[2])) == 0)
+    {
+        ret = 0;
+    }
+    
+    if (args[1][0] == '1' && grub_strncmp(id, args[2], grub_strlen(args[2])) == 0)
+    {
+        ret = 0;
+    }
+
+    grub_errno = GRUB_ERR_NONE;
+    return ret;
+}
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -5664,6 +5746,9 @@ static cmd_para ventoy_cmds[] =
     { "vt_get_vlnk_dst", grub_cmd_get_vlnk_dst, 0, NULL, "", "", NULL },
     { "vt_set_fake_vlnk", ventoy_cmd_set_fake_vlnk, 0, NULL, "", "", NULL },
     { "vt_reset_fake_vlnk", ventoy_cmd_reset_fake_vlnk, 0, NULL, "", "", NULL },
+    { "vt_iso_vd_id_parse", ventoy_cmd_iso_vd_id_parse, 0, NULL, "", "", NULL },
+    { "vt_iso_vd_id_clear", ventoy_iso_vd_id_clear, 0, NULL, "", "", NULL },
+    { "vt_iso_vd_id_begin", ventoy_cmd_iso_vd_id_begin, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)
