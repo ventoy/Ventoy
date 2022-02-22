@@ -60,6 +60,12 @@ while [ -n "$1" ]; do
             exit 1
         fi
         DISK=$1
+        # Resolve symlinks now, will be needed to look up information about the device in
+        # the /sys/ filesystem, for example /sys/class/block/${DISK#/dev/}/start
+        # The main use case is supporting /dev/disk/by-id/ symlinks instead of raw devices
+        if [ -L "$DISK" ]; then
+            DISK=$(readlink -e -n "$DISK")
+        fi
     fi
     
     shift
@@ -291,8 +297,23 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     dd status=none conv=fsync if=/dev/zero of=$DISK bs=512 count=32 seek=$part2_start_sector
 
     #format part1
-    vtinfo "Format partition 1 ..."
-    mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
+    wait_and_create_part ${PART1} ${PART2}    
+    if [ -b ${PART1} ]; then
+        vtinfo "Format partition 1 ${PART1} ..."
+        mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
+        if [ $? -ne 0 ]; then
+            echo "mkexfatfs failed, now retry..."
+            mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
+            if [ $? -ne 0 ]; then
+                echo "######### mkexfatfs failed, exit ########"
+                exit 1
+            fi
+        else
+            echo "mkexfatfs success"
+        fi        
+    else
+        vterr "${PART1} NOT exist"
+    fi
 
     vtinfo "writing data to disk ..."    
     dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=446

@@ -121,6 +121,9 @@ typedef struct ventoy_os_param
      * vtoy_reserved[2]: vtoy_chain_type     0:Linux    1:Windows  2:wimfile
      * vtoy_reserved[3]: vtoy_iso_format     0:iso9660  1:udf
      * vtoy_reserved[4]: vtoy_windows_cd_prompt
+     * vtoy_reserved[5]: vtoy_linux_remount
+     * vtoy_reserved[6]: vtoy_vlnk
+     * vtoy_reserved[7~10]: vtoy_disk_sig[4] used for vlnk
      *
      */
     grub_uint8_t   vtoy_reserved[32];    // Internal use by ventoy
@@ -150,11 +153,23 @@ typedef struct ventoy_secure_data
     grub_uint8_t magic2[16];     /* VENTOY_GUID */
 }ventoy_secure_data;
 
+
+typedef struct ventoy_vlnk
+{
+    ventoy_guid   guid;         // VENTOY_GUID
+    grub_uint32_t crc32;        // crc32
+    grub_uint32_t disk_signature;
+    grub_uint64_t part_offset; // in bytes
+    char filepath[384];
+    grub_uint8_t reserved[96];
+}ventoy_vlnk;
+
 #pragma pack()
 
 // compile assert check : sizeof(ventoy_os_param) must be 512
 COMPILE_ASSERT(1,sizeof(ventoy_os_param) == 512);
 COMPILE_ASSERT(2,sizeof(ventoy_secure_data) == 4096);
+COMPILE_ASSERT(3,sizeof(ventoy_vlnk) == 512);
 
 
 

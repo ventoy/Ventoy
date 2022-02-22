@@ -206,6 +206,48 @@ get_disk_ventoy_version() {
     ventoy_false
 }
 
+wait_and_create_part() {
+    vPART1=$1
+    vPART2=$2
+    echo 'Wait for partitions ...'
+    for i in 0 1 2 3 4 5 6 7 8 9; do
+        if ls -l $vPART1 2>/dev/null | grep -q '^b'; then
+            if ls -l $vPART2 2>/dev/null | grep -q '^b'; then
+                break
+            fi
+        else
+            echo "Wait for $vPART1/$vPART2 ..."
+            sleep 1
+        fi
+    done
+
+    if ls -l $vPART1 2>/dev/null | grep -q '^b'; then
+        echo "$vPART1 exist OK"
+    else
+        MajorMinor=$(sed "s/:/ /" /sys/class/block/${vPART1#/dev/}/dev)        
+        echo "mknod -m 0660 $vPART1 b $MajorMinor ..."
+        mknod -m 0660 $vPART1 b $MajorMinor
+    fi
+    
+    if ls -l $vPART2 2>/dev/null | grep -q '^b'; then
+        echo "$vPART2 exist OK"
+    else
+        MajorMinor=$(sed "s/:/ /" /sys/class/block/${vPART2#/dev/}/dev)        
+        echo "mknod -m 0660 $vPART2 b $MajorMinor ..."
+        mknod -m 0660 $vPART2 b $MajorMinor        
+    fi
+
+    if ls -l $vPART1 2>/dev/null | grep -q '^b'; then
+        if ls -l $vPART2 2>/dev/null | grep -q '^b'; then
+            echo "partition exist OK"
+        fi
+    else
+        echo "[FAIL] $vPART1/$vPART2 does not exist"
+        exit 1
+    fi
+}
+
+
 format_ventoy_disk_mbr() {
     reserve_mb=$1
     DISK=$2

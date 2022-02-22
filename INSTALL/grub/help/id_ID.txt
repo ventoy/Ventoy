@@ -1,6 +1,6 @@
  h - Tampilkan bantuan informasi ini
 F1 - Mode Memdisk (Hanya untuk ukuran WinPE/LiveCD ISO/IMG yang kecil)
-F2 - Mulai ulang/Matikan
+F2 - Browse and boot files in local disk
 F3 - Beralih mode menu antara Treeview <-> ListView
 F4 - Jalankan (boot) Windows/Linux pada disk lokal
 F5 - Alat Utilitas

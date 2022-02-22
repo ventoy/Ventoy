@@ -322,8 +322,10 @@ static int ventoy_api_sysinfo(struct mg_connection *conn, VTOY_JSON *json)
     //read clear
     VTOY_JSON_FMT_SINT("syntax_error", g_sysinfo.syntax_error);
     g_sysinfo.syntax_error = 0;
-
-
+    
+    VTOY_JSON_FMT_SINT("invalid_config", g_sysinfo.invalid_config);
+    g_sysinfo.invalid_config = 0;
+    
     #if defined(_MSC_VER) || defined(WIN32)
     VTOY_JSON_FMT_STRN("os", "windows");
     #else
@@ -346,6 +348,8 @@ static int ventoy_api_handshake(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);
     VTOY_JSON_FMT_OBJ_BEGIN();
     VTOY_JSON_FMT_SINT("status", 0);
+    VTOY_JSON_FMT_SINT("save_error", g_sysinfo.config_save_error);
+    g_sysinfo.config_save_error = 0;
     VTOY_JSON_FMT_OBJ_END();
     VTOY_JSON_FMT_END(pos);
 
@@ -505,6 +509,7 @@ int ventoy_data_cmp_control(data_control *data1, data_control *data2)
         data1->filter_vhd != data2->filter_vhd ||
         data1->filter_vtoy != data2->filter_vtoy ||
         data1->win11_bypass_check != data2->win11_bypass_check ||
+        data1->linux_remount != data2->linux_remount ||
         data1->menu_timeout != data2->menu_timeout)
     {
         return 1;
@@ -549,6 +554,7 @@ int ventoy_data_save_control(data_control *data, const char *title, char *buf, i
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_VHD", filter_vhd);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_VTOY", filter_vtoy);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_WIN11_BYPASS_CHECK",  win11_bypass_check);
+    VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_LINUX_REMOUNT",  linux_remount);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_MENU_TIMEOUT",  menu_timeout);
 
     VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_DEFAULT_KBD_LAYOUT", default_kbd_layout);        
@@ -593,6 +599,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_SINT("filter_vhd", ctrl->filter_vhd);
     VTOY_JSON_FMT_SINT("filter_vtoy", ctrl->filter_vtoy);
     VTOY_JSON_FMT_SINT("win11_bypass_check",  ctrl->win11_bypass_check);
+    VTOY_JSON_FMT_SINT("linux_remount",  ctrl->linux_remount);
     VTOY_JSON_FMT_SINT("menu_timeout",  ctrl->menu_timeout);
     VTOY_JSON_FMT_STRN("default_kbd_layout",  ctrl->default_kbd_layout);
     VTOY_JSON_FMT_STRN("help_text_language",  ctrl->help_text_language);
@@ -658,6 +665,7 @@ static int ventoy_api_save_control(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_INT("filter_vhd", ctrl->filter_vhd);
     VTOY_JSON_INT("filter_vtoy", ctrl->filter_vtoy);
     VTOY_JSON_INT("win11_bypass_check", ctrl->win11_bypass_check);
+    VTOY_JSON_INT("linux_remount", ctrl->linux_remount);
     VTOY_JSON_INT("menu_timeout", ctrl->menu_timeout);
 
     VTOY_JSON_STR("default_image", ctrl->default_image);
@@ -1768,7 +1776,9 @@ int ventoy_data_cmp_image_list(data_image_list *data1, data_image_list *data2)
 int ventoy_data_save_image_list(data_image_list *data, const char *title, char *buf, int buflen)
 {
     int pos = 0;
+    int prelen;
     path_node *node = NULL;
+    char newtitle[64];
 
     (void)title;
 
@@ -1776,17 +1786,20 @@ int ventoy_data_save_image_list(data_image_list *data, const char *title, char *
     {
         return 0;
     }
-    
+
+    prelen = (int)strlen("image_list");
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     if (data->type == 0)
     {
-        VTOY_JSON_FMT_KEY_L(L1, "image_list");
+        scnprintf(newtitle, sizeof(newtitle), "image_list%s", title + prelen);
     }
     else
     {
-        VTOY_JSON_FMT_KEY_L(L1, "image_blacklist");
+        scnprintf(newtitle, sizeof(newtitle), "image_blacklist%s", title + prelen);
     }
+    VTOY_JSON_FMT_KEY_L(L1, newtitle);
     
     VTOY_JSON_FMT_ARY_BEGIN_N();
 
@@ -3565,6 +3578,7 @@ int ventoy_http_writeback(void)
     if (ret)
     {
         vlog("Failed to write ventoy.json file.\n");
+        g_sysinfo.config_save_error = 1;
     }
 
     return 0;
@@ -3789,6 +3803,10 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
             else if (strcmp(child->pcName, "VTOY_WIN11_BYPASS_CHECK") == 0)
             {
                 CONTROL_PARSE_INT(child, data->win11_bypass_check);
+            }
+            else if (strcmp(child->pcName, "VTOY_LINUX_REMOUNT") == 0)
+            {
+                CONTROL_PARSE_INT(child, data->linux_remount);
             }
             else if (strcmp(child->pcName, "VTOY_TREE_VIEW_MENU_STYLE") == 0)
             {
@@ -4909,6 +4927,7 @@ static int ventoy_load_old_json(const char *filename)
     unsigned char *start = NULL;
     VTOY_JSON *json = NULL;
     VTOY_JSON *node = NULL;
+    VTOY_JSON *next = NULL;
 
     ret = ventoy_read_file_to_buf(filename, 4, (void **)&buffer, &buflen);
     if (ret)
@@ -4943,6 +4962,18 @@ static int ventoy_load_old_json(const char *filename)
         vlog("parse ventoy.json success\n");
 
         for (node = json->pstChild; node; node = node->pstNext)
+        for (next = node->pstNext; next; next = next->pstNext)
+        {
+            if (node->pcName && next->pcName && strcmp(node->pcName, next->pcName) == 0)
+            {
+                vlog("ventoy.json contains duplicate key <%s>.\n", node->pcName);
+                g_sysinfo.invalid_config = 1;
+                ret = 1;
+                goto end;
+            }
+        }
+
+        for (node = json->pstChild; node; node = node->pstNext)
         {
             ventoy_parse_json(control);
             ventoy_parse_json(theme);
@@ -4967,6 +4998,7 @@ static int ventoy_load_old_json(const char *filename)
         ret = 1;
     }
 
+end:
     vtoy_json_destroy(json);
 
     free(buffer);

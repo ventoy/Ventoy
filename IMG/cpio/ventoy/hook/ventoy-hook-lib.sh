@@ -30,6 +30,8 @@ SLEEP=$BUSYBOX_PATH/sleep
 HEAD=$BUSYBOX_PATH/head
 VTOY_DM_PATH=/dev/mapper/ventoy
 VTOY_DEBUG_LEVEL=$($BUSYBOX_PATH/hexdump -n 1 -s 450 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+VTOY_LINUX_REMOUNT=$($BUSYBOX_PATH/hexdump -n 1 -s 454 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+VTOY_VLNK_BOOT=$($BUSYBOX_PATH/hexdump -n 1 -s 455 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 
 if [ "$VTOY_DEBUG_LEVEL" = "01" ]; then
     if [ -e /dev/console ]; then
@@ -64,12 +66,16 @@ set_ventoy_hook_finish() {
     echo 'Y' > $VTOY_PATH/hook_finish
 }
 
-get_ventoy_disk_name() {    
-    line=$($VTOY_PATH/tool/vtoydump -f /ventoy/ventoy_os_param)
-    if [ $? -eq 0 ]; then
-        echo ${line%%#*}
-    else    
-        echo "unknown"
+get_ventoy_disk_name() {
+    if [ "$VTOY_VLNK_BOOT" = "01" ]; then
+        $VTOY_PATH/tool/vtoydump -t /ventoy/ventoy_os_param
+    else
+        line=$($VTOY_PATH/tool/vtoydump -f /ventoy/ventoy_os_param)
+        if [ $? -eq 0 ]; then
+            echo ${line%%#*}
+        else    
+            echo "unknown"
+        fi
     fi
 }
 
@@ -120,14 +126,6 @@ check_usb_disk_ready() {
     [ -e "${vtpart2}" ]
 }
 
-is_ventoy_disk() {
-    if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$1"; then
-        $BUSYBOX_PATH/true
-    else
-        $BUSYBOX_PATH/false
-    fi
-}
-
 not_ventoy_disk() {
     if echo $1 | $EGREP -q "nvme.*p$|mmc.*p$|nbd.*p$"; then
         vtDiskName=${1:0:-1}
@@ -135,10 +133,15 @@ not_ventoy_disk() {
         vtDiskName=$1
     fi
 
-    if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$vtDiskName"; then
-        $BUSYBOX_PATH/false
+    if [ "$VTOY_VLNK_BOOT" = "01" ]; then
+        vtVtoyDisk=$($VTOY_PATH/tool/vtoydump -t $VTOY_PATH/ventoy_os_param)
+        [ "$vtVtoyDisk" != "/dev/$vtDiskName" ]
     else
-        $BUSYBOX_PATH/true
+        if $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c "$vtDiskName"; then
+            $BUSYBOX_PATH/false
+        else
+            $BUSYBOX_PATH/true
+        fi
     fi
 }
 
@@ -220,6 +223,143 @@ ventoy_check_dm_module() {
     fi
 }
 
+ventoy_need_dm_patch() {
+    if [ "$VTOY_LINUX_REMOUNT" != "01" ]; then
+        $BUSYBOX_PATH/false; return
+    fi
+
+    if $GREP -q 'device-mapper' /proc/devices; then
+        :
+    else
+        $BUSYBOX_PATH/false; return
+    fi
+    
+    if $GREP -q 'dm_patch' /proc/modules; then
+        $BUSYBOX_PATH/false; return
+    fi
+    
+    vtMajorVer=$($BUSYBOX_PATH/uname -r | $AWK -F. '{print $1}')
+    vtMinorVer=$($BUSYBOX_PATH/uname -r | $AWK -F. '{print $2}')
+
+    if [ $vtMajorVer -lt 3 ]; then
+        $BUSYBOX_PATH/false; return
+    elif [ $vtMajorVer -eq 3 -a $vtMinorVer -lt 10 ]; then
+        $BUSYBOX_PATH/false; return
+    fi
+    
+    
+    $BUSYBOX_PATH/true
+}
+
+ventoy_dm_patch() {
+    vtMType=$($BUSYBOX_PATH/uname -m)
+
+    vtlog "######### ventoy_dm_patch ############"
+
+    if echo $vtMType | $EGREP -i -q "x86.64|amd64"; then
+        vtKoName=dm_patch_64.ko
+    elif echo $vtMType | $EGREP -i -q "i[3-6]86"; then
+        vtKoName=dm_patch_32.ko
+    else
+        vtlog "unsupported machine type $vtMType"
+        return
+    fi
+
+    if [ -f $VTOY_PATH/tool/$vtKoName ]; then
+        vtlog "/ventoy/tool/$vtKoName exist OK"
+    else
+        vtlog "/ventoy/tool/$vtKoName NOT exist"
+        return
+    fi
+    
+    $CAT /proc/kallsyms | $BUSYBOX_PATH/sort > $VTOY_PATH/kallsyms
+    
+    vtLine=$($VTOY_PATH/tool/vtoyksym dm_get_table_device $VTOY_PATH/kallsyms)
+    get_addr=$(echo $vtLine | $AWK '{print $1}')
+    get_size=$(echo $vtLine | $AWK '{print $2}')
+
+    vtLine=$($VTOY_PATH/tool/vtoyksym dm_put_table_device $VTOY_PATH/kallsyms)
+    put_addr=$(echo $vtLine | $AWK '{print $1}')
+    put_size=$(echo $vtLine | $AWK '{print $2}')
+    
+    ro_addr=$($GREP ' set_memory_ro$' /proc/kallsyms | $AWK '{print $1}')
+    rw_addr=$($GREP ' set_memory_rw$' /proc/kallsyms | $AWK '{print $1}')
+    kprobe_reg_addr=$($GREP ' register_kprobe$' /proc/kallsyms | $AWK '{print $1}')
+    kprobe_unreg_addr=$($GREP ' unregister_kprobe$' /proc/kallsyms | $AWK '{print $1}')
+    
+    if [ "$VTOY_DEBUG_LEVEL" = "01" ]; then
+        printk_addr=$($GREP ' printk$' /proc/kallsyms | $AWK '{print $1}')
+        vtDebug="-v"
+    else
+        printk_addr=0
+    fi
+    
+    #printk_addr=$($GREP ' printk$' /proc/kallsyms | $AWK '{print $1}')
+    #vtDebug="-v"
+    
+    vtlog get_addr=$get_addr  get_size=$get_size
+    vtlog put_addr=$put_addr  put_size=$put_size
+    vtlog kprobe_reg_addr=$kprobe_reg_addr  kprobe_unreg_addr=$kprobe_unreg_addr
+    vtlog ro_addr=$ro_addr  rw_addr=$rw_addr  printk_addr=$printk_addr
+
+    if [ "$get_addr" = "0" -o "$put_addr" = "0" ]; then
+        vtlog "Invalid symbol address"
+        return
+    fi
+    if [ "$ro_addr" = "0" -o "$rw_addr" = "0" ]; then
+        vtlog "Invalid symbol address"
+        return
+    fi
+
+
+    vtKv=$($BUSYBOX_PATH/uname -r)
+    
+    if [ ! -d /lib/modules/$vtKv ]; then
+        vtlog "No modules directory found"
+        return
+    elif [ -d /lib/modules/$vtKv/kernel/fs ]; then
+        vtModPath=$($FIND /lib/modules/$vtKv/kernel/fs/ -name "*.ko*" | $HEAD -n1)
+    else
+        vtModPath=$($FIND /lib/modules/$vtKv/kernel/ -name "xfs.ko*" | $HEAD -n1)
+    fi
+    
+    if [ -z "$vtModPath" ]; then
+        vtModPath=$($FIND /lib/modules/$vtKv/kernel/ -name "*.ko*" | $HEAD -n1)
+    fi
+    
+    vtModName=$($BUSYBOX_PATH/basename $vtModPath)
+    
+    vtlog "template module is $vtModPath $vtModName"
+    
+    if [ -z "$vtModPath" ]; then
+        vtlog "No template module found"
+        return
+    elif echo $vtModPath | $GREP -q "[.]ko$"; then
+        $BUSYBOX_PATH/cp -a $vtModPath  $VTOY_PATH/$vtModName
+    elif echo $vtModPath | $GREP -q "[.]ko[.]xz$"; then
+        $BUSYBOX_PATH/xzcat $vtModPath > $VTOY_PATH/$vtModName
+    elif echo $vtModPath | $GREP -q "[.]ko[.]gz$"; then
+        $BUSYBOX_PATH/zcat $vtModPath > $VTOY_PATH/$vtModName
+    else
+        vtlog "unsupport module type"
+        return
+    fi
+    
+    #step1: modify vermagic/mod crc/relocation
+    $VTOY_PATH/tool/vtoykmod -u $VTOY_PATH/tool/$vtKoName $VTOY_PATH/$vtModName $vtDebug
+    
+    #step2: fill parameters
+    vtPgsize=$($VTOY_PATH/tool/vtoyksym -p)
+    $VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtDebug
+
+    $BUSYBOX_PATH/insmod $VTOY_PATH/tool/$vtKoName
+    
+    if $GREP -q 'dm_patch' /proc/modules; then
+        echo "done" > $VTOY_PATH/dm_patch_done
+    fi
+    
+}
+
 create_ventoy_device_mapper() {
     vtlog "create_ventoy_device_mapper $*"
     
@@ -230,19 +370,36 @@ create_ventoy_device_mapper() {
     fi
     
     vtlog "dmsetup avaliable in system $VT_DM_BIN"
-        
+
     if ventoy_check_dm_module "$1"; then
         vtlog "device-mapper module check success"
     else
         vterr "Error: no dm module avaliable"
     fi
     
-    $VTOY_PATH/tool/vtoydm -p -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/ventoy_dm_table        
+    $VTOY_PATH/tool/vtoydm -p -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/ventoy_dm_table
+    
+    
+    vtLevel1=$($CAT /proc/sys/kernel/printk | $AWK '{print $1}')
+    vtLevel2=$($CAT /proc/sys/kernel/printk | $AWK '{print $2}')
+    vtLevel3=$($CAT /proc/sys/kernel/printk | $AWK '{print $3}')
+    vtLevel4=$($CAT /proc/sys/kernel/printk | $AWK '{print $4}')
+    if ventoy_need_dm_patch; then
+        ventoy_dm_patch
+        #suppress printk message
+        echo 0 $vtLevel2 0 $vtLevel4 > /proc/sys/kernel/printk
+    fi
+
     if [ -z "$2" ]; then
         $VT_DM_BIN create ventoy $VTOY_PATH/ventoy_dm_table >>$VTLOG 2>&1
     else
         $VT_DM_BIN "$2" create ventoy $VTOY_PATH/ventoy_dm_table >>$VTLOG 2>&1
-    fi    
+    fi
+
+    if ventoy_need_dm_patch; then    
+        #recover printk level
+        echo $vtLevel1 $vtLevel2 $vtLevel3 $vtLevel4 > /proc/sys/kernel/printk
+    fi
 }
 
 create_persistent_device_mapper() {
@@ -262,8 +419,24 @@ create_persistent_device_mapper() {
         vterr "Error: no dm module avaliable"
     fi
     
-    $VTOY_PATH/tool/vtoydm -p -f $VTOY_PATH/ventoy_persistent_map -d $1 > $VTOY_PATH/persistent_dm_table        
+    $VTOY_PATH/tool/vtoydm -p -f $VTOY_PATH/ventoy_persistent_map -d $1 > $VTOY_PATH/persistent_dm_table    
+
+
+    vtLevel1=$($CAT /proc/sys/kernel/printk | $AWK '{print $1}')
+    vtLevel2=$($CAT /proc/sys/kernel/printk | $AWK '{print $2}')
+    vtLevel3=$($CAT /proc/sys/kernel/printk | $AWK '{print $3}')
+    vtLevel4=$($CAT /proc/sys/kernel/printk | $AWK '{print $4}')
+    if [ -f $VTOY_PATH/dm_patch_done ]; then
+        #suppress printk message
+        echo 0 $vtLevel2 0 $vtLevel4 > /proc/sys/kernel/printk
+    fi
+    
     $VT_DM_BIN create vtoy_persistent $VTOY_PATH/persistent_dm_table >>$VTLOG 2>&1
+    
+    if [ -f $VTOY_PATH/dm_patch_done ]; then
+        #recover printk level
+        echo $vtLevel1 $vtLevel2 $vtLevel3 $vtLevel4 > /proc/sys/kernel/printk
+    fi
 }
 
 
@@ -493,6 +666,22 @@ ventoy_create_persistent_link() {
     fi    
 }
 
+ventoy_partname_to_diskname() {
+    if echo $1 | $EGREP -q "nvme.*p[0-9]$|mmc.*p[0-9]$|nbd.*p[0-9]$"; then
+        echo -n "${1:0:-2}"    
+    else
+        echo -n "${1:0:-1}"
+    fi
+}
+
+ventoy_diskname_to_partname() {
+    if echo $1 | $EGREP -q "nvme.*p[0-9]$|mmc.*p[0-9]$|nbd.*p[0-9]$"; then
+        echo -n "${1}p$2"
+    else
+        echo -n "${1}$2"
+    fi
+}
+
 ventoy_udev_disk_common_hook() {    
     if echo $1 | $EGREP -q "nvme.*p[0-9]$|mmc.*p[0-9]$|nbd.*p[0-9]$"; then
         VTDISK="${1:0:-2}"    
@@ -541,6 +730,10 @@ ventoy_udev_disk_common_hook() {
         create_persistent_device_mapper "/dev/$VTDISK"
         ventoy_create_persistent_link
     fi
+    
+    if $GREP -q 'dm_patch' /proc/modules; then
+        $BUSYBOX_PATH/rmmod dm_patch
+    fi
 }
 
 ventoy_create_dev_ventoy_part() {   
@@ -550,6 +743,15 @@ ventoy_create_dev_ventoy_part() {
     if [ -e /vtoy_dm_table ]; then
         vtPartid=1
         
+        vtLevel1=$($CAT /proc/sys/kernel/printk | $AWK '{print $1}')
+        vtLevel2=$($CAT /proc/sys/kernel/printk | $AWK '{print $2}')
+        vtLevel3=$($CAT /proc/sys/kernel/printk | $AWK '{print $3}')
+        vtLevel4=$($CAT /proc/sys/kernel/printk | $AWK '{print $4}')
+        if [ -f $VTOY_PATH/dm_patch_done ]; then
+            #suppress printk message
+            echo 0 $vtLevel2 0 $vtLevel4 > /proc/sys/kernel/printk
+        fi
+        
         $CAT /vtoy_dm_table | while read vtline; do
             echo $vtline > /ventoy/dm_table_part${vtPartid}
             $VTOY_PATH/tool/dmsetup create ventoy${vtPartid} /ventoy/dm_table_part${vtPartid}
@@ -558,7 +760,12 @@ ventoy_create_dev_ventoy_part() {
             $BUSYBOX_PATH/mknod -m 0666 /dev/ventoy${vtPartid} b $blkdev_num
             
             vtPartid=$(expr $vtPartid + 1)
-        done        
+        done   
+
+        if [ -f $VTOY_PATH/dm_patch_done ]; then
+            #recover printk level
+            echo $vtLevel1 $vtLevel2 $vtLevel3 $vtLevel4 > /proc/sys/kernel/printk
+        fi
     fi
 }
 
@@ -598,7 +805,12 @@ is_inotify_ventoy_part() {
                 fi
                 
                 if [ -e /dev/$vtShortName ]; then
-                    $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c $vtShortName
+                    if [ "$VTOY_VLNK_BOOT" = "01" ]; then
+                        vtOrgDiskName=$($VTOY_PATH/tool/vtoydump -t $VTOY_PATH/ventoy_os_param)
+                        [ "$vtOrgDiskName" = "/dev/$vtShortName" ]
+                    else
+                        $VTOY_PATH/tool/vtoydump -f $VTOY_PATH/ventoy_os_param -c $vtShortName
+                    fi
                     return
                 fi
             fi

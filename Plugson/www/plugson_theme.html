@@ -299,7 +299,7 @@
 
     $('input[type=radio]').each(function(){
       var id = $(this).attr('id');
-      if (id.startsWith('id_theme_file')) {
+      if (typeof(id) != 'undefined' && id.startsWith('id_theme_file')) {
         $(this).change(function() {
           m_data_theme[current_tab_index].default_file =parseInt(id.substr(id.length - 1));
           VtoySaveCurrentPage();

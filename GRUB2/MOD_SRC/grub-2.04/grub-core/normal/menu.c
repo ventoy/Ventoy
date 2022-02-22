@@ -671,9 +671,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 
   if (g_ventoy_suppress_esc)
       default_entry = g_ventoy_suppress_esc_default;
-  else if (g_ventoy_last_entry >= 0 && g_ventoy_last_entry < menu->size) {
-      default_entry = g_ventoy_last_entry;
-  } 
+
   /* If DEFAULT_ENTRY is not within the menu entries, fall back to
      the first entry.  */
   else if (default_entry < 0 || default_entry >= menu->size)

@@ -1,6 +1,6 @@
  h - Display this help information
 F1 - Memdisk Mode (Only for small WinPE/LiveCD ISO/IMG)
-F2 - Reboot/Power off
+F2 - Browse and boot files in local disk
 F3 - Switch menu mode between Treeview <-> ListView
 F4 - Boot Windows/Linux in local disk
 F5 - Utilities

@@ -56,6 +56,10 @@ ventoy_get_debian_distro() {
         echo 'slax'; return
     fi
     
+    if $GREP -q 'minios/' /proc/cmdline; then
+        echo 'minios'; return
+    fi
+    
     if $GREP -q 'PVE ' /proc/version; then
         echo 'pve'; return
     fi

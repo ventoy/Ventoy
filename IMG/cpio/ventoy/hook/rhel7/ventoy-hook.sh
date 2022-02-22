@@ -92,7 +92,8 @@ if [ -f /etc/system-release ]; then
         vtNeedRepo="yes"
     fi
 fi
-if $GREP -q el8 /proc/version; then
+
+if $GREP -q 'el[89]' /proc/version; then
     vtNeedRepo="yes"
 fi
 
@@ -101,6 +102,8 @@ if $GREP -i -q Fedora /proc/version; then
         vtNeedRepo="yes"
     fi
 fi
+
+echo "vtNeedRepo=$vtNeedRepo" >> $VTLOG
 
 if [ "$vtNeedRepo" = "yes" ]; then
     $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-repo.sh /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh

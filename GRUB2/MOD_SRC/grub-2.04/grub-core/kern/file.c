@@ -106,19 +106,134 @@ int ventoy_check_file_exist(const char * fmt, ...)
     }
 }
 
+typedef struct grub_vlnk
+{
+    int srclen;
+    char src[512];
+    char dst[512];
+    struct grub_vlnk *next;
+}grub_vlnk;
+
+static grub_vlnk g_vtoy_vlnk;
+static grub_vlnk *g_vlnk_list;
+
+int grub_file_is_vlnk_suffix(const char *name, int len)
+{
+    grub_uint32_t suffix;
+
+    if (len > 9)
+    {
+        suffix = *(grub_uint32_t *)(name + len - 4);
+        if (grub_strncmp(name + len - 9, ".vlnk.", 6) == 0)
+        {
+            /* .iso .wim .img .vhd .efi .dat */
+            if (suffix == 0x6F73692E || suffix == 0x6D69772E || 
+                suffix == 0x676D692E || suffix == 0x6468762E ||
+                suffix == 0x6966652E || suffix == 0x7461642E)
+            {
+                return 1;
+            }
+        }
+        else if (len > 10 && grub_strncmp(name + len - 10, ".vlnk.", 6) == 0)
+        {
+            /* vhdx vtoy */
+            if (suffix == 0x78646876 || suffix == 0x796F7476)
+            {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int grub_file_vtoy_vlnk(const char *src, const char *dst)
+{
+    if (src)
+    {
+        g_vtoy_vlnk.srclen = (int)grub_strlen(src);
+        grub_strncpy(g_vtoy_vlnk.src, src, sizeof(g_vtoy_vlnk.src) - 1);
+        grub_strncpy(g_vtoy_vlnk.dst, dst, sizeof(g_vtoy_vlnk.dst) - 1);        
+    }
+    else
+    {
+        g_vtoy_vlnk.srclen = 0;
+        g_vtoy_vlnk.src[0] = 0;
+        g_vtoy_vlnk.dst[0] = 0;
+    }
+    return 0;
+}
+
+int grub_file_add_vlnk(const char *src, const char *dst)
+{
+    grub_vlnk *node = NULL;
+    
+    if (src && dst)
+    {
+        node = grub_zalloc(sizeof(grub_vlnk));    
+        if (node)
+        {
+            node->srclen = (int)grub_strlen(src);
+            grub_strncpy(node->src, src, sizeof(node->src) - 1);
+            grub_strncpy(node->dst, dst, sizeof(node->dst) - 1);
+
+            node->next = g_vlnk_list;
+            g_vlnk_list = node;
+            return 0;            
+        }
+    }
+
+    return 1;
+}
+
+const char *grub_file_get_vlnk(const char *name, int *vlnk)
+{
+    int len;
+    grub_vlnk *node = g_vlnk_list;
+
+    len = grub_strlen(name);
+
+    if (!grub_file_is_vlnk_suffix(name, len))
+    {
+        return name;
+    }
+
+    if (len == g_vtoy_vlnk.srclen && grub_strcmp(name, g_vtoy_vlnk.src) == 0)
+    {
+        *vlnk = 1;
+        return g_vtoy_vlnk.dst; 
+    }
+    
+    while (node)
+    {
+        if (node->srclen == len && grub_strcmp(name, node->src) == 0)
+        {
+            *vlnk = 1;
+            return node->dst;
+        }
+        node = node->next;
+    }
+
+    return name;
+}
+
 grub_file_t
 grub_file_open (const char *name, enum grub_file_type type)
 {
+  int vlnk = 0;
   grub_device_t device = 0;
   grub_file_t file = 0, last_file = 0;
   char *device_name;
   const char *file_name;
   grub_file_filter_id_t filter;
 
-  /* <DESC> : mem:xxx:size:xxx format in chainloader */
-  if (grub_strncmp(name, GRUB_MEMFILE_MEM, grub_strlen(GRUB_MEMFILE_MEM)) == 0) {
+  /* <DESC> : mem:xxx:size:xxx format in chainloader grub_strlen(GRUB_MEMFILE_MEM) */
+  if (grub_strncmp(name, GRUB_MEMFILE_MEM, 4) == 0) {
       return grub_memfile_open(name);
-  }  
+  }
+
+  if ((g_vlnk_list || g_vtoy_vlnk.srclen) && (type & GRUB_FILE_TYPE_NO_VLNK) == 0)
+    name = grub_file_get_vlnk(name, &vlnk);
 
   device_name = grub_file_get_device_name (name);
   if (grub_errno)
@@ -141,6 +256,7 @@ grub_file_open (const char *name, enum grub_file_type type)
     goto fail;
 
   file->device = device;
+  file->vlnk = vlnk;
 
   /* In case of relative pathnames and non-Unix systems (like Windows)
    * name of host files may not start with `/'. Blocklists for host files

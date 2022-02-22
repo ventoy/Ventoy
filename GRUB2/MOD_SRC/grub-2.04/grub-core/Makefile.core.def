@@ -1610,6 +1610,7 @@ module = {
   common = ventoy/ventoy_vhd.c;
   common = ventoy/ventoy_plugin.c;
   common = ventoy/ventoy_json.c;
+  common = ventoy/ventoy_browser.c;
   common = ventoy/lzx.c;
   common = ventoy/xpress.c;
   common = ventoy/huffman.c;
