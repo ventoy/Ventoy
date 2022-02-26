@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define grub_fshelp_node grub_ntfs_file 
+#define grub_fshelp_node grub_ntfs_file
 
 #include <grub/file.h>
 #include <grub/mm.h>
@@ -32,7 +32,7 @@ GRUB_MOD_LICENSE ("GPLv3+");
 
 static grub_dl_t my_mod;
 
-#define grub_fshelp_node grub_ntfs_file 
+#define grub_fshelp_node grub_ntfs_file
 
 static inline grub_uint16_t
 u16at (void *ptr, grub_size_t ofs)
@@ -725,7 +725,7 @@ grub_ntfs_read_symlink (grub_fshelp_node_t node)
       && grub_isalpha (buf[4]))
     {
       grub_memmove (buf, buf + 6, end - buf + 1 - 6);
-      end -= 6; 
+      end -= 6;
     }
   return buf;
 }
@@ -992,10 +992,10 @@ grub_ntfs_dir_iter (const char *filename, enum grub_fshelp_filetype filetype,
   grub_memset (&info, 0, sizeof (info));
   info.dir = ((filetype & GRUB_FSHELP_TYPE_MASK) == GRUB_FSHELP_DIR);
   info.mtimeset = 1;
-  info.mtime = grub_divmod64 (node->mtime, 10000000, 0) 
+  info.mtime = grub_divmod64 (node->mtime, 10000000, 0)
     - 86400ULL * 365 * (1970 - 1601)
     - 86400ULL * ((1970 - 1601) / 4) + 86400ULL * ((1970 - 1601) / 100);
-  if (!info.dir) 
+  if (!info.dir)
     info.size = node->size;
   grub_free (node);
   return ctx->hook (filename, &info, ctx->hook_data);

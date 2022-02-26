@@ -2,10 +2,10 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- HTTP 1.1 -->  
-    <meta http-equiv="pragma" content="no-cache">  
-    <!-- HTTP 1.0 -->  
-    <meta http-equiv="cache-control" content="no-cache">  
+    <!-- HTTP 1.1 -->
+    <meta http-equiv="pragma" content="no-cache">
+    <!-- HTTP 1.0 -->
+    <meta http-equiv="cache-control" content="no-cache">
     <title>Ventoy Plugson</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="static/AdminLTE/css/skins/skin-blue.min.css">
     <link rel="stylesheet" href="static/datatables/dataTables.bootstrap.css">
     <link rel="stylesheet" href="static/css/vtoy.css">
-    
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -48,13 +48,13 @@
         <header class="main-header" style="position: fixed; right: 0; left: 0;">
             <!-- Logo -->
             <a href="." class="logo">
-                <!-- logo for regular state and mobile devices -->   
+                <!-- logo for regular state and mobile devices -->
                 <span class="logo-lg" > <img src="/static/img/logo_32.png" > &nbsp;Ventoy Plugson</span>
             </a>
             <!-- Header Navbar: style can be found in header.less -->
             <nav class="navbar navbar-static-top" role="navigation">
                 <!-- Navbar Right Menu -->
-                
+
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
@@ -62,14 +62,14 @@
                                 <span class="fa fa-language"></span>&nbsp;&nbsp;
                                 <span id="id_span_language" class="hidden-xs">English</span>
                                 <span class="hidden-xs">&nbsp;&nbsp;&nbsp;</span>
-                            </a>                        
+                            </a>
                         </li>
 
                         <li class="dropdown user user-menu">
                             <a id="id_top_donation" href="#plugson_donation" data-href="#plugson_donation">
                                 <span class="fa fa-paypal"></span>&nbsp;
                                 <span id="id_span_donation" class="hidden-xs">捐助</span>
-                            </a>                        
+                            </a>
                         </li>
 
                         <!-- User Account: style can be found in dropdown.less -->
@@ -77,12 +77,12 @@
                             <a href="https://www.ventoy.net" target="_blank" >
                                 <span class="fa fa-link"></span>&nbsp;
                                 <span class="hidden-xs">Ventoy</span>
-                            </a>                        
+                            </a>
                         </li>
                     </ul>
                 </div>
-                
-                
+
+
             </nav>
         </header>
         <!-- Left side column. contains the logo and sidebar -->
@@ -100,7 +100,7 @@
                         <a href="#plugson_control" data-href="#plugson_control">
                             <i class="fa fa-wrench"></i> <span id="id_span_menu_control">全局控制插件</span>
                         </a>
-                    </li> 
+                    </li>
                     <li>
                         <a href="#plugson_theme" data-href="#plugson_theme">
                             <i class="fa fa-file-image-o"></i> <span id="id_span_menu_theme">主题插件</span>
@@ -146,13 +146,13 @@
                             <i class="glyphicon glyphicon-lock"></i> <span id="id_span_menu_password">密码插件</span>
                         </a>
                     </li>
-                    
+
                     <li>
                         <a href="#plugson_image_list" data-href="#plugson_image_list">
                             <i class="fa fa-list-alt"></i> <span id="id_span_menu_imagelist">文件列表插件</span>
                         </a>
                     </li>
-                    
+
                     <li>
                         <a href="#plugson_auto_memdisk" data-href="#plugson_auto_memdisk">
                             <i class="fa fa-floppy-o"></i> <span id="id_span_menu_auto_memdisk">自动 Memdisk 插件</span>
@@ -188,13 +188,13 @@
                                     </div>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="PwdPath" name="PwdPath" />
-                                    </div>                                
+                                    </div>
                                 </div>
-                                
+
                                 <div class="form-group" id="id_note_pwdfile_cn">
                                     <div class="col-sm-3"></div>
                                     <div class="col-sm-9">
-                                        请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                        请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                         <span id="id_span_pwdfile_tip1" style="color:red;"></span><br/>
                                         <span id="id_span_pwdfile_tip2" style="color:red;"></span>
                                     </div>
@@ -202,7 +202,7 @@
                                 <div class="form-group" id="id_note_pwdfile_en">
                                     <div class="col-sm-3"></div>
                                     <div class="col-sm-9">
-                                        Please input the full absolute file path. For example:<br/> 
+                                        Please input the full absolute file path. For example:<br/>
                                         <span id="id_span_pwdfile_tip1" style="color:red;"></span><br/>
                                         <span id="id_span_pwdfile_tip2" style="color:red;"></span><br/>
                                     </div>
@@ -276,22 +276,22 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="FilePath" name="FilePath" />
-                                </div>                                
+                                </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_setfile_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_filepath_tip1" style="color:red;"></span><br/>
                                     <span id="id_span_filepath_tip2" style="color:red;"></span>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_setfile_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_filepath_tip1" style="color:red;"></span><br/>
                                     <span id="id_span_filepath_tip2" style="color:red;"></span><br/>
                                 </div>
@@ -309,18 +309,18 @@
                             <div class="form-group" id="id_note_tip3_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_filepath_tip3" style="color:red;"></span><br/>
                                 </div>
                             </div>
                             <div class="form-group" id="id_note_tip3_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_filepath_tip3" style="color:red;"></span><br/>
                                 </div>
                             </div>
-                            
+
                         </div>
                         <div class="modal-footer">
                             <button id="SetFileForm_lang_3" type="submit" class="btn btn-primary btn-flat">确定</button>
@@ -349,22 +349,22 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="FileFilePath1" name="FileFilePath1" />
-                                </div>                                
+                                </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_filefile_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_filefile_tip1" style="color:red;"></span><br/>
                                     <span id="id_span_filefile_tip2" style="color:red;"></span>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_filefile_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_filefile_tip1" style="color:red;"></span><br/>
                                     <span id="id_span_filefile_tip2" style="color:red;"></span><br/>
                                 </div>
@@ -382,18 +382,18 @@
                             <div class="form-group" id="id_note_filefile_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_filefile_tip3" style="color:red;"></span><br/>
                                 </div>
                             </div>
                             <div class="form-group" id="id_note_filefile_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_filefile_tip3" style="color:red;"></span><br/>
                                 </div>
                             </div>
-                            
+
                         </div>
                         <div class="modal-footer">
                             <button id="SetFileFileForm_ok" type="submit" class="btn btn-primary btn-flat">确定</button>
@@ -422,21 +422,21 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="DirFilePath1" name="DirFilePath1" />
-                                </div>                                
+                                </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_dirfile_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入对应目录在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入对应目录在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_dirfile_tip1" style="color:red;"></span><br/>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_dirfile_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute directory path. For example:<br/> 
+                                    Please input the full absolute directory path. For example:<br/>
                                     <span id="id_span_dirfile_tip1" style="color:red;"></span><br/>
                                 </div>
                             </div>
@@ -453,18 +453,18 @@
                             <div class="form-group" id="id_note_dirfile_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_dirfile_tip2" style="color:red;"></span><br/>
                                 </div>
                             </div>
                             <div class="form-group" id="id_note_dirfile_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_dirfile_tip2" style="color:red;"></span><br/>
                                 </div>
                             </div>
-                            
+
                         </div>
                         <div class="modal-footer">
                             <button id="SetDirFileForm_ok" type="submit" class="btn btn-primary btn-flat">确定</button>
@@ -494,22 +494,22 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="IsoPath" name="IsoPath" />
-                                </div>                                
+                                </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_conf_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_conf_tip1" style="color:red;"></span><br/>
                                     <span id="id_span_conf_tip2" style="color:red;"></span>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_conf_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_conf_tip1" style="color:red;"></span><br/>
                                     <span id="id_span_conf_tip2" style="color:red;"></span>
                                 </div>
@@ -521,7 +521,7 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="OrgPath" name="OrgPath" />
-                                </div>                                
+                                </div>
                             </div>
                             <div class="form-group" id="id_note_conf_cn">
                                 <div class="col-sm-2"></div>
@@ -544,19 +544,19 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="NewPath" name="NewPath" />
-                                </div>                                
+                                </div>
                             </div>
                             <div class="form-group" id="id_note_conf_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    新文件在当前系统中的全路径（注意是完整的绝对路径）例如：<br/> 
+                                    新文件在当前系统中的全路径（注意是完整的绝对路径）例如：<br/>
                                     <span id="id_span_conf_tip3" style="color:red;"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="id_note_conf_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_conf_tip3" style="color:red;"></span>
                                 </div>
                             </div>
@@ -571,7 +571,7 @@
             </div>
         </div>
 
-        
+
         <div class="modal" id="SetDirModal">
             <div class="modal-dialog" style="width: 800px;">
                 <div class="modal-content">
@@ -589,9 +589,9 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="DirPath" name="DirPath" />
-                                </div>                                
+                                </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_setfile_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
@@ -599,7 +599,7 @@
                                     <span id="id_span_dirpath_tip" style="color:red;"></span>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_note_setfile_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
@@ -607,27 +607,27 @@
                                     <span id="id_span_dirpath_tip" style="color:red;"></span>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group" id="id_div_dir_extra">
                                 <div class="col-sm-2">
                                     <label id="SetDirForm_extra" class="control-label">xx</label>
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="DirExtra" name="DirExtra" />
-                                </div>                                
+                                </div>
                             </div>
 
                             <div class="form-group" id="id_note_tip3_cn">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/> 
+                                    请输入对应文件在当前系统中的全路径（注意是完整的绝对路径），例如：<br/>
                                     <span id="id_span_dirpath_tip3" style="color:red;"></span><br/>
                                 </div>
                             </div>
                             <div class="form-group" id="id_note_tip3_en">
                                 <div class="col-sm-2"></div>
                                 <div class="col-sm-9">
-                                    Please input the full absolute file path. For example:<br/> 
+                                    Please input the full absolute file path. For example:<br/>
                                     <span id="id_span_dirpath_tip3" style="color:red;"></span><br/>
                                 </div>
                             </div>
@@ -668,7 +668,7 @@
                                 </div>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="SetKeyValue" name="SetKeyValue" />
-                                </div>                                
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -737,12 +737,12 @@
     </div>
     <!-- ./wrapper -->
 
-    
+
 
     <!-- jQuery 2.1.4 -->
     <script src="/static/js/jQuery-2.1.4.min.js"></script>
     <!-- jquery validate -->
-    <script src="/static/js/jquery.validate.min.js"></script>    
+    <script src="/static/js/jquery.validate.min.js"></script>
     <script src="/static/js/jquery.validate.vtoymethods.js"></script>
 
     <script src="/static/js/vtoy.js"></script>
@@ -754,15 +754,15 @@
     <!-- AdminLTE App -->
     <script src="/static/AdminLTE/js/app.min.js"></script>
     <script src="/static/AdminLTE/plugins/chartjs/Chart.min.js"></script>
-    
+
     <script src="/static/datatables/jquery.dataTables.min.js"></script>
     <script src="/static/datatables/dataTables.bootstrap.min.js"></script>
-    
+
     <script type="text/javascript">
 
     function VtoyLanguageClick() {
         var defaultPage = window.location.hash;
-        
+
         if (g_current_language === 'cn') {
             g_current_language = 'en';
         } else {
@@ -787,12 +787,12 @@
         m_syntax_error = data.syntax_error;
         m_invalid_config = data.invalid_config;
 
-        
+
 
     });
- 
+
     $('#id_a_language').click(VtoyLanguageClick);
-    
+
     $("#plugson-menu a").click(function() {
         var href = $(this).data("href");
         if (href && href !== '#') {
@@ -806,7 +806,7 @@
             loadContent(href.substring(1));
         }
     });
-    
+
     (function openDefaultPage() {
         var defaultPage = window.location.hash;
         if (defaultPage) {
@@ -815,19 +815,19 @@
         defaultPage = defaultPage || 'plugson_main';
         loadContent(defaultPage);
     })();
-    
+
 
     (function ventoy_handshake() {
 
         if (m_syntax_error === 1) {
-            
+
         }
 
         callVtoyCatchErr({
             method : 'handshake'
-        },         
-        function(data) {  
-            
+        },
+        function(data) {
+
             if (m_syntax_error === 1 && typeof(Modal) === 'object') {
                 var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
                 var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_SYNTAX_ERROR_TIP : g_vtoy_cur_language_cn.STR_SYNTAX_ERROR_TIP;
@@ -835,7 +835,7 @@
                 });
                 m_syntax_error = 0;
             }
-            
+
             if (m_invalid_config === 1 && typeof(Modal) === 'object') {
                 var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
                 var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INVALID_CONFIG_TIP : g_vtoy_cur_language_cn.STR_INVALID_CONFIG_TIP;
@@ -856,7 +856,7 @@
             }
             else if(undefined === errorThrown.length)
             {
-                
+
             }
             else if('' == errorThrown.trim())
             {

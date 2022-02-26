@@ -150,7 +150,7 @@ enum {
   SYS_AREA_ARCS
 } system_area = SYS_AREA_AUTO;
 
-static error_t 
+static error_t
 argp_parser (int key, char *arg, struct argp_state *state)
 {
   if (grub_install_parse (key, arg))
@@ -494,7 +494,7 @@ main (int argc, char *argv[])
   xorriso_push ("-as");
   xorriso_push ("mkisofs");
   xorriso_push ("-graft-points");
-  
+
   iso9660_dir = grub_util_make_temporary_dir ();
   grub_util_info ("temporary iso9660 dir is `%s'", iso9660_dir);
   boot_grub = grub_util_path_concat (3, iso9660_dir, "boot", "grub");
@@ -636,7 +636,7 @@ main (int argc, char *argv[])
 				 strerror (errno));
 	      fclose (bi);
 	      fwrite (buf, 1, 512, sa);
-	      
+
 	      grub_install_make_image_wrap_file (source_dirs[GRUB_INSTALL_PLATFORM_I386_PC],
 						 "/boot/grub", sa, sysarea_img,
 						 0, load_cfg,
@@ -645,7 +645,7 @@ main (int argc, char *argv[])
 	      fflush (sa);
 	      grub_util_fd_sync (fileno (sa));
 	      fclose (sa);
-	      
+
 	      if (sz > 32768)
 		{
 		  grub_util_warn ("%s", _("Your xorriso doesn't support `--grub2-boot-info'. Your core image is too big. Boot as disk is disabled. Please use xorriso 1.2.9 or later."));
@@ -780,7 +780,7 @@ main (int argc, char *argv[])
       make_image_fwdisk_abs (GRUB_INSTALL_PLATFORM_MIPS64EL_EFI, "mips64el-efi",
 			     imgname);
       free (imgname);
-	  
+
       imgname = grub_util_path_concat (2, efidir_efi_boot, "bootriscv32.efi");
       make_image_fwdisk_abs (GRUB_INSTALL_PLATFORM_RISCV32_EFI, "riscv32-efi",
 			     imgname);

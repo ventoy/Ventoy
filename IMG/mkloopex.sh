@@ -8,8 +8,8 @@ cd vtloopex_tmp
 
 
 for dir in $(ls); do
-    cd $dir    
-    tar -cJf vtloopex.tar.xz vtloopex    
+    cd $dir
+    tar -cJf vtloopex.tar.xz vtloopex
     rm -rf vtloopex
     cd ..
 done

@@ -455,7 +455,7 @@ static __inline DWORD GetModuleFileNameExU(HANDLE hProcess, HMODULE hModule, cha
 int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive)
 {
     WCHAR wDevPath[MAX_PATH] = { 0 };
-    const char *access_rights_str[8] = { "n", "r", "w", "rw", "x", "rx", "wx", "rwx" };    
+    const char *access_rights_str[8] = { "n", "r", "w", "rw", "x", "rx", "wx", "rwx" };
     NTSTATUS status = STATUS_SUCCESS;
     PSYSTEM_HANDLE_INFORMATION_EX handles = NULL;
     POBJECT_NAME_INFORMATION buffer = NULL;
@@ -582,12 +582,12 @@ int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive)
                     last_access_denied_pid = handleInfo->UniqueProcessId;
                 }
                 continue;
-            }            
+            }
         }
 
         // Now duplicate this handle onto our own process, so that we can access its properties
         if (processHandle == NtCurrentProcess()) {
-            continue;            
+            continue;
         }
         else {
             status = pfNtDuplicateObject(processHandle, (HANDLE)handleInfo->HandleValue,

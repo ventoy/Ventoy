@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -55,7 +55,7 @@ typedef struct _VTOY_JSON
     struct _VTOY_JSON *pstChild;
 
     JSON_TYPE enDataType;
-    union 
+    union
     {
         char  *pcStrVal;
         int   iNumVal;
@@ -93,7 +93,7 @@ int vtoy_json_parse_value
 (
     char *pcNewStart,
     char *pcRawStart,
-    VTOY_JSON *pstJson, 
+    VTOY_JSON *pstJson,
     const char *pcData,
     const char **ppcEnd
 );
@@ -109,51 +109,51 @@ int vtoy_json_scan_parse
 
 int vtoy_json_scan_array
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      VTOY_JSON **ppstArrayItem
 );
 
 int vtoy_json_scan_array_ex
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      VTOY_JSON **ppstArrayItem
 );
 int vtoy_json_scan_object
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
     VTOY_JSON **ppstObjectItem
 );
 int vtoy_json_get_int
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     int *piValue
 );
 int vtoy_json_get_uint
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     UINT32     *puiValue
 );
 int vtoy_json_get_uint64
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     UINT64 *pui64Value
 );
 int vtoy_json_get_bool
 (
     VTOY_JSON *pstJson,
-    const char *szKey, 
+    const char *szKey,
     UINT8 *pbValue
 );
 int vtoy_json_get_string
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      UINT32  uiBufLen,
      char *pcBuf
 );

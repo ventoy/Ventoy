@@ -29,6 +29,6 @@ VTOY/ventoy/drivers/*.ko
 build kernel
 http://www.tinycorelinux.net/11.x/x86_64/release/src/kernel/
 config-5.4.3-tinycore64
-linux-5.4.3-patched.txz        
+linux-5.4.3-patched.txz
 disable a wireless lan driver to avoid compile error
 

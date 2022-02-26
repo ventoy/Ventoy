@@ -18,13 +18,13 @@ if [ -e vtoygpt_64 ] && [ -e vtoygpt_32 ] && [ -e vtoygpt_aa64 ] && [ -e vtoygpt
     echo -e '\n############### SUCCESS ###############\n'
     mv vtoygpt_64 ../INSTALL/tool/x86_64/vtoygpt
     mv vtoygpt_32 ../INSTALL/tool/i386/vtoygpt
-    
+
     aarch64-buildroot-linux-uclibc-strip --strip-all vtoygpt_aa64
     mv vtoygpt_aa64 ../INSTALL/tool/aarch64/vtoygpt
-    
+
     mips64el-linux-musl-strip --strip-all vtoygpt_m64e
     mv vtoygpt_m64e ../INSTALL/tool/mips64el/vtoygpt
-    
+
 else
     echo -e '\n############### FAILED ################\n'
     exit 1

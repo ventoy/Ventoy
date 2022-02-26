@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 . /ventoy/hook/ventoy-hook-lib.sh
@@ -28,7 +28,7 @@ ventoy_os_install_dmsetup() {
     # dump iso file location
     $VTOY_PATH/tool/vtoydm -i -f $VTOY_PATH/ventoy_image_map -d ${vt_usb_disk} > $VTOY_PATH/iso_file_list
 
-    # install dmsetup 
+    # install dmsetup
     LINE=$($GREP ' dmsetup.*\.udeb'  $VTOY_PATH/iso_file_list)
     if [ $? -eq 0 ]; then
         install_udeb_from_line "$LINE" ${vt_usb_disk}
@@ -47,7 +47,7 @@ ventoy_os_install_dmsetup() {
         if [ $LINTCNT -gt 1 ]; then
             vtlog "more than one pkgs, need to filter..."
             VER=$($BUSYBOX_PATH/uname -r)
-            
+
             LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i $VER)
             LINTCNT=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i -c $VER)
             if [ $LINTCNT -gt 1 ]; then
@@ -55,7 +55,7 @@ ventoy_os_install_dmsetup() {
                 LINE=$($GREP -i ' md-modules.*\.udeb'  $VTOY_PATH/iso_file_list | $GREP -i -m1 $VER)
             fi
         fi
-        install_udeb_from_line "$LINE" ${vt_usb_disk} 
+        install_udeb_from_line "$LINE" ${vt_usb_disk}
     fi
 
     # insmod md-mod if needed
@@ -63,26 +63,26 @@ ventoy_os_install_dmsetup() {
         vtlog "device mapper module is loaded"
     else
         vtlog "device mapper module is NOT loaded, now load it..."
-        
-        VER=$($BUSYBOX_PATH/uname -r)    
+
+        VER=$($BUSYBOX_PATH/uname -r)
         KO=$($FIND /lib/modules/$VER/kernel/drivers/md -name "dm-mod*")
         vtlog "KO=$KO"
-        
+
         insmod $KO
     fi
-    
+
     vtlog "dmsetup install finish, now check it..."
     if dmsetup info >> $VTLOG 2>&1; then
         vtlog "dmsetup work ok"
     else
         vtlog "dmsetup not work, now try to load eglibc ..."
-        
+
         # install eglibc (some ubuntu 32 bit version need it)
         LINE=$($GREP 'libc6-.*\.udeb'  $VTOY_PATH/iso_file_list)
         if [ $? -eq 0 ]; then
-            install_udeb_from_line "$LINE" ${vt_usb_disk} 
+            install_udeb_from_line "$LINE" ${vt_usb_disk}
         fi
-        
+
         if dmsetup info >> $VTLOG 2>&1; then
             vtlog "dmsetup work ok after retry"
         else
@@ -95,7 +95,7 @@ if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
     exit 0
 fi
 
-vtlog "==== $0 $* ====" 
+vtlog "==== $0 $* ===="
 
 dmsetup_path=$(ventoy_find_bin_path dmsetup)
 if [ -z "$dmsetup_path" ]; then
@@ -129,7 +129,7 @@ if [ -n "$VT_BUS_USB" ]; then
     echo /dev/$1 > /ventoy/list-devices-usb-part
 else
     vtlog "$1 is NOT USB device (bus $ID_BUS)"
-    
+
     if $EGREP -q 'boot=|casper' /proc/cmdline; then
         vtlog "boot=, or casper, don't mount"
     else

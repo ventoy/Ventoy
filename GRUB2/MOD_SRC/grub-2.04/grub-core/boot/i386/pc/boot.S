@@ -217,7 +217,7 @@ boot_drive_check:
 	/* Ignore %dl different from 0-0x0f and 0x80-0x8f.  */
 	testb   $0x70, %dl
 	jz      1f
-2:	
+2:
         movb    $0x80, %dl
 1:
 	/*
@@ -540,6 +540,6 @@ nt_magic:
 #endif
 
 	.org GRUB_BOOT_MACHINE_PART_END
-	
+
 /* the last 2 bytes in the sector 0 contain the signature */
 	.word	GRUB_BOOT_MACHINE_SIGNATURE

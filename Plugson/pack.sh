@@ -18,9 +18,9 @@ if [ -f ./www.tar.xz ]; then
 fi
 
 [ -f ./www/helplist ] && rm -f ./www/helplist
-ls -1 ../INSTALL/grub/help/ | while read line; do 
+ls -1 ../INSTALL/grub/help/ | while read line; do
     echo -n ${line:0:5} >> ./www/helplist
-done 
+done
 echo -n "$plugson_verion" > ./www/buildtime
 
 tar cf www.tar www

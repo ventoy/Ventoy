@@ -1,9 +1,9 @@
-      
+
 imdisk follows LGPL license (see lgpl-3.0.txt)
 
 Ventoy only use its binaries 7za.exe
-      
-========7zip License Information===============      
+
+========7zip License Information===============
       7-Zip Extra
       ~~~~~~~~~~~
       License for use and distribution
@@ -13,9 +13,9 @@ Ventoy only use its binaries 7za.exe
 
       7-Zip Extra files are under the GNU LGPL license.
 
-      
-      Notes: 
-        You can use 7-Zip Extra on any computer, including a computer in a commercial 
+
+      Notes:
+        You can use 7-Zip Extra on any computer, including a computer in a commercial
         organization. You don't need to register or pay for 7-Zip.
 
 
@@ -32,6 +32,6 @@ Ventoy only use its binaries 7za.exe
         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
         Lesser General Public License for more details.
 
-        You can receive a copy of the GNU Lesser General Public License from 
+        You can receive a copy of the GNU Lesser General Public License from
         http://www.gnu.org/
 

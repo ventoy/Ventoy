@@ -27,7 +27,7 @@
  *
  * The file format is documented in the document "Windows Imaging File
  * Format (WIM)", available from
- * 
+ *
  *   http://www.microsoft.com/en-us/download/details.aspx?id=13096
  *
  * The wimlib source code is also a useful reference.

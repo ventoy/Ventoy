@@ -83,7 +83,7 @@ function ventoy_check_file_name_char(path) {
 
         return ventoy_check_file_name_char(value);
     }, 'Invalid characters');
-    
+
 
     $.validator.addMethod('printascii', function(value, element, params) {
         if (this.optional(element)) {
@@ -102,5 +102,5 @@ function ventoy_check_file_name_char(path) {
 
         return true;
     }, 'Can only use printable ascii code');
-    
+
 }));

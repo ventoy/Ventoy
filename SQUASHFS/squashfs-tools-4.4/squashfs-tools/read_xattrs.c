@@ -381,7 +381,7 @@ struct xattr_list *get_xattr(int i, unsigned int *count, int *failed)
 			if(xattr_list == NULL)
 				MEM_ERROR();
 		}
-			
+
 		SQUASHFS_SWAP_XATTR_ENTRY(xptr, &entry);
 		xptr += sizeof(entry);
 
@@ -396,9 +396,9 @@ struct xattr_list *get_xattr(int i, unsigned int *count, int *failed)
 		}
 
 		xptr += entry.size;
-			
+
 		TRACE("get_xattr: xattr %d, type %d, size %d, name %s\n", j,
-			entry.type, entry.size, xattr_list[j].full_name); 
+			entry.type, entry.size, xattr_list[j].full_name);
 
 		if(entry.type & SQUASHFS_XATTR_VALUE_OOL) {
 			long long xattr;
@@ -406,7 +406,7 @@ struct xattr_list *get_xattr(int i, unsigned int *count, int *failed)
 
 			xptr += sizeof(val);
 			SQUASHFS_SWAP_LONG_LONGS(xptr, &xattr, 1);
-			xptr += sizeof(xattr);	
+			xptr += sizeof(xattr);
 			start = SQUASHFS_XATTR_BLK(xattr) + xattr_table_start;
 			offset = SQUASHFS_XATTR_OFFSET(xattr);
 			ool_xptr = xattrs + get_xattr_block(start) + offset;

@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -72,20 +72,20 @@ VTOY_JSON *vtoy_json_find_item
 {
     while (NULL != pstJson)
     {
-        if ((enDataType == pstJson->enDataType) && 
+        if ((enDataType == pstJson->enDataType) &&
             (0 == strcmp(szKey, pstJson->pcName)))
         {
             return pstJson;
         }
         pstJson = pstJson->pstNext;
     }
-    
+
     return NULL;
 }
 
 static int vtoy_json_parse_number
 (
-    VTOY_JSON *pstJson, 
+    VTOY_JSON *pstJson,
     const char *pcData,
     const char **ppcEnd
 )
@@ -101,7 +101,7 @@ static int vtoy_json_parse_number
 
     pstJson->enDataType = JSON_TYPE_NUMBER;
     pstJson->unData.lValue = Value;
-    
+
     return JSON_SUCCESS;
 }
 
@@ -109,7 +109,7 @@ static int vtoy_json_parse_string
 (
     char *pcNewStart,
     char *pcRawStart,
-    VTOY_JSON *pstJson, 
+    VTOY_JSON *pstJson,
     const char *pcData,
     const char **ppcEnd
 )
@@ -117,7 +117,7 @@ static int vtoy_json_parse_string
     uint32_t uiLen = 0;
     const char *pcPos = NULL;
     const char *pcTmp = pcData + 1;
-    
+
     *ppcEnd = pcData;
 
     if ('\"' != *pcData)
@@ -141,7 +141,7 @@ static int vtoy_json_parse_string
                 break;
             }
         }
-        
+
         if (*pcPos == 0 || pcPos < pcTmp)
         {
             vdebug("Invalid quotes string %s.", pcData);
@@ -150,12 +150,12 @@ static int vtoy_json_parse_string
     }
 
     *ppcEnd = pcPos + 1;
-    uiLen = (uint32_t)(unsigned long)(pcPos - pcTmp);    
-    
+    uiLen = (uint32_t)(unsigned long)(pcPos - pcTmp);
+
     pstJson->enDataType = JSON_TYPE_STRING;
     pstJson->unData.pcStrVal = pcNewStart + (pcTmp - pcRawStart);
     pstJson->unData.pcStrVal[uiLen] = '\0';
-    
+
     return JSON_SUCCESS;
 }
 
@@ -163,7 +163,7 @@ static int vtoy_json_parse_array
 (
     char *pcNewStart,
     char *pcRawStart,
-    VTOY_JSON *pstJson, 
+    VTOY_JSON *pstJson,
     const char *pcData,
     const char **ppcEnd
 )
@@ -232,7 +232,7 @@ static int vtoy_json_parse_object
 (
     char *pcNewStart,
     char *pcRawStart,
-    VTOY_JSON *pstJson, 
+    VTOY_JSON *pstJson,
     const char *pcData,
     const char **ppcEnd
 )
@@ -334,13 +334,13 @@ int vtoy_json_parse_value
 (
     char *pcNewStart,
     char *pcRawStart,
-    VTOY_JSON *pstJson, 
+    VTOY_JSON *pstJson,
     const char *pcData,
     const char **ppcEnd
 )
 {
     pcData = vtoy_json_skip(pcData);
-    
+
     switch (*pcData)
     {
         case 'n':
@@ -414,7 +414,7 @@ VTOY_JSON * vtoy_json_create(void)
     {
         return NULL;
     }
-    
+
     return pstJson;
 }
 
@@ -478,7 +478,7 @@ int vtoy_json_scan_parse
     uint32_t            uiParseNum,
     VTOY_JSON_PARSE_S  *pstJsonParse
 )
-{   
+{
     uint32_t i = 0;
     const VTOY_JSON *pstJsonCur = NULL;
     VTOY_JSON_PARSE_S *pstCurParse = NULL;
@@ -494,7 +494,7 @@ int vtoy_json_scan_parse
         for (i = 0, pstCurParse = NULL; i < uiParseNum; i++)
         {
             if (0 == strcmp(pstJsonParse[i].pcKey, pstJsonCur->pcName))
-            {   
+            {
                 pstCurParse = pstJsonParse + i;
                 break;
             }
@@ -504,7 +504,7 @@ int vtoy_json_scan_parse
         {
             continue;
         }
-    
+
         switch (pstJsonCur->enDataType)
         {
             case JSON_TYPE_NUMBER:
@@ -523,7 +523,7 @@ int vtoy_json_scan_parse
                 }
                 else if ((pstCurParse->uiBufSize > sizeof(uint64_t)))
                 {
-                    scnprintf((char *)pstCurParse->pDataBuf, pstCurParse->uiBufSize, "%llu", 
+                    scnprintf((char *)pstCurParse->pDataBuf, pstCurParse->uiBufSize, "%llu",
                         (unsigned long long)(pstJsonCur->unData.lValue));
                 }
                 else
@@ -554,13 +554,13 @@ int vtoy_json_scan_parse
 
 int vtoy_json_scan_array
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      VTOY_JSON **ppstArrayItem
 )
 {
     VTOY_JSON *pstJsonItem = NULL;
-    
+
     pstJsonItem = vtoy_json_find_item(pstJson, JSON_TYPE_ARRAY, szKey);
     if (NULL == pstJsonItem)
     {
@@ -575,20 +575,20 @@ int vtoy_json_scan_array
 
 int vtoy_json_scan_array_ex
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      VTOY_JSON **ppstArrayItem
 )
 {
     VTOY_JSON *pstJsonItem = NULL;
-    
+
     pstJsonItem = vtoy_json_find_item(pstJson, JSON_TYPE_ARRAY, szKey);
     if (NULL == pstJsonItem)
     {
         vdebug("Key %s is not found in json data.\n", szKey);
         return JSON_NOT_FOUND;
     }
-    
+
     *ppstArrayItem = pstJsonItem->pstChild;
 
     return JSON_SUCCESS;
@@ -596,8 +596,8 @@ int vtoy_json_scan_array_ex
 
 int vtoy_json_scan_object
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      VTOY_JSON **ppstObjectItem
 )
 {
@@ -617,13 +617,13 @@ int vtoy_json_scan_object
 
 int vtoy_json_get_int
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     int *piValue
 )
 {
     VTOY_JSON *pstJsonItem = NULL;
-    
+
     pstJsonItem = vtoy_json_find_item(pstJson, JSON_TYPE_NUMBER, szKey);
     if (NULL == pstJsonItem)
     {
@@ -638,13 +638,13 @@ int vtoy_json_get_int
 
 int vtoy_json_get_uint
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     uint32_t *puiValue
 )
 {
     VTOY_JSON *pstJsonItem = NULL;
-    
+
     pstJsonItem = vtoy_json_find_item(pstJson, JSON_TYPE_NUMBER, szKey);
     if (NULL == pstJsonItem)
     {
@@ -659,13 +659,13 @@ int vtoy_json_get_uint
 
 int vtoy_json_get_uint64
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     uint64_t *pui64Value
 )
 {
     VTOY_JSON *pstJsonItem = NULL;
-    
+
     pstJsonItem = vtoy_json_find_item(pstJson, JSON_TYPE_NUMBER, szKey);
     if (NULL == pstJsonItem)
     {
@@ -681,12 +681,12 @@ int vtoy_json_get_uint64
 int vtoy_json_get_bool
 (
     VTOY_JSON *pstJson,
-    const char *szKey, 
+    const char *szKey,
     uint8_t *pbValue
 )
 {
     VTOY_JSON *pstJsonItem = NULL;
-    
+
     pstJsonItem = vtoy_json_find_item(pstJson, JSON_TYPE_BOOL, szKey);
     if (NULL == pstJsonItem)
     {
@@ -701,14 +701,14 @@ int vtoy_json_get_bool
 
 int vtoy_json_get_string
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      uint32_t  uiBufLen,
      char *pcBuf
 )
 {
     VTOY_JSON *pstJsonItem = NULL;
-    
+
     pstJsonItem = vtoy_json_find_item(pstJson, JSON_TYPE_STRING, szKey);
     if (NULL == pstJsonItem)
     {
@@ -743,7 +743,7 @@ const char * vtoy_json_get_string_ex(VTOY_JSON *pstJson,  const char *szKey)
 int vtoy_json_destroy(VTOY_JSON *pstJson)
 {
     if (NULL == pstJson)
-    {   
+    {
         return JSON_SUCCESS;
     }
 
@@ -758,7 +758,7 @@ int vtoy_json_destroy(VTOY_JSON *pstJson)
     }
 
     free(pstJson);
-    
+
     return JSON_SUCCESS;
 }
 
@@ -778,7 +778,7 @@ int vtoy_json_escape_string(char *buf, int buflen, const char *str, int newline)
             count++;
             buf++;
         }
-    
+
         *buf = *str;
         count++;
         buf++;
@@ -789,14 +789,14 @@ int vtoy_json_escape_string(char *buf, int buflen, const char *str, int newline)
 
     *buf++ = '"';
     count++;
-    
+
     *buf++ = ',';
     count++;
 
     if (newline)
     {
         *buf++ = '\n';
-        count++;        
+        count++;
     }
 
     return count;

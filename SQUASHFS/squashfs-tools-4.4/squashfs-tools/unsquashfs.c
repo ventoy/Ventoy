@@ -59,7 +59,7 @@ typedef struct fs_disk_map
 {
     char diskname[32];
     uint64_t filesize;
-    
+
     //fs_disk_region[N];
  }fs_disk_map;
 #pragma pack()
@@ -190,7 +190,7 @@ int shift_overflow(int a, int shift)
 	return (INT_MAX >> shift) < a;
 }
 
- 
+
 int multiply_overflow(int a, int multiplier)
 {
 	return (INT_MAX / multiplier) < a;
@@ -259,7 +259,7 @@ void dump_queue(struct queue *queue)
 {
 	pthread_mutex_lock(&queue->mutex);
 
-	printf("Max size %d, size %d%s\n", queue->size - 1,  
+	printf("Max size %d, size %d%s\n", queue->size - 1,
 		queue->readp <= queue->writep ? queue->writep - queue->readp :
 			queue->size - queue->readp + queue->writep,
 		queue->readp == queue->writep ? " (EMPTY)" :
@@ -442,13 +442,13 @@ struct cache_entry *cache_get(struct cache *cache, long long block, int size)
 	return entry;
 }
 
-	
+
 void cache_block_ready(struct cache_entry *entry, int error)
 {
 	/*
 	 * mark cache entry as being complete, reading and (if necessary)
  	 * decompression has taken place, and the buffer is valid for use.
- 	 * If an error occurs reading or decompressing, the buffer also 
+ 	 * If an error occurs reading or decompressing, the buffer also
  	 * becomes ready but with an error...
  	 */
 	pthread_mutex_lock(&entry->cache->mutex);
@@ -570,7 +570,7 @@ int print_filename(char *pathname, struct inode *inode)
 			userstr = dummy;
 	} else
 		userstr = user->pw_name;
-		 
+
 	group = numeric ? NULL : getgrgid(inode->gid);
 	if(group == NULL) {
 		int res = snprintf(dummy2, 12, "%d", inode->gid);
@@ -602,7 +602,7 @@ int print_filename(char *pathname, struct inode *inode)
 		case S_IFCHR:
 		case S_IFBLK:
 			padchars = TOTALCHARS - strlen(userstr) -
-				strlen(groupstr) - 7; 
+				strlen(groupstr) - 7;
 
 			printf("%*s%3d,%3d ", padchars > 0 ? padchars : 0, " ",
 				(int) inode->data >> 8, (int) inode->data &
@@ -617,10 +617,10 @@ int print_filename(char *pathname, struct inode *inode)
 	if((inode->mode & S_IFMT) == S_IFLNK)
 		printf(" -> %s", inode->symlink);
 	printf("\n");
-		
+
 	return 1;
 }
-	
+
 
 void add_entry(struct hash_table_entry *hash_table[], long long start,
 	long long bytes)
@@ -671,7 +671,7 @@ int read_fs_sectors(int fd, uint32_t sector, uint32_t count, char *buf)
             offset = sector - total;
             left = region->count - offset;
             readcnt = (count <= left) ? count : left;
-            
+
             lseek(fd, (uint64_t)(offset + region->sector) * 512ULL, SEEK_SET);
             read(fd, buf, (uint64_t)readcnt * 512ULL);
 
@@ -792,7 +792,7 @@ int read_block(int fd, long long start, long long *next, int expected,
 		if(read_fs_bytes(fd, start, 2, &c_byte) == FALSE)
 			goto failed;
 		c_byte = (c_byte >> 8) | ((c_byte & 0xff) << 8);
-	} else 
+	} else
 		if(read_fs_bytes(fd, start, 2, &c_byte) == FALSE)
 			goto failed;
 
@@ -900,7 +900,7 @@ void *read_inode_table(long long start, long long end)
 			ERROR("read_inode_table: metadata block should be %d "
 				"bytes in length, it is %d bytes\n",
 				SQUASHFS_METADATA_SIZE, res);
-			
+
 			goto failed;
 		}
 	}
@@ -1228,7 +1228,7 @@ int create_inode(char *pathname, struct inode *i)
 			res = write_xattr(pathname, i->xattr);
 			if(res == FALSE)
 				failed = TRUE;
-	
+
 			if(root_process) {
 				res = lchown(pathname, i->uid, i->gid);
 				if(res == -1) {
@@ -1483,7 +1483,7 @@ struct pathname *add_path(struct pathname *paths, char *target, char *alltarget)
 		paths->name = realloc(paths->name, (i + 1) *
 			sizeof(struct path_entry));
 		if(paths->name == NULL)
-			EXIT_UNSQUASH("Out of memory in add_path\n");	
+			EXIT_UNSQUASH("Out of memory in add_path\n");
 		paths->name[i].name = targname;
 		paths->name[i].paths = NULL;
 		if(use_regex) {
@@ -1734,7 +1734,7 @@ int dir_scan(char *parent_name, unsigned int start_block, unsigned int offset,
 					strerror(errno));
 				squashfs_closedir(dir);
 				return FALSE;
-			} 
+			}
 
 			/*
 			 * Try to change permissions of existing directory so
@@ -2044,7 +2044,7 @@ int read_super(char *source)
 		sBlk.guid_start = sBlk_3.guid_start_2;
 		sBlk.s.inode_table_start = sBlk_3.inode_table_start_2;
 		sBlk.s.directory_table_start = sBlk_3.directory_table_start_2;
-		
+
 		if(sBlk.s.s_major == 1) {
 			sBlk.s.block_size = sBlk_3.block_size_1;
 			sBlk.s.fragment_table_start = sBlk.uid_start;
@@ -2129,7 +2129,7 @@ struct pathname *process_extract_files(struct pathname *path, char *filename)
 	fclose(fd);
 	return path;
 }
-		
+
 
 /*
  * reader thread.  This thread processes read requests queued by the
@@ -2295,7 +2295,7 @@ void *inflator(void *arg)
 		 * block has been either successfully decompressed, or an error
  		 * occurred, clear pending flag, set error appropriately and
  		 * wake up any threads waiting on this block
- 		 */ 
+ 		 */
 		cache_block_ready(entry, res == -1);
 	}
 }
@@ -2572,7 +2572,7 @@ void progressbar_info(char *fmt, ...)
 static int get_max_digits(long long max)
 {
     int digits = 0;
-    
+
     while (max > 10) {
         max /= 10;
         digits++;
@@ -2755,18 +2755,18 @@ int ventoy_parse_disk_map(void)
 
     read(fd, &g_fs_disk_map, sizeof(fs_disk_map));
 
-    debug("diskname=<%s> filesize=<%llu> region_num=<%u>\n", 
+    debug("diskname=<%s> filesize=<%llu> region_num=<%u>\n",
           g_fs_disk_map.diskname, g_fs_disk_map.filesize, g_fs_region_num);
 
     g_fs_region_num = (len - sizeof(fs_disk_map)) / sizeof(fs_disk_region);
     g_fs_region_list = malloc(g_fs_region_num * sizeof(fs_disk_region));
     read(fd, g_fs_region_list, g_fs_region_num * sizeof(fs_disk_region));
 
-    close(fd);    
-    
+    close(fd);
+
     fd = open(g_fs_disk_map.diskname, O_RDONLY);
     debug("ventoy_parse_disk_map end fd=%d\n", fd);
-    
+
     return 0;
 }
 
@@ -2805,7 +2805,7 @@ int main(int argc, char *argv[])
 	root_process = geteuid() == 0;
 	if(root_process)
 		umask(0);
-	
+
 	for(i = 1; i < argc; i++) {
 		if(*argv[i] != '-')
 			break;
@@ -2860,7 +2860,7 @@ int main(int argc, char *argv[])
 			dest = argv[i];
 		} else if(strcmp(argv[i], "-processors") == 0 ||
 				strcmp(argv[i], "-p") == 0) {
-			if((++i == argc) || 
+			if((++i == argc) ||
 					!parse_number(argv[i],
 						&processors)) {
 				ERROR("%s: -processors missing or invalid "
@@ -3153,7 +3153,7 @@ options:
 		printf("created %d fifos\n", fifo_count);
 	}
 
-    close(fd);    
+    close(fd);
 
 	return exit_code;
 }

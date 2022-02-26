@@ -6,13 +6,13 @@ function ventoy_replace_slash(str) {
 }
 
 
-function ventoy_get_ulen(str) {    
-    var c, b = 0, l = str.length;    
-    while(l) {    
-        c = str.charCodeAt(--l);    
-        b += (c < 128) ? 1 : ((c < 2048) ? 2 : ((c < 65536) ? 3 : 4));    
-    };    
-    return b;    
+function ventoy_get_ulen(str) {
+    var c, b = 0, l = str.length;
+    while(l) {
+        c = str.charCodeAt(--l);
+        b += (c < 128) ? 1 : ((c < 2048) ? 2 : ((c < 65536) ? 3 : 4));
+    };
+    return b;
 }
 
 
@@ -112,7 +112,7 @@ function callVtoy(p1, p2, p3) {
             }
             else if(undefined === errorThrown.length)
             {
-                
+
             }
             else if('' == errorThrown.trim())
             {
@@ -161,11 +161,11 @@ function callVtoyASyncTimeout(time, data, func) {
         success: func,
         error: function(xmlHttpRequest, textStatus, errorThrown) {
             if(undefined === errorThrown)
-            {                
+            {
             }
             else if(undefined === errorThrown.length)
             {
-                
+
             }
             else if('' == errorThrown.trim())
             {
@@ -209,11 +209,11 @@ function callVtoySync(data, func) {
         dataType: 'json',
         async: false,
         data: JSON.stringify(data),
-        success: function VtoyCallFuncWrapper(data) {            
+        success: function VtoyCallFuncWrapper(data) {
             if (data.result === 'busy') {
                 var titlestr = '<span class="fa fa-check-circle" style="color:green; font-weight:bold;"> ' + g_vtoy_cur_language.STR_INFO + '</span>';
                 var msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + g_vtoy_cur_language.STR_WEB_SERVICE_BUSY + '</span>';
-                Modal.alert({title:titlestr, msg:msgstr, btnok:g_vtoy_cur_language.STR_BTN_OK });                
+                Modal.alert({title:titlestr, msg:msgstr, btnok:g_vtoy_cur_language.STR_BTN_OK });
             }else {
                 func(data);
             }
@@ -225,7 +225,7 @@ function callVtoySync(data, func) {
             }
             else if(undefined === errorThrown.length)
             {
-                
+
             }
             else if('' == errorThrown.trim())
             {
@@ -262,16 +262,16 @@ function callVtoySync(data, func) {
     });
 }
 
-var vtoy = {    
+var vtoy = {
     baseurl : '',
-    status: '',    
+    status: '',
     scan: {
         time: 3,
         ret: []
     }
 }
 
-// 
+//
 String.prototype.endsWith = function(str) {
     if (str == null || str == "" || this.length == 0 || str.length > this.length)
         return false;
@@ -289,7 +289,7 @@ window.Message = function() {
         }
         _show(o);
     }
-    
+
     var _show = function(options) {
         var ops = {
             msg : "提示内容",
@@ -323,11 +323,11 @@ window.Message = function() {
             $div.remove();
         }, ops.time);
     }
-    
+
     var _success = function(msg, time) {
         _showMsg('s', msg, time);
     }
-    var _error = function(msg, time) {        
+    var _error = function(msg, time) {
         _showMsg('e', msg, time || 5000);
     }
     var _warn = function(msg, time) {
@@ -336,7 +336,7 @@ window.Message = function() {
     var _info = function(msg, time) {
         _showMsg('i', msg, time);
     }
-    
+
     return {
         success : _success,
         error	: _error,
@@ -347,7 +347,7 @@ window.Message = function() {
 }();
 
 
-var g_vtoy_cur_language_en = 
+var g_vtoy_cur_language_en =
 {
     "STR_INFO": "Info",
     "STR_BTN_OK": "OK",
@@ -430,8 +430,8 @@ var g_vtoy_cur_language_en =
     "STR_PATH_TOO_LONG": "The path exceeds the maximum supported length, please check!",
     "STR_INPUT_TOO_LONG": "The string exceeds the maximum supported length, please check!",
     "STR_INVALID_FILE_PATH": "Invalid or nonexist full file path, please check!",
-    "STR_INVALID_FILE_PATH1": "The 1st file path is invalid or nonexist!",    
-    "STR_INVALID_FILE_PATH2": "The 2nd file path is invalid or nonexist!",    
+    "STR_INVALID_FILE_PATH1": "The 1st file path is invalid or nonexist!",
+    "STR_INVALID_FILE_PATH2": "The 2nd file path is invalid or nonexist!",
     "STR_INVALID_NEW_FILE_PATH": "The full file path of new is invalid or nonexist, please check!",
     "STR_INVALID_DIR_PATH": "Invalid directory path, please check!",
     "STR_INVALID_NUMBER": "Please input valid non-negative integer!",
@@ -458,7 +458,7 @@ var g_vtoy_cur_language_en =
     "STR_SET_IMAGE_PWD": "[file] Set Password For A File",
     "STR_SET_PARENT_PWD": "[parent] Set the same password for all the files under a directory.",
 
-    "STR_SET_SEARCH_ROOT": "Set Search Root",    
+    "STR_SET_SEARCH_ROOT": "Set Search Root",
     "STR_SET_DEFAULT_IMAGE": "Set Default Image",
     "STR_ADD_THEME": "Add Theme",
     "STR_ADD_FONT": "Set Font",
@@ -466,7 +466,7 @@ var g_vtoy_cur_language_en =
     "STR_DEFAULT_SELECT": " Default",
     "STR_AUTO_TEMPLATE": "Auto Install Template",
     "STR_ADD_AUTO_TEMPLATE": "Add Auto Install Template",
-    
+
     "STR_PERSISTENCE_DAT": "Persistence Dat File",
     "STR_ADD_PERSISTENCE_DAT": "Add Persistence Dat File",
 
@@ -485,7 +485,7 @@ var g_vtoy_cur_language_en =
     "STR_XXX": "xxx"
 };
 
-var g_vtoy_cur_language_cn = 
+var g_vtoy_cur_language_cn =
 {
     "STR_INFO": "提醒",
     "STR_BTN_OK": "确定",
@@ -520,7 +520,7 @@ var g_vtoy_cur_language_cn =
     "STR_DELETE_CONFIRM": "确定要删除吗？",
     "STR_FILE_PATH": "文件路径",
     "STR_DIR_PATH": "目录路径",
-    
+
     "STR_SET_ALIAS": "设置菜单别名",
     "STR_ALIAS": "别名",
     "STR_SET_TIP": "设置菜单提示",
@@ -565,10 +565,10 @@ var g_vtoy_cur_language_cn =
 
     "STR_PATH_TOO_LONG": "路径超过最大支持长度，请检查！",
     "STR_INPUT_TOO_LONG": "字符串超过最大支持长度，请检查！",
-    "STR_INVALID_FILE_PATH": "文件路径不合法或不存在，请检查！",    
-    "STR_INVALID_FILE_PATH1": "第1个文件路径不合法或不存在，请检查！",    
-    "STR_INVALID_FILE_PATH2": "第2个文件路径不合法或不存在，请检查！",    
-    "STR_INVALID_NEW_FILE_PATH": "new 文件路径不合法或不存在，请检查！",    
+    "STR_INVALID_FILE_PATH": "文件路径不合法或不存在，请检查！",
+    "STR_INVALID_FILE_PATH1": "第1个文件路径不合法或不存在，请检查！",
+    "STR_INVALID_FILE_PATH2": "第2个文件路径不合法或不存在，请检查！",
+    "STR_INVALID_NEW_FILE_PATH": "new 文件路径不合法或不存在，请检查！",
     "STR_INVALID_DIR_PATH": "文件夹路径不合法，请检查！",
     "STR_INVALID_NUMBER": "请输入合法的非负整数！",
     "STR_INVALID_AUTOSEL": "autosel 的值超过了列表实际长度！",
@@ -596,7 +596,7 @@ var g_vtoy_cur_language_cn =
     "STR_SET_PARENT_PWD": "[parent] 为某个目录下的所有文件设置相同的密码",
 
 
-    
+
     "STR_SET_SEARCH_ROOT": "设置搜索目录",
     "STR_SET_DEFAULT_IMAGE": "设置默认镜像文件",
     "STR_ADD_THEME": "添加主题",
@@ -659,7 +659,7 @@ function ventoy_file_submit(form, extra) {
         callVtoySync({
             method : 'check_fuzzy',
             path: filepath
-        }, function(data) {        
+        }, function(data) {
             if (data.exist != 0) {
                 if (typeof(g_file_modal_callback) === 'function') {
                     g_file_modal_callback(filepath, -1, fileextra);
@@ -674,7 +674,7 @@ function ventoy_file_submit(form, extra) {
             method : 'check_path',
             dir: 0,
             path: filepath
-        }, function(data) {        
+        }, function(data) {
             if (data.exist === 1) {
                 if (typeof(g_file_modal_callback) === 'function') {
                     g_file_modal_callback(filepath, 1, fileextra);
@@ -689,7 +689,7 @@ function ventoy_file_submit(form, extra) {
 
 
 var g_filepath_validator = $("#SetFileForm").validate({
-    rules: {            
+    rules: {
         FilePath : {
             required: true,
             utfmaxlen: true,
@@ -706,7 +706,7 @@ var g_filepath_validator = $("#SetFileForm").validate({
 });
 
 var g_dirpath_validator = $("#SetDirForm").validate({
-    rules: {            
+    rules: {
         DirPath : {
             required: true,
             utfmaxlen: true,
@@ -720,7 +720,7 @@ var g_dirpath_validator = $("#SetDirForm").validate({
     submitHandler: function(form) {
         var dirpath = $("#DirPath").val();
         var dirextra = $("#DirExtra").val();
-        
+
         if (!dirpath) {
             return;
         }
@@ -745,8 +745,8 @@ var g_dirpath_validator = $("#SetDirForm").validate({
         callVtoySync({
             method : 'check_path',
             dir: 1,
-            path: dirpath                
-        }, function(data) {        
+            path: dirpath
+        }, function(data) {
             if (data.exist === 1) {
                 if (typeof(g_dir_modal_callback) === 'function') {
                     g_dir_modal_callback(dirpath, dirextra);
@@ -761,7 +761,7 @@ var g_dirpath_validator = $("#SetDirForm").validate({
 
 function VtoySelectFilePath(cb, para) {
     g_file_fuzzy_match = para.fuzzy;
-    
+
     if (para.extra) {
         $('div[id=id_div_file_extra]').show();
         $('#SetFileForm_extra').text(para.extra_title);
@@ -785,7 +785,7 @@ function VtoySelectFilePath(cb, para) {
         } else {
             $('#SetFileForm #SetFileForm_lang_1').text(para.title);
         }
-        
+
         $('#SetFileForm #SetFileForm_lang_2').text("File Path");
         $('#SetFileForm #SetFileForm_lang_3').text(" OK");
         $('#SetFileForm #SetFileForm_lang_4').text("Cancel");
@@ -821,7 +821,7 @@ function VtoySelectFilePath(cb, para) {
     g_file_with_extra = para.extra;
     g_filepath_validator.settings.rules.FileExtra.required = g_file_with_extra;
     g_filepath_validator.resetForm();
-    $("#SetFileModal").modal();            
+    $("#SetFileModal").modal();
 }
 
 
@@ -880,8 +880,8 @@ function VtoySelectDirPath(cb, para) {
     g_dir_modal_callback = cb;
     g_dir_with_extra = para.extra;
     g_dirpath_validator.settings.rules.DirExtra.required = g_dir_with_extra;
-    g_dirpath_validator.resetForm(); 
-    $("#SetDirModal").modal();            
+    g_dirpath_validator.resetForm();
+    $("#SetDirModal").modal();
 }
 
 function VtoyCommonChangeLanguage(newlang) {
@@ -889,7 +889,7 @@ function VtoyCommonChangeLanguage(newlang) {
         g_vtoy_cur_language = g_vtoy_cur_language_en;
         ;$.extend($.validator.messages, {
             required: "This field is required",
-            remote: "Please modify this field",    
+            remote: "Please modify this field",
             maxlength: $.validator.format("You can enter up to {0} characters"),
             minlength: $.validator.format("Must enter at least {0} characters"),
             rangelength: $.validator.format("Please input {0} to {1} characters"),
@@ -908,21 +908,21 @@ function VtoyCommonChangeLanguage(newlang) {
             var newlink = oldlink.replace("/cn/", "/en/");
             $(this).attr('href', newlink);
         });
-        
+
         $("span[id=id_span_official_doc]").each(function(){
             $(this).text(" Plugin Official Document");
         });
-        
+
         $('#id_span_language').text("中文");
-        
+
         $("tr[id=tr_title_desc_cn]").each(function(){
             $(this).hide();
         });
-        
+
         $("tr[id=tr_title_desc_en]").each(function(){
             $(this).show();
         });
-      
+
         $("th[id=id_th_file_path]").each(function(){
             $(this).text("Full File Path");
         });
@@ -935,7 +935,7 @@ function VtoyCommonChangeLanguage(newlang) {
         g_vtoy_cur_language = g_vtoy_cur_language_cn;
         ;$.extend($.validator.messages, {
             required: "这是必填字段",
-            remote: "请修正此字段",    
+            remote: "请修正此字段",
             maxlength: $.validator.format("最多可以输入 {0} 个字符"),
             minlength: $.validator.format("最少要输入 {0} 个字符"),
             rangelength: $.validator.format("请输入长度在 {0} 到 {1} 之间的字符串"),
@@ -948,27 +948,27 @@ function VtoyCommonChangeLanguage(newlang) {
             filenamepart:$.validator.format("作为文件名的一部分，不能包含特殊的符号"),
             printascii: $.validator.format("不能包含中文或其他非 ascii 字符。")
         });
-        
+
         $("a[id=id_a_official_doc]").each(function(){
             var oldlink = $(this).attr('href');
             var newlink = oldlink.replace("/en/", "/cn/");
             $(this).attr('href', newlink);
         });
-        
+
         $("span[id=id_span_official_doc]").each(function(){
             $(this).text(" 插件官网文档");
         });
-        
+
         $('#id_span_language').text("English");
-        
+
         $("tr[id=tr_title_desc_cn]").each(function(){
             $(this).show();
         });
-        
+
         $("tr[id=tr_title_desc_en]").each(function(){
             $(this).hide();
         });
-        
+
         $("th[id=id_th_file_path]").each(function(){
             $(this).text("文件路径");
         });
@@ -1024,13 +1024,13 @@ function VtoyCommonChangeLanguage(newlang) {
     $("td[id=td_title_desc]").each(function(){
         $(this).text(g_vtoy_cur_language.STR_OPT_DESC);
     });
-    
+
     $("td[id=td_title_setting]").each(function(){
         $(this).text(g_vtoy_cur_language.STR_OPT_SETTING);
     });
 }
 
-  
+
 function ventoy_get_status_line(dir, exist) {
     if (dir) {
         if (exist === 0) {
@@ -1053,7 +1053,7 @@ function ventoy_get_status_line(dir, exist) {
 
 var g_type_select_callback;
 
-var g_type_select_validator = $("#TypeSelectForm").validate({    
+var g_type_select_validator = $("#TypeSelectForm").validate({
     submitHandler: function(form) {
         var sel =  parseInt($('input:radio[name=name_select_type_radio]:checked').val());
         if (typeof(g_type_select_callback) === 'function') {
@@ -1067,7 +1067,7 @@ var g_type_select_validator = $("#TypeSelectForm").validate({
 function VtoySelectType(cb, para) {
 
     $('#TypeSelectForm #TypeSelForm_lang_1').text(g_vtoy_cur_language.STR_SELECT);
-    
+
     if (g_current_language === 'en') {
         $('#TypeSelectForm #TypeSelForm_lang_2').text(" OK");
         $('#TypeSelectForm #TypeSelForm_lang_3').text("Cancel");
@@ -1075,7 +1075,7 @@ function VtoySelectType(cb, para) {
         $('#TypeSelectForm #TypeSelForm_lang_2').text("确定");
         $('#TypeSelectForm #TypeSelForm_lang_3').text("取消");
     }
-    
+
     var $tbl = $("#id_type_select_table tbody");
     $tbl.empty();
 
@@ -1092,23 +1092,23 @@ function VtoySelectType(cb, para) {
     }
 
     g_type_select_callback = cb;
-    g_type_select_validator.resetForm(); 
-    $("#TypeSelectModal").modal();            
+    g_type_select_validator.resetForm();
+    $("#TypeSelectModal").modal();
 }
 
 
 var g_set_key_callback;
 
-var g_set_key_validator = $("#SetKeyForm").validate({    
-    rules: {            
+var g_set_key_validator = $("#SetKeyForm").validate({
+    rules: {
         SetKeyKey : {
             required: true,
-            utfmaxlen: true      
+            utfmaxlen: true
         },
         SetKeyValue : {
             required: true,
             utfmaxlen: true,
-            filenamepart: true        
+            filenamepart: true
         }
     },
 
@@ -1142,10 +1142,10 @@ function VtoySetKey(cb, para) {
         $('#SetKeyForm #SetKeyForm_lang_4').text("确定");
         $('#SetKeyForm #SetKeyForm_lang_5').text("取消");
     }
-    
+
     g_set_key_callback = cb;
-    g_set_key_validator.resetForm(); 
-    $("#SetKeyModal").modal();            
+    g_set_key_validator.resetForm();
+    $("#SetKeyModal").modal();
 }
 
 var g_valid_color_name = [
@@ -1195,7 +1195,7 @@ function ventoy_check_file_path(isopath, fuzzy, cb) {
         callVtoySync({
             method : 'check_fuzzy',
             path: isopath
-        }, function(data) {        
+        }, function(data) {
             if (data.exist != 0) {
                 if (typeof(cb) === 'function') {
                     cb(data.exist);
@@ -1209,7 +1209,7 @@ function ventoy_check_file_path(isopath, fuzzy, cb) {
             method : 'check_path',
             dir: 0,
             path: isopath
-        }, function(data) {        
+        }, function(data) {
             if (data.exist === 1) {
                 if (typeof(cb) === 'function') {
                     cb(data.exist);
@@ -1221,7 +1221,7 @@ function ventoy_check_file_path(isopath, fuzzy, cb) {
     }
 }
 
-function ventoy_random_string(e) {  
+function ventoy_random_string(e) { 
     var t = "abcdefhijkmnprstwxyz2345678";
     var a = t.length;
     var n = "";
@@ -1234,15 +1234,15 @@ function ventoy_random_string(e) { 
 
 var g_set_filefile_callback;
 
-var g_set_filefile_validator = $("#SetFileFileForm").validate({    
-    rules: {            
+var g_set_filefile_validator = $("#SetFileFileForm").validate({
+    rules: {
         FileFilePath1 : {
             required: true,
             utfmaxlen: true
         },
         FileFilePath2 : {
             required: true,
-            utfmaxlen: true          
+            utfmaxlen: true
         }
     },
 
@@ -1323,24 +1323,24 @@ function VtoySetFileFile(cb, para) {
     $('span[id=id_span_filefile_tip3]').each(function(){
         $(this).text(para.tip3);
     });
-    
+
     g_set_filefile_callback = cb;
-    g_set_filefile_validator.resetForm(); 
+    g_set_filefile_validator.resetForm();
     $("#SetFileFileModal").modal();
 }
 
 
 var g_set_dirfile_callback;
 
-var g_set_dirfile_validator = $("#SetDirFileForm").validate({    
-    rules: {            
+var g_set_dirfile_validator = $("#SetDirFileForm").validate({
+    rules: {
         DirFilePath1 : {
             required: true,
             utfmaxlen: true
         },
         DirFilePath2 : {
             required: true,
-            utfmaxlen: true          
+            utfmaxlen: true
         }
     },
 
@@ -1418,9 +1418,9 @@ function VtoySetDirFile(cb, para) {
     $('span[id=id_span_dirfile_tip2]').each(function(){
         $(this).text(para.tip2);
     });
-    
+
     g_set_dirfile_callback = cb;
-    g_set_dirfile_validator.resetForm(); 
+    g_set_dirfile_validator.resetForm();
     $("#SetDirFileModal").modal();
 }
 

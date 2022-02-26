@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -41,20 +41,20 @@ static GUID g_WindowsDataPartGuid = { 0xebd0a0a2, 0xb9e5, 0x4433, { 0x87, 0xc0, 
 static int vtoy_disk_read(uint32 sector, uint8 *buffer, uint32 sector_count)
 {
     UINT64 offset = sector * 512ULL;
-    
+
     lseek(g_disk_fd, g_disk_offset + offset, SEEK_SET);
     read(g_disk_fd, buffer, sector_count * 512);
-    
+
     return 1;
 }
 
 static int vtoy_disk_write(uint32 sector, uint8 *buffer, uint32 sector_count)
 {
     UINT64 offset = sector * 512ULL;
-    
+
     lseek(g_disk_fd, g_disk_offset + offset, SEEK_SET);
     write(g_disk_fd, buffer, sector_count * 512);
-    
+
     return 1;
 }
 
@@ -78,7 +78,7 @@ static int gpt_check(const char *disk)
         goto out;
     }
     memset(pGPT, 0, sizeof(VTOY_GPT_INFO));
-    
+
     read(fd, pGPT, sizeof(VTOY_GPT_INFO));
 
     if (pGPT->MBR.PartTbl[0].FsFlag == 0xEE && memcmp(pGPT->Head.Signature, "EFI PART", 8) == 0)
@@ -87,7 +87,7 @@ static int gpt_check(const char *disk)
 	}
 
 out:
-    check_close(fd);        
+    check_close(fd);
     check_free(pGPT);
     return rc;
 }
@@ -112,7 +112,7 @@ static int part_check(const char *disk)
         printf("Failed to get disk size of %s\n", disk);
         goto out;
     }
-    
+
     fd = open(disk, O_RDONLY);
     if (fd < 0)
     {
@@ -126,7 +126,7 @@ static int part_check(const char *disk)
         goto out;
     }
     memset(pGPT, 0, sizeof(VTOY_GPT_INFO));
-    
+
     read(fd, pGPT, sizeof(VTOY_GPT_INFO));
 
     if (pGPT->MBR.PartTbl[0].FsFlag == 0xEE && memcmp(pGPT->Head.Signature, "EFI PART", 8) == 0)
@@ -181,7 +181,7 @@ static int part_check(const char *disk)
 		}
 
         NextPartStart *= 512ULL;
-		printf("DiskSize:%llu NextPartStart:%llu(LBA:%llu) Index:%d\n", 
+		printf("DiskSize:%llu NextPartStart:%llu(LBA:%llu) Index:%d\n",
             DiskSizeInBytes, NextPartStart, NextPartStart / 512ULL, Index);
     }
     else
@@ -236,7 +236,7 @@ static int part_check(const char *disk)
 	Part1Start *= 512ULL;
 	Part1End *= 512ULL;
 
-	printf("Partition 1 start at: %llu %lluKB, end:%llu, NextPartStart:%llu\n", 
+	printf("Partition 1 start at: %llu %lluKB, end:%llu, NextPartStart:%llu\n",
 		Part1Start, Part1Start / 1024, Part1End, NextPartStart);
     if (Part1Start != SIZE_1MB)
     {
@@ -263,7 +263,7 @@ static int part_check(const char *disk)
 	}
 
 out:
-    check_close(fd);        
+    check_close(fd);
     check_free(pGPT);
     return rc;
 }
@@ -322,7 +322,7 @@ static int secureboot_proc(char *disk, UINT64 part2start)
 				{
 					fl_fwrite(filebuf, 1, size, file);
 				}
-				
+
 				fl_fflush(file);
 				fl_fclose(file);
 			}
@@ -354,7 +354,7 @@ static int secureboot_proc(char *disk, UINT64 part2start)
             fl_remove("/EFI/BOOT/BOOTIA32.EFI");
             fl_remove("/EFI/BOOT/grubia32.efi");
             fl_remove("/EFI/BOOT/grubia32_real.efi");
-            fl_remove("/EFI/BOOT/mmia32.efi");            
+            fl_remove("/EFI/BOOT/mmia32.efi");
 
             file = fl_fopen("/EFI/BOOT/BOOTIA32.EFI", "wb");
             printf("Open bootia32 efi file %p\n", file);
@@ -392,7 +392,7 @@ static int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, U
     UINT8 Head;
     UINT8 Sector;
     UINT8 nSector = 63;
-    UINT8 nHead = 8;    
+    UINT8 nHead = 8;
     UINT32 Cylinder;
     UINT32 EndSectorId;
 
@@ -434,21 +434,21 @@ static int WriteDataToPhyDisk(int fd, UINT64 offset, void *buffer, int len)
 {
     ssize_t wrlen;
     off_t newseek;
-        
+
     newseek = lseek(fd, offset, SEEK_SET);
     if (newseek != offset)
     {
         printf("Failed to lseek %llu %lld %d\n", offset, (long long)newseek, errno);
         return 0;
     }
-    
+
     wrlen = write(fd, buffer, len);
     if ((int)wrlen != len)
     {
         printf("Failed to write %d %d %d\n", len, (int)wrlen, errno);
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -461,7 +461,7 @@ static int VentoyFillBackupGptHead(VTOY_GPT_INFO *pInfo, VTOY_GPT_HDR *pHead)
 
     LBA = pHead->EfiStartLBA;
     BackupLBA = pHead->EfiBackupLBA;
-    
+
     pHead->EfiStartLBA = BackupLBA;
     pHead->EfiBackupLBA = LBA;
     pHead->PartTblStartLBA = BackupLBA + 1 - 33;
@@ -490,7 +490,7 @@ static int update_part_table(char *disk, UINT64 part2start)
         printf("Failed to get disk size of %s\n", disk);
         goto out;
     }
-    
+
     fd = open(disk, O_RDWR);
     if (fd < 0)
     {
@@ -506,7 +506,7 @@ static int update_part_table(char *disk, UINT64 part2start)
     memset(pGPT, 0, sizeof(VTOY_GPT_INFO) + sizeof(VTOY_GPT_HDR));
 
     pBack = (VTOY_GPT_HDR *)(pGPT + 1);
-    
+
     len = read(fd, pGPT, sizeof(VTOY_GPT_INFO));
     if (len != (ssize_t)sizeof(VTOY_GPT_INFO))
     {
@@ -554,7 +554,7 @@ static int update_part_table(char *disk, UINT64 part2start)
 
         PartTbl[0].Active = 0x80; // bootable
         PartTbl[0].SectorCount = (UINT32)part2start - 2048;
-        
+
         if (!WriteDataToPhyDisk(fd, 0, &(pGPT->MBR), 512))
 		{
 			printf("MBR write MBR failed\n");
@@ -641,7 +641,7 @@ static int update_part_table(char *disk, UINT64 part2start)
     }
 
 out:
-    check_close(fd);        
+    check_close(fd);
     check_free(pGPT);
     return rc;
 }
@@ -649,7 +649,7 @@ out:
 int partresize_main(int argc, char **argv)
 {
     UINT64 sector;
-    
+
     if (argc != 3 && argc != 4)
     {
         printf("usage: partresize -c/-f /dev/sdb\n");
@@ -667,7 +667,7 @@ int partresize_main(int argc, char **argv)
     }
     else if (strcmp(argv[1], "-p") == 0)
     {
-        sector = strtoull(argv[3], NULL, 10);    
+        sector = strtoull(argv[3], NULL, 10);
         return update_part_table(argv[2], sector);
     }
     else if (strcmp(argv[1], "-t") == 0)

@@ -865,7 +865,7 @@ grub_xfs_iterate_dir (grub_fshelp_node_t dir,
 		   tag, which is not used by GRUB.  So it can be overwritten. */
 		filename[direntry->len] = '\0';
 
-		if (iterate_dir_call_hook (grub_be_to_cpu64(direntry->inode), 
+		if (iterate_dir_call_hook (grub_be_to_cpu64(direntry->inode),
 					   filename, &ctx))
 		  {
 		    grub_free (dirblock);

@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -71,16 +71,16 @@ static int ventoy_iso_getattr(const char *path, struct stat *statinfo)
             ret = 0;
         }
     }
-    
+
     return ret;
 }
 
 static int ventoy_iso_readdir
 (
-    const char *path, 
-    void *buf, 
+    const char *path,
+    void *buf,
     fuse_fill_dir_t filler,
-    off_t offset, 
+    off_t offset,
     struct fuse_file_info *file
 )
 {
@@ -121,7 +121,7 @@ static int ventoy_read_iso_sector(uint32_t sector, uint32_t num, char *buf)
     uint32_t readSec = 0;
     off_t offset = 0;
     dmtable_entry *entry = NULL;
-    
+
     for (i = 0; i < g_disk_entry_num && num > 0; i++)
     {
         entry = g_disk_entry_list + i;
@@ -146,7 +146,7 @@ static int ventoy_read_iso_sector(uint32_t sector, uint32_t num, char *buf)
 
 static int ventoy_iso_read
 (
-    const char *path, char *buf, 
+    const char *path, char *buf,
     size_t size, off_t offset,
     struct fuse_file_info *file
 )
@@ -157,12 +157,12 @@ static int ventoy_iso_read
     uint32_t number = 0;
     size_t leftsize = 0;
     char secbuf[512];
-    
+
     (void)file;
-    
+
     if(strcmp(path, g_iso_file_name) != 0)
     {
-        return -ENOENT;        
+        return -ENOENT;
     }
 
     if (offset >= g_iso_file_size)
@@ -174,7 +174,7 @@ static int ventoy_iso_read
     {
         size = g_iso_file_size - offset;
     }
-    
+
     leftsize = size;
     sector = offset / 512;
 
@@ -213,7 +213,7 @@ static int ventoy_iso_read
     return size;
 }
 
-static struct fuse_operations ventoy_op = 
+static struct fuse_operations ventoy_op =
 {
     .getattr    = ventoy_iso_getattr,
     .readdir    = ventoy_iso_readdir,
@@ -238,8 +238,8 @@ static int ventoy_parse_dmtable(const char *filename)
     /* read until the last line */
     while (fgets(line, sizeof(line), fp) && g_disk_entry_num < MAX_ENTRY_NUM)
     {
-        sscanf(line, "%u %u linear %s %llu", 
-               &entry->isoSector, &entry->sectorNum, 
+        sscanf(line, "%u %u linear %s %llu",
+               &entry->isoSector, &entry->sectorNum,
                diskname, &entry->diskSector);
 
         g_iso_file_size += (uint64_t)entry->sectorNum * 512ULL;
@@ -274,12 +274,12 @@ int main(int argc, char **argv)
 
     /* Avoid to be killed by systemd */
     if (access("/etc/initrd-release", F_OK) >= 0)
-    {		
+    {
         argv[0][0] = '@';
     }
 
     g_iso_file_name[0] = '/';
-    
+
     while ((ch = getopt(argc, argv, "f:s:m:v::t::")) != -1)
     {
         if (ch == 'f')

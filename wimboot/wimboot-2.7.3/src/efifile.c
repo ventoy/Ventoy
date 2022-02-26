@@ -156,7 +156,7 @@ void efi_extract ( EFI_HANDLE handle ) {
 
         *pos = 0;
         k = (int)strlen(cmdline_vf_path[i]);
-    
+
         memset(wname, 0, sizeof(wname));
         for (j = 0; j < k; j++)
         {

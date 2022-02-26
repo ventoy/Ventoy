@@ -204,7 +204,7 @@ get_ssector(const char *dev)
 		return -1;
 	}
 	close(fd);
-	
+
 	for (i = ntocentries - 1; i >= 0; i--)
 		if ((toc_buffer[i].control & 4) != 0)
 			/* found a data track */

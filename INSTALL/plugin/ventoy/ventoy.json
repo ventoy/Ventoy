@@ -1,23 +1,23 @@
 {
     "control": [
         { "VTOY_DEFAULT_MENU_MODE": "1" },
-        { "VTOY_FILT_DOT_UNDERSCORE_FILE": "1" }        
+        { "VTOY_FILT_DOT_UNDERSCORE_FILE": "1" }
     ],
-    
+
     "theme": {
-        "file": "/ventoy/theme/theme.txt",        
+        "file": "/ventoy/theme/theme.txt",
         "display_mode": "GUI",
         "ventoy_left": "5%",
         "ventoy_top": "95%",
         "ventoy_color": "#0000ff"
     },
-    
-    
-    "menu_class": [        
+
+
+    "menu_class": [
         {
             "key": "ubuntu",
             "class": "ubuntu"
-        },        
+        },
         {
             "key": "deepin",
             "class": "deepin"
@@ -27,7 +27,7 @@
             "class": "red-hat"
         }
     ],
-    
+
     "menu_alias": [
         {
             "image": "/ISO/MX-19.1_x64.iso",
@@ -38,7 +38,7 @@
             "alias": "我的 Windows 10 系统"
         }
     ],
-    
+
     "auto_install": [
         {
             "image": "/ISO/cn_windows_10.iso",
@@ -56,5 +56,5 @@
             ]
         }
     ]
-    
+
 }

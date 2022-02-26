@@ -30,7 +30,7 @@
 
 #define GRUB_EFI_LOONGSON_MMAP_MAX 128
 typedef enum
-  {                   
+  {
     GRUB_EFI_LOONGSON_SYSTEM_RAM_LOW = 1,
     GRUB_EFI_LOONGSON_SYSTEM_RAM_HIGH,
     GRUB_EFI_LOONGSON_MEMORY_RESERVED,
@@ -298,6 +298,6 @@ typedef struct {
 }GRUB_PACKED
 vbios;
 
-grub_uint32_t 
+grub_uint32_t
 EXPORT_FUNC (grub_efi_loongson_memmap_sort) (struct memmap array[], grub_uint32_t length, mem_map * bpmem, grub_uint32_t index, grub_uint32_t memtype);
 #endif /* ! GRUB_EFI_LOONGSON_HEADER */

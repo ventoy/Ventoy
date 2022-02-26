@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef __VENTOY_H__
 #define __VENTOY_H__
 
@@ -41,7 +41,7 @@
   #error Unknown Processor Type
 #endif
 
-typedef struct vdisk_block_data 
+typedef struct vdisk_block_data
 {
 	EFI_HANDLE Handle;
 	EFI_BLOCK_IO_MEDIA Media;       /* Media descriptor */
@@ -78,7 +78,7 @@ if (gVDiskDebugPrint) \
 
 extern BOOLEAN gVDiskDebugPrint;
 VOID EFIAPI VDiskDebug(IN CONST CHAR8  *Format, ...);
-EFI_STATUS EFIAPI vdisk_block_io_read 
+EFI_STATUS EFIAPI vdisk_block_io_read
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
     IN UINT32                          MediaId,

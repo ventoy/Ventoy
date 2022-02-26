@@ -128,7 +128,7 @@ static int gzip_options(char *argv[], int argc)
 				goto failed;
 			}
 		}
-	
+
 		return 1;
 	}
 
@@ -265,7 +265,7 @@ static int gzip_extract_options(int block_size, void *buffer, int size)
 		} else
 			strategy[i].selected = 0;
 	}
-	
+
 	return 0;
 
 failed:
@@ -325,7 +325,7 @@ static void gzip_display_options(void *buffer, int size)
 failed:
 	fprintf(stderr, "gzip: error reading stored compressor options from "
 		"filesystem!\n");
-}	
+}
 
 
 /*
@@ -371,7 +371,7 @@ static int gzip_init(void **strm, int block_size, int datablock)
 			j++;
 		}
 	}
-		
+
 	stream->stream.zalloc = Z_NULL;
 	stream->stream.zfree = Z_NULL;
 	stream->stream.opaque = 0;

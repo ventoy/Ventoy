@@ -1,20 +1,20 @@
 #!/ventoy/busybox/ash
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 ####################################################################
@@ -68,7 +68,7 @@ elif [ "$VTOY_ARCH" = "x86_64" ]; then
     if [ -s $BUSYBOX_PATH/busybox ]; then
         $BUSYBOX_PATH/vtchmod64 $BUSYBOX_PATH/busybox
     else
-        $BUSYBOX_PATH/xzminidec64_musl < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox 
+        $BUSYBOX_PATH/xzminidec64_musl < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox
         $BUSYBOX_PATH/vtchmod64_musl $BUSYBOX_PATH/busybox
     fi
 else
@@ -120,7 +120,7 @@ if [ "$VTOY_ARCH" = "x86_64" ]; then
     ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
-    
+
     rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
     ln -s $VTOY_PATH/tool/lz4cat64 $VTOY_PATH/tool/lz4cat
     ln -s $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
@@ -141,13 +141,13 @@ elif [ "$VTOY_ARCH" = "mips64el" ]; then
     echo "Use MIPS64 busybox toolkit ..." >>$VTLOG
     ln -s $BUSYBOX_PATH/xzminidecm64e $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetupm64e $VTOY_PATH/tool/dmsetup
-    
+
     # TBD
     #ln -s $VTOY_PATH/tool/lunzipm64e $VTOY_PATH/tool/lunzip
-    
+
     rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
     ln -s $VTOY_PATH/tool/lz4catm64e $VTOY_PATH/tool/lz4cat
-    
+
     # TBD
     #ln -s $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
 
@@ -156,7 +156,7 @@ elif [ "$VTOY_ARCH" = "aarch64" ]; then
     ln -s $BUSYBOX_PATH/xzminidecaa64 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetupaa64 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzipaa64 $VTOY_PATH/tool/lunzip
-    
+
     rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
     ln -s $VTOY_PATH/tool/lz4cataa64 $VTOY_PATH/tool/lz4cat
     ln -s $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat

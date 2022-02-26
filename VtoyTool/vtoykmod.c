@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -193,7 +193,7 @@ static int vtoykmod_write_file(char *name, void *buf, int size)
     {
         return -1;
     }
-    
+
     fwrite(buf, 1, size, fp);
     fclose(fp);
 
@@ -212,7 +212,7 @@ static int vtoykmod_read_file(char *name, char **buf)
         debug("failed to open %s %d\n", name, errno);
         return -1;
     }
-    
+
     fseek(fp, 0, SEEK_END);
     size = (int)ftell(fp);
     fseek(fp, 0, SEEK_SET);
@@ -223,7 +223,7 @@ static int vtoykmod_read_file(char *name, char **buf)
         debug("failed to open malloc %d\n", size);
         return -1;
     }
-    
+
     fread(databuf, 1, size, fp);
     fclose(fp);
 
@@ -293,7 +293,7 @@ static int vtoykmod_update_modcrc(char *oldmodver, int oldcnt, char *newmodver, 
 {
     int i, j;
     struct modversion_info *pold, *pnew;
-    
+
     pold = (struct modversion_info *)oldmodver;
     pnew = (struct modversion_info *)newmodver;
 
@@ -330,7 +330,7 @@ static int vtoykmod_update_vermagic(char *oldbuf, int oldsize, char *newbuf, int
             break;
         }
     }
-    
+
     for (i = 0; i < newsize - 9; i++)
     {
         if (strncmp(newbuf + i, "vermagic=", 9) == 0)
@@ -378,7 +378,7 @@ int vtoykmod_update(char *oldko, char *newko)
         if (oldbuf[EI_CLASS] == ELFCLASS64)
         {
             rc  = vtoykmod_find_section64(oldbuf, "__versions", &oldoff, &oldlen);
-            rc += vtoykmod_find_section64(newbuf, "__versions", &newoff, &newlen);            
+            rc += vtoykmod_find_section64(newbuf, "__versions", &newoff, &newlen);
         }
         else
         {
@@ -395,23 +395,23 @@ int vtoykmod_update(char *oldko, char *newko)
     {
         debug("no need to proc modversions\n");
     }
-    
+
     /* 3: update relocate address */
     if (oldbuf[EI_CLASS] == ELFCLASS64)
     {
         Elf64_Rela *oldRela, *newRela;
-        
+
         rc  = vtoykmod_find_section64(oldbuf, ".rela.gnu.linkonce.this_module", &oldoff, &oldlen);
         rc += vtoykmod_find_section64(newbuf, ".rela.gnu.linkonce.this_module", &newoff, &newlen);
         if (rc == 0)
         {
             oldRela = (Elf64_Rela *)(oldbuf + oldoff);
             newRela = (Elf64_Rela *)(newbuf + newoff);
-            
+
             debug("init_module rela: 0x%llx --> 0x%llx\n", (_ull)(oldRela[0].r_offset), (_ull)(newRela[0].r_offset));
             oldRela[0].r_offset = newRela[0].r_offset;
             oldRela[0].r_addend = newRela[0].r_addend;
-            
+
             debug("cleanup_module rela: 0x%llx --> 0x%llx\n", (_ull)(oldRela[1].r_offset), (_ull)(newRela[1].r_offset));
             oldRela[1].r_offset = newRela[1].r_offset;
             oldRela[1].r_addend = newRela[1].r_addend;
@@ -424,7 +424,7 @@ int vtoykmod_update(char *oldko, char *newko)
     else
     {
         Elf32_Rel *oldRel, *newRel;
-        
+
         rc  = vtoykmod_find_section32(oldbuf, ".rel.gnu.linkonce.this_module", &oldoff, &oldlen);
         rc += vtoykmod_find_section32(newbuf, ".rel.gnu.linkonce.this_module", &newoff, &newlen);
         if (rc == 0)
@@ -459,7 +459,7 @@ int vtoykmod_fill_param(char **argv)
     char *buf = NULL;
     ko_param *param;
     unsigned char magic[16] = { magic_sig };
-    
+
     size = vtoykmod_read_file(argv[0], &buf);
     if (size < 0)
     {
@@ -472,7 +472,7 @@ int vtoykmod_fill_param(char **argv)
         {
             debug("Find param magic at %d\n", i);
             param = (ko_param *)(buf + i);
-            
+
             param->struct_size = (unsigned long)sizeof(ko_param);
             param->pgsize = strtoul(argv[1], NULL, 10);
             param->printk_addr = strtoul(argv[2], NULL, 16);
@@ -495,7 +495,7 @@ int vtoykmod_fill_param(char **argv)
             debug("sym_put_size=%lu (%s)\n", param->sym_put_size, argv[8]);
             debug("reg_kprobe_addr=0x%lx (%s)\n", param->reg_kprobe_addr, argv[9]);
             debug("unreg_kprobe_addr=0x%lx (%s)\n", param->unreg_kprobe_addr, argv[10]);
-            
+
             break;
         }
     }
@@ -504,7 +504,7 @@ int vtoykmod_fill_param(char **argv)
     {
         debug("### param magic not found \n");
     }
-    
+
     vtoykmod_write_file(argv[0], buf, size);
 
     free(buf);

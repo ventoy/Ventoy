@@ -367,7 +367,7 @@ g_ventoy_start(struct bio *bp)
 		 * Fill in the component buf structure.
 		 */
         cbp->bio_done = g_std_done;
-		cbp->bio_offset = off + disk->d_map_start;		
+		cbp->bio_offset = off + disk->d_map_start;
         cbp->bio_data = addr;
 		addr += len;
         cbp->bio_length = len;
@@ -415,7 +415,7 @@ g_ventoy_check_and_run(struct g_ventoy_softc *sc)
 			sectorsize = dp->sectorsize;
 		else {
 			sectorsize = lcm(sectorsize, dp->sectorsize);
-		
+
 		}
 	}
 	pp->sectorsize = sectorsize;
@@ -518,7 +518,7 @@ g_ventoy_add_disk(struct g_ventoy_softc *sc, struct g_provider *pp, u_int no)
 	disk->d_start = 0;	/* not yet */
 	disk->d_end = 0;	/* not yet */
 	disk->d_removed = 0;
-    
+
 	disk->d_map_start = g_disk_map_start;
 	disk->d_map_end = g_disk_map_end;
 
@@ -647,7 +647,7 @@ static bool g_vtoy_check_disk(struct g_class *mp, struct g_provider *pp)
     const char *value;
     struct g_consumer *cp;
 	struct g_geom *gp;
-    
+
     if (g_ventoy_disk_size == 0)
     {
         if (resource_string_value("ventoy", 0, "disksize", &value) == 0)
@@ -682,10 +682,10 @@ static bool g_vtoy_check_disk(struct g_class *mp, struct g_provider *pp)
 
     g_access(cp, 1, 0, 0);
 	g_topology_unlock();
-	buf = g_read_data(cp, 0, pp->sectorsize, NULL); 
+	buf = g_read_data(cp, 0, pp->sectorsize, NULL);
 	g_topology_lock();
 	g_access(cp, -1, 0, 0);
-    
+
     g_detach(cp);
 	g_destroy_consumer(cp);
 	g_destroy_geom(gp);
@@ -701,7 +701,7 @@ static bool g_vtoy_check_disk(struct g_class *mp, struct g_provider *pp)
         sprintf(uuid + i * 2, "%02x", buf[0x180 + i]);
     }
     g_free(buf);
-    
+
     if (strncmp(g_ventoy_disk_uuid, uuid, 32) == 0)
     {
         return true;
@@ -777,7 +777,7 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
         }
 
         G_DEBUG("ventoy segment%d: %s\n", i, value);
-        
+
         G_VENTOY_DEBUG(1, "Adding disk %s to %s.", pp->name, gp->name);
     	error = g_ventoy_add_disk(sc, pp, i);
     	if (error != 0) {
@@ -787,7 +787,7 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
     		g_ventoy_destroy(sc, 1);
     		return (NULL);
     	}
-        
+
         g_disk_map_start = 0;
         g_disk_map_end = 0;
     }
@@ -957,9 +957,9 @@ g_ventoy_config(struct gctl_req *req, struct g_class *mp, const char *verb)
 	uint32_t *version;
 
     return;
-    
+
 	g_topology_assert();
-    
+
 	version = gctl_get_paraml(req, "version", sizeof(*version));
 	if (version == NULL) {
 		gctl_error(req, "No '%s' argument.", "version");

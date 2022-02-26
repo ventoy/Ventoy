@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <time.h>
-#include <dirent.h> 
+#include <dirent.h>
 #include <sys/utsname.h>
 #include <sys/types.h>
 #include <linux/limits.h>
@@ -97,7 +97,7 @@ void ventoy_syslog(int level, const char *Fmt, ...)
     FILE *fp;
 
     (void)level;
-    
+
     time(&stamp);
     localtime_r(&stamp, &ttm);
 
@@ -119,7 +119,7 @@ void ventoy_syslog(int level, const char *Fmt, ...)
     fp = fopen(g_log_file, "a+");
     if (fp)
     {
-        fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
+        fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s",
            ttm.tm_year + 1900, ttm.tm_mon, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            buf);
@@ -127,7 +127,7 @@ void ventoy_syslog(int level, const char *Fmt, ...)
     }
 
     #if 0
-    printf("[%04u/%02u/%02u %02u:%02u:%02u] %s", 
+    printf("[%04u/%02u/%02u %02u:%02u:%02u] %s",
            ttm.tm_year + 1900, ttm.tm_mon, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            buf);
@@ -137,14 +137,14 @@ void ventoy_syslog(int level, const char *Fmt, ...)
 static int is_gtk_env(void)
 {
     const char *env = NULL;
-    
+
     env = getenv("GNOME_SETUP_DISPLAY");
     if (env && env[0] == ':')
     {
         vlog("GNOME_SETUP_DISPLAY=%s\n", env);
         return 1;
     }
-    
+
     env = getenv("DESKTOP_SESSION");
     if (env && strcasecmp(env, "xfce") == 0)
     {
@@ -181,7 +181,7 @@ static int detect_gtk_version(int libflag)
     {
         return 3;
     }
-    
+
     if (gtk4 > 0 && (gtk2 == 0 && gtk3 == 0))
     {
         return 4;
@@ -224,7 +224,7 @@ static int detect_qt_version(int libflag)
     {
         return 5;
     }
-    
+
     if (qt6 > 0 && (qt4 == 0 && qt5 == 0))
     {
         return 6;
@@ -275,7 +275,7 @@ int get_os_bit(int *bit)
 
     *bit = strstr(unameData.machine, "64") ? 64 : 32;
     vlog("uname -m <%s> %dbit\n", unameData.machine, *bit);
-    
+
     return 0;
 }
 
@@ -298,7 +298,7 @@ int read_file_1st_line(const char *file, char *buffer, int buflen)
 static int read_pid_cmdline(long pid, char *Buffer, int BufLen)
 {
     char path[256];
-    
+
     snprintf(path, sizeof(path), "/proc/%ld/cmdline", pid);
     return read_file_1st_line(path, Buffer, BufLen);
 }
@@ -335,7 +335,7 @@ static int find_exe_path(const char *exe, char *pathbuf, int buflen)
         }
 		tmpptr = NULL;
     }
-    
+
     free(newenv);
     return 0;
 }
@@ -343,7 +343,7 @@ static int find_exe_path(const char *exe, char *pathbuf, int buflen)
 void dump_args(const char *prefix, char **argv)
 {
     int i = 0;
-    
+
     vlog("=========%s ARGS BEGIN===========\n", prefix);
     while (argv[i])
     {
@@ -503,12 +503,12 @@ static int restart_main(int argc, char **argv, char *guiexe)
     {
         vlog("recover success, argc=%d evecve <%s>\n", j, guiexe);
         dump_args("EXECVE", newargv);
-        execve(guiexe, newargv, envs); 
+        execve(guiexe, newargv, envs);
     }
     else
     {
         vlog("recover failed, argc=%d evecv <%s>\n", j, guiexe);
-        execv(guiexe, newargv); 
+        execv(guiexe, newargv);
     }
 
     return 1;
@@ -599,24 +599,24 @@ static int restart_by_pkexec(int argc, char **argv, const char *curpath, const c
 
     if (j < MAX_PARAS)
     {
-        newargv[j++] = create_environ_param(VTOY_ENV_STR, environ);        
+        newargv[j++] = create_environ_param(VTOY_ENV_STR, environ);
     }
 
     if (j < MAX_PARAS)
     {
-        newargv[j++] = exepara;        
+        newargv[j++] = exepara;
     }
-    
+
     if (g_xdg_log && j + 1 < MAX_PARAS)
     {
-        newargv[j++] = "-l";        
-        newargv[j++] = g_log_file;        
+        newargv[j++] = "-l";
+        newargv[j++] = g_log_file;
     }
-    
+
     if (g_xdg_ini && j + 1 < MAX_PARAS)
     {
-        newargv[j++] = "-i";        
-        newargv[j++] = g_ini_file;        
+        newargv[j++] = "-i";
+        newargv[j++] = g_ini_file;
     }
 
     dump_args("PKEXEC", newargv);
@@ -636,7 +636,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
             return 0;
         }
     }
-    
+
     if (((*flag) & LIB_FLAG_GTK2) == 0)
     {
         if (strncmp(lib, "libgtk-x11-2.0.so", 17) == 0)
@@ -646,7 +646,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
             return 0;
         }
     }
-    
+
     if (((*flag) & LIB_FLAG_GTK4) == 0)
     {
         if (strncmp(lib, "libgtk-4.so", 11) == 0)
@@ -656,7 +656,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
             return 0;
         }
     }
-    
+
     if (((*flag) & LIB_FLAG_QT4) == 0)
     {
         if (strncmp(lib, "libQt4", 6) == 0)
@@ -666,7 +666,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
             return 0;
         }
     }
-    
+
     if (((*flag) & LIB_FLAG_QT5) == 0)
     {
         if (strncmp(lib, "libQt5", 6) == 0)
@@ -676,7 +676,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
             return 0;
         }
     }
-    
+
     if (((*flag) & LIB_FLAG_QT6) == 0)
     {
         if (strncmp(lib, "libQt6", 6) == 0)
@@ -686,7 +686,7 @@ static int ld_cache_lib_check(const char *lib, int *flag)
             return 0;
         }
     }
-    
+
     if (((*flag) & LIB_FLAG_GLADE2) == 0)
     {
         if (strncmp(lib, "libglade-2", 10) == 0)
@@ -713,7 +713,7 @@ static int parse_ld_cache(int *flag)
     struct cache_file_new *cache_new = NULL;
 
     *flag = 0;
-    
+
     fd = open(LD_CACHE_FILE, O_RDONLY);
     if (fd < 0)
     {
@@ -755,7 +755,7 @@ static int parse_ld_cache(int *flag)
             close(fd);
             return 1;
         }
-          
+
         format = 1;
         /* This is where the strings start.  */
         cache_data = (const char *) cache_new;
@@ -772,7 +772,7 @@ static int parse_ld_cache(int *flag)
         }
 
         offset = ALIGN_CACHE(sizeof (struct cache_file) + (cache->nlibs * sizeof (struct file_entry)));
-        
+
         /* This is where the strings start.  */
         cache_data = (const char *) &cache->libs[cache->nlibs];
 
@@ -809,7 +809,7 @@ static int parse_ld_cache(int *flag)
     }
 
     vlog("ldconfig lib flags 0x%x\n", *flag);
-    vlog("lib flags GLADE2:[%s] GTK2:[%s] GTK3:[%s] GTK4:[%s] QT4:[%s] QT5:[%s] QT6:[%s]\n", 
+    vlog("lib flags GLADE2:[%s] GTK2:[%s] GTK3:[%s] GTK4:[%s] QT4:[%s] QT5:[%s] QT6:[%s]\n",
         INT2STR_YN((*flag) & LIB_FLAG_GLADE2), INT2STR_YN((*flag) & LIB_FLAG_GTK2),
         INT2STR_YN((*flag) & LIB_FLAG_GTK3), INT2STR_YN((*flag) & LIB_FLAG_GTK4),
         INT2STR_YN((*flag) & LIB_FLAG_QT4), INT2STR_YN((*flag) & LIB_FLAG_QT5),
@@ -830,13 +830,13 @@ static int gui_type_check(VTOY_JSON *pstNode)
     const char *condition = NULL;
     const char *expression = NULL;
     char line[1024];
-    
+
     arch = vtoy_json_get_string_ex(pstNode, "arch");
     srctype = vtoy_json_get_string_ex(pstNode, "type");
     srcname = vtoy_json_get_string_ex(pstNode, "name");
     condition = vtoy_json_get_string_ex(pstNode, "condition");
     expression = vtoy_json_get_string_ex(pstNode, "expression");
-    
+
     if (srctype == NULL || srcname == NULL || condition == NULL)
     {
         return 0;
@@ -855,7 +855,7 @@ static int gui_type_check(VTOY_JSON *pstNode)
         {
             return 0;
         }
-    
+
         if (strcmp(condition, "exist") == 0)
         {
             vlog("File %s exist\n", srcname);
@@ -915,7 +915,7 @@ static int gui_type_check(VTOY_JSON *pstNode)
             return 0;
         }
     }
-    
+
     return 0;
 }
 
@@ -971,7 +971,7 @@ static int distro_check_gui_env(char *type, int len, int *pver)
 
     read_file_to_buf("./tool/distro_gui_type.json", 1, (void **)&pBuf, &size);
     pBuf[size] = 0;
-    
+
     pstJson = vtoy_json_create();
     vtoy_json_parse(pstJson, pBuf);
 
@@ -1042,7 +1042,7 @@ static int detect_gui_exe_path(int argc, char **argv, const char *curpath, char 
     else if (access("./ventoy_gui_type", F_OK) != -1)
     {
         vlog("Get GUI type from ventoy_gui_type file.\n");
-    
+
         line[0] = 0;
         read_file_1st_line("./ventoy_gui_type", line, sizeof(line));
         if (strncmp(line, "gtk2", 4) == 0)
@@ -1139,7 +1139,7 @@ static int detect_gui_exe_path(int argc, char **argv, const char *curpath, char 
 
     vlog("This is %s%d X environment.\n", guitype, ver);
     vlog("exe = %s\n", pathbuf);
-    
+
     if (access(pathbuf, F_OK) == -1)
     {
         vlog("%s is not exist.\n", pathbuf);
@@ -1261,7 +1261,7 @@ int main(int argc, char **argv)
                 g_xdg_log = 1;
                 snprintf(g_log_file, sizeof(g_log_file), "%s/ventoy.log", env);
             }
-            
+
             env = getenv("XDG_CONFIG_HOME");
             if (env)
             {

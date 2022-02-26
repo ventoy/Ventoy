@@ -33,7 +33,7 @@ typedef enum MSGID
 	MSGID_BTN_LINK,
 	MSGID_BTN_EXIT,
 
-	MSGID_BTN_STOP_TIP, 
+	MSGID_BTN_STOP_TIP,
 	MSGID_BTN_EXIT_TIP,
 	MSGID_RUNNING_TIP,
 	MSGID_NO_TARXZ_TIP,
@@ -92,10 +92,10 @@ int ventoy_log_init(void);
 void ventoy_log_exit(void);
 
 static BOOL OnDestroyDialog()
-{    
+{
     ventoy_http_exit();
     ventoy_disk_exit();
-#ifndef VENTOY_SIM        
+#ifndef VENTOY_SIM
     ventoy_www_exit();
 #endif
     ventoy_log_exit();
@@ -107,7 +107,7 @@ static void OpenURL(void)
 {
     int i;
 	char url[128];
-    const static char * Browsers[] = 
+    const static char * Browsers[] =
     {
         "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
         "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
@@ -169,7 +169,7 @@ static BOOL InitDialog(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	g_start_button = GetDlgItem(hWnd, IDC_BUTTON2);
 	g_openlink_button = GetDlgItem(hWnd, IDC_BUTTON3);
 	g_exit_button = GetDlgItem(hWnd, IDC_BUTTON4);
-	
+
 	hIcon = LoadIcon(g_hInst, MAKEINTRESOURCE(IDI_ICON1));
     SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
@@ -200,7 +200,7 @@ static int VentoyStartService(int sel)
     const ventoy_disk *disk = NULL;
 
     vlog("VentoyStartService ...\n");
-    
+
     disk = ventoy_get_disk_node(sel);
     if (disk == NULL)
     {
@@ -224,7 +224,7 @@ static int VentoyStartService(int sel)
 
     bRet = SetCurrentDirectoryA(g_cur_dir);
 	vlog("SetCurrentDirectoryA %u <%s>\n", bRet, g_cur_dir);
-	
+
 	CurDir[0] = 0;
 	GetCurrentDirectoryA(sizeof(CurDir), CurDir);
 	vlog("CurDir=<%s>\n", CurDir);
@@ -395,7 +395,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
         {
             InitDialog(hWnd, wParam, lParam);
             break;
-        }        
+        }
         case WM_CLOSE:
         {
 			if (g_running)
@@ -419,9 +419,9 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
 static int ParseCmdLine(LPSTR lpCmdLine, char *ip, char *port)
 {
 	int portnum;
-	char *ipstart = ip; 
+	char *ipstart = ip;
 	char *pos;
-	
+
 
 	if (!lpCmdLine)
 	{
@@ -498,7 +498,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	ventoy_log_init();
 
     if (!ventoy_is_file_exist("%s\\ventoy\\%s", g_ventoy_dir, PLUGSON_TXZ))
-    {        
+    {
 		MessageBoxW(NULL, g_msg_lang[MSGID_NO_TARXZ_TIP], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
@@ -519,7 +519,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 
 	ventoy_disk_init();
-#ifndef VENTOY_SIM        
+#ifndef VENTOY_SIM
     rc = ventoy_www_init();
 	if (rc)
 	{

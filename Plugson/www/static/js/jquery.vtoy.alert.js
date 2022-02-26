@@ -1,13 +1,13 @@
 
 /**
  * 用于bootstap框架下提示信息框
- * demo: 
- * 
+ * demo:
+ *
  * 模态框
  * Modal.confirm({msg: "是否确定提交？"}).on( function (e) {alert("返回结果：" + e);});
  * Modal.alert({msg:"该记录已删除！"})
  * Modal.process('show'/'hide') 隐藏或显示全屏、进度条
- * 
+ *
  * 非模态框
  * Message.show({ type : 'S|W|E|I', msg: '提示信息' })
  * Message.success('成功信息')
@@ -17,16 +17,16 @@
  * Message.warn('警告信息',10000) //10000为显示时长
  */
 ;$(function() {
-    
+
 	window.Modal = function() {
 		var reg = new RegExp("\\[([^\\[\\]]*?)\\]", 'igm');
 		var alr = $("#msgAlertDiv");
-        
+
         if (alr.length == 0) {
             alr = $('<div id="msgAlertDiv" class="modal fade"></div>')
             $("body").append(alr);
         }
-    
+
 		var ahtml = ' <div class="modal-dialog">'
             + '<div class="modal-content">'
             + '<div class="modal-header">'
@@ -44,11 +44,11 @@
 		var _alert = function(options) {
 			alr.html(ahtml); // 复原
 			alr.find('.ok').removeClass('btn-success').addClass('btn-primary');
-            
+
             if (document.body.clientHeight > 400) {
-				alr.find('.modal-dialog').css("top",((document.body.clientHeight - 400) / 2)); 
+				alr.find('.modal-dialog').css("top",((document.body.clientHeight - 400) / 2));
 			}
-            
+
 			alr.find('.cancel').hide();
 			_dialog(options);
 
@@ -68,9 +68,9 @@
 			alr.find('.ok').removeClass('btn-primary').addClass('btn-success');
 			alr.find('.cancel').show();
             if (document.body.clientHeight > 400) {
-				alr.find('.modal-dialog').css("top",((document.body.clientHeight - 400) / 2)); 
+				alr.find('.modal-dialog').css("top",((document.body.clientHeight - 400) / 2));
 			}
-            
+
 			_dialog(options);
 
 			return {
@@ -141,7 +141,7 @@
                 alert("Modal.process参数必须为show/hide");
             }
 		}
-		
+
 		return {
 			alert : _alert,
 			confirm : _confirm,
@@ -149,7 +149,7 @@
 		}
 
 	}();
-	
+
 	window.Message = function() {
 	    var _showMsg = function(type, msg, time) {
 	        var o = {type : type, msg : msg };
@@ -158,7 +158,7 @@
 	        }
 	        _show(o);
 	    }
-		
+
 		var _show = function(options) {
 			var ops = {
 				msg : "提示内容",
@@ -192,7 +192,7 @@
 				$div.remove();
 			}, ops.time);
 		}
-		
+
 		var _success = function(msg, time) {
 		    _showMsg('s', msg, time);
 		}
@@ -205,7 +205,7 @@
 		var _info = function(msg, time) {
 		    _showMsg('i', msg, time);
 		}
-		
+
 		return {
 			success : _success,
 			error	: _error,
@@ -214,5 +214,5 @@
 			show	: _show
 		}
 	}();
-	
+
 });

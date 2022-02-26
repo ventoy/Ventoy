@@ -1,7 +1,7 @@
-======== How to build ash/hexdump/xzcat for aarch64 ======== 
+======== How to build ash/hexdump/xzcat for aarch64 ========
 #How to get ash.config/hexdump.cofig/xzcat.config
 #ARCH=arm64 CROSS_COMPILE=aarch64-linux- make allnoconfig
-#ARCH=arm64 CROSS_COMPILE=aarch64-linux- make menuconfig 
+#ARCH=arm64 CROSS_COMPILE=aarch64-linux- make menuconfig
 #----> enable static build
 #----> enable xzcat
 #get aarch64_xzcat.config
@@ -9,11 +9,11 @@
 tar xf busybox-1.32.0.tar.bz2
 cd busybox-1.32.0
 copy aarch64_xzcat.config as .config
-ARCH=arm64 CROSS_COMPILE=aarch64-linux- make 
+ARCH=arm64 CROSS_COMPILE=aarch64-linux- make
 rename ./busybox to xzcat
 
 
-======== How to build ash/hexdump/xzcat for mips64el ======== 
+======== How to build ash/hexdump/xzcat for mips64el ========
 #download mips64el-musl cross toolchain from https://github.com/ventoy/musl-cross-make/releases/download/latest/
 #How to get ash.config/hexdump.cofig/xzcat.config
 #ARCH=mips CROSS_COMPILE=mips64el-linux-musl- make allnoconfig "CFLAGS+=-mips64r2 -mabi=64 -Os" "LDFLAGS+=-mips64r2 -mabi=64 -Os"
@@ -36,7 +36,7 @@ rename ./busybox to xzcat
 ======== How to build ash/hexdump/xzcat for x86_64 ==========
 #How to get ash.config/hexdump.cofig/xzcat.config
 #make allnoconfig
-#make menuconfig 
+#make menuconfig
 #----> enable static build
 #----> enable xzcat
 #get x86_64_xzcat.config

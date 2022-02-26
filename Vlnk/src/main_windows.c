@@ -48,8 +48,8 @@ const WCHAR *g_msg_cn[MSGID_BUTT] =
     L"错误",
 	L"提醒",
 	L"创建",
-	L"解析",	
-    L"指定的文件不存在", 
+	L"解析",
+    L"指定的文件不存在",
     L"不支持为此文件创建vlnk",
     L"不支持的文件系统",
     L"不支持的文件后缀名",
@@ -67,12 +67,12 @@ const WCHAR *g_msg_cn[MSGID_BUTT] =
 const WCHAR *g_msg_en[MSGID_BUTT] =
 {
     L"Error",
-	L"Info",   
+	L"Info",
 	L"Create",
 	L"Parse",
     L"The specified file is not exist!",
     L"This file is not supported for vlnk",
-    L"Unsupported file system!", 
+    L"Unsupported file system!",
     L"Unsupported file suffix!",
     L"Error when getting disk info",
     L"Vlnk file successfully created!",
@@ -170,7 +170,7 @@ static int Utf8ToUtf16(const char* src, WCHAR * dst)
 }
 
 static BOOL OnDestroyDialog()
-{    
+{
     return TRUE;
 }
 
@@ -181,7 +181,7 @@ static BOOL InitDialog(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
     g_create_button = GetDlgItem(hWnd, IDC_BUTTON1);
     g_parse_button = GetDlgItem(hWnd, IDC_BUTTON2);
-	
+
 	hIcon = LoadIcon(g_hInst, MAKEINTRESOURCE(IDI_ICON1));
     SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
@@ -460,7 +460,7 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
     }
 
     LogW(L"Create vlnk for <%ls>\n", szFile);
-    
+
     len = lstrlen(szFile);
 
     if (len < 5 || szFile[0] == '.' || szFile[1] != ':')
@@ -468,7 +468,7 @@ static int CreateVlnk(HWND hWnd, WCHAR *Dir, WCHAR *InFile, WCHAR *OutFile)
         VtoyMessageBox(hWnd, g_msg_lang[MSGID_SRC_UNSUPPORTED], g_msg_lang[MSGID_ERROR], MB_OK | MB_ICONERROR);
         return 1;
     }
-    
+
     Drive[0] = (CHAR)szFile[0];
     Drive[1] = ':';
     Drive[2] = '\\';
@@ -719,7 +719,7 @@ static int ParseVlnk(HWND hWnd)
             szDst[i] = '\\';
         }
     }
-    
+
 
     Letter = GetDriveLetter(vlnk.disk_signature, vlnk.part_offset);
     if (Letter == 0)
@@ -779,7 +779,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
         {
             InitDialog(hWnd, wParam, lParam);
             break;
-        }        
+        }
         case WM_CLOSE:
         {
             OnDestroyDialog();
@@ -795,7 +795,7 @@ static int ParseCmdLine(LPSTR lpCmdLine)
     int i;
     int argc = 0;
     LPWSTR *lpszArgv = NULL;
-    
+
     lpszArgv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
     for (i = 0; i < argc; i++)
@@ -859,7 +859,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     sprintf_s(g_LogFile, sizeof(g_LogFile), "%s\\VentoyVlnk.log", g_CurDirA);
 
     ParseCmdLine(lpCmdLine);
-    
+
     g_hInst = hInstance;
 
     if (g_ShowHelp)

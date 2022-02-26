@@ -2,7 +2,7 @@
 2. apt-get install build-essential flex libncurses-dev linux-headers-generic linux-source libssl-dev ...... and so on
 3. cp /lib/modules/5.13.0-23-generic/build/Module.symvers ./
 4. /boot/config-5.13.0-23-generic as .config   make oldconfig
-5. make menuconfig 
+5. make menuconfig
     1. close CONFIG_STACKPROTECTOR
     2. close CONFIG_RETPOLINE
 
@@ -22,9 +22,9 @@ struct module {
 
 	/* Unique handle for this module */
 	char name[MODULE_NAME_LEN];
-    
+
     ....
-    
+
     char padding[1024];
 };
 

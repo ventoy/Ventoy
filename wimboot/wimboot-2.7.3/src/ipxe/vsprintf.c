@@ -262,7 +262,7 @@ size_t vcprintf ( struct printf_context *ctx, const char *fmt, va_list args ) {
 			intptr_t ptrval;
 
 			ptrval = ( intptr_t ) va_arg ( args, void * );
-			ptr = format_hex ( ptr, ptrval, width, 
+			ptr = format_hex ( ptr, ptrval, width,
 					   ( ALT_FORM | LCASE ) );
 		} else if ( ( *fmt & ~0x20 ) == 'X' ) {
 			unsigned long long hex;
@@ -312,7 +312,7 @@ struct sputc_context {
 	/** Buffer for formatted string (used by printf_sputc()) */
 	char *buf;
 	/** Buffer length (used by printf_sputc()) */
-	size_t max_len;	
+	size_t max_len;
 };
 
 /**
@@ -444,8 +444,8 @@ int vprintf ( const char *fmt, va_list args ) {
 	struct printf_context ctx;
 
 	/* Hand off to vcprintf */
-	ctx.handler = printf_putchar;	
-	return vcprintf ( &ctx, fmt, args );	
+	ctx.handler = printf_putchar;
+	return vcprintf ( &ctx, fmt, args );
 }
 
 /**

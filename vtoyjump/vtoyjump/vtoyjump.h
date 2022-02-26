@@ -20,7 +20,7 @@
 #ifndef __VTOYJUMP_H__
 #define __VTOYJUMP_H__
 
-#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" ) 
+#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
 
 #define SIZE_1MB   (1024 * 1024)
 #define VENTOY_EFI_PART_SIZE   (32 * SIZE_1MB)

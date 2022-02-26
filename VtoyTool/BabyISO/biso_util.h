@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef __BISO_UTIL_H__
 #define __BISO_UTIL_H__
 
@@ -174,15 +174,15 @@ CHAR * BISO_UTIL_CopyStr
 );
 CHAR * BISO_UTIL_CopyUCS2Str
 (
-    IN  CONST CHAR *szSrc, 
-    IN  UINT        uiSrcSize, 
+    IN  CONST CHAR *szSrc,
+    IN  UINT        uiSrcSize,
     OUT CHAR       *szDest
 );
 VOID BISO_UTIL_PathProc(INOUT CHAR *pcPath, INOUT UINT *puiLen);
 ULONG BISO_UTIL_PathSplit
 (
-    IN CONST CHAR *pcFullPath, 
-    OUT UINT *puiDirNum, 
+    IN CONST CHAR *pcFullPath,
+    OUT UINT *puiDirNum,
     OUT UINT *puiDirPos
 );
 

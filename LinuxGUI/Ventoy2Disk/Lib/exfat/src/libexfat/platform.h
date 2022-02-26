@@ -56,7 +56,7 @@
 #define EXFAT_LITTLE_ENDIAN _LITTLE_ENDIAN
 #define EXFAT_BIG_ENDIAN _BIG_ENDIAN
 
-#else 
+#else
 #error Unknown platform
 #endif
 

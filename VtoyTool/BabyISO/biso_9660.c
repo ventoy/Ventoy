@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -36,7 +36,7 @@ STATIC ULONG BISO_9660_ReadPathTable(IN BISO_FILE_S *pstFile, OUT BISO_PARSER_S 
 
     DBGASSERT(NULL != pstFile);
     DBGASSERT(NULL != pstParser);
-        
+
     pstPVD = pstParser->pstPVD;
     ui64Seek = BISO_PATHTBL_LOCATION(pstPVD);
     ui64Seek = ui64Seek * BISO_BLOCK_SIZE;
@@ -70,12 +70,12 @@ STATIC ULONG BISO_9660_ReadPathTable(IN BISO_FILE_S *pstFile, OUT BISO_PARSER_S 
 /* 深度优先文件树目录节点入栈 注意这里只是针对目录节点入栈, 文件节点没有处理 */
 VOID BISO_9660_FillDfsStack
 (
-    IN BISO_DIR_TREE_S *pstTop, 
+    IN BISO_DIR_TREE_S *pstTop,
     INOUT BISO_QUEUE_S *pstQueue
 )
 {
     BISO_DIR_TREE_S *pstCurDir = NULL;
-    
+
     DBGASSERT(NULL != pstTop);
     DBGASSERT(NULL != pstQueue);
 
@@ -90,14 +90,14 @@ VOID BISO_9660_FillDfsStack
 
     for ( ; ; )
     {
-        /* 
+        /*
          * 按照以下顺序依次入栈:
          * 1. 自己入栈
          * 2. 子节点入栈
          * 3. Next节点入栈
          * 4. Parent的Next节点入栈
          */
-    
+
         BISO_QUEUE_Push(pstQueue, pstCurDir);
 
         if (NULL != pstCurDir->pstChild)
@@ -128,14 +128,14 @@ VOID BISO_9660_FillDfsStack
 /* 根据Extent的值查找子目录节点  */
 STATIC BISO_DIR_TREE_S *BISO_9660_FindChild
 (
-    IN BISO_DIR_TREE_S *pstParent, 
+    IN BISO_DIR_TREE_S *pstParent,
     IN UINT uiChildExtent
 )
 {
     BISO_DIR_TREE_S *pstCurNode = NULL;
-    
+
     DBGASSERT(NULL != pstParent);
-    
+
     pstCurNode = pstParent->pstChild;
     while (NULL != pstCurNode)
     {
@@ -173,9 +173,9 @@ STATIC ULONG BISO_9660_ReadVD(IN BISO_FILE_S *pstFile, OUT BISO_PARSER_S *pstPar
         /* 根据ID检验是否是合法的ISO-9660格式 */
         if (0 != strncmp(stVolDesc.szId, BISO_VD_ID, strlen(BISO_VD_ID)))
         {
-            BISO_DIAG("Invalid cdid: %02x %02x %02x %02x %02x\n", 
-                (UCHAR)stVolDesc.szId[0], (UCHAR)stVolDesc.szId[1], 
-                (UCHAR)stVolDesc.szId[2], (UCHAR)stVolDesc.szId[3], 
+            BISO_DIAG("Invalid cdid: %02x %02x %02x %02x %02x\n",
+                (UCHAR)stVolDesc.szId[0], (UCHAR)stVolDesc.szId[1],
+                (UCHAR)stVolDesc.szId[2], (UCHAR)stVolDesc.szId[3],
                 (UCHAR)stVolDesc.szId[4]);
             return BISO_ERR_INVALID_ISO9660;
         }
@@ -235,14 +235,14 @@ STATIC ULONG BISO_9660_ReadVD(IN BISO_FILE_S *pstFile, OUT BISO_PARSER_S *pstPar
         BISO_DIAG("Unsupported block size %u.", pstParser->pstPVD->usBlockSize);
         return BISO_ERR_UNSUPPORTED_BLKSIZE;
     }
-    
+
     return BISO_SUCCESS;
 }
 
 STATIC UCHAR * BISO_9660_ReadDirRecord
 (
-    IN  BISO_FILE_S *pstFile, 
-    IN  UINT  uiExtent, 
+    IN  BISO_FILE_S *pstFile,
+    IN  UINT  uiExtent,
     OUT UINT *puiSize
 )
 {
@@ -294,7 +294,7 @@ STATIC BISO_DIR_TREE_S * BISO_9660_CreateDirNode
 )
 {
     BISO_DIR_TREE_S *pstNew = NULL;
-    
+
     DBGASSERT(NULL != pstRecord);
     DBGASSERT(NULL != pstPre);
     DBGASSERT(NULL != pstParent);
@@ -305,7 +305,7 @@ STATIC BISO_DIR_TREE_S * BISO_9660_CreateDirNode
     {
         return NULL;
     }
-    
+
     /* 目录节点属性赋值 */
     BISO_UTIL_CopyStr(pstRecord->szName, pstRecord->ucNameLen, pstNew->szName);
     pstNew->uiExtent = pstRecord->uiExtent;
@@ -348,7 +348,7 @@ STATIC BISO_SVD_DIR_TREE_S * BISO_9660_CreateSVDDirNode
 )
 {
     BISO_SVD_DIR_TREE_S *pstNew = NULL;
-    
+
     DBGASSERT(NULL != pstRecord);
     DBGASSERT(NULL != pstPre);
     DBGASSERT(NULL != pstParent);
@@ -359,7 +359,7 @@ STATIC BISO_SVD_DIR_TREE_S * BISO_9660_CreateSVDDirNode
     {
         return NULL;
     }
-    
+
     /* 目录节点属性赋值 */
     pstNew->uiExtent = pstRecord->uiExtent;
 
@@ -444,7 +444,7 @@ STATIC ULONG BISO_9660_ProcRawFileNameFmt(INOUT CHAR *szFileName, INOUT USHORT *
     {
         if (szFileName[i] >= 'A' && szFileName[i] <= 'Z')
         {
-            szFileName[i] = 'a' + (szFileName[i] - 'A');            
+            szFileName[i] = 'a' + (szFileName[i] - 'A');
         }
     }
     return BISO_SUCCESS;
@@ -458,10 +458,10 @@ STATIC BISO_DIR_TREE_S * BISO_9660_CreateFileNode
     INOUT BISO_DIR_TREE_S *pstPre,
     INOUT BISO_DIR_TREE_S *pstParent
 )
-{   
+{
     UINT uiSecNum = 0;
     BISO_DIR_TREE_S *pstNew = NULL;
-    
+
     DBGASSERT(NULL != pstRecord);
     DBGASSERT(NULL != pstPre);
     DBGASSERT(NULL != pstParent);
@@ -472,13 +472,13 @@ STATIC BISO_DIR_TREE_S * BISO_9660_CreateFileNode
     {
         return NULL;
     }
-    
+
     /* 目录节点属性赋值 */
     BISO_UTIL_CopyStr(pstRecord->szName, pstRecord->ucNameLen, pstNew->szName);
     pstNew->uiExtent = pstRecord->uiExtent;
     pstNew->usNameLen = (USHORT)strlen(pstNew->szName);
     pstNew->uiSize = pstRecord->uiSize;
-    
+
     /* 读取文件的Rock Ridge扩展信息 */
     (VOID)BISO_RRIP_ReadExtInfo(pstFile, pstParser, pstRecord, pstNew);
 
@@ -493,7 +493,7 @@ STATIC BISO_DIR_TREE_S * BISO_9660_CreateFileNode
         pstParent->pstDirStat->uiCurFileNum++;
         pstParent->pstDirStat->uiCurUsedSec += uiSecNum;
         pstParent->pstDirStat->ui64CurSpace += pstNew->uiSize;
-    }          
+    }
 
     /* 节点挂接到当前目录的FileList上 */
     if (NULL == pstPre)
@@ -510,7 +510,7 @@ STATIC BISO_DIR_TREE_S * BISO_9660_CreateFileNode
     {
         BISO_9660_ProcRawFileNameFmt(pstNew->szName, &pstNew->usNameLen);
     }
-    
+
     return pstNew;
 }
 
@@ -522,9 +522,9 @@ STATIC BISO_SVD_DIR_TREE_S * BISO_9660_CreateSVDFileNode
     INOUT BISO_SVD_DIR_TREE_S *pstPre,
     INOUT BISO_SVD_DIR_TREE_S *pstParent
 )
-{   
+{
     BISO_SVD_DIR_TREE_S *pstNew = NULL;
-    
+
     DBGASSERT(NULL != pstRecord);
     DBGASSERT(NULL != pstPre);
     DBGASSERT(NULL != pstParent);
@@ -535,11 +535,11 @@ STATIC BISO_SVD_DIR_TREE_S * BISO_9660_CreateSVDFileNode
     {
         return NULL;
     }
-    
+
     /* 目录节点属性赋值 */
     pstNew->uiExtent = pstRecord->uiExtent;
     pstNew->uiSize = pstRecord->uiSize;
-    
+
     /* 节点挂接到当前目录的FileList上 */
     if (NULL == pstPre)
     {
@@ -569,7 +569,7 @@ STATIC ULONG BISO_9660_BuildFileList
     BISO_DIR_TREE_S *pstNew = NULL;
     BISO_DIR_TREE_S *pstChild = NULL;
     BISO_DIR_RECORD_S *pstCurrent = NULL;
-    
+
     DBGASSERT(NULL != pstFile);
     DBGASSERT(NULL != pstDirTree);
 
@@ -582,7 +582,7 @@ STATIC ULONG BISO_9660_BuildFileList
 
     pstCurrent = (BISO_DIR_RECORD_S *)pucBuf;
     pstChild = pstDirTree->pstChild;
-    
+
     while (uiTotSize < uiBufSize)
     {
         if (BOOL_TRUE != BISO_DIR_RECORD_IS_PATH(pstCurrent))  /* 只处理文件 */
@@ -602,12 +602,12 @@ STATIC ULONG BISO_9660_BuildFileList
         {
             /* 对于子目录在这里更新目录的Rock Ridge扩展信息 */
             if ((BOOL_TRUE != BISO_9660_IS_CURRENT(pstCurrent)) &&
-                (BOOL_TRUE != BISO_9660_IS_PARENT(pstCurrent))) 
+                (BOOL_TRUE != BISO_9660_IS_PARENT(pstCurrent)))
             {
                 /*
                  * 这里首先按照Path Table里记录的子目录顺序来判断, 如果是就不用搜索了
                  * 如果不是则再从子目录列表中查询.
-                 * 这里实际上取决于: 
+                 * 这里实际上取决于:
                  * Path Table里的子目录记录和Directory Record里面的子目录记录顺序是否一致!!!!
                  * 绝大多数情况下都是按照字母顺序,两者是一致的, 所以BISO_9660_FindChild一般情况下
                  * 是不会调用的
@@ -621,7 +621,7 @@ STATIC ULONG BISO_9660_BuildFileList
                 {
                     pstNew = BISO_9660_FindChild(pstDirTree, pstCurrent->uiExtent);
                 }
-            
+
                 if (NULL != pstNew)
                 {
                     (VOID)BISO_RRIP_ReadExtInfo(pstFile, pstParser, pstCurrent, pstNew);
@@ -631,7 +631,7 @@ STATIC ULONG BISO_9660_BuildFileList
 
         uiTotSize += pstCurrent->ucLength;
         pstCurrent = (BISO_DIR_RECORD_S *)(pucBuf + uiTotSize);
-        
+
         /*
          * !!!!!!!!!!!!!!!!!!!!!!!!
          * ISO-9660规定Directory Record记录不能跨逻辑块，所以如果一个逻辑块的最后
@@ -649,11 +649,11 @@ STATIC ULONG BISO_9660_BuildFileList
     return BISO_SUCCESS;
 }
 
-/* 通过PathTable构建目录树(只包含目录) 
+/* 通过PathTable构建目录树(只包含目录)
 这里利用Path Table，因此超过65535个文件夹的ISO文件只能读取前                65535个目录里的内容 */
 STATIC ULONG BISO_9660_BuildPathTree
 (
-    IN    BISO_FILE_S    *pstFile, 
+    IN    BISO_FILE_S    *pstFile,
     INOUT BISO_PARSER_S  *pstParser,
     OUT   UINT           *puiTotDirNum
 )
@@ -683,8 +683,8 @@ STATIC ULONG BISO_9660_BuildPathTree
     /* ROOT根目录 */
     pstPathTable = (BISO_PATH_TABLE_S *)(pstParser->pucPathTable);
     pstDirTree = &(pstParser->stDirTree);
-    pstDirTree->uiPathTblId = 1;  
-    pstDirTree->uiExtent = pstPathTable->uiExtent;  
+    pstDirTree->uiPathTblId = 1;
+    pstDirTree->uiExtent = pstPathTable->uiExtent;
 
     /* 申请统计信息的节点 */
     pstDirTree->pstDirStat = (BISO_DIR_STAT_S *)BISO_ZALLOC(sizeof(BISO_DIR_STAT_S));
@@ -710,7 +710,7 @@ STATIC ULONG BISO_9660_BuildPathTree
                 BISO_QUEUE_Destroy(pstQueue);
                 return BISO_ERR_ALLOC_MEM;
             }
-            
+
             /* 目录节点属性赋值 */
             BISO_UTIL_CopyStr(pstPathTable->szDirName, pstPathTable->ucDirNameLen, pstNew->szName);
             pstNew->uiExtent = pstPathTable->uiExtent;
@@ -757,9 +757,9 @@ ULONG BISO_9660_UpdateTreeStat(INOUT BISO_DIR_TREE_S *pstRoot)
     BISO_DIR_TREE_S *pstCurDir = NULL;
     BISO_DIR_STAT_S *pstDirStat = NULL;
     BISO_DIR_STAT_S *pstPreDirStat = NULL;
-    
+
     DBGASSERT(NULL != pstRoot);
-    
+
     pstQueue = BISO_QUEUE_Create();
     if (NULL == pstQueue)
     {
@@ -811,7 +811,7 @@ ULONG BISO_9660_UpdateNodeStat
     BISO_DIR_STAT_S *pstCurStat = NULL;
     BISO_DIR_STAT_S *pstPreStat = NULL;
     BISO_DIR_STAT_S  stExDirStat;
-    
+
     DBGASSERT(NULL != pstCurNode);
 
     memset(&stExDirStat, 0, sizeof(stExDirStat));
@@ -822,7 +822,7 @@ ULONG BISO_9660_UpdateNodeStat
         if (BOOL_TRUE == BISO_DIR_TREE_IS_SYMLINK(pstCurNode))  /* 符号链接 */
         {
             /* 更新当前目录链接数统计, 大小为0不用更新 */
-            BISO_STAT_UPDATE(bAdd, pstPreStat->uiCurLinkNum, 1);  
+            BISO_STAT_UPDATE(bAdd, pstPreStat->uiCurLinkNum, 1);
             stExDirStat.uiTotLinkNum = 1;
         }
         else
@@ -867,10 +867,10 @@ ULONG BISO_9660_UpdateNodeStat
 
 ULONG BISO_9660_BuildFileTreeByTable
 (
-    IN  BISO_FILE_S          *pstFile, 
+    IN  BISO_FILE_S          *pstFile,
     OUT BISO_PARSER_S *pstParser
 )
-{   
+{
     ULONG ulRet;
     UINT  uiTotDirNum = 0;
     BISO_QUEUE_S *pstQueue = NULL;
@@ -922,14 +922,14 @@ ULONG BISO_9660_BuildFileTreeByTable
             BISO_QUEUE_Push(pstQueue, pstDirTree->pstNext);
         }
     }
-    
+
     BISO_QUEUE_Destroy(pstQueue);
     return BISO_SUCCESS;
 }
 
 ULONG BISO_9660_BuildFileTreeRecursively
 (
-    IN  BISO_FILE_S          *pstFile, 
+    IN  BISO_FILE_S          *pstFile,
     OUT BISO_PARSER_S *pstParser
 )
 {
@@ -949,8 +949,8 @@ ULONG BISO_9660_BuildFileTreeRecursively
 
     /* 先对ROOT进行处理 */
     pstDirTree = &(pstParser->stDirTree);
-    pstDirTree->uiPathTblId = 1;  
-    pstDirTree->uiExtent = pstParser->pstPVD->stRootDirRecord.uiExtent;  
+    pstDirTree->uiPathTblId = 1;
+    pstDirTree->uiExtent = pstParser->pstPVD->stRootDirRecord.uiExtent;
 
     /* 申请统计信息的内存 */
     pstDirTree->pstDirStat = (BISO_DIR_STAT_S *)BISO_ZALLOC(sizeof(BISO_DIR_STAT_S));
@@ -969,7 +969,7 @@ ULONG BISO_9660_BuildFileTreeRecursively
         pstPreDir  = NULL;
         pstPreFile = NULL;
         pstDirTree->uiPathTblId = BISO_UINT_MAX;
-        
+
         /* 读取Directory Record记录 */
         pucBuf = BISO_9660_ReadDirRecord(pstFile, pstDirTree->uiExtent, &uiBufSize);
         if (NULL == pucBuf)
@@ -979,13 +979,13 @@ ULONG BISO_9660_BuildFileTreeRecursively
         }
 
         pstCurrent = (BISO_DIR_RECORD_S *)pucBuf;
-        
+
         while (uiTotSize < uiBufSize)
         {
             if (BOOL_TRUE == BISO_DIR_RECORD_IS_PATH(pstCurrent))
             {
                 if ((BOOL_TRUE != BISO_9660_IS_CURRENT(pstCurrent)) &&
-                    (BOOL_TRUE != BISO_9660_IS_PARENT(pstCurrent))) 
+                    (BOOL_TRUE != BISO_9660_IS_PARENT(pstCurrent)))
                 {
                     /* 创建新目录节点 */
                     pstNew = BISO_9660_CreateDirNode(pstFile, pstParser, pstCurrent, pstPreDir, pstDirTree);
@@ -1017,7 +1017,7 @@ ULONG BISO_9660_BuildFileTreeRecursively
 
             uiTotSize += pstCurrent->ucLength;
             pstCurrent = (BISO_DIR_RECORD_S *)(pucBuf + uiTotSize);
-            
+
             /*
              * !!!!!!!!!!!!!!!!!!!!!!!!
              * ISO-9660规定Directory Record记录不能跨逻辑块，所以如果一个逻辑块的最后
@@ -1040,7 +1040,7 @@ ULONG BISO_9660_BuildFileTreeRecursively
 
 ULONG BISO_9660_BuildSVDFileTreeRecursively
 (
-    IN  BISO_FILE_S          *pstFile, 
+    IN  BISO_FILE_S          *pstFile,
     OUT BISO_PARSER_S *pstParser
 )
 {
@@ -1060,7 +1060,7 @@ ULONG BISO_9660_BuildSVDFileTreeRecursively
 
     /* 先对ROOT进行处理 */
     pstDirTree = &(pstParser->stSVDDirTree);
-    pstDirTree->uiExtent = pstParser->pstSVD->stRootDirRecord.uiExtent;  
+    pstDirTree->uiExtent = pstParser->pstSVD->stRootDirRecord.uiExtent;
 
     /* 创建堆栈,同时ROOT入栈 */
     pstQueue = BISO_QUEUE_Create();
@@ -1071,7 +1071,7 @@ ULONG BISO_9660_BuildSVDFileTreeRecursively
         uiTotSize  = 0;
         pstPreDir  = NULL;
         pstPreFile = NULL;
-        
+
         /* 读取Directory Record记录 */
         pucBuf = BISO_9660_ReadDirRecord(pstFile, pstDirTree->uiExtent, &uiBufSize);
         if (NULL == pucBuf)
@@ -1081,13 +1081,13 @@ ULONG BISO_9660_BuildSVDFileTreeRecursively
         }
 
         pstCurrent = (BISO_DIR_RECORD_S *)pucBuf;
-        
+
         while (uiTotSize < uiBufSize)
         {
             if (BOOL_TRUE == BISO_DIR_RECORD_IS_PATH(pstCurrent))
             {
                 if ((BOOL_TRUE != BISO_9660_IS_CURRENT(pstCurrent)) &&
-                    (BOOL_TRUE != BISO_9660_IS_PARENT(pstCurrent))) 
+                    (BOOL_TRUE != BISO_9660_IS_PARENT(pstCurrent)))
                 {
                     /* 创建新目录节点 */
                     pstNew = BISO_9660_CreateSVDDirNode(pstFile, pstParser, pstCurrent, pstPreDir, pstDirTree);
@@ -1119,7 +1119,7 @@ ULONG BISO_9660_BuildSVDFileTreeRecursively
 
             uiTotSize += pstCurrent->ucLength;
             pstCurrent = (BISO_DIR_RECORD_S *)(pucBuf + uiTotSize);
-            
+
             /*
              * !!!!!!!!!!!!!!!!!!!!!!!!
              * ISO-9660规定Directory Record记录不能跨逻辑块，所以如果一个逻辑块的最后
@@ -1205,7 +1205,7 @@ VOID BISO_9660_FreeSVDDirTree(IN BISO_PARSER_S *pstParser)
     BISO_SVD_DIR_TREE_S *pstPre = NULL;
     BISO_SVD_DIR_TREE_S *pstNext = NULL;
 
-    if (NULL == pstParser || 
+    if (NULL == pstParser ||
         0 == pstParser->stSVDDirTree.uiExtent ||
         0 == pstParser->stSVDDirTree.uiSize)
     {
@@ -1255,7 +1255,7 @@ VOID BISO_9660_FreeSVDDirTree(IN BISO_PARSER_S *pstParser)
 BISO_PARSER_S * BISO_9660_CreateParser(VOID)
 {
     BISO_PARSER_S *pstParser = NULL;
-    
+
     pstParser = (BISO_PARSER_S *)BISO_ZALLOC(sizeof(BISO_PARSER_S));
     if (NULL == pstParser)
     {
@@ -1304,7 +1304,7 @@ VOID BISO_9660_DestroyParser(INOUT BISO_PARSER_S *pstParser)
 
     /* 清理解析器 */
     BISO_9660_CleanParser(pstParser);
-    
+
     /* 释放解析器自己 */
     BISO_FREE(pstParser);
 }
@@ -1312,14 +1312,14 @@ VOID BISO_9660_DestroyParser(INOUT BISO_PARSER_S *pstParser)
 ULONG BISO_9660_OpenImage
 (
     IN BOOL_T bParseSVDDirTree,
-    IN CONST CHAR *pcFileName, 
+    IN CONST CHAR *pcFileName,
     OUT BISO_PARSER_S *pstParser
 )
 {
     UINT64 ui64FileSize = 0;
     ULONG ulRet = BISO_SUCCESS;
     BISO_FILE_S *pstFile = NULL;
-    
+
     if ((NULL == pcFileName) || (NULL == pstParser))
     {
         return BISO_ERR_NULL_PTR;
@@ -1405,8 +1405,8 @@ ULONG BISO_9660_ParseDate84261
         return BISO_ERR_NULL_PTR;
     }
 
-    /* 
-     * ECMA-119 8.4.26.1节定义的日期格式，共17个字节 
+    /*
+     * ECMA-119 8.4.26.1节定义的日期格式，共17个字节
      * 前16个字节是字符，第17个字节是有符号整数
      * 如果前16个字节是字符'0', 最后一个是'\0'则表示时间无效
      * 形如 "2014122013000500*"
@@ -1416,9 +1416,9 @@ ULONG BISO_9660_ParseDate84261
     {
         return BISO_ERR_NOT_RECORD;
     }
-    
-    sscanf(pcDate, "%4d%2d%2d%2d%2d%2d%2d", 
-           aiBuf + 0, aiBuf + 1, aiBuf + 2, 
+
+    sscanf(pcDate, "%4d%2d%2d%2d%2d%2d%2d",
+           aiBuf + 0, aiBuf + 1, aiBuf + 2,
            aiBuf + 3, aiBuf + 4, aiBuf + 5, aiBuf + 6);
     pstDate->usYear    = (USHORT)aiBuf[0];
     pstDate->ucMonth   = (UCHAR)aiBuf[1];
@@ -1429,8 +1429,8 @@ ULONG BISO_9660_ParseDate84261
     pstDate->usMillSec = (UCHAR)(aiBuf[6] * 10); /* 表示百分之一秒 */
 
     /* 第17字节表示时区信息, 15分钟为1个单位，4个单位就是1个时区 */
-    pstDate->cZone     = pcDate[16] / 4; 
-    
+    pstDate->cZone     = pcDate[16] / 4;
+
     return BISO_SUCCESS;
 }
 
@@ -1438,7 +1438,7 @@ VOID BISO_9660_FmtDate84261(IN time_t ulTime, IN UINT uiBufSize, OUT CHAR *pcDat
 {
     INT iTimeZone = BISO_UTIL_GetTimeZone();
     struct tm *pstTm = NULL;
-    
+
     if (NULL != pcDate)
     {
         pstTm = localtime(&ulTime);

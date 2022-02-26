@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -87,7 +87,7 @@ ventoy_file * ventoy_tar_find_file(const char *path)
     ventoy_file *node = g_tar_filelist;
 
     len = (int)strlen(path);
-    
+
     for (i = 0; i < g_tar_filenum; i++, node++)
     {
         if (node->pathlen == len && memcmp(node->path, path, len) == 0)
@@ -139,7 +139,7 @@ int ventoy_decompress_tar(char *tarbuf, int buflen, int *tarsize)
     else
     {
         *tarsize = g_unxz_len;
-        rc = 0;        
+        rc = 0;
     }
 
 	free(buffer);
@@ -225,7 +225,7 @@ int ventoy_www_init(void)
     }
 
     vlog("Total extract %d files from tar file.\n", g_tar_filenum);
-    
+
     return 0;
 }
 
@@ -254,7 +254,7 @@ if (backup)
     scnprintf(backup, 64, "%s/ventoy/ventoy_backup.json", g_cur_dir);
 }
 
-#endif    
+#endif
 }
 
 

@@ -29,7 +29,7 @@ void MyQThread::install_run()
     char buf[1024];
     char dec[64];
     char out[256];
-    char disk_name[32];    
+    char disk_name[32];
     ventoy_disk *cur;
 
     vlog("install run %d ...\n", m_index);
@@ -82,7 +82,7 @@ void MyQThread::update_run()
     int percent = 0;
     char buf[1024];
     char out[256];
-    char disk_name[32]; 
+    char disk_name[32];
     ventoy_disk *cur;
 
     vlog("install run %d ...\n", m_index);
@@ -249,7 +249,7 @@ void Ventoy2DiskWindow::LoadLanguages()
         }
         else
         {
-            ventoy_code_set_cur_language("English (English)");                    
+            ventoy_code_set_cur_language("English (English)");
         }
         curlang = ventoy_code_get_cur_language();
     }
@@ -572,7 +572,7 @@ void Ventoy2DiskWindow::on_ButtonUpdate_clicked()
     lang_string("STR_INFO", title_info);
 
     if (m_thread->m_running || ventoy_code_is_busy())
-    {        
+    {
         lang_string("STR_WAIT_PROCESS", msg);
         QMessageBox::warning(NULL, title_warn, msg);
         return;
@@ -603,7 +603,7 @@ void Ventoy2DiskWindow::on_ButtonUpdate_clicked()
     ui->ButtonRefresh->setEnabled(false);
 
     m_thread->m_type = THREAD_TYPE_UPDATE;
-    m_thread->m_index = index;        
+    m_thread->m_index = index;
     m_thread->m_secureboot = ui->actionSecure_Boot_Support->isChecked();
 
     m_thread->m_running = true;
@@ -627,7 +627,7 @@ void Ventoy2DiskWindow::on_ButtonRefresh_clicked()
 }
 
 void Ventoy2DiskWindow::on_comboBoxDevice_currentIndexChanged(int index)
-{    
+{
     char ver[512];
     ventoy_disk *cur;
 

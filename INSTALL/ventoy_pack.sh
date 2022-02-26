@@ -52,7 +52,7 @@ LOOP=$(losetup -f)
 rm -f img.bin
 dd if=/dev/zero of=img.bin bs=1M count=256 status=none
 
-losetup -P $LOOP img.bin 
+losetup -P $LOOP img.bin
 
 while ! grep -q 524288 /sys/block/${LOOP#/dev/}/size 2>/dev/null; do
     echo "wait $LOOP ..."
@@ -71,7 +71,7 @@ tmpdir=./ventoy-${curver}
 rm -rf $tmpmnt
 mkdir -p $tmpmnt
 
-mount ${LOOP}p2  $tmpmnt 
+mount ${LOOP}p2  $tmpmnt
 
 mkdir -p $tmpmnt/grub
 
@@ -168,7 +168,7 @@ for d in i386 x86_64 aarch64 mips64el; do
     cd $CurDir
 done
 
-#chmod 
+#chmod
 find $tmpdir/ -type d -exec chmod 755 "{}" +
 find $tmpdir/ -type f -exec chmod 644 "{}" +
 chmod +x $tmpdir/Ventoy2Disk.sh

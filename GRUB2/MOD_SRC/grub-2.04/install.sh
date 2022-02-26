@@ -42,8 +42,8 @@ elif [ "$1" = "mips64el" ]; then
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/mips64el-efi" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/EFI/BOOT/BOOTMIPS.EFI"  --format 'mips64el-efi' --compression 'auto'  $all_modules_mips64el_uefi
 else
     all_modules="$net_modules_legacy $all_modules_legacy "
-    grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk' 
-    
+    grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk'
+
     #grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" -c "$VT_DIR/LiveCD/GRUB/embed.cfg" --prefix '/EFI/boot' --output "$VT_DIR/LiveCD/GRUB/cdrom.img"  --format 'i386-pc-eltorito' --compression 'auto'  $all_modules_legacy 'biosdisk' 'iso9660' 'fat' 'part_msdos'
     #rm -f $VT_DIR/LiveCD/GRUB/boot_hybrid.img
     #cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/boot_hybrid.img  $VT_DIR/LiveCD/GRUB/boot_hybrid.img
@@ -54,11 +54,11 @@ grub-mknetdir  --modules="$all_modules" --net-directory=$VT_DIR/GRUB2/PXE  --sub
 if [ "$1" = "uefi" ]; then
     rm -f $VT_DIR/GRUB2/NBP/core.efi
     cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/core.efi  $VT_DIR/GRUB2/NBP/core.efi || exit 1
-    
+
     rm -rf $VT_DIR/INSTALL/grub/x86_64-efi
     mkdir -p $VT_DIR/INSTALL/grub/x86_64-efi
-        
-    cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/normal.mod    $VT_DIR/INSTALL/grub/x86_64-efi/normal.mod  || exit 1      
+
+    cp -a $VT_DIR/GRUB2/PXE/grub2/x86_64-efi/normal.mod    $VT_DIR/INSTALL/grub/x86_64-efi/normal.mod  || exit 1
 
     #copy other modules
     ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/x86_64-efi/ | egrep '\.(lst|mod)$' | while read line; do
@@ -70,11 +70,11 @@ if [ "$1" = "uefi" ]; then
 elif [ "$1" = "i386efi" ]; then
     rm -f $VT_DIR/GRUB2/NBP/core.efi
     cp -a $VT_DIR/GRUB2/PXE/grub2/i386-efi/core.efi  $VT_DIR/GRUB2/NBP/core.efi || exit 1
-    
+
     rm -rf $VT_DIR/INSTALL/grub/i386-efi
     mkdir -p $VT_DIR/INSTALL/grub/i386-efi
 
-    cp -a $VT_DIR/GRUB2/PXE/grub2/i386-efi/normal.mod    $VT_DIR/INSTALL/grub/i386-efi/normal.mod  || exit 1      
+    cp -a $VT_DIR/GRUB2/PXE/grub2/i386-efi/normal.mod    $VT_DIR/INSTALL/grub/i386-efi/normal.mod  || exit 1
 
     #copy other modules
     ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/i386-efi/ | egrep '\.(lst|mod)$' | while read line; do
@@ -86,11 +86,11 @@ elif [ "$1" = "i386efi" ]; then
 elif [ "$1" = "arm64" ]; then
     rm -f $VT_DIR/GRUB2/NBP/core.efi
     cp -a $VT_DIR/GRUB2/PXE/grub2/arm64-efi/core.efi  $VT_DIR/GRUB2/NBP/core.efi || exit 1
-    
+
     rm -rf $VT_DIR/INSTALL/grub/arm64-efi
     mkdir -p $VT_DIR/INSTALL/grub/arm64-efi
 
-    cp -a $VT_DIR/GRUB2/PXE/grub2/arm64-efi/normal.mod    $VT_DIR/INSTALL/grub/arm64-efi/normal.mod  || exit 1      
+    cp -a $VT_DIR/GRUB2/PXE/grub2/arm64-efi/normal.mod    $VT_DIR/INSTALL/grub/arm64-efi/normal.mod  || exit 1
 
     #copy other modules
     ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/arm64-efi/ | egrep '\.(lst|mod)$' | while read line; do
@@ -104,11 +104,11 @@ elif [ "$1" = "arm64" ]; then
 elif [ "$1" = "mips64el" ]; then
     rm -f $VT_DIR/GRUB2/NBP/core.efi
     cp -a $VT_DIR/GRUB2/PXE/grub2/mips64el-efi/core.efi  $VT_DIR/GRUB2/NBP/core.efi || exit 1
-    
+
     rm -rf $VT_DIR/INSTALL/grub/mips64el-efi
     mkdir -p $VT_DIR/INSTALL/grub/mips64el-efi
 
-    cp -a $VT_DIR/GRUB2/PXE/grub2/mips64el-efi/normal.mod    $VT_DIR/INSTALL/grub/mips64el-efi/normal.mod  || exit 1      
+    cp -a $VT_DIR/GRUB2/PXE/grub2/mips64el-efi/normal.mod    $VT_DIR/INSTALL/grub/mips64el-efi/normal.mod  || exit 1
 
     #copy other modules
     ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/mips64el-efi/ | egrep '\.(lst|mod)$' | while read line; do
@@ -122,10 +122,10 @@ elif [ "$1" = "mips64el" ]; then
 else
     rm -f $VT_DIR/GRUB2/NBP/core.0
     cp -a $VT_DIR/GRUB2/PXE/grub2/i386-pc/core.0    $VT_DIR/GRUB2/NBP/core.0  || exit 1
-    
+
     rm -f $VT_DIR/INSTALL/grub/i386-pc/boot.img
     cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/boot.img  $VT_DIR/INSTALL/grub/i386-pc/boot.img   || exit 1
-    
+
     #copy other modules
     ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/ | egrep '\.(lst|mod)$' | while read line; do
         if ! echo $all_modules | grep -q " ${line%.mod} "; then

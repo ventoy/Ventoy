@@ -1,10 +1,10 @@
 [
     {
-        "name":"Arabic (العربية)",        
+        "name":"Arabic (العربية)",
         "FontFamily":"Courier New",
         "FontSize":20,
         "Author":"Omar Namis Mostafa",
-        
+
         "STR_ERROR":"خطأ",
         "STR_WARNING":"تحذير",
         "STR_INFO":"معلومات",
@@ -53,7 +53,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -61,7 +61,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Xəyyam Qocayev",
-        
+
         "STR_ERROR":"Xəta",
         "STR_WARNING":"Xəbərdarlıq",
         "STR_INFO":"Məlumat",
@@ -110,7 +110,7 @@
         "STR_PART_RESIZE_SUCCESS":"Təbriklər!#@Zərərsiz Ventoy quraşdırması başa çatdı.",
         "STR_PART_RESIZE_FAILED":"Zərərsiz quraşdırma baş tutmadı, daha ətraflı öyrənmək üçün log.txt jurnal faylına baxın.",
         "STR_PART_RESIZE_UNSUPPORTED":"ZƏrərsiz Ventoy quraşdırması dayandırıldı, belə ki, bəzi şərtlər yerinə yetirilə bilməd. Daha ətraflı məlumat üçün.txt jurnal faylına baxın.",
-        
+
         "STRXXX":""
     },
     {
@@ -118,7 +118,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"VenusGirl",
-        
+
         "STR_ERROR":"오류",
         "STR_WARNING":"경고",
         "STR_INFO":"정보",
@@ -167,7 +167,7 @@
         "STR_PART_RESIZE_SUCCESS":"축하합니다!#@Ventoy 비파괴 설치가 완료되었습니다.",
         "STR_PART_RESIZE_FAILED":"비파괴 설치에 실패했습니다. 자세한 내용은 log.txt를 확인하십시오.",
         "STR_PART_RESIZE_UNSUPPORTED":"일부 조건을 충족할 수 없기 때문에 Ventoy 비파괴 설치가 중지되었습니다. 자세한 내용은 log.txt를 확인하십시오.",
-                
+
         "STRXXX":""
     },
     {
@@ -175,7 +175,7 @@
         "FontFamily":"宋体",
         "FontSize":14,
         "Author":"longpanda",
-        
+
         "STR_ERROR":"错误",
         "STR_WARNING":"警告",
         "STR_INFO":"提醒",
@@ -232,7 +232,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"longpanda",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Warning",
         "STR_INFO":"Info",
@@ -281,7 +281,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -289,7 +289,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"ivadham",
-        
+
         "STR_ERROR":"خطا",
         "STR_WARNING":"هشدار",
         "STR_INFO":"توضیحات",
@@ -338,7 +338,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -346,7 +346,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"B.O.S.S",
-        
+
         "STR_ERROR":"Błąd",
         "STR_WARNING":"Ostrzeżenie",
         "STR_INFO":"Informacja",
@@ -395,7 +395,7 @@
         "STR_PART_RESIZE_SUCCESS":"Gratulacje!#@Nieniszcząca instlacja Ventoy zakończyła się pomyślnie.",
         "STR_PART_RESIZE_FAILED":"Nieniszcząca instalacja nie powiodła się, sprawdz log.txt po szczegóły.",
         "STR_PART_RESIZE_UNSUPPORTED":"Nieniszcząca instalacja Ventoy została zatrzymana ponieważ niektóre wymagania nie zostały spełnione. Sprawdz log.txt po szczegóły.",
-        
+
         "STRXXX":""
     },
     {
@@ -403,7 +403,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"EstevaoCostaG3, David BrazSan, Hildo Guillardi Júnior",
-        
+
         "STR_ERROR":"Erro",
         "STR_WARNING":"Atenção",
         "STR_INFO":"Info",
@@ -452,7 +452,7 @@
         "STR_PART_RESIZE_SUCCESS":"Parabéns!#@Instalação não destrutiva do Ventoy concluída com sucesso.",
         "STR_PART_RESIZE_FAILED":"Falha na installação não destrutiva, cheque o arquivo log.txt para entender.",
         "STR_PART_RESIZE_UNSUPPORTED":"Instalação não destrutiva do Ventoy interrompida devido fato desconhecido. Cheque o arquivo log.txt para detalhes.",
-        
+
         "STRXXX":""
     },
     {
@@ -460,7 +460,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Erhan Kültür/crasadure, Oğuz Ersen",
-        
+
         "STR_ERROR":"Hata",
         "STR_WARNING":"Uyarı",
         "STR_INFO":"Bilgi",
@@ -509,7 +509,7 @@
         "STR_PART_RESIZE_SUCCESS":"Tebrikler!#@Ventoy Tahribatsız Kurulum, başarıyla tamamlandı.",
         "STR_PART_RESIZE_FAILED":"Tahribatsız kurulum başarısız oldu, ayrıntılar için log.txt dosyasını kontrol edin.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy Tahribatsız Kurulum, bazı koşullar sağlanmadığı için durduruldu. Ayrıntılı bilgi için log.txt dosyasını kontrol edin.",
-        
+
         "STRXXX":""
     },
     {
@@ -517,7 +517,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"luzea & u!^DEV",
-        
+
         "STR_ERROR":"Fehler",
         "STR_WARNING":"Warnung",
         "STR_INFO":"Info",
@@ -566,7 +566,7 @@
         "STR_PART_RESIZE_SUCCESS":"Glückwunsch!#@Die Installation von Ventoy, ohne vorherige Formatierung, wurde erfolgreich abgeschlossen.",
         "STR_PART_RESIZE_FAILED":"Installation ohne vorherige Formatierung fehlgeschlagen. Für Details die log.txt prüfen.",
         "STR_PART_RESIZE_UNSUPPORTED":"Installation ohne vorherige Formatierung wurde auf Grund einiger nicht erfüllbarer Bedingungen gestoppt. Für Details die log.txt prüfen.",
-        
+
         "STRXXX":""
     },
     {
@@ -574,7 +574,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"quentin",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Avertiment",
         "STR_INFO":"Info",
@@ -623,7 +623,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -631,7 +631,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"vboucard, Silejonu",
-        
+
         "STR_ERROR":"Erreur",
         "STR_WARNING":"Avertissement",
         "STR_INFO":"Info",
@@ -680,7 +680,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -688,7 +688,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"vavanade",
-        
+
         "STR_ERROR":"Chyba",
         "STR_WARNING":"Varování",
         "STR_INFO":"Info",
@@ -737,7 +737,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -745,7 +745,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Carlos Sánchez, MELERIX",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Advertencia",
         "STR_INFO":"Información",
@@ -794,7 +794,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -802,7 +802,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"BL4CKH47H4CK3R, Teraskull, thehugonote",
-        
+
         "STR_ERROR":"Ошибка",
         "STR_WARNING":"Предупреждение",
         "STR_INFO":"Информация",
@@ -851,7 +851,7 @@
         "STR_PART_RESIZE_SUCCESS":"Поздравляем!#@Неразрушающая установка Ventoy успешно завершена.",
         "STR_PART_RESIZE_FAILED":"Не удалось выполнить неразрушающую установку, проверьте файл log.txt для получения подробной информации.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Ventoy остановлена, поскольку некоторые условия не могут быть выполнены. Проверьте файл log.txt для получения подробной информации.",
-        
+
         "STRXXX":""
     },
     {
@@ -859,7 +859,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"BL4CKH47H4CK3R",
-        
+
         "STR_ERROR":"ত্রুটি",
         "STR_WARNING":"সতর্কতা",
         "STR_INFO":"তথ্য",
@@ -908,7 +908,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -916,7 +916,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"BL4CKH47H4CK3R",
-        
+
         "STR_ERROR":"त्रुटि",
         "STR_WARNING":"चेतावनी",
         "STR_INFO":"जानकारी",
@@ -965,7 +965,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -973,7 +973,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"UmitCanbolat, RockyTDR",
-        
+
         "STR_ERROR":"Fout",
         "STR_WARNING":"Waarschuwing",
         "STR_INFO":"Info",
@@ -1022,7 +1022,7 @@
         "STR_PART_RESIZE_SUCCESS":"Gefeliciteerd!#@De niet-destructieve installatie van Ventoy is met succes voltooid.",
         "STR_PART_RESIZE_FAILED":"Niet-destructieve installatie mislukt. Controleer log.txt voor details.",
         "STR_PART_RESIZE_UNSUPPORTED":"De niet-destructieve installatie van Ventoy is gestopt omdat aan sommige voorwaarden niet kan worden voldaan. Controleer log.txt voor details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1030,7 +1030,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"DorinMol",
-        
+
         "STR_ERROR":"Eroare",
         "STR_WARNING":"Avertisment",
         "STR_INFO":"Informare",
@@ -1079,7 +1079,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1087,7 +1087,7 @@
         "FontFamily":"Yu Gothic UI",
         "FontSize":14,
         "Author":"taichi eto, Bentnand, cmplstofB",
-        
+
         "STR_ERROR":"エラー",
         "STR_WARNING":"警告",
         "STR_INFO":"情報",
@@ -1136,7 +1136,7 @@
         "STR_PART_RESIZE_SUCCESS":"おめでとうございます。#@Ventoyの非破壊的導入は正常に行われました。",
         "STR_PART_RESIZE_FAILED":"Ventoyを非破壊的に導入できませんでした。詳細な記録は log.txt にあります。",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoyを非破壊的に導入できませんでした。非破壊的導入にあたっての要件が満たされていません。詳細な記録は log.txt にあります。",
-        
+
         "STRXXX":""
     },
     {
@@ -1144,7 +1144,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"AverageUser2,Albano Battistella,bovirus",
-        
+
         "STR_ERROR":"Errore",
         "STR_WARNING":"Attenzione",
         "STR_INFO":"Info",
@@ -1193,7 +1193,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulazioni!#@Installazione non distruttiva di Ventoy completata.",
         "STR_PART_RESIZE_FAILED":"Installazione non distruttiva fallita.#@Per i dettagli controlla il file log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy è stata interrotta perché alcune condizioni non possono essere soddisfatte.#@Per i dettagli controlla il file log.txt.",
-        
+
         "STRXXX":""
     },
     {
@@ -1201,7 +1201,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Valnjes",
-        
+
         "STR_ERROR":"Pogreška",
         "STR_WARNING":"Upozorenje",
         "STR_INFO":"Informacija",
@@ -1250,7 +1250,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1258,7 +1258,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Bitfarago",
-        
+
         "STR_ERROR":"Hiba",
         "STR_WARNING":"Figyelem",
         "STR_INFO":"Infó",
@@ -1307,7 +1307,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1315,7 +1315,7 @@
         "FontFamily":"新細明體",
         "FontSize":14,
         "Author":"penut85420,tony8077616",
-        
+
         "STR_ERROR":"錯誤",
         "STR_WARNING":"警告",
         "STR_INFO":"提醒",
@@ -1364,7 +1364,7 @@
         "STR_PART_RESIZE_SUCCESS":"恭喜！#@Ventoy 已完成無損安裝。",
         "STR_PART_RESIZE_FAILED":"Ventoy 無損安裝失敗。詳細訊息請檢視 log.txt 檔案。",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy 無損安裝已中止因為未滿足部分條件。詳細訊息請檢視 log.txt 檔案。",
-        
+
         "STRXXX":""
     },
     {
@@ -1372,7 +1372,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov",
-        
+
         "STR_ERROR":"Greška",
         "STR_WARNING":"Upozorenje",
         "STR_INFO":"Informacija",
@@ -1421,7 +1421,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1429,7 +1429,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov",
-        
+
         "STR_ERROR":"Грешка",
         "STR_WARNING":"Упозорење",
         "STR_INFO":"Информација",
@@ -1478,7 +1478,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1486,7 +1486,7 @@
         "FontFamily":"Courier New",
         "FontSize":17,
         "Author":"longpanda",
-        
+
         "STR_ERROR":"ผิดพลาด",
         "STR_WARNING":"คำเตือน",
         "STR_INFO":"ข้อมูล",
@@ -1535,7 +1535,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1543,7 +1543,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Stein-Ove Bøthun",
-        
+
         "STR_ERROR":"Feil",
         "STR_WARNING":"Advarsel",
         "STR_INFO":"Info",
@@ -1592,7 +1592,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1600,7 +1600,7 @@
         "FontFamily":"Tahoma",
         "FontSize":14,
         "Author":"Nguyen Quoc Hoang - cuumay.com",
-        
+
         "STR_ERROR":"Lỗi",
         "STR_WARNING":"Cảnh báo",
         "STR_INFO":"Thông tin",
@@ -1656,7 +1656,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"r0manas",
-        
+
         "STR_ERROR ":"Klaida",
         "STR_WARNING ":"Įspėjimas",
         "STR_INFO ":"Informacija",
@@ -1705,7 +1705,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1713,7 +1713,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Влатко Стојанов",
-        
+
         "STR_ERROR":"Грешка",
         "STR_WARNING":"Предупредување",
         "STR_INFO":"Инфо",
@@ -1762,7 +1762,7 @@
         "STR_PART_RESIZE_SUCCESS":"Честитки! Недеструктивната инсталација е успешно завршена.",
         "STR_PART_RESIZE_FAILED":"Недеструктивната инсталација не успеа. Проверете го log.txt за детали.",
         "STR_PART_RESIZE_UNSUPPORTED":"Недеструктивната инсталација на Ventoy е запрена бидејќи некои услови не се исполнети. Проверете го log.txt за детали.",
-        
+
         "STRXXX":""
     },
     {
@@ -1770,7 +1770,7 @@
         "FontFamily":"tahoma",
         "FontSize":16,
         "Author":"chaim-chv",
-        
+
         "STR_ERROR":"תקלה",
         "STR_WARNING":"אזהרה",
         "STR_INFO":"מידע",
@@ -1819,7 +1819,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1827,7 +1827,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Eskiso, Hugo Carvalho",
-        
+
         "STR_ERROR":"Erro",
         "STR_WARNING":"Aviso",
         "STR_INFO":"Info",
@@ -1876,7 +1876,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1884,7 +1884,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Ida Bagus Anom Sanjaya",
-        
+
         "STR_ERROR":"Kesalahan",
         "STR_WARNING":"Peringatan",
         "STR_INFO":"Informasi",
@@ -1933,7 +1933,7 @@
         "STR_PART_RESIZE_SUCCESS":"Selamat!#@Pemasangan tanpa merusakkan Ventoy berhasil.",
         "STR_PART_RESIZE_FAILED":"Pemasangan tanpa merusakkan gagal, periksa berkas log.txt untuk detil.",
         "STR_PART_RESIZE_UNSUPPORTED":"Pemasangan tanpa merusakkan Ventoy terhenti karena beberapa kondisi yang tidak mendukung. Periksa berkas log.txt untuk detil.",
-        
+
         "STRXXX":""
     },
     {
@@ -1941,7 +1941,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Allan Nordhøy",
-        
+
         "STR_ERROR":"Feil",
         "STR_WARNING":"Advarsel",
         "STR_INFO":"Info",
@@ -1990,7 +1990,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -1998,7 +1998,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Teraskull, thehugonote",
-        
+
         "STR_ERROR":"Помилка",
         "STR_WARNING":"Попередження",
         "STR_INFO":"Інформація",
@@ -2047,7 +2047,7 @@
         "STR_PART_RESIZE_SUCCESS":"Вітаємо!#@Неруйнівна установка Ventoy успішно завершена.",
         "STR_PART_RESIZE_FAILED":"Збій неруйнівної установки, перевірте log.txt для отримання детальної інформації.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неруйнівна установка Ventoy зупинена через неможливість виконання деяких умов. Перевірте log.txt для отримання детальної інформації.",
-        
+
         "STRXXX":""
     },
     {
@@ -2055,7 +2055,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"grmasa, Vasilis Kosmidis",
-        
+
         "STR_ERROR":"Σφάλμα",
         "STR_WARNING":"Προειδοποίηση",
         "STR_INFO":"Πληροφορίες",
@@ -2104,7 +2104,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -2112,7 +2112,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Sopor",
-        
+
         "STR_ERROR":"Fel",
         "STR_WARNING":"Varning",
         "STR_INFO":"Info",
@@ -2161,7 +2161,7 @@
         "STR_PART_RESIZE_SUCCESS":"Gratulerar!#@Ventoy lyckades slutföra en icke-förstörande installation.",
         "STR_PART_RESIZE_FAILED":"Ventoy misslyckades slutföra en icke-förstörande installation. Mer information finns i log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Icke-förstörande installation stoppades eftersom vissa villkor inte kunde uppfyllas. Mer information finns i log.txt.",
-        
+
         "STRXXX":""
     },
     {
@@ -2169,7 +2169,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Urajmal",
-        
+
         "STR_ERROR":"Napaka",
         "STR_WARNING":"Opozorilo",
         "STR_INFO":"Info",
@@ -2218,7 +2218,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -2226,7 +2226,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"jekovcar",
-       
+
         "STR_ERROR":"Грешка",
         "STR_WARNING":"Предупреждение",
         "STR_INFO":"Информация",
@@ -2275,7 +2275,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -2283,7 +2283,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Egho",
-       
+
         "STR_ERROR":"Սխալ",
         "STR_WARNING":"Զգուշացում",
         "STR_INFO":"Տեղեկություն",
@@ -2332,7 +2332,7 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        
+
         "STRXXX":""
     },
     {
@@ -2389,7 +2389,7 @@
         "STR_PART_RESIZE_SUCCESS":"Onnittelut!#@Ventoyn ei-tuhoisa asennus saapui päätökseen onnistuneesti.",
         "STR_PART_RESIZE_FAILED":"Ei-tuhoisa asennusmuoto epäonnistui, tarkista log.txt nähdäksesi yksityiskohtaiset tiedot.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoyn ei-tuhoisa asennus pysähtyi koska jotkut ehdot eivät täyttyneet. Tarkista log.txt nähdäksesi yksityiskohdat.",
-        
+
         "STRXXX":""
     },
     {
@@ -2397,7 +2397,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"gbrea",
-        
+
         "STR_ERROR":"Erro",
         "STR_WARNING":"Atención",
         "STR_INFO":"Info",
@@ -2446,7 +2446,7 @@
         "STR_PART_RESIZE_SUCCESS":"Parabéns!#@Instalación non destructiva do Ventoy concluida con suceso.",
         "STR_PART_RESIZE_FAILED":"Erro na instalación non destructiva, revisa o arquivo log.txt para ver os detalles.",
         "STR_PART_RESIZE_UNSUPPORTED":"Instalación non destructiva do Ventoy interrompida porque non se poden cumprir algunhas condicións. Revisa o arquivo log.txt para mais detalles.",
-        
+
         "STRXXX":""
     },
     {
@@ -2454,7 +2454,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"guillemglez",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Avís",
         "STR_INFO":"Info",
@@ -2503,16 +2503,16 @@
         "STR_PART_RESIZE_SUCCESS":"Enhorabona!#@La instal·lació no destructiva s'ha completat de forma satisfactòria.",
         "STR_PART_RESIZE_FAILED":"Hi ha hagut un error durant el procés d'instal·lació no destructiva, comproveu el fitxer log.txt per a més detalls.",
         "STR_PART_RESIZE_UNSUPPORTED":"La instal·lació no destructiva de Ventoy no ha estat possible perquè els requeriments no es compleixen. Comproveu el fitxer log.txt per a més detalls.",
-        
+
         "STRXXX":""
     },
-    
+
     {
         "name":"Georgian (ქართული)",
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Levan Baindurashvili",
-        
+
         "STR_ERROR":"შეცდომა",
         "STR_WARNING":"გაფრთხილება",
         "STR_INFO":"ინფორმაცია",

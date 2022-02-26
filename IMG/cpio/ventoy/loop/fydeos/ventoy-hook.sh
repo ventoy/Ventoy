@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2021, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 . /ventoy/hook/ventoy-hook-lib.sh
@@ -30,13 +30,13 @@ sleep 2
 
 while [ -n "Y" ]; do
     usb_disk=$(get_ventoy_disk_name)
-    
+
     if echo $usb_disk | egrep -q "nvme|mmc|nbd"; then
         vtpart2=${usb_disk}p2
     else
         vtpart2=${usb_disk}2
     fi
-    
+
     if [ -e "${vtpart2}" ]; then
         break
     else
@@ -145,17 +145,17 @@ for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
         else
             vtpart=$i
         fi
-        
+
         if [ -e /newdev/${vtshortname}${vtpart} ]; then
             mv /newdev/${vtshortname}${vtpart} /newdev/backup_${vtshortname}${vtpart}
         fi
 
         cp -a /dev/ventoy${i} /newdev/${vtshortname}${vtpart}
-        
+
         if [ $i -eq 3 ]; then
             [ -e /dev/${vtshortname}${vtpart} ] && rm -f /dev/${vtshortname}${vtpart}
-            cp -a /dev/ventoy${i} /dev/${vtshortname}${vtpart}            
-            vt_root_dev="/dev/${vtshortname}${vtpart}"            
+            cp -a /dev/ventoy${i} /dev/${vtshortname}${vtpart}
+            vt_root_dev="/dev/${vtshortname}${vtpart}"
             vtlog "vt_root_dev=$vt_root_dev"
         fi
     fi
@@ -164,17 +164,17 @@ done
 
 # if grep -q 'DM=' /proc/cmdline; then
     # vtlog "Boot verified image ..."
-    
+
     # dmP1=$(sed "s/.*\(0 [0-9]* verity\).*/\1/" /proc/cmdline)
     # alg=$(sed "s/.*alg=\([^ ]*\).*/\1/" /proc/cmdline)
     # hexdigest=$(sed "s/.*root_hexdigest=\([0-9a-fA-F][0-9a-fA-F]*\).*/\1/" /proc/cmdline)
     # salt=$(sed "s/.*salt=\([0-9a-fA-F][0-9a-fA-F]*\).*/\1/" /proc/cmdline)
     # hashstart=$(sed "s/.*hashstart=\([0-9][0-9]*\).*/\1/" /proc/cmdline)
-    
+
     #512 to 4096
     # blocknum=$(expr $hashstart / 8)
     # hashoffset=$(expr $hashstart \* 512)
-    
+
     # vtlog "veritysetup create vroot $vt_root_dev $vt_root_dev $hexdigest --data-block-size=4096 --hash-block-size=4096 --data-blocks=$blocknum --hash-offset=$hashoffset --salt=$salt --hash=$alg --no-superblock --format=0"
     # veritysetup create vroot $vt_root_dev $vt_root_dev $hexdigest --data-block-size=4096 --hash-block-size=4096 --data-blocks=$blocknum --hash-offset=$hashoffset --salt=$salt --hash=$alg --no-superblock --format=0
     # sleep 1

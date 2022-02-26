@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -113,15 +113,15 @@ int msgbox(GtkMessageType type, GtkButtonsType buttons, const char *strid)
 static void set_item_visible(const char *id, int visible)
 {
     GtkWidget *pWidget = NULL;
-    
+
     pWidget = GTK_WIDGET(gtk_builder_get_object(g_pXmlBuilder, id));
     if (visible)
     {
-        gtk_widget_show(pWidget);        
+        gtk_widget_show(pWidget);
     }
     else
     {
-        gtk_widget_hide(pWidget);        
+        gtk_widget_hide(pWidget);
     }
 }
 
@@ -131,7 +131,7 @@ static void init_part_style_menu(void)
 
     style = ventoy_code_get_cur_part_style();
     gtk_check_menu_item_set_active(g_menu_item_mbr, (0 == style));
-    gtk_check_menu_item_set_active(g_menu_item_gpt, (1 == style)); 
+    gtk_check_menu_item_set_active(g_menu_item_gpt, (1 == style));
     gtk_label_set_text(g_label_local_part_style, style ? "GPT" : "MBR");
 }
 
@@ -142,7 +142,7 @@ static void select_language(const char *lang)
     const char *pDevice = NULL;
     VTOY_JSON *node = NULL;
     char device[256];
-    
+
     for (node = g_languages_json->pstChild; node; node = node->pstNext)
     {
         pName = vtoy_json_get_string_ex(node->pstChild, "name");
@@ -167,15 +167,15 @@ static void select_language(const char *lang)
     {
         gtk_label_set_text(g_device_title, vtoy_json_get_string_ex(node->pstChild, "STR_DEVICE"));
     }
-    
+
     LANG_LABEL_TEXT("label_local_ver", "STR_LOCAL_VER");
     LANG_LABEL_TEXT("label_device_ver", "STR_DISK_VER");
-    
+
     LANG_LABEL_TEXT("label_status", "STR_STATUS");
-    
+
     LANG_BUTTON_TEXT("button_install", "STR_INSTALL");
     LANG_BUTTON_TEXT("button_update", "STR_UPDATE");
-    
+
     LANG_MENU_ITEM_TEXT("menu_option", "STR_MENU_OPTION");
     LANG_MENU_ITEM_TEXT("menu_item_secure", "STR_MENU_SECURE_BOOT");
     LANG_MENU_ITEM_TEXT("menu_part_style", "STR_MENU_PART_STYLE");
@@ -190,30 +190,30 @@ static void select_language(const char *lang)
 
     gtk_window_set_title(GTK_WINDOW(g_partCfgWindow), vtoy_json_get_string_ex(node->pstChild, "STR_MENU_PART_CFG"));
 
-    /* 
-     * refresh screen 
+    /*
+     * refresh screen
      */
-     
+
     gtk_widget_hide(g_topWindow);
     gtk_widget_show(g_topWindow);
 }
 
 
-void on_secure_boot_toggled(GtkMenuItem *menuItem, gpointer data) 
+void on_secure_boot_toggled(GtkMenuItem *menuItem, gpointer data)
 {
     g_secure_boot_support = 1 - g_secure_boot_support;
 
     if (g_secure_boot_support)
     {
-        gtk_widget_show((GtkWidget *)g_image_secure_local);        
+        gtk_widget_show((GtkWidget *)g_image_secure_local);
     }
     else
     {
-        gtk_widget_hide((GtkWidget *)g_image_secure_local);        
+        gtk_widget_hide((GtkWidget *)g_image_secure_local);
     }
 }
 
-void on_devlist_changed(GtkWidget *widget, gpointer data) 
+void on_devlist_changed(GtkWidget *widget, gpointer data)
 {
     int active;
     ventoy_disk *cur = NULL;
@@ -270,9 +270,9 @@ void on_devlist_changed(GtkWidget *widget, gpointer data)
 }
 
 
-void on_language_toggled(GtkMenuItem *menuItem, gpointer data) 
+void on_language_toggled(GtkMenuItem *menuItem, gpointer data)
 {
-    const char *cur_lang = NULL; 
+    const char *cur_lang = NULL;
 
     if (g_languages_toggled_proc == 0)
     {
@@ -287,10 +287,10 @@ void on_language_toggled(GtkMenuItem *menuItem, gpointer data)
     }
 }
 
-void on_part_style_toggled(GtkMenuItem *menuItem, gpointer data) 
+void on_part_style_toggled(GtkMenuItem *menuItem, gpointer data)
 {
     int style;
-    
+
     style = ventoy_code_get_cur_part_style();
     ventoy_code_set_cur_part_style(1 - style);
 
@@ -304,7 +304,7 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
     ventoy_disk *cur = NULL;
 
     alldev = ventoy_code_get_cur_show_all();
-    
+
     /* find the match one */
     if (select)
     {
@@ -315,7 +315,7 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
             {
                 continue;
             }
-            
+
             if (strcmp(cur->disk_name, select) == 0)
             {
                 *activeid = i;
@@ -332,7 +332,7 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
         {
             continue;
         }
-        
+
         if (cur->vtoydata.ventoy_valid)
         {
             *activeid = i;
@@ -348,7 +348,7 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
         {
             continue;
         }
-        
+
         if (cur->type == VTOY_DEVICE_USB)
         {
             *activeid = i;
@@ -364,11 +364,11 @@ static ventoy_disk *select_active_dev(const char *select, int *activeid)
         {
             continue;
         }
-        
+
         *activeid = i;
         return cur;
     }
-        
+
     return NULL;
 }
 
@@ -386,7 +386,7 @@ static void fill_dev_list(const char *select)
     g_dev_changed_proc = 0;
 
     alldev = ventoy_code_get_cur_show_all();
-    
+
     vlog("fill_dev_list total disk: %d showall:%d\n", g_disk_num, alldev);
 
     /* gtk_combo_box_text_remove_all */
@@ -411,7 +411,7 @@ static void fill_dev_list(const char *select)
     if (active)
     {
         vlog("combox count:%d, active:%s id:%d\n", count, active->disk_name, activeid);
-        gtk_combo_box_set_active((GtkComboBox *)g_dev_combobox, activeid); 
+        gtk_combo_box_set_active((GtkComboBox *)g_dev_combobox, activeid);
         gtk_widget_set_sensitive(GTK_WIDGET(g_install_button), TRUE);
         gtk_widget_set_sensitive(GTK_WIDGET(g_update_button), active->vtoydata.ventoy_valid);
     }
@@ -427,21 +427,21 @@ static void fill_dev_list(const char *select)
 }
 
 
-void on_show_all_toggled(GtkMenuItem *menuItem, gpointer data) 
+void on_show_all_toggled(GtkMenuItem *menuItem, gpointer data)
 {
     int show_all = ventoy_code_get_cur_show_all();
-    
+
     ventoy_code_set_cur_show_all(1 - show_all);
     fill_dev_list(NULL);
 }
 
-void on_button_refresh_clicked(GtkWidget *widget, gpointer data) 
+void on_button_refresh_clicked(GtkWidget *widget, gpointer data)
 {
     if (g_thread_run || ventoy_code_is_busy())
     {
         msgbox(GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "STR_WAIT_PROCESS");
         return;
-    }    
+    }
 
     ventoy_code_refresh_device();
     fill_dev_list(NULL);
@@ -455,7 +455,7 @@ static void set_progress_bar_percent(int percent)
 
     gtk_progress_bar_set_fraction(g_progress_bar, percent * 1.0 / 100);
     vlog("set percent %d\n", percent);
-    
+
     text = language_string("STR_STATUS");
     if (percent == 0)
     {
@@ -473,13 +473,13 @@ static void set_progress_bar_percent(int percent)
     }
 }
 
-void on_clear_ventoy(GtkMenuItem *menuItem, gpointer data) 
+void on_clear_ventoy(GtkMenuItem *menuItem, gpointer data)
 {
     int ret;
     int active;
     char buf[1024];
     char out[256];
-    char disk_name[32]; 
+    char disk_name[32];
     ventoy_disk *cur = NULL;
 
     if (g_thread_run || ventoy_code_is_busy())
@@ -505,8 +505,8 @@ void on_clear_ventoy(GtkMenuItem *menuItem, gpointer data)
         return;
     }
 
-    gtk_widget_set_sensitive (GTK_WIDGET(g_refresh_button), FALSE);    
-    gtk_widget_set_sensitive (GTK_WIDGET(g_install_button), FALSE);    
+    gtk_widget_set_sensitive (GTK_WIDGET(g_refresh_button), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET(g_install_button), FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET(g_update_button), FALSE);
     g_thread_run = TRUE;
 
@@ -540,8 +540,8 @@ void on_clear_ventoy(GtkMenuItem *menuItem, gpointer data)
     }
 
     set_progress_bar_percent(0);
-    gtk_widget_set_sensitive(GTK_WIDGET(g_refresh_button), TRUE);    
-    gtk_widget_set_sensitive(GTK_WIDGET(g_install_button), TRUE);    
+    gtk_widget_set_sensitive(GTK_WIDGET(g_refresh_button), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(g_install_button), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(g_update_button), TRUE);
 
     fill_dev_list(disk_name);
@@ -557,7 +557,7 @@ static int install_proc(ventoy_disk *cur)
     char buf[1024];
     char dec[64];
     char out[256];
-    char disk_name[32]; 
+    char disk_name[32];
     long long space;
 
     vlog("install_thread ...\n");
@@ -595,7 +595,7 @@ static int install_proc(ventoy_disk *cur)
     VTOY_JSON_FMT_UINT("align_4kb", g_align_part_with_4k);
     VTOY_JSON_FMT_OBJ_END();
     VTOY_JSON_FMT_END(pos);
-    
+
     out[0] = 0;
     ventoy_func_handler(buf, out, sizeof(out));
     vlog("func handler install <%s>\n", out);
@@ -624,13 +624,13 @@ static int install_proc(ventoy_disk *cur)
         msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_INSTALL_FAILED");
     }
     else
-    {   
+    {
         msgbox(GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "STR_INSTALL_SUCCESS");
     }
 
     set_progress_bar_percent(0);
-    gtk_widget_set_sensitive(GTK_WIDGET(g_refresh_button), TRUE);    
-    gtk_widget_set_sensitive(GTK_WIDGET(g_install_button), TRUE);    
+    gtk_widget_set_sensitive(GTK_WIDGET(g_refresh_button), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(g_install_button), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(g_update_button), TRUE);
 
     fill_dev_list(disk_name);
@@ -639,7 +639,7 @@ static int install_proc(ventoy_disk *cur)
     return 0;
 }
 
-void on_button_install_clicked(GtkWidget *widget, gpointer data) 
+void on_button_install_clicked(GtkWidget *widget, gpointer data)
 {
     int active;
     long long size;
@@ -698,10 +698,10 @@ void on_button_install_clicked(GtkWidget *widget, gpointer data)
         return;
     }
 
-    gtk_widget_set_sensitive (GTK_WIDGET(g_refresh_button), FALSE);    
-    gtk_widget_set_sensitive (GTK_WIDGET(g_install_button), FALSE);    
+    gtk_widget_set_sensitive (GTK_WIDGET(g_refresh_button), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET(g_install_button), FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET(g_update_button), FALSE);
-    
+
     g_thread_run = TRUE;
 
     install_proc(cur);
@@ -714,10 +714,10 @@ static int update_proc(ventoy_disk *cur)
     int percent = 0;
     char buf[1024];
     char out[256];
-    char disk_name[32]; 
+    char disk_name[32];
 
     g_snprintf(disk_name, sizeof(disk_name), "%s", cur->disk_name);
-    g_snprintf(buf, sizeof(buf), "{\"method\":\"update\",\"disk\":\"%s\",\"secure_boot\":%d}", 
+    g_snprintf(buf, sizeof(buf), "{\"method\":\"update\",\"disk\":\"%s\",\"secure_boot\":%d}",
         disk_name, g_secure_boot_support);
 
     out[0] = 0;
@@ -748,13 +748,13 @@ static int update_proc(ventoy_disk *cur)
         msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_UPDATE_FAILED");
     }
     else
-    {   
+    {
         msgbox(GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "STR_UPDATE_SUCCESS");
     }
 
     set_progress_bar_percent(0);
-    gtk_widget_set_sensitive(GTK_WIDGET(g_refresh_button), TRUE);    
-    gtk_widget_set_sensitive(GTK_WIDGET(g_install_button), TRUE);    
+    gtk_widget_set_sensitive(GTK_WIDGET(g_refresh_button), TRUE);
+    gtk_widget_set_sensitive(GTK_WIDGET(g_install_button), TRUE);
     gtk_widget_set_sensitive(GTK_WIDGET(g_update_button), TRUE);
 
     fill_dev_list(disk_name);
@@ -764,7 +764,7 @@ static int update_proc(ventoy_disk *cur)
 }
 
 
-void on_button_update_clicked(GtkWidget *widget, gpointer data) 
+void on_button_update_clicked(GtkWidget *widget, gpointer data)
 {
     int active;
     ventoy_disk *cur = NULL;
@@ -781,7 +781,7 @@ void on_button_update_clicked(GtkWidget *widget, gpointer data)
         vlog("invalid active combox id %d\n", active);
         return;
     }
-    cur = g_disk_list + active;    
+    cur = g_disk_list + active;
 
     if (cur->vtoydata.ventoy_valid == 0)
     {
@@ -794,12 +794,12 @@ void on_button_update_clicked(GtkWidget *widget, gpointer data)
         return;
     }
 
-    gtk_widget_set_sensitive (GTK_WIDGET(g_refresh_button), FALSE);    
-    gtk_widget_set_sensitive (GTK_WIDGET(g_install_button), FALSE);    
+    gtk_widget_set_sensitive (GTK_WIDGET(g_refresh_button), FALSE);
+    gtk_widget_set_sensitive (GTK_WIDGET(g_install_button), FALSE);
     gtk_widget_set_sensitive (GTK_WIDGET(g_update_button), FALSE);
-    
+
     g_thread_run = TRUE;
-    
+
     update_proc(cur);
 }
 
@@ -818,7 +818,7 @@ static gint lang_compare(gconstpointer a, gconstpointer b)
     }
     else
     {
-        return g_strcmp0(name1, name2);        
+        return g_strcmp0(name1, name2);
     }
 }
 
@@ -845,17 +845,17 @@ static int load_languages(void)
         pName = getenv("LANG");
         if (pName && strncmp(pName, "zh_CN", 5) == 0)
         {
-            ventoy_code_set_cur_language("Chinese Simplified (简体中文)");            
+            ventoy_code_set_cur_language("Chinese Simplified (简体中文)");
         }
         else
         {
-            ventoy_code_set_cur_language("English (English)");            
+            ventoy_code_set_cur_language("English (English)");
         }
         pCurLang = ventoy_code_get_cur_language();
     }
 
     vlog("current language <%s>\n", pCurLang);
-    
+
     ventoy_read_file_to_buf("./tool/languages.json", 1, (void **)&pBuf, &size);
 
     json = vtoy_json_create();
@@ -898,7 +898,7 @@ static int load_languages(void)
         pName = (char *)(pNameNode->data);
         pItem = (GtkRadioMenuItem *)gtk_radio_menu_item_new_with_label(pGroup, pName);
         pGroup = gtk_radio_menu_item_get_group(pItem);
-        
+
         if (strcmp(pCurLang, pName) == 0)
         {
             gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(pItem), TRUE);
@@ -908,17 +908,17 @@ static int load_languages(void)
         gtk_widget_show((GtkWidget *)pItem);
         gtk_menu_shell_append(GTK_MENU_SHELL(g_lang_menu), (GtkWidget *)pItem);
     }
-    
+
     g_list_free(pNameList);
     free(pBuf);
 
     select_language(pCurLang);
     g_languages_toggled_proc = 1;
-    
+
     return 0;
 }
 
-void on_part_cfg_ok(GtkWidget *widget, gpointer data) 
+void on_part_cfg_ok(GtkWidget *widget, gpointer data)
 {
     const char *pos = NULL;
     const char *input = NULL;
@@ -946,8 +946,8 @@ void on_part_cfg_ok(GtkWidget *widget, gpointer data)
         g_preserve_space_unit = gtk_combo_box_get_active((GtkComboBox *)g_part_space_unit_combox);
         g_preserve_space_number = (int)strtol(input, NULL, 10);
 
-        g_snprintf(device, sizeof(device), "%s  [ -%d%s ]", 
-            language_string("STR_DEVICE"), g_preserve_space_number, 
+        g_snprintf(device, sizeof(device), "%s  [ -%d%s ]",
+            language_string("STR_DEVICE"), g_preserve_space_number,
             g_preserve_space_unit ? "GB" : "MB");
         gtk_label_set_text(g_device_title, device);
     }
@@ -961,18 +961,18 @@ void on_part_cfg_ok(GtkWidget *widget, gpointer data)
     gtk_widget_hide(g_partCfgWindow);
 }
 
-void on_part_cfg_cancel(GtkWidget *widget, gpointer data) 
+void on_part_cfg_cancel(GtkWidget *widget, gpointer data)
 {
     gtk_widget_hide(g_partCfgWindow);
 }
 
-int on_part_cfg_close(GtkWidget *widget, gpointer data) 
+int on_part_cfg_close(GtkWidget *widget, gpointer data)
 {
     gtk_widget_hide(g_partCfgWindow);
     return TRUE;
 }
 
-void on_part_config(GtkMenuItem *menuItem, gpointer data) 
+void on_part_config(GtkMenuItem *menuItem, gpointer data)
 {
     char value[64];
 
@@ -991,7 +991,7 @@ void on_part_config(GtkMenuItem *menuItem, gpointer data)
     gtk_widget_show_all(g_partCfgWindow);
 }
 
-void on_reserve_space_toggled(GtkMenuItem *menuItem, gpointer data) 
+void on_reserve_space_toggled(GtkMenuItem *menuItem, gpointer data)
 {
     gboolean checked = gtk_toggle_button_get_active(g_part_preserve_checkbox);
 
@@ -1034,7 +1034,7 @@ void on_init_window(GtkBuilder *pBuilder)
     char version[512];
 
     vlog("on_init_window ...\n");
-    
+
     g_pXmlBuilder = pBuilder;
     g_topWindow = BUILDER_ITEM(GtkWidget, "window");
     g_partCfgWindow = BUILDER_ITEM(GtkWidget, "part_cfg_dlg");
@@ -1043,38 +1043,38 @@ void on_init_window(GtkBuilder *pBuilder)
     g_refresh_button = BUILDER_ITEM(GtkButton, "button_refresh");
     g_install_button = BUILDER_ITEM(GtkButton, "button_install");
     g_update_button = BUILDER_ITEM(GtkButton, "button_update");
-    
+
     g_lang_menu = BUILDER_ITEM(GtkMenu, "submenu_language");
     g_menu_item_secure_boot = BUILDER_ITEM(GtkCheckMenuItem, "menu_item_secure");
     g_menu_item_mbr = BUILDER_ITEM(GtkCheckMenuItem, "menu_item_mbr");
     g_menu_item_gpt = BUILDER_ITEM(GtkCheckMenuItem, "menu_item_gpt");
     g_menu_item_show_all = BUILDER_ITEM(GtkCheckMenuItem, "menu_item_show_all");
-    
+
     g_device_title = BUILDER_ITEM(GtkLabel, "label_device");
     g_label_local_part_style = BUILDER_ITEM(GtkLabel, "label_local_part_style");
     g_label_dev_part_style = BUILDER_ITEM(GtkLabel, "label_dev_part_style");
-    
+
     g_label_local_ver = BUILDER_ITEM(GtkLabel, "label_local_ver_value");
     g_label_disk_ver = BUILDER_ITEM(GtkLabel, "label_dev_ver_value");
-    
+
     g_label_status = BUILDER_ITEM(GtkLabel, "label_status");
-    
+
     g_image_secure_local = BUILDER_ITEM(GtkImage, "image_secure_local");
     g_image_secure_device = BUILDER_ITEM(GtkImage, "image_secure_dev");
-    
+
     g_part_preserve_checkbox = BUILDER_ITEM(GtkToggleButton, "space_check_btn");
     g_part_align_checkbox = BUILDER_ITEM(GtkToggleButton, "space_align_btn");
 
     g_part_reserve_space_value = BUILDER_ITEM(GtkEntry, "entry_reserve_space");
     g_part_space_unit_combox = BUILDER_ITEM(GtkComboBoxText, "comboboxtext_unit");
-    
+
     g_progress_bar = BUILDER_ITEM(GtkProgressBar, "progressbar1");
 
     init_part_cfg_window(pBuilder);
 
     /* for gtk2 */
-    gtk_frame_set_shadow_type(BUILDER_ITEM(GtkFrame, "frame_dummy1"), GTK_SHADOW_NONE); 
-    gtk_frame_set_shadow_type(BUILDER_ITEM(GtkFrame, "frame_dummy2"), GTK_SHADOW_NONE); 
+    gtk_frame_set_shadow_type(BUILDER_ITEM(GtkFrame, "frame_dummy1"), GTK_SHADOW_NONE);
+    gtk_frame_set_shadow_type(BUILDER_ITEM(GtkFrame, "frame_dummy2"), GTK_SHADOW_NONE);
 
     /* join group */
     pGroup = gtk_radio_menu_item_get_group((GtkRadioMenuItem *)g_menu_item_mbr);
@@ -1092,15 +1092,15 @@ void on_init_window(GtkBuilder *pBuilder)
     load_languages();
 
     SIGNAL("combobox_devlist", "changed", on_devlist_changed);
-    
+
     SIGNAL("button_refresh", "clicked", on_button_refresh_clicked);
     SIGNAL("button_install", "clicked", on_button_install_clicked);
     SIGNAL("button_update",  "clicked", on_button_update_clicked);
-    
+
     SIGNAL("menu_item_secure",   "toggled",  on_secure_boot_toggled);
     SIGNAL("menu_item_mbr",      "toggled",  on_part_style_toggled);
     SIGNAL("menu_item_show_all", "toggled",  on_show_all_toggled);
-    
+
     SIGNAL("menu_item_part_cfg", "activate",  on_part_config);
     SIGNAL("menu_item_clear", "activate",  on_clear_ventoy);
 
@@ -1116,7 +1116,7 @@ void on_init_window(GtkBuilder *pBuilder)
     return;
 }
 
-int on_exit_window(GtkWidget *widget, gpointer data) 
+int on_exit_window(GtkWidget *widget, gpointer data)
 {
     vlog("on_exit_window ...\n");
 

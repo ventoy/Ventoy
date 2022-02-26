@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -110,7 +110,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
         return FALSE;
     }
 
-    
+
 
 	if (MBR.PartTbl[0].FsFlag == 0xEE)
 	{
@@ -144,7 +144,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
             }
 
             Log("=========== Disk%d GPT Partition %d ============", PhyDrive, i + 1);
-            
+
             Log("PartTbl.PartType = %s", GUID2String(&pGpt->PartTbl[i].PartType, GUIDStr, sizeof(GUIDStr)));
             Log("PartTbl.PartGuid = %s", GUID2String(&pGpt->PartTbl[i].PartGuid, GUIDStr, sizeof(GUIDStr)));
             Log("PartTbl.StartLBA = %llu", (ULONGLONG)pGpt->PartTbl[i].StartLBA);
@@ -163,7 +163,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 			{
 				Log("Invalid ventoy efi part name <null>");
 			}
-			
+
 			return FALSE;
 		}
 
@@ -249,7 +249,7 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
 
 static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 {
-    DWORD i; 
+    DWORD i;
     DWORD LogDrive;
     int Count = 0;
     int Letter = 'A';
@@ -272,9 +272,9 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
             Log("Logical Drive:%C  ===> PhyDrive:%d", LogLetter[LetterCount], PhyDriveId[LetterCount]);
             LetterCount++;
         }
-        
+
         Letter++;
-    }    
+    }
 
     for (i = 0; i < DriveCount; i++)
     {
@@ -295,7 +295,7 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
             Log("<%s %s> is filtered for not USB type.", CurDrive->VendorId, CurDrive->ProductId);
             continue;
         }
-        
+
         CurDrive->Id = Id++;
 
         for (Count = 0, Letter = 0; Letter < LetterCount; Letter++)

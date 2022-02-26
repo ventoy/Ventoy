@@ -39,7 +39,7 @@
  * parsing.
  *
  * Lines can be split across multiple lines using "\".
- * 
+ *
  * Blank lines and comment lines indicated by # are supported.
  */
 int read_file(char *filename, char *type, int (parse_line)(char *))
@@ -102,7 +102,7 @@ int read_file(char *filename, char *type, int (parse_line)(char *))
 				break;
 			else
 				total --;
-		}	
+		}
 
 		if(err == NULL) {
 			if(ferror(fd)) {

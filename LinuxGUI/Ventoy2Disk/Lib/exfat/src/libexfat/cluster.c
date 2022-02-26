@@ -104,7 +104,7 @@ cluster_t exfat_advance_cluster(const struct exfat* ef,
 	{
 		node->fptr_cluster = exfat_next_cluster(ef, node, node->fptr_cluster);
 		if (CLUSTER_INVALID(*ef->sb, node->fptr_cluster))
-			break; /* the caller should handle this and print appropriate 
+			break; /* the caller should handle this and print appropriate
 			          error message */
 	}
 	node->fptr_index = count;

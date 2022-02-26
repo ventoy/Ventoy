@@ -8,12 +8,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -203,7 +203,7 @@ const CHAR* GetLocalVentoyVersion(void)
         safe_sprintf(LocalVersion, "%s", Buf);
         free(Buf);
     }
-    
+
     return LocalVersion;
 }
 
@@ -379,7 +379,7 @@ static const char* GetEdition(DWORD ProductType)
 }
 
 #define is_x64 IsWow64
-#define static_strcpy safe_strcpy 
+#define static_strcpy safe_strcpy
 #define REGKEY_HKCU HKEY_CURRENT_USER
 #define REGKEY_HKLM HKEY_LOCAL_MACHINE
 static int  nWindowsVersion = WINDOWS_UNDEFINED;
@@ -438,7 +438,7 @@ static __inline BOOL _GetRegistryKey(HKEY key_root, const char* key_name, DWORD 
         if (RegOpenKeyExA(key_root, "SOFTWARE", 0, KEY_READ | KEY_CREATE_SUB_KEY, &hSoftware) != ERROR_SUCCESS) {
             hSoftware = NULL;
             goto out;
-        }        
+        }
     }
 
     s = RegQueryValueExA(hApp, &key_name[i], NULL, &dwType, (LPBYTE)dest, &dwSize);
@@ -465,7 +465,7 @@ static __inline INT32 ReadRegistryKey32(HKEY root, const char* key) {
 * Modified from smartmontools' os_win32.cpp
 */
 void GetWindowsVersion(void)
-{   
+{
     OSVERSIONINFOEXA vi, vi2;
     DWORD dwProductType;
     const char* w = 0;
@@ -632,7 +632,7 @@ int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 S
     BYTE Head;
     BYTE Sector;
     BYTE nSector = 63;
-    BYTE nHead = 8;    
+    BYTE nHead = 8;
     UINT32 Cylinder;
     UINT32 EndSectorId;
 
@@ -740,7 +740,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
     PartSectorCount = VENTOY_EFI_PART_SIZE / 512;
     VentoyFillMBRLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
 
-    pMBR->PartTbl[1].Active = 0x00; 
+    pMBR->PartTbl[1].Active = 0x00;
     pMBR->PartTbl[1].FsFlag = 0xEF; // EFI System Partition
 
     pMBR->Byte55 = 0x55;
@@ -933,7 +933,7 @@ int VentoyFillBackupGptHead(VTOY_GPT_INFO *pInfo, VTOY_GPT_HDR *pHead)
 
     LBA = pHead->EfiStartLBA;
     BackupLBA = pHead->EfiBackupLBA;
-    
+
     pHead->EfiStartLBA = BackupLBA;
     pHead->EfiBackupLBA = LBA;
     pHead->PartTblStartLBA = BackupLBA + 1 - 33;
@@ -1003,7 +1003,7 @@ int VentoyGetLocalBootImg(MBR_HEAD *pMBR)
         Log("Copy boot img success");
         memcpy(pMBR, ImgBuf, 512);
         free(ImgBuf);
-        
+
         CoCreateGuid((GUID *)(pMBR->BootCode + 0x180));
 
         memcpy(&MBR, pMBR, 512);

@@ -604,7 +604,7 @@ void vdisk_read ( uint64_t lba, unsigned int count, void *data ) {
 			memset ( data, 0, ( frag_count * VDISK_SECTOR_SIZE ) );
 		}
 
-		/* Move to next fragment */ 
+		/* Move to next fragment */
 		frag_start += frag_count;
 		data += ( frag_count * VDISK_SECTOR_SIZE );
 

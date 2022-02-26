@@ -23,7 +23,7 @@ fi
 rm -rf ISO_TMP
 cp -a ISO ISO_TMP
 
-cp -a VTOY VTOY_TMP 
+cp -a VTOY VTOY_TMP
 
 ls -la
 if ! [ -d ISO_TMP ]; then

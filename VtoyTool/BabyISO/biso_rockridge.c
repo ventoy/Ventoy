@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 
 #include "biso.h"
 #include "biso_list.h"
@@ -27,7 +27,7 @@
 #include "biso_rockridge.h"
 
 /* Rock Ridge扩展处理函数数组, NULL表示暂时不处理这类表项 */
-STATIC BISO_RRIP_PARSE_ENTRY_CB_S g_astBISO_RRIP_ParseFunc[] = 
+STATIC BISO_RRIP_PARSE_ENTRY_CB_S g_astBISO_RRIP_ParseFunc[] =
 {
     { "CE", NULL },
     { "PD", NULL },
@@ -55,7 +55,7 @@ STATIC VOID BISO_RRIP_AddLinkBuf
 )
 {
     CHAR *pcNewBuf = NULL;
-    
+
     DBGASSERT(NULL != pstPosixInfo);
     DBGASSERT(NULL != pcBuf);
 
@@ -91,7 +91,7 @@ STATIC VOID BISO_RRIP_AddLinkBuf
 
 STATIC UINT BISO_RRIP_CalcLinkLen
 (
-    IN CONST CHAR *pcComponet, 
+    IN CONST CHAR *pcComponet,
     IN UINT uiComponetLen
 )
 {
@@ -102,7 +102,7 @@ STATIC UINT BISO_RRIP_CalcLinkLen
 
     DBGASSERT(NULL != pcComponet);
     DBGASSERT(uiComponetLen > 0);
-    
+
     /* 拼接出链接的源路径 */
     while (uiOffset < uiComponetLen)
     {
@@ -149,13 +149,13 @@ STATIC UINT BISO_RRIP_CalcLinkLen
 
 STATIC UINT BISO_RRIP_GetPartLink
 (
-    IN  CONST BISO_RRIP_SL_COMPONENT_S *pstComponent, 
+    IN  CONST BISO_RRIP_SL_COMPONENT_S *pstComponent,
     IN  UINT  uiBufSize,
     OUT CHAR *pcBuf
 )
 {
     UINT uiBufLen = 0;
-    
+
     DBGASSERT(NULL != pstComponent);
     DBGASSERT(NULL != pcBuf);
 
@@ -199,7 +199,7 @@ STATIC BOOL_T BISO_RRIP_IsThisType(IN BISO_SUSP_ENTRY_S *pstEntry, IN CONST CHAR
 
 STATIC UCHAR * BISO_RRIP_GetSysUseArea
 (
-    IN  BISO_FILE_S *pstFile, 
+    IN  BISO_FILE_S *pstFile,
     IN  UCHAR       *pucSysUseField,
     IN  UINT         uiSysUseFieldLen,
     OUT UINT        *puiAreaSize
@@ -217,7 +217,7 @@ STATIC UCHAR * BISO_RRIP_GetSysUseArea
     DBGASSERT(NULL != pucSysUseField);
     DBGASSERT(NULL != puiAreaSize);
 
-    /* 
+    /*
      * 虽然Rock Ridge扩展标准中允许整个System Use Area中有多个CE表项来扩展，
      * 但是由于一条CE表项可以扩展的长度就足够了(32bit) 所以这里我感觉正常情况下
      * 没有必要使用多个CE表项扩展空间。因此这里只支持1条CE表项的情况。
@@ -302,9 +302,9 @@ VOID BISO_RRIP_GetNMInfo(IN VOID *pEntry, OUT BISO_DIR_TREE_S *pstDirTree)
         memset(pstDirTree->szName, 0, sizeof(pstDirTree->szName));
         pstDirTree->usNameLen = 0;
     }
-    
+
     /*
-     * 拼接文件名, 有可能本函数会多次调用,多次拼接(文件名超长的情况) 
+     * 拼接文件名, 有可能本函数会多次调用,多次拼接(文件名超长的情况)
      * TODO: 是否需要关注字符编码???
      */
     strncat(pstDirTree->szName, pstNMEntry->szFileName, pstNMEntry->ucEntryLen - 5);
@@ -317,7 +317,7 @@ VOID BISO_RRIP_GetTFInfo(IN VOID *pEntry, OUT BISO_DIR_TREE_S *pstDirTree)
     UCHAR *pucCur = NULL;
     BISO_DATE_915_S *pst915Date = NULL;
     BISO_ROCK_RIDGE_ENTRY_TF_S *pstTFEntry = NULL;
-    BISO_DATE_S *apstDate[] = 
+    BISO_DATE_S *apstDate[] =
     {
         &(pstDirTree->pstPosixInfo->stCreateTime),
         &(pstDirTree->pstPosixInfo->stModifyTime),
@@ -375,7 +375,7 @@ VOID BISO_RRIP_GetPNInfo(IN VOID *pEntry, OUT BISO_DIR_TREE_S *pstDirTree)
     DBGASSERT(NULL != pstDirTree->pstPosixInfo);
 
     pstPNEntry = (BISO_ROCK_RIDGE_ENTRY_PN_S *)pEntry;
-    
+
     pstDirTree->pstPosixInfo->ui64DevNum = ((UINT64)(pstPNEntry->uiDevNumHigh) << 32) | pstPNEntry->uiDevNumLow;
 }
 
@@ -456,8 +456,8 @@ ULONG BISO_RRIP_ReadExtInfo
 (
     IN  BISO_FILE_S       *pstFile,
     IN  BISO_PARSER_S     *pstParser,
-    IN  BISO_DIR_RECORD_S *pstRecord, 
-    OUT BISO_DIR_TREE_S   *pstDirTree 
+    IN  BISO_DIR_RECORD_S *pstRecord,
+    OUT BISO_DIR_TREE_S   *pstDirTree
 )
 {
     UINT   i = 0;
@@ -495,7 +495,7 @@ ULONG BISO_RRIP_ReadExtInfo
     uiOffset += pstParser->ucRRIPSkipLen;
 
     /* 获取整个Syetem Use区域的数据(包括CE扩展区) */
-    pucSysUseArea = BISO_RRIP_GetSysUseArea(pstFile, (UCHAR *)pstRecord + uiOffset, 
+    pucSysUseArea = BISO_RRIP_GetSysUseArea(pstFile, (UCHAR *)pstRecord + uiOffset,
                                             pstRecord->ucLength - (UCHAR)uiOffset, &uiAreaSize);
     if (NULL == pucSysUseArea)
     {
@@ -533,7 +533,7 @@ ULONG BISO_RRIP_ReadIndicator(INOUT BISO_PARSER_S *pstParser)
     BISO_DIR_RECORD_S *pstRootDir = NULL;
     BISO_SUSP_ENTRY_SP_S *pstSPEntry = NULL;
     UCHAR aucBuf[sizeof(BISO_DIR_RECORD_S) + sizeof(BISO_SUSP_ENTRY_SP_S)];
-    
+
     DBGASSERT(NULL != pstParser);
 
     /* 读出Root Directory Record */
@@ -557,9 +557,9 @@ ULONG BISO_RRIP_ReadIndicator(INOUT BISO_PARSER_S *pstParser)
     else
     {
         pstParser->ucRRIPVersion = pstSPEntry->ucVersion;
-        pstParser->ucRRIPSkipLen = pstSPEntry->ucSkipLen;       
+        pstParser->ucRRIPSkipLen = pstSPEntry->ucSkipLen;
     }
-    
+
     return BISO_SUCCESS;
 }
 

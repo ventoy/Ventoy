@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -160,7 +160,7 @@ int ventoy_path_case(char *path, int slash)
 				{
 					break;
 				}
-                
+
 				if (path[i] != FilePathA[j])
                 {
 					path[i] = FilePathA[j];
@@ -412,7 +412,7 @@ int ventoy_get_file_size(const char *file)
 {
 	int Size = -1;
 	HANDLE hFile;
-	
+
 	hFile = CreateFileA(file, 0, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
@@ -432,7 +432,7 @@ const CHAR* ParseVentoyVersionFromString(CHAR *Buf)
 	CHAR *Pos = NULL;
 	CHAR *End = NULL;
 	static CHAR LocalVersion[64] = { 0 };
-	
+
 	Pos = strstr(Buf, "VENTOY_VERSION=");
 	if (Pos)
 	{
@@ -504,7 +504,7 @@ static int VentoyFatDiskRead(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
     bRet = ReadFile(g_FatPhyDrive, Buffer, ReadSize, &dwSize, NULL);
     if (bRet == FALSE || dwSize != ReadSize)
     {
-        
+
     }
 
     return 1;
@@ -520,7 +520,7 @@ static int GetVentoyVersion(int PhyDrive, ventoy_disk *disk)
 	VTOY_GPT_INFO *pGPT = NULL;
 	CHAR Drive[64];
     void *flfile = NULL;
-    UCHAR MbrData[] = 
+    UCHAR MbrData[] =
     {
         0xEB, 0x63, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -569,7 +569,7 @@ static int GetVentoyVersion(int PhyDrive, ventoy_disk *disk)
     else
     {
 		Part2Offset = pGPT->MBR.PartTbl[1].StartSectorId;
-        disk->cur_part_style = 0;        
+        disk->cur_part_style = 0;
     }
 
 
@@ -591,7 +591,7 @@ static int GetVentoyVersion(int PhyDrive, ventoy_disk *disk)
             }
         }
     }
-    
+
     fl_shutdown();
 
 out:
@@ -642,7 +642,7 @@ int CheckRuntimeEnvironment(char Letter, ventoy_disk *disk)
     {
         disk->pathcase = 1;
     }
-    
+
     strlcpy(disk->cur_fsname, FsName);
 
     if (GetVentoyVersion(PhyDrive, disk) != 0)
@@ -701,7 +701,7 @@ void ventoy_stop_writeback_thread(void)
 {
     g_thread_stop = 1;
     ventoy_set_writeback_event();
-    
+
     WaitForSingleObject(g_writeback_thread, INFINITE);
 
     CHECK_CLOSE_HANDLE(g_writeback_thread);
@@ -755,7 +755,7 @@ int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int 
 
     *Bufer = buffer;
     *BufLen = Size;
-    
+
     CloseHandle(hFile);
     return 0;
 }
@@ -781,7 +781,7 @@ int ventoy_write_buf_to_file(const char *FileName, void *Bufer, int BufLen)
         CloseHandle(hFile);
         return 1;
     }
-    
+
     FlushFileBuffers(hFile);
     CloseHandle(hFile);
 

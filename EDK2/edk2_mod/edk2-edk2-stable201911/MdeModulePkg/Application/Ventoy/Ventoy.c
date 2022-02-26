@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -76,7 +76,7 @@ STATIC EFI_EXIT_BOOT_SERVICES g_org_exit_boot_service = NULL;
 
 /* Boot filename */
 UINTN gBootFileStartIndex = 1;
-CONST CHAR16 *gEfiBootFileName[] = 
+CONST CHAR16 *gEfiBootFileName[] =
 {
     L"@",
     EFI_REMOVABLE_MEDIA_FILE_NAME,
@@ -101,7 +101,7 @@ CONST CHAR16 *gEfiBootFileName[] =
     L"\\EFI\\BOOT\\bootaa64.efi",
     L"\\efi\\boot\\bootaa64.efi",
 #endif
-    
+
 };
 
 VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...)
@@ -112,14 +112,14 @@ VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...)
     VA_START (Marker, Format);
     UnicodeVSPrintAsciiFormat(Buffer, sizeof(Buffer), Format, Marker);
     VA_END (Marker);
-    
+
     gST->ConOut->OutputString(gST->ConOut, Buffer);
 }
 
 VOID EFIAPI ventoy_clear_input(VOID)
 {
     EFI_INPUT_KEY Key;
-    
+
     gST->ConIn->Reset(gST->ConIn, FALSE);
     while (EFI_SUCCESS == gST->ConIn->ReadKeyStroke(gST->ConIn, &Key))
     {
@@ -142,7 +142,7 @@ static void EFIAPI ventoy_dump_img_chunk(ventoy_chain_head *chain)
     for (i = 0; i < chain->img_chunk_num; i++)
     {
         debug("%2u: [ %u - %u ] <==> [ %llu - %llu ]",
-               i, chunk[i].img_start_sector, chunk[i].img_end_sector, 
+               i, chunk[i].img_start_sector, chunk[i].img_end_sector,
                chunk[i].disk_start_sector, chunk[i].disk_end_sector);
 
         if (i > 0 && (chunk[i].img_start_sector != chunk[i - 1].img_end_sector + 1))
@@ -161,7 +161,7 @@ static void EFIAPI ventoy_dump_img_chunk(ventoy_chain_head *chain)
     {
         debug("image chunk size check failed %d", errcnt);
     }
-    
+
     ventoy_debug_pause();
 }
 
@@ -169,7 +169,7 @@ static void EFIAPI ventoy_dump_override_chunk(ventoy_chain_head *chain)
 {
     UINT32 i;
     ventoy_override_chunk *chunk;
-    
+
     chunk = (ventoy_override_chunk *)((char *)chain + chain->override_chunk_offset);
 
     debug("##################### ventoy_dump_override_chunk #######################");
@@ -186,7 +186,7 @@ static void EFIAPI ventoy_dump_virt_chunk(ventoy_chain_head *chain)
 {
     UINT32 i;
     ventoy_virt_chunk *node;
-     
+
     debug("##################### ventoy_dump_virt_chunk #######################");
     debug("virt_chunk_offset=%u", chain->virt_chunk_offset);
     debug("virt_chunk_num=%u",    chain->virt_chunk_num);
@@ -194,7 +194,7 @@ static void EFIAPI ventoy_dump_virt_chunk(ventoy_chain_head *chain)
     node = (ventoy_virt_chunk *)((char *)chain + chain->virt_chunk_offset);
     for (i = 0; i < chain->virt_chunk_num; i++, node++)
     {
-        debug("%2u: mem:[ %u, %u, %u ]  remap:[ %u, %u, %u ]", i, 
+        debug("%2u: mem:[ %u, %u, %u ]  remap:[ %u, %u, %u ]", i,
                node->mem_sector_start,
                node->mem_sector_end,
                node->mem_sector_offset,
@@ -202,7 +202,7 @@ static void EFIAPI ventoy_dump_virt_chunk(ventoy_chain_head *chain)
                node->remap_sector_end,
                node->org_sector_start);
     }
-    
+
     ventoy_debug_pause();
 }
 
@@ -211,7 +211,7 @@ static void EFIAPI ventoy_dump_chain(ventoy_chain_head *chain)
     UINT32 i = 0;
     UINT8 chksum = 0;
     UINT8 *guid;
-    
+
     guid = chain->os_param.vtoy_disk_guid;
     for (i = 0; i < sizeof(ventoy_os_param); i++)
     {
@@ -229,10 +229,10 @@ static void EFIAPI ventoy_dump_chain(ventoy_chain_head *chain)
     debug("os_param->vtoy_img_size=<%llu>",    chain->os_param.vtoy_img_size);
     debug("os_param->vtoy_img_location_addr=<0x%llx>", chain->os_param.vtoy_img_location_addr);
     debug("os_param->vtoy_img_location_len=<%u>",    chain->os_param.vtoy_img_location_len);
-    debug("os_param->vtoy_reserved=<%u %u %u %u %u %u %u>",    
-          g_os_param_reserved[0], 
-          g_os_param_reserved[1], 
-          g_os_param_reserved[2], 
+    debug("os_param->vtoy_reserved=<%u %u %u %u %u %u %u>",
+          g_os_param_reserved[0],
+          g_os_param_reserved[1],
+          g_os_param_reserved[2],
           g_os_param_reserved[3],
           g_os_param_reserved[4],
           g_os_param_reserved[5],
@@ -240,7 +240,7 @@ static void EFIAPI ventoy_dump_chain(ventoy_chain_head *chain)
           );
 
     ventoy_debug_pause();
-    
+
     debug("chain->disk_drive=0x%x",          chain->disk_drive);
     debug("chain->disk_sector_size=%u",      chain->disk_sector_size);
     debug("chain->real_img_size_in_bytes=%llu",   chain->real_img_size_in_bytes);
@@ -252,7 +252,7 @@ static void EFIAPI ventoy_dump_chain(ventoy_chain_head *chain)
     debug("chain->override_chunk_num=%u",    chain->override_chunk_num);
 
     ventoy_debug_pause();
-    
+
     ventoy_dump_img_chunk(chain);
     ventoy_dump_override_chunk(chain);
     ventoy_dump_virt_chunk(chain);
@@ -344,7 +344,7 @@ EFI_HANDLE EFIAPI ventoy_get_parent_handle(IN EFI_DEVICE_PATH_PROTOCOL *pDevPath
     EFI_DEVICE_PATH_PROTOCOL *pLastNode = NULL;
     EFI_DEVICE_PATH_PROTOCOL *pCurNode = NULL;
     EFI_DEVICE_PATH_PROTOCOL *pTmpDevPath = NULL;
-    
+
     pTmpDevPath = DuplicateDevicePath(pDevPath);
     if (!pTmpDevPath)
     {
@@ -387,8 +387,8 @@ EFI_STATUS EFIAPI ventoy_save_ramdisk_param(VOID)
     {
         debug("find previous ramdisk variable <%llu>", g_backup_ramdisk_param.DiskSize);
     }
-    
-    Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+
+    Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_ramdisk_param), &(g_ramdisk_param));
     debug("set ramdisk variable %r", Status);
@@ -403,14 +403,14 @@ EFI_STATUS EFIAPI ventoy_delete_ramdisk_param(VOID)
 
     if (g_backup_ramdisk_param.DiskSize > 0 && g_backup_ramdisk_param.PhyAddr > 0)
     {
-        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_backup_ramdisk_param), &g_backup_ramdisk_param);
         debug("resotre ramdisk variable %r", Status);
     }
     else
     {
-        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid, 
+        Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   0, NULL);
         debug("delete ramdisk variable %r", Status);
@@ -432,7 +432,7 @@ EFI_STATUS EFIAPI ventoy_save_variable(VOID)
         debug("find previous efi variable <%a>", g_backup_os_param_var.vtoy_img_path);
     }
 
-    Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
+    Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_chain->os_param), &(g_chain->os_param));
     debug("set efi variable %r", Status);
@@ -447,14 +447,14 @@ EFI_STATUS EFIAPI ventoy_delete_variable(VOID)
 
     if (0 == CompareMem(&(g_backup_os_param_var.guid), &VarGuid, sizeof(EFI_GUID)))
     {
-        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
+        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_backup_os_param_var), &(g_backup_os_param_var));
         debug("restore efi variable %r", Status);
     }
     else
     {
-        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid, 
+        Status = gRT->SetVariable(L"VentoyOsParam", &VarGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   0, NULL);
         debug("delete efi variable %r", Status);
@@ -481,7 +481,7 @@ STATIC VOID ventoy_warn_invalid_device(VOID)
 
     gST->ConOut->OutputString(gST->ConOut, L"This is NOT a standard Ventoy device and is NOT supported.\r\n\r\n");
     gST->ConOut->OutputString(gST->ConOut, L"You should follow the official instructions in https://www.ventoy.net\r\n");
-    
+
     gST->ConOut->OutputString(gST->ConOut, L"\r\n\r\nWill exit after 10 seconds ...... ");
 
     sleep(10);
@@ -489,7 +489,7 @@ STATIC VOID ventoy_warn_invalid_device(VOID)
 #else
 STATIC VOID ventoy_warn_invalid_device(VOID)
 {
-    
+
 }
 #endif
 
@@ -513,19 +513,19 @@ STATIC EFI_STATUS EFIAPI ventoy_load_image
     pFilePath->Header.Length[0] = FileNameLen + sizeof(EFI_DEVICE_PATH_PROTOCOL);
     pFilePath->Header.Length[1] = 0;
     CopyMem(pFilePath->PathName, FileName, FileNameLen);
-    
+
     pImgPath = AppendDevicePathNode(pDevicePath, (EFI_DEVICE_PATH_PROTOCOL *)pFilePath);
     if (!pImgPath)
     {
         return EFI_NOT_FOUND;
     }
-    
+
     Status = gBS->LoadImage(FALSE, ImageHandle, pImgPath, NULL, 0, Image);
-    
+
     debug("Load Image File %r DP: <%s>", Status, ConvertDevicePathToText(pImgPath, FALSE, FALSE));
 
     FreePool(pImgPath);
-    
+
     return Status;
 }
 
@@ -547,7 +547,7 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
         return EFI_OUT_OF_RESOURCES;
     }
 
-    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiBlockIoProtocolGuid, 
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiBlockIoProtocolGuid,
                                      NULL, &Count, &Handles);
     if (EFI_ERROR(Status))
     {
@@ -590,16 +590,16 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
                     ventoy_warn_invalid_device();
                 }
             }
-        
+
             gBlockData.RawBlockIoHandle = Handles[i];
             gBlockData.pRawBlockIo = pBlockIo;
-            gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid, 
+            gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid,
                               (VOID **)&(gBlockData.pDiskDevPath),
                               ImageHandle,
                               Handles[i],
                               EFI_OPEN_PROTOCOL_GET_PROTOCOL);
-            
-            debug("Find Ventoy Disk Handle:%p DP:%s", Handles[i], 
+
+            debug("Find Ventoy Disk Handle:%p DP:%s", Handles[i],
                 ConvertDevicePathToText(gBlockData.pDiskDevPath, FALSE, FALSE));
             break;
         }
@@ -628,7 +628,7 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk_fs(IN EFI_HANDLE ImageHandle)
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *pFile = NULL;
     EFI_DEVICE_PATH_PROTOCOL *pDevPath = NULL;
 
-    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiSimpleFileSystemProtocolGuid, 
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiSimpleFileSystemProtocolGuid,
                                      NULL, &Count, &Handles);
     if (EFI_ERROR(Status))
     {
@@ -645,7 +645,7 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk_fs(IN EFI_HANDLE ImageHandle)
             continue;
         }
 
-        Status = gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid, 
+        Status = gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid,
                                    (VOID **)&pDevPath,
                                    ImageHandle,
                                    Handles[i],
@@ -682,29 +682,29 @@ STATIC EFI_STATUS EFIAPI ventoy_load_isoefi_driver(IN EFI_HANDLE ImageHandle)
 
     if (gIsoUdf)
     {
-        Status = ventoy_load_image(ImageHandle, gBlockData.pDiskFsDevPath, 
-                                   gUdfEfiDriverPath, 
-                                   sizeof(gUdfEfiDriverPath), 
+        Status = ventoy_load_image(ImageHandle, gBlockData.pDiskFsDevPath,
+                                   gUdfEfiDriverPath,
+                                   sizeof(gUdfEfiDriverPath),
                                    &Image);
         debug("load iso UDF efi driver status:%r", Status);
     }
     else
     {
-        Status = ventoy_load_image(ImageHandle, gBlockData.pDiskFsDevPath, 
-                                   gIso9660EfiDriverPath, 
-                                   sizeof(gIso9660EfiDriverPath), 
+        Status = ventoy_load_image(ImageHandle, gBlockData.pDiskFsDevPath,
+                                   gIso9660EfiDriverPath,
+                                   sizeof(gIso9660EfiDriverPath),
                                    &Image);
-        debug("load iso 9660 efi driver status:%r", Status);        
+        debug("load iso 9660 efi driver status:%r", Status);
     }
 
     if (gDebugPrint)
     {
-        gRT->SetVariable(L"FS_LOGGING", &gShellVariableGuid, 
+        gRT->SetVariable(L"FS_LOGGING", &gShellVariableGuid,
                          EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                          sizeof(LogVar), LogVar);
     }
 
-    gRT->SetVariable(L"FS_NAME_NOCASE", &gShellVariableGuid, 
+    gRT->SetVariable(L"FS_NAME_NOCASE", &gShellVariableGuid,
                      EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                      sizeof(LogVar), LogVar);
 
@@ -731,7 +731,7 @@ STATIC EFI_STATUS ventoy_proc_img_replace_name(ventoy_grub_param_file_replace *r
     }
 
     AsciiStrCpyS(tmp, sizeof(tmp), replace->old_file_name[0]);
-    
+
     for (i = 0; i < 256 && tmp[i]; i++)
     {
         if (tmp[i] == '/')
@@ -754,7 +754,7 @@ EFI_STATUS EFIAPI ventoy_get_variable_wrapper
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    
+
     Status = g_org_get_variable(VariableName, VendorGuid, Attributes, DataSize, Data);
     if (StrCmp(VariableName, L"SecureBoot") == 0)
     {
@@ -778,7 +778,7 @@ EFI_STATUS EFIAPI ventoy_exit_boot_service_wrapper
         gRT->GetVariable = g_org_get_variable;
         g_org_get_variable = NULL;
     }
-    
+
     return g_org_exit_boot_service(ImageHandle, MapKey);
 }
 
@@ -802,12 +802,12 @@ STATIC EFI_STATUS EFIAPI ventoy_disable_secure_boot(IN EFI_HANDLE ImageHandle)
 
     /* step1: wrapper security protocol. */
     /* Do we still need it since we have been loaded ? */
-    
-    
+
+
     /* step2: fake SecureBoot variable */
     g_org_exit_boot_service = gBS->ExitBootServices;
     gBS->ExitBootServices = ventoy_exit_boot_service_wrapper;
-    
+
     g_org_get_variable = gRT->GetVariable;
     gRT->GetVariable = ventoy_get_variable_wrapper;
 
@@ -816,7 +816,7 @@ STATIC EFI_STATUS EFIAPI ventoy_disable_secure_boot(IN EFI_HANDLE ImageHandle)
 
 
 STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
-{   
+{
     UINT32 i = 0;
     UINT32 old_cnt = 0;
     UINTN size = 0;
@@ -844,12 +844,12 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     {
         gDebugPrint = TRUE;
     }
-    
+
     if (StrStr(pCmdLine, L"fallback"))
     {
         gBootFallBack = TRUE;
     }
-    
+
     if (StrStr(pCmdLine, L"dotefi"))
     {
         gDotEfiBoot = TRUE;
@@ -859,7 +859,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     {
         gLoadIsoEfi = TRUE;
     }
-    
+
     if (StrStr(pCmdLine, L"iso_udf"))
     {
         gIsoUdf = TRUE;
@@ -897,7 +897,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     {
         return EFI_INVALID_PARAMETER;
     }
-    
+
     pGrubParam = (ventoy_grub_param *)StrHexToUintn(pPos + StrLen(L"env_param="));
     grub_env_set = pGrubParam->grub_env_set;
     grub_env_get = pGrubParam->grub_env_get;
@@ -912,7 +912,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         ventoy_warn_invalid_device();
         return EFI_INVALID_PARAMETER;
     }
-    
+
     g_file_replace_list = &pGrubParam->file_replace;
     old_cnt = g_file_replace_list->old_file_cnt;
     debug("file replace: magic:0x%x virtid:%u name count:%u <%a> <%a> <%a> <%a>",
@@ -937,7 +937,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         old_cnt > 2 ? g_img_replace_list->old_file_name[2] : "",
         old_cnt > 3 ? g_img_replace_list->old_file_name[3] : ""
         );
-    
+
     pPos = StrStr(pCmdLine, L"mem:");
     chain = (ventoy_chain_head *)StrHexToUintn(pPos + 4);
 
@@ -966,7 +966,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         debug("This is normal mode");
         g_chain = AllocatePool(size);
         CopyMem(g_chain, chain, size);
-    
+
         g_chunk = (ventoy_img_chunk *)((char *)g_chain + g_chain->img_chunk_offset);
         g_img_chunk_num = g_chain->img_chunk_num;
         g_override_chunk = (ventoy_override_chunk *)((char *)g_chain + g_chain->override_chunk_offset);
@@ -986,7 +986,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
         {
             g_hook_keyboard = TRUE;
         }
-        
+
         if (g_os_param_reserved[5] == 1 && g_os_param_reserved[2] == ventoy_chain_linux)
         {
             ventoy_disable_secure_boot(ImageHandle);
@@ -1013,7 +1013,7 @@ STATIC EFI_STATUS EFIAPI ventoy_parse_cmdline(IN EFI_HANDLE ImageHandle)
     }
 
     g_fix_windows_1st_cdrom_issue = FALSE;
-    if (ventoy_chain_windows == g_os_param_reserved[2] || 
+    if (ventoy_chain_windows == g_os_param_reserved[2] ||
         ventoy_chain_wim == g_os_param_reserved[2])
     {
         if (ventoy_is_cdrom_dp_exist())
@@ -1055,7 +1055,7 @@ EFI_STATUS EFIAPI ventoy_clean_env(VOID)
 
     if (!gMemdiskMode)
     {
-        FreePool(g_chain);        
+        FreePool(g_chain);
     }
 
     return EFI_SUCCESS;
@@ -1115,7 +1115,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
         Count = 0;
         Handles = NULL;
 
-        Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiSimpleFileSystemProtocolGuid, 
+        Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiSimpleFileSystemProtocolGuid,
                                      NULL, &Count, &Handles);
         if (EFI_ERROR(Status))
         {
@@ -1134,7 +1134,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
 
             debug("FS:%u Protocol:%p  OpenVolume:%p", i, pFile, pFile->OpenVolume);
 
-            Status = gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid, 
+            Status = gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid,
                                        (VOID **)&pDevPath,
                                        ImageHandle,
                                        Handles[i],
@@ -1154,7 +1154,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
 
             for (j = gBootFileStartIndex; j < ARRAY_SIZE(gEfiBootFileName); j++)
             {
-                Status = ventoy_load_image(ImageHandle, pDevPath, gEfiBootFileName[j], 
+                Status = ventoy_load_image(ImageHandle, pDevPath, gEfiBootFileName[j],
                                            StrSize(gEfiBootFileName[j]), &Image);
                 if (EFI_SUCCESS == Status)
                 {
@@ -1176,7 +1176,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
             {
                 gST->ConIn->Reset(gST->ConIn, FALSE);
             }
-            
+
             if ((g_file_replace_list && g_file_replace_list->magic == GRUB_FILE_REPLACE_MAGIC) ||
                 (g_img_replace_list && g_img_replace_list->magic == GRUB_IMG_REPLACE_MAGIC))
             {
@@ -1189,7 +1189,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
             //ventoy_wrapper_system();
             Status = gBS->StartImage(Image, NULL, NULL);
             ventoy_hook_stop();
-            
+
             if (EFI_ERROR(Status))
             {
                 debug("Failed to start image %r", Status);
@@ -1207,7 +1207,7 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
             {
                 break;
             }
-        
+
             debug("Fs not found, now wait and retry...");
             sleep(1);
         }
@@ -1229,7 +1229,7 @@ EFI_STATUS EFIAPI VentoyEfiMain
 {
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *Protocol;
-    
+
     g_sector_flag_num = 512; /* initial value */
 
     g_sector_flag = AllocatePool(g_sector_flag_num * sizeof(ventoy_sector_flag));
@@ -1268,12 +1268,12 @@ EFI_STATUS EFIAPI VentoyEfiMain
             ventoy_find_iso_disk_fs(ImageHandle);
             ventoy_load_isoefi_driver(ImageHandle);
         }
-        
+
         ventoy_install_blockio(ImageHandle, g_iso_buf_size);
         ventoy_debug_pause();
 
         Status = ventoy_boot(ImageHandle);
-        
+
         ventoy_delete_ramdisk_param();
 
         if (gLoadIsoEfi && gBlockData.IsoDriverImage)
@@ -1300,14 +1300,14 @@ EFI_STATUS EFIAPI VentoyEfiMain
             }
 
             ventoy_debug_pause();
-            
+
             ventoy_install_blockio(ImageHandle, g_chain->virt_img_size_in_bytes);
 
             ventoy_debug_pause();
 
             Status = ventoy_boot(ImageHandle);
         }
-        
+
         ventoy_clean_env();
     }
 
@@ -1320,13 +1320,13 @@ EFI_STATUS EFIAPI VentoyEfiMain
             sleep(30);
         }
     }
-    
+
     ventoy_clear_input();
     gST->ConOut->ClearScreen(gST->ConOut);
 
     if (gDotEfiBoot && (EFI_NOT_FOUND == Status))
     {
-        grub_env_set("vtoy_dotefi_retry", "YES");            
+        grub_env_set("vtoy_dotefi_retry", "YES");
     }
 
     ventoy_enable_ex_filesystem();
