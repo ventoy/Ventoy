@@ -288,7 +288,7 @@ static BOOL CheckOsParam(ventoy_os_param *param)
 	{
 		Sum += *((BYTE *)param + i);
 	}
-	
+
 	if (Sum)
 	{
 		return FALSE;
@@ -340,7 +340,7 @@ static int IsUTF8Encode(const char *src)
             return 1;
         }
     }
-    
+
     return 0;
 }
 
@@ -352,7 +352,7 @@ static int Utf8ToUtf16(const char* src, WCHAR * dst)
 
 static BOOL IsDirExist(const char *Fmt, ...)
 {
-    va_list Arg;    
+    va_list Arg;
     DWORD Attr;
     int UTF8 = 0;
     CHAR FilePathA[MAX_PATH];
@@ -373,7 +373,7 @@ static BOOL IsDirExist(const char *Fmt, ...)
     {
         Attr = GetFileAttributesA(FilePathA);
     }
-    
+
     if (Attr != INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
     {
         return TRUE;
@@ -422,7 +422,7 @@ static BOOL IsFileExist(const char *Fmt, ...)
     {
         Attr = GetFileAttributesA(FilePathA);
     }
-	
+
     if (Attr & FILE_ATTRIBUTE_DIRECTORY)
     {
         goto out;
@@ -471,7 +471,7 @@ static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, UINT32 *DiskSig,
 	CloseHandle(Handle);
 
     memcpy(DiskExtent, DiskExtents.Extents, sizeof(DISK_EXTENT));
-    Log("%C: is in PhysicalDrive%d Offset:%llu", LogicalDrive, DiskExtents.Extents[0].DiskNumber, 
+    Log("%C: is in PhysicalDrive%d Offset:%llu", LogicalDrive, DiskExtents.Extents[0].DiskNumber,
         (ULONGLONG)(DiskExtents.Extents[0].StartingOffset.QuadPart));
 
 	sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", DiskExtents.Extents[0].DiskNumber);
@@ -488,7 +488,7 @@ static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, UINT32 *DiskSig,
 		CloseHandle(Handle);
 		return 1;
 	}
-	
+
 	memcpy(UUID, SectorBuf + 0x180, 16);
     if (DiskSig)
     {
@@ -593,7 +593,7 @@ static int VentoyAttachVirtualDisk(HANDLE Handle, const char *IsoPath)
 {
     int DriveYFree;
     DWORD Drives;
-    
+
     Drives = GetLogicalDrives();
     if ((1 << 24) & Drives)
     {
@@ -640,7 +640,7 @@ int VentoyMountISOByAPI(const char *IsoPath)
 
 	memset(&StorageType, 0, sizeof(StorageType));
 	memset(&OpenParameters, 0, sizeof(OpenParameters));
-	
+
 	OpenParameters.Version = OPEN_VIRTUAL_DISK_VERSION_1;
 
     for (i = 0; i < 10; i++)
@@ -789,7 +789,7 @@ static CHAR GetIMDiskMountLogicalDrive(void)
 
 	Drives = GetLogicalDrives();
     Log("Drives=0x%x", Drives);
-    
+
 	while (Mask)
 	{
 		if ((Drives & Mask) == 0)
@@ -807,8 +807,8 @@ static CHAR GetIMDiskMountLogicalDrive(void)
 UINT64 GetVentoyEfiPartStartSector(HANDLE hDrive)
 {
 	BOOL bRet;
-	DWORD dwSize; 
-	MBR_HEAD MBR;	
+	DWORD dwSize;
+	MBR_HEAD MBR;
 	VTOY_GPT_INFO *pGpt = NULL;
 	UINT64 StartSector = 0;
 
@@ -833,7 +833,7 @@ UINT64 GetVentoyEfiPartStartSector(HANDLE hDrive)
 		}
 
 		SetFilePointer(hDrive, 0, NULL, FILE_BEGIN);
-		bRet = ReadFile(hDrive, pGpt, sizeof(VTOY_GPT_INFO), &dwSize, NULL);		
+		bRet = ReadFile(hDrive, pGpt, sizeof(VTOY_GPT_INFO), &dwSize, NULL);
 		if ((!bRet) || (dwSize != sizeof(VTOY_GPT_INFO)))
 		{
 			Log("Failed to read gpt info %d %u %d", bRet, dwSize, LASTERR);
@@ -951,7 +951,7 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 			CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.exe", "ventoy\\imdisk.exe");
 			CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.cpl", "ventoy\\imdisk.cpl");
 		}
-		
+
 		GetCurrentDirectoryA(sizeof(PhyPath), PhyPath);
 		strcat_s(PhyPath, sizeof(PhyPath), "\\ventoy\\imdisk.sys");
 
@@ -1282,7 +1282,7 @@ static int ProcessUnattendedInstallation(const char *script)
     CHAR CurDir[MAX_PATH];
 
     Log("Copy unattended XML ...");
-    
+
     GetCurrentDirectory(sizeof(CurDir), CurDir);
     Letter = CurDir[0];
     if ((Letter >= 'A' && Letter <= 'Z') || (Letter >= 'a' && Letter <= 'z'))
@@ -1293,7 +1293,7 @@ static int ProcessUnattendedInstallation(const char *script)
     {
         Letter = 'X';
     }
-    
+
     sprintf_s(CurDir, sizeof(CurDir), "%C:\\Autounattend.xml", Letter);
     Log("Copy file <%s> --> <%s>", script, CurDir);
     CopyFile(script, CurDir, FALSE);
@@ -1328,7 +1328,7 @@ static int Windows11BypassCheck(const char *isofile, const char MntLetter)
         goto End;
     }
 
-    if (FALSE == IsFileExist("%C:\\sources\\install.wim", MntLetter) && 
+    if (FALSE == IsFileExist("%C:\\sources\\install.wim", MntLetter) &&
         FALSE == IsFileExist("%C:\\sources\\install.esd", MntLetter))
     {
         Log("install.wim/install.esd not exist, this is not a windows install media.");
@@ -1414,8 +1414,8 @@ End:
     {
         free(Buffer);
     }
-    
-    return Ret; 
+
+    return Ret;
 }
 
 static BOOL CheckVentoyDisk(DWORD DiskNum)
@@ -1532,7 +1532,7 @@ static int VentoyHook(ventoy_os_param *param)
 	}
 
 	Log("Find ISO file <%s>", IsoPath);
-    
+
     //Find VtoyLetter in Vlnk Mode
     if (g_os_param_reserved[6] == 1)
     {
@@ -1644,7 +1644,7 @@ static int VentoyHook(ventoy_os_param *param)
     // for protect
     rc = DeleteVentoyPart2MountPoint(VtoyDiskNum);
     Log("Delete ventoy mountpoint: %s", rc == 0 ? "SUCCESS" : "NO NEED");
-    
+
     if (g_windows_data.auto_install_script[0])
     {
         sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", VtoyLetter, g_windows_data.auto_install_script);
@@ -1749,7 +1749,7 @@ int VentoyJumpWimboot(INT argc, CHAR **argv, CHAR *LunchFile)
         goto End;
     }
 
-    // convert / to \\   
+    // convert / to \\
     for (Pos = 0; Pos < sizeof(g_os_param.vtoy_img_path) && g_os_param.vtoy_img_path[Pos]; Pos++)
     {
         if (g_os_param.vtoy_img_path[Pos] == '/')
@@ -1804,7 +1804,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	DWORD PeStart;
     DWORD FileSize;
     DWORD LockStatus = 0;
-	BYTE *Buffer = NULL; 
+	BYTE *Buffer = NULL;
 	CHAR ExeFileName[MAX_PATH];
 
 	sprintf_s(ExeFileName, sizeof(ExeFileName), "%s", argv[0]);
@@ -1820,7 +1820,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	{
 		goto End;
 	}
-	
+
 	Log("VentoyJump %dbit", g_system_bit);
 
     MUTEX_LOCK(g_vtoyins_mutex);
@@ -1834,13 +1834,13 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 
 	for (PeStart = 0; PeStart < FileSize; PeStart += 16)
 	{
-		if (CheckOsParam((ventoy_os_param *)(Buffer + PeStart)) && 
+		if (CheckOsParam((ventoy_os_param *)(Buffer + PeStart)) &&
             CheckPeHead(Buffer + PeStart + sizeof(ventoy_os_param) + sizeof(ventoy_windows_data)))
 		{
 			Log("Find os pararm at %u", PeStart);
 
             memcpy(&g_os_param, Buffer + PeStart, sizeof(ventoy_os_param));
-            memcpy(&g_windows_data, Buffer + PeStart + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));            
+            memcpy(&g_windows_data, Buffer + PeStart + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));
             memcpy(g_os_param_reserved, g_os_param.vtoy_reserved, sizeof(g_os_param_reserved));
 
             if (g_os_param_reserved[0] == 1)
@@ -1849,7 +1849,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 				goto End;
 			}
 
-			// convert / to \\   
+			// convert / to \\
             for (Pos = 0; Pos < sizeof(g_os_param.vtoy_img_path) && g_os_param.vtoy_img_path[Pos]; Pos++)
 			{
                 if (g_os_param.vtoy_img_path[Pos] == '/')
@@ -2034,7 +2034,7 @@ int main(int argc, char **argv)
 
 	GetCurrentDirectoryA(sizeof(CurDir), CurDir);
 	Log("Current directory is <%s>", CurDir);
-	
+
 	GetModuleFileNameA(NULL, g_prog_full_path, MAX_PATH);
     split_path_name(g_prog_full_path, g_prog_dir, g_prog_name);
 
@@ -2043,7 +2043,7 @@ int main(int argc, char **argv)
 	if (_stricmp(g_prog_name, "WinLogon.exe") == 0)
 	{
 		Log("This time is rejump back ...");
-		
+
 		strcpy_s(g_prog_full_path, sizeof(g_prog_full_path), argv[1]);
         split_path_name(g_prog_full_path, g_prog_dir, g_prog_name);
 
@@ -2053,7 +2053,7 @@ int main(int argc, char **argv)
 	{
         strcpy_s(NewArgv0, sizeof(NewArgv0), g_prog_dir);
         VentoyToUpper(NewArgv0);
-        
+
         if (NULL == strstr(NewArgv0, "SYSTEM32") && IsFileExist(ORG_PECMD_BK_PATH))
         {
             Log("Just call original pecmd.exe");
@@ -2068,7 +2068,7 @@ int main(int argc, char **argv)
 
             sprintf_s(CallParam, sizeof(CallParam), "ventoy\\WinLogon.exe %s", g_prog_full_path);
         }
-		
+
 		for (i = 1; i < argc; i++)
 		{
 			strcat_s(CallParam, sizeof(CallParam), " ");

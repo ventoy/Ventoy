@@ -8,7 +8,7 @@ Params:
 	Buffer: Target buffer to read n sectors of data into.
 	Sector_count: Number of sectors to read.
 
-Return: 
+Return:
 	int, 1 = success, 0 = failure.
 
 Description:
@@ -24,7 +24,7 @@ Params:
 	Buffer: Target buffer to write n sectors of data from.
 	Sector_count: Number of sectors to write.
 
-Return: 
+Return:
 	int, 1 = success, 0 = failure.
 
 Description:

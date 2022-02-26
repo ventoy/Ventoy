@@ -1305,7 +1305,7 @@ struct mg_connection {
 	int must_close;       /* 1 if connection must be closed */
 	int in_error_handler; /* 1 if in handler for user defined error
 	                       * pages */
-	int internal_error;   /* 1 if an error occured while processing the
+	int internal_error;   /* 1 if an error occurred while processing the
 	                       * request */
 
 	int buf_size;                /* Buffer size */
@@ -3971,7 +3971,7 @@ pull(FILE *fp, struct mg_connection *conn, char *buf, int len, double timeout)
 				/* EAGAIN/EWOULDBLOCK:
 				 * standard case if called from close_socket_gracefully
 				 * => should return -1 */
-				/* or timeout occured
+				/* or timeout occurred
 				 * => the code must stay in the while loop */
 
 				/* EINTR can be generated on a socket with a timeout set even
@@ -3989,7 +3989,7 @@ pull(FILE *fp, struct mg_connection *conn, char *buf, int len, double timeout)
 		}
 	} while ((timeout <= 0) || (mg_difftimespec(&now, &start) <= timeout));
 
-	/* Timeout occured, but no data available. */
+	/* Timeout occurred, but no data available. */
 	return -1;
 }
 
@@ -11128,7 +11128,7 @@ set_ssl_option(struct mg_context *ctx)
 	        : (ctx->callbacks.init_ssl(ctx->ssl_ctx, ctx->user_data));
 
 	/* If callback returns 0, civetweb sets up the SSL certificate.
-	 * If it returns 1, civetweb assumes the calback already did this.
+	 * If it returns 1, civetweb assumes the callback already did this.
 	 * If it returns -1, initializing ssl fails. */
 	if (callback_ret < 0) {
 		mg_cry(fc(ctx), "SSL callback returned error: %i", callback_ret);
@@ -11991,7 +11991,7 @@ mg_download(const char *host,
 		}
 	}
 
-	/* if an error occured, close the connection */
+	/* if an error occurred, close the connection */
 	if (ebuf[0] != '\0' && conn != NULL) {
 		mg_close_connection(conn);
 		conn = NULL;

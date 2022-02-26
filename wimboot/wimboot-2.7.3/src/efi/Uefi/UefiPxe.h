@@ -1079,7 +1079,7 @@ typedef struct s_pxe_cpb_start_31 {
 
   ///
   /// protocol driver can provide anything for this Unique_ID, UNDI remembers
-  /// that as just a 64bit value assocaited to the interface specified by
+  /// that as just a 64bit value associated to the interface specified by
   /// the ifnum and gives it back as a parameter to all the call-back routines
   /// when calling for that interface!
   ///

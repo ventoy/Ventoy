@@ -168,11 +168,11 @@ grub_env_extractor_close (int source)
     {
       grub_menu_t menu2;
       menu2 = grub_env_get_menu ();
-      
+
       last = &menu2->entry_list;
       while (*last)
 	last = &(*last)->next;
-      
+
       *last = menu->entry_list;
       menu2->size += menu->size;
     }

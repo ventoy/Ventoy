@@ -4,13 +4,13 @@
             <i class="glyphicon glyphicon-cd">&nbsp;&nbsp;</i>
             <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">x</h1>
         </div>
-        
+
         <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
             <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/en/plugin_dud.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
         </div>
     </div>
     <legend></legend>
-    
+
     <div class="box-body">
       <div class="nav-tabs-custom">
         <ul class="nav nav-tabs" id="id_tab_dud">
@@ -37,7 +37,7 @@
     </div>
 </div>
 <script type="text/javascript">
-    
+
   function VtoyPageLanguageChange(newlang) {
     VtoyCommonChangeLanguage(newlang);
     $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_DUD);
@@ -55,7 +55,7 @@
     $("span[id=id_span_dir_exist]").each(function(){
         $(this).text(g_vtoy_cur_language.STR_DIR_EXIST);
     });
-    
+
     $("span[id=id_span_dir_nonexist]").each(function(){
         $(this).text(g_vtoy_cur_language.STR_DIR_NONEXIST);
     });
@@ -70,10 +70,10 @@
     } else {
       $('#id_th_autoins_path').text('绝对路径');
       $('#id_th_persistence_set').text('设置');
-      
+
     }
   }
-  
+
 
   function FillDudInnerTable(i, data) {
     var td1, td2, td3, td4;
@@ -85,7 +85,7 @@
     var indelbtn = ventoy_get_xslg_delbtn('DudInnerDelBtn');
 
     $inner_tbl.empty();
-    
+
     for (var j = 0; j < inner.length; j++) {
       var $tr;
       td1 = '<td style="width: 5%;">'+(j+1)+'</td>';
@@ -113,7 +113,7 @@
     var td1, td2, td3, td4, td5;
     var addbtn = ventoy_get_addbtn('DudAddBtn');
     var delbtn = ventoy_get_delbtn('DudDelBtn');
-   
+
     var $tbl = $("#id_dud_tbl tbody");
     $tbl.empty();
 
@@ -122,7 +122,7 @@
 
       var tdtbl1 ='<table class="table table-condensed">'+
                   '<tbody><tr>'+
-                  '<td style="width:90%;vertical-align: middle;">' + data[i].path + '</td>' + 
+                  '<td style="width:90%;vertical-align: middle;">' + data[i].path + '</td>' +
                   '<td style="vertical-align: middle;">' + ventoy_get_status_line(data[i].type, data[i].valid) + '</td>' +
                   '</tr>'+
                   '<tr><td></td><td></td></tr>'+
@@ -144,7 +144,7 @@
     $tbl.append('<tr><td></td><td></td><td style="vertical-align: middle;text-align: center;">' + addbtn + '</td></tr>');
 
     for (var i = 0; i < data.length; i++) {
-      FillDudInnerTable(i, data[i]);      
+      FillDudInnerTable(i, data[i]);
     }
   }
 
@@ -160,7 +160,7 @@
     if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
       return;
     }
-    
+
     current_tab_index = index;
     VtoyFillCurrentPageItem(m_data_dud[index]);
   }
@@ -246,7 +246,7 @@
 
     DudDelEntry(path, index);
   }
-  
+
 
   var m_out_index;
   var m_out_path;
@@ -277,7 +277,7 @@
       FillDudInnerTable(m_out_index, data);
       Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
     });
-    
+
   }
 
   function OnDudInnerAddClick() {
@@ -343,7 +343,7 @@
   callVtoySync({method : 'get_dud'}, function(data) {
     m_data_dud = data;
   });
-  
+
   $("#id_dud_tbl").on('click', '.DudAddBtn', OnDudAddClick);
   $("#id_dud_tbl").on('click', '.DudDelBtn', OnDudDelClick);
   $("#id_dud_tbl").on('click', '.DudInnerAddBtn', OnDudInnerAddClick);

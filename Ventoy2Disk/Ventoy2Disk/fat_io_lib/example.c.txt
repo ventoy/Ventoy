@@ -55,7 +55,7 @@ void main()
     if (fl_attach_media(media_read, media_write) != FAT_INIT_OK)
     {
         printf("ERROR: Media attach failed\n");
-        return; 
+        return;
     }
 
     // List root directory

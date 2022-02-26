@@ -24,7 +24,7 @@
  */
 
 /*
- * macros to convert each stucture from big endian to little endian
+ * macros to convert each structure from big endian to little endian
  */
 
 #if __BYTE_ORDER == __BIG_ENDIAN

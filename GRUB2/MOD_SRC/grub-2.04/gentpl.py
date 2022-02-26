@@ -458,7 +458,7 @@ def gvar_add(var, value):
     output(var + " += " + value + "\n")
 
 #
-# Per PROGRAM/SCRIPT variables 
+# Per PROGRAM/SCRIPT variables
 #
 
 seen_vars = set()

@@ -14,9 +14,9 @@ terminal-box: "terminal_box_*.png"
 
   menu_pixmap_style = "menu_*.png"
 
-  item_color = "#ffffff"  
+  item_color = "#ffffff"
   item_height = 30
-  
+
   item_spacing = 1
   item_padding = 1
 
@@ -45,53 +45,53 @@ terminal-box: "terminal_box_*.png"
   highlight_style = "*"
 }
 
-+ hbox{ 
++ hbox{
     left = 28%
     top = 95%
     width = 10%
     height = 25
-    + label {text = "@VTOY_HOTKEY_TIP@" color = "blue" align = "left"} 
+    + label {text = "@VTOY_HOTKEY_TIP@" color = "blue" align = "left"}
 }
 
 
-+ hbox{ 
++ hbox{
     left = 30%
     top = 95%-25
     width = 10%
     height = 25
-    + label {text = "@VTOY_MEM_DISK@" color = "red" align = "left"} 
+    + label {text = "@VTOY_MEM_DISK@" color = "red" align = "left"}
 }
 
 
-+ hbox{ 
++ hbox{
     left = 30%
     top = 95%-50
     width = 10%
     height = 25
-    + label {text = "@VTOY_ISO_RAW@" color = "red" align = "left"} 
+    + label {text = "@VTOY_ISO_RAW@" color = "red" align = "left"}
 }
 
 
-+ hbox{ 
++ hbox{
     left = 30%+200
     top = 95%-50
     width = 10%
     height = 25
-    + label {text = "@VTOY_GRUB2_MODE@" color = "red" align = "left"} 
+    + label {text = "@VTOY_GRUB2_MODE@" color = "red" align = "left"}
 }
 
-+ hbox{ 
++ hbox{
     left = 30%+200
     top = 95%-25
     width = 10%
     height = 25
-    + label {text = "@VTOY_WIMBOOT_MODE@" color = "red" align = "left"} 
+    + label {text = "@VTOY_WIMBOOT_MODE@" color = "red" align = "left"}
 }
 
-+ hbox{ 
++ hbox{
     left = 90%
-    top = 55 
+    top = 55
     width = 10%
     height = 25
-    + label {text = "@VTOY_ISO_UEFI_DRV@" color = "red" align = "left"} 
+    + label {text = "@VTOY_ISO_UEFI_DRV@" color = "red" align = "left"}
 }

@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -24,7 +24,7 @@
 typedef struct ventoy_disk
 {
     char devname[64];
-    
+
     int pathcase;
     char cur_fsname[64];
     char cur_capacity[64];
@@ -32,7 +32,7 @@ typedef struct ventoy_disk
     char cur_ventoy_ver[64];
     int cur_secureboot;
     int cur_part_style;
-    
+
 }ventoy_disk;
 
 #if defined(_MSC_VER) || defined(WIN32)
@@ -41,7 +41,7 @@ typedef struct ventoy_disk
 
 #else
 
-typedef enum 
+typedef enum
 {
     VTOY_DEVICE_UNKNOWN = 0,
     VTOY_DEVICE_SCSI,
@@ -66,7 +66,7 @@ typedef enum
     VTOY_DEVICE_NVME,
     VTOY_DEVICE_RAM,
     VTOY_DEVICE_PMEM,
-    
+
     VTOY_DEVICE_END
 }ventoy_dev_type;
 

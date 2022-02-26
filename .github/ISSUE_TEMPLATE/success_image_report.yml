@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        I list all the successfully tested image files in the official website: https://www.ventoy.net/en/isolist.html   
+        I list all the successfully tested image files in the official website: https://www.ventoy.net/en/isolist.html
         If you successfully test an image file which is not listed in the above page, you can tell me and I will be very glad to add it to the tested list.
   - type: checkboxes
     id: faq
@@ -15,7 +15,7 @@ body:
       label: Official Website List
       description: Have you checked the list at [https://www.ventoy.net/en/isolist.html](https://www.ventoy.net/en/isolist.html) and the image file is not listed?
       options:
-        - label: I have checked the list in official website and the image file is not listed there. 
+        - label: I have checked the list in official website and the image file is not listed there.
           required: true
   - type: input
     id: version
@@ -58,12 +58,12 @@ body:
     id: checksum
     attributes:
       label: Image file checksum type
-      description: 
+      description:
       options:
         - MD5
-        - SHA1        
-        - SHA256        
-        - SHA512        
+        - SHA1
+        - SHA256
+        - SHA512
     validations:
       required: true
   - type: input
@@ -85,7 +85,7 @@ body:
   - type: input
     id: testenv
     attributes:
-      label: Test envrionment
+      label: Test environment
       description: The manufacturer/model and other details about your computer (or VM).
       placeholder: Lenovo Thinkpad T420 laptop
     validations:

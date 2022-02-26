@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -62,7 +62,7 @@ static set_memory_attr_pf set_mem_rw = NULL;
 static kprobe_reg_pf reg_kprobe = NULL;
 static kprobe_unreg_pf unreg_kprobe = NULL;
 
-static volatile ko_param g_ko_param = 
+static volatile ko_param g_ko_param =
 {
     { magic_sig },
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -126,17 +126,17 @@ static int notrace dmpatch_init(void)
     int r = 0;
     int rc = 0;
 
-    kprintf = (printk_pf)(g_ko_param.printk_addr); 
+    kprintf = (printk_pf)(g_ko_param.printk_addr);
 
     vdebug("dmpatch_init start pagesize=%lu ...\n", g_ko_param.pgsize);
-    
+
     if (g_ko_param.struct_size != sizeof(ko_param))
     {
         vdebug("Invalid struct size %d %d\n", (int)g_ko_param.struct_size, (int)sizeof(ko_param));
         return -EINVAL;
     }
-    
-    if (g_ko_param.sym_get_addr == 0 || g_ko_param.sym_put_addr == 0 || 
+
+    if (g_ko_param.sym_get_addr == 0 || g_ko_param.sym_put_addr == 0 ||
         g_ko_param.ro_addr == 0 || g_ko_param.rw_addr == 0)
     {
         return -EINVAL;
@@ -169,7 +169,7 @@ static int notrace dmpatch_init(void)
 
 out:
 
-	return rc;
+    return rc;
 }
 
 static void notrace dmpatch_exit(void)

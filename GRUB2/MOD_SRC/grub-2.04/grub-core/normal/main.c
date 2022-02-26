@@ -153,7 +153,7 @@ read_config_file (const char *config)
     }
   else
     {
-      /* $root is guranteed to be defined, otherwise open above would fail */
+      /* $root is guaranteed to be defined, otherwise open above would fail */
       config_dir = grub_xasprintf ("(%s)%s", grub_env_get ("root"), config);
       if (config_dir)
 	grub_env_set ("config_file", config_dir);
@@ -211,17 +211,17 @@ grub_normal_init_page (struct grub_term_output *term,
   char *msg_formatted;
   grub_uint32_t *unicode_msg;
   grub_uint32_t *last_position;
- 
+
   grub_term_cls (term);
 
   msg_formatted = grub_xasprintf (_("GNU GRUB  version %s"), PACKAGE_VERSION);
   if (!msg_formatted)
     return;
- 
+
   msg_len = grub_utf8_to_ucs4_alloc (msg_formatted,
   				     &unicode_msg, &last_position);
   grub_free (msg_formatted);
- 
+
   if (msg_len < 0)
     {
       return;
@@ -387,7 +387,7 @@ grub_normal_reader_init (int nested)
     grub_putcode ('\n', term);
   }
   grub_free (msg_formatted);
- 
+
   return 0;
 }
 
@@ -419,7 +419,7 @@ grub_normal_read_line_real (char **line, int cont, int nested)
 	  return grub_errno;
 	}
     }
- 
+
 }
 
 static grub_err_t

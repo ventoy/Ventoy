@@ -167,7 +167,7 @@ static void iscsi_rx_buffered_data_done ( struct iscsi_session *iscsi ) {
  *
  * This can be used when the RX PDU type handler wishes to buffer up
  * all received data and process the PDU as a single unit.  The caller
- * is repsonsible for calling iscsi_rx_buffered_data_done() after
+ * is responsible for calling iscsi_rx_buffered_data_done() after
  * processing the data.
  */
 static int iscsi_rx_buffered_data ( struct iscsi_session *iscsi,
@@ -588,7 +588,7 @@ static int iscsi_tx_data_out ( struct iscsi_session *iscsi ) {
 	iobuf = xfer_alloc_iob ( &iscsi->socket, ( len + pad_len ) );
 	if ( ! iobuf )
 		return -ENOMEM;
-	
+
 	copy_from_user ( iob_put ( iobuf, len ),
 			 iscsi->command->data_out, offset, len );
 	memset ( iob_put ( iobuf, pad_len ), 0, pad_len );
@@ -707,7 +707,7 @@ static int iscsi_build_login_request_strings ( struct iscsi_session *iscsi,
 	if ( iscsi->status & ISCSI_STATUS_STRINGS_CHAP_ALGORITHM ) {
 		used += ssnprintf ( data + used, len - used, "CHAP_A=5%c", 0 );
 	}
-	
+
 	if ( ( iscsi->status & ISCSI_STATUS_STRINGS_CHAP_RESPONSE ) ) {
 		char buf[ base16_encoded_len ( iscsi->chap.response_len ) + 1 ];
 		assert ( iscsi->initiator_username != NULL );
@@ -1407,7 +1407,7 @@ static int iscsi_tx_bhs ( struct iscsi_session *iscsi ) {
  *
  * @v iscsi		iSCSI session
  * @ret rc		Return status code
- * 
+ *
  * Handle transmission of part of a PDU data segment.  iscsi::tx_bhs
  * will be valid when this is called.
  */
@@ -1459,7 +1459,7 @@ static void iscsi_tx_done ( struct iscsi_session *iscsi ) {
  * @v iscsi		iSCSI session
  * @v buf		Temporary data buffer
  * @v len		Length of temporary data buffer
- * 
+ *
  * Constructs data to be sent for the current TX state
  */
 static void iscsi_tx_step ( struct iscsi_session *iscsi ) {
@@ -1642,7 +1642,7 @@ static int iscsi_socket_deliver ( struct iscsi_session *iscsi,
 		case ISCSI_RX_BHS:
 			rx = iscsi_rx_bhs;
 			iscsi->rx_len = sizeof ( iscsi->rx_bhs );
-			next_state = ISCSI_RX_AHS;			
+			next_state = ISCSI_RX_AHS;
 			break;
 		case ISCSI_RX_AHS:
 			rx = iscsi_rx_discard;
@@ -2130,7 +2130,7 @@ static int iscsi_open ( struct interface *parent, struct uri *uri ) {
 	/* Mortalise self, and return */
 	ref_put ( &iscsi->refcnt );
 	return 0;
-	
+
  err_scsi_open:
  err_open_connection:
  err_sanity_iqn:

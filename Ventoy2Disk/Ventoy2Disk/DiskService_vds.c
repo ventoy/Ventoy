@@ -8,17 +8,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #include <Windows.h>
 #include <winternl.h>
 #include <commctrl.h>
@@ -529,7 +529,7 @@ const char *WindowsErrorString(DWORD error_code)
 			sprintf_s(err_string, sizeof(err_string), "Windows error code 0x%08lX", error_code);
 	}
 	else {
-		// Microsoft may suffix CRLF to error messages, which we need to remove...		
+		// Microsoft may suffix CRLF to error messages, which we need to remove...
 		size += presize - 2;
 		// Cannot underflow if the above assert passed since our first char is neither of the following
 		while ((err_string[size] == 0x0D) || (err_string[size] == 0x0A) || (err_string[size] == 0x20))
@@ -548,7 +548,7 @@ const char *WindowsErrorString(DWORD error_code)
 #define INTF_VOLUME 5
 #define INTF_VOLUME_MF3 6
 
-/* 
+/*
  * Some code and functions in the file are copied from rufus.
  * https://github.com/pbatard/rufus
  */
@@ -559,7 +559,7 @@ const char *WindowsErrorString(DWORD error_code)
 #define IVdsService_WaitForServiceReady(This) ((This)->lpVtbl->WaitForServiceReady(This))
 #define IVdsService_CleanupObsoleteMountPoints(This) ((This)->lpVtbl->CleanupObsoleteMountPoints(This))
 #define IVdsService_Refresh(This) ((This)->lpVtbl->Refresh(This))
-#define IVdsService_Reenumerate(This) ((This)->lpVtbl->Reenumerate(This)) 
+#define IVdsService_Reenumerate(This) ((This)->lpVtbl->Reenumerate(This))
 #define IVdsSwProvider_QueryInterface(This, riid, ppvObject) (This)->lpVtbl->QueryInterface(This, riid, ppvObject)
 #define IVdsProvider_Release(This) (This)->lpVtbl->Release(This)
 #define IVdsSwProvider_QueryPacks(This, ppEnum) (This)->lpVtbl->QueryPacks(This, ppEnum)
@@ -607,7 +607,7 @@ typedef BOOL(*VDS_Callback_PF)(void *pInterface, VDS_DISK_PROP *pDiskProp, UINT6
 
 static BOOL g_vds_available = TRUE;
 
-BOOL VDS_IsLastAvaliable(void)
+BOOL VDS_IsLastAvailable(void)
 {
 	return g_vds_available;
 }
@@ -624,7 +624,7 @@ STATIC IVdsService * VDS_InitService(void)
 
     // Create a VDS Loader Instance
     hr = CoCreateInstance(&CLSID_VdsLoader, NULL, CLSCTX_LOCAL_SERVER | CLSCTX_REMOTE_SERVER, &IID_IVdsServiceLoader, (void **)&pLoader);
-    if (hr != S_OK) 
+    if (hr != S_OK)
     {
         VDS_SET_ERROR(hr);
         Log("Could not create VDS Loader Instance: 0x%x", LASTERR);
@@ -634,7 +634,7 @@ STATIC IVdsService * VDS_InitService(void)
     // Load the VDS Service
     hr = IVdsServiceLoader_LoadService(pLoader, L"", &pService);
     IVdsServiceLoader_Release(pLoader);
-    if (hr != S_OK) 
+    if (hr != S_OK)
     {
         VDS_SET_ERROR(hr);
         Log("Could not load VDS Service: 0x%x", LASTERR);
@@ -644,7 +644,7 @@ STATIC IVdsService * VDS_InitService(void)
 
     // Wait for the Service to become ready if needed
     hr = IVdsService_WaitForServiceReady(pService);
-    if (hr != S_OK) 
+    if (hr != S_OK)
     {
         VDS_SET_ERROR(hr);
         Log("VDS Service is not ready: 0x%x", LASTERR);
@@ -762,7 +762,7 @@ STATIC BOOL VDS_VolumeCommProc(int intf, const WCHAR* wVolumeGuid, VDS_Callback_
 
 				// Get the volume properties
 				hr = IVdsVolumeMF3_QueryVolumeGuidPathnames(pVolumeMF3, &wszPathArray, &ulNumberOfPaths);
-				if ((hr != S_OK) && (hr != VDS_S_PROPERTIES_INCOMPLETE)) 
+				if ((hr != S_OK) && (hr != VDS_S_PROPERTIES_INCOMPLETE))
 				{
 					Log("Could not query VDS VolumeMF3 GUID PathNames: %s", GetVdsError(hr));
 					IVdsVolume_Release(pVolumeMF3);
@@ -819,7 +819,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
     HRESULT hr;
     ULONG ulFetched;
     IUnknown *pUnk = NULL;
-    IEnumVdsObject *pEnum = NULL;    
+    IEnumVdsObject *pEnum = NULL;
     IVdsService *pService = NULL;
     wchar_t wPhysicalName[48];
 
@@ -834,14 +834,14 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
 
     // Query the VDS Service Providers
     hr = IVdsService_QueryProviders(pService, VDS_QUERY_SOFTWARE_PROVIDERS, &pEnum);
-    if (hr != S_OK) 
+    if (hr != S_OK)
     {
         VDS_SET_ERROR(hr);
         Log("Could not query VDS Service Providers: 0x%lx %u", hr, LASTERR);
         goto out;
     }
 
-    while (IEnumVdsObject_Next(pEnum, 1, &pUnk, &ulFetched) == S_OK) 
+    while (IEnumVdsObject_Next(pEnum, 1, &pUnk, &ulFetched) == S_OK)
     {
         IVdsProvider *pProvider;
         IVdsSwProvider *pSwProvider;
@@ -851,7 +851,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
         // Get VDS Provider
         hr = IUnknown_QueryInterface(pUnk, &IID_IVdsProvider, (void **)&pProvider);
         IUnknown_Release(pUnk);
-        if (hr != S_OK) 
+        if (hr != S_OK)
         {
             VDS_SET_ERROR(hr);
             Log("Could not get VDS Provider: %u", LASTERR);
@@ -861,7 +861,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
         // Get VDS Software Provider
         hr = IVdsSwProvider_QueryInterface(pProvider, &IID_IVdsSwProvider, (void **)&pSwProvider);
         IVdsProvider_Release(pProvider);
-        if (hr != S_OK) 
+        if (hr != S_OK)
         {
             VDS_SET_ERROR(hr);
             Log("Could not get VDS Software Provider: %u", LASTERR);
@@ -871,7 +871,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
         // Get VDS Software Provider Packs
         hr = IVdsSwProvider_QueryPacks(pSwProvider, &pEnumPack);
         IVdsSwProvider_Release(pSwProvider);
-        if (hr != S_OK) 
+        if (hr != S_OK)
         {
             VDS_SET_ERROR(hr);
             Log("Could not get VDS Software Provider Packs: %u", LASTERR);
@@ -879,7 +879,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
         }
 
         // Enumerate Provider Packs
-        while (IEnumVdsObject_Next(pEnumPack, 1, &pPackUnk, &ulFetched) == S_OK) 
+        while (IEnumVdsObject_Next(pEnumPack, 1, &pPackUnk, &ulFetched) == S_OK)
         {
             IVdsPack *pPack;
             IEnumVdsObject *pEnumDisk;
@@ -887,7 +887,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
 
             hr = IUnknown_QueryInterface(pPackUnk, &IID_IVdsPack, (void **)&pPack);
             IUnknown_Release(pPackUnk);
-            if (hr != S_OK) 
+            if (hr != S_OK)
             {
                 VDS_SET_ERROR(hr);
                 Log("Could not query VDS Software Provider Pack: %u", LASTERR);
@@ -903,7 +903,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
             }
 
             // List disks
-            while (IEnumVdsObject_Next(pEnumDisk, 1, &pDiskUnk, &ulFetched) == S_OK) 
+            while (IEnumVdsObject_Next(pEnumDisk, 1, &pDiskUnk, &ulFetched) == S_OK)
             {
                 VDS_DISK_PROP diskprop;
                 IVdsDisk *pDisk;
@@ -929,7 +929,7 @@ STATIC BOOL VDS_DiskCommProc(int intf, int DriveIndex, VDS_Callback_PF callback,
                 }
 
                 // Isolate the disk we want
-                if (_wcsicmp(wPhysicalName, diskprop.pwszName) != 0) 
+                if (_wcsicmp(wPhysicalName, diskprop.pwszName) != 0)
                 {
                     IVdsDisk_Release(pDisk);
                     continue;
@@ -1018,7 +1018,7 @@ out:
 }
 
 STATIC BOOL VDS_CallBack_CleanDisk(void *pInterface, VDS_DISK_PROP *pDiskProp, UINT64 data)
-{    
+{
     HRESULT hr, hr2;
     ULONG completed;
     IVdsAsync* pAsync;
@@ -1028,10 +1028,10 @@ STATIC BOOL VDS_CallBack_CleanDisk(void *pInterface, VDS_DISK_PROP *pDiskProp, U
     (void)data;
 
     hr = IVdsAdvancedDisk_Clean(pAdvancedDisk, TRUE, TRUE, FALSE, &pAsync);
-    while (SUCCEEDED(hr)) 
+    while (SUCCEEDED(hr))
     {
         hr = IVdsAsync_QueryStatus(pAsync, &hr2, &completed);
-        if (SUCCEEDED(hr)) 
+        if (SUCCEEDED(hr))
         {
             hr = hr2;
             if (hr == S_OK)
@@ -1051,7 +1051,7 @@ STATIC BOOL VDS_CallBack_CleanDisk(void *pInterface, VDS_DISK_PROP *pDiskProp, U
         Sleep(500);
     }
 
-    if (hr != S_OK) 
+    if (hr != S_OK)
     {
         VDS_SET_ERROR(hr);
         Log("Could not clean disk 0x%lx err:%u", hr, LASTERR);
@@ -1088,10 +1088,10 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
 
     // Query the partition data, so we can get the start offset, which we need for deletion
     hr = IVdsAdvancedDisk_QueryPartitions(pAdvancedDisk, &prop_array, &prop_array_size);
-    if (hr == S_OK) 
+    if (hr == S_OK)
     {
 		r = TRUE;
-        for (i = 0; i < prop_array_size; i++) 
+        for (i = 0; i < prop_array_size; i++)
         {
 			if (PartOffset == 0 || PartOffset == prop_array[i].ullOffset)
             {
@@ -1106,20 +1106,20 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
             }
 
             hr = IVdsAdvancedDisk_DeletePartition(pAdvancedDisk, prop_array[i].ullOffset, TRUE, TRUE);
-            if (hr != S_OK) 
+            if (hr != S_OK)
             {
                 r = FALSE;
                 VDS_SET_ERROR(hr);
                 Log("Could not delete partitions: 0x%x", LASTERR);
 				break;
             }
-            else 
+            else
             {
                 Log("Delete this partitions success");
             }
         }
     }
-    else 
+    else
     {
         Log("No partition to delete on disk '%S'", pDiskProp->pwszName);
         r = TRUE;
@@ -1135,7 +1135,7 @@ STATIC BOOL VDS_CallBack_DeletePartition(void *pInterface, VDS_DISK_PROP *pDiskP
 
 BOOL VDS_DeleteAllPartitions(int DriveIndex)
 {
-	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_DeletePartition, 0);    
+	BOOL ret = VDS_DiskCommProc(INTF_ADVANCEDDISK, DriveIndex, VDS_CallBack_DeletePartition, 0);
 	Log("VDS_DeleteAllPartitions %d ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
     return ret;
 }
@@ -1247,7 +1247,7 @@ STATIC BOOL VDS_CallBack_ChangeEFIType(void *pInterface, VDS_DISK_PROP *pDiskPro
 
 BOOL VDS_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset)
 {
-	VDS_PARA Para;	
+	VDS_PARA Para;
 	GUID EspPartType = { 0xc12a7328, 0xf81f, 0x11d2, { 0xba, 0x4b, 0x00, 0xa0, 0xc9, 0x3e, 0xc9, 0x3b } };
 
 	memcpy(&(Para.Type), &EspPartType, sizeof(GUID));

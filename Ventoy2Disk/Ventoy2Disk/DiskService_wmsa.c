@@ -183,7 +183,7 @@ BOOL PSHELL_DeleteVtoyEFIPartition(int DriveIndex, UINT64 EfiPartOffset)
 		sprintf_s(CmdBuf, sizeof(CmdBuf), "Remove-Partition -DiskNumber %d -PartitionNumber %d -Confirm:$false", DriveIndex, Part);
 		ret = PSHELL_CommProc(CmdBuf);
 	}
-	
+
 	Log("PSHELL_DeleteVtoyEFIPartition<%d> ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
@@ -227,7 +227,7 @@ BOOL PSHELL_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset)
 		sprintf_s(CmdBuf, sizeof(CmdBuf), "Set-Partition -DiskNumber %d -PartitionNumber %d -gpttype '{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}' -Confirm:$false", DriveIndex, Part);
 		ret = PSHELL_CommProc(CmdBuf);
 	}
-	
+
 	Log("PSHELL_ChangeVtoyEFI2Basic<%d> ret:%d (%s)", DriveIndex, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
@@ -247,7 +247,7 @@ BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLette
 	}
 	else
 	{
-		sprintf_s(CmdBuf, sizeof(CmdBuf), "Resize-Partition -DiskNumber %d -PartitionNumber %d -Size %llu -Confirm:$false", 
+		sprintf_s(CmdBuf, sizeof(CmdBuf), "Resize-Partition -DiskNumber %d -PartitionNumber %d -Size %llu -Confirm:$false",
 			DriveIndex, Part, OldBytes - ReduceBytes);
 		ret = PSHELL_CommProc(CmdBuf);
 	}

@@ -497,7 +497,7 @@ add_memory_regions (grub_efi_memory_descriptor_t *memory_map,
 
       addr = grub_efi_allocate_pages_real (start, pages,
 					   GRUB_EFI_ALLOCATE_ADDRESS,
-					   GRUB_EFI_LOADER_CODE);      
+					   GRUB_EFI_LOADER_CODE);
       if (! addr)
 	grub_fatal ("cannot allocate conventional memory %p with %u pages",
 		    (void *) ((grub_addr_t) start),

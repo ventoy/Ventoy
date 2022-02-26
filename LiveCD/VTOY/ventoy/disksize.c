@@ -36,8 +36,8 @@ int GetHumanReadableGBSize(UINT64 SizeBytes)
 int main(int argc, char **argv)
 {
     UINT64 value = strtoul(argv[1], NULL, 10);
-    
+
     printf("%d", GetHumanReadableGBSize(value * 512));
-    
+
     return 0;
 }

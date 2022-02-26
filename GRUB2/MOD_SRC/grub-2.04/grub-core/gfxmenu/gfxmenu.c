@@ -45,7 +45,7 @@ extern int g_ventoy_menu_refresh;
 
 static grub_gfxmenu_view_t cached_view;
 
-static void 
+static void
 grub_gfxmenu_viewer_fini (void *data __attribute__ ((unused)))
 {
 }

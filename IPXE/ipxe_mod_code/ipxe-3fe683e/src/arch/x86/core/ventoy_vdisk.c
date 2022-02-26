@@ -63,7 +63,7 @@ static uint64_t ventoy_remap_lba_hdd(uint64_t lba, uint32_t *count)
     uint32_t max_sectors;
     ventoy_img_chunk *cur;
 
-    if ((NULL == g_cur_chunk) || (lba < g_cur_chunk->img_start_sector) || 
+    if ((NULL == g_cur_chunk) || (lba < g_cur_chunk->img_start_sector) ||
         (lba > g_cur_chunk->img_end_sector))
     {
         g_cur_chunk = NULL;
@@ -86,7 +86,7 @@ static uint64_t ventoy_remap_lba_hdd(uint64_t lba, uint32_t *count)
             *count = max_sectors;
         }
 
-        return g_cur_chunk->disk_start_sector + (lba - g_cur_chunk->img_start_sector);            
+        return g_cur_chunk->disk_start_sector + (lba - g_cur_chunk->img_start_sector);
     }
     return lba;
 }
@@ -121,7 +121,7 @@ static uint64_t ventoy_remap_lba(uint64_t lba, uint32_t *count)
 
         if (512 == g_disk_sector_size)
         {
-            return g_cur_chunk->disk_start_sector + ((lba - g_cur_chunk->img_start_sector) << 2);            
+            return g_cur_chunk->disk_start_sector + ((lba - g_cur_chunk->img_start_sector) << 2);
         }
         return g_cur_chunk->disk_start_sector + (lba - g_cur_chunk->img_start_sector) * 2048 / g_disk_sector_size;
     }
@@ -151,7 +151,7 @@ static int ventoy_vdisk_read_real_hdd(uint64_t lba, unsigned int count, unsigned
         maplba = ventoy_remap_lba_hdd(curlba, &readcount);
 
         tmpcount = readcount;
-        
+
         phyaddr = user_to_phys(buffer, 0);
 
         while (tmpcount > 0)
@@ -218,7 +218,7 @@ static int ventoy_vdisk_read_real(uint64_t lba, unsigned int count, unsigned lon
     {
         readcount = left;
         maplba = ventoy_remap_lba(curlba, &readcount);
-        
+
         if (g_disk_sector_size == 512)
         {
             tmpcount = (readcount << 2);
@@ -289,7 +289,7 @@ static int ventoy_vdisk_read_real(uint64_t lba, unsigned int count, unsigned lon
         {
             if (end <= override_end)
             {
-                memcpy((char *)databuffer + override_start - start, override_data, end - override_start);  
+                memcpy((char *)databuffer + override_start - start, override_data, end - override_start);
             }
             else
             {
@@ -300,7 +300,7 @@ static int ventoy_vdisk_read_real(uint64_t lba, unsigned int count, unsigned lon
         {
             if (end <= override_end)
             {
-                memcpy((char *)databuffer, override_data + start - override_start, end - start);     
+                memcpy((char *)databuffer, override_data + start - override_start, end - start);
             }
             else
             {
@@ -308,7 +308,7 @@ static int ventoy_vdisk_read_real(uint64_t lba, unsigned int count, unsigned lon
             }
         }
 
-        if (g_fixup_iso9660_secover_enable && (!g_fixup_iso9660_secover_start) && 
+        if (g_fixup_iso9660_secover_enable && (!g_fixup_iso9660_secover_start) &&
             g_override_chunk[i].override_size == sizeof(ventoy_iso9660_override))
         {
             ventoy_iso9660_override *dirent = (ventoy_iso9660_override *)override_data;
@@ -414,7 +414,7 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
             ventoy_vdisk_read_real_hdd(lba, count, buffer);
         }
         #endif
-        
+
         ventoy_vdisk_read_real_hdd(lba, count, buffer);
         ix86->regs.dl = sandev->drive;
         return 0;
@@ -437,7 +437,7 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
     {
         /* fix for grub4dos Inconsistent data read from error */
         memset((void *)(buffer + (count - 1) * 2048), 0, 2048);
-        
+
         count = (g_chain->real_img_size_in_bytes / 2048) - lba;
         ventoy_vdisk_read_real(lba, count, buffer);
         ix86->regs.dl = sandev->drive;
@@ -447,12 +447,12 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
         count = (readend - g_chain->real_img_size_in_bytes) / 2048;
     }
 
-    VirtSec = g_chain->virt_img_size_in_bytes / 2048;    
+    VirtSec = g_chain->virt_img_size_in_bytes / 2048;
     if (lba >= VirtSec)
     {
         /* fix for grub4dos Inconsistent data read from error */
         memset((void *)(buffer + (count - 1) * 2048), 0, 2048);
-        
+
         ix86->regs.dl = sandev->drive;
         return 0;
     }
@@ -473,7 +473,7 @@ int ventoy_vdisk_read(struct san_device *sandev, uint64_t lba, unsigned int coun
         {
             if (curlba >= node->mem_sector_start && curlba < node->mem_sector_end)
             {
-                memcpy((void *)(buffer + j * 2048), 
+                memcpy((void *)(buffer + j * 2048),
                        (char *)g_virt_chunk + node->mem_sector_offset + (curlba - node->mem_sector_start) * 2048,
                        2048);
                 cur_flag->flag = 1;
@@ -538,10 +538,10 @@ static void ventoy_dump_img_chunk(ventoy_chain_head *chain)
     for (i = 0; i < chain->img_chunk_num; i++)
     {
         printf("%2u: [ %u - %u ] <==> [ %llu - %llu ]\n",
-               i, chunk[i].img_start_sector, chunk[i].img_end_sector, 
+               i, chunk[i].img_start_sector, chunk[i].img_end_sector,
                chunk[i].disk_start_sector, chunk[i].disk_end_sector);
     }
-    
+
     ventoy_debug_pause();
 }
 
@@ -549,7 +549,7 @@ static void ventoy_dump_override_chunk(ventoy_chain_head *chain)
 {
     uint32_t i;
     ventoy_override_chunk *chunk;
-    
+
     chunk = (ventoy_override_chunk *)((char *)chain + chain->override_chunk_offset);
 
     printf("##################### ventoy_dump_override_chunk #######################\n");
@@ -558,7 +558,7 @@ static void ventoy_dump_override_chunk(ventoy_chain_head *chain)
     {
         printf("%2u: [ %llu, %u ]\n", i, chunk[i].img_offset, chunk[i].override_size);
     }
-    
+
     ventoy_debug_pause();
 }
 
@@ -566,7 +566,7 @@ static void ventoy_dump_virt_chunk(ventoy_chain_head *chain)
 {
     uint32_t i;
     ventoy_virt_chunk *node;
-     
+
     printf("##################### ventoy_dump_virt_chunk #######################\n");
     printf("virt_chunk_offset=%u\n", chain->virt_chunk_offset);
     printf("virt_chunk_num=%u\n",    chain->virt_chunk_num);
@@ -574,7 +574,7 @@ static void ventoy_dump_virt_chunk(ventoy_chain_head *chain)
     node = (ventoy_virt_chunk *)((char *)chain + chain->virt_chunk_offset);
     for (i = 0; i < chain->virt_chunk_num; i++, node++)
     {
-        printf("%2u: mem:[ %u, %u, %u ]  remap:[ %u, %u, %u ]\n", i, 
+        printf("%2u: mem:[ %u, %u, %u ]  remap:[ %u, %u, %u ]\n", i,
                node->mem_sector_start,
                node->mem_sector_end,
                node->mem_sector_offset,
@@ -582,7 +582,7 @@ static void ventoy_dump_virt_chunk(ventoy_chain_head *chain)
                node->remap_sector_end,
                node->org_sector_start);
     }
-    
+
     ventoy_debug_pause();
 }
 
@@ -593,10 +593,10 @@ static void ventoy_dump_chain(ventoy_chain_head *chain)
     uint8_t *guid;
     uint8_t *sig;
     uint8_t *vtoy_reserve;
-    
+
     guid = chain->os_param.vtoy_disk_guid;
     sig  = chain->os_param.vtoy_disk_signature;
-    
+
     for (i = 0; i < sizeof(ventoy_os_param); i++)
     {
         chksum += *((uint8_t *)(&(chain->os_param)) + i);
@@ -682,7 +682,7 @@ static int ventoy_update_image_location(ventoy_os_param *param)
     {
         return 0;
     }
-    
+
     memcpy(&location->guid, &param->guid, sizeof(ventoy_guid));
     location->image_sector_size = g_hddmode ? 512 : 2048;
     location->disk_sector_size  = g_chain->disk_sector_size;
@@ -707,7 +707,7 @@ static int ventoy_update_image_location(ventoy_os_param *param)
         {
             region->image_sector_count = chunk->img_end_sector - chunk->img_start_sector + 1;
             region->image_start_sector = chunk->img_start_sector;
-            region->disk_start_sector  = chunk->disk_start_sector;        
+            region->disk_start_sector  = chunk->disk_start_sector;
             region++;
             chunk++;
         }
@@ -722,7 +722,7 @@ int ventoy_boot_vdisk(void *data)
     unsigned int i;
     unsigned int drive;
     ventoy_img_chunk *cur;
-    
+
     (void)data;
 
     ventoy_address.bufsize = offsetof ( typeof ( ventoy_address ), buffer_phys );
@@ -734,12 +734,12 @@ int ventoy_boot_vdisk(void *data)
         printf("cmdline: <%s>\n", g_cmdline_copy);
         ventoy_debug_pause();
     }
-    
+
     if (strstr(g_cmdline_copy, "sector512"))
     {
         g_hddmode = 1;
     }
-    
+
     if (strstr(g_cmdline_copy, "bios80"))
     {
         g_bios_disk80 = 1;
@@ -796,9 +796,9 @@ int ventoy_boot_vdisk(void *data)
     if (g_debug)
     {
         printf("### ventoy chain boot before boot image ... ###\n");
-        ventoy_debug_pause();    
+        ventoy_debug_pause();
     }
-    
+
     ventoy_int13_boot(drive, &(g_chain->os_param), g_cmdline_copy);
 
     if (g_debug)

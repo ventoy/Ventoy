@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# 
+#
 # Configfiles are from grubfilemanager project
 #
 
@@ -20,10 +20,10 @@ EOF
 ls -1 cfg | while read line; do
     kbd=${line%.cfg}
     name=${kbd#KBD_}
-    
+
     echo "menuentry $name --class=debug_kbd {" >> $cfgfile
-    grep '^setkey' cfg/$line >>$cfgfile    
-    echo "}" >> $cfgfile   
+    grep '^setkey' cfg/$line >>$cfgfile
+    echo "}" >> $cfgfile
 done
 
 dos2unix $cfgfile
@@ -72,10 +72,10 @@ EOF
 ls -1 cfg | while read line; do
     kbd=${line%.cfg}
     name=${kbd#KBD_}
-    
+
     echo "    menuentry $name --class=debug_kbd {" >> $cfgfile
     echo "        set_keyboard_layout $name" >> $cfgfile
-    echo "    }" >> $cfgfile   
+    echo "    }" >> $cfgfile
 done
 
 echo "}" >>$cfgfile

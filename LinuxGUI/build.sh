@@ -1,14 +1,14 @@
 #!/bin/bash
 
-build_func() {    
+build_func() {
     libsuffix=$2
     toolDir=$3
-    
+
     XXFLAG='-std=gnu99 -D_FILE_OFFSET_BITS=64'
     XXLIB=""
-    
-    echo "CC=$1 libsuffix=$libsuffix toolDir=$toolDir"    
-    
+
+    echo "CC=$1 libsuffix=$libsuffix toolDir=$toolDir"
+
     $1 $XXFLAG -c -Wall -Wextra -Wshadow -Wformat-security -Winit-self \
         -Wmissing-prototypes -O2 -DLINUX \
         -I./Ventoy2Disk/Lib/libhttp/include \
@@ -16,7 +16,7 @@ build_func() {
         -DUSE_STACK_SIZE=102400 -DNDEBUG -fPIC \
         ./Ventoy2Disk/Lib/libhttp/include/civetweb.c \
         -o ./civetweb.o
-    
+
     $1 $XXFLAG -O2 -Wall -Wno-unused-function -DSTATIC=static -DINIT= \
         -I./Ventoy2Disk \
         -I./Ventoy2Disk/Core \
@@ -45,7 +45,7 @@ build_func() {
         -o V2D$libsuffix
 
     rm -f *.o
-    
+
     if [ "$libsuffix" = "aa64" ]; then
         aarch64-linux-gnu-strip V2D$libsuffix
     elif [ "$libsuffix" = "m64e" ]; then
@@ -53,7 +53,7 @@ build_func() {
     else
         strip V2D$libsuffix
     fi
-    
+
     rm -f ../INSTALL/tool/$toolDir/V2DServer
     cp -a V2D$libsuffix ../INSTALL/tool/$toolDir/V2DServer
 }

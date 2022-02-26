@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -67,7 +67,7 @@ typedef struct ventoy_image_disk_region
 typedef struct ventoy_image_location
 {
     ventoy_guid  guid;
-    
+
     /* image sector size, currently this value is always 2048 */
     uint32_t   image_sector_size;
 
@@ -75,12 +75,12 @@ typedef struct ventoy_image_location
     uint32_t   disk_sector_size;
 
     uint32_t   region_count;
-    
+
     /*
      * disk region data
-     * If the image file has more than one fragments in disk, 
+     * If the image file has more than one fragments in disk,
      * there will be more than one region data here.
-     * You can calculate the region count by 
+     * You can calculate the region count by
      */
     ventoy_image_disk_region regions[1];
 
@@ -99,7 +99,7 @@ typedef struct ventoy_os_param
     char      vtoy_img_path[384];   // It seems to be enough, utf-8 format
     uint64_t  vtoy_img_size;        // image file size in bytes
 
-    /* 
+    /*
      * Ventoy will write a copy of ventoy_image_location data into runtime memory
      * this is the physically address and length of that memory.
      * Address 0 means no such data exist.
@@ -112,7 +112,7 @@ typedef struct ventoy_os_param
     uint8_t  vtoy_reserved[32];     // Internal use by ventoy
 
     uint8_t   vtoy_disk_signature[4];
-    
+
     uint8_t   reserved[27];
 }ventoy_os_param;
 

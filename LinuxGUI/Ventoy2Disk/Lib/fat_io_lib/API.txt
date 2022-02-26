@@ -14,7 +14,7 @@ void fl_attach_locks(void (*lock)(void), void (*unlock)(void))
 
 int fl_attach_media(fn_diskio_read rd, fn_diskio_write wr)
 
-  This function is used to attach system specific disk/media access functions.  
+  This function is used to attach system specific disk/media access functions.
   This should be done subsequent to calling fl_init() and fl_attach_locks() (if locking required).
 
 void fl_shutdown(void)

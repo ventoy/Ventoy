@@ -44,7 +44,7 @@ typedef struct ventoy_image_disk_region
 typedef struct ventoy_image_location
 {
     ventoy_guid  guid;
-    
+
     /* image sector size, 2048/512 */
     grub_uint32_t   image_sector_size;
 
@@ -55,7 +55,7 @@ typedef struct ventoy_image_location
 
     /*
      * disk region data
-     * If the image file has more than one fragments in disk, 
+     * If the image file has more than one fragments in disk,
      * there will be more than one region data here.
      *
      */
@@ -76,7 +76,7 @@ typedef struct ventoy_os_param
     char           vtoy_img_path[384];   // It seems to be enough, utf-8 format
     grub_uint64_t  vtoy_img_size;        // image file size in bytes
 
-    /* 
+    /*
      * Ventoy will write a copy of ventoy_image_location data into runtime memory
      * this is the physically address and length of that memory.
      * Address 0 means no such data exist.
@@ -89,7 +89,7 @@ typedef struct ventoy_os_param
     grub_uint64_t  vtoy_reserved[4];     // Internal use by ventoy
 
     grub_uint8_t   vtoy_disk_signature[4];
-    
+
     grub_uint8_t   reserved[27];
 }ventoy_os_param;
 
@@ -119,14 +119,14 @@ typedef struct ventoy_chain_head
     ventoy_os_param os_param;
 
     grub_uint32_t disk_drive;
-    grub_uint32_t drive_map;    
+    grub_uint32_t drive_map;
     grub_uint32_t disk_sector_size;
 
     grub_uint64_t real_img_size_in_bytes;
     grub_uint64_t virt_img_size_in_bytes;
     grub_uint32_t boot_catalog;
     grub_uint8_t  boot_catalog_sector[2048];
-    
+
     grub_uint32_t img_chunk_offset;
     grub_uint32_t img_chunk_num;
 
@@ -179,7 +179,7 @@ typedef struct ventoy_virt_chunk
 typedef struct ventoy_sector_flag
 {
     uint8_t flag; // 0:init   1:mem  2:remap
-    uint64_t remap_lba;    
+    uint64_t remap_lba;
 }ventoy_sector_flag;
 
 #define VENTOY_BIOS_FAKE_DRIVE  0xFE
@@ -206,7 +206,7 @@ uint32_t CalculateCrc32
 );
 
 struct smbios3_entry {
-	
+
 	uint8_t signature[5];
 
     /** Checksum */
@@ -220,11 +220,11 @@ struct smbios3_entry {
 
     /** Minor version */
 	uint8_t minor;
-    
+
 	uint8_t docrev;
-    
+
 	uint8_t revision;
-    
+
 	uint8_t reserved;
 
     uint32_t maxsize;

@@ -4,14 +4,14 @@ Build a static linked, small zstdcat tool
 use an old version of zstd
 https://codeload.github.com/facebook/zstd/zip/v1.0.0
 
-======== Build Envrioment ======== 
+======== Build Envrioment ========
 build for 32bit, static linked with dietlibc
 1. install centos 6.10 i386 with CentOS-6.10-i386-bin-DVD1.iso
 2. yum install gcc gettext gettext-devel
 3. install dietc libc (just make && make install)
 4. export PATH=$PATH:/opt/diet/bin
 
-======== Build i386 Step ======== 
+======== Build i386 Step ========
 1. extract zstd source code
 2. cd programs
 3. diet -Os gcc -pipe -nostdinc         -falign-loops=32 -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.c -c -o ../lib/decompress/zstd_decompress.o
@@ -20,7 +20,7 @@ build for 32bit, static linked with dietlibc
 5. rename zstd to zstdcat
 
 
-======== Build x86_64 Step ======== 
+======== Build x86_64 Step ========
 1. extract zstd source code
 2. cd programs
 3. /opt/diet64/bin/diet -Os gcc -pipe -nostdinc         -falign-loops=32 -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.c -c -o ../lib/decompress/zstd_decompress.o
@@ -29,7 +29,7 @@ build for 32bit, static linked with dietlibc
 5. rename zstd to zstdcat
 
 
-======== Build ARM64 Step ======== 
+======== Build ARM64 Step ========
 1. extract zstd source code
 2. cd programs
 3. aarch64-linux-gcc  -static   -falign-loops=32 -I../lib -I../lib/common -I../lib/dictBuilder -I../lib/legacy -O3 -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow -Wstrict-aliasing=1 -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef   -DZSTD_LEGACY_SUPPORT=1 ../lib/decompress/zstd_decompress.c -c -o ../lib/decompress/zstd_decompress.o

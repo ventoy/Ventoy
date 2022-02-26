@@ -1,7 +1,7 @@
 #!/bin/sh
 
-print_usage() {    
-    echo 'Usage:  VentoyWeb.sh [ OPTION ]'   
+print_usage() {
+    echo 'Usage:  VentoyWeb.sh [ OPTION ]'
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -p PORT     http server PORT (default is 24680)'
@@ -46,7 +46,7 @@ if [ ! -f ./boot/boot.img ]; then
         echo "Don't run VentoyWeb.sh here, please download the released install package, and run the script in it."
     else
         echo "Current directory is $PWD"
-        echo "Please run under the correct directory!" 
+        echo "Please run under the correct directory!"
     fi
     exit 1
 fi
@@ -65,7 +65,7 @@ while [ -n "$1" ]; do
         else
             print_err "Invalid host $1"
             exit 1
-        fi        
+        fi
     elif [ "$1" = "-p" ]; then
         shift
         if [ $1 -gt 0 -a $1 -le 65535 ]; then
@@ -75,7 +75,7 @@ while [ -n "$1" ]; do
             exit 1
         fi
     fi
-    
+
     shift
 done
 
@@ -122,7 +122,7 @@ echo ""
 
 wait $wID
 
-if [ -n "$OLDDIR" ]; then 
+if [ -n "$OLDDIR" ]; then
     CURDIR=$(pwd)
     if [ "$CURDIR" != "$OLDDIR" ]; then
         cd "$OLDDIR"

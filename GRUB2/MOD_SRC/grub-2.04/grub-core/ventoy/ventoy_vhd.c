@@ -1,5 +1,5 @@
 /******************************************************************************
- * ventoy_vhd.c 
+ * ventoy_vhd.c
  *
  * Copyright (c) 2020, longpanda <admin@ventoy.net>
  *
@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -54,9 +54,9 @@ static int ventoy_vhd_find_bcd(int *bcdoffset, int *bcdlen, const char *path)
     grub_uint32_t offset;
     grub_file_t file;
     char cmdbuf[128];
-    
+
     grub_snprintf(cmdbuf, sizeof(cmdbuf), "loopback vhdiso mem:0x%lx:size:%d", (ulong)g_vhdboot_isobuf, g_vhdboot_isolen);
-    
+
     grub_script_execute_sourcecode(cmdbuf);
 
     file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(vhdiso)%s", path);
@@ -72,15 +72,15 @@ static int ventoy_vhd_find_bcd(int *bcdoffset, int *bcdlen, const char *path)
     *bcdlen = (int)file->size;
 
     debug("vhdiso bcd file offset:%d len:%d\n", *bcdoffset, *bcdlen);
-    
+
     grub_file_close(file);
-    
+
     grub_script_execute_sourcecode("loopback -d vhdiso");
 
     return 0;
 }
 
-static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy_patch_vhd *patch2, 
+static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy_patch_vhd *patch2,
     int bcdoffset, int bcdlen)
 {
     int i;
@@ -90,10 +90,10 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
     const char *plat;
     char *newpath = NULL;
     grub_uint16_t *unicode_path;
-    const grub_uint8_t winloadexe[] = 
+    const grub_uint8_t winloadexe[] =
     {
         0x77, 0x00, 0x69, 0x00, 0x6E, 0x00, 0x6C, 0x00, 0x6F, 0x00, 0x61, 0x00, 0x64, 0x00, 0x2E, 0x00,
-        0x65, 0x00, 0x78, 0x00, 0x65, 0x00 
+        0x65, 0x00, 0x78, 0x00, 0x65, 0x00
     };
 
     while ((*vhdpath) != '/')
@@ -103,7 +103,7 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
 
     pathlen = sizeof(grub_uint16_t) * (grub_strlen(vhdpath) + 1);
     debug("unicode path for <%s> len:%d\n", vhdpath, (int)pathlen);
-    
+
     unicode_path = grub_zalloc(pathlen);
     if (!unicode_path)
     {
@@ -115,11 +115,11 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
     if (plat && (plat[0] == 'e')) /* UEFI */
     {
         pos = g_vhdboot_isobuf + bcdoffset;
-    
+
         /* winload.exe ==> winload.efi */
         for (i = 0; i + (int)sizeof(winloadexe) < bcdlen; i++)
         {
-            if (*((grub_uint32_t *)(pos + i)) == 0x00690077 && 
+            if (*((grub_uint32_t *)(pos + i)) == 0x00690077 &&
                 grub_memcmp(pos + i, winloadexe, sizeof(winloadexe)) == 0)
             {
                 pos[i + sizeof(winloadexe) - 4] = 0x66;
@@ -139,7 +139,7 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
             *pos = '\\';
         }
     }
-    
+
     grub_utf8_to_utf16(unicode_path, pathlen, (grub_uint8_t *)newpath, -1, NULL);
     grub_memcpy(patch1->vhd_file_path, unicode_path, pathlen);
     grub_memcpy(patch2->vhd_file_path, unicode_path, pathlen);
@@ -199,7 +199,7 @@ static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, i
                 break;
             }
         }
-    }    
+    }
 
     ret = 0;
 
@@ -219,7 +219,7 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
 
     if (vhdpath[0] == '/')
     {
-        gpt = g_ventoy_part_info;  
+        gpt = g_ventoy_part_info;
         partIndex = 0;
         debug("This is Ventoy ISO partIndex %d %s\n", partIndex, vhdpath);
     }
@@ -239,7 +239,7 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
     {
         ventoy_debug_dump_guid("GPT disk GUID: ", gpt->Head.DiskGuid);
         ventoy_debug_dump_guid("GPT partIndex GUID: ", gpt->PartTbl[partIndex].PartGuid);
-        
+
         grub_memcpy(patch1->disk_signature_or_guid, gpt->Head.DiskGuid, 16);
         grub_memcpy(patch1->part_offset_or_guid, gpt->PartTbl[partIndex].PartGuid, 16);
         grub_memcpy(patch2->disk_signature_or_guid, gpt->Head.DiskGuid, 16);
@@ -251,7 +251,7 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
     {
         offset = gpt->MBR.PartTbl[partIndex].StartSectorId;
         offset *= 512;
-    
+
         debug("MBR disk signature: %02x%02x%02x%02x Part(%d) offset:%llu\n",
             gpt->MBR.BootCode[0x1b8 + 0], gpt->MBR.BootCode[0x1b8 + 1],
             gpt->MBR.BootCode[0x1b8 + 2], gpt->MBR.BootCode[0x1b8 + 3],
@@ -259,7 +259,7 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
 
         grub_memcpy(patch1->part_offset_or_guid, &offset, 8);
         grub_memcpy(patch2->part_offset_or_guid, &offset, 8);
-        
+
         grub_memcpy(patch1->disk_signature_or_guid, gpt->MBR.BootCode + 0x1b8, 4);
         grub_memcpy(patch2->disk_signature_or_guid, gpt->MBR.BootCode + 0x1b8, 4);
 
@@ -279,8 +279,8 @@ static int ventoy_find_vhdpatch_offset(int bcdoffset, int bcdlen, int *offset)
     int i;
     int cnt = 0;
     grub_uint8_t *buf = (grub_uint8_t *)(g_vhdboot_isobuf + bcdoffset);
-    grub_uint8_t magic[16] = { 
-        0x5C, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00 
+    grub_uint8_t magic[16] = {
+        0x5C, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00, 0x58, 0x00
     };
 
     for (i = 0; i < bcdlen - 16 && cnt < 2; i++)
@@ -289,7 +289,7 @@ static int ventoy_find_vhdpatch_offset(int bcdoffset, int bcdlen, int *offset)
         {
             if (grub_memcmp(magic, buf + i, 16) == 0)
             {
-                *offset++ = i - (int)OFFSET_OF(ventoy_patch_vhd, vhd_file_path); 
+                *offset++ = i - (int)OFFSET_OF(ventoy_patch_vhd, vhd_file_path);
                 cnt++;
             }
         }
@@ -331,7 +331,7 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
         patch1 = (ventoy_patch_vhd *)(g_vhdboot_isobuf + bcdoffset + patchoffset[0]);
         patch2 = (ventoy_patch_vhd *)(g_vhdboot_isobuf + bcdoffset + patchoffset[1]);
 
-        debug("Find /boot/bcd (%d %d) now patch it (offset: 0x%x 0x%x) ...\n", 
+        debug("Find /boot/bcd (%d %d) now patch it (offset: 0x%x 0x%x) ...\n",
               bcdoffset, bcdlen, patchoffset[0], patchoffset[1]);
         ventoy_vhd_patch_disk(args[0], patch1, patch2);
         ventoy_vhd_patch_path(args[0], patch1, patch2, bcdoffset, bcdlen);
@@ -347,8 +347,8 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
         ventoy_find_vhdpatch_offset(bcdoffset, bcdlen, patchoffset);
         patch1 = (ventoy_patch_vhd *)(g_vhdboot_isobuf + bcdoffset + patchoffset[0]);
         patch2 = (ventoy_patch_vhd *)(g_vhdboot_isobuf + bcdoffset + patchoffset[1]);
-        
-        debug("Find /boot/BCD (%d %d) now patch it (offset: 0x%x 0x%x) ...\n", 
+
+        debug("Find /boot/BCD (%d %d) now patch it (offset: 0x%x 0x%x) ...\n",
               bcdoffset, bcdlen, patchoffset[0], patchoffset[1]);
         ventoy_vhd_patch_disk(args[0], patch1, patch2);
         ventoy_vhd_patch_path(args[0], patch1, patch2, bcdoffset, bcdlen);
@@ -374,7 +374,7 @@ grub_err_t ventoy_cmd_load_vhdboot(grub_extcmd_context_t ctxt, int argc, char **
 {
     int buflen;
     grub_file_t file;
-    
+
     (void)ctxt;
     (void)argc;
 
@@ -404,7 +404,7 @@ grub_err_t ventoy_cmd_load_vhdboot(grub_extcmd_context_t ctxt, int argc, char **
 #else
     g_vhdboot_totbuf = (char *)grub_malloc(buflen);
 #endif
-    
+
     if (!g_vhdboot_totbuf)
     {
         grub_file_close(file);
@@ -466,7 +466,7 @@ static int ventoy_raw_trim_head(grub_uint64_t offset)
     {
         g_img_chunk_list.chunk[i].disk_start_sector += delta;
         g_img_chunk_list.chunk[i].img_start_sector += (grub_uint32_t)(delta / 4);
-    
+
         if (i > 0)
         {
             memsize = (g_img_chunk_list.cur_chunk - i) * sizeof(ventoy_img_chunk);
@@ -477,7 +477,7 @@ static int ventoy_raw_trim_head(grub_uint64_t offset)
 
     for (i = 0; i < g_img_chunk_list.cur_chunk; i++)
     {
-        imgsecs = g_img_chunk_list.chunk[i].img_end_sector + 1 - g_img_chunk_list.chunk[i].img_start_sector;        
+        imgsecs = g_img_chunk_list.chunk[i].img_end_sector + 1 - g_img_chunk_list.chunk[i].img_start_sector;
         g_img_chunk_list.chunk[i].img_start_sector = imgstart;
         g_img_chunk_list.chunk[i].img_end_sector = imgstart + (imgsecs - 1);
         imgstart += imgsecs;
@@ -497,7 +497,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
     VDIPREHEADER vdihdr;
     char type[16] = {0};
     ventoy_gpt_info *gpt;
-    
+
     (void)ctxt;
 
     g_img_trim_head_secnum = 0;
@@ -515,7 +515,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
     }
 
     grub_snprintf(type, sizeof(type), "unknown");
-    
+
     grub_file_seek(file, file->size - 512);
     grub_file_read(file, &vhdfoot, sizeof(vhdfoot));
 
@@ -544,7 +544,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
 
     grub_env_set(args[1], type);
     debug("<%s> vtoy type: <%s> offset:%d\n", args[0], type, offset);
-    
+
     if (offset >= 0)
     {
         gpt = grub_zalloc(sizeof(ventoy_gpt_info));
@@ -553,7 +553,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
             grub_env_set(args[1], "unknown");
             goto end;
         }
-    
+
         grub_file_seek(file, offset);
         grub_file_read(file, gpt, sizeof(ventoy_gpt_info));
 
@@ -596,7 +596,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
                     if (data == 0x23)
                     {
                         altboot = 1;
-                        grub_env_set(args[3], "1");                        
+                        grub_env_set(args[3], "1");
                     }
                     else
                     {
@@ -634,7 +634,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
 end:
     grub_check_free(gpt);
     grub_file_close(file);
-    VENTOY_CMD_RETURN(GRUB_ERR_NONE);    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
 grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -646,7 +646,7 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     const char *pLastChain = NULL;
     ventoy_chain_head *chain;
     char envbuf[64];
-    
+
     (void)ctxt;
     (void)argc;
 
@@ -673,9 +673,9 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     }
 
     img_chunk_size = g_img_chunk_list.cur_chunk * sizeof(ventoy_img_chunk);
-    
+
     size = sizeof(ventoy_chain_head) + img_chunk_size;
-    
+
     pLastChain = grub_env_get("vtoy_chain_mem_addr");
     if (pLastChain)
     {
@@ -719,7 +719,7 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     {
         chain->real_img_size_in_bytes -= g_img_trim_head_secnum * 512;
     }
-    
+
     chain->virt_img_size_in_bytes = chain->real_img_size_in_bytes;
     chain->boot_catalog = 0;
 
@@ -732,6 +732,6 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     grub_file_read(file, chain->boot_catalog_sector, 512);
 
     grub_file_close(file);
-    
+
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }

@@ -51,8 +51,8 @@ struct syslinux_menuentry
   char hotkey;
   int make_default;
   struct syslinux_say *say;
-  
-  enum { KERNEL_NO_KERNEL, KERNEL_LINUX, KERNEL_CHAINLOADER, 
+
+  enum { KERNEL_NO_KERNEL, KERNEL_LINUX, KERNEL_CHAINLOADER,
 	 KERNEL_BIN, KERNEL_PXE, KERNEL_CHAINLOADER_BPB,
 	 KERNEL_COM32, KERNEL_COM, KERNEL_IMG, KERNEL_CONFIG, LOCALBOOT }
     entry_type;
@@ -170,7 +170,7 @@ print_num (struct output_buffer *outbuf, int n)
 {
   char buf[20];
   grub_snprintf (buf, sizeof (buf), "%d", n);
-  return print (outbuf, buf, grub_strlen (buf)); 
+  return print (outbuf, buf, grub_strlen (buf));
 }
 
 static grub_err_t
@@ -233,7 +233,7 @@ kernel (const char *line, struct syslinux_menu *menu)
 
   if (end - line >= 4 && grub_strcasecmp (end - 4, ".img") == 0)
     menu->entries->entry_type = KERNEL_IMG;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -247,7 +247,7 @@ cmd_linux (const char *line, struct syslinux_menu *menu)
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = KERNEL_LINUX;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -261,7 +261,7 @@ cmd_boot (const char *line, struct syslinux_menu *menu)
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = KERNEL_CHAINLOADER;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -275,7 +275,7 @@ cmd_bss (const char *line, struct syslinux_menu *menu)
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = KERNEL_CHAINLOADER_BPB;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -289,7 +289,7 @@ cmd_pxe (const char *line, struct syslinux_menu *menu)
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = KERNEL_PXE;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -303,7 +303,7 @@ cmd_fdimage (const char *line, struct syslinux_menu *menu)
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = KERNEL_IMG;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -317,7 +317,7 @@ cmd_comboot (const char *line, struct syslinux_menu *menu)
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = KERNEL_COM;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -331,7 +331,7 @@ cmd_com32 (const char *line, struct syslinux_menu *menu)
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = KERNEL_COM32;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -354,7 +354,7 @@ cmd_config (const char *line, struct syslinux_menu *menu)
 	return grub_errno;
     }
   menu->entries->entry_type = KERNEL_CONFIG;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -367,7 +367,7 @@ cmd_append (const char *line, struct syslinux_menu *menu)
   menu->entries->append = grub_strdup (line);
   if (!menu->entries->append)
     return grub_errno;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -405,7 +405,7 @@ cmd_initrd (const char *line, struct syslinux_menu *menu)
       while (*line == ',')
 	line++;
     }
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -415,7 +415,7 @@ cmd_default (const char *line, struct syslinux_menu *menu)
   menu->def = grub_strdup (line);
   if (!menu->def)
     return grub_errno;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -433,7 +433,7 @@ cmd_menudefault (const char *line __attribute__ ((unused)),
   if (!menu->entries)
     return grub_error (GRUB_ERR_BAD_ARGUMENT, "kernel without label");
 
-  menu->entries->make_default = 1; 
+  menu->entries->make_default = 1;
   return GRUB_ERR_NONE;
 }
 
@@ -456,7 +456,7 @@ cmd_localboot (const char *line,
   if (!menu->entries->kernel_file)
     return grub_errno;
   menu->entries->entry_type = LOCALBOOT;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -484,7 +484,7 @@ cmd_extlabel (const char *line, struct syslinux_menu *menu)
       *out++ = *in++;
     }
   *out = 0;
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -547,7 +547,7 @@ syslinux_parse (const char *filename,
   ret = syslinux_parse_real (menu);
   if (ret == GRUB_ERR_FILE_NOT_FOUND
       || ret == GRUB_ERR_BAD_FILENAME)
-    {	
+    {
       grub_errno = ret = GRUB_ERR_NONE;
       add_comment (menu, "# File ", 0);
       add_comment (menu, nf, 0);
@@ -760,7 +760,7 @@ syslinux_parse_real (struct syslinux_menu *menu)
 }
 
 static grub_err_t
-print_escaped (struct output_buffer *outbuf, 
+print_escaped (struct output_buffer *outbuf,
 	       const char *from, const char *to)
 {
   const char *ptr;
@@ -1036,7 +1036,7 @@ write_entry (struct output_buffer *outbuf,
     case KERNEL_COM:
       {
 	char *basename = NULL;
-	
+
 	{
 	  char *ptr;
 	  for (ptr = curentry->kernel_file; *ptr; ptr++)
@@ -1243,8 +1243,8 @@ write_entry (struct output_buffer *outbuf,
 	if (grub_strcasecmp (basename, "whichsys.c32") == 0)
 	  {
 	    grub_syslinux_flavour_t flavour = GRUB_SYSLINUX_ISOLINUX;
-	    const char *flav[] = 
-	      { 
+	    const char *flav[] =
+	      {
 		[GRUB_SYSLINUX_ISOLINUX] = "iso",
 		[GRUB_SYSLINUX_PXELINUX] = "pxe",
 		[GRUB_SYSLINUX_SYSLINUX] = "sys"
@@ -1415,7 +1415,7 @@ free_menu (struct syslinux_menu *menu)
 	  grub_free (initrd->file);
 	  grub_free (initrd);
 	}
- 
+
       grub_free (entry->comments);
       grub_free (entry->kernel_file);
       grub_free (entry->label);
@@ -1454,7 +1454,7 @@ config_file (struct output_buffer *outbuf,
   {
       menu.timeout = 100;
   }
-  
+
   err = syslinux_parse_real (&menu);
   if (err)
     return err;
@@ -1511,7 +1511,7 @@ config_file (struct output_buffer *outbuf,
 	  print_string ("\n");
 	}
       for (curentry = lentry; curentry; curentry = curentry->prev)
-	{      
+	{
 	  print_string ("menuentry ");
 	  err = print_escaped (outbuf,
 			       curentry->extlabel ? : curentry->label, NULL);

@@ -236,9 +236,9 @@ int mkexfat_main(const char *devpath, int fd, uint64_t part_sector_count)
 	}
 #endif /* #if 0 */
 
-    /* 
+    /*
      * DiskSize > 32GB  Cluster Size use 128KB
-     * DiskSize < 32GB  Cluster Size use 32KB 
+     * DiskSize < 32GB  Cluster Size use 32KB
      */
     if ((part_sector_count / 2097152) > 32)
     {
@@ -251,7 +251,7 @@ int mkexfat_main(const char *devpath, int fd, uint64_t part_sector_count)
 
     g_vtoy_exfat_disk_fd = fd;
     g_vtoy_exfat_part_size = part_sector_count * 512;
-    
+
 	dev = exfat_open(devpath, EXFAT_MODE_RW);
 	if (dev == NULL)
 		return 1;
@@ -262,7 +262,7 @@ int mkexfat_main(const char *devpath, int fd, uint64_t part_sector_count)
 	}
 	if (exfat_close(dev) != 0)
 		return 1;
-    
+
 	return 0;
 }
 

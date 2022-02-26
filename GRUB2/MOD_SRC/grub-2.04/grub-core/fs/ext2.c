@@ -1096,8 +1096,8 @@ int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_i
         {
             return 0;
         }
-        
-        i += g_ventoy_block_count;        
+
+        i += g_ventoy_block_count;
         blknr = blknr << log2blocksize;
         grub_disk_blocklist_read(chunk_list, blknr, g_ventoy_block_count * blocksize, disk->log_sector_size);
     }

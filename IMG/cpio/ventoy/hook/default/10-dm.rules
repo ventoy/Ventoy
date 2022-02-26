@@ -106,7 +106,7 @@ LABEL="dm_no_coldplug"
 
 # "dm" sysfs subdirectory is available in newer versions of DM
 # only (kernels >= 2.6.29). We have to check for its existence
-# and use dmsetup tool instead to get the DM name, uuid and 
+# and use dmsetup tool instead to get the DM name, uuid and
 # suspended state if the "dm" subdirectory is not present.
 # The "suspended" item was added even later (kernels >= 2.6.31),
 # so we also have to call dmsetup if the kernel version used

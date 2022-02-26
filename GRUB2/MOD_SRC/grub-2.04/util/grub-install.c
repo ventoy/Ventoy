@@ -86,17 +86,17 @@ enum
     OPTION_ROOT_DIRECTORY,
     OPTION_TARGET,
     OPTION_SETUP,
-    OPTION_MKRELPATH, 
-    OPTION_MKDEVICEMAP, 
-    OPTION_PROBE, 
-    OPTION_EDITENV, 
-    OPTION_ALLOW_FLOPPY, 
-    OPTION_RECHECK, 
+    OPTION_MKRELPATH,
+    OPTION_MKDEVICEMAP,
+    OPTION_PROBE,
+    OPTION_EDITENV,
+    OPTION_ALLOW_FLOPPY,
+    OPTION_RECHECK,
     OPTION_FORCE,
     OPTION_FORCE_FILE_ID,
-    OPTION_NO_NVRAM, 
-    OPTION_REMOVABLE, 
-    OPTION_BOOTLOADER_ID, 
+    OPTION_NO_NVRAM,
+    OPTION_REMOVABLE,
+    OPTION_BOOTLOADER_ID,
     OPTION_EFI_DIRECTORY,
     OPTION_FONT,
     OPTION_DEBUG,
@@ -114,7 +114,7 @@ enum
 
 static int fs_probe = 1;
 
-static error_t 
+static error_t
 argp_parser (int key, char *arg, struct argp_state *state)
 {
   if (grub_install_parse (key, arg))
@@ -366,7 +366,7 @@ struct argp argp = {
   N_("Install GRUB on your drive.")"\v"
   N_("INSTALL_DEVICE must be system device filename.\n"
      "%s copies GRUB images into %s.  On some platforms, it"
-     " may also install GRUB into the boot sector."), 
+     " may also install GRUB into the boot sector."),
   NULL, help_filter, NULL
 };
 
@@ -693,7 +693,7 @@ write_to_disk (grub_device_t dev, const char *fn)
 
   core_size = grub_util_get_image_size (fn);
 
-  core_img = grub_util_read_image (fn);    
+  core_img = grub_util_read_image (fn);
 
   grub_util_info ("writing `%s' to `%s'", fn, dev->disk->name);
   err = grub_disk_write (dev->disk, 0, 0,
@@ -879,11 +879,11 @@ main (int argc, char *argv[])
 	  const char * t;
 	  t = get_default_platform ();
 	  if (!t)
-	    grub_util_error ("%s", 
+	    grub_util_error ("%s",
 			     _("Unable to determine your platform."
 			       " Use --target.")
 			     );
-	  target = xstrdup (t); 
+	  target = xstrdup (t);
 	}
       grub_install_source_directory
 	= grub_util_path_concat (2, grub_util_get_pkglibdir (), target);
@@ -1071,7 +1071,7 @@ main (int argc, char *argv[])
 
       for (curdev = efidir_device_names; *curdev; curdev++)
 	  grub_util_pull_device (*curdev);
-      
+
       efidir_grub_devname = grub_util_get_grub_dev (efidir_device_names[0]);
       if (!efidir_grub_devname)
 	grub_util_error (_("cannot find a GRUB drive for %s.  Check your device.map"),
@@ -1224,12 +1224,12 @@ main (int argc, char *argv[])
 
 	  for (curdev = macppcdir_device_names; *curdev; curdev++)
 	    grub_util_pull_device (*curdev);
-      
+
 	  macppcdir_grub_devname = grub_util_get_grub_dev (macppcdir_device_names[0]);
 	  if (!macppcdir_grub_devname)
 	    grub_util_error (_("cannot find a GRUB drive for %s.  Check your device.map"),
 			     macppcdir_device_names[0]);
-	  
+
 	  macppcdir_grub_dev = grub_device_open (macppcdir_grub_devname);
 	  if (! macppcdir_grub_dev)
 	    grub_util_error ("%s", grub_errmsg);
@@ -1273,7 +1273,7 @@ main (int argc, char *argv[])
       ndev++;
     }
 
-  grub_drives = xmalloc (sizeof (grub_drives[0]) * (ndev + 1)); 
+  grub_drives = xmalloc (sizeof (grub_drives[0]) * (ndev + 1));
 
   for (curdev = grub_devices, curdrive = grub_drives; *curdev; curdev++,
        curdrive++)
@@ -1705,7 +1705,7 @@ main (int argc, char *argv[])
     {
     case GRUB_INSTALL_PLATFORM_I386_PC:
       {
-	char *boot_img_src = grub_util_path_concat (2, 
+	char *boot_img_src = grub_util_path_concat (2,
 						  grub_install_source_directory,
 						  "boot.img");
 	char *boot_img = grub_util_path_concat (2, platdir,
@@ -1724,7 +1724,7 @@ main (int argc, char *argv[])
 			platdir,
 			device_map,
 			install_device);
-			
+
 	/*  Now perform the installation.  */
 	if (install_bootsector)
 	  grub_util_bios_setup (platdir, "boot.img", "core.img",
@@ -1734,7 +1734,7 @@ main (int argc, char *argv[])
       }
     case GRUB_INSTALL_PLATFORM_SPARC64_IEEE1275:
       {
-	char *boot_img_src = grub_util_path_concat (2, 
+	char *boot_img_src = grub_util_path_concat (2,
 						  grub_install_source_directory,
 						  "boot.img");
 	char *boot_img = grub_util_path_concat (2, platdir,
@@ -1750,7 +1750,7 @@ main (int argc, char *argv[])
 			platdir,
 			device_map,
 			install_drive);
-			
+
 	/*  Now perform the installation.  */
 	if (install_bootsector)
 	  grub_util_sparc_setup (platdir, "boot.img", "core.img",

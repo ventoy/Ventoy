@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -35,7 +35,7 @@ VOID BISO_DUMP_ShowFileTree
 )
 {
     UINT i;
-    
+
     if (NULL == pstDirTree)
     {
         return;
@@ -48,7 +48,7 @@ VOID BISO_DUMP_ShowFileTree
 
     if (BOOL_TRUE == BISO_DIR_TREE_IS_SYMLINK(pstDirTree))
     {
-        BISO_DUMP("|-- %s --> %s", pstDirTree->szName, pstDirTree->pstPosixInfo->pcLinkSrc); 
+        BISO_DUMP("|-- %s --> %s", pstDirTree->szName, pstDirTree->pstPosixInfo->pcLinkSrc);
     }
     else
     {
@@ -56,18 +56,18 @@ VOID BISO_DUMP_ShowFileTree
     }
 
     BISO_DUMP(" %u %u\n", pstDirTree->uiExtent, pstDirTree->uiSize);
-    
-    
+
+
     #if 0
     if (NULL != pstDirTree->pstDirStat)
     {
-        BISO_DUMP(" ([%u %u %u]  [%u %u %u]\n", 
-            pstDirTree->pstDirStat->uiCurDirNum, 
-            pstDirTree->pstDirStat->uiCurFileNum, 
-            pstDirTree->pstDirStat->uiCurLinkNum, 
-            pstDirTree->pstDirStat->uiTotDirNum, 
+        BISO_DUMP(" ([%u %u %u]  [%u %u %u]\n",
+            pstDirTree->pstDirStat->uiCurDirNum,
+            pstDirTree->pstDirStat->uiCurFileNum,
+            pstDirTree->pstDirStat->uiCurLinkNum,
+            pstDirTree->pstDirStat->uiTotDirNum,
             pstDirTree->pstDirStat->uiTotFileNum,
-            pstDirTree->pstDirStat->uiTotLinkNum); 
+            pstDirTree->pstDirStat->uiTotLinkNum);
     }
     else
     {

@@ -221,7 +221,7 @@ grub_initrd_init (int argc, char *argv[],
       free_dir (root);
       root = 0;
     }
-  
+
   return GRUB_ERR_NONE;
 }
 
@@ -258,7 +258,7 @@ grub_initrd_load (struct grub_linux_initrd_context *initrd_ctx,
   struct dir *root = 0;
   grub_ssize_t cursize = 0;
   grub_ssize_t readsize = 0;
-  
+
   for (i = 0; i < initrd_ctx->nfiles; i++)
     {
       grub_memset (ptr, 0, ALIGN_UP_OVERHEAD (cursize, 4));
@@ -284,7 +284,7 @@ grub_initrd_load (struct grub_linux_initrd_context *initrd_ctx,
 	}
 
     cursize = initrd_ctx->components[i].size;
-    if (ventoy_need_prompt_load_file() && initrd_ctx->components[i].newc_name && 
+    if (ventoy_need_prompt_load_file() && initrd_ctx->components[i].newc_name &&
         grub_strcmp(initrd_ctx->components[i].newc_name, "boot.wim") == 0)
     {
         readsize = ventoy_load_file_with_prompt(initrd_ctx->components[i].file, ptr, cursize);

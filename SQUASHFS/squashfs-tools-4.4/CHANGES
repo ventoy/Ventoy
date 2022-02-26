@@ -355,7 +355,7 @@
 	1. Squashfs filesystems can now be exported via NFS.
 	2. Unsquashfs now supports 2.x filesystems.
 	3. Mksquashfs now displays a progress bar.
-	4. Squashfs kernel code has been hardened against accidently or
+	4. Squashfs kernel code has been hardened against accidentally or
 	   maliciously corrupted Squashfs filesystems.
 
 	Bug fixes:
@@ -383,7 +383,7 @@
 		fragment compression threads are created as there are available
 		processors.  This significantly speeds up performance on SMP
 		systems.
-	   1.2. File input and filesystem output is peformed in parallel on
+	   1.2. File input and filesystem output is performed in parallel on
 		separate threads to maximise I/O performance.  Even on single
 		processor systems this speeds up performance by at least 10%.
 	   1.3. Appending has been significantly improved, and files within the
@@ -481,7 +481,7 @@
 	   systems).  See INSTALL file for further details.
 	3. Directory index bug fixed where chars were treated as signed on
            some architectures.  A file would not be found in the rare case
-	   that the filename started with a chracter greater than 127.
+	   that the filename started with a character greater than 127.
 	4. Bug introduced into the read_data() routine when sped up to use data
 	   block queueing fixed.  If the second or later block resulted in an
 	   I/O error this was not checked.

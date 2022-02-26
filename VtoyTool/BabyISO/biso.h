@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -159,17 +159,17 @@ typedef CONST VOID * BISO_HANDLE;
 
 typedef struct tagBISO_VOLUME_SUMMARY
 {
-    CHAR szVolumeId[33];       
-    CHAR szSystemId[33];       
-    CHAR szPublisherId[129];   
-    CHAR szPreparerId[129];    
-    CHAR szApplicationId[129]; 
+    CHAR szVolumeId[33];
+    CHAR szSystemId[33];
+    CHAR szPublisherId[129];
+    CHAR szPreparerId[129];
+    CHAR szApplicationId[129];
     CHAR szCopyrightFileId[38];
-    CHAR szAbstractFileId[38]; 
+    CHAR szAbstractFileId[38];
 
     UINT uiRockRidgeVer;
     UINT uiJolietLevel;
-    
+
     UINT uiTotDirNum;
     UINT uiTotFileNum;
     UINT uiTotLinkNum;
@@ -182,14 +182,14 @@ typedef struct tagBISO_VOLUME_SUMMARY
 /* time */
 typedef struct tagBISO_DATE
 {
-    USHORT usYear;     
-    UCHAR  ucMonth;    
-    UCHAR  ucDay;      
-    UCHAR  ucHour;     
-    UCHAR  ucMin;      
-    UCHAR  ucSecond;   
-    USHORT usMillSec;  
-    CHAR   cZone;      
+    USHORT usYear;
+    UCHAR  ucMonth;
+    UCHAR  ucDay;
+    UCHAR  ucHour;
+    UCHAR  ucMin;
+    UCHAR  ucSecond;
+    USHORT usMillSec;
+    CHAR   cZone;
 }BISO_DATE_S;
 
 typedef enum tagBISO_DATE_TYPE
@@ -204,16 +204,16 @@ typedef enum tagBISO_DATE_TYPE
 /* dir stat */
 typedef struct tagBISO_DIR_STAT
 {
-    UINT   uiCurDirNum;  
-    UINT   uiCurFileNum; 
-    UINT   uiCurLinkNum; 
-    UINT   uiCurUsedSec; 
-    UINT64 ui64CurSpace; 
-    UINT   uiTotDirNum;  
-    UINT   uiTotFileNum; 
-    UINT   uiTotLinkNum; 
-    UINT64 ui64TotSpace; 
-    UINT   uiTotUsedSec; 
+    UINT   uiCurDirNum;
+    UINT   uiCurFileNum;
+    UINT   uiCurLinkNum;
+    UINT   uiCurUsedSec;
+    UINT64 ui64CurSpace;
+    UINT   uiTotDirNum;
+    UINT   uiTotFileNum;
+    UINT   uiTotLinkNum;
+    UINT64 ui64TotSpace;
+    UINT   uiTotUsedSec;
 }BISO_DIR_STAT_S;
 
 #define BISO_NODE_REGFILE      1
@@ -230,12 +230,12 @@ typedef struct tagBISO_FILE_NODE
      * BISO_NODE_DIRECTORY
      */
     UCHAR ucFlag;
-    CHAR  szName[256];    
-    CHAR  szLinkTgt[256]; 
-    UINT64 ui64FileSize;  
-    UINT64 ui64Seek;      
+    CHAR  szName[256];
+    CHAR  szLinkTgt[256];
+    UINT64 ui64FileSize;
+    UINT64 ui64Seek;
     UINT64 ui64DirRecOffet;
-    BISO_HANDLE hParent; 
+    BISO_HANDLE hParent;
     BISO_HANDLE hCurrent;
 }BISO_FILE_NODE_S;
 
@@ -291,14 +291,14 @@ BOOL_T BISO_HasSVD(IN CONST BISO_READ_S *pstRead);
 
 ULONG BISO_GetVolumeSummary
 (
-    IN CONST BISO_READ_S *pstRead, 
+    IN CONST BISO_READ_S *pstRead,
     OUT BISO_VOLUME_SUMMARY_S *pstSummary
 );
 
 ULONG BISO_GetDate
 (
-    IN CONST BISO_READ_S *pstRead, 
-    IN  BISO_DATE_TYPE_E enType, 
+    IN CONST BISO_READ_S *pstRead,
+    IN  BISO_DATE_TYPE_E enType,
     OUT BISO_DATE_S *pstDate
 );
 
@@ -310,14 +310,14 @@ BISO_HANDLE BISO_GetRoot(IN CONST BISO_READ_S *pstRead);
 
 ULONG BISO_GetFileNodeByHdl
 (
-    IN  BISO_HANDLE       hFileHdl, 
+    IN  BISO_HANDLE       hFileHdl,
     OUT BISO_FILE_NODE_S *pstFileNode
 );
 
 ULONG BISO_GetFileNodeByName
 (
     IN CONST BISO_READ_S *pstRead,
-    IN CONST CHAR *pcFullPath, 
+    IN CONST CHAR *pcFullPath,
     IN UCHAR ucFollowLink,
     OUT BISO_FILE_NODE_S *pstFileNode
 );
@@ -338,7 +338,7 @@ ULONG BISO_GetSVDFileNodeByExtent
 
 ULONG BISO_GetFileTree
 (
-    IN  BISO_HANDLE  hTopDir, 
+    IN  BISO_HANDLE  hTopDir,
     IN  UINT         uiFlag,
     OUT BISO_HANDLE *phFileTree,
     OUT UINT        *puiNodeNum
@@ -346,7 +346,7 @@ ULONG BISO_GetFileTree
 
 ULONG BISO_GetDirStat
 (
-    IN  BISO_HANDLE      hTopDir, 
+    IN  BISO_HANDLE      hTopDir,
     OUT BISO_DIR_STAT_S *pstDirStat
 );
 

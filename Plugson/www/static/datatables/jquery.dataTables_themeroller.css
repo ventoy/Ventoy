@@ -51,7 +51,7 @@ table.dataTable thead th.ui-state-default:last-child {
   border-right-width: 1px;
 }
 table.dataTable tbody tr {
-  background-color: #ffffff;
+  background-color: #fff;
 }
 table.dataTable tbody tr.selected {
   background-color: #B0BED9;
@@ -178,7 +178,7 @@ table.dataTable.display tbody tr.odd:hover > .sorting_3,
 table.dataTable.display tbody tr.even:hover > .sorting_3, table.dataTable.order-column.hover tbody tr:hover > .sorting_3,
 table.dataTable.order-column.hover tbody tr.odd:hover > .sorting_3,
 table.dataTable.order-column.hover tbody tr.even:hover > .sorting_3 {
-  background-color: #eeeeee;
+  background-color: #eee;
 }
 table.dataTable.display tbody tr:hover.selected > .sorting_1,
 table.dataTable.display tbody tr.odd:hover.selected > .sorting_1,

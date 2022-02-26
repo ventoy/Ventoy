@@ -35,8 +35,8 @@ struct menu_viewer_data
 {
   int first, offset;
   struct grub_term_screen_geometry geo;
-  enum { 
-    TIMEOUT_UNKNOWN, 
+  enum {
+    TIMEOUT_UNKNOWN,
     TIMEOUT_NORMAL,
     TIMEOUT_TERSE,
     TIMEOUT_TERSE_NO_MARGIN
@@ -79,13 +79,13 @@ grub_print_message_indented_real (const char *msg, int margin_left,
   int ret = 0;
 
   unicode_msg = grub_malloc (msg_len * sizeof (grub_uint32_t));
- 
+
   if (!unicode_msg)
     return 0;
 
   msg_len = grub_utf8_to_ucs4 (unicode_msg, msg_len,
 			       (grub_uint8_t *) msg, -1, 0);
-  
+
   last_position = unicode_msg + msg_len;
   *last_position = 0;
 
@@ -197,15 +197,15 @@ command-line or ESC to discard edits and return to the GRUB menu."),
       } else {
         grub_snprintf(szLine, sizeof(szLine), "%s", grub_env_get("VTOY_TEXT_MENU_VER"));
       }
-      
+
 	  ret += grub_print_message_indented_real("\n", STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
 
 	  ret += grub_print_message_indented_real(szLine, STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
-      
+
 	  ret += grub_print_message_indented_real("\n", STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
 	  ret += grub_print_message_indented_real(grub_env_get("VTOY_HOTKEY_TIP"),
 	     3, 6, term, dry_run);
-	}	
+	}
     }
   return ret;
 }
@@ -245,7 +245,7 @@ print_entry (int y, int highlight, grub_menu_entry_t entry,
 			   ? GRUB_TERM_COLOR_HIGHLIGHT
 			   : GRUB_TERM_COLOR_NORMAL);
 
-  grub_term_gotoxy (data->term, (struct grub_term_coordinate) { 
+  grub_term_gotoxy (data->term, (struct grub_term_coordinate) {
       data->geo.first_entry_x, y });
 
   for (i = 0; i < len; i++)
@@ -265,7 +265,7 @@ print_entry (int y, int highlight, grub_menu_entry_t entry,
 
   grub_term_setcolorstate (data->term, GRUB_TERM_COLOR_NORMAL);
   grub_term_gotoxy (data->term,
-		    (struct grub_term_coordinate) { 
+		    (struct grub_term_coordinate) {
 		      grub_term_cursor_x (&data->geo), y });
 
   grub_term_normal_color = old_color_normal;
@@ -282,7 +282,7 @@ print_entries (grub_menu_t menu, const struct menu_viewer_data *data)
   int i;
 
   grub_term_gotoxy (data->term,
-		    (struct grub_term_coordinate) { 
+		    (struct grub_term_coordinate) {
 		      data->geo.first_entry_x + data->geo.entry_width
 			+ data->geo.border + 1,
 			data->geo.first_entry_y });
@@ -484,7 +484,7 @@ menu_text_print_timeout (int timeout, void *dataptr)
   grub_free (msg_translated);
 
   grub_term_gotoxy (data->term,
-		    (struct grub_term_coordinate) { 
+		    (struct grub_term_coordinate) {
 		      grub_term_cursor_x (&data->geo),
 			data->geo.first_entry_y + data->offset });
   grub_term_refresh (data->term);
@@ -549,7 +549,7 @@ menu_text_clear_timeout (void *dataptr)
   if (data->geo.num_entries <= 5 && !data->geo.border)
     {
       grub_term_gotoxy (data->term,
-			(struct grub_term_coordinate) { 
+			(struct grub_term_coordinate) {
 			  data->geo.first_entry_x + data->geo.entry_width
 			    + data->geo.border + 1,
 			    data->geo.first_entry_y + data->geo.num_entries - 1
@@ -567,8 +567,8 @@ menu_text_clear_timeout (void *dataptr)
   grub_term_refresh (data->term);
 }
 
-grub_err_t 
-grub_menu_try_text (struct grub_term_output *term, 
+grub_err_t
+grub_menu_try_text (struct grub_term_output *term,
 		    int entry, grub_menu_t menu, int nested)
 {
   struct menu_viewer_data *data;

@@ -14,7 +14,7 @@ body:
       label: Official FAQ
       description: Have you checked the official FAQ at [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) ?
       options:
-        - label: I have checked the official FAQ. 
+        - label: I have checked the official FAQ.
           required: true
   - type: input
     id: version
@@ -67,7 +67,7 @@ body:
     id: vendor
     attributes:
       label: Disk Manufacturer
-      description: What is the manufacturer of the disk installed with Ventoy? (e.g. SanDisk/Kingston...)      
+      description: What is the manufacturer of the disk installed with Ventoy? (e.g. SanDisk/Kingston...)
     validations:
       required: false
   - type: dropdown
@@ -77,7 +77,7 @@ body:
       description: Have you checked the image file in Ventoy's menu as [https://www.ventoy.net/en/faq.html#faq_boot_checksum](https://www.ventoy.net/en/faq.html#faq_boot_checksum) ?
       options:
         - Yes.
-        - No.        
+        - No.
     validations:
       required: false
   - type: input

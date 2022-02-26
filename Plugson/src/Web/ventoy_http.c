@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -46,16 +46,16 @@
 #include <ventoy_http.h>
 #include "fat_filelib.h"
 
-static const char *g_json_title_postfix[bios_max + 1] = 
+static const char *g_json_title_postfix[bios_max + 1] =
 {
     "", "_legacy", "_uefi", "_ia32", "_aa64", "_mips", ""
 };
 
 static const char *g_ventoy_kbd_layout[] =
 {
-    "QWERTY_USA", "AZERTY", "CZECH_QWERTY", "CZECH_QWERTZ", "DANISH", 
-    "DVORAK_USA", "FRENCH", "GERMAN", "ITALIANO", "JAPAN_106", "LATIN_USA", 
-    "PORTU_BRAZIL", "QWERTY_UK", "QWERTZ", "QWERTZ_HUN", "QWERTZ_SLOV_CROAT", 
+    "QWERTY_USA", "AZERTY", "CZECH_QWERTY", "CZECH_QWERTZ", "DANISH",
+    "DVORAK_USA", "FRENCH", "GERMAN", "ITALIANO", "JAPAN_106", "LATIN_USA",
+    "PORTU_BRAZIL", "QWERTY_UK", "QWERTZ", "QWERTZ_HUN", "QWERTZ_SLOV_CROAT",
     "SPANISH", "SWEDISH", "TURKISH_Q", "VIETNAMESE",
     NULL
 };
@@ -89,7 +89,7 @@ static struct mg_context *g_ventoy_http_ctx = NULL;
 static int ventoy_is_kbd_valid(const char *key)
 {
     int i = 0;
-    
+
     for (i = 0; g_ventoy_kbd_layout[i]; i++)
     {
         if (strcmp(g_ventoy_kbd_layout[i], key) == 0)
@@ -104,7 +104,7 @@ static int ventoy_is_kbd_valid(const char *key)
 static const char * ventoy_real_path(const char *org)
 {
     int count = 0;
-    
+
     if (g_sysinfo.pathcase)
     {
         scnprintf(g_pub_path, MAX_PATH, "%s", org);
@@ -124,7 +124,7 @@ static const char * ventoy_real_path(const char *org)
 
 static int ventoy_json_result(struct mg_connection *conn, const char *err)
 {
-    mg_printf(conn, 
+    mg_printf(conn,
               "HTTP/1.1 200 OK \r\n"
               "Content-Type: application/json\r\n"
               "Content-Length: %d\r\n"
@@ -136,12 +136,12 @@ static int ventoy_json_result(struct mg_connection *conn, const char *err)
 
 static int ventoy_json_buffer(struct mg_connection *conn, const char *json_buf, int json_len)
 {
-    mg_printf(conn, 
+    mg_printf(conn,
               "HTTP/1.1 200 OK \r\n"
               "Content-Type: application/json\r\n"
               "Content-Length: %d\r\n"
               "\r\n%s",
-              json_len, json_buf); 
+              json_len, json_buf);
 
     return 0;
 }
@@ -156,7 +156,7 @@ static void ventoy_free_path_node_list(path_node *list)
         next = node->next;
         free(node);
         node = next;
-    }    
+    }
 }
 
 static path_node * ventoy_path_node_add_array(VTOY_JSON *array)
@@ -170,7 +170,7 @@ static path_node * ventoy_path_node_add_array(VTOY_JSON *array)
     {
         node = zalloc(sizeof(path_node));
         if (node)
-        {                      
+        {
             scnprintf(node->path, sizeof(node->path), "%s", item->unData.pcStrVal);
             vtoy_list_add(head, cur, node);
         }
@@ -185,7 +185,7 @@ static int ventoy_check_fuzzy_path(char *path, int prefix)
     char c;
     char *cur = NULL;
     char *pos = NULL;
-    
+
     if (!path)
     {
         return 0;
@@ -201,7 +201,7 @@ static int ventoy_check_fuzzy_path(char *path, int prefix)
                 return 0;
             }
         }
-    
+
         while (pos != path)
         {
             if (*pos == '/')
@@ -244,11 +244,11 @@ static int ventoy_check_fuzzy_path(char *path, int prefix)
     {
         if (prefix)
         {
-            return ventoy_is_file_exist("%s%s", g_cur_dir, path);                        
+            return ventoy_is_file_exist("%s%s", g_cur_dir, path);
         }
         else
         {
-            return ventoy_is_file_exist("%s", path);            
+            return ventoy_is_file_exist("%s", path);
         }
     }
 }
@@ -267,7 +267,7 @@ static int ventoy_path_list_cmp(path_node *list1, path_node *list2)
             {
                 return 1;
             }
-        
+
             list1 = list1->next;
             list2 = list2->next;
         }
@@ -288,12 +288,12 @@ static int ventoy_path_list_cmp(path_node *list1, path_node *list2)
 static int ventoy_api_device_info(struct mg_connection *conn, VTOY_JSON *json)
 {
     int pos = 0;
-    
+
     (void)json;
 
     VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);
     VTOY_JSON_FMT_OBJ_BEGIN();
-    
+
     VTOY_JSON_FMT_STRN("dev_name", g_sysinfo.cur_model);
     VTOY_JSON_FMT_STRN("dev_capacity", g_sysinfo.cur_capacity);
     VTOY_JSON_FMT_STRN("dev_fs", g_sysinfo.cur_fsname);
@@ -311,7 +311,7 @@ static int ventoy_api_device_info(struct mg_connection *conn, VTOY_JSON *json)
 static int ventoy_api_sysinfo(struct mg_connection *conn, VTOY_JSON *json)
 {
     int pos = 0;
-    
+
     (void)json;
 
     VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);
@@ -322,10 +322,10 @@ static int ventoy_api_sysinfo(struct mg_connection *conn, VTOY_JSON *json)
     //read clear
     VTOY_JSON_FMT_SINT("syntax_error", g_sysinfo.syntax_error);
     g_sysinfo.syntax_error = 0;
-    
+
     VTOY_JSON_FMT_SINT("invalid_config", g_sysinfo.invalid_config);
     g_sysinfo.invalid_config = 0;
-    
+
     #if defined(_MSC_VER) || defined(WIN32)
     VTOY_JSON_FMT_STRN("os", "windows");
     #else
@@ -342,7 +342,7 @@ static int ventoy_api_sysinfo(struct mg_connection *conn, VTOY_JSON *json)
 static int ventoy_api_handshake(struct mg_connection *conn, VTOY_JSON *json)
 {
     int pos = 0;
-    
+
     (void)json;
 
     VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);
@@ -418,7 +418,7 @@ static int ventoy_api_check_exist2(struct mg_connection *conn, VTOY_JSON *json)
         {
             if (fuzzy1)
             {
-                exist1 = ventoy_check_fuzzy_path((char *)path1, 0);                
+                exist1 = ventoy_check_fuzzy_path((char *)path1, 0);
             }
             else
             {
@@ -426,7 +426,7 @@ static int ventoy_api_check_exist2(struct mg_connection *conn, VTOY_JSON *json)
             }
         }
     }
-    
+
     if (path2)
     {
         if (dir2)
@@ -437,7 +437,7 @@ static int ventoy_api_check_exist2(struct mg_connection *conn, VTOY_JSON *json)
         {
             if (fuzzy2)
             {
-                exist2 = ventoy_check_fuzzy_path((char *)path2, 0);                
+                exist2 = ventoy_check_fuzzy_path((char *)path2, 0);
             }
             else
             {
@@ -489,7 +489,7 @@ void ventoy_data_default_control(data_control *data)
     data->filter_dot_underscore = 1;
     data->max_search_level = -1;
     data->menu_timeout = 0;
-    
+
     strlcpy(data->default_kbd_layout, "QWERTY_USA");
     strlcpy(data->help_text_language, "en_US");
 }
@@ -530,22 +530,22 @@ int ventoy_data_save_control(data_control *data, const char *title, char *buf, i
 {
     int pos = 0;
     data_control *def = g_data_control + bios_max;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
     VTOY_JSON_FMT_ARY_BEGIN_N();
 
-    VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_DEFAULT_MENU_MODE", default_menu_mode);        
+    VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_DEFAULT_MENU_MODE", default_menu_mode);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_TREE_VIEW_MENU_STYLE", treeview_style);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILT_DOT_UNDERSCORE_FILE", filter_dot_underscore);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_SORT_CASE_SENSITIVE",  sort_casesensitive);
 
     if (data->max_search_level >= 0)
     {
-        VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_MAX_SEARCH_LEVEL",  max_search_level);            
+        VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_MAX_SEARCH_LEVEL",  max_search_level);
     }
-    
+
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_VHD_NO_WARNING",  vhd_no_warning);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_ISO", filter_iso);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_WIM", filter_wim);
@@ -557,14 +557,14 @@ int ventoy_data_save_control(data_control *data, const char *title, char *buf, i
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_LINUX_REMOUNT",  linux_remount);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_MENU_TIMEOUT",  menu_timeout);
 
-    VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_DEFAULT_KBD_LAYOUT", default_kbd_layout);        
-    VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_HELP_TXT_LANGUAGE", help_text_language);  
+    VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_DEFAULT_KBD_LAYOUT", default_kbd_layout);
+    VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_HELP_TXT_LANGUAGE", help_text_language);
 
     if (strcmp(def->default_search_root, data->default_search_root))
     {
         VTOY_JSON_FMT_CTRL_STRN_STR(L2, "VTOY_DEFAULT_SEARCH_ROOT", ventoy_real_path(data->default_search_root));
     }
-    
+
     if (strcmp(def->default_image, data->default_image))
     {
         VTOY_JSON_FMT_CTRL_STRN_STR(L2, "VTOY_DEFAULT_IMAGE", ventoy_real_path(data->default_image));
@@ -581,7 +581,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     int i = 0;
     int pos = 0;
     int valid = 0;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_OBJ_BEGIN();
 
@@ -589,9 +589,9 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_SINT("treeview_style",  ctrl->treeview_style);
     VTOY_JSON_FMT_SINT("filter_dot_underscore",  ctrl->filter_dot_underscore);
     VTOY_JSON_FMT_SINT("sort_casesensitive",  ctrl->sort_casesensitive);
-    VTOY_JSON_FMT_SINT("max_search_level",  ctrl->max_search_level);    
+    VTOY_JSON_FMT_SINT("max_search_level",  ctrl->max_search_level);
     VTOY_JSON_FMT_SINT("vhd_no_warning",  ctrl->vhd_no_warning);
-    
+
     VTOY_JSON_FMT_SINT("filter_iso", ctrl->filter_iso);
     VTOY_JSON_FMT_SINT("filter_wim", ctrl->filter_wim);
     VTOY_JSON_FMT_SINT("filter_efi", ctrl->filter_efi);
@@ -612,7 +612,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_STRN("default_search_root",  ctrl->default_search_root);
     VTOY_JSON_FMT_SINT("default_search_root_valid", valid);
 
-    
+
     valid = 0;
     if (ctrl->default_image[0] && ventoy_is_file_exist("%s%s", g_cur_dir, ctrl->default_image))
     {
@@ -626,7 +626,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
 
     for (i = 0; g_ventoy_help_lang[i][0]; i++)
     {
-        VTOY_JSON_FMT_ITEM(g_ventoy_help_lang[i]);        
+        VTOY_JSON_FMT_ITEM(g_ventoy_help_lang[i]);
     }
     VTOY_JSON_FMT_ARY_ENDEX();
 
@@ -648,7 +648,7 @@ static int ventoy_api_save_control(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     int index = 0;
     data_control *ctrl = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     ctrl = g_data_control + index;
 
@@ -672,7 +672,7 @@ static int ventoy_api_save_control(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_STR("default_search_root", ctrl->default_search_root);
     VTOY_JSON_STR("help_text_language", ctrl->help_text_language);
     VTOY_JSON_STR("default_kbd_layout", ctrl->default_kbd_layout);
-    
+
     ret = ventoy_data_save_all();
 
     ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
@@ -708,7 +708,7 @@ int ventoy_data_cmp_theme(data_theme *data1, data_theme *data2)
     {
         return 1;
     }
-    
+
     if (ventoy_path_list_cmp(data1->fontslist, data2->fontslist))
     {
         return 1;
@@ -723,7 +723,7 @@ int ventoy_data_save_theme(data_theme *data, const char *title, char *buf, int b
     int pos = 0;
     path_node *node = NULL;
     data_theme *def = g_data_theme + bios_max;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -740,12 +740,12 @@ int ventoy_data_save_theme(data_theme *data, const char *title, char *buf, int b
             {
                 VTOY_JSON_FMT_ITEM_PATH_LN(L3, node->path);
             }
-            
+
             VTOY_JSON_FMT_ARY_ENDEX_LN(L2);
-        
+
             if (def->default_file != data->default_file)
             {
-                VTOY_JSON_FMT_SINT_LN(L2, "default_file", data->default_file);                
+                VTOY_JSON_FMT_SINT_LN(L2, "default_file", data->default_file);
             }
         }
         else
@@ -775,11 +775,11 @@ int ventoy_data_save_theme(data_theme *data, const char *title, char *buf, int b
     }
 
     VTOY_JSON_FMT_DIFF_STRN(L2, "gfxmode", gfxmode);
-    
+
     VTOY_JSON_FMT_DIFF_STRN(L2, "ventoy_left", ventoy_left);
     VTOY_JSON_FMT_DIFF_STRN(L2, "ventoy_top", ventoy_top);
     VTOY_JSON_FMT_DIFF_STRN(L2, "ventoy_color", ventoy_color);
-    
+
     if (data->fontslist)
     {
         VTOY_JSON_FMT_KEY_L(L2, "fonts");
@@ -789,10 +789,10 @@ int ventoy_data_save_theme(data_theme *data, const char *title, char *buf, int b
         {
 			VTOY_JSON_FMT_ITEM_PATH_LN(L3, node->path);
         }
-        
+
         VTOY_JSON_FMT_ARY_ENDEX_LN(L2);
     }
-    
+
     VTOY_JSON_FMT_OBJ_ENDEX_LN(L1);
     VTOY_JSON_FMT_END(pos);
 
@@ -804,18 +804,18 @@ int ventoy_data_json_theme(data_theme *data, char *buf, int buflen)
 {
     int pos = 0;
     path_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_OBJ_BEGIN();
 
     VTOY_JSON_FMT_SINT("default_file",  data->default_file);
     VTOY_JSON_FMT_SINT("display_mode",  data->display_mode);
     VTOY_JSON_FMT_STRN("gfxmode", data->gfxmode);
-    
+
     VTOY_JSON_FMT_STRN("ventoy_color", data->ventoy_color);
     VTOY_JSON_FMT_STRN("ventoy_left", data->ventoy_left);
     VTOY_JSON_FMT_STRN("ventoy_top", data->ventoy_top);
-    
+
     VTOY_JSON_FMT_KEY("filelist");
     VTOY_JSON_FMT_ARY_BEGIN();
     for (node = data->filelist; node; node = node->next)
@@ -826,7 +826,7 @@ int ventoy_data_json_theme(data_theme *data, char *buf, int buflen)
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
     VTOY_JSON_FMT_ARY_ENDEX();
-    
+
     VTOY_JSON_FMT_KEY("fontslist");
     VTOY_JSON_FMT_ARY_BEGIN();
     for (node = data->fontslist; node; node = node->next)
@@ -837,7 +837,7 @@ int ventoy_data_json_theme(data_theme *data, char *buf, int buflen)
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
     VTOY_JSON_FMT_ARY_ENDEX();
-    
+
     VTOY_JSON_FMT_OBJ_END();
     VTOY_JSON_FMT_END(pos);
 
@@ -855,7 +855,7 @@ static int ventoy_api_save_theme(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     int index = 0;
     data_theme *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
 
@@ -868,7 +868,7 @@ static int ventoy_api_save_theme(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -880,7 +880,7 @@ static int ventoy_api_theme_add_file(struct mg_connection *conn, VTOY_JSON *json
     path_node *node = NULL;
     path_node *cur = NULL;
     data_theme *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
 
@@ -892,13 +892,13 @@ static int ventoy_api_theme_add_file(struct mg_connection *conn, VTOY_JSON *json
         {
             scnprintf(node->path, sizeof(node->path), "%s", path);
 
-            vtoy_list_add(data->filelist, cur, node);            
+            vtoy_list_add(data->filelist, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET); 
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -910,7 +910,7 @@ static int ventoy_api_theme_del_file(struct mg_connection *conn, VTOY_JSON *json
     path_node *node = NULL;
     path_node *last = NULL;
     data_theme *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
 
@@ -922,7 +922,7 @@ static int ventoy_api_theme_del_file(struct mg_connection *conn, VTOY_JSON *json
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -935,7 +935,7 @@ static int ventoy_api_theme_add_font(struct mg_connection *conn, VTOY_JSON *json
     path_node *node = NULL;
     path_node *cur = NULL;
     data_theme *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
 
@@ -952,7 +952,7 @@ static int ventoy_api_theme_add_font(struct mg_connection *conn, VTOY_JSON *json
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -965,7 +965,7 @@ static int ventoy_api_theme_del_font(struct mg_connection *conn, VTOY_JSON *json
     path_node *node = NULL;
     path_node *last = NULL;
     data_theme *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
 
@@ -977,7 +977,7 @@ static int ventoy_api_theme_del_font(struct mg_connection *conn, VTOY_JSON *json
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1002,16 +1002,16 @@ int ventoy_data_cmp_menu_alias(data_alias *data1, data_alias *data2)
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
-            if ((list1->type != list2->type) || 
-                strcmp(list1->path, list2->path) || 
+            if ((list1->type != list2->type) ||
+                strcmp(list1->path, list2->path) ||
                 strcmp(list1->alias, list2->alias))
             {
                 return 1;
             }
-        
+
             list1 = list1->next;
             list2 = list2->next;
         }
@@ -1035,7 +1035,7 @@ int ventoy_data_save_menu_alias(data_alias *data, const char *title, char *buf, 
 {
     int pos = 0;
     data_alias_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -1047,15 +1047,15 @@ int ventoy_data_save_menu_alias(data_alias *data, const char *title, char *buf, 
 
         if (node->type == path_type_file)
         {
-            VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);            
+            VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);
         }
         else
         {
             VTOY_JSON_FMT_STRN_PATH_LN(L3, "dir", node->path);
         }
-        
+
         VTOY_JSON_FMT_STRN_EX_LN(L3, "alias", node->alias);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX_LN(L2);
     }
 
@@ -1071,7 +1071,7 @@ int ventoy_data_json_menu_alias(data_alias *data, char *buf, int buflen)
     int pos = 0;
     int valid = 0;
     data_alias_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -1089,10 +1089,10 @@ int ventoy_data_json_menu_alias(data_alias *data, char *buf, int buflen)
         {
             valid = ventoy_is_directory_exist("%s%s", g_cur_dir, node->path);
         }
-        
+
         VTOY_JSON_FMT_SINT("valid", valid);
         VTOY_JSON_FMT_STRN("alias", node->alias);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -1113,7 +1113,7 @@ static int ventoy_api_save_alias(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1127,7 +1127,7 @@ static int ventoy_api_alias_add(struct mg_connection *conn, VTOY_JSON *json)
     data_alias_node *node = NULL;
     data_alias_node *cur = NULL;
     data_alias *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_menu_alias + index;
 
@@ -1143,14 +1143,14 @@ static int ventoy_api_alias_add(struct mg_connection *conn, VTOY_JSON *json)
             node->type = type;
             scnprintf(node->path, sizeof(node->path), "%s", path);
             scnprintf(node->alias, sizeof(node->alias), "%s", alias);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1162,7 +1162,7 @@ static int ventoy_api_alias_del(struct mg_connection *conn, VTOY_JSON *json)
     data_alias_node *last = NULL;
     data_alias_node *node = NULL;
     data_alias *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_menu_alias + index;
 
@@ -1174,7 +1174,7 @@ static int ventoy_api_alias_del(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);    
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1208,16 +1208,16 @@ int ventoy_data_cmp_menu_tip(data_tip *data1, data_tip *data2)
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
-            if ((list1->type != list2->type) || 
-                strcmp(list1->path, list2->path) || 
+            if ((list1->type != list2->type) ||
+                strcmp(list1->path, list2->path) ||
                 strcmp(list1->tip, list2->tip))
             {
                 return 1;
             }
-        
+
             list1 = list1->next;
             list2 = list2->next;
         }
@@ -1242,14 +1242,14 @@ int ventoy_data_save_menu_tip(data_tip *data, const char *title, char *buf, int 
     int pos = 0;
     data_tip_node *node = NULL;
     data_tip *def = g_data_menu_tip + bios_max;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_KEY_L(L1, title);
     VTOY_JSON_FMT_OBJ_BEGIN_N();
 
-    VTOY_JSON_FMT_DIFF_STRN(L2, "left", left);        
-    VTOY_JSON_FMT_DIFF_STRN(L2, "top", top);        
-    VTOY_JSON_FMT_DIFF_STRN(L2, "color", color);        
+    VTOY_JSON_FMT_DIFF_STRN(L2, "left", left);
+    VTOY_JSON_FMT_DIFF_STRN(L2, "top", top);
+    VTOY_JSON_FMT_DIFF_STRN(L2, "color", color);
 
     if (data->list)
     {
@@ -1262,22 +1262,22 @@ int ventoy_data_save_menu_tip(data_tip *data, const char *title, char *buf, int 
 
             if (node->type == path_type_file)
             {
-                VTOY_JSON_FMT_STRN_PATH_LN(L4, "image", node->path);            
+                VTOY_JSON_FMT_STRN_PATH_LN(L4, "image", node->path);
             }
             else
             {
                 VTOY_JSON_FMT_STRN_PATH_LN(L4, "dir", node->path);
             }
             VTOY_JSON_FMT_STRN_EX_LN(L4, "tip", node->tip);
-            
+
             VTOY_JSON_FMT_OBJ_ENDEX_LN(L3);
         }
 
         VTOY_JSON_FMT_ARY_ENDEX_LN(L2);
     }
-    
+
     VTOY_JSON_FMT_OBJ_ENDEX_LN(L1);
-    
+
     VTOY_JSON_FMT_END(pos);
 
     return pos;
@@ -1289,11 +1289,11 @@ int ventoy_data_json_menu_tip(data_tip *data, char *buf, int buflen)
     int pos = 0;
     int valid = 0;
     data_tip_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_OBJ_BEGIN();
-    
+
     VTOY_JSON_FMT_STRN("left", data->left);
     VTOY_JSON_FMT_STRN("top", data->top);
     VTOY_JSON_FMT_STRN("color", data->color);
@@ -1315,10 +1315,10 @@ int ventoy_data_json_menu_tip(data_tip *data, char *buf, int buflen)
         {
             valid = ventoy_is_directory_exist("%s%s", g_cur_dir, node->path);
         }
-        
+
         VTOY_JSON_FMT_SINT("valid", valid);
         VTOY_JSON_FMT_STRN("tip", node->tip);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -1341,7 +1341,7 @@ static int ventoy_api_save_tip(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     int index = 0;
     data_tip *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_menu_tip + index;
 
@@ -1351,7 +1351,7 @@ static int ventoy_api_save_tip(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1365,7 +1365,7 @@ static int ventoy_api_tip_add(struct mg_connection *conn, VTOY_JSON *json)
     data_tip_node *node = NULL;
     data_tip_node *cur = NULL;
     data_tip *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_menu_tip + index;
 
@@ -1381,14 +1381,14 @@ static int ventoy_api_tip_add(struct mg_connection *conn, VTOY_JSON *json)
             node->type = type;
             scnprintf(node->path, sizeof(node->path), "%s", path);
             scnprintf(node->tip, sizeof(node->tip), "%s", tip);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1400,7 +1400,7 @@ static int ventoy_api_tip_del(struct mg_connection *conn, VTOY_JSON *json)
     data_tip_node *last = NULL;
     data_tip_node *node = NULL;
     data_tip *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_menu_tip + index;
 
@@ -1412,7 +1412,7 @@ static int ventoy_api_tip_del(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1437,16 +1437,16 @@ int ventoy_data_cmp_menu_class(data_class *data1, data_class *data2)
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
-            if ((list1->type != list2->type) || 
-                strcmp(list1->path, list2->path) || 
+            if ((list1->type != list2->type) ||
+                strcmp(list1->path, list2->path) ||
                 strcmp(list1->class, list2->class))
             {
                 return 1;
             }
-        
+
             list1 = list1->next;
             list2 = list2->next;
         }
@@ -1470,7 +1470,7 @@ int ventoy_data_save_menu_class(data_class *data, const char *title, char *buf, 
 {
     int pos = 0;
     data_class_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -1482,7 +1482,7 @@ int ventoy_data_save_menu_class(data_class *data, const char *title, char *buf, 
 
         if (node->type == class_type_key)
         {
-            VTOY_JSON_FMT_STRN_LN(L3, "key", node->path);            
+            VTOY_JSON_FMT_STRN_LN(L3, "key", node->path);
         }
         else if (node->type == class_type_dir)
         {
@@ -1493,7 +1493,7 @@ int ventoy_data_save_menu_class(data_class *data, const char *title, char *buf, 
             VTOY_JSON_FMT_STRN_PATH_LN(L3, "parent", node->path);
         }
         VTOY_JSON_FMT_STRN_LN(L3, "class", node->class);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX_LN(L2);
     }
 
@@ -1509,7 +1509,7 @@ int ventoy_data_json_menu_class(data_class *data, char *buf, int buflen)
     int pos = 0;
     int valid = 0;
     data_class_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -1518,7 +1518,7 @@ int ventoy_data_json_menu_class(data_class *data, char *buf, int buflen)
         VTOY_JSON_FMT_OBJ_BEGIN();
 
         VTOY_JSON_FMT_UINT("type", node->type);
-        VTOY_JSON_FMT_STRN("path", node->path);       
+        VTOY_JSON_FMT_STRN("path", node->path);
 
         if (node->type == class_type_key)
         {
@@ -1529,9 +1529,9 @@ int ventoy_data_json_menu_class(data_class *data, char *buf, int buflen)
             valid = ventoy_is_directory_exist("%s%s", g_cur_dir, node->path);
         }
         VTOY_JSON_FMT_SINT("valid", valid);
-        
+
         VTOY_JSON_FMT_STRN("class", node->class);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -1553,7 +1553,7 @@ static int ventoy_api_save_class(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1567,7 +1567,7 @@ static int ventoy_api_class_add(struct mg_connection *conn, VTOY_JSON *json)
     data_class_node *node = NULL;
     data_class_node *cur = NULL;
     data_class *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_menu_class + index;
 
@@ -1581,17 +1581,17 @@ static int ventoy_api_class_add(struct mg_connection *conn, VTOY_JSON *json)
         if (node)
         {
             node->type = type;
-        
+
             scnprintf(node->path, sizeof(node->path), "%s", path);
             scnprintf(node->class, sizeof(node->class), "%s", class);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET); 
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1603,7 +1603,7 @@ static int ventoy_api_class_del(struct mg_connection *conn, VTOY_JSON *json)
     data_class_node *last = NULL;
     data_class_node *node = NULL;
     data_class *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_menu_class + index;
 
@@ -1615,7 +1615,7 @@ static int ventoy_api_class_del(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1636,7 +1636,7 @@ int ventoy_data_save_auto_memdisk(data_auto_memdisk *data, const char *title, ch
 {
     int pos = 0;
     path_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -1658,7 +1658,7 @@ int ventoy_data_json_auto_memdisk(data_auto_memdisk *data, char *buf, int buflen
     int pos = 0;
     int valid = 0;
     path_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -1666,10 +1666,10 @@ int ventoy_data_json_auto_memdisk(data_auto_memdisk *data, char *buf, int buflen
     {
         VTOY_JSON_FMT_OBJ_BEGIN();
 
-        VTOY_JSON_FMT_STRN("path", node->path); 
+        VTOY_JSON_FMT_STRN("path", node->path);
         valid = ventoy_check_fuzzy_path(node->path, 1);
-        VTOY_JSON_FMT_SINT("valid", valid);        
-        
+        VTOY_JSON_FMT_SINT("valid", valid);
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -1688,7 +1688,7 @@ static int ventoy_api_get_auto_memdisk(struct mg_connection *conn, VTOY_JSON *js
 static int ventoy_api_save_auto_memdisk(struct mg_connection *conn, VTOY_JSON *json)
 {
     int ret;
-    
+
     ret = ventoy_data_save_all();
 
     ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
@@ -1703,7 +1703,7 @@ static int ventoy_api_auto_memdisk_add(struct mg_connection *conn, VTOY_JSON *js
     path_node *node = NULL;
     path_node *cur = NULL;
     data_auto_memdisk *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_auto_memdisk + index;
 
@@ -1732,7 +1732,7 @@ static int ventoy_api_auto_memdisk_del(struct mg_connection *conn, VTOY_JSON *js
     path_node *last = NULL;
     path_node *node = NULL;
     data_auto_memdisk *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_auto_memdisk + index;
 
@@ -1744,7 +1744,7 @@ static int ventoy_api_auto_memdisk_del(struct mg_connection *conn, VTOY_JSON *js
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);    
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1800,7 +1800,7 @@ int ventoy_data_save_image_list(data_image_list *data, const char *title, char *
         scnprintf(newtitle, sizeof(newtitle), "image_blacklist%s", title + prelen);
     }
     VTOY_JSON_FMT_KEY_L(L1, newtitle);
-    
+
     VTOY_JSON_FMT_ARY_BEGIN_N();
 
     for (node = data->list; node; node = node->next)
@@ -1819,12 +1819,12 @@ int ventoy_data_json_image_list(data_image_list *data, char *buf, int buflen)
     int pos = 0;
     int valid = 0;
     path_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
-    
+
     VTOY_JSON_FMT_OBJ_BEGIN();
-    VTOY_JSON_FMT_SINT("type", data->type);   
-    
+    VTOY_JSON_FMT_SINT("type", data->type);
+
     VTOY_JSON_FMT_KEY("list");
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -1832,16 +1832,16 @@ int ventoy_data_json_image_list(data_image_list *data, char *buf, int buflen)
     {
         VTOY_JSON_FMT_OBJ_BEGIN();
 
-        VTOY_JSON_FMT_STRN("path", node->path); 
+        VTOY_JSON_FMT_STRN("path", node->path);
         valid = ventoy_check_fuzzy_path(node->path, 1);
-        VTOY_JSON_FMT_SINT("valid", valid);        
-        
+        VTOY_JSON_FMT_SINT("valid", valid);
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
     VTOY_JSON_FMT_ARY_ENDEX();
     VTOY_JSON_FMT_OBJ_END();
-    
+
     VTOY_JSON_FMT_END(pos);
 
     return pos;
@@ -1858,7 +1858,7 @@ static int ventoy_api_save_image_list(struct mg_connection *conn, VTOY_JSON *jso
     int ret;
     int index = 0;
     data_image_list *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_image_list + index;
 
@@ -1866,7 +1866,7 @@ static int ventoy_api_save_image_list(struct mg_connection *conn, VTOY_JSON *jso
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1878,7 +1878,7 @@ static int ventoy_api_image_list_add(struct mg_connection *conn, VTOY_JSON *json
     path_node *node = NULL;
     path_node *cur = NULL;
     data_image_list *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_image_list + index;
 
@@ -1907,7 +1907,7 @@ static int ventoy_api_image_list_del(struct mg_connection *conn, VTOY_JSON *json
     path_node *last = NULL;
     path_node *node = NULL;
     data_image_list *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_image_list + index;
 
@@ -1919,7 +1919,7 @@ static int ventoy_api_image_list_del(struct mg_connection *conn, VTOY_JSON *json
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -1936,12 +1936,12 @@ int ventoy_data_cmp_password(data_password *data1, data_password *data2)
     menu_password *list1 = NULL;
     menu_password *list2 = NULL;
 
-    if (strcmp(data1->bootpwd, data2->bootpwd) || 
-        strcmp(data1->isopwd, data2->isopwd) || 
-        strcmp(data1->wimpwd, data2->wimpwd) || 
-        strcmp(data1->vhdpwd, data2->vhdpwd) || 
-        strcmp(data1->imgpwd, data2->imgpwd) || 
-        strcmp(data1->efipwd, data2->efipwd) || 
+    if (strcmp(data1->bootpwd, data2->bootpwd) ||
+        strcmp(data1->isopwd, data2->isopwd) ||
+        strcmp(data1->wimpwd, data2->wimpwd) ||
+        strcmp(data1->vhdpwd, data2->vhdpwd) ||
+        strcmp(data1->imgpwd, data2->imgpwd) ||
+        strcmp(data1->efipwd, data2->efipwd) ||
         strcmp(data1->vtoypwd, data2->vtoypwd)
         )
     {
@@ -1956,14 +1956,14 @@ int ventoy_data_cmp_password(data_password *data1, data_password *data2)
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
             if ((list1->type != list2->type) || strcmp(list1->path, list2->path))
             {
                 return 1;
             }
-        
+
             list1 = list1->next;
             list2 = list2->next;
         }
@@ -1988,7 +1988,7 @@ int ventoy_data_save_password(data_password *data, const char *title, char *buf,
     int pos = 0;
     menu_password *node = NULL;
     data_password *def = g_data_password + bios_max;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_KEY_L(L1, title);
     VTOY_JSON_FMT_OBJ_BEGIN_N();
@@ -2012,22 +2012,22 @@ int ventoy_data_save_password(data_password *data, const char *title, char *buf,
 
             if (node->type == 0)
             {
-                VTOY_JSON_FMT_STRN_PATH_LN(L4, "file", node->path);            
+                VTOY_JSON_FMT_STRN_PATH_LN(L4, "file", node->path);
             }
             else
             {
                 VTOY_JSON_FMT_STRN_PATH_LN(L4, "parent", node->path);
             }
             VTOY_JSON_FMT_STRN_LN(L4, "pwd", node->pwd);
-            
+
             VTOY_JSON_FMT_OBJ_ENDEX_LN(L3);
         }
 
         VTOY_JSON_FMT_ARY_ENDEX_LN(L2);
     }
-    
+
     VTOY_JSON_FMT_OBJ_ENDEX_LN(L1);
-    
+
     VTOY_JSON_FMT_END(pos);
 
     return pos;
@@ -2039,7 +2039,7 @@ int ventoy_data_json_password(data_password *data, char *buf, int buflen)
     int pos = 0;
     int valid = 0;
     menu_password *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_OBJ_BEGIN();
@@ -2069,10 +2069,10 @@ int ventoy_data_json_password(data_password *data, char *buf, int buflen)
         {
             valid = ventoy_is_directory_exist("%s%s", g_cur_dir, node->path);
         }
-        
+
         VTOY_JSON_FMT_SINT("valid", valid);
         VTOY_JSON_FMT_STRN("pwd", node->pwd);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -2095,7 +2095,7 @@ static int ventoy_api_save_password(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     int index = 0;
     data_password *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_password + index;
 
@@ -2109,7 +2109,7 @@ static int ventoy_api_save_password(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2123,7 +2123,7 @@ static int ventoy_api_password_add(struct mg_connection *conn, VTOY_JSON *json)
     menu_password *node = NULL;
     menu_password *cur = NULL;
     data_password *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_password + index;
 
@@ -2139,14 +2139,14 @@ static int ventoy_api_password_add(struct mg_connection *conn, VTOY_JSON *json)
             node->type = type;
             scnprintf(node->path, sizeof(node->path), "%s", path);
             scnprintf(node->pwd, sizeof(node->pwd), "%s", pwd);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);    
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2158,7 +2158,7 @@ static int ventoy_api_password_del(struct mg_connection *conn, VTOY_JSON *json)
     menu_password *last = NULL;
     menu_password *node = NULL;
     data_password *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_password + index;
 
@@ -2170,7 +2170,7 @@ static int ventoy_api_password_del(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2195,18 +2195,18 @@ int ventoy_data_cmp_conf_replace(data_conf_replace *data1, data_conf_replace *da
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
             if (list1->image != list2->image ||
-                strcmp(list1->path, list2->path) || 
-                strcmp(list1->org, list2->org) || 
+                strcmp(list1->path, list2->path) ||
+                strcmp(list1->org, list2->org) ||
                 strcmp(list1->new, list2->new)
                 )
             {
                 return 1;
             }
-        
+
             list1 = list1->next;
             list2 = list2->next;
         }
@@ -2230,7 +2230,7 @@ int ventoy_data_save_conf_replace(data_conf_replace *data, const char *title, ch
 {
     int pos = 0;
     conf_replace_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -2245,9 +2245,9 @@ int ventoy_data_save_conf_replace(data_conf_replace *data, const char *title, ch
         VTOY_JSON_FMT_STRN_PATH_LN(L3, "new", node->new);
         if (node->image)
         {
-            VTOY_JSON_FMT_SINT_LN(L3, "img", node->image);    
+            VTOY_JSON_FMT_SINT_LN(L3, "img", node->image);
         }
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX_LN(L2);
     }
 
@@ -2262,7 +2262,7 @@ int ventoy_data_json_conf_replace(data_conf_replace *data, char *buf, int buflen
 {
     int pos = 0;
     conf_replace_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -2276,7 +2276,7 @@ int ventoy_data_json_conf_replace(data_conf_replace *data, char *buf, int buflen
         VTOY_JSON_FMT_STRN("new", node->new);
         VTOY_JSON_FMT_SINT("new_valid", ventoy_is_file_exist("%s%s", g_cur_dir, node->new));
         VTOY_JSON_FMT_SINT("img", node->image);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -2297,7 +2297,7 @@ static int ventoy_api_save_conf_replace(struct mg_connection *conn, VTOY_JSON *j
     int ret;
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2312,9 +2312,9 @@ static int ventoy_api_conf_replace_add(struct mg_connection *conn, VTOY_JSON *js
     conf_replace_node *node = NULL;
     conf_replace_node *cur = NULL;
     data_conf_replace *data = NULL;
-    
+
     vtoy_json_get_int(json, "img", &image);
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_conf_replace + index;
 
@@ -2330,14 +2330,14 @@ static int ventoy_api_conf_replace_add(struct mg_connection *conn, VTOY_JSON *js
             scnprintf(node->path, sizeof(node->path), "%s", path);
             scnprintf(node->org, sizeof(node->org), "%s", org);
             scnprintf(node->new, sizeof(node->new), "%s", new);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2349,7 +2349,7 @@ static int ventoy_api_conf_replace_del(struct mg_connection *conn, VTOY_JSON *js
     conf_replace_node *last = NULL;
     conf_replace_node *node = NULL;
     data_conf_replace *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_conf_replace + index;
 
@@ -2361,7 +2361,7 @@ static int ventoy_api_conf_replace_del(struct mg_connection *conn, VTOY_JSON *js
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2387,7 +2387,7 @@ int ventoy_data_cmp_dud(data_dud *data1, data_dud *data2)
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
             if (strcmp(list1->path, list2->path))
@@ -2420,7 +2420,7 @@ int ventoy_data_save_dud(data_dud *data, const char *title, char *buf, int bufle
     int pos = 0;
     dud_node *node = NULL;
     path_node *pathnode = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -2429,7 +2429,7 @@ int ventoy_data_save_dud(data_dud *data, const char *title, char *buf, int bufle
     for (node = data->list; node; node = node->next)
     {
         VTOY_JSON_FMT_OBJ_BEGIN_LN(L2);
-        VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);            
+        VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);
 
         VTOY_JSON_FMT_KEY_L(L3, "dud");
         VTOY_JSON_FMT_ARY_BEGIN_N();
@@ -2437,8 +2437,8 @@ int ventoy_data_save_dud(data_dud *data, const char *title, char *buf, int bufle
         {
             VTOY_JSON_FMT_ITEM_PATH_LN(L4, pathnode->path);
         }
-        VTOY_JSON_FMT_ARY_ENDEX_LN(L3);        
-        
+        VTOY_JSON_FMT_ARY_ENDEX_LN(L3);
+
         VTOY_JSON_FMT_OBJ_ENDEX_LN(L2);
     }
 
@@ -2455,7 +2455,7 @@ int ventoy_data_json_dud(data_dud *data, char *buf, int buflen)
     int valid = 0;
     dud_node *node = NULL;
     path_node *pathnode = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -2466,7 +2466,7 @@ int ventoy_data_json_dud(data_dud *data, char *buf, int buflen)
         VTOY_JSON_FMT_STRN("path", node->path);
         valid = ventoy_check_fuzzy_path(node->path, 1);
         VTOY_JSON_FMT_SINT("valid", valid);
-        
+
 
         VTOY_JSON_FMT_KEY("list");
         VTOY_JSON_FMT_ARY_BEGIN();
@@ -2479,9 +2479,9 @@ int ventoy_data_json_dud(data_dud *data, char *buf, int buflen)
             VTOY_JSON_FMT_SINT("valid", valid);
             VTOY_JSON_FMT_OBJ_ENDEX();
         }
-        VTOY_JSON_FMT_ARY_ENDEX(); 
+        VTOY_JSON_FMT_ARY_ENDEX();
 
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -2502,7 +2502,7 @@ static int ventoy_api_save_dud(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2516,7 +2516,7 @@ static int ventoy_api_dud_add(struct mg_connection *conn, VTOY_JSON *json)
     dud_node *cur = NULL;
     data_dud *data = NULL;
     VTOY_JSON *array = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_dud + index;
 
@@ -2529,14 +2529,14 @@ static int ventoy_api_dud_add(struct mg_connection *conn, VTOY_JSON *json)
         {
             scnprintf(node->path, sizeof(node->path), "%s", path);
             node->list = ventoy_path_node_add_array(array);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2548,7 +2548,7 @@ static int ventoy_api_dud_del(struct mg_connection *conn, VTOY_JSON *json)
     dud_node *last = NULL;
     dud_node *node = NULL;
     data_dud *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_dud + index;
 
@@ -2560,7 +2560,7 @@ static int ventoy_api_dud_del(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2575,7 +2575,7 @@ static int ventoy_api_dud_add_inner(struct mg_connection *conn, VTOY_JSON *json)
     path_node *pnode = NULL;
     dud_node *node = NULL;
     data_dud *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_dud + index;
 
@@ -2593,7 +2593,7 @@ static int ventoy_api_dud_add_inner(struct mg_connection *conn, VTOY_JSON *json)
                     scnprintf(pnode->path, sizeof(pnode->path), "%s", path);
                     vtoy_list_add(node->list, pcur, pnode);
                 }
-            
+
                 break;
             }
         }
@@ -2601,7 +2601,7 @@ static int ventoy_api_dud_add_inner(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET); 
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2615,7 +2615,7 @@ static int ventoy_api_dud_del_inner(struct mg_connection *conn, VTOY_JSON *json)
     path_node *pnode = NULL;
     dud_node *node = NULL;
     data_dud *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_dud + index;
 
@@ -2635,7 +2635,7 @@ static int ventoy_api_dud_del_inner(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2661,7 +2661,7 @@ int ventoy_data_cmp_auto_install(data_auto_install *data1, data_auto_install *da
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
             if (list1->timeout != list2->timeout ||
@@ -2696,7 +2696,7 @@ int ventoy_data_save_auto_install(data_auto_install *data, const char *title, ch
     int pos = 0;
     auto_install_node *node = NULL;
     path_node *pathnode = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -2707,14 +2707,14 @@ int ventoy_data_save_auto_install(data_auto_install *data, const char *title, ch
         VTOY_JSON_FMT_OBJ_BEGIN_LN(L2);
         if (node->type == 0)
         {
-            VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);            
+            VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);
         }
         else
         {
-            VTOY_JSON_FMT_STRN_PATH_LN(L3, "parent", node->path);                        
+            VTOY_JSON_FMT_STRN_PATH_LN(L3, "parent", node->path);
         }
 
-        
+
         VTOY_JSON_FMT_KEY_L(L3, "template");
         VTOY_JSON_FMT_ARY_BEGIN_N();
         for (pathnode = node->list; pathnode; pathnode = pathnode->next)
@@ -2730,7 +2730,7 @@ int ventoy_data_save_auto_install(data_auto_install *data, const char *title, ch
 
         if (node->autoselen)
         {
-            VTOY_JSON_FMT_SINT_LN(L3, "autosel", node->autosel);                
+            VTOY_JSON_FMT_SINT_LN(L3, "autosel", node->autosel);
         }
 
         VTOY_JSON_FMT_OBJ_ENDEX_LN(L2);
@@ -2749,7 +2749,7 @@ int ventoy_data_json_auto_install(data_auto_install *data, char *buf, int buflen
     int valid = 0;
     auto_install_node *node = NULL;
     path_node *pathnode = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -2761,7 +2761,7 @@ int ventoy_data_json_auto_install(data_auto_install *data, char *buf, int buflen
 
         if (node->type == 0)
         {
-            valid = ventoy_check_fuzzy_path(node->path, 1);            
+            valid = ventoy_check_fuzzy_path(node->path, 1);
         }
         else
         {
@@ -2769,10 +2769,10 @@ int ventoy_data_json_auto_install(data_auto_install *data, char *buf, int buflen
         }
         VTOY_JSON_FMT_SINT("valid", valid);
         VTOY_JSON_FMT_SINT("type", node->type);
-        
+
         VTOY_JSON_FMT_BOOL("timeouten", node->timeouten);
         VTOY_JSON_FMT_BOOL("autoselen", node->autoselen);
-        
+
         VTOY_JSON_FMT_SINT("autosel", node->autosel);
         VTOY_JSON_FMT_SINT("timeout", node->timeout);
 
@@ -2787,9 +2787,9 @@ int ventoy_data_json_auto_install(data_auto_install *data, char *buf, int buflen
             VTOY_JSON_FMT_SINT("valid", valid);
             VTOY_JSON_FMT_OBJ_ENDEX();
         }
-        VTOY_JSON_FMT_ARY_ENDEX(); 
+        VTOY_JSON_FMT_ARY_ENDEX();
 
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -2815,13 +2815,13 @@ static int ventoy_api_save_auto_install(struct mg_connection *conn, VTOY_JSON *j
     uint8_t autoselen = 0;
     auto_install_node *node = NULL;
     data_auto_install *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     vtoy_json_get_int(json, "id", &id);
 
     vtoy_json_get_bool(json, "timeouten", &timeouten);
     vtoy_json_get_bool(json, "autoselen", &autoselen);
-    
+
     data = g_data_auto_install + index;
 
     if (id >= 0)
@@ -2841,7 +2841,7 @@ static int ventoy_api_save_auto_install(struct mg_connection *conn, VTOY_JSON *j
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET); 
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2856,7 +2856,7 @@ static int ventoy_api_auto_install_add(struct mg_connection *conn, VTOY_JSON *js
     auto_install_node *cur = NULL;
     data_auto_install *data = NULL;
     VTOY_JSON *array = NULL;
-    
+
     vtoy_json_get_int(json, "type", &type);
     vtoy_json_get_int(json, "index", &index);
     data = g_data_auto_install + index;
@@ -2875,14 +2875,14 @@ static int ventoy_api_auto_install_add(struct mg_connection *conn, VTOY_JSON *js
             node->timeout = 0;
             scnprintf(node->path, sizeof(node->path), "%s", path);
             node->list = ventoy_path_node_add_array(array);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2894,7 +2894,7 @@ static int ventoy_api_auto_install_del(struct mg_connection *conn, VTOY_JSON *js
     auto_install_node *last = NULL;
     auto_install_node *node = NULL;
     data_auto_install *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_auto_install + index;
 
@@ -2906,7 +2906,7 @@ static int ventoy_api_auto_install_del(struct mg_connection *conn, VTOY_JSON *js
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2920,7 +2920,7 @@ static int ventoy_api_auto_install_add_inner(struct mg_connection *conn, VTOY_JS
     path_node *pnode = NULL;
     auto_install_node *node = NULL;
     data_auto_install *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_auto_install + index;
 
@@ -2938,7 +2938,7 @@ static int ventoy_api_auto_install_add_inner(struct mg_connection *conn, VTOY_JS
                     scnprintf(pnode->path, sizeof(pnode->path), "%s", path);
                     vtoy_list_add(node->list, pcur, pnode);
                 }
-            
+
                 break;
             }
         }
@@ -2946,7 +2946,7 @@ static int ventoy_api_auto_install_add_inner(struct mg_connection *conn, VTOY_JS
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -2960,7 +2960,7 @@ static int ventoy_api_auto_install_del_inner(struct mg_connection *conn, VTOY_JS
     path_node *pnode = NULL;
     auto_install_node *node = NULL;
     data_auto_install *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_auto_install + index;
 
@@ -2980,7 +2980,7 @@ static int ventoy_api_auto_install_del_inner(struct mg_connection *conn, VTOY_JS
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3007,7 +3007,7 @@ int ventoy_data_cmp_persistence(data_persistence *data1, data_persistence *data2
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
             if (list1->timeout != list2->timeout ||
@@ -3042,7 +3042,7 @@ int ventoy_data_save_persistence(data_persistence *data, const char *title, char
     int pos = 0;
     persistence_node *node = NULL;
     path_node *pathnode = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -3051,7 +3051,7 @@ int ventoy_data_save_persistence(data_persistence *data, const char *title, char
     for (node = data->list; node; node = node->next)
     {
         VTOY_JSON_FMT_OBJ_BEGIN_LN(L2);
-        VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);            
+        VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);
         VTOY_JSON_FMT_KEY_L(L3, "backend");
         VTOY_JSON_FMT_ARY_BEGIN_N();
         for (pathnode = node->list; pathnode; pathnode = pathnode->next)
@@ -3067,7 +3067,7 @@ int ventoy_data_save_persistence(data_persistence *data, const char *title, char
 
         if (node->autoselen)
         {
-            VTOY_JSON_FMT_SINT_LN(L3, "autosel", node->autosel);                
+            VTOY_JSON_FMT_SINT_LN(L3, "autosel", node->autosel);
         }
 
         VTOY_JSON_FMT_OBJ_ENDEX_LN(L2);
@@ -3086,7 +3086,7 @@ int ventoy_data_json_persistence(data_persistence *data, char *buf, int buflen)
     int valid = 0;
     persistence_node *node = NULL;
     path_node *pathnode = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -3096,13 +3096,13 @@ int ventoy_data_json_persistence(data_persistence *data, char *buf, int buflen)
 
         VTOY_JSON_FMT_STRN("path", node->path);
 
-        valid = ventoy_check_fuzzy_path(node->path, 1);            
+        valid = ventoy_check_fuzzy_path(node->path, 1);
         VTOY_JSON_FMT_SINT("valid", valid);
         VTOY_JSON_FMT_SINT("type", node->type);
-        
+
         VTOY_JSON_FMT_BOOL("timeouten", node->timeouten);
         VTOY_JSON_FMT_BOOL("autoselen", node->autoselen);
-        
+
         VTOY_JSON_FMT_SINT("autosel", node->autosel);
         VTOY_JSON_FMT_SINT("timeout", node->timeout);
 
@@ -3117,9 +3117,9 @@ int ventoy_data_json_persistence(data_persistence *data, char *buf, int buflen)
             VTOY_JSON_FMT_SINT("valid", valid);
             VTOY_JSON_FMT_OBJ_ENDEX();
         }
-        VTOY_JSON_FMT_ARY_ENDEX(); 
+        VTOY_JSON_FMT_ARY_ENDEX();
 
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -3145,13 +3145,13 @@ static int ventoy_api_save_persistence(struct mg_connection *conn, VTOY_JSON *js
     uint8_t autoselen = 0;
     persistence_node *node = NULL;
     data_persistence *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     vtoy_json_get_int(json, "id", &id);
 
     vtoy_json_get_bool(json, "timeouten", &timeouten);
     vtoy_json_get_bool(json, "autoselen", &autoselen);
-    
+
     data = g_data_persistence + index;
 
     if (id >= 0)
@@ -3171,7 +3171,7 @@ static int ventoy_api_save_persistence(struct mg_connection *conn, VTOY_JSON *js
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3185,7 +3185,7 @@ static int ventoy_api_persistence_add(struct mg_connection *conn, VTOY_JSON *jso
     persistence_node *cur = NULL;
     data_persistence *data = NULL;
     VTOY_JSON *array = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_persistence + index;
 
@@ -3202,14 +3202,14 @@ static int ventoy_api_persistence_add(struct mg_connection *conn, VTOY_JSON *jso
             node->timeout = 0;
             scnprintf(node->path, sizeof(node->path), "%s", path);
             node->list = ventoy_path_node_add_array(array);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET); 
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3221,7 +3221,7 @@ static int ventoy_api_persistence_del(struct mg_connection *conn, VTOY_JSON *jso
     persistence_node *last = NULL;
     persistence_node *node = NULL;
     data_persistence *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_persistence + index;
 
@@ -3233,7 +3233,7 @@ static int ventoy_api_persistence_del(struct mg_connection *conn, VTOY_JSON *jso
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3247,7 +3247,7 @@ static int ventoy_api_persistence_add_inner(struct mg_connection *conn, VTOY_JSO
     path_node *pnode = NULL;
     persistence_node *node = NULL;
     data_persistence *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_persistence + index;
 
@@ -3265,7 +3265,7 @@ static int ventoy_api_persistence_add_inner(struct mg_connection *conn, VTOY_JSO
                     scnprintf(pnode->path, sizeof(pnode->path), "%s", path);
                     vtoy_list_add(node->list, pcur, pnode);
                 }
-            
+
                 break;
             }
         }
@@ -3273,7 +3273,7 @@ static int ventoy_api_persistence_add_inner(struct mg_connection *conn, VTOY_JSO
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3287,7 +3287,7 @@ static int ventoy_api_persistence_del_inner(struct mg_connection *conn, VTOY_JSO
     path_node *pnode = NULL;
     persistence_node *node = NULL;
     data_persistence *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_persistence + index;
 
@@ -3307,7 +3307,7 @@ static int ventoy_api_persistence_del_inner(struct mg_connection *conn, VTOY_JSO
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);  
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3333,16 +3333,16 @@ int ventoy_data_cmp_injection(data_injection *data1, data_injection *data2)
     {
         list1 = data1->list;
         list2 = data2->list;
-    
+
         while (list1 && list2)
         {
             if ((list1->type != list2->type) ||
-                strcmp(list1->path, list2->path) || 
+                strcmp(list1->path, list2->path) ||
                 strcmp(list1->archive, list2->archive))
             {
                 return 1;
             }
-        
+
             list1 = list1->next;
             list2 = list2->next;
         }
@@ -3366,7 +3366,7 @@ int ventoy_data_save_injection(data_injection *data, const char *title, char *bu
 {
     int pos = 0;
     injection_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
 
     VTOY_JSON_FMT_KEY_L(L1, title);
@@ -3378,14 +3378,14 @@ int ventoy_data_save_injection(data_injection *data, const char *title, char *bu
 
         if (node->type == 0)
         {
-            VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);            
+            VTOY_JSON_FMT_STRN_PATH_LN(L3, "image", node->path);
         }
         else
         {
             VTOY_JSON_FMT_STRN_PATH_LN(L3, "parent", node->path);
         }
         VTOY_JSON_FMT_STRN_PATH_LN(L3, "archive", node->archive);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX_LN(L2);
     }
 
@@ -3401,7 +3401,7 @@ int ventoy_data_json_injection(data_injection *data, char *buf, int buflen)
     int pos = 0;
     int valid = 0;
     injection_node *node = NULL;
-    
+
     VTOY_JSON_FMT_BEGIN(pos, buf, buflen);
     VTOY_JSON_FMT_ARY_BEGIN();
 
@@ -3410,7 +3410,7 @@ int ventoy_data_json_injection(data_injection *data, char *buf, int buflen)
         VTOY_JSON_FMT_OBJ_BEGIN();
 
         VTOY_JSON_FMT_UINT("type", node->type);
-        VTOY_JSON_FMT_STRN("path", node->path);       
+        VTOY_JSON_FMT_STRN("path", node->path);
 
         if (node->type == 0)
         {
@@ -3421,12 +3421,12 @@ int ventoy_data_json_injection(data_injection *data, char *buf, int buflen)
             valid = ventoy_is_directory_exist("%s%s", g_cur_dir, node->path);
         }
         VTOY_JSON_FMT_SINT("valid", valid);
-        
+
         VTOY_JSON_FMT_STRN("archive", node->archive);
 
         valid = ventoy_is_file_exist("%s%s", g_cur_dir, node->archive);
         VTOY_JSON_FMT_SINT("archive_valid", valid);
-        
+
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
 
@@ -3448,7 +3448,7 @@ static int ventoy_api_save_injection(struct mg_connection *conn, VTOY_JSON *json
     int ret;
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3462,7 +3462,7 @@ static int ventoy_api_injection_add(struct mg_connection *conn, VTOY_JSON *json)
     injection_node *node = NULL;
     injection_node *cur = NULL;
     data_injection *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_injection + index;
 
@@ -3476,17 +3476,17 @@ static int ventoy_api_injection_add(struct mg_connection *conn, VTOY_JSON *json)
         if (node)
         {
             node->type = type;
-        
+
             scnprintf(node->path, sizeof(node->path), "%s", path);
             scnprintf(node->archive, sizeof(node->archive), "%s", archive);
-            
+
             vtoy_list_add(data->list, cur, node);
         }
     }
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3498,7 +3498,7 @@ static int ventoy_api_injection_del(struct mg_connection *conn, VTOY_JSON *json)
     injection_node *last = NULL;
     injection_node *node = NULL;
     data_injection *data = NULL;
-    
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_injection + index;
 
@@ -3510,7 +3510,7 @@ static int ventoy_api_injection_del(struct mg_connection *conn, VTOY_JSON *json)
 
     ret = ventoy_data_save_all();
 
-    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);
     return 0;
 }
 
@@ -3531,7 +3531,7 @@ int ventoy_data_real_save_all(void)
     char title[64];
 
     pthread_mutex_lock(&g_api_mutex);
-    
+
     ssprintf(pos, JSON_SAVE_BUFFER, JSON_BUF_MAX, "{\n");
 
     ventoy_save_plug(control);
@@ -3547,7 +3547,7 @@ int ventoy_data_real_save_all(void)
     ventoy_save_plug(image_list);
     ventoy_save_plug(auto_memdisk);
     ventoy_save_plug(dud);
-    
+
     if (JSON_SAVE_BUFFER[pos - 1] == '\n' && JSON_SAVE_BUFFER[pos - 2] == ',')
     {
         JSON_SAVE_BUFFER[pos - 2] = '\n';
@@ -3569,11 +3569,11 @@ int ventoy_http_writeback(void)
     ventoy_get_json_path(filename, NULL);
 
     pos = ventoy_data_real_save_all();
-        
+
     #ifdef VENTOY_SIM
     printf("%s", JSON_SAVE_BUFFER);
     #endif
-    
+
     ret = ventoy_write_buf_to_file(filename, JSON_SAVE_BUFFER, pos);
     if (ret)
     {
@@ -3585,88 +3585,88 @@ int ventoy_http_writeback(void)
 }
 
 
-static JSON_CB g_ventoy_json_cb[] = 
+static JSON_CB g_ventoy_json_cb[] =
 {
-    { "sysinfo",        ventoy_api_sysinfo            },    
-    { "handshake",      ventoy_api_handshake          },    
-    { "check_path",     ventoy_api_check_exist        },    
-    { "check_path2",    ventoy_api_check_exist2       },    
+    { "sysinfo",        ventoy_api_sysinfo            },
+    { "handshake",      ventoy_api_handshake          },
+    { "check_path",     ventoy_api_check_exist        },
+    { "check_path2",    ventoy_api_check_exist2       },
     { "check_fuzzy",    ventoy_api_check_fuzzy        },
-    
-    { "device_info",    ventoy_api_device_info        },    
-    
-    { "get_control",    ventoy_api_get_control        },    
-    { "save_control",   ventoy_api_save_control       },  
-    
-    { "get_theme",      ventoy_api_get_theme          },    
-    { "save_theme",     ventoy_api_save_theme         },    
-    { "theme_add_file", ventoy_api_theme_add_file     },    
-    { "theme_del_file", ventoy_api_theme_del_file     },    
-    { "theme_add_font", ventoy_api_theme_add_font     },    
+
+    { "device_info",    ventoy_api_device_info        },
+
+    { "get_control",    ventoy_api_get_control        },
+    { "save_control",   ventoy_api_save_control       },
+
+    { "get_theme",      ventoy_api_get_theme          },
+    { "save_theme",     ventoy_api_save_theme         },
+    { "theme_add_file", ventoy_api_theme_add_file     },
+    { "theme_del_file", ventoy_api_theme_del_file     },
+    { "theme_add_font", ventoy_api_theme_add_font     },
     { "theme_del_font", ventoy_api_theme_del_font     },
-    
+
     { "get_alias",      ventoy_api_get_alias          },
-    { "save_alias",     ventoy_api_save_alias         },   
+    { "save_alias",     ventoy_api_save_alias         },
     { "alias_add",      ventoy_api_alias_add          },
     { "alias_del",      ventoy_api_alias_del          },
-    
+
     { "get_tip",        ventoy_api_get_tip            },
-    { "save_tip",       ventoy_api_save_tip           },   
+    { "save_tip",       ventoy_api_save_tip           },
     { "tip_add",        ventoy_api_tip_add            },
     { "tip_del",        ventoy_api_tip_del            },
-    
+
     { "get_class",      ventoy_api_get_class          },
-    { "save_class",     ventoy_api_save_class         },   
+    { "save_class",     ventoy_api_save_class         },
     { "class_add",      ventoy_api_class_add          },
     { "class_del",      ventoy_api_class_del          },
-    
+
     { "get_auto_memdisk",  ventoy_api_get_auto_memdisk  },
-    { "save_auto_memdisk", ventoy_api_save_auto_memdisk },   
+    { "save_auto_memdisk", ventoy_api_save_auto_memdisk },
     { "auto_memdisk_add",  ventoy_api_auto_memdisk_add  },
     { "auto_memdisk_del",  ventoy_api_auto_memdisk_del  },
-    
+
     { "get_image_list",  ventoy_api_get_image_list  },
     { "save_image_list", ventoy_api_save_image_list },
     { "image_list_add",  ventoy_api_image_list_add  },
     { "image_list_del",  ventoy_api_image_list_del  },
 
     { "get_conf_replace",      ventoy_api_get_conf_replace      },
-    { "save_conf_replace",     ventoy_api_save_conf_replace     },   
+    { "save_conf_replace",     ventoy_api_save_conf_replace     },
     { "conf_replace_add",      ventoy_api_conf_replace_add      },
     { "conf_replace_del",      ventoy_api_conf_replace_del      },
-    
+
     { "get_dud",            ventoy_api_get_dud      },
-    { "save_dud",           ventoy_api_save_dud     },   
+    { "save_dud",           ventoy_api_save_dud     },
     { "dud_add",            ventoy_api_dud_add      },
     { "dud_del",            ventoy_api_dud_del      },
     { "dud_add_inner",      ventoy_api_dud_add_inner      },
     { "dud_del_inner",      ventoy_api_dud_del_inner      },
-    
+
     { "get_auto_install",            ventoy_api_get_auto_install      },
-    { "save_auto_install",           ventoy_api_save_auto_install     },   
+    { "save_auto_install",           ventoy_api_save_auto_install     },
     { "auto_install_add",            ventoy_api_auto_install_add      },
     { "auto_install_del",            ventoy_api_auto_install_del      },
     { "auto_install_add_inner",      ventoy_api_auto_install_add_inner      },
     { "auto_install_del_inner",      ventoy_api_auto_install_del_inner      },
-    
+
     { "get_persistence",            ventoy_api_get_persistence      },
-    { "save_persistence",           ventoy_api_save_persistence     },   
+    { "save_persistence",           ventoy_api_save_persistence     },
     { "persistence_add",            ventoy_api_persistence_add      },
     { "persistence_del",            ventoy_api_persistence_del      },
     { "persistence_add_inner",      ventoy_api_persistence_add_inner      },
     { "persistence_del_inner",      ventoy_api_persistence_del_inner      },
-    
+
     { "get_password",      ventoy_api_get_password      },
-    { "save_password",     ventoy_api_save_password     },   
+    { "save_password",     ventoy_api_save_password     },
     { "password_add",      ventoy_api_password_add      },
     { "password_del",      ventoy_api_password_del      },
-    
+
     { "get_injection",      ventoy_api_get_injection     },
-    { "save_injection",     ventoy_api_save_injection     },   
+    { "save_injection",     ventoy_api_save_injection     },
     { "injection_add",      ventoy_api_injection_add      },
     { "injection_del",      ventoy_api_injection_del      },
 
-    
+
 };
 
 static int ventoy_json_handler(struct mg_connection *conn, VTOY_JSON *json)
@@ -3686,7 +3686,7 @@ static int ventoy_json_handler(struct mg_connection *conn, VTOY_JSON *json)
         ventoy_api_handshake(conn, json);
         return 0;
     }
-    
+
     for (i = 0; i < (int)(sizeof(g_ventoy_json_cb) / sizeof(g_ventoy_json_cb[0])); i++)
     {
         if (strcmp(method, g_ventoy_json_cb[i].method) == 0)
@@ -3707,8 +3707,8 @@ static int ventoy_request_handler(struct mg_connection *conn)
     char *post_data_buf = NULL;
     const struct mg_request_info *ri = NULL;
     char stack_buf[512];
-    
-    ri = mg_get_request_info(conn);    
+
+    ri = mg_get_request_info(conn);
 
     if (strcmp(ri->uri, "/vtoy/json") == 0)
     {
@@ -3722,7 +3722,7 @@ static int ventoy_request_handler(struct mg_connection *conn)
             post_data_buf = stack_buf;
             post_buf_len = sizeof(stack_buf);
         }
-        
+
         post_data_len = mg_read(conn, post_data_buf, post_buf_len);
         post_data_buf[post_data_len] = 0;
 
@@ -3762,7 +3762,7 @@ const char *ventoy_web_openfile(const struct mg_connection *conn, const char *pa
     {
         return NULL;
     }
-    
+
     node = ventoy_tar_find_file(path);
     if (node)
     {
@@ -3893,7 +3893,7 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
             {
                 CONTROL_PARSE_INT(child, data->filter_vtoy);
             }
-            
+
         }
     }
 
@@ -3919,8 +3919,8 @@ static int ventoy_parse_theme(VTOY_JSON *json, void *p)
     vtoy_json_get_string(child, "ventoy_left", sizeof(data->ventoy_left), data->ventoy_left);
     vtoy_json_get_string(child, "ventoy_top", sizeof(data->ventoy_top), data->ventoy_top);
     vtoy_json_get_string(child, "ventoy_color", sizeof(data->ventoy_color), data->ventoy_color);
-    
-    vtoy_json_get_int(child, "default_file", &(data->default_file));    
+
+    vtoy_json_get_int(child, "default_file", &(data->default_file));
     vtoy_json_get_string(child, "gfxmode", sizeof(data->gfxmode), data->gfxmode);
     vtoy_json_get_string(child, "serial_param", sizeof(data->serial_param), data->serial_param);
 
@@ -3984,7 +3984,7 @@ static int ventoy_parse_theme(VTOY_JSON *json, void *p)
         }
     }
 
-    
+
     node = vtoy_json_find_item(child, JSON_TYPE_ARRAY, "fonts");
     if (node)
     {
@@ -4051,7 +4051,7 @@ static int ventoy_parse_menu_alias(VTOY_JSON *json, void *p)
                 pnode->type = type;
                 strlcpy(pnode->path, path);
                 strlcpy(pnode->alias, alias);
-                
+
                 if (data->list)
                 {
                     tail->next = pnode;
@@ -4063,7 +4063,7 @@ static int ventoy_parse_menu_alias(VTOY_JSON *json, void *p)
                 }
             }
         }
-    }    
+    }
 
     return 0;
 }
@@ -4118,7 +4118,7 @@ static int ventoy_parse_menu_tip(VTOY_JSON *json, void *p)
                 pnode->type = type;
                 strlcpy(pnode->path, path);
                 strlcpy(pnode->tip, tip);
-                
+
                 if (data->list)
                 {
                     tail->next = pnode;
@@ -4130,7 +4130,7 @@ static int ventoy_parse_menu_tip(VTOY_JSON *json, void *p)
                 }
             }
         }
-    }    
+    }
 
     return 0;
 }
@@ -4178,7 +4178,7 @@ static int ventoy_parse_menu_class(VTOY_JSON *json, void *p)
                 pnode->type = type;
                 strlcpy(pnode->path, path);
                 strlcpy(pnode->class, class);
-                
+
                 if (data->list)
                 {
                     tail->next = pnode;
@@ -4190,7 +4190,7 @@ static int ventoy_parse_menu_class(VTOY_JSON *json, void *p)
                 }
             }
         }
-    }    
+    }
 
     return 0;
 }
@@ -4236,7 +4236,7 @@ static int ventoy_parse_auto_install(VTOY_JSON *json, void *p)
         {
             continue;
         }
-                
+
         file = vtoy_json_get_string_ex(node->pstChild, "template");
         if (file)
         {
@@ -4324,7 +4324,7 @@ static int ventoy_parse_auto_install(VTOY_JSON *json, void *p)
                 else
                 {
                     pnode->list = pathtail = pathnode;
-                }                
+                }
             }
         }
 
@@ -4388,7 +4388,7 @@ static int ventoy_parse_persistence(VTOY_JSON *json, void *p)
         {
             continue;
         }
-                
+
         file = vtoy_json_get_string_ex(node->pstChild, "backend");
         if (file)
         {
@@ -4476,7 +4476,7 @@ static int ventoy_parse_persistence(VTOY_JSON *json, void *p)
                 else
                 {
                     pnode->list = pathtail = pathnode;
-                }                
+                }
             }
         }
 
@@ -4544,7 +4544,7 @@ static int ventoy_parse_injection(VTOY_JSON *json, void *p)
                 pnode->type = type;
                 strlcpy(pnode->path, path);
                 strlcpy(pnode->archive, archive);
-                
+
                 if (data->list)
                 {
                     tail->next = pnode;
@@ -4556,7 +4556,7 @@ static int ventoy_parse_injection(VTOY_JSON *json, void *p)
                 }
             }
         }
-    }    
+    }
 
     return 0;
 }
@@ -4600,9 +4600,9 @@ static int ventoy_parse_conf_replace(VTOY_JSON *json, void *p)
                 strlcpy(pnode->new, new);
                 if (img == 1)
                 {
-                    pnode->image = img;                    
+                    pnode->image = img;
                 }
-                
+
                 if (data->list)
                 {
                     tail->next = pnode;
@@ -4614,7 +4614,7 @@ static int ventoy_parse_conf_replace(VTOY_JSON *json, void *p)
                 }
             }
         }
-    }    
+    }
 
     return 0;
 }
@@ -4657,8 +4657,8 @@ static int ventoy_parse_password(VTOY_JSON *json, void *p)
     if (efipwd) strlcpy(data->efipwd, efipwd);
     if (vhdpwd) strlcpy(data->vhdpwd, vhdpwd);
     if (vtoypwd) strlcpy(data->vtoypwd, vtoypwd);
-    
-    
+
+
     menupwd = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "menupwd");
     if (!menupwd)
     {
@@ -4689,7 +4689,7 @@ static int ventoy_parse_password(VTOY_JSON *json, void *p)
                 pnode->type = type;
                 strlcpy(pnode->path, path);
                 strlcpy(pnode->pwd, pwd);
-                
+
                 if (data->list)
                 {
                     tail->next = pnode;
@@ -4701,7 +4701,7 @@ static int ventoy_parse_password(VTOY_JSON *json, void *p)
                 }
             }
         }
-    }    
+    }
 
     return 0;
 }
@@ -4818,7 +4818,7 @@ static int ventoy_parse_dud(VTOY_JSON *json, void *p)
         {
             continue;
         }
-                
+
         file = vtoy_json_get_string_ex(node->pstChild, "dud");
         if (file)
         {
@@ -4887,7 +4887,7 @@ static int ventoy_parse_dud(VTOY_JSON *json, void *p)
                 else
                 {
                     pnode->list = pathtail = pathnode;
-                }                
+                }
             }
         }
 
@@ -4956,7 +4956,7 @@ static int ventoy_load_old_json(const char *filename)
         free(buffer);
         return 1;
     }
-    
+
     if (vtoy_json_parse_ex(json, buffer + offset, buflen - offset) == JSON_SUCCESS)
     {
         vlog("parse ventoy.json success\n");
@@ -4993,7 +4993,7 @@ static int ventoy_load_old_json(const char *filename)
     }
     else
     {
-        vlog("ventoy.json has syntax error.\n");    
+        vlog("ventoy.json has syntax error.\n");
         g_sysinfo.syntax_error = 1;
         ret = 1;
     }
@@ -5013,7 +5013,7 @@ int ventoy_http_start(const char *ip, const char *port)
     char filename[128];
     char backupname[128];
     struct mg_callbacks callbacks;
-    const char *options[] = 
+    const char *options[] =
     {
 	    "listening_ports",    "24681",
         "document_root",      "www",
@@ -5030,7 +5030,7 @@ int ventoy_http_start(const char *ip, const char *port)
         ventoy_data_default_theme(g_data_theme + i);
         ventoy_data_default_menu_alias(g_data_menu_alias + i);
         ventoy_data_default_menu_class(g_data_menu_class + i);
-        ventoy_data_default_menu_tip(g_data_menu_tip + i);        
+        ventoy_data_default_menu_tip(g_data_menu_tip + i);
         ventoy_data_default_auto_install(g_data_auto_install + i);
         ventoy_data_default_persistence(g_data_persistence + i);
         ventoy_data_default_injection(g_data_injection + i);
@@ -5069,7 +5069,7 @@ int ventoy_http_stop(void)
 {
     if (g_ventoy_http_ctx)
     {
-        mg_stop(g_ventoy_http_ctx);        
+        mg_stop(g_ventoy_http_ctx);
     }
 
     ventoy_stop_writeback_thread();
@@ -5079,7 +5079,7 @@ int ventoy_http_stop(void)
 int ventoy_http_init(void)
 {
     int i = 0;
-    
+
 #ifdef VENTOY_SIM
     char *Buffer = NULL;
     int BufLen = 0;
@@ -5111,7 +5111,7 @@ int ventoy_http_init(void)
     {
         g_pub_json_buffer = malloc(JSON_BUF_MAX * 2);
         g_pub_save_buffer = g_pub_json_buffer + JSON_BUF_MAX;
-    }   
+    }
 
 
     pthread_mutex_init(&g_api_mutex, NULL);
@@ -5123,7 +5123,7 @@ void ventoy_http_exit(void)
     check_free(g_pub_json_buffer);
     g_pub_json_buffer = NULL;
     g_pub_save_buffer = NULL;
-    
+
     pthread_mutex_destroy(&g_api_mutex);
 }
 

@@ -37,7 +37,7 @@ static struct lzo_algorithm lzo[] = {
 	{ "lzo1x_1_12", LZO1X_1_12_MEM_COMPRESS, lzo1x_1_12_compress },
 	{ "lzo1x_1_15", LZO1X_1_15_MEM_COMPRESS, lzo1x_1_15_compress },
 	{ "lzo1x_999", LZO1X_999_MEM_COMPRESS, lzo1x_999_wrapper },
-	{ NULL, 0, NULL } 
+	{ NULL, 0, NULL }
 };
 
 /* default LZO compression algorithm and compression level */
@@ -160,7 +160,7 @@ static void *lzo_dump_options(int block_size, int *size)
  * set the default options, this is to ensure any user supplied
  * -X options on the appending mksquashfs command line are over-ridden
  *
- * This function returns 0 on sucessful extraction of options, and
+ * This function returns 0 on successful extraction of options, and
  *			-1 on error
  */
 static int lzo_extract_options(int block_size, void *buffer, int size)
@@ -259,7 +259,7 @@ static void lzo_display_options(void *buffer, int size)
 failed:
 	fprintf(stderr, "lzo: error reading stored compressor options from "
 		"filesystem!\n");
-}	
+}
 
 
 /*
@@ -296,7 +296,7 @@ failed:
 static int lzo_compress(void *strm, void *dest, void *src,  int size,
 	int block_size, int *error)
 {
-    
+
 	return 0;
 }
 

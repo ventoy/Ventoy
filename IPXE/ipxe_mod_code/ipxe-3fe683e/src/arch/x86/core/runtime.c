@@ -144,7 +144,7 @@ static int cmdline_init ( void ) {
             chainlen = (int)strtoul(pos2 + 6, NULL, 10);
             *pos2 = ':';
 
-            g_initrd_addr = (void *)umalloc(chainlen);  
+            g_initrd_addr = (void *)umalloc(chainlen);
             g_initrd_len = chainlen;
             memcpy_user((userptr_t)g_initrd_addr, 0, chainaddr, 0, chainlen);
         }
@@ -160,7 +160,7 @@ static int cmdline_init ( void ) {
 	}
 
     g_cmdline_copy = cmdline_copy;
-    
+
 	cmdline = cmdline_copy;
 	copy_from_user ( cmdline, cmdline_user, 0, len );
 	DBGC ( colour, "RUNTIME found command line \"%s\" at %08x\n",

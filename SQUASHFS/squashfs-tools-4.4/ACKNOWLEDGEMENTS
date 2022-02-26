@@ -42,7 +42,7 @@ for the Squashfs kernel code.
 
 Vito Di Leo sent a patch extending Mksquashfs to support regex filters.
 While his patched worked, it unfortunately made it easy to make Mksquashfs
-perform unpredictably with poorly choosen regex expressions.  It, however,
+perform unpredictably with poorly chosen regex expressions.  It, however,
 encouraged myself to add support for wildcard pattern matching and regex
 filters in a different way.
 

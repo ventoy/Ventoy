@@ -75,7 +75,7 @@ int fatfs_add_free_space(struct fatfs *fs, uint32 *startCluster, uint32 clusters
     return 1;
 }
 //-----------------------------------------------------------------------------
-// fatfs_allocate_free_space: Add an ammount of free space to a file either from
+// fatfs_allocate_free_space: Add an amount of free space to a file either from
 // 'startCluster' if newFile = false, or allocating a new start to the chain if
 // newFile = true.
 //-----------------------------------------------------------------------------

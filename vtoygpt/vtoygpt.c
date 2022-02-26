@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -144,7 +144,7 @@ void DumpHead(VTOY_GPT_HDR *pHead)
 {
     UINT32 CrcRead;
     UINT32 CrcCalc;
-    
+
     printf("Signature:<%s>\n", pHead->Signature);
     printf("Version:<%02x %02x %02x %02x>\n", pHead->Version[0], pHead->Version[1], pHead->Version[2], pHead->Version[3]);
     printf("Length:%u\n", pHead->Length);
@@ -154,7 +154,7 @@ void DumpHead(VTOY_GPT_HDR *pHead)
     printf("PartAreaStartLBA:%lu\n", pHead->PartAreaStartLBA);
     printf("PartAreaEndLBA:%lu\n", pHead->PartAreaEndLBA);
     DumpGuid("DiskGuid", &pHead->DiskGuid);
-    
+
     printf("PartTblStartLBA:%lu\n", pHead->PartTblStartLBA);
     printf("PartTblTotNum:%u\n", pHead->PartTblTotNum);
     printf("PartTblEntryLen:%u\n", pHead->PartTblEntryLen);
@@ -188,7 +188,7 @@ void DumpHead(VTOY_GPT_HDR *pHead)
 void DumpPartTable(VTOY_GPT_PART_TBL *Tbl)
 {
     int i;
-    
+
     DumpGuid("PartType", &Tbl->PartType);
     DumpGuid("PartGuid", &Tbl->PartGuid);
     printf("StartLBA:%lu\n", Tbl->StartLBA);
@@ -200,13 +200,13 @@ void DumpPartTable(VTOY_GPT_PART_TBL *Tbl)
     {
         printf("%c", (CHAR)(Tbl->Name[i]));
     }
-    printf("\n");    
+    printf("\n");
 }
 
 void DumpMBR(MBR_HEAD *pMBR)
 {
     int i;
-    
+
     for (i = 0; i < 4; i++)
     {
         printf("=========== Partition Table %d ============\n", i + 1);
@@ -236,7 +236,7 @@ int DumpGptInfo(VTOY_GPT_INFO *pGptInfo)
         {
             break;
         }
-    
+
         printf("=====Part %d=====\n", i);
         DumpPartTable(pGptInfo->PartTbl + i);
     }
@@ -277,7 +277,7 @@ int main(int argc, const char **argv)
     }
 
     read(fd, pMainGptInfo, sizeof(VTOY_GPT_INFO));
-    
+
     if (argv[1][0] == '-' && argv[1][1] == 'd')
     {
         DumpGptInfo(pMainGptInfo);

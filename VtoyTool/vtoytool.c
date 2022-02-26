@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -40,7 +40,7 @@ int vtoyksym_main(int argc, char **argv);
 int vtoykmod_main(int argc, char **argv);
 
 static char *g_vtoytool_name = NULL;
-static cmd_def g_cmd_list[] = 
+static cmd_def g_cmd_list[] =
 {
     { "vine_patch_loader",  vtoyvine_main  },
     { "vtoydump",    vtoydump_main    },
@@ -57,7 +57,7 @@ int vtoytool_install(int argc, char **argv)
     int i;
     char toolpath[128];
     char filepath[128];
-    
+
     for (i = 0; i < sizeof(g_cmd_list) / sizeof(g_cmd_list[0]); i++)
     {
         if (g_cmd_list[i].cmd[0] != '-')
@@ -67,14 +67,14 @@ int vtoytool_install(int argc, char **argv)
             link(toolpath, filepath);
         }
     }
-    
+
     return 0;
 }
 
 int main(int argc, char **argv)
 {
     int i;
-    
+
     if ((g_vtoytool_name = strstr(argv[0], "vtoytool")) != NULL)
     {
         argc--;

@@ -27,7 +27,7 @@
  *
  * The file format is documented in the document "Windows Imaging File
  * Format (WIM)", available from
- * 
+ *
  *   http://www.microsoft.com/en-us/download/details.aspx?id=13096
  *
  * The wimlib source code is also a useful reference.
@@ -95,7 +95,7 @@ struct wim_header {
 
 /** WIM header flags */
 enum wim_header_flags {
-	/** WIM uses Xpress compresson */
+	/** WIM uses Xpress compression */
 	WIM_HDR_XPRESS = 0x00020000,
 	/** WIM uses LZX compression */
 	WIM_HDR_LZX = 0x00040000,

@@ -352,13 +352,13 @@ static void grub_keymap_add_by_string(const char *src, const char *dst)
 {
     int in = 0;
     int out = 0;
-    
+
     in = parse_key(dst);
     out = parse_key(src);
 
     if (in && out)
     {
-        grub_keymap_add (in, out);        
+        grub_keymap_add (in, out);
     }
 }
 

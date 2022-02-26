@@ -9,7 +9,7 @@ FATFS_IS_LITTLE_ENDIAN 	[1/0]
 FATFS_MAX_LONG_FILENAME	[260]
   By default, 260 characters (max LFN length). Increase this to support greater path depths.
 
-FATFS_MAX_OPEN_FILES 	
+FATFS_MAX_OPEN_FILES
   The more files you wish to have concurrently open, the greater this number should be.
   This increases the number of FL_FILE file structures in the library, each of these is around 1K in size (assuming 512 byte sectors).
 
@@ -29,7 +29,7 @@ FAT_SECTOR_SIZE
   Sector size used by buffers. Most likely to be 512 bytes (standard for ATA/IDE).
 
 FAT_PRINTF
-  A define that allows the File IO library to print to console/stdout. 
+  A define that allows the File IO library to print to console/stdout.
   Provide your own printf function if printf not available.
 
 FAT_CLUSTER_CACHE_ENTRIES

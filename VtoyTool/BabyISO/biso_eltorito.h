@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -22,13 +22,13 @@
 /*
  * EL TORITO扩展规范相关定义
  * 注意点:
- *   [1] EL TORITO扩展规范里定义的数据都是小字节序的 
+ *   [1] EL TORITO扩展规范里定义的数据都是小字节序的
  */
 
 #ifndef __BISO_ELTORITO_H__
 #define __BISO_ELTORITO_H__
 
-/* 
+/*
  * EL TORITO规范里对于Boot Record里面BootCatlog指向的扩展区域做了
  * 结构定义，分成一条条的表项，每一条表项固定32个字节长,1个扇区
  * 可以保存64条表项。BootCatlog可以占用多个扇区。
@@ -59,7 +59,7 @@ typedef struct tagBISO_TORITO_VALIDATION_ENTRY
 {
     UCHAR ucHeaderID;  /* Must be 01 */
 
-    /* 
+    /*
      * PlatID: CPU平台架构
      * 0x00: x86
      * 0x01: PowerPC
@@ -73,10 +73,10 @@ typedef struct tagBISO_TORITO_VALIDATION_ENTRY
     /* ID，一般用来保存CD-ROM的制造商信息 */
     CHAR szID[24];
 
-    /* 
+    /*
      * 校验补充字段, 注意[1]
      * 这个字段用来保证整个Validation Entry的数据
-     * 按照WORD(双字节)累加起来为0(截取之后) 
+     * 按照WORD(双字节)累加起来为0(截取之后)
      */
     UINT16 usCheckSum;
 
@@ -91,7 +91,7 @@ typedef struct tagBISO_TORITO_INITIAL_ENTRY
     /* BOOTID: 0x88:Bootable, 00:Not Bootable */
     UCHAR ucBootId;
 
-    /* 
+    /*
      * ucBootMedia:
      * Bit0 - Bit3的值:
      *  0: No Emulation
@@ -134,7 +134,7 @@ typedef struct tagBISO_TORITO_SECHDR_ENTRY
     /* ucFlag: 0x90:表示后面还有Header, 0x91:表示最后一个Header */
     UCHAR ucFlag;
 
-    /* 
+    /*
      * PlatID: CPU平台架构
      * 0x00: x86
      * 0x01: PowerPC
@@ -155,8 +155,8 @@ typedef struct tagBISO_TORITO_SECTION_ENTRY
 {
     /* BOOTID: 88:Bootable, 00:Not Bootable */
     UCHAR ucBootId;
-    
-    /* 
+
+    /*
      * ucBootMedia:
      * Bit0 - Bit3的值:
      *  0: No Emulation
@@ -186,7 +186,7 @@ typedef struct tagBISO_TORITO_SECTION_ENTRY
     /* 启动文件所在的起始逻辑块编号，例如isolinux.bin文件的位置, 注意[1] */
     UINT32 uiLoadRBA;
 
-    /* 
+    /*
      * 它的值描述了后面的aucCriteria的格式
      * 0: 没有
      * 1: Language and Version Information (IBM)
@@ -204,7 +204,7 @@ typedef struct tagBISO_TORITO_SECEXT_ENTRY
     /* ucExtId: 必须为44 */
     UCHAR ucExtId;
 
-    /* 
+    /*
      * ucFlag: 只有Bit5有用
      * Bit5: 1表示后面还有Extension Record  0表示最后一个
      */
@@ -217,7 +217,7 @@ typedef struct tagBISO_TORITO_SECEXT_ENTRY
 #pragma pack()
 
 /*
- * 当前缓冲区指针位置向前1条Entry 
+ * 当前缓冲区指针位置向前1条Entry
  * 如果已经超过了2048字节，则继续从文件中读
  */
 #define BISO_ELTORITO_ENTRY_STEP(pstSection, pstFile, aucBuf, stMBuf) \

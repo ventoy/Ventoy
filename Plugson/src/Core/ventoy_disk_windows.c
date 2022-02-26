@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -33,7 +33,7 @@ int ventoy_disk_init(void)
 	char Letter = 'A';
 	DWORD Drives = GetLogicalDrives();
 
-    vlog("ventoy disk init ...\n");   
+    vlog("ventoy disk init ...\n");
 
     g_disk_list = zalloc(sizeof(ventoy_disk) * MAX_DISK);
 
@@ -63,7 +63,7 @@ int ventoy_disk_init(void)
 
 void ventoy_disk_exit(void)
 {
-    vlog("ventoy disk exit ...\n");   
+    vlog("ventoy disk exit ...\n");
 
     check_free(g_disk_list);
     g_disk_list = NULL;

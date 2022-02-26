@@ -24,7 +24,7 @@
  * squashfs_fs.h
  */
 
-#define SQUASHFS_CACHED_FRAGMENTS	CONFIG_SQUASHFS_FRAGMENT_CACHE_SIZE	
+#define SQUASHFS_CACHED_FRAGMENTS	CONFIG_SQUASHFS_FRAGMENT_CACHE_SIZE
 #define SQUASHFS_MAJOR			4
 #define SQUASHFS_MINOR			0
 #define SQUASHFS_MAGIC			0x73717368
@@ -355,7 +355,7 @@ struct squashfs_dev_inode_header {
 	unsigned int		nlink;
 	unsigned int		rdev;
 };
-	
+
 struct squashfs_ldev_inode_header {
 	unsigned short		inode_type;
 	unsigned short		mode;
@@ -367,7 +367,7 @@ struct squashfs_ldev_inode_header {
 	unsigned int		rdev;
 	unsigned int		xattr;
 };
-	
+
 struct squashfs_symlink_inode_header {
 	unsigned short		inode_type;
 	unsigned short		mode;
@@ -454,7 +454,7 @@ union squashfs_inode_header {
 	struct squashfs_ipc_inode_header	ipc;
 	struct squashfs_lipc_inode_header	lipc;
 };
-	
+
 struct squashfs_dir_entry {
 	unsigned short		offset;
 	short			inode_number;

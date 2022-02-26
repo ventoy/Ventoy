@@ -121,7 +121,7 @@ ventoy_env_write_root (struct grub_env_var *var __attribute__ ((unused)),
 {
     const char *pos = val;
     char buf[256];
-    
+
     if (g_ventoy_hook_root == 0)
     {
         return grub_env_write_root(var, val);
@@ -253,7 +253,7 @@ grub_set_prefix_and_root (void)
   if (device)
     {
       char *prefix_set;
-    
+
       prefix_set = grub_xasprintf ("(%s)%s", device, path ? : "");
       if (prefix_set)
 	{
@@ -330,9 +330,9 @@ static int ventoy_legacy_limit_workaround(void)
         if (pos)
         {
             grub_file_read(file, pos, file->size);
-            grub_snprintf(buf, sizeof(buf), "loopback ventoydisk mem:0x%lx:size:%lu", 
+            grub_snprintf(buf, sizeof(buf), "loopback ventoydisk mem:0x%lx:size:%lu",
                           (unsigned long)pos, (unsigned long)file->size);
-            
+
             grub_parser_execute(buf);
             grub_env_set("prefix", "(ventoydisk)/grub");
         }
@@ -340,7 +340,7 @@ static int ventoy_legacy_limit_workaround(void)
         grub_file_close(file);
     }
 
-    grub_free(root);      
+    grub_free(root);
     return 0;
 }
 #endif
@@ -367,7 +367,7 @@ grub_main (void)
   grub_register_exported_symbols ();
 #ifdef GRUB_LINKER_HAVE_INIT
   grub_arch_dl_init_linker ();
-#endif  
+#endif
   grub_load_modules ();
 
   grub_boot_time ("After loading embedded modules.");

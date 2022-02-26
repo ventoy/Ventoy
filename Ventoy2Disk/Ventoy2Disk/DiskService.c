@@ -85,7 +85,7 @@ BOOL DISK_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Offset, UINT64 Attr)
 	BOOL ret;
 
 	ret = VDS_ChangeVtoyEFIAttr(DriveIndex, Offset, Attr);
-	
+
 	return ret;
 }
 

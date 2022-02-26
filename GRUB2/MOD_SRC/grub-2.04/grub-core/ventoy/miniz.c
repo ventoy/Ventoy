@@ -8,8 +8,8 @@
       level_and_flags can now be set to MZ_DEFAULT_COMPRESSION. Thanks to Bruce Dawson <bruced@valvesoftware.com> for the feedback/bug report.
      5/28/11 v1.11 - Added statement from unlicense.org
      5/27/11 v1.10 - Substantial compressor optimizations:
-      Level 1 is now ~4x faster than before. The L1 compressor's throughput now varies between 70-110MB/sec. on a 
-      Core i7 (actual throughput varies depending on the type of data, and x64 vs. x86).     
+      Level 1 is now ~4x faster than before. The L1 compressor's throughput now varies between 70-110MB/sec. on a
+      Core i7 (actual throughput varies depending on the type of data, and x64 vs. x86).
       Improved baseline L2-L9 compression perf. Also, greatly improved compression perf. issues on some file types.
       Refactored the compression code for better readability and maintainability.
       Added level 10 compression level (L10 has slightly better ratio than level 9, but could have a potentially large
@@ -604,7 +604,7 @@ typedef struct
   mz_uint8 m_output_buf[TDEFL_OUT_BUF_SIZE];
 } tdefl_compressor;
 
-// Initializes the compressor. 
+// Initializes the compressor.
 // There is no corresponding deinit() function because the tdefl API's do not dynamically allocate memory.
 // pBut_buf_func: If NULL, output data will be supplied to the specified callback. In this case, the user should call the tdefl_compress_buffer() API for compression.
 // If pBut_buf_func is NULL the user should always call the tdefl_compress() API.
@@ -1938,7 +1938,7 @@ static int tdefl_flush_block(tdefl_compressor *d, int flush)
       if (!(*d->m_pPut_buf_func)(d->m_output_buf, n, d->m_pPut_buf_user))
         return (d->m_prev_return_status = TDEFL_STATUS_PUT_BUF_FAILED);
     }
-    else if (pOutput_buf_start == d->m_output_buf) 
+    else if (pOutput_buf_start == d->m_output_buf)
     {
       int bytes_to_copy = (int)MZ_MIN((size_t)n, (size_t)(*d->m_pOut_buf_size - d->m_out_buf_ofs));
       memcpy((mz_uint8 *)d->m_pOut_buf + d->m_out_buf_ofs, d->m_output_buf, bytes_to_copy);
@@ -2397,7 +2397,7 @@ tdefl_status tdefl_compress(tdefl_compressor *d, const void *pIn_buf, size_t *pI
 
   if ((d->m_flags & (TDEFL_WRITE_ZLIB_HEADER | TDEFL_COMPUTE_ADLER32)) && (pIn_buf))
     d->m_adler32 = (mz_uint32)mz_adler32(d->m_adler32, (const mz_uint8 *)pIn_buf, d->m_pSrc - (const mz_uint8 *)pIn_buf);
-  
+
   if (d->m_flags & TDEFL_COMPUTE_CRC32)
     d->m_crc32 = (mz_uint32)mz_crc32(d->m_crc32, (const mz_uint8 *)pIn_buf, d->m_pSrc - (const mz_uint8 *)pIn_buf);
 

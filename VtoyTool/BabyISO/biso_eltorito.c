@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #include "biso.h"
 #include "biso_list.h"
 #include "biso_util.h"
@@ -26,7 +26,7 @@
 
 ULONG BISO_ELTORITO_ReadBootInfo
 (
-    IN  BISO_FILE_S   *pstFile, 
+    IN  BISO_FILE_S   *pstFile,
     OUT BISO_PARSER_S *pstParser
 )
 {
@@ -37,7 +37,7 @@ ULONG BISO_ELTORITO_ReadBootInfo
     BISO_MBUF_S stMBuf;
     BISO_TORITO_SECHDR_ENTRY_S *pstSecHdr = NULL;
     BISO_TORITO_SECTION_ENTRY_S *pstSection = NULL;
-    
+
     DBGASSERT(NULL != pstFile);
     DBGASSERT(NULL != pstParser);
 
@@ -69,18 +69,18 @@ ULONG BISO_ELTORITO_ReadBootInfo
 
         for (i = 0; i < pstSecHdr->usSecEntryNum; )
         {
-            /* 
-             * Section Entry和Extension Entry都是由ucFlag的Bit5决定是否结束 
+            /*
+             * Section Entry和Extension Entry都是由ucFlag的Bit5决定是否结束
              * 因此这里全部都用Section Entry的结构做判断
              */
             if (0 == (pstSection->ucFlag & 0x10))
             {
                 i++;
             }
-           
-            BISO_ELTORITO_ENTRY_STEP(pstSection, pstFile, aucBuf, stMBuf);            
+
+            BISO_ELTORITO_ENTRY_STEP(pstSection, pstFile, aucBuf, stMBuf);
         }
-    
+
         if (0x91 == pstSecHdr->ucFlag) /* 91代表最后一个 */
         {
             break;
@@ -93,7 +93,7 @@ ULONG BISO_ELTORITO_ReadBootInfo
     }
 
     /* 保存到全局结构中 */
-    pstParser->uiElToritoLen = stMBuf.uiTotDataSize;    
+    pstParser->uiElToritoLen = stMBuf.uiTotDataSize;
     pstParser->pucElToritoEntry = (UCHAR *)BISO_MALLOC(pstParser->uiElToritoLen);
     if (NULL == pstParser->pucElToritoEntry)
     {
@@ -107,7 +107,7 @@ ULONG BISO_ELTORITO_ReadBootInfo
 }
 
 VOID BISO_ELTORITO_Dump(IN CONST BISO_PARSER_S *pstParser)
-{   
+{
     BISO_DUMP("uiElToritoLen=%u\n", pstParser->uiElToritoLen);
 }
 
@@ -119,7 +119,7 @@ UINT BISO_ELTORITO_GetBootEntryNum(IN CONST BISO_PARSER_S *pstParser)
     UCHAR *pucData = NULL;
     BISO_TORITO_VALIDATION_ENTRY_S *pstValidation = NULL;
     BISO_TORITO_INITIAL_ENTRY_S *pstInitial = NULL;
-    
+
     if (NULL == pstParser->pucElToritoEntry)
     {
         return 0;

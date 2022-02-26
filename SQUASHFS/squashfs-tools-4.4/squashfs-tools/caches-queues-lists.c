@@ -128,7 +128,7 @@ void dump_queue(struct queue *queue)
 	pthread_cleanup_push((void *) pthread_mutex_unlock, &queue->mutex);
 	pthread_mutex_lock(&queue->mutex);
 
-	printf("\tMax size %d, size %d%s\n", queue->size - 1,  
+	printf("\tMax size %d, size %d%s\n", queue->size - 1,
 		queue->readp <= queue->writep ? queue->writep - queue->readp :
 			queue->size - queue->readp + queue->writep,
 		queue->readp == queue->writep ? " (EMPTY)" :
@@ -218,7 +218,7 @@ struct file_buffer *seq_queue_get(struct seq_queue *queue)
 			break;
 		}
 
-		/* entry not found, wait for it to arrive */	
+		/* entry not found, wait for it to arrive */
 		pthread_cond_wait(&queue->wait, &queue->mutex);
 	}
 
@@ -390,12 +390,12 @@ static struct file_buffer *_cache_get(struct cache *cache, long long index,
 {
 	/* Get a free block out of the cache indexed on index. */
 	struct file_buffer *entry = NULL;
- 
+
 	pthread_cleanup_push((void *) pthread_mutex_unlock, &cache->mutex);
 	pthread_mutex_lock(&cache->mutex);
 
 	while(1) {
-		if(cache->noshrink_lookup) {	
+		if(cache->noshrink_lookup) {
 			/* first try to get a block from the free list */
 			if(cache->first_freelist && cache->free_list)
 				entry = cache_freelist(cache);

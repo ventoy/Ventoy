@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 
 #ifdef __cplusplus
 extern "C"{
@@ -40,21 +40,21 @@ void vtoydm_close_file(BISO_FILE_S *pstFile);
 INT64 vtoydm_seek_file(BISO_FILE_S *pstFile, INT64 i64Offset, INT iFromWhere);
 UINT64 vtoydm_read_file
 (
-    BISO_FILE_S *pstFile, 
-    UINT         uiBlkSize, 
-    UINT         uiBlkNum, 
+    BISO_FILE_S *pstFile,
+    UINT         uiBlkSize,
+    UINT         uiBlkNum,
     VOID        *pBuf
 );
 
 
 UINT64 BISO_PLAT_GetFileSize(IN CONST CHAR *pcFileName)
 {
-    return vtoydm_get_file_size(pcFileName);  
+    return vtoydm_get_file_size(pcFileName);
 }
 
 BISO_FILE_S * BISO_PLAT_OpenExistFile(IN CONST CHAR *pcFileName)
 {
-    return vtoydm_open_file(pcFileName);  
+    return vtoydm_open_file(pcFileName);
 }
 
 VOID BISO_PLAT_CloseFile(IN BISO_FILE_S *pstFile)
@@ -69,9 +69,9 @@ INT64 BISO_PLAT_SeekFile(BISO_FILE_S *pstFile, INT64 i64Offset, INT iFromWhere)
 
 UINT64 BISO_PLAT_ReadFile
 (
-    IN  BISO_FILE_S *pstFile, 
-    IN  UINT         uiBlkSize, 
-    IN  UINT         uiBlkNum, 
+    IN  BISO_FILE_S *pstFile,
+    IN  UINT         uiBlkSize,
+    IN  UINT         uiBlkNum,
     OUT VOID        *pBuf
 )
 {

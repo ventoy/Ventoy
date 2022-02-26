@@ -1,5 +1,5 @@
 /******************************************************************************
- * ventoy.c 
+ * ventoy.c
  *
  * Copyright (c) 2020, longpanda <admin@ventoy.net>
  *
@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -112,13 +112,13 @@ void ventoy_debug_dump_guid(const char *prefix, grub_uint8_t *guid)
     {
         return;
     }
-    
+
     debug("%s", prefix);
     for (i = 0; i < 16; i++)
     {
         grub_printf("%02x ", guid[i]);
     }
-    grub_printf("\n");       
+    grub_printf("\n");
 }
 
 int ventoy_is_efi_os(void)

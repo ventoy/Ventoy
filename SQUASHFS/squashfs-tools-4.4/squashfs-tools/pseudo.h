@@ -43,7 +43,7 @@ struct pseudo_entry {
 	struct pseudo		*pseudo;
 	struct pseudo_dev	*dev;
 };
-	
+
 struct pseudo {
 	int			names;
 	int			count;
