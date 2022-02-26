@@ -5,7 +5,7 @@ v2.6.10 - Added support for FAT32 format.
 V2.6.9  - Added support for time & date handling.
 V2.6.8  - Fixed error with FSINFO sector write.
 V2.6.7  - Added fgets().
-          Fixed C warnings, removed dependancy on some string.h functions.
+          Fixed C warnings, removed dependency on some string.h functions.
 V2.6.6  – Massive read + write performance  improvements.
 V2.6.5  – Bug fixes for big endian systems.
 V2.6.4  – Further bug fixes and performance improvements for write operations.
@@ -17,7 +17,7 @@ V1.0    - Rewrite of all code to enable multiple files to be opened and provides
           better file API.
 	  Also better string matching, and generally better C code than origonal 
           version.
-V0.1c   - Fetch_ID_Max_LBA() function added to retrieve Drive infomation and stoping 
+V0.1c   - Fetch_ID_Max_LBA() function added to retrieve Drive information and stoping 
           the drive reads from addressing a sector that is out of range.
 V0.1b   - fopen(), fgetc(), fopenDIR() using new software stack for IDE and FAT32 
           access.

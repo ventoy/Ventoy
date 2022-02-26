@@ -1863,7 +1863,7 @@ End:
 
         FindProcessOccupyDisk(hDrive, pPhyDrive);
 
-		if (!VDS_IsLastAvaliable())
+		if (!VDS_IsLastAvailable())
 		{
 			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
 			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");

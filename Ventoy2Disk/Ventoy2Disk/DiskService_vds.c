@@ -607,7 +607,7 @@ typedef BOOL(*VDS_Callback_PF)(void *pInterface, VDS_DISK_PROP *pDiskProp, UINT6
 
 static BOOL g_vds_available = TRUE;
 
-BOOL VDS_IsLastAvaliable(void)
+BOOL VDS_IsLastAvailable(void)
 {
 	return g_vds_available;
 }

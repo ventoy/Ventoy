@@ -384,7 +384,7 @@ typedef struct wim_header
 /* WIM header flags */
 typedef enum wim_header_flags 
 {
-    WIM_HDR_XPRESS = 0x00020000, /* WIM uses Xpress compresson */
+    WIM_HDR_XPRESS = 0x00020000, /* WIM uses Xpress compression */
     WIM_HDR_LZX = 0x00040000,    /* WIM uses LZX compression */
 }wim_header_flags;
 

@@ -122,7 +122,7 @@ See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for
 
 # Donation
 It would be much appreciated if you want to make a small donation to support my work!  
-Alipay, WeChat Pay, PayPal and Bitcoin are avaliable for donation. You can chose any of them.  
+Alipay, WeChat Pay, PayPal and Bitcoin are available for donation. You can chose any of them.  
 
 Alipay | WeChat Pay
 -|-

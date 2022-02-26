@@ -95,7 +95,7 @@ static int lz4_options(char *argv[], int argc)
  *
  * Currently LZ4 always returns a comp_opts structure, with
  * the version indicating LZ4_LEGACY stream fomat.  This is to
- * easily accomodate changes in the kernel code to different
+ * easily accommodate changes in the kernel code to different
  * stream formats 
  */
 static void *lz4_dump_options(int block_size, int *size)
@@ -128,7 +128,7 @@ static void *lz4_dump_options(int block_size, int *size)
  * set the default options, this is to ensure any user supplied
  * -X options on the appending mksquashfs command line are over-ridden
  *
- * This function returns 0 on sucessful extraction of options, and
+ * This function returns 0 on successful extraction of options, and
  *			-1 on error
  */
 static int lz4_extract_options(int block_size, void *buffer, int size)
@@ -180,7 +180,7 @@ failed:
  * If this does happen, then this version of LZ4 will not be able to decode
  * the newer format.  So we need to check for this.
  *
- * This function returns 0 on sucessful checking of options, and
+ * This function returns 0 on successful checking of options, and
  *			-1 on error
  */
 static int lz4_check_options(int block_size, void *buffer, int size)

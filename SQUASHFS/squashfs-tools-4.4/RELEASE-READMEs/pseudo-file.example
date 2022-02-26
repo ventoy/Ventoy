@@ -65,7 +65,7 @@ blk_dev b 666 0 0 200 200
 pseudo_dir d 444 root root
 
 
-# Modifying attributes of an existing file exmaple
+# Modifying attributes of an existing file example
 
 # Change the attributes of the file "INSTALL" in the filesystem to have
 # root uid/gid and a mode of rw-rw-rw, overriding the attributes obtained

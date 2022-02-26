@@ -3,7 +3,7 @@
 VTOY_PATH=$PWD/..
 
 date +"%Y/%m/%d %H:%M:%S"
-echo downloading envrionment ...
+echo downloading environment ...
 
 wget -q -P $VTOY_PATH/DOC/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/dietlibc-0.34.tar.xz
 wget -q -P $VTOY_PATH/DOC/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/musl-1.2.1.tar.gz
@@ -14,6 +14,6 @@ wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/a
 wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
 
 date +"%Y/%m/%d %H:%M:%S"
-echo downloading envrionment finish...
+echo downloading environment finish...
 
 sh all_in_one.sh CI

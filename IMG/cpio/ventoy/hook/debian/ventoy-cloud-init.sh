@@ -45,7 +45,7 @@ if [ $vtSplit -eq 1 ]; then
     sed -n "1,${vtLine1}p"  $VTOY_PATH/autoinstall >/tmpcidata/user-data
     sed -n "${vtLine2},\$p" $VTOY_PATH/autoinstall >/tmpcidata/meta-data
 else
-    vtlog "only user-data avaliable"
+    vtlog "only user-data available"
     cp -a $VTOY_PATH/autoinstall  /tmpcidata/user-data
     touch /tmpcidata/meta-data
 fi

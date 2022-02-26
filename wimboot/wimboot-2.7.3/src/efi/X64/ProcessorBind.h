@@ -80,7 +80,7 @@
 #pragma warning ( disable : 4057 )
 
 //
-// ASSERT(FALSE) or while (TRUE) are legal constructes so supress this warning
+// ASSERT(FALSE) or while (TRUE) are legal constructes so suppress this warning
 //
 #pragma warning ( disable : 4127 )
 
@@ -99,7 +99,7 @@
 
 #if defined(_MSC_EXTENSIONS)
   //
-  // use Microsoft C complier dependent integer width types
+  // use Microsoft C compiler dependent integer width types
   //
 
   ///

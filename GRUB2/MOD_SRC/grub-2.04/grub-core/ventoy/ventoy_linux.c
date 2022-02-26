@@ -742,7 +742,7 @@ static void ventoy_linux_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_
         virtid++;
     }
 
-    /* Lenovo EasyStartup need an addional sector for boundary check */
+    /* Lenovo EasyStartup need an additional sector for boundary check */
     if (g_append_ext_sector > 0)
     {
         cpio_secs = VTOY_APPEND_EXT_SIZE / 2048;

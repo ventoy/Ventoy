@@ -3901,7 +3901,7 @@ void dir_scan5(struct dir_info *dir)
  *
  * Qsort and other O(n log n) algorithms work well with arrays but not
  * linked lists.  Merge sort another O(n log n) sort algorithm on the other hand
- * is not ideal for arrays (as it needs an additonal n storage locations
+ * is not ideal for arrays (as it needs an additional n storage locations
  * as sorting is not done in place), but it is ideal for linked lists because
  * it doesn't require any extra storage,
  */ 
@@ -6170,7 +6170,7 @@ printOptions:
 		/*
 		 * store any compressor specific options after the superblock,
 		 * and set the COMP_OPT flag to show that the filesystem has
-		 * compressor specfic options
+		 * compressor specific options
 		 */
 		if(comp_data) {
 			unsigned short c_byte = size | SQUASHFS_COMPRESSED_BIT;

@@ -91,7 +91,7 @@ int write_xattr(char *pathname, unsigned int xattr)
 					 * limits on the amount of xattr
 					 * data that can be stored per file
 					 * (typically one block or 4K), so
-					 * we shouldn't disable xattr ouput,
+					 * we shouldn't disable xattr output,
 					 * as the error may be restriced to one
 					 * file only.  If we get a lot of these
 					 * then suppress the error messsage

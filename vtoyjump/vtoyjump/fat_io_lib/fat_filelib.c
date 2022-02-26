@@ -1376,7 +1376,7 @@ int fl_fwrite(const void * data, int size, int count, void *f )
         file->filelength = file->bytenum;
 
         // We are changing the file length and this
-        // will need to be writen back at some point
+        // will need to be written back at some point
         file->filelength_changed = 1;
     }
 

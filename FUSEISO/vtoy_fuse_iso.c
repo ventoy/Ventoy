@@ -235,7 +235,7 @@ static int ventoy_parse_dmtable(const char *filename)
         return 1;
     }
 
-    /* read untill the last line */
+    /* read until the last line */
     while (fgets(line, sizeof(line), fp) && g_disk_entry_num < MAX_ENTRY_NUM)
     {
         sscanf(line, "%u %u linear %s %llu", 

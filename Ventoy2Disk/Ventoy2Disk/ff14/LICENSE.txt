@@ -1,6 +1,6 @@
 FatFs License
 
-FatFs has being developped as a personal project of the author, ChaN. It is free from the code anyone else wrote at current release. Following code block shows a copy of the FatFs license document that heading the source files.
+FatFs has being developed as a personal project of the author, ChaN. It is free from the code anyone else wrote at current release. Following code block shows a copy of the FatFs license document that heading the source files.
 
 /*----------------------------------------------------------------------------/
 /  FatFs - Generic FAT Filesystem Module  Rx.xx                               /

@@ -476,7 +476,7 @@ lsp_include(lua_State *L)
 	if (filename) {
 		if (handle_lsp_request(conn, filename, &file, L)) {
 			/* handle_lsp_request returned an error code, meaning an error
-			occured in
+			occurred in
 			the included page and mg.onerror returned non-zero. Stop processing.
 			*/
 			lsp_abort(L);

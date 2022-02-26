@@ -1,6 +1,6 @@
 
 ==========================================
-1. Compile Enviroment
+1. Compile Environment
 ==========================================
     My build envrioment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
     Because Ventoy is based on many open source projects, so the environment is important. I suggest you test it on a virtual machine firstly.
@@ -73,7 +73,7 @@
        You can rebuild these parts separately if you want.
        
     2. some part of Ventoy has 32bit&64bit version (like 4.9 4.10 4.11 follows)
-       all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit verison. You should create a 32bit CentOS environment and build them.
+       all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit version. You should create a 32bit CentOS environment and build them.
        Fortunately these parts are few modified, you only need to build once or you can directly use the binary I have built.
 
     Besides, after a fully compile and pack, you can only build the part you modified (for example grub2) and run ventoy_pack.sh to generate the package.

@@ -120,7 +120,7 @@ BOOLEAN ventoy_is_cdrom_dp_exist(VOID)
 }
 
 #if 0
-/* Block IO procotol */
+/* Block IO protocol */
 #endif
 
 EFI_STATUS EFIAPI ventoy_block_io_reset 
@@ -1381,7 +1381,7 @@ ventoy_wrapper_file_read_ex(IN EFI_FILE_PROTOCOL *This, IN OUT EFI_FILE_IO_TOKEN
 	return ventoy_wrapper_file_read(This, &(Token->BufferSize), Token->Buffer);
 }
 
-STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_procotol(EFI_FILE_PROTOCOL *File, BOOLEAN Img)
+STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_protocol(EFI_FILE_PROTOCOL *File, BOOLEAN Img)
 {
     File->Revision    = EFI_FILE_PROTOCOL_REVISION2;
     File->Open        = ventoy_wrapper_fs_open;
@@ -1448,7 +1448,7 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
             {
                 g_original_fclose(*New);
                 *New = &g_efi_file_replace.WrapperHandle;
-                ventoy_wrapper_file_procotol(*New, FALSE);
+                ventoy_wrapper_file_protocol(*New, FALSE);
 
                 virt = g_virt_chunk + g_file_replace_list->new_file_virtual_id;
 
@@ -1491,7 +1491,7 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
             {
                 g_original_fclose(*New);
                 *New = &g_img_file_replace.WrapperHandle;
-                ventoy_wrapper_file_procotol(*New, TRUE);
+                ventoy_wrapper_file_protocol(*New, TRUE);
 
                 virt = g_virt_chunk + g_img_replace_list->new_file_virtual_id;
 

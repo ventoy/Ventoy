@@ -271,7 +271,7 @@ static void *xz_dump_options(int block_size, int *size)
  * set the default options, this is to ensure any user supplied
  * -X options on the appending mksquashfs command line are over-ridden
  *
- * This function returns 0 on sucessful extraction of options, and
+ * This function returns 0 on successful extraction of options, and
  *			-1 on error
  */
 static int xz_extract_options(int block_size, void *buffer, int size)

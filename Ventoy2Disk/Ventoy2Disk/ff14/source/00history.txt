@@ -222,7 +222,7 @@ R0.10c (November 09, 2014)
   Changed option name _USE_ERASE to _USE_TRIM.
   Fixed volume label created by Mac OS X cannot be retrieved with f_getlabel(). (appeared at R0.09b)
   Fixed a potential problem of FAT access that can appear on disk error.
-  Fixed null pointer dereference on attempting to delete the root direcotry. (appeared at R0.08)
+  Fixed null pointer dereference on attempting to delete the root directory. (appeared at R0.08)
 
 
 

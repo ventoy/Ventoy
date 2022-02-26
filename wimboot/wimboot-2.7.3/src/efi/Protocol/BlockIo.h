@@ -118,7 +118,7 @@ EFI_STATUS
   @param  This              Indicates a pointer to the calling context.
 
   @retval EFI_SUCCESS       All outstanding data was written to the device
-  @retval EFI_DEVICE_ERROR  The device reported an error while writting back the data
+  @retval EFI_DEVICE_ERROR  The device reported an error while writing back the data
   @retval EFI_NO_MEDIA      There is no media in the device.
 
 **/

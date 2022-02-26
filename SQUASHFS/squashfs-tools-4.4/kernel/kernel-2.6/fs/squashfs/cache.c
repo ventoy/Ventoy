@@ -106,7 +106,7 @@ struct squashfs_cache_entry *squashfs_cache_get(struct super_block *sb,
 			entry = &cache->entry[i];
 
 			/*
-			 * Initialise choosen cache entry, and fill it in from
+			 * Initialise chosen cache entry, and fill it in from
 			 * disk.
 			 */
 			cache->unused--;

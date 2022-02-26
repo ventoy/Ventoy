@@ -37,9 +37,9 @@
 #include <Protocol/DriverBinding.h>
 #include <Ventoy.h>
 
-#define PROCOTOL_SLEEP_MSECONDS  0
+#define PROTOCOL_SLEEP_MSECONDS  0
 
-#define debug_sleep() if (PROCOTOL_SLEEP_MSECONDS) gBS->Stall(1000 * PROCOTOL_SLEEP_MSECONDS)
+#define debug_sleep() if (PROTOCOL_SLEEP_MSECONDS) gBS->Stall(1000 * PROTOCOL_SLEEP_MSECONDS)
 
 STATIC ventoy_system_wrapper g_system_wrapper;
 

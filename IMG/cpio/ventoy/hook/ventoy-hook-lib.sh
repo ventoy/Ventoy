@@ -365,16 +365,16 @@ create_ventoy_device_mapper() {
     
     VT_DM_BIN=$(ventoy_find_bin_path dmsetup)
     if [ -z "$VT_DM_BIN" ]; then
-        vtlog "no dmsetup avaliable, lastly try inbox dmsetup"
+        vtlog "no dmsetup available, lastly try inbox dmsetup"
         VT_DM_BIN=$VTOY_PATH/tool/dmsetup
     fi
     
-    vtlog "dmsetup avaliable in system $VT_DM_BIN"
+    vtlog "dmsetup available in system $VT_DM_BIN"
 
     if ventoy_check_dm_module "$1"; then
         vtlog "device-mapper module check success"
     else
-        vterr "Error: no dm module avaliable"
+        vterr "Error: no dm module available"
     fi
     
     $VTOY_PATH/tool/vtoydm -p -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/ventoy_dm_table
@@ -407,16 +407,16 @@ create_persistent_device_mapper() {
     
     VT_DM_BIN=$(ventoy_find_bin_path dmsetup)
     if [ -z "$VT_DM_BIN" ]; then
-        vtlog "no dmsetup avaliable, lastly try inbox dmsetup"
+        vtlog "no dmsetup available, lastly try inbox dmsetup"
         VT_DM_BIN=$VTOY_PATH/tool/dmsetup
     fi
     
-    vtlog "dmsetup avaliable in system $VT_DM_BIN"
+    vtlog "dmsetup available in system $VT_DM_BIN"
         
     if ventoy_check_dm_module "$1"; then
         vtlog "device-mapper module check success"
     else
-        vterr "Error: no dm module avaliable"
+        vterr "Error: no dm module available"
     fi
     
     $VTOY_PATH/tool/vtoydm -p -f $VTOY_PATH/ventoy_persistent_map -d $1 > $VTOY_PATH/persistent_dm_table    
@@ -631,7 +631,7 @@ ventoy_copy_device_mapper() {
         vtlog "$VTOY_DM_PATH not exist, now check /dev/dm-X ..."
         VT_DM_BIN=$(ventoy_find_bin_path dmsetup)
         if [ -z "$VT_DM_BIN" ]; then
-            vtlog "no dmsetup avaliable, lastly try inbox dmsetup"
+            vtlog "no dmsetup available, lastly try inbox dmsetup"
             VT_DM_BIN=$VTOY_PATH/tool/dmsetup
         fi
     

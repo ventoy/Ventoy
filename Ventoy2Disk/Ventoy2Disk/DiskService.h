@@ -50,7 +50,7 @@ BOOL VDS_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Offset, UINT64 Attr);
 BOOL VDS_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL VDS_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL VDS_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
-BOOL VDS_IsLastAvaliable(void);
+BOOL VDS_IsLastAvailable(void);
 
 
 //diskpart.exe
