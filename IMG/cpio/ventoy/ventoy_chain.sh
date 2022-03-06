@@ -52,8 +52,12 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # PrimeOS :
+    if $GREP -q 'PrimeOS' /proc/version; then
+        echo 'primeos'; return
+
     # Debian :
-    if $GREP -q '[Dd]ebian' /proc/version; then
+    elif $GREP -q '[Dd]ebian' /proc/version; then
         echo 'debian'; return
 
     # Ubuntu : do the same process with debian
