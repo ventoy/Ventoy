@@ -200,12 +200,17 @@ g_ventoy_access(struct g_provider *pp, int dr, int dw, int de)
 	g_topology_assert();
 	gp = pp->geom;
 
+#if 1
 	/* On first open, grab an extra "exclusive" bit */
 	if (pp->acr == 0 && pp->acw == 0 && pp->ace == 0)
 		de++;
 	/* ... and let go of it on last close */
 	if ((pp->acr + dr) == 0 && (pp->acw + dw) == 0 && (pp->ace + de) == 0)
 		de--;
+#else
+    G_DEBUG("g_ventoy_access fake de (%d)-->(0)\n", de);
+    de = 0;
+#endif
 
 	LIST_FOREACH_SAFE(cp1, &gp->consumer, consumer, tmp) {
 		error = g_access(cp1, dr, dw, de);
@@ -835,6 +840,7 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
     int disknum;
     char *endpos;
     const char *value;
+    const char *alias = NULL;
 	struct g_geom *gp;
 	struct g_ventoy_metadata md;
 	struct g_ventoy_softc *sc;
@@ -858,7 +864,17 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
 
     g_ventoy_tasted = true;
 
-    G_DEBUG("######### ventoy disk <%s> #############\n", pp->name);
+    G_DEBUG("###### ventoy disk <%s> ######\n", pp->name);
+
+    /* hint.ventoy.0.alias=xxx */
+    if (resource_string_value("ventoy", 0, "alias", &alias) == 0)
+    {
+        G_DEBUG("###### ventoy alias <%s> ######\n", alias);
+    }
+    else
+    {
+        alias = NULL;
+    }
 
     if (VENTOY_MAP_VALID(g_ventoy_map_data.magic2))
     {
@@ -929,7 +945,12 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
         g_disk_map_end = 0;
     }
 
-	return (gp);
+    if (alias && sc && sc->sc_provider)
+    {
+        g_provider_add_alias(sc->sc_provider, "%s", alias);
+    }
+
+    return (gp);
 }
 
 static void

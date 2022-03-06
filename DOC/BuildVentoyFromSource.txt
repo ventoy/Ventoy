@@ -108,10 +108,10 @@
     cd /home/Ventoy-master/VtoyTool
     sh build.sh
 
-4.8 == Build vtoyfat ==    
-    cd /home/Ventoy-master/vtoyfat/fat_io_lib
+4.8 == Build vtoycli ==    
+    cd /home/Ventoy-master/vtoycli/fat_io_lib
     sh buildlib.sh
-    cd /home/Ventoy-master/vtoyfat
+    cd /home/Ventoy-master/vtoycli
     sh build.sh
 
 4.9 == Build exfat-util ==

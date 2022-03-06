@@ -273,7 +273,7 @@ static void ventoy_unix_fill_virt_data(    grub_uint64_t isosize, ventoy_chain_h
     return;
 }
 
-static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
+static int ventoy_freebsd_append_conf(char *buf, const char *isopath, const char *alias)
 {
     int pos = 0;
     grub_uint32_t i;
@@ -294,6 +294,10 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath)
 
     vtoy_ssprintf(buf, pos, "ventoy_load=\"%s\"\n", "YES");
     vtoy_ssprintf(buf, pos, "ventoy_name=\"%s\"\n", g_ko_mod_path);
+    if (alias)
+    {
+        vtoy_ssprintf(buf, pos, "hint.ventoy.0.alias=\"%s\"\n", alias);
+    }
 
     if (g_mod_search_magic)
     {
@@ -647,6 +651,95 @@ out:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+grub_err_t ventoy_cmd_unix_replace_grub_conf(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int len;
+    grub_uint32_t i;
+    char *data;
+    char *pos;
+    grub_uint64_t offset;
+    grub_file_t file;
+    char extcfg[256];
+    const char *confile = NULL;
+    const char * loader_conf[] = 
+    {
+        "/boot/grub/grub.cfg",
+    };
+
+    (void)ctxt;
+
+    if (argc != 1 && argc != 2)
+    {
+        debug("Replace conf invalid argc %d\n", argc);
+        return 1;
+    }
+ 
+    for (i = 0; i < sizeof(loader_conf) / sizeof(loader_conf[0]); i++)
+    {
+        if (ventoy_get_file_override(loader_conf[i], &offset) == 0)
+        {
+            confile = loader_conf[i];
+            g_conf_override_offset = offset;
+            break;
+        }
+    }
+
+    if (confile == NULL)
+    {   
+        debug("Can't find grub.cfg file from %u locations\n", i);
+        return 1;
+    }
+
+    file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "(loop)/%s", confile);
+    if (!file)
+    {
+        debug("Failed to open %s \n", confile);
+        return 1;
+    }
+
+    debug("old grub2 conf file size:%d\n", (int)file->size);
+
+    data = grub_malloc(VTOY_MAX_SCRIPT_BUF);
+    if (!data)
+    {
+        grub_file_close(file);    
+        return 1;
+    }
+
+    grub_file_read(file, data, file->size);
+    grub_file_close(file);
+    
+    g_conf_new_data = data;
+    g_conf_new_len = (int)file->size;
+
+    pos = grub_strstr(data, "kfreebsd /boot/kernel/kernel");
+    if (pos)
+    {
+        pos += grub_strlen("kfreebsd /boot/kernel/kernel");
+        
+        if (argc == 2)
+        {
+            len = grub_snprintf(extcfg, sizeof(extcfg), 
+                    ";kfreebsd_module_elf %s; set kFreeBSD.hint.ventoy.0.alias=\"%s\"", 
+                    args[0], args[1]);
+        }
+        else
+        {
+            len = grub_snprintf(extcfg, sizeof(extcfg), ";kfreebsd_module_elf %s", args[0]);
+        }
+    
+        grub_memmove(pos + len, pos, (int)(file->size - (pos - data)));
+        grub_memcpy(pos, extcfg, len);
+        g_conf_new_len += len;
+    }
+    else
+    {
+        debug("no kfreebsd found\n");
+    }
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     grub_uint32_t i;
@@ -662,7 +755,7 @@ grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, ch
 
     (void)ctxt;
 
-    if (argc != 2)
+    if (argc != 2 && argc != 3)
     {
         debug("Replace conf invalid argc %d\n", argc);
         return 1;
@@ -708,7 +801,7 @@ grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, ch
 
     if (grub_strcmp(args[0], "FreeBSD") == 0)
     {
-        g_conf_new_len += ventoy_freebsd_append_conf(data + file->size, args[1]);
+        g_conf_new_len += ventoy_freebsd_append_conf(data + file->size, args[1], (argc > 2) ? args[2] : NULL);
     }
     else if (grub_strcmp(args[0], "DragonFly") == 0)
     {
