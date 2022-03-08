@@ -5712,6 +5712,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_unix_parse_freebsd_ver", ventoy_cmd_unix_freebsd_ver, 0, NULL, "", "", NULL },
     { "vt_unix_parse_freebsd_ver_elf", ventoy_cmd_unix_freebsd_ver_elf, 0, NULL, "", "", NULL },
     { "vt_unix_reset", ventoy_cmd_unix_reset, 0, NULL, "", "", NULL },
+    { "vt_unix_check_vlnk", ventoy_cmd_unix_check_vlnk, 0, NULL, "", "", NULL },
     { "vt_unix_replace_conf", ventoy_cmd_unix_replace_conf, 0, NULL, "", "", NULL },
     { "vt_unix_replace_grub_conf", ventoy_cmd_unix_replace_grub_conf, 0, NULL, "", "", NULL },
     { "vt_unix_replace_ko", ventoy_cmd_unix_replace_ko, 0, NULL, "", "", NULL },

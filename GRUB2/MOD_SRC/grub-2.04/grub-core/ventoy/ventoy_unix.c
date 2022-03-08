@@ -48,6 +48,7 @@ int g_mod_new_len = 0;
 char *g_mod_new_data = NULL;
 
 int g_mod_search_magic = 0;
+int g_unix_vlnk_boot = 0;
 
 int g_ko_fillmap_len = 0;
 char *g_ko_fillmap_data = NULL;
@@ -280,6 +281,7 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath, const char
     grub_disk_t disk;
     grub_file_t isofile;
     char uuid[64] = {0};
+    const char *val = NULL;
     ventoy_img_chunk *chunk;
     grub_uint8_t disk_sig[4];
     grub_uint8_t disk_guid[16];
@@ -294,9 +296,21 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath, const char
 
     vtoy_ssprintf(buf, pos, "ventoy_load=\"%s\"\n", "YES");
     vtoy_ssprintf(buf, pos, "ventoy_name=\"%s\"\n", g_ko_mod_path);
+    
     if (alias)
     {
         vtoy_ssprintf(buf, pos, "hint.ventoy.0.alias=\"%s\"\n", alias);
+    }
+
+    if (g_unix_vlnk_boot)
+    {
+        vtoy_ssprintf(buf, pos, "hint.ventoy.0.vlnk=%d\n", 1);
+    }
+
+    val = ventoy_get_env("VTOY_UNIX_REMOUNT");
+    if (val && val[0] == '1' && val[1] == 0)
+    {
+        vtoy_ssprintf(buf, pos, "hint.ventoy.0.remount=%d\n", 1);
     }
 
     if (g_mod_search_magic)
@@ -305,6 +319,8 @@ static int ventoy_freebsd_append_conf(char *buf, const char *isopath, const char
         goto out;
     }
 
+    debug("Fill hint.ventoy info\n");
+    
     disk = isofile->device->disk;
 
     ventoy_get_disk_guid(isofile->name, disk_guid, disk_sig);
@@ -353,6 +369,7 @@ grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **ar
     (void)argc;
     (void)args;
     
+    g_unix_vlnk_boot = 0;
     g_mod_search_magic = 0;
     g_conf_new_len = 0;
     g_mod_new_len = 0;
@@ -363,6 +380,27 @@ grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **ar
     check_free(g_mod_new_data, grub_free);
     check_free(g_conf_new_data, grub_free);
     check_free(g_ko_fillmap_data, grub_free);
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+grub_err_t ventoy_cmd_unix_check_vlnk(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_file_t file;
+
+    (void)ctxt;
+
+    if (argc != 1)
+    {
+        return 1;
+    }
+
+    file = grub_file_open(args[0], VENTOY_FILE_TYPE);
+    if (file)
+    {
+        g_unix_vlnk_boot = file->vlnk;
+        grub_file_close(file);
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -653,13 +691,14 @@ out:
 
 grub_err_t ventoy_cmd_unix_replace_grub_conf(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    int len;
+    int len = 0;
     grub_uint32_t i;
     char *data;
     char *pos;
+    const char *val = NULL;
     grub_uint64_t offset;
     grub_file_t file;
-    char extcfg[256];
+    char extcfg[512];
     const char *confile = NULL;
     const char * loader_conf[] = 
     {
@@ -716,18 +755,31 @@ grub_err_t ventoy_cmd_unix_replace_grub_conf(grub_extcmd_context_t ctxt, int arg
     if (pos)
     {
         pos += grub_strlen("kfreebsd /boot/kernel/kernel");
-        
+        if (grub_strncmp(pos, ".gz", 3) == 0)
+        {
+            pos += 3;
+        }
+
         if (argc == 2)
         {
-            len = grub_snprintf(extcfg, sizeof(extcfg), 
-                    ";kfreebsd_module_elf %s; set kFreeBSD.hint.ventoy.0.alias=\"%s\"", 
-                    args[0], args[1]);
+            vtoy_ssprintf(extcfg, len, ";kfreebsd_module_elf %s; set kFreeBSD.hint.ventoy.0.alias=\"%s\"", args[0], args[1]);
         }
         else
         {
-            len = grub_snprintf(extcfg, sizeof(extcfg), ";kfreebsd_module_elf %s", args[0]);
+            vtoy_ssprintf(extcfg, len, ";kfreebsd_module_elf %s", args[0]);
         }
-    
+
+        if (g_unix_vlnk_boot)
+        {
+            vtoy_ssprintf(extcfg, len, ";set kFreeBSD.hint.ventoy.0.vlnk=%d", 1);
+        }
+
+        val = ventoy_get_env("VTOY_UNIX_REMOUNT");
+        if (val && val[0] == '1' && val[1] == 0)
+        {
+            vtoy_ssprintf(extcfg, len, ";set kFreeBSD.hint.ventoy.0.remount=%d", 1);
+        }
+        
         grub_memmove(pos + len, pos, (int)(file->size - (pos - data)));
         grub_memcpy(pos, extcfg, len);
         g_conf_new_len += len;
@@ -784,7 +836,7 @@ grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, ch
         return 1;
     }
 
-    debug("old conf file size:%d\n", (int)file->size);
+    debug("old conf file <%s> size:%d\n", confile, (int)file->size);
 
     data = grub_malloc(VTOY_MAX_SCRIPT_BUF);
     if (!data)
@@ -816,13 +868,13 @@ static int ventoy_unix_search_magic(char *data, int len)
     int i;
     grub_uint32_t *magic = NULL;    
 
-    for (i = 0; i < len; i += 65536)
+    for (i = 0; i < len; i += 4096)
     {
         magic = (grub_uint32_t *)(data + i);
         if (magic[0] == VENTOY_UNIX_SEG_MAGIC0 && magic[1] == VENTOY_UNIX_SEG_MAGIC1 && 
             magic[2] == VENTOY_UNIX_SEG_MAGIC2 && magic[3] == VENTOY_UNIX_SEG_MAGIC3)
         {
-            debug("unix find search magic at 0x%x loop:%d\n", i, (i >> 16));
+            debug("unix find search magic at 0x%x loop:%d\n", i, (i >> 12));
             g_mod_search_magic = i;
             return 0;
         }
