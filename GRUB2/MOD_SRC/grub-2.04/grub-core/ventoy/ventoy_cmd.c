@@ -5551,6 +5551,20 @@ static grub_err_t ventoy_cmd_iso_vd_id_begin(grub_extcmd_context_t ctxt, int arg
     return ret;
 }
 
+static grub_err_t ventoy_cmd_fn_mutex_lock(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+
+    g_ventoy_fn_mutex = 0;
+    if (argc == 1 && args[0][0] == '1' && args[0][1] == 0)
+    {
+        g_ventoy_fn_mutex = 1;
+    }
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -5751,6 +5765,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_iso_vd_id_parse", ventoy_cmd_iso_vd_id_parse, 0, NULL, "", "", NULL },
     { "vt_iso_vd_id_clear", ventoy_iso_vd_id_clear, 0, NULL, "", "", NULL },
     { "vt_iso_vd_id_begin", ventoy_cmd_iso_vd_id_begin, 0, NULL, "", "", NULL },
+    { "vt_fn_mutex_lock", ventoy_cmd_fn_mutex_lock, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

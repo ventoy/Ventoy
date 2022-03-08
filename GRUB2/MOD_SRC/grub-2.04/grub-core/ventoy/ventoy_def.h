@@ -1019,6 +1019,7 @@ extern int g_ventoy_grub2_mode;
 extern int g_ventoy_wimboot_mode;
 extern int g_ventoy_iso_uefi_drv;
 extern int g_ventoy_case_insensitive;
+extern int g_ventoy_fn_mutex;
 extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
 
