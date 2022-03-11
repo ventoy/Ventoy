@@ -17,7 +17,7 @@ You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.<br
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
-  810+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
+  830+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
 <br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
 </h4>
 
@@ -41,7 +41,7 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 [【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
 
 # Ventoy Browser
-With Ventoy you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
+With Ventoy, you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
   
 # VentoyPlugson
 A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
@@ -63,7 +63,7 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * FAT32/exFAT/NTFS/UDF/XFS/Ext2(3)(4) supported for main partition
 * ISO files larger than 4GB supported
 * Native boot menu style for Legacy & UEFI
-* Most type of OS supported, 810+ iso files tested
+* Most types of OS supported, 830+ iso files tested
 * Linux vDisk boot supported
 * Not only boot but also complete installation process
 * Menu dynamically switchable between List/TreeView mode
@@ -122,7 +122,7 @@ See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for
 
 # Donation
 It would be much appreciated if you want to make a small donation to support my work!  
-Alipay, WeChat Pay, PayPal and Bitcoin are avaliable for donation. You can chose any of them.  
+Alipay, WeChat Pay, PayPal and Bitcoin are available for donation. You can choose any of them.  
 
 Alipay | WeChat Pay
 -|-
