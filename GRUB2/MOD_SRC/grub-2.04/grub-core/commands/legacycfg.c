@@ -373,7 +373,7 @@ grub_cmd_legacy_kernel (struct grub_command *mycmd __attribute__ ((unused)),
 	      grub_errno = GRUB_ERR_NONE;
 	    }
 	  dev = grub_device_open (0);
-	  if (dev && dev->disk
+	  if (dev && dev->disk && dev->disk->dev
 	      && dev->disk->dev->id == GRUB_DISK_DEVICE_BIOSDISK_ID
 	      && dev->disk->id >= 0x80 && dev->disk->id <= 0x90)
 	    {
