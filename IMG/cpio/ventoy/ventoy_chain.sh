@@ -342,6 +342,10 @@ ventoy_get_os_type() {
         echo "openEuler"; return
     fi
     
+    if $GREP -q 'venom' /proc/version; then
+        echo "arch"; return
+    fi
+    
     echo "default"
 }
 
