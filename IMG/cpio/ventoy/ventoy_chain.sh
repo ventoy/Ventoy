@@ -342,9 +342,23 @@ ventoy_get_os_type() {
         echo "openEuler"; return
     fi
     
-    if $GREP -q 'venom' /proc/version; then
-        echo "arch"; return
+    
+    #special arch based iso file check
+    if [ -f /init ]; then
+        if $GREP -q 'mount_handler' /init; then
+            if [ -d /hooks ]; then
+                if $BUSYBOX_PATH/ls -1 /hooks/ | $GREP -q '.*iso$'; then
+                    echo "arch"; return
+                fi
+            elif [ -d /hook ]; then
+                if $BUSYBOX_PATH/ls -1 /hook/ | $GREP -q '.*iso$'; then
+                    echo "arch"; return
+                fi
+            fi
+        fi
     fi
+    
+    
     
     echo "default"
 }
