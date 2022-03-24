@@ -176,6 +176,13 @@ chmod +x $tmpdir/VentoyWeb.sh
 chmod +x $tmpdir/VentoyPlugson.sh
 chmod +x $tmpdir/VentoyVlnk.sh
 chmod +x $tmpdir/VentoyGUI*
+chmod +x $tmpdir/tool/*.sh
+
+for d in i386 x86_64 aarch64 mips64el; do
+    chmod +x $tmpdir/tool/$d/xzcat
+    chmod +x $tmpdir/tool/$d/Ventoy2Disk.*
+done
+
 
 cp $OPT $LANG_DIR/languages.json $tmpdir/tool/
 
