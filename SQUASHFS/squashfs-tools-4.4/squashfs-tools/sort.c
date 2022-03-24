@@ -297,7 +297,7 @@ int read_sort_file(char *filename, int source, char *source_path[])
 		} else if((errno == ERANGE) ||
 				(priority < -32768 || priority > 32767)) {
 			ERROR("Sort file \"%s\", entry \"%s\" has priority "
-				"outside range of -32767:32768.\n", filename,
+				"outside range of -32768:32767.\n", filename,
 				line_buffer);
 			goto failed;
 		}
