@@ -240,7 +240,7 @@
         "STR_INCORRECT_TREE_DIR":"Don't run me here, please download the released install package, and run there.",
         "STR_DEVICE":"Device",
         "STR_LOCAL_VER":"Ventoy In Package",
-        "STR_DISK_VER":"Ventoy On Device",
+        "STR_DISK_VER":"Ventoy In Device",
         "STR_STATUS":"Status - READY",
         "STR_INSTALL":"Install",
         "STR_UPDATE":"Update",
