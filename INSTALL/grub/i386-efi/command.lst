@@ -43,6 +43,7 @@
 *save_env: loadenv
 *search: search
 *serial: serial
+*set_keyboard_layout: setkey
 *setkey: setkey
 *setpci: setpci
 *sha1sum: hashsum

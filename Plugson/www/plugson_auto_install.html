@@ -1,0 +1,551 @@
+<div class="box box-primary" id="control">
+    <div class="box-header">
+        <div class="col-sm-10" style="padding-top:8px;">
+            <i class="fa fa-desktop">&nbsp;&nbsp;</i>
+            <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">x</h1>
+        </div>
+        
+        <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
+            <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/en/plugin_autoinstall.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
+        </div>
+    </div>
+    <legend></legend>
+    
+    <div class="box-body">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" id="id_tab_autoins">
+            <li class=""><a href="#tab_0" data-toggle="tab" aria-expanded="false" style="font-weight:bold" >auto_install</a></li>
+            <li class=""><a href="#tab_1" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">auto_install_legacy</a></li>
+            <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">auto_install_uefi</a></li>
+            <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">auto_install_ia32</a></li>
+            <li class=""><a href="#tab_4" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">auto_install_aa64</a></li>
+            <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">auto_install_mips</a></li>
+        </ul>
+      </div>
+
+      <table id="id_autoins_tbl" class="table table-bordered" >
+        <thead>
+          <tr>
+            <th style="width: 5%;">#</th>
+            <th id="id_th_autoins_set" style="width: 80%;"></th>
+            <th id="id_th_operation" style="width: 10%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+</div>
+<script type="text/javascript">
+    
+  function VtoyPageLanguageChange(newlang) {
+    VtoyCommonChangeLanguage(newlang);
+    $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_AUTO_INSTALL);
+
+    $("span[id=id_span_file_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_EXIST);
+    });
+    $("span[id=id_span_file_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_NONEXIST);
+    });
+    $("span[id=id_span_file_fuzzy]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_FUZZY);
+    });
+
+    $("span[id=id_span_dir_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_EXIST);
+    });
+    
+    $("span[id=id_span_dir_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_NONEXIST);
+    });
+
+    $("th[id=id_th_template]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_AUTO_TEMPLATE);
+    });
+
+    if (newlang === 'en') {
+      $('#id_th_autoins_path').text('Absolute Path');
+      $('#id_th_autoins_set').text('Setting');
+    } else {
+      $('#id_th_autoins_path').text('绝对路径');
+      $('#id_th_autoins_set').text('设置');
+      
+    }
+  }
+  
+  function VtoySaveCurrentPage(index) {
+
+    var timeoutval = 0;
+    var autoselval = 1;
+
+    var timeouten = $('#id_timeout_en_' + index).is(':checked');
+    var autoselen = $('#id_autosel_en_' + index).is(':checked');
+
+    if (timeouten) {
+      timeoutval = parseInt($('#id_text_timeout_' + index).val());
+    }
+
+    if (autoselen) {
+      autoselval = parseInt($('#id_text_autosel_' + index).val());
+    }
+
+    callVtoy({
+      method : 'save_auto_install',
+      index: current_tab_index,
+      id: index,
+      timeout: timeoutval,
+      autosel: autoselval,
+      timeouten: timeouten,
+      autoselen: autoselen
+    }, function(e) {
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnInputTextChange() {
+    var id = $(this).attr('id');
+    var value = $(this).val();
+    var intval;
+
+    if (typeof(id) == 'undefined' || id.length <= 16) {
+      return;
+    }
+
+    var index = parseInt(id.substr(16));
+    var data = m_data_autoins[current_tab_index][index];
+
+    if (/^[0-9][0-9]*$/.test(value)) {
+      intval = parseInt(value);
+
+      if (id.startsWith('id_text_autosel_')) {
+        var list = m_data_autoins[current_tab_index][index].list;
+        if (intval > list.length) {
+          Message.error(g_vtoy_cur_language.STR_INVALID_AUTOSEL);
+          $(this).val(data.autosel);
+          return;
+        }
+      }
+
+      VtoySaveCurrentPage(index);
+    } else {
+      Message.error(g_vtoy_cur_language.STR_INVALID_NUMBER);
+
+      if (id.startsWith('id_text_timeout_')) {
+        $(this).val(data.timeout);
+      } else {
+        $(this).val(data.autosel);
+      }
+    }
+  }
+
+  function OnCheckBoxChange() {
+    var index;
+    var textid;
+    var value;
+    var id = $(this).attr('id');
+    var checked = $(this).is(':checked');
+
+    if (typeof(id) == 'undefined' || id.length <= 14) {
+      return;
+    }
+
+    index = parseInt(id.substr(14));
+    var data = m_data_autoins[current_tab_index][index];
+
+    if (id.startsWith('id_timeout_en_')) {
+      textid = 'input[id=id_text_timeout_' + index + ']';
+      value = data.timeout;
+      data.timeouten = checked;
+    } else {
+      textid = 'input[id=id_text_autosel_' + index + ']';
+      value = data.autosel;
+      data.autoselen = checked;
+    }
+    
+    if (checked) {
+      $(textid).attr("disabled", false);
+      $(textid).val(value);
+    } else {
+      $(textid).attr("disabled", true);
+      $(textid).val('');
+    }
+    
+    VtoySaveCurrentPage(index);
+  }
+  
+
+  function FillAutoInsInnerTable(i, data) {
+    var td1, td2, td3, td4;
+    var inner = data.list;
+    var tabid = '#tbl_inner_' + (i + 1);
+    var $inner_tbl = $(tabid + ' tbody');
+
+    var inaddbtn = ventoy_get_xslg_addbtn('AutoInsInnerAddBtn');
+    var indelbtn = ventoy_get_xslg_delbtn('AutoInsInnerDelBtn');
+
+    $inner_tbl.empty();
+    
+    for (var j = 0; j < inner.length; j++) {
+      var $tr;
+      td1 = '<td style="width: 5%;">'+(j+1)+'</td>';
+      td2 = '<td>'+inner[j].path+'</td>';
+      td3 = '<td style="width: 10%;">'+ventoy_get_status_line(0, inner[j].valid)+'</td>';
+      td4 = '<td style="width: 10%;">' + indelbtn + '</td>';
+
+      $tr = $('<tr>' + td1 + td2 + td3 + td4 + '</tr>');
+      $tr.data('path', inner[j].path);
+      $tr.data('index', j);
+      $tr.data('outpath', data.path);
+      $tr.data('outindex', i);
+
+      $inner_tbl.append($tr);
+    }
+
+    $tr = $('<tr><td></td><td></td><td></td><td>'+inaddbtn+'</td></tr>');
+    $tr.data('outpath', data.path);
+    $tr.data('outindex', i);
+
+    $inner_tbl.append($tr);
+  }
+
+  function FillAutoInsTable(data) {
+    var td1, td2, td3, td4, td5;
+    var addbtn = ventoy_get_addbtn('AutoInsAddBtn');
+    var delbtn = ventoy_get_delbtn('AutoInsDelBtn');
+   
+    var $tbl = $("#id_autoins_tbl tbody");
+    $tbl.empty();
+
+    for (var i = 0; i < data.length; i++) {
+      var $tr;
+
+      var tdtimeout, timeoutdisable, timeoutval;
+      var tdautosel, autoseldisable, autoselval;
+      if (data[i].timeouten) {
+        tdtimeout = '<th style="width:10%;"><input id="id_timeout_en_'+i+'" checked="checked" type="checkbox"/> timeout</th>';
+        timeoutval = data[i].timeout;
+        timeoutdisable='';
+      } else {
+        tdtimeout = '<th style="width:10%;"><input id="id_timeout_en_'+i+'" type="checkbox"/> timeout</th>';
+        timeoutval='';
+        timeoutdisable='disabled="disabled"';
+      }
+      if (data[i].autoselen) {
+        tdautosel = '<th style="width:10%;"><input id="id_autosel_en_'+i+'" checked="checked" type="checkbox"/> autosel</th>';
+        autoselval = data[i].autosel;
+        autoseldisable='';
+      } else {
+        tdautosel = '<th style="width:10%;"><input id="id_autosel_en_'+i+'" type="checkbox"/> autosel</th>';
+        autoselval='';
+        autoseldisable='disabled="disabled"';
+      }
+
+
+      var tdtype = (data[i].type === 0) ? "image" : "parent";
+      var tdtbl1 ='<table class="table table-condensed">'+
+                  
+                  '<thead><tr>' + 
+                  '<th>'+tdtype+'</th>'+
+                  '<th style="width:10%;">Status</th>'+ 
+                  tdtimeout +
+                  tdautosel +
+                  '</tr></thread>' +
+
+                  '<tbody><tr>'+
+                  '<td style="width:70%;vertical-align: middle;">' + data[i].path + '</td>' + 
+                  '<td style="vertical-align: middle;">' + ventoy_get_status_line(data[i].type, data[i].valid) + '</td>' +
+                  '<td><div style="padding-left:0;" class="col-sm-8"><input type="text" '+timeoutdisable+' value="'+timeoutval+'" class="form-control" id="id_text_timeout_'+i+'"/></div></td>'+
+                  '<td><div style="padding-left:0;" class="col-sm-8"><input type="text" '+autoseldisable+' value="'+autoselval+'" class="form-control" id="id_text_autosel_'+i+'"/></div></td></tr>'+
+                  
+                  '<tr><td></td><td></td><td></td><td></td></tr>'+
+
+                  '</tbody></table>';
+
+      var tdtbl2 = '<table class="table table-bordered" id="tbl_inner_' + (i+1) + '">'+
+        '<thead><tr><th>#</th><th id="id_th_template">'+g_vtoy_cur_language.STR_AUTO_TEMPLATE+'</th><th id="id_th_status">'+g_vtoy_cur_language.STR_STATUS+'</th><th id="id_th_operation">'+g_vtoy_cur_language.STR_OPERATION+'</th></tr></thead><tbody></tbody></table>';
+
+      td1 = '<td style="vertical-align: middle;">' + (i + 1) + '</td>';
+      td2 = '<td>' + tdtbl1 + tdtbl2 + '</td>';
+      td3 = '<td style="vertical-align: middle;text-align: center;">' + delbtn + '</td>';
+      $tr = $('<tr>' + td1 + td2 + td3 + '</tr>');
+
+      $tr.data('path', data[i].path);
+      $tr.data('index', i);
+      $tbl.append($tr);
+    }
+
+    $tbl.append('<tr><td></td><td></td><td style="vertical-align: middle;text-align: center;">' + addbtn + '</td></tr>');
+
+    $('input[type=text]').each(function (){
+      var id = $(this).attr('id');
+      if (typeof(id) == 'undefined') {
+        return;
+      }
+      if (id.startsWith('id_text_timeout_') || id.startsWith('id_text_autosel_')) {
+        $(this).change(OnInputTextChange);
+      }
+    });
+
+    $('input[type=checkbox]').each(function (){
+      var id = $(this).attr('id');
+      if (typeof(id) == 'undefined') {
+        return;
+      }
+      if (id.startsWith('id_timeout_en_') || id.startsWith('id_autosel_en_')) {
+        $(this).click(OnCheckBoxChange);
+      }
+    });
+
+    for (var i = 0; i < data.length; i++) {
+      FillAutoInsInnerTable(i, data[i]);      
+    }
+  }
+
+  function VtoyFillCurrentPageItem(data) {
+    FillAutoInsTable(data);
+  }
+
+
+  function OnClickMultiModeTab() {
+    var href = $(this).attr('href');
+    var index = parseInt(href.substr(5, 1));
+
+    if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
+      return;
+    }
+    
+    current_tab_index = index;
+    VtoyFillCurrentPageItem(m_data_autoins[index]);
+  }
+
+  function AddAutoInstallEntry(type, exist1, path1, path2) {
+    var list = m_data_autoins[current_tab_index];
+    var data_array = [
+      {
+        "path": "",
+        "valid": 1
+      }
+    ];
+    var call_array = [
+      ""
+    ];
+
+    call_array[0] = path2.substr(g_current_dir.length);
+    data_array[0].path = path2.substr(g_current_dir.length);
+
+    var data = {
+      "path": path1.substr(g_current_dir.length),
+      "list": data_array,
+      "type": type,
+      "valid": exist1,
+      "autosel": 1,
+      "timeout": 0
+    };
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].path === data.path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'auto_install_add',
+      index: current_tab_index,
+      path: data.path,
+      template: call_array,
+      type: type
+    }, function(e) {
+      list.push(data);
+      FillAutoInsTable(list);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAddImageAutoInstall(exist1, path1, path2) {
+    AddAutoInstallEntry(0, exist1, path1, path2);
+  }
+  
+  function OnAddDirAutoInstall(path1, path2) {
+    AddAutoInstallEntry(1, 1, path1, path2);
+  }
+
+  function OnAddAutoInsBtnClick(sel) {
+    if (sel === 0) {
+      var tip1 = (g_current_os === 'windows') ? '\\ISO\\Windows11.iso' : "/ISO/CentOS-7-x86_64-DVD-1908.iso";
+      var tip2 = (g_current_os === 'windows') ? '\\ISO\\Windows**.iso' : "/ISO/CentOS-7-x86_64-DVD-****.iso";
+      var tip3 = (g_current_os === 'windows') ? '\\script\\Windows_unattend.xml' : "/script/centos.ks";      
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_AUTO_INS,
+          "label1": g_vtoy_cur_language.STR_FILE_PATH,
+          "label2": g_vtoy_cur_language.STR_SET_AUTO_TEMPLATE,
+          "tip1": g_current_dir + tip1,
+          "tip2": g_current_dir + tip2,
+          "tip3": g_current_dir + tip3
+      };
+
+      VtoySetFileFile(OnAddImageAutoInstall, para);
+    } else {
+      var tip1 = (g_current_os === 'windows') ? '\\ISO\\Windows' : "/ISO/Linux";
+      var tip2 = (g_current_os === 'windows') ? '\\script\\Windows_unattend.xml' : "/script/centos.ks";    
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_AUTO_INS,
+          "label1": g_vtoy_cur_language.STR_DIR_PATH,
+          "label2": g_vtoy_cur_language.STR_SET_AUTO_TEMPLATE,
+          "tip1": g_current_dir + tip1,
+          "tip2": g_current_dir + tip2
+      };
+      VtoySetDirFile(OnAddDirAutoInstall, para);
+    }
+  }
+
+  function OnAutoInstallAddClick() {
+    var para = [
+      {
+        "selected": true,
+        "tip": g_vtoy_cur_language.STR_SET_AUTO_INSTALL_FOR_FILE
+      },
+      {
+        "selected": false,
+        "tip": g_vtoy_cur_language.STR_SET_AUTO_INSTALL_FOR_DIR
+      }
+    ];
+
+    VtoySelectType(OnAddAutoInsBtnClick, para);
+  }
+
+  function AutoInstallDelEntry(path, index) {
+    callVtoySync({
+        method : 'auto_install_del',
+        index: current_tab_index,
+        path: path
+    }, function(data) {
+      m_data_autoins[current_tab_index].splice(index, 1);
+      FillAutoInsTable(m_data_autoins[current_tab_index]);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAutoInstallDelClick() {
+    var $tr = $(this).closest('tr');
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+
+    AutoInstallDelEntry(path, index);
+  }
+  
+
+  var m_out_index;
+  var m_out_path;
+  function OnAddAutoTemplateScript(root, valid, extra) {
+    var path = root.substr(g_current_dir.length);
+    var data = m_data_autoins[current_tab_index][m_out_index];
+
+    for (var i = 0; i < data.list.length; i++) {
+      if (data.list[i].path === path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'auto_install_add_inner',
+      index: current_tab_index,
+      outpath: m_out_path,
+      path: path
+    }, function(e) {
+
+      var node = {
+        "path": path,
+        "valid": 1
+      };
+
+      data.list.push(node);
+      FillAutoInsInnerTable(m_out_index, data);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+    
+  }
+
+  function OnAutoInstallInnerAddClick() {
+    var $tr = $(this).closest('tr');
+		var outpath = $tr.data('outpath');
+    var outindex = $tr.data('outindex');
+
+    var tip = (g_current_os === 'windows') ? '\\script\\Windows_unattend.xml' : "/script/centos.ks";
+    var para = {
+        "title": g_vtoy_cur_language.STR_ADD_AUTO_TEMPLATE,
+        "fuzzy": 0,
+        "tip1": g_current_dir + tip,
+        "tip2": '',
+        "tip3": '',
+        "extra": false,
+        "extra_title": ''
+    };
+
+    m_out_index = outindex;
+    m_out_path = outpath;
+    VtoySelectFilePath(OnAddAutoTemplateScript, para);
+  }
+
+  function AutoInstallDelInnerEntry(outpath, outindex, path, index) {
+    callVtoy({
+      method : 'auto_install_del_inner',
+      index: current_tab_index,
+      outpath: outpath,
+      path: path
+    }, function(e) {
+      var data = m_data_autoins[current_tab_index][outindex];
+
+      data.list.splice(index, 1);
+      FillAutoInsInnerTable(outindex, m_data_autoins[current_tab_index][outindex]);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAutoInstallInnerDelClick() {
+    var $tr = $(this).closest('tr');
+
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+    var outpath = $tr.data('outpath');
+    var outindex = $tr.data('outindex');
+
+    var list = m_data_autoins[current_tab_index][outindex].list;
+
+    if (list.length === 1) {
+      ventoy_confirm(g_vtoy_cur_language.STR_DEL_LAST, AutoInstallDelEntry, outpath, outindex);
+    } else {
+      AutoInstallDelInnerEntry(outpath, outindex, path, index);
+    }
+  }
+
+
+
+
+
+  //Main process
+  var m_data_autoins;
+  var current_tab_index = 0;
+  callVtoySync({method : 'get_auto_install'}, function(data) {
+    m_data_autoins = data;
+  });
+  
+  $("#id_autoins_tbl").on('click', '.AutoInsAddBtn', OnAutoInstallAddClick);
+  $("#id_autoins_tbl").on('click', '.AutoInsDelBtn', OnAutoInstallDelClick);
+  $("#id_autoins_tbl").on('click', '.AutoInsInnerAddBtn', OnAutoInstallInnerAddClick);
+  $("#id_autoins_tbl").on('click', '.AutoInsInnerDelBtn', OnAutoInstallInnerDelClick);
+
+  $('#id_tab_autoins a[href="#tab_0"]').click(OnClickMultiModeTab);
+  $('#id_tab_autoins a[href="#tab_1"]').click(OnClickMultiModeTab);
+  $('#id_tab_autoins a[href="#tab_2"]').click(OnClickMultiModeTab);
+  $('#id_tab_autoins a[href="#tab_3"]').click(OnClickMultiModeTab);
+  $('#id_tab_autoins a[href="#tab_4"]').click(OnClickMultiModeTab);
+  $('#id_tab_autoins a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  $('#id_tab_autoins a[href="#tab_0"]').tab('show');
+  VtoyFillCurrentPageItem(m_data_autoins[0]);
+  VtoyPageLanguageChange(g_current_language);
+
+</script>

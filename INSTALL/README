@@ -17,7 +17,28 @@ Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX
 Please refer https://www.ventoy.net/en/doc_start.html for details.   
 
 
+========== VentoyWeb.sh ===============
+1. sudo sh VentoyWeb.sh 
+2. open your browser and visit http://127.0.0.1:24680
 
+
+========== VentoyPlugson.sh ===============
+1. sudo sh VentoyPlugson.sh 
+2. open your browser and visit http://127.0.0.1:24681
+
+========== VentoyVlnk.sh ===============
+Usage:  sudo sh VentoyVlnk.sh CMD FILE
+  CMD:
+   -c FILE      create vlnk for FILE
+   -l VLNK      parse vlnk file
+   -v           print verbose info
+   -h           print this help
+
+
+========= VentoyGUI ===================
+VentoyGUI is native GUI program for Linux (GTK/QT)
+1. Just double-click the file (e.g. VentoyGUI.x86_64)
+2. If it can not startup after double-click, you can open the terminal and just execute the file (e.g.  ./VentoyGUI.x86_64)
 
 
 ========== CreatePersistentImg.sh ===============
@@ -33,5 +54,12 @@ Please refer https://www.ventoy.net/en/plugin_persistence.html for details.
 
 
 
+========== ExtendPersistentImg.sh ===============
+sudo sh ExtendPersistentImg.sh  file size   
+For example:
+sh ExtendPersistentImg.sh persistence.dat 2048  ---->  Extend persistence.dat by 2048MB
+That is to say, persistence.dat file will grow to 3GB size (assume that it is 1GB size before extend)
+
+Please refer https://www.ventoy.net/en/plugin_persistence.html for details.
 
 

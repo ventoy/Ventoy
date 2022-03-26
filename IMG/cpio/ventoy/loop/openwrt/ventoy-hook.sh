@@ -19,12 +19,10 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$BUSYBOX_PATH/mkdir /sys
-$BUSYBOX_PATH/mount -t proc proc /proc
-$BUSYBOX_PATH/mount -t sysfs sys /sys
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-$BUSYBOX_PATH/mdev -s
+mkdir /sys
+mount -t sysfs sys /sys
+mdev -s
 
-#$BUSYBOX_PATH/sh $VTOY_PATH/loop/openwrt/ventoy-disk.sh
-
-exec $BUSYBOX_PATH/sh
+sh $VTOY_PATH/loop/openwrt/ventoy-disk.sh

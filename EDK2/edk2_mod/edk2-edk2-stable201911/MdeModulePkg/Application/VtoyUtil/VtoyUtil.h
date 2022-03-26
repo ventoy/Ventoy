@@ -41,6 +41,7 @@ typedef struct ventoy_grub_param
     grub_env_get_pf grub_env_get;
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
+    ventoy_grub_param_file_replace img_replace;
     grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;
 #pragma pack()
@@ -57,7 +58,9 @@ VOID EFIAPI VtoyUtilDebug(IN CONST CHAR8  *Format, ...);
 #define debug(expr, ...) if (gVtoyDebugPrint) VtoyUtilDebug("[VTOY] "expr"\n", ##__VA_ARGS__)
 #define Printf VtoyUtilDebug
 
+EFI_STATUS VtoyGetComponentName(IN UINTN Ver, IN VOID *Protocol, OUT CHAR16 **DriverName);
 EFI_STATUS FixWindowsMemhole(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdLine);
+EFI_STATUS ShowEfiDrivers(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdLine);
 
 #endif
 

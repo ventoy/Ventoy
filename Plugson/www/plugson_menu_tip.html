@@ -1,0 +1,377 @@
+<div class="box box-primary" id="control">
+    <div class="box-header">
+        <div class="col-sm-10" style="padding-top:8px;">
+            <i class="fa fa-commenting">&nbsp;&nbsp;</i>
+            <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title"></h1>
+        </div>
+        
+        <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
+            <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/en/plugin_menutip.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
+        </div>
+    </div>
+    <legend></legend>
+    
+    <div class="box-body">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" id="id_tab_menu_tip">
+            <li class=""><a href="#tab_0" data-toggle="tab" aria-expanded="false" style="font-weight:bold" >menu_tip</a></li>
+            <li class=""><a href="#tab_1" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_tip_legacy</a></li>
+            <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_tip_uefi</a></li>
+            <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_tip_ia32</a></li>
+            <li class=""><a href="#tab_4" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_tip_aa64</a></li>
+            <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">menu_tip_mips</a></li>
+        </ul>
+      </div>
+
+      <div class="box box-primary box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title" style="font-size: 14px;font-weight: bold;">Menu Tips
+            <span id="id_span_desc_cn"> —— 菜单提示信息</span></h3>
+          <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          </div><!-- /.box-tools -->
+        </div><!-- /.box-header -->
+        <div class="box-body no-padding">
+          <table id="id_tip_tbl" class="table table-bordered">
+            <thead>
+              <tr>
+                <th style="width: 2%;">#</th>
+                <th id="id_th_tip_type" style="width: 5%;"></th>
+                <th id="id_th_tip_path" style="width: 35%;"></th>
+                <th id="id_th_status" style="width: 5%;"></th>
+                <th id="id_th_tip_tip" style="width: 40%;"></th>
+                <th id="id_th_operation" style="width: 5%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <br/><br/>
+
+      <div class="box box-primary box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title" style="font-size: 14px;font-weight: bold;">Tip Style
+            <span id="id_span_desc_cn"> —— 提示信息显示位置</span></h3>
+          <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          </div><!-- /.box-tools -->
+        </div><!-- /.box-header -->
+        <div class="box-body no-padding">
+          <table id="id_tip_style" class="table table-bordered">
+            <thead>
+              <tr>
+                <th id="id_th_tip_opt" style="width: 10%;"></th>
+                <th id="id_th_tip_set" style="width: 20%;"></th>
+                <th id="id_th_tip_notes" style="width: 70%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>left</td>
+                <td>
+                    <input type="text" class="form-control" id="id_tip_text_left"/>
+                </td>
+                <td>
+                  <span id="id_span_desc_cn">提示信息显示的 X 坐标百分比（相对于左上角）</span>
+                  <span id="id_span_desc_en">X position of the tip message. (Percentage form relative to the upper left corner)</span>
+                </td>
+              </tr>
+              <tr>
+                <td>top</td>
+                <td>
+                    <input type="text" class="form-control" id="id_tip_text_top"/>
+                </td>
+                <td>
+                  <span id="id_span_desc_cn">提示信息显示的 Y 坐标百分比（相对于左上角）</span>
+                  <span id="id_span_desc_en">Y position of the tip message. (Percentage form relative to the upper left corner)</span>
+                </td>
+              </tr>
+              <tr>
+                <td>color</td>
+                <td>
+                    <input type="text" class="form-control" id="id_tip_text_color"/>
+                </td>
+                <td>
+                  <span id="id_span_desc_cn">提示信息的颜色。可以是 <code>blue/red/green/...</code> 等这种格式，也可以设置为 <code>#00ff00</code> 这种格式。</span>
+                  <span id="id_span_desc_en">Color of the tip message. Can be in <code>blue/red/green/...</code> or <code>#00ff00</code> format.</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+</div>
+<script type="text/javascript">
+    
+  function VtoyPageLanguageChange(newlang) {
+    VtoyCommonChangeLanguage(newlang);
+    $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_TIP);
+
+    $("span[id=id_span_file_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_EXIST);
+    });
+    $("span[id=id_span_file_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_NONEXIST);
+    });
+    $("span[id=id_span_file_fuzzy]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_FUZZY);
+    });
+
+    $("span[id=id_span_dir_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_EXIST);
+    });
+    
+    $("span[id=id_span_dir_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_NONEXIST);
+    });
+
+    
+
+    if (newlang === 'en') {
+      $('#id_th_tip_path').text('Absolute Path');
+      $('#id_th_tip_tip').text('Tip');
+      $('#id_th_tip_type').text('Type');
+      $("th[id=id_th_tip_opt]").text('Option');
+      $("th[id=id_th_tip_set]").text('Setting');
+      $("th[id=id_th_tip_notes]").text('Notes');
+
+      $("span[id=id_span_desc_cn]").each(function(){
+          $(this).hide();
+      });
+      $("span[id=id_span_desc_en]").each(function(){
+          $(this).show();
+      });
+    } else {
+      $('#id_th_tip_path').text('绝对路径');
+      $('#id_th_tip_tip').text('提示');
+      $('#id_th_tip_type').text('类型');
+      $("th[id=id_th_tip_opt]").text('选项');
+      $("th[id=id_th_tip_set]").text('设置');
+      $("th[id=id_th_tip_notes]").text('说明');
+      $("span[id=id_span_desc_en]").each(function(){
+          $(this).hide();
+      });
+      $("span[id=id_span_desc_cn]").each(function(){
+          $(this).show();
+      });
+    }
+  }
+  
+  function FillTipTable(data) {
+    var addbtn = ventoy_get_xslg_addbtn('TipAddBtn');
+    var delbtn = ventoy_get_xslg_delbtn('TipDelBtn');
+
+    var td1, td2, td3, td4, td5, td6;
+    var $tbl = $("#id_tip_tbl tbody");
+    $tbl.empty();
+
+    for (var i = 0; i < data.length; i++) {
+      var $tr;
+      td1 = '<td>' + (i + 1) + '</td>';
+      td2 = (data[i].type === 0) ? '<td>image</td>' : '<td>dir</td>';
+      td3 = '<td>' + data[i].path + '</td>';
+      td4 = '<td>' + ventoy_get_status_line(data[i].type, data[i].valid) + '</td>';
+      td5 = '<td>' + data[i].tip + '</td>';
+      td6 = '<td>' + delbtn + '</td>';
+
+      $tr = $('<tr>' + td1 + td2 + td3 + td4 + td5 + td6 + '</tr>');
+
+      $tr.data('path', data[i].path);
+      $tr.data('index', i);
+      $tbl.append($tr);
+    }
+
+    $tbl.append('<tr><td></td><td></td><td></td><td></td><td></td><td>' + addbtn + '</td></tr>');
+  }
+
+  function VtoyFillCurrentPageItem(data) {
+
+    $('input:text[id=id_tip_text_left]').val(data.left);
+    $('input:text[id=id_tip_text_top]').val(data.top);
+    $('input:text[id=id_tip_text_color]').val(data.color);
+
+    FillTipTable(data);
+  }
+
+
+  function OnClickMultiModeTab() {
+    var href = $(this).attr('href');
+    var index = parseInt(href.substr(5, 1));
+
+    if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
+      return;
+    }
+    
+    current_tab_index = index;
+    VtoyFillCurrentPageItem(m_data_tip[index].tips);
+  }
+
+  //Main process
+  var m_data_tip;
+  var current_tab_index = 0;
+  callVtoySync({method : 'get_tip'}, function(data) {
+    m_data_tip = data;
+  });
+  
+
+  function AddTipEntry(root, type, valid, extra) {
+    var list = m_data_tip[current_tab_index].tips;
+    var data = {
+      "path": root.substr(g_current_dir.length),
+      "tip": extra,
+      "type": type,
+      "valid": valid
+    };
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].path === data.path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'tip_add',
+      index: current_tab_index,
+      path: data.path,
+      tip: data.tip,
+      type: type
+    }, function(e) {
+      list.push(data);
+      FillTipTable(list);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAddImageTip(root, valid, extra) {
+    AddTipEntry(root, 0, valid, extra);
+  }
+
+  function OnAddDirTip(root, extra) {
+    AddTipEntry(root, 1, 1, extra);
+  }
+
+  function OnAddTipBtnClick(sel)  {
+    if (sel === 0) {
+      var tip1 = (g_current_os === 'windows') ? '\\ISO\\Windows11.iso' : "/ISO/Ubuntu-20.04-desktop-amd64.iso";
+      var tip2 = (g_current_os === 'windows') ? '\\ISO\\Windows**.iso' : "/ISO/Ubuntu-*****-desktop-amd64.iso";
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_TIP,
+          "fuzzy": 1,
+          "tip1": g_current_dir + tip1,
+          "tip2": g_current_dir + tip2,
+          "tip3": '',
+          "extra": true,
+          "extra_title": g_vtoy_cur_language.STR_TIP
+      };
+      VtoySelectFilePath(OnAddImageTip, para);
+    } else {
+      var tip = (g_current_os === 'windows') ? '\\ISO\\Windows' : "/ISO/Linux";
+      var para = {
+          "title": g_vtoy_cur_language.STR_SET_TIP,
+          "tip": g_current_dir + tip,
+          "tip3": '',
+          "extra": true,
+          "extra_title": g_vtoy_cur_language.STR_TIP
+      };
+      VtoySelectDirPath(OnAddDirTip, para);
+    }
+  }
+
+  $("#id_tip_tbl").on('click', '.TipAddBtn', function() {
+    var para = [
+      {
+        "selected": true,
+        "tip": g_vtoy_cur_language.STR_SET_TIP_FOR_FILE
+      },
+      {
+        "selected": false,
+        "tip": g_vtoy_cur_language.STR_SET_TIP_FOR_DIR
+      }
+    ];
+
+    VtoySelectType(OnAddTipBtnClick, para);
+  });
+
+  $("#id_tip_tbl").on('click', '.TipDelBtn', function() {
+    var $tr = $(this).closest('tr');
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+
+    callVtoySync({
+        method : 'tip_del',
+        index: current_tab_index,
+        path: path
+    }, function(data) {
+      m_data_tip[current_tab_index].tips.splice(index, 1);
+      FillTipTable(m_data_tip[current_tab_index].tips);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  });
+
+  function VtoySaveCurrentPage() {
+    var left = $('input:text[id=id_tip_text_left]').val();
+    var top = $('input:text[id=id_tip_text_top]').val();
+    var color = $('input:text[id=id_tip_text_color]').val();
+
+    callVtoy({
+      method : 'save_tip',
+      index: current_tab_index,
+      left: left,      
+      top: top,
+      color: color
+    }, function(e) {
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  $('input:text[id=id_tip_text_left]').change(function() {
+    var value = $('input:text[id=id_tip_text_left]').val();
+    if (ventoy_check_percent(value)) {
+      VtoySaveCurrentPage();
+    } else {
+      Message.error(g_vtoy_cur_language.STR_INVALID_PERCENT);
+      $('input:text[id=id_tip_text_left]').val(m_data_tip[current_tab_index].left);
+    }
+  });
+  $('input:text[id=id_tip_text_top]').change(function() {
+    var value = $('input:text[id=id_tip_text_top]').val();
+    if (ventoy_check_percent(value)) {
+      VtoySaveCurrentPage();
+    } else {
+      Message.error(g_vtoy_cur_language.STR_INVALID_PERCENT);
+      $('input:text[id=id_tip_text_top]').val(m_data_tip[current_tab_index].top);
+    }
+  });
+  $('input:text[id=id_tip_text_color]').change(function() {
+    var value = $('input:text[id=id_tip_text_color]').val();
+    if (value.length > 0) {
+      if (ventoy_check_color(value)) {
+        VtoySaveCurrentPage();
+      } else {
+        Message.error(g_vtoy_cur_language.STR_INVALID_COLOR);
+        $('input:text[id=id_tip_text_color]').val(m_data_tip[current_tab_index].color);
+      }
+    } else {
+      $('input:text[id=id_tip_text_color]').val(m_data_tip[current_tab_index].color);
+    }
+  });
+
+
+  $('#id_tab_menu_tip a[href="#tab_0"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_tip a[href="#tab_1"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_tip a[href="#tab_2"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_tip a[href="#tab_3"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_tip a[href="#tab_4"]').click(OnClickMultiModeTab);
+  $('#id_tab_menu_tip a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  $('#id_tab_menu_tip a[href="#tab_0"]').tab('show');
+  VtoyFillCurrentPageItem(m_data_tip[0]);
+  VtoyPageLanguageChange(g_current_language);
+
+</script>

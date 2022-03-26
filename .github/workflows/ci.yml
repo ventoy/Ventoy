@@ -29,5 +29,9 @@ jobs:
         path: INSTALL/ventoy-*livecd*
     - uses: actions/upload-artifact@v2
       with:
+        name: SHA256SUM
+        path: INSTALL/sha256.txt
+    - uses: actions/upload-artifact@v2
+      with:
         name: xxx-build-log
         path: DOC/build.log

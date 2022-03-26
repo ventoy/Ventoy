@@ -1,0 +1,7 @@
+preseed/file
+debian-installer/locale
+console-keymaps-at/keymap
+keyboard-configuration/xkb-keymap
+keyboard-configuration/layout
+simple-cdd/profiles
+vga

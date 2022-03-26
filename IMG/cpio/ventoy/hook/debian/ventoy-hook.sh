@@ -28,8 +28,14 @@ ventoy_get_debian_distro() {
         fi
     fi
     
+    if [ -e /DISTRO_SPECS ]; then
+        if $GREP -q veket /DISTRO_SPECS; then
+            echo 'veket'; return
+        fi
+    fi
+    
     if [ -e /init ]; then
-        if $GREP -q PUPPYSFS /init; then
+        if $EGREP -q 'PUPPYSFS|PUPPYFILE' /init; then
             if $GREP -q VEKETSFS /init; then
                 echo 'veket'; return
             else
@@ -48,6 +54,10 @@ ventoy_get_debian_distro() {
 
     if $GREP -q 'slax/' /proc/cmdline; then
         echo 'slax'; return
+    fi
+    
+    if $GREP -q 'minios/' /proc/cmdline; then
+        echo 'minios'; return
     fi
     
     if $GREP -q 'PVE ' /proc/version; then
@@ -80,7 +90,17 @@ ventoy_get_debian_distro() {
         fi
     fi
     
+    if [ -e /opt/kerio ]; then
+        echo 'kerio'; return
+    fi
     
+    if $GREP -q 'mocaccino' /proc/version; then
+        echo 'mocaccino'; return
+    fi
+    
+    if $GREP -q '/pyabr/' /proc/cmdline; then
+        echo 'pyabr'; return
+    fi
     
     echo 'default'
 }

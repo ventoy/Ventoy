@@ -1,0 +1,1232 @@
+<div class="box box-primary" id="control">
+    <div class="box-header">
+        <div class="col-sm-8" style="padding-top:8px;">
+            <i class="fa fa-wrench">&nbsp;&nbsp;</i>
+            <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">全局控制插件</h1>
+        </div>
+        
+        <div class="col-sm-2" style="padding-top:2px;">
+          <button id="id_btn_collapse" class="btn btn-sm btn-primary"><i style="font-size: 14px;" class="fa fa-minus"></i></button>
+          <button id="id_btn_expand" class="btn btn-sm btn-primary"><i style="font-size: 14px;" class="fa fa-plus"></i></button>
+        </div>
+
+        <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
+            <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/cn/plugin_control.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
+        </div>
+    </div>
+    <legend></legend>
+    
+    <div class="box-body">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" id="id_tab_control">
+            <li class=""><a href="#tab_0" data-toggle="tab" aria-expanded="false" style="font-weight:bold" >control</a></li>
+            <li class=""><a href="#tab_1" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">control_legacy</a></li>
+            <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">control_uefi</a></li>
+            <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">control_ia32</a></li>
+            <li class=""><a href="#tab_4" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">control_aa64</a></li>
+            <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">control_mips</a></li>
+        </ul>
+      </div>
+
+      
+      <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_DEFAULT_SEARCH_ROOT
+                <span id="id_span_desc_cn"> —— 指定搜索目录</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <div class="col-sm-9" style="padding-left:0px;">
+                          <input type="text" class="form-control" id="id_ctrl_text_search_root" name="name_ctrl_text_search_root" disabled="disabled"/>
+                        </div>
+                        <div class="col-sm-1" id="id_ctrl_div_root_status">
+                          <span id="id_ctrl_span_search_root_valid" style="line-height: 2;" class="badge bg-green">有效</span>
+                          <span id="id_ctrl_span_search_root_invalid" style="line-height: 2;" class="badge bg-red">无效</span>
+                        </div>
+                        <div class="col-sm-1">
+                          <button id="id_ctrl_btn_sel_root" class="btn btn-primary btn-add"><span class="fa fa-edit"></span><span id="id_span_edit"> 设置</span></button>
+                        </div>
+                        <div class="col-sm-1">
+                          <button id="id_ctrl_btn_clr_root" class="btn btn-danger btn-del"><span class="fa fa-trash"></span><span id="id_span_clear"> 清除</span></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        指定搜索ISO文件的根目录。默认Ventoy会搜索U盘上的所有目录和子目录，当你U盘上有海量的文件时，这个过程会很慢。<br/>
+                        这种情况下你可以把ISO文件单独放在某个子目录下，然后通过这个变量来指定搜索路径，此时Ventoy就只会搜索该目录及其子目录。<br/>
+                        注意这里不能设置为U盘根目录，必须为一个子目录。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        The root path where to search the image files. By default, Ventoy will search all the directories and subdirectories in the USB. This will be very slow when you have huge number of files in the USB. 
+                        In this case, you can put all the image files in one subdirectory and use this to specify the search path. 
+                        After that Ventoy will only search this directory and its subdirectories for image files.<br/>
+                        Note: the path must not be the mountpoint of the first partition, but a subdirectory.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    
+
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_WIN11_BYPASS_CHECK
+              <span id="id_span_desc_cn"> —— 绕过Windows 11硬件检查</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_bypass_win11_radio0" name="id_ctrl_bypass_win11_radio" data-type="0" value="0"/> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_bypass_win11_radio1" name="id_ctrl_bypass_win11_radio" data-type="1" value="1"/> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> 不绕过Windows 11安装时的硬件检查。<br/>
+                      <code style="font-weight: bold;">1</code> 绕过Windows 11安装时的硬件检查。<br/><br/>
+                      该选项只对标准Windows 11 ISO文件有效，对于其他镜像文件无效。
+                      当设置为1时，Ventoy 会在安装时创建以下几个注册表项用来绕过 Windows 11 安装程序的硬件检查。<br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassRAMCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassTPMCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassSecureBootCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassCPUCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassStorageCheck</code><br/>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> Don not bypass Windows 11 hardware check.<br/>
+                      <code style="font-weight: bold;">1</code> Bypass Windows 11 hardware check. <br/><br/>
+                      This option only avaliable for standard Windows 11 ISO files.
+                      When set to 1, Ventoy will create the following registries to bypass Windows 11 hardware check when install. <br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassRAMCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassTPMCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassSecureBootCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassCPUCheck</code><br/>
+                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassStorageCheck</code><br/>
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+      
+      
+
+
+
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_DEFAULT_MENU_MODE
+              <span id="id_span_desc_cn"> —— 菜单显示模式</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_radio_menu_mode0" name="id_ctrl_radio_menu_mode" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_radio_menu_mode1" name="id_ctrl_radio_menu_mode" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>启动菜单默认显示模式，
+                      <code style="font-weight: bold;">0</code> 列表模式 &nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> TreeView（目录树） 模式</td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col">Option Description</td>
+                    <td>
+                      Default boot menu display mode. 
+                      <code style="font-weight: bold;">0</code> ListView Mode &nbsp;&nbsp
+                      <code style="font-weight: bold;">1</code> TreeView Mode
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+      </div><!-- /.box -->
+
+
+
+
+
+
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_MENU_TIMEOUT
+                <span id="id_span_desc_cn"> —— 启动倒计时</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <div class="col-sm-9" style="padding-left:0px;">
+                            <input type="text" class="form-control" id="id_ctrl_text_timeout" name="name_ctrl_text_timeout"/>
+                        </div>                       
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        菜单倒计时（秒）。默认为0（即没有超时时间），设置之后，比如设置为10，则在倒计时10秒之后，会自动启动选中的镜像文件。在倒计时的过程中按任意键会停止倒计时，等待用户操作。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Menu timeout (seconds). Default value is 0 (no timeout is set). <br/>
+                        When you set it to 10 for example, the selected image will be booted automatically after 10 seconds.
+                        During the countdown, pressing any key will stop the countdown and wait for user operation.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    
+
+    
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_DEFAULT_IMAGE
+                <span id="id_span_desc_cn"> —— 默认选中的镜像文件</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <div class="col-sm-9" style="padding-left:0px;">
+                            <input type="text" class="form-control" id="id_ctrl_text_default_img" name="name_id_ctrl_text_default_img" disabled="disabled"/>
+                        </div>
+                        <div class="col-sm-1" id="id_ctrl_div_img_status">
+                          <span id="id_ctrl_span_img_valid" style="line-height: 2;" class="badge bg-green">有效</span>
+                          <span id="id_ctrl_span_img_invalid" style="line-height: 2;" class="badge bg-red">无效</span>
+                        </div>
+                        <div class="col-sm-1">
+                            <button id="id_ctrl_btn_default_img" class="btn btn-primary btn-add"><span class="fa fa-edit"></span><span id="id_span_edit"> 设置</span></button>
+                        </div>
+                        <div class="col-sm-1">
+                          <button id="id_ctrl_btn_clr_default" class="btn btn-danger btn-del"><span class="fa fa-trash"></span><span id="id_span_clear"> 清除</span></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        正常情况下默认选中的是第1个镜像文件。通过这个选项可以设置默认选中的镜像文件，一般和 VTOY_MENU_TIMEOUT 一起使用。<br/>
+                        可以设置为 WIM/VHD/IMG 等支持的文件，必须是以 / 开始的全路径，ListView模式和TreeView模式都支持。 <br/>
+                        注意，当同时设置了 VTOY_DEFAULT_SEARCH_ROOT 以后，VTOY_DEFAULT_IMAGE 对应的文件必须位于 VTOY_DEFAULT_SEARCH_ROOT 对应的目录下，否则不会生效。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Default selected image path. Normally used with VTOY_MENU_TIMEOUT. <br/>It can be ISO/WIM/VHD/IMG ... and supported in both ListView mode and TreeView mode.<br/>
+                        Attention that, when VTOY_DEFAULT_SEARCH_ROOT is set, VTOY_DEFAULT_IMAGE must be in the directory (or sub-directory) of VTOY_DEFAULT_SEARCH_ROOT, otherwise it will not take effect.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    
+    
+        
+        
+    
+    
+    
+    
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_MAX_SEARCH_LEVEL
+                <span id="id_span_desc_cn"> —— 最大搜索目录深度</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <select id="id_ctrl_sel_max_depth" name="name_ctrl_sel_max_depth" class="form-control">
+                            <option title="max" selected>max</option>
+                            <option title="0">0</option>
+                            <option title="1">1</option>
+                            <option title="2">2</option>
+                            <option title="3">3</option>
+                            <option title="4">4</option>
+                            <option title="5">5</option>
+                            <option title="6">6</option>
+                            <option title="7">7</option>
+                            <option title="8">8</option>
+                            <option title="9">9</option>
+                            <option title="10">10</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        最大搜索子目录的层数，取值为：<code>max</code> <code>0</code> <code>1</code> <code>2</code> <code>3</code> <code>...</code> 
+                        &nbsp;&nbsp;&nbsp;默认值为：<code>max</code><br/>
+                        默认Ventoy会递归搜索磁盘上的所有目录和子目录，不管目录结构有多深都会搜索到底。你可以通过这个参数来控制搜索时的路径深度。<br/><br/>
+                        <code>max</code> : 最大层数，也就是搜索所有子目录的意思。这也是 Ventoy 的默认值。<br/>
+                        <code>0</code> : 搜索0层子目录，只列出根目录下的文件，不去搜索任何一个子目录。<br/>
+                        <code>1</code> : 搜索1层子目录，除了根目录下的文件以外，再搜索根目录下的1级子目录。但是不再搜索1级子目录下的子目录（2级子目录）。<br/>
+                        <code>2</code> : 搜索2层子目录，除了根目录下的文件以外，再搜索根目录下的1级子目录以及1级子目录下的子目录（2级子目录）。<br/>
+                        <code>3</code> : 搜索3层子目录，......<br/>
+                        <code>...</code><br/><br/>
+                        注意，如果 <code>VTOY_DEFAULT_SEARCH_ROOT</code> 参数也同时设置了的话，则就以 <code>VTOY_DEFAULT_SEARCH_ROOT</code> 指定的目录作为根目录开始计算。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Max subdirectory level when search for image files. It's value can be: <code>max</code> <code>0</code> <code>1</code> <code>2</code> <code>3</code> <code>...</code> 
+                        &nbsp;&nbsp;&nbsp;default is : <code>max</code><br/>
+                        By default, Ventoy will search all the directories and sub directories recursively no matter how deep the directory level is.<br/>
+                        You can use this parameter to set a max-depth for the search path.<br/><br/>
+                        <code>max</code> : Maximum, search all the directories and subdirectories. This is Ventoy's default value.<br/>
+                        <code>0</code> : Only search files in the root and don't search any subdirectories.<br/>
+                        <code>1</code> : Search up to level 1 of subdirectories.<br/>
+                        <code>2</code> : Search up to level 2 of subdirectories.<br/>
+                        <code>3</code> : Search up to level 3 of subdirectories.<br/>
+                        <code>...</code><br/><br/>
+                        If <code>VTOY_DEFAULT_SEARCH_ROOT</code> is set at the same time. Then the level is counted from <code>VTOY_DEFAULT_SEARCH_ROOT</code> .
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    
+    
+
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_LINUX_REMOUNT
+              <span id="id_span_desc_cn"> —— Linux 启动后继续访问ISO文件所在分区</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_linux_remount_radio0" name="id_ctrl_linux_remount_radio" data-type="0" value="0"/> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_linux_remount_radio1" name="id_ctrl_linux_remount_radio" data-type="1" value="1"/> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> Linux启动后不需要继续访问ISO文件所在的分区。<br/>
+                      <code style="font-weight: bold;">1</code> Linux启动后需要继续访问ISO文件所在的分区。<br/><br/>
+                      该选项只对 Linux 系统镜像有效。<br/>
+                      默认情况下，受Linux内核相关功能的限制，对于Linux系统，在启动后无法继续访问ISO文件所在的分区。在mount的时候会提示 device busy。<br/>
+                      如果这里选择 1，则 Ventoy 会尝试通过一些特殊的手段绕过内核的这个限制，但是这个功能是实验性质的，没有经过大规模和长时间的验证。                      
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> I don't need to access the image partition after boot.<br/>
+                      <code style="font-weight: bold;">1</code> I need to access the image partition after boot. <br/><br/>
+                      This option is only avaliable for Linux distro image files. <br/>
+
+                      By default, the image partition where the ISO files locate can not be accessed after boot. When you try to mount it you will get device busy error.
+                      This is due to linux kernel restriction (device-mapper module).<br/>
+                      If you select 1 here, Ventoy will try to bypass the restriction with some special mechanism.<br/>
+                      But it should be noted that, this is an experimental feature and is not fully tested.
+                      
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+    
+    
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_DEFAULT_KBD_LAYOUT
+                <span id="id_span_desc_cn"> —— 默认键盘布局</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                   
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <select id="id_ctrl_sel_kbd" name="name_ctrl_sel_kbd" class="form-control">
+                            <option title="QWERTY_USA" selected>QWERTY_USA</option>
+                            <option title="AZERTY">AZERTY</option>
+                            <option title="CZECH_QWERTY">CZECH_QWERTY</option>
+                            <option title="CZECH_QWERTZ">CZECH_QWERTZ</option>
+                            <option title="DANISH">DANISH</option>
+                            <option title="DVORAK_USA">DVORAK_USA</option>
+                            <option title="FRENCH">FRENCH</option>
+                            <option title="GERMAN">GERMAN</option>
+                            <option title="ITALIANO">ITALIANO</option>
+                            <option title="JAPAN_106">JAPAN_106</option>
+                            <option title="LATIN_USA">LATIN_USA</option>
+                            <option title="PORTU_BRAZIL">PORTU_BRAZIL</option>
+                            <option title="QWERTY_UK">QWERTY_UK</option>
+                            <option title="QWERTZ">QWERTZ</option>
+                            <option title="QWERTZ_HUN">QWERTZ_HUN</option>
+                            <option title="QWERTZ_SLOV_CROAT">QWERTZ_SLOV_CROAT</option>
+                            <option title="SPANISH">SPANISH</option>
+                            <option title="SWEDISH">SWEDISH</option>
+                            <option title="TURKISH_Q">TURKISH_Q</option>
+                            <option title="VIETNAMESE">VIETNAMESE</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        键盘布局
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Keyboard Layout
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    
+    
+    
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_TREE_VIEW_MENU_STYLE
+                <span id="id_span_desc_cn"> —— TreeView模式显示风格</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_treestyle0" name="id_ctrl_radio_treestyle" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_treestyle1" name="id_ctrl_radio_treestyle" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>TreeView模式下的菜单风格。
+                        <code style="font-weight: bold;">0</code> 显示DIR和文件大小 &nbsp;&nbsp;&nbsp;
+                        <code style="font-weight: bold;">1</code> 不显示DIR和文件大小。只在 VTOY_DEFAULT_MENU_MODE 为1时才有效。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                        Menu style in TreeView mode. 
+                        <code style="font-weight: bold;">0</code> with DIR and file size prefix &nbsp;&nbsp;&nbsp;
+                        <code style="font-weight: bold;">1</code> No DIR and file size. Default is 0.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_FILT_DOT_UNDERSCORE_FILE
+                <span id="id_span_desc_cn"> —— 过滤以 ._ 开头的文件</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_underscore0" name="id_ctrl_radio_underscore" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_underscore1" name="id_ctrl_radio_underscore" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>过滤以 ._ 开头的文件。当使用苹果系统时，有时拷贝文件会产生一些 ._ 开头的文件，可以通过此选项过滤掉。
+                        <code style="font-weight: bold;">0</code> 不过滤 &nbsp;&nbsp; 
+                        <code style="font-weight: bold;">1</code> 过滤
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                      Filter for files with prefix ._ in name. This will be useful when you use macOS (a lot of ._xxx file generated when you copy files). 
+                      <code style="font-weight: bold;">0</code> Don't filt &nbsp;&nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> Filt
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+
+
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SORT_CASE_SENSITIVE
+                <span id="id_span_desc_cn"> —— 菜单排序时是否区分大小写</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_casesensitive0" name="id_ctrl_radio_casesensitive" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_casesensitive1" name="id_ctrl_radio_casesensitive" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>在菜单排序时是否大小写敏感。
+                        <code style="font-weight: bold;">0</code> 不区分大小写 &nbsp;&nbsp;&nbsp; <code style="font-weight: bold;">1</code> 区分大小写
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                      Case sensitive when sort the ISO files or directories. &nbsp;&nbsp;&nbsp; 
+                      <code style="font-weight: bold;">0</code> case insensitive &nbsp;&nbsp;&nbsp;<code style="font-weight: bold;">1</code> case sensitive
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_VHD_NO_WARNING</h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_vhd_warning0" name="id_ctrl_radio_vhd_warning" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_vhd_warning1" name="id_ctrl_radio_vhd_warning" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>
+                        <code style="font-weight: bold;">0</code> 启动Windows VHD(x)时，如果U盘分区不是NTFS格式，则显示告警信息。&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <code style="font-weight: bold;">1</code> 不显示告警信息。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                        <code style="font-weight: bold;">0</code> Show a warning message if the partition is not NTFS when booting VHD(x) file.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <code style="font-weight: bold;">1</code> No warning message.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+
+        
+
+
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_FILE_FLT_ISO
+                <span id="id_span_desc_cn"> —— 过滤 .iso 文件</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_filt_iso0" name="id_ctrl_radio_filt_iso" data-type="0" value="0" > <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_radio_filt_iso1" name="id_ctrl_radio_filt_iso" data-type="1" value="1" > <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>
+                        <code style="font-weight: bold;">0</code> 不过滤 .iso 文件 &nbsp;&nbsp; &nbsp;&nbsp; 
+                        <code style="font-weight: bold;">1</code> 过滤掉 .iso 文件。&nbsp;&nbsp; &nbsp;&nbsp; 
+                        过滤之后 .iso 文件就不会显示在启动菜单中。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                        <code style="font-weight: bold;">0</code> List .iso files. &nbsp;&nbsp;&nbsp;&nbsp;
+                        <code style="font-weight: bold;">1</code> Filter .iso files. &nbsp;&nbsp;&nbsp;&nbsp;
+                        The iso files will not be shown in the boot menu if set to 1.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_FILE_FLT_WIM
+              <span id="id_span_desc_cn"> —— 过滤 .wim 文件</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">                    
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_radio_filt_wim0" name="id_ctrl_radio_filt_wim" data-type="0" value="0" > <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_radio_filt_wim1" name="id_ctrl_radio_filt_wim" data-type="1" value="1" > <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> 不过滤 .wim 文件 &nbsp;&nbsp; &nbsp;&nbsp; 
+                      <code style="font-weight: bold;">1</code> 过滤掉 .wim 文件。&nbsp;&nbsp; &nbsp;&nbsp; 
+                      过滤之后 .wim 文件就不会显示在启动菜单中。
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> List .wim files. &nbsp;&nbsp;&nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> Filter .wim files. &nbsp;&nbsp;&nbsp;&nbsp;
+                      The wim files will not be shown in the boot menu if set to 1.
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+      </div><!-- /.box -->
+
+
+
+      <div class="box box-primary box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_FILE_FLT_EFI
+            <span id="id_span_desc_cn"> —— 过滤 .efi 文件</span></h3>
+          <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          </div><!-- /.box-tools -->
+        </div><!-- /.box-header -->
+        <div class="box-body no-padding">
+            <table class="table table-bordered  no-padding">                    
+                <tr style="font-weight:bold;">
+                  <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                  <td>
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_efi0" name="id_ctrl_radio_filt_efi" data-type="0" value="0" > <span style="font-weight:bold;">0</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_efi1" name="id_ctrl_radio_filt_efi" data-type="1" value="1" > <span style="font-weight:bold;">1</span>
+                    </label>
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_cn">
+                  <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> 不过滤 .efi 文件 &nbsp;&nbsp; &nbsp;&nbsp; 
+                    <code style="font-weight: bold;">1</code> 过滤掉 .efi 文件。&nbsp;&nbsp; &nbsp;&nbsp; 
+                    过滤之后 .efi 文件就不会显示在启动菜单中。
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_en">
+                  <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> List .efi files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    <code style="font-weight: bold;">1</code> Filter .efi files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    The efi files will not be shown in the boot menu if set to 1.
+                  </td>
+                </tr>
+            </table>
+        </div><!-- /.box-body -->
+      </div><!-- /.box -->
+
+
+
+      <div class="box box-primary box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_FILE_FLT_IMG
+            <span id="id_span_desc_cn"> —— 过滤 .img 文件</span></h3>
+          <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          </div><!-- /.box-tools -->
+        </div><!-- /.box-header -->
+        <div class="box-body no-padding">
+            <table class="table table-bordered  no-padding">                    
+                <tr style="font-weight:bold;">
+                  <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                  <td>
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_img0" name="id_ctrl_radio_filt_img" data-type="0" value="0" > <span style="font-weight:bold;">0</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_img1" name="id_ctrl_radio_filt_img" data-type="1" value="1" > <span style="font-weight:bold;">1</span>
+                    </label>
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_cn">
+                  <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> 不过滤 .img 文件 &nbsp;&nbsp; &nbsp;&nbsp; 
+                    <code style="font-weight: bold;">1</code> 过滤掉 .img 文件。&nbsp;&nbsp; &nbsp;&nbsp; 
+                    过滤之后 .img 文件就不会显示在启动菜单中。
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_en">
+                  <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> List .img files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    <code style="font-weight: bold;">1</code> Filter .img files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    The img files will not be shown in the boot menu if set to 1.
+                  </td>
+                </tr>
+            </table>
+        </div><!-- /.box-body -->
+      </div><!-- /.box -->
+
+
+
+      <div class="box box-primary box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_FILE_FLT_VHD
+            <span id="id_span_desc_cn"> —— 过滤 .vhd(x) 文件</span></h3>
+          <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          </div><!-- /.box-tools -->
+        </div><!-- /.box-header -->
+        <div class="box-body no-padding">
+            <table class="table table-bordered  no-padding">                    
+                <tr style="font-weight:bold;">
+                  <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                  <td>
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_vhd0" name="id_ctrl_radio_filt_vhd" data-type="0" value="0" > <span style="font-weight:bold;">0</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_vhd1" name="id_ctrl_radio_filt_vhd" data-type="1" value="1" > <span style="font-weight:bold;">1</span>
+                    </label>
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_cn">
+                  <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> 不过滤 .vhd(x) 文件 &nbsp;&nbsp; &nbsp;&nbsp; 
+                    <code style="font-weight: bold;">1</code> 过滤掉 .vhd(x) 文件。&nbsp;&nbsp; &nbsp;&nbsp; 
+                    过滤之后 .vhd(x) 文件就不会显示在启动菜单中。
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_en">
+                  <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> List .vhd(x) files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    <code style="font-weight: bold;">1</code> Filter .vhd(x) files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    The vhd(x) files will not be shown in the boot menu if set to 1.
+                  </td>
+                </tr>
+            </table>
+        </div><!-- /.box-body -->
+      </div><!-- /.box -->
+
+
+
+      <div class="box box-primary box-solid">
+        <div class="box-header with-border">
+          <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_FILE_FLT_VTOY
+            <span id="id_span_desc_cn"> —— 过滤 .vtoy 文件</span></h3>
+          <div class="box-tools pull-right">
+            <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+          </div><!-- /.box-tools -->
+        </div><!-- /.box-header -->
+        <div class="box-body no-padding">
+            <table class="table table-bordered  no-padding">                    
+                <tr style="font-weight:bold;">
+                  <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                  <td>
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_vtoy0" name="id_ctrl_radio_filt_vtoy" data-type="0" value="0" > <span style="font-weight:bold;">0</span>
+                    </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label class="radio-inline">
+                        <input type="radio" id="id_ctrl_radio_filt_vtoy1" name="id_ctrl_radio_filt_vtoy" data-type="1" value="1" > <span style="font-weight:bold;">1</span>
+                    </label>
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_cn">
+                  <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> 不过滤 .vtoy 文件 &nbsp;&nbsp; &nbsp;&nbsp; 
+                    <code style="font-weight: bold;">1</code> 过滤掉 .vtoy 文件。&nbsp;&nbsp; &nbsp;&nbsp; 
+                    过滤之后 .vtoy 文件就不会显示在启动菜单中。
+                  </td>
+                </tr>
+                <tr id="tr_title_desc_en">
+                  <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                  <td>
+                    <code style="font-weight: bold;">0</code> List .vtoy files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    <code style="font-weight: bold;">1</code> Filter .vtoy files. &nbsp;&nbsp;&nbsp;&nbsp;
+                    The vtoy files will not be shown in the boot menu if set to 1.
+                  </td>
+                </tr>
+            </table>
+        </div><!-- /.box-body -->
+      </div><!-- /.box -->
+
+
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_HELP_TXT_LANGUAGE
+                <span id="id_span_desc_cn"> —— 帮助信息语言</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <select id="id_ctrl_sel_help_lang" name="name_ctrl_sel_help_lang" class="form-control">
+                            
+                        </select>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        快捷键 <code>h</code> 显示的帮助信息的语言版本。默认是 "en_US"。 
+                        具体请参考 <a target="_blank" href='https://www.ventoy.net/cn/plugin_control.html#vtoy_help_language'>Ventoy 帮助信息</a>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        The language of the help text when press <code>h</code>. Default is "en_US", 
+                        refer <a target="_blank" href='https://www.ventoy.net/en/plugin_control.html#vtoy_help_language'>Ventoy Help Text</a> for details.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+
+    </div>
+   
+</div>
+<script type="text/javascript">
+  function VtoyPageLanguageChange(newlang) {
+    VtoyCommonChangeLanguage(newlang);
+
+    $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_CONTROL);
+    $('#id_ctrl_span_search_root_valid').text(g_vtoy_cur_language.STR_VALID); 
+    $('#id_ctrl_span_search_root_invalid').text(g_vtoy_cur_language.STR_INVALID);
+    $('#id_ctrl_span_img_valid').text(g_vtoy_cur_language.STR_VALID);
+    $('#id_ctrl_span_img_invalid').text(g_vtoy_cur_language.STR_INVALID);
+
+    $("span[id=id_span_edit]").each(function(){
+        $(this).text(' ' + g_vtoy_cur_language.STR_EDIT);
+    });
+
+    $("span[id=id_span_clear]").each(function(){
+        $(this).text(' ' + g_vtoy_cur_language.STR_CLEAR);
+    });
+  }
+
+  function VtoyGetCurrentPageItem(data) {
+    var level;
+
+    data.win11_bypass_check = parseInt($('input:radio[name=id_ctrl_bypass_win11_radio]:checked').val());
+    data.linux_remount = parseInt($('input:radio[name=id_ctrl_linux_remount_radio]:checked').val());
+    data.default_search_root = $('input:text[id=id_ctrl_text_search_root]').val();
+    data.menu_timeout = parseInt($('input:text[id=id_ctrl_text_timeout]').val());
+    data.default_image = $('input:text[id=id_ctrl_text_default_img]').val();
+    
+    level = $('select[id=id_ctrl_sel_max_depth').val();
+    if (level === 'max') {
+      data.max_search_level = -1;
+    } else {
+      data.max_search_level = parseInt(level);
+    }
+    
+    data.default_kbd_layout = $('select[id=id_ctrl_sel_kbd').val();
+    data.default_menu_mode = parseInt($('input:radio[name=id_ctrl_radio_menu_mode]:checked').val());
+    data.treeview_style = parseInt($('input:radio[name=id_ctrl_radio_treestyle]:checked').val());
+
+    data.filter_dot_underscore = parseInt($('input:radio[name=id_ctrl_radio_underscore]:checked').val());
+    data.sort_casesensitive = parseInt($('input:radio[name=id_ctrl_radio_casesensitive]:checked').val());
+
+    data.vhd_no_warning = parseInt($('input:radio[name=id_ctrl_radio_vhd_warning]:checked').val());
+    data.filter_iso = parseInt($('input:radio[name=id_ctrl_radio_filt_iso]:checked').val());
+    data.filter_wim = parseInt($('input:radio[name=id_ctrl_radio_filt_wim]:checked').val());
+    data.filter_efi = parseInt($('input:radio[name=id_ctrl_radio_filt_efi]:checked').val());
+    data.filter_img = parseInt($('input:radio[name=id_ctrl_radio_filt_img]:checked').val());
+    data.filter_vhd = parseInt($('input:radio[name=id_ctrl_radio_filt_vhd]:checked').val());
+    data.filter_vtoy = parseInt($('input:radio[name=id_ctrl_radio_filt_vtoy]:checked').val());
+
+    data.help_text_language = $('select[id=id_ctrl_sel_help_lang').val();
+  }
+
+  function VtoyFillCurrentPageItem(data) {
+    //VTOY_WIN11_BYPASS_CHECK
+    $('input:radio[name=id_ctrl_bypass_win11_radio]')[data.win11_bypass_check].checked = true;
+    $('input:radio[name=id_ctrl_linux_remount_radio]')[data.linux_remount].checked = true;
+
+    //VTOY_DEFAULT_SEARCH_ROOT
+    $('input:text[id=id_ctrl_text_search_root]').val(data.default_search_root);
+    if (data.default_search_root.length === 0) {
+      $('div[id=id_ctrl_div_root_status]').hide();
+    } else {
+      $('div[id=id_ctrl_div_root_status]').show();
+      if (data.default_search_root_valid === 0) {
+        $('span[id=id_ctrl_span_search_root_valid]').hide();
+        $('span[id=id_ctrl_span_search_root_invalid]').show();
+      } else {
+        $('span[id=id_ctrl_span_search_root_valid]').show();
+        $('span[id=id_ctrl_span_search_root_invalid]').hide();
+      }
+    }
+
+    //VTOY_MENU_TIMEOUT
+    $('input:text[id=id_ctrl_text_timeout]').val(data.menu_timeout);
+
+
+    //VTOY_DEFAULT_IMAGE
+    $('input:text[id=id_ctrl_text_default_img]').val(data.default_image);
+    if (data.default_image.length === 0) {
+      $('div[id=id_ctrl_div_img_status]').hide();
+    } else {
+      $('div[id=id_ctrl_div_img_status]').show();
+      if (data.default_image_valid === 0) {
+        $('span[id=id_ctrl_span_img_valid]').hide();
+        $('span[id=id_ctrl_span_img_invalid]').show();
+      } else {
+        $('span[id=id_ctrl_span_img_valid]').show();
+        $('span[id=id_ctrl_span_img_invalid]').hide();
+      }
+    }
+
+    //VTOY_MAX_SEARCH_LEVEL
+    if (data.max_search_level >=0 && data.max_search_level <= 10) {
+      $('select[id=id_ctrl_sel_max_depth').val(data.max_search_level);
+    } else {
+      $('select[id=id_ctrl_sel_max_depth').val('max');
+    }
+
+    //VTOY_DEFAULT_KBD_LAYOUT
+    $('select[id=id_ctrl_sel_kbd').val(data.default_kbd_layout);
+
+    //VTOY_DEFAULT_MENU_MODE
+    $('input:radio[name=id_ctrl_radio_menu_mode]')[data.default_menu_mode].checked = true;
+
+    //VTOY_TREE_VIEW_MENU_STYLE
+    $('input:radio[name=id_ctrl_radio_treestyle]')[data.treeview_style].checked = true;
+
+    //VTOY_FILT_DOT_UNDERSCORE_FILE
+    $('input:radio[name=id_ctrl_radio_underscore]')[data.filter_dot_underscore].checked = true;
+
+    //VTOY_SORT_CASE_SENSITIVE
+    $('input:radio[name=id_ctrl_radio_casesensitive]')[data.sort_casesensitive].checked = true;
+
+    //VTOY_VHD_NO_WARNING
+    $('input:radio[name=id_ctrl_radio_vhd_warning]')[data.vhd_no_warning].checked = true;
+
+    //VTOY_FILE_FLT_ISO
+    $('input:radio[name=id_ctrl_radio_filt_iso]')[data.filter_iso].checked = true;
+
+    //VTOY_FILE_FLT_WIM
+    $('input:radio[name=id_ctrl_radio_filt_wim]')[data.filter_wim].checked = true;
+
+    //VTOY_FILE_FLT_EFI
+    $('input:radio[name=id_ctrl_radio_filt_efi]')[data.filter_efi].checked = true;
+
+    //VTOY_FILE_FLT_IMG
+    $('input:radio[name=id_ctrl_radio_filt_img]')[data.filter_img].checked = true;
+
+
+    //VTOY_FILE_FLT_VHD
+    $('input:radio[name=id_ctrl_radio_filt_vhd]')[data.filter_vhd].checked = true;
+
+
+    //VTOY_FILE_FLT_VTOY
+    $('input:radio[name=id_ctrl_radio_filt_vtoy]')[data.filter_vtoy].checked = true;
+
+    //VTOY_HELP_TXT_LANGUAGE
+    if ($("select[id=id_ctrl_sel_help_lang")[0].options.length === 0)
+    {
+      for (var i = 0; i < data.help_list.length; i++) {
+        var hlang = data.help_list[i];
+        var opt = '<option title="'+hlang+'">'+hlang+'</option>';
+        $('select[id=id_ctrl_sel_help_lang').append(opt);
+      }
+    }
+    
+    $('select[id=id_ctrl_sel_help_lang').val(data.help_text_language);
+  }
+
+  function VtoySaveCurrentPage() {
+    VtoyGetCurrentPageItem(m_data_control[current_tab_index]);
+    var data = m_data_control[current_tab_index];
+
+    callVtoy({
+      method : 'save_control',
+      index: current_tab_index,
+      win11_bypass_check: data.win11_bypass_check,
+      linux_remount:data.linux_remount,
+      default_search_root: data.default_search_root,
+      menu_timeout: data.menu_timeout,
+      default_image: data.default_image,
+      max_search_level: data.max_search_level,
+      default_kbd_layout: data.default_kbd_layout,
+      default_menu_mode: data.default_menu_mode,
+      treeview_style: data.treeview_style,
+      filter_dot_underscore: data.filter_dot_underscore,
+      sort_casesensitive: data.sort_casesensitive,
+      vhd_no_warning: data.vhd_no_warning,
+      filter_iso: data.filter_iso,
+      filter_wim: data.filter_wim,
+      filter_efi: data.filter_efi,
+      filter_img: data.filter_img,
+      filter_vhd: data.filter_vhd,
+      filter_vtoy: data.filter_vtoy,
+      help_text_language: data.help_text_language
+    }, function(e) {
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnClickMultiModeTab() {
+    var href = $(this).attr('href');
+    var index = parseInt(href.substr(5, 1));
+
+    if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
+      return;
+    }
+    
+    current_tab_index = index;
+    VtoyFillCurrentPageItem(m_data_control[index]);
+  }
+
+  function OnSelectSearchRoot(root, extra) {
+    var path = root.substr(g_current_dir.length);
+    $('input:text[id=id_ctrl_text_search_root]').val(path);
+    if (path.length === 0) {
+      $('div[id=id_ctrl_div_root_status]').hide();
+    } else {
+      $('div[id=id_ctrl_div_root_status]').show();
+      $('span[id=id_ctrl_span_search_root_valid]').show();
+      $('span[id=id_ctrl_span_search_root_invalid]').hide();
+    }
+    VtoySaveCurrentPage();
+  }
+
+  function OnSelectDefaultImage(root, valid, extra) {
+    var path = root.substr(g_current_dir.length);
+    $('input:text[id=id_ctrl_text_default_img]').val(path);
+    if (path.length === 0) {
+      $('div[id=id_ctrl_div_img_status]').hide();  
+    } else {
+      $('div[id=id_ctrl_div_img_status]').show();
+      $('span[id=id_ctrl_span_img_valid]').show();
+      $('span[id=id_ctrl_span_img_invalid]').hide();
+    }
+    VtoySaveCurrentPage();
+  }
+
+  //Main process
+  var m_data_control;
+  var current_tab_index = 0;
+
+  callVtoySync({method : 'get_control'}, function(data) {
+    m_data_control = data;
+  });
+  
+  $('#id_ctrl_btn_sel_root').click(function() {
+    var tip = (g_current_os === 'windows') ? '\\ISO\\Windows' : "/ISO/Linux";
+    var para = {
+        "title": g_vtoy_cur_language.STR_SET_SEARCH_ROOT,
+        "tip": g_current_dir + tip,
+        "tip3": '',
+        "extra": false,
+        "extra_title": ''
+    };
+    VtoySelectDirPath(OnSelectSearchRoot, para);
+  });
+  
+  $('#id_ctrl_btn_clr_root').click(function() {
+    var old = $('input:text[id=id_ctrl_text_search_root]').val();
+    if (old.length != 0) {
+      $('input:text[id=id_ctrl_text_search_root]').val('');
+      $('div[id=id_ctrl_div_root_status]').hide();
+      VtoySaveCurrentPage();
+    }
+  });
+  
+  $('#id_ctrl_btn_default_img').click(function() {
+    var tip = (g_current_os === 'windows') ? '\\ISO\\Windows10_en.iso' : "/ISO/Windows10_en.iso";
+    var para = {
+        "title": g_vtoy_cur_language.STR_SET_DEFAULT_IMAGE,
+        "fuzzy": 0,
+        "tip1": g_current_dir + tip,
+        "tip2": '',
+        "tip3": '',
+        "extra": false,
+        "extra_title": ''
+    };
+    VtoySelectFilePath(OnSelectDefaultImage, para);
+  });
+
+  $('#id_ctrl_btn_clr_default').click(function() {
+    var old = $('input:text[id=id_ctrl_text_default_img]').val();
+    if (old.length != 0) {
+      $('input:text[id=id_ctrl_text_default_img]').val('');
+      $('div[id=id_ctrl_div_img_status]').hide();
+      VtoySaveCurrentPage();
+    }
+  });
+
+  $('input[type=radio]').each(function(){
+    var id = $(this).attr('id');
+    if (typeof(id) != 'undefined' && id.startsWith('id_ctrl')) {
+      $(this).change(VtoySaveCurrentPage);
+    }
+  });
+  $('select[id=id_ctrl_sel_max_depth]').change(VtoySaveCurrentPage);
+  $('select[id=id_ctrl_sel_kbd]').change(VtoySaveCurrentPage);
+  $('select[id=id_ctrl_sel_help_lang]').change(VtoySaveCurrentPage);
+  $('input[id=id_ctrl_text_timeout]').change(function() {
+    var value = $('input:text[id=id_ctrl_text_timeout]').val();
+    if (/^[0-9][0-9]*$/.test(value)) {
+      VtoySaveCurrentPage();
+    } else {
+      Message.error(g_vtoy_cur_language.STR_INVALID_TIMEOUT);
+      $('input:text[id=id_ctrl_text_timeout]').val(m_data_control[current_tab_index].menu_timeout);
+    }
+  });
+
+  $('#id_tab_control a[href="#tab_0"]').click(OnClickMultiModeTab);
+  $('#id_tab_control a[href="#tab_1"]').click(OnClickMultiModeTab);
+  $('#id_tab_control a[href="#tab_2"]').click(OnClickMultiModeTab);
+  $('#id_tab_control a[href="#tab_3"]').click(OnClickMultiModeTab);
+  $('#id_tab_control a[href="#tab_4"]').click(OnClickMultiModeTab);
+  $('#id_tab_control a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  $('#id_tab_control a[href="#tab_0"]').tab('show');
+  VtoyFillCurrentPageItem(m_data_control[0]);
+  VtoyPageLanguageChange(g_current_language);
+
+  $('button[id=id_btn_collapse]').click(function() {
+    $("button[data-widget='collapse'] i").each(function() {
+      if ($(this).hasClass('fa-minus')) {
+        $(this).click();
+      }
+    });
+  });
+
+  $('button[id=id_btn_expand]').click(function() {
+    $("button[data-widget='collapse'] i").each(function() {
+      if ($(this).hasClass('fa-plus')) {
+        $(this).click();
+      }
+    });
+  });
+
+
+</script>

@@ -1,0 +1,520 @@
+<div class="box box-primary" id="control">
+    <div class="box-header">
+        <div class="col-sm-10" style="padding-top:8px;">
+            <i class="fa fa-file-image-o">&nbsp;&nbsp;</i>
+            <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">主题插件</h1>
+        </div>
+        
+        <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
+            <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/cn/plugin_theme.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
+        </div>
+    </div>
+    <legend></legend>
+    
+    <div class="box-body">
+    
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" id="id_tab_theme">
+            <li class=""><a href="#tab_0" data-toggle="tab" aria-expanded="false" style="font-weight:bold" >theme</a></li>
+            <li class=""><a href="#tab_1" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">theme_legacy</a></li>
+            <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">theme_uefi</a></li>
+            <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">theme_ia32</a></li>
+            <li class=""><a href="#tab_4" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">theme_aa64</a></li>
+            <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">theme_mips</a></li>
+        </ul>
+      </div>
+    
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">file
+                <span id="id_span_desc_cn"> —— 主题配置文件</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding" id="theme_file_table">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <table id="id_theme_tbl_file" class="table table-bordered">
+                          <thead>
+                            <tr>
+                              <th style="width: 5%">#</th>
+                              <th id="id_th_file_path">文件路径</th>
+                              <th style="width: 10%" id="id_th_default">默认</th>
+                              <th style="width: 10%" id="id_th_status">状态</th>
+                              <th style="width: 10%" id="id_th_operation">操作</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        theme.txt 文件的全路径。可以设置1个或者多个。当设置为多个时，启动之后还可以通过 <code>F5 Tools --> Theme Select</code> 菜单进行切换。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        The theme.txt file path. You can add one or more files. You can switch between themes with <code>F5 Tools --> Theme Select</code> menu if you set more than one themes.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    
+    
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">display_mode
+                <span id="id_span_desc_cn"> —— 屏幕显示模式</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <select id="id_theme_sel_dismode" name="name_theme_sel_dismode" class="form-control" >
+                            <option title="GUI" selected>GUI</option>
+                            <option title="CLI">CLI</option>
+                            <option title="serial">serial</option>
+                            <option title="serial_console">serial_console</option>
+                        </selec
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        菜单显示模式，可以设置为 默认为 GUI 模式。GUI和CLI 分别对应图形模式和文本模式。<br/>
+                        在有极个别的机器上Ventoy的背景菜单无法显示，或者显示后菜单移动极其缓慢，这种情况可以默认设置为文本模式。<br/>
+                        不过，不管GUI还是CLI都是基于VGA显示设备的，如果你的机器上只有串口，你可以设置为 <code>serial</code> <br/>
+                        当然，如果既有串口也有VGA设备，则也可以设置为 <code>serial_console</code> <br/>
+                        <span style='color:red;font-weight:bold;'>注意：如果菜单名称（文件名）里有中文的话，在文本或serial模式下是无法显示的。</span>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Boot menu display mode, default is <code>GUI</code>. <code>GUI</code> or <code>CLI</code> corresponding to the GUI mode and TEXT mode respectively.<br/>
+                        On very few machines Ventoy's menu can't be shown or the cursor moves extremely slow. In this case you can set the default mode to "CLI". <br/>
+                        However, both "GUI" and "CLI" need a VGA device, if your machine only has serial, you can use <code>serial</code><br/>
+                        Also you can use <code>serial_console</code> if you have both serial and VGA device. <br/>
+                        <span style='color:red;font-weight:bold;'>Attention: Unicode characters will NOT be displayed normally in CLI or serial mode.</span>
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">gfxmode
+                <span id="id_span_desc_cn"> —— 屏幕分辨率</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <select id="id_theme_sel_gfxmode" name="name_theme_sel_gfxmode" class="form-control">
+                            <option title="1920x1080">1920x1080</option>
+                            <option title="1680x1050">1680x1050</option>
+                            <option title="1600x900">1600x900</option>
+                            <option title="1440x900">1440x900</option>
+                            <option title="1280x1024">1280x1024</option>
+                            <option title="1280x960">1280x960</option>
+                            <option title="1024x768" selected>1024x768</option>
+                            <option title="800x600">800x600</option>
+                        </selec
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        默认使用的屏幕分辨率，默认为 "1024x768"。只有在上面的 <code>display_mode</code> 选项设置为 <code>GUI</code> 时才有效。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Default screen resolution, default is "1024x768". Only take effect when <code>display_mode</code> option is <code>GUI</code>.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">fonts
+                <span id="id_span_desc_cn"> —— 字体文件</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <table id="id_theme_tbl_fonts" class="table table-bordered">
+                          <thead>
+                            <tr>
+                              <th style="width: 5%">#</th>
+                              <th id="id_th_file_path">文件路径</th>
+                              <th style="width: 10%" id="id_th_status">状态</th>
+                              <th style="width: 10%" id="id_th_operation">操作</th>
+                            </tr> 
+                          </thead>
+                          <tbody>                                                       
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        字体文件的全路径。Ventoy在启动时会依次加载这些字体文件。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Full path of fonts file. Ventoy will load each of them when boot.                        
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+    </div>
+   
+</div>
+<script type="text/javascript">
+  function VtoyPageLanguageChange(newlang) {
+    VtoyCommonChangeLanguage(newlang);
+  
+    $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_THEME);
+
+    $("span[id=id_span_file_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_EXIST);
+    });
+    $("span[id=id_span_file_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_NONEXIST);
+    });
+
+    $("th[id=id_th_default]").text(g_vtoy_cur_language.STR_DEFAULT);
+
+    $("span[id=id_span_random_sel]").text(g_vtoy_cur_language.STR_RANDOM_SEL);
+    $("span[id=id_span_default_sel]").text(g_vtoy_cur_language.STR_DEFAULT_SEL);
+  }
+
+  function VtoyGetCurrentPageItem(data) {
+    var mode;
+
+    data.gfxmode = $('select[id=id_theme_sel_gfxmode').val();
+
+    mode = $('select[id=id_theme_sel_dismode').val();
+    if (mode === 'serial_console') {
+      data.display_mode = 3;
+    } else if (mode === 'serial') {
+      data.display_mode = 2;
+    } else if (mode === 'CLI') {
+      data.display_mode = 1;
+    } else {
+      data.display_mode = 0;
+    }
+  }
+
+  function VtoySaveCurrentPage() {
+    VtoyGetCurrentPageItem(m_data_theme[current_tab_index]);
+    var data = m_data_theme[current_tab_index];
+
+    callVtoy({
+      method : 'save_theme',
+      index: current_tab_index,
+      display_mode: data.display_mode,
+      gfxmode: data.gfxmode,
+      default_file: data.default_file
+    }, function(e) {
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+
+  function FillThemeFileTable(list, default_file) {    
+    var id;
+    var exist = '<span id="id_span_file_exist" style="line-height: 1.5;" class="label pull-left bg-green">' + g_vtoy_cur_language.STR_FILE_EXIST + '</span>';
+    var nonexist = '<span id="id_span_file_nonexist" style="line-height: 1.5;" class="label pull-left bg-red">' + g_vtoy_cur_language.STR_FILE_NONEXIST + '</span>';
+    var addbtn = ventoy_get_xslg_addbtn('ThemeFileAddBtn');
+    var delbtn = ventoy_get_xslg_delbtn('ThemeFileDelBtn');
+
+    var default_random = '<label class="radio-inline"><input type="radio" id="id_theme_file_radio0" name="id_theme_file_radio" data-type="0" value="0"/><span id="id_span_random_sel">' + g_vtoy_cur_language.STR_RANDOM_SEL + '</span></label>';
+    var td1, td2, td3, td4, td5;
+    var $tbl = $("#id_theme_tbl_file tbody");
+    $tbl.empty();
+
+    for (var i = 0; i < list.length; i++) {
+      var $tr;
+      td1 = '<td>' + (i + 1) + '</td>';
+      td2 = '<td>' + list[i].path + '</td>';
+
+      id = i + 1;
+      var sel = '<label class="radio-inline"><input type="radio" id="id_theme_file_radio'+ id + '" name="id_theme_file_radio" data-type="'+
+        id + '" value="'+ id +'"/><span id="id_span_default_sel">' + g_vtoy_cur_language.STR_DEFAULT_SEL + '</span></label>';
+      
+      td3 = '<td>' + sel + '</td>';
+      
+      if (list[i].valid === 1) {
+        td4 = '<td style="vertical-align: middle;">' + exist + '</td>';
+      } else {
+        td4 = '<td style="vertical-align: middle;">' + nonexist + '</td>';
+      }
+
+      td5 = '<td>' + delbtn + '</td>';
+      $tr = $('<tr>' + td1 + td2 + td3 + td4 + td5 + '</tr>');
+
+      $tr.data('path', list[i].path);
+      $tr.data('index', i);
+      $tbl.append($tr);
+    }
+
+    $tbl.append('<tr><td></td><td></td><td>' + default_random + '</td><td></td><td>' + addbtn + '</td></tr>');
+    
+    var selid = 'input[type=radio][id=id_theme_file_radio' + default_file + ']';
+    $(selid)[0].checked = true;
+
+    $('input[type=radio]').each(function(){
+      var id = $(this).attr('id');
+      if (typeof(id) != 'undefined' && id.startsWith('id_theme_file')) {
+        $(this).change(function() {
+          m_data_theme[current_tab_index].default_file =parseInt(id.substr(id.length - 1));
+          VtoySaveCurrentPage();
+        });
+      }
+    });
+
+    if (list.length >= 2) {
+      $("th[id=id_th_default]").show();
+      $('#id_theme_tbl_file tr').find('td:eq(2)').show();
+    } else {
+      $("th[id=id_th_default]").hide();
+      $('#id_theme_tbl_file tr').find('td:eq(2)').hide();
+    }
+
+  }
+
+  function FillThemeFontTable(list) {
+    var exist = '<span id="id_span_file_exist" style="line-height: 1.5;" class="label pull-left bg-green">' + g_vtoy_cur_language.STR_FILE_EXIST + '</span>';
+    var nonexist = '<span id="id_span_file_nonexist" style="line-height: 1.5;" class="label pull-left bg-red">' + g_vtoy_cur_language.STR_FILE_NONEXIST + '</span>';
+    var addbtn = ventoy_get_xslg_addbtn('ThemeFontAddBtn');
+    var delbtn = ventoy_get_xslg_delbtn('ThemeFontDelBtn');
+    var td1, td2, td3, td4;
+    var $tbl = $("#id_theme_tbl_fonts tbody");
+    $tbl.empty();
+
+    for (var i = 0; i < list.length; i++) {
+      var $tr;
+      td1 = '<td>' + (i + 1) + '</td>';
+      td2 = '<td>' + list[i].path + '</td>';
+
+      if (list[i].valid === 1) {
+        td3 = '<td style="vertical-align: middle;">' + exist + '</td>';
+      } else {
+        td3 = '<td style="vertical-align: middle;">' + nonexist + '</td>';
+      }
+
+      td4 = '<td>' + delbtn + '</td>';
+
+      $tr = $('<tr>' + td1 + td2 + td3 + td4 + '</tr>');
+
+      $tr.data('path', list[i].path);
+      $tr.data('index', i);
+
+      $tbl.append($tr);
+    }
+
+    $tbl.append('<tr><td></td><td></td><td></td><td>' + addbtn + '</td></tr>');
+  }
+
+  function VtoyFillCurrentPageItem(data) {
+    $('select[id=id_theme_sel_gfxmode').val(data.gfxmode);
+
+    if (data.display_mode === 3) {
+      $('select[id=id_theme_sel_dismode').val('serial_console');
+    } else if (data.display_mode === 2) {
+      $('select[id=id_theme_sel_dismode').val('serial');
+    } else if (data.display_mode === 1) {
+      $('select[id=id_theme_sel_dismode').val('CLI');
+    } else {
+      $('select[id=id_theme_sel_dismode').val('GUI');
+    }
+    
+    FillThemeFileTable(data.filelist, data.default_file);
+    FillThemeFontTable(data.fontslist);
+  }
+
+  
+
+  function OnClickMultiModeTab() {
+    var href = $(this).attr('href');
+    var index = parseInt(href.substr(5, 1));
+
+    if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
+      return;
+    }
+    
+    current_tab_index = index;
+    VtoyFillCurrentPageItem(m_data_theme[index]);
+  }
+
+
+  function OnAddThemeFile(root, valid, extra) {
+    var list = m_data_theme[current_tab_index].filelist;
+    var data = {
+      "path": root.substr(g_current_dir.length),
+      "valid": 1
+    };
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].path === data.path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'theme_add_file',
+      index: current_tab_index,
+      path: data.path
+    }, function(e) {
+      list.push(data);
+      FillThemeFileTable(list, m_data_theme[current_tab_index].default_file);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAddThemeFont(root, valid, extra) {
+    var list = m_data_theme[current_tab_index].fontslist;
+    var data = {
+      "path": root.substr(g_current_dir.length),
+      "valid": 1
+    };
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].path === data.path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'theme_add_font',
+      index: current_tab_index,
+      path: data.path
+    }, function(e) {
+      list.push(data);
+      FillThemeFontTable(list);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+
+  //Main process
+  
+  var m_data_theme;
+  var current_tab_index = 0;
+  callVtoySync({method : 'get_theme'}, function(data) {
+    m_data_theme = data;
+  });
+  
+  $("#theme_file_table").on('click', '.ThemeFileAddBtn', function() {
+		var tip = (g_current_os === 'windows') ? '\\ventoy\\themes\\test\\theme.txt' : "/ventoy/themes/test/theme.txt";
+    var para = {
+        "title": g_vtoy_cur_language.STR_ADD_THEME,
+        "fuzzy": 0,
+        "tip1": g_current_dir + tip,
+        "tip2": '',
+        "tip3": '',
+        "extra": false,
+        "extra_title": ''
+    };
+
+    VtoySelectFilePath(OnAddThemeFile, para);
+  });
+
+  $("#theme_file_table").on('click', '.ThemeFileDelBtn', function() {
+    var $tr = $(this).closest('tr');
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+
+    callVtoySync({
+          method : 'theme_del_file',
+          index: current_tab_index,
+          path: path
+      }, function(data) {
+        m_data_theme[current_tab_index].filelist.splice(index, 1);
+        FillThemeFileTable(m_data_theme[current_tab_index].filelist, m_data_theme[current_tab_index].default_file);
+        Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      });
+  });
+
+  $("#id_theme_tbl_fonts").on('click', '.ThemeFontAddBtn', function() {
+		var tip = (g_current_os === 'windows') ? '\\ventoy\\themes\\blur\\Hack-12.pf2' : "/ventoy/themes/blur/Hack-12.pf2";
+    var para = {
+        "title": g_vtoy_cur_language.STR_ADD_FONT,
+        "fuzzy": 0,
+        "tip1": g_current_dir + tip,
+        "tip2": '',
+        "tip3": '',
+        "extra": false,
+        "extra_title": ''
+    };
+
+    VtoySelectFilePath(OnAddThemeFont, para);
+  });
+
+  $("#id_theme_tbl_fonts").on('click', '.ThemeFontDelBtn', function() {
+    var $tr = $(this).closest('tr');
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+
+    callVtoySync({
+          method : 'theme_del_font',
+          index: current_tab_index,
+          path: path
+      }, function(data) {
+        m_data_theme[current_tab_index].fontslist.splice(index, 1);
+        FillThemeFontTable(m_data_theme[current_tab_index].fontslist);
+        Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      });
+  });
+
+  $('select[id=id_theme_sel_gfxmode]').change(VtoySaveCurrentPage);
+  $('select[id=id_theme_sel_dismode]').change(VtoySaveCurrentPage);
+
+  $('#id_tab_theme a[href="#tab_0"]').click(OnClickMultiModeTab);
+  $('#id_tab_theme a[href="#tab_1"]').click(OnClickMultiModeTab);
+  $('#id_tab_theme a[href="#tab_2"]').click(OnClickMultiModeTab);
+  $('#id_tab_theme a[href="#tab_3"]').click(OnClickMultiModeTab);
+  $('#id_tab_theme a[href="#tab_4"]').click(OnClickMultiModeTab);
+  $('#id_tab_theme a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  $('#id_tab_theme a[href="#tab_0"]').tab('show');
+  VtoyFillCurrentPageItem(m_data_theme[0]);
+  VtoyPageLanguageChange(g_current_language);
+
+</script>

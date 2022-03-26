@@ -72,6 +72,17 @@ typedef enum STR_ID
     STR_WEB_TOKEN_MISMATCH, //37
     STR_WEB_SERVICE_BUSY, //38
 
+    STR_MENU_VTSI_CREATE, //39
+    STR_VTSI_CREATE_TIP, //40
+    STR_VTSI_CREATE_SUCCESS, //41
+    STR_VTSI_CREATE_FAILED, //42
+
+	STR_MENU_PART_RESIZE,//43
+	STR_PART_RESIZE_TIP,//44
+	STR_PART_RESIZE_SUCCESS,//45
+	STR_PART_RESIZE_FAILED,//46
+	STR_PART_RESIZE_UNSUPPORTED,//47
+
 	STR_ID_MAX
 }STR_ID;
 
@@ -83,7 +94,9 @@ extern BOOL g_SecureBoot;
 #define VTOY_MENU_PART_STYLE      0xA003
 #define VTOY_MENU_PART_MBR        0xA004
 #define VTOY_MENU_PART_GPT        0xA005
-#define VTOY_MENU_ALL_DEV        0xA006
+#define VTOY_MENU_ALL_DEV         0xA006
+#define VTOY_MENU_VTSI            0xA007
+#define VTOY_MENU_PART_RESIZE     0xA008
 
 
 typedef enum OPT_SUBMENU
@@ -93,6 +106,8 @@ typedef enum OPT_SUBMENU
     OPT_SUBMENU_PART_CFG,
     OPT_SUBMENU_CLEAR,
     OPT_SUBMENU_ALL_DEV,
+    OPT_SUBMENU_VTSI,
+	OPT_SUBMENU_PART_RESIZE,
 
     OPT_SUBMENU_MAX
 }OPT_SUBMENU;
@@ -101,17 +116,23 @@ typedef enum OPT_SUBMENU
 #define VTOY_MENU_LANGUAGE_BEGIN  0xB000
 
 
-#define VENTOY_LANGUAGE_INI  TEXT(".\\ventoy\\languages.ini")
+#define VENTOY_LANGUAGE_INI     TEXT(".\\ventoy\\languages.ini")
+#define VENTOY_LANGUAGE_JSON    TEXT(".\\ventoy\\languages.json")
+#define VENTOY_LANGUAGE_INI_A   ".\\ventoy\\languages.ini"
+#define VENTOY_LANGUAGE_JSON_A  ".\\ventoy\\languages.json"
+
 #define VENTOY_CFG_INI     TEXT(".\\Ventoy2Disk.ini")
 #define VENTOY_CFG_INI_A   ".\\Ventoy2Disk.ini"
 #define VENTOY_MAX_LANGUAGE	 200
 
 #define GET_INI_STRING(Section, Key, Buf) GetPrivateProfileString(Section, Key, TEXT("#"), Buf, sizeof(Buf), VENTOY_LANGUAGE_INI)
 
+
+
 typedef struct VENTOY_LANGUAGE
 {
-	WCHAR Name[128];
-	WCHAR FontFamily[64];
+	WCHAR Name[256];
+	WCHAR FontFamily[128];
 	int FontSize;
 
 	WCHAR StrId[STR_ID_MAX][64];
@@ -124,5 +145,14 @@ extern VENTOY_LANGUAGE *g_cur_lang_data;
 const TCHAR * GetString(enum STR_ID ID);
 
 #define _G(a) GetString(a)
+
+typedef enum UNICODE_ICON
+{
+    UNICODE_LOCK = 0,
+    UNICODE_BUTT
+}UNICODE_ICON;
+
+const UINT16 * GetUnicodeIcon(icon);
+#define _UICON(i) GetUnicodeIcon(i)
 
 #endif

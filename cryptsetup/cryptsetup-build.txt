@@ -1,0 +1,9 @@
+1. source code: https://mirrors.edge.kernel.org/pub/linux/utils/cryptsetup/v1.7/
+
+2. Use a system with  /lib64/libgcrypt.so.20 (Ubuntu)
+./configure --enable-static
+make -j 16
+
+cd src
+gcc  -Wall -O2 -o veritysetup veritysetup-utils_crypt.o veritysetup-utils_loop.o veritysetup-utils_tools.o veritysetup-veritysetup.o -lpopt -ldevmapper -lgcrypt -luuid .././lib/.libs/libcryptsetup.a
+strip --strip-all veritysetup

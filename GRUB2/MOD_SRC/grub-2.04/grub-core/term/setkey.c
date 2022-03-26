@@ -348,12 +348,38 @@ out:
   return grub_errno;
 }
 
-static grub_extcmd_t cmd;
+static void grub_keymap_add_by_string(const char *src, const char *dst)
+{
+    int in = 0;
+    int out = 0;
+    
+    in = parse_key(dst);
+    out = parse_key(src);
+
+    if (in && out)
+    {
+        grub_keymap_add (in, out);        
+    }
+}
+
+#include "keyboard_layout.c"
+
+static grub_err_t grub_cmd_set_keylayout (grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    ventoy_set_keyboard_layout(args[0]);
+    return 0;
+}
+
+static grub_extcmd_t cmd, setcmd;
 
 GRUB_MOD_INIT(setkey)
 {
   cmd = grub_register_extcmd ("setkey", grub_cmd_setkey, 0, N_("NEW_KEY USA_KEY"),
                               N_("Map default USA_KEY to NEW_KEY."), options);
+  setcmd = grub_register_extcmd ("set_keyboard_layout", grub_cmd_set_keylayout, 0, N_("layout"),
+                              N_("Set keyboard layout."), NULL);
 }
 
 GRUB_MOD_FINI(setkey)

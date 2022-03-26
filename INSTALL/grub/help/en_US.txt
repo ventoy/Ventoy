@@ -1,0 +1,18 @@
+ h - Display this help information
+F1 - Memdisk Mode (Only for small WinPE/LiveCD ISO/IMG)
+F2 - Browse and boot files in local disk
+F3 - Switch menu mode between Treeview <-> ListView
+F4 - Boot Windows/Linux in local disk
+F5 - Utilities
+F6 - Load Custom Grub2 Menu
+F7 - Switch between GUI Mode <-> TEXT Mode
+
+m - Checksum image files (md5/sha1/sha256/sha512)
+Ctrl+w - WIMBOOT Mode (Only for standard Windows ISO)
+Ctrl+r - Grub2 Mode (Only for some Linux distros)
+Ctrl+i - Compatible Mode (Just only for debug)
+Ctrl+u - Load ISO efi driver (Just only for debug, can not be used officially)
+
+
+
+Press ESC to return ......

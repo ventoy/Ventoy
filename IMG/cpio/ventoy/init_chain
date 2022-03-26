@@ -77,12 +77,16 @@ ventoy_unpack_initramfs() {
                 if [ "${vtx:5}" = "xzcat" ]; then
                     rm -f $VTOY_PATH/xzlog
                     ${vtx:5} $vtfile 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
-                    
                     if grep -q 'corrupted data' $VTOY_PATH/xzlog; then
-                        echo 'xzcat failed, now try xzminidec...' >> $VTLOG        
-                        cat $vtfile | xzminidec | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+                        echo 'xzcat failed, now try xzminidec...' >> $VTLOG                        
+                        rm -f $VTOY_PATH/xzlog
+                        cat $vtfile | xzminidec 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+
+                        if grep -q 'limit' $VTOY_PATH/xzlog; then                    
+                            echo 'xzminidec failed, now try xzcat_musl ...' >> $VTLOG  
+                            xzcat_musl $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+                        fi
                     fi
-                    
                 else
                     ${vtx:5} $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
                 fi
@@ -185,7 +189,7 @@ ventoy_unpack_injection() {
 
 if [ -e $VTOY_PATH/ventoy_injection ]; then
     echo "### decompress injection ... ###" >>$VTLOG
-    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1
+    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1    
 fi
 
 

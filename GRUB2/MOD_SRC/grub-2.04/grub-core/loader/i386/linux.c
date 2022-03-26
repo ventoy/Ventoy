@@ -88,7 +88,6 @@ static int ventoy_linux_argc = 0;
 static char **ventoy_linux_args = NULL;
 static int ventoy_extra_initrd_num = 0;
 static char *ventoy_extra_initrd_list[256];
-
 static grub_err_t
 grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)), int argc, char *argv[]);
 
@@ -507,6 +506,13 @@ static int ventoy_boot_opt_filter(char *opt)
         return 0;
     }
 
+    if (grub_strncmp(opt, "dm=", 3) == 0)
+    {
+        opt[0] = 'D';
+        opt[1] = 'M';
+        return 0;
+    }
+
     if (ventoy_debug)
     {
         if (grub_strcmp(opt, "quiet") == 0)
@@ -531,6 +537,7 @@ static int ventoy_boot_opt_filter(char *opt)
 static int ventoy_bootopt_hook(int argc, char *argv[])
 {
     int i;
+    int TmpIdx;
     int count = 0;
     const char *env;
     char c;
@@ -544,14 +551,20 @@ static int ventoy_bootopt_hook(int argc, char *argv[])
         return 0;
     }
 
-    for (i = 0; i < argc; i++)
+    /* To avoid --- parameter, we split two parts */
+    for (TmpIdx = 0; TmpIdx < argc; TmpIdx++)
     {
-        if (ventoy_boot_opt_filter(argv[i]))
+        if (ventoy_boot_opt_filter(argv[TmpIdx]))
         {
             continue;
         }
 
-        ventoy_linux_args[count++] = grub_strdup(argv[i]);
+        if (grub_strncmp(argv[TmpIdx], "--", 2) == 0)
+        {
+            break;
+        }
+
+        ventoy_linux_args[count++] = grub_strdup(argv[TmpIdx]);
     }
 
     for (i = 0; i < ventoy_linux_argc; i++)
@@ -621,6 +634,17 @@ static int ventoy_bootopt_hook(int argc, char *argv[])
         {
             count++;            
         }
+    }
+
+    while (TmpIdx < argc)
+    {
+        if (ventoy_boot_opt_filter(argv[TmpIdx]))
+        {
+            continue;
+        }
+
+        ventoy_linux_args[count++] = grub_strdup(argv[TmpIdx]);
+        TmpIdx++;
     }
 
     if (ventoy_debug)

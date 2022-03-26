@@ -249,6 +249,12 @@ EFI_STATUS EFIAPI vdisk_exit_boot_service_wrapper
     IN  UINTN                        MapKey
 )
 {
+    if (g_org_get_variable)
+    {
+        gRT->GetVariable = g_org_get_variable;
+        g_org_get_variable = NULL;
+    }
+
     return g_org_exit_boot_service(ImageHandle, MapKey);
 }
 

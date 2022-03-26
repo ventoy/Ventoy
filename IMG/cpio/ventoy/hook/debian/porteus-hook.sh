@@ -22,19 +22,46 @@ porteus_hook() {
     $SED "/searching *for *\$CFG *file/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/porteus-disk.sh"  -i $1
 }
 
-if $GREP -q exfat /proc/filesystems; then
-    vtPath=$($VTOY_PATH/tool/vtoydump -p $VTOY_PATH/ventoy_os_param)
-    
+vtPath=$($VTOY_PATH/tool/vtoydump -p $VTOY_PATH/ventoy_os_param)
+echo $vtPath | $GREP -q " "
+_vtRet1=$?
+
+$GREP -q exfat /proc/filesystems
+_vtRet2=$?
+
+echo "_vtRet1=$_vtRet1  _vtRet2=$_vtRet2 ..." >> $VTLOG
+
+if [ $_vtRet1 -ne 0 -a $_vtRet2 -eq 0 ]; then
+    vtFindFlag=0
     $GREP '`value from`' /usr/* -r | $AWK -F: '{print $1}' | while read vtline; do
         echo "hooking $vtline ..." >> $VTLOG
         $SED "s#\`value from\`#$vtPath#g"  -i $vtline
+        vtFindFlag=1
     done
 
+    if [ $vtFindFlag -eq 0 ]; then
+        if $GREP -q '`value from`' /linuxrc; then
+            if $GREP -q "searching *for *\$CFG *file" /linuxrc; then
+                echo "hooking linuxrc CFG..." >> $VTLOG
+                $SED "/searching *for *\$CFG *file/i$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/porteus-path.sh"  -i /linuxrc
+                $SED "/searching *for *\$CFG *file/iFROM=\$(cat /porteus-from)"  -i /linuxrc
+                $SED "/searching *for *\$CFG *file/iISO=\$(cat /porteus-from)"  -i /linuxrc
+                vtFindFlag=1
+            else
+                echo "hooking linuxrc SGN..." >> $VTLOG
+                $SED "/searching *for *\$SGN *file/i$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/porteus-path.sh"  -i /linuxrc
+                $SED "/searching *for *\$SGN *file/iFROM=\$(cat /porteus-from)"  -i /linuxrc
+                $SED "/searching *for *\$SGN *file/iISO=\$(cat /porteus-from)"  -i /linuxrc
+                vtFindFlag=1
+            fi
+        fi
+    fi
+
 else
-    for vtfile in '/init' '/linuxrc' ; do
+    for vtfile in '/linuxrc' '/init'; do
         if [ -e $vtfile ]; then
             if ! $GREP -q ventoy $vtfile; then
-                echo "hooking $vtfile ..."  >> $VTLOG
+                echo "hooking disk $vtfile ..."  >> $VTLOG
                 porteus_hook $vtfile
             fi
         fi

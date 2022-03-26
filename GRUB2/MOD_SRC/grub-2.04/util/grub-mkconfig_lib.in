@@ -1,0 +1,373 @@
+# Helper library for grub-mkconfig
+# Copyright (C) 2007,2008,2009,2010  Free Software Foundation, Inc.
+#
+# GRUB is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# GRUB is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+datarootdir="@datarootdir@"
+datadir="@datadir@"
+bindir="@bindir@"
+sbindir="@sbindir@"
+if [ "x$pkgdatadir" = x ]; then
+    pkgdatadir="${datadir}/@PACKAGE@"
+fi
+
+if test "x$grub_probe" = x; then
+  grub_probe="${sbindir}/@grub_probe@"
+fi
+if test "x$grub_file" = x; then
+  grub_file="${bindir}/@grub_file@"
+fi
+if test "x$grub_mkrelpath" = x; then
+  grub_mkrelpath="${bindir}/@grub_mkrelpath@"
+fi
+
+if which gettext >/dev/null 2>/dev/null; then
+  :
+else
+  gettext () {
+     printf "%s" "$@"
+  }
+fi
+
+grub_warn ()
+{
+  echo "$(gettext "Warning:")" "$@" >&2
+}
+
+make_system_path_relative_to_its_root ()
+{
+  "${grub_mkrelpath}" "$1"
+}
+
+is_path_readable_by_grub ()
+{
+  path="$1"
+
+  # abort if path doesn't exist
+  if test -e "$path" ; then : ;else
+    return 1
+  fi
+
+  # abort if file is in a filesystem we can't read
+  if "${grub_probe}" -t fs "$path" > /dev/null 2>&1 ; then : ; else
+    return 1
+  fi
+
+  # ... or if we can't figure out the abstraction module, for example if
+  # memberlist fails on an LVM volume group.
+  if abstractions="`"${grub_probe}" -t abstraction "$path"`" 2> /dev/null ; then 
+      :
+  else
+    return 1
+  fi
+
+  if [ x$GRUB_ENABLE_CRYPTODISK = xy ]; then
+      return 0
+  fi
+  
+  for abstraction in $abstractions; do
+      if [ "x$abstraction" = xcryptodisk ]; then
+	  return 1
+      fi
+  done
+
+  return 0
+}
+
+convert_system_path_to_grub_path ()
+{
+  path="$1"
+
+  grub_warn "convert_system_path_to_grub_path() is deprecated.  Use prepare_grub_to_access_device() instead."
+
+  # abort if GRUB can't access the path
+  if is_path_readable_by_grub "${path}" ; then : ; else
+    return 1
+  fi
+
+  if drive="`"${grub_probe}" -t drive "$path"`" ; then : ; else
+    return 1
+  fi
+
+  if relative_path="`make_system_path_relative_to_its_root "$path"`" ; then : ; else
+    return 1
+  fi
+
+  echo "${drive}${relative_path}"
+}
+
+save_default_entry ()
+{
+  if [ "x${GRUB_SAVEDEFAULT}" = "xtrue" ] ; then
+    cat << EOF
+savedefault
+EOF
+  fi
+}
+
+prepare_grub_to_access_device ()
+{
+  old_ifs="$IFS"
+  IFS='
+'
+:<<\EOF
+  partmap="`"${grub_probe}" --device $@ --target=partmap`"
+  for module in ${partmap} ; do
+    case "${module}" in
+      netbsd | openbsd)
+        echo "insmod part_bsd";;
+      *)
+        echo "insmod part_${module}";;
+    esac
+  done
+EOF
+
+  # Abstraction modules aren't auto-loaded.
+  abstraction="`"${grub_probe}" --device $@ --target=abstraction`"
+  for module in ${abstraction} ; do
+    echo "insmod ${module}"
+  done
+
+#  fs="`"${grub_probe}" --device $@ --target=fs`"
+#  for module in ${fs} ; do
+#    echo "insmod ${module}"
+#  done
+
+  if [ x$GRUB_ENABLE_CRYPTODISK = xy ]; then
+      for uuid in `"${grub_probe}" --device $@ --target=cryptodisk_uuid`; do
+	  echo "cryptomount -u $uuid"
+      done
+  fi
+
+  # If there's a filesystem UUID that GRUB is capable of identifying, use it;
+  # otherwise set root as per value in device.map.
+  fs_hint="`"${grub_probe}" --device $@ --target=compatibility_hint`"
+  if [ "x$fs_hint" != x ]; then
+    echo "set root='$fs_hint'"
+  fi
+  if fs_uuid="`"${grub_probe}" --device $@ --target=fs_uuid 2> /dev/null`" ; then
+    hints="`"${grub_probe}" --device $@ --target=hints_string 2> /dev/null`" || hints=
+    echo "if [ x\$feature_platform_search_hint = xy ]; then"
+    echo "  search --no-floppy --fs-uuid --set=root ${hints} ${fs_uuid}"
+    echo "else"
+    echo "  search --no-floppy --fs-uuid --set=root ${fs_uuid}"
+    echo "fi"
+  fi
+  IFS="$old_ifs"
+}
+
+grub_get_device_id ()
+{
+  old_ifs="$IFS"
+  IFS='
+'
+  device="$1"
+  if fs_uuid="`"${grub_probe}" --device ${device} --target=fs_uuid 2> /dev/null`" ; then
+    echo "$fs_uuid";
+  else
+    echo $device |sed 's, ,_,g'
+  fi
+  IFS="$old_ifs"
+}
+
+grub_file_is_not_garbage ()
+{
+  if test -f "$1" ; then
+    case "$1" in
+      *.dpkg-*) return 1 ;; # debian dpkg
+      *.rpmsave|*.rpmnew) return 1 ;;
+      README*|*/README*)  return 1 ;; # documentation
+      *.sig) return 1 ;; # signatures
+    esac
+  else
+    return 1
+  fi
+  return 0
+}
+
+version_sort ()
+{
+  case $version_sort_sort_has_v in
+    yes)
+      LC_ALL=C sort -V;;
+    no)
+      LC_ALL=C sort -n;;
+    *)
+      if sort -V </dev/null > /dev/null 2>&1; then
+        version_sort_sort_has_v=yes
+	LC_ALL=C sort -V
+      else
+        version_sort_sort_has_v=no
+        LC_ALL=C sort -n
+      fi;;
+   esac
+}
+
+version_test_numeric ()
+{
+  version_test_numeric_a="$1"
+  version_test_numeric_cmp="$2"
+  version_test_numeric_b="$3"
+  if [ "$version_test_numeric_a" = "$version_test_numeric_b" ] ; then
+    case "$version_test_numeric_cmp" in
+      ge|eq|le) return 0 ;;
+      gt|lt) return 1 ;;
+    esac
+  fi
+  if [ "$version_test_numeric_cmp" = "lt" ] ; then
+    version_test_numeric_c="$version_test_numeric_a"
+    version_test_numeric_a="$version_test_numeric_b"
+    version_test_numeric_b="$version_test_numeric_c"
+  fi
+  if (echo "$version_test_numeric_a" ; echo "$version_test_numeric_b") | version_sort | head -n 1 | grep -qx "$version_test_numeric_b" ; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+version_test_gt ()
+{
+  version_test_gt_a="`echo "$1" | sed -e "s/[^-]*-//"`"
+  version_test_gt_b="`echo "$2" | sed -e "s/[^-]*-//"`"
+  version_test_gt_cmp=gt
+  if [ "x$version_test_gt_b" = "x" ] ; then
+    return 0
+  fi
+  case "$version_test_gt_a:$version_test_gt_b" in
+    *.old:*.old) ;;
+    *.old:*) version_test_gt_a="`echo "$version_test_gt_a" | sed -e 's/\.old$//'`" ; version_test_gt_cmp=gt ;;
+    *:*.old) version_test_gt_b="`echo "$version_test_gt_b" | sed -e 's/\.old$//'`" ; version_test_gt_cmp=ge ;;
+  esac
+  version_test_numeric "$version_test_gt_a" "$version_test_gt_cmp" "$version_test_gt_b"
+  return "$?"
+}
+
+version_find_latest ()
+{
+  version_find_latest_a=""
+  for i in "$@" ; do
+    if version_test_gt "$i" "$version_find_latest_a" ; then
+      version_find_latest_a="$i"
+    fi
+  done
+  echo "$version_find_latest_a"
+}
+
+# One layer of quotation is eaten by "" and the second by sed; so this turns
+# ' into \'.
+grub_quote () {
+  sed "s/'/'\\\\''/g"
+}
+
+gettext_quoted () {
+  gettext "$@" | grub_quote
+}
+
+# Run the first argument through gettext, and then pass that and all
+# remaining arguments to printf.  This is a useful abbreviation and tends to
+# be easier to type.
+gettext_printf () {
+  gettext_printf_format="$1"
+  shift
+  printf "$(gettext "$gettext_printf_format")" "$@"
+}
+
+uses_abstraction () {
+  device="$1"
+  old_ifs="$IFS"
+  IFS='
+'
+
+  abstraction="`"${grub_probe}" --device ${device} --target=abstraction`"
+  for module in ${abstraction}; do
+    if test "x${module}" = "x$2"; then
+      IFS="$old_ifs"
+      return 0
+    fi
+  done
+  IFS="$old_ifs"
+  return 1
+}
+
+print_option_help () {
+  if test x$print_option_help_wc = x; then
+      if wc -L  </dev/null > /dev/null 2>&1; then
+	  print_option_help_wc=-L
+      elif wc -m  </dev/null > /dev/null 2>&1; then
+	  print_option_help_wc=-m
+      else
+	  print_option_help_wc=-b
+      fi
+  fi
+  if test x$grub_have_fmt = x; then
+      if fmt -w 40  </dev/null > /dev/null 2>&1; then
+	  grub_have_fmt=y;
+      else
+	  grub_have_fmt=n;
+      fi
+  fi
+  print_option_help_lead="  $1"
+  print_option_help_lspace="$(echo "$print_option_help_lead" | wc $print_option_help_wc)"
+  print_option_help_fill="$((26 - print_option_help_lspace))"
+  printf "%s" "$print_option_help_lead"
+  if test $print_option_help_fill -le 0; then
+      print_option_help_nl=y
+      echo
+  else
+      print_option_help_i=0;
+      while test $print_option_help_i -lt $print_option_help_fill; do
+      printf " "
+	  print_option_help_i=$((print_option_help_i+1))
+      done
+      print_option_help_nl=n
+  fi
+  if test x$grub_have_fmt = xy; then
+      print_option_help_split="$(echo "$2" | fmt -w 50)"
+  else
+      print_option_help_split="$2"
+  fi
+  if test x$print_option_help_nl = xy; then
+      echo "$print_option_help_split" | awk \
+	  '{ print "                          " $0; }'
+  else
+      echo "$print_option_help_split" | awk 'BEGIN   { n = 0 }
+  { if (n == 1) print "                          " $0; else print $0; n = 1 ; }'
+  fi
+}
+
+grub_fmt () {
+  if test x$grub_have_fmt = x; then
+      if fmt -w 40 < /dev/null > /dev/null; then
+	  grub_have_fmt=y;
+      else
+	  grub_have_fmt=n;
+      fi
+  fi
+
+  if test x$grub_have_fmt = xy; then
+      fmt
+  else
+      cat
+  fi
+}
+
+grub_tab="	"
+
+grub_add_tab () {
+  sed -e "s/^/$grub_tab/"
+}
+

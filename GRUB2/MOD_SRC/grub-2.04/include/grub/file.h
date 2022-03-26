@@ -132,7 +132,8 @@ enum grub_file_type
 
     /* --skip-sig is specified.  */
     GRUB_FILE_TYPE_SKIP_SIGNATURE = 0x10000,
-    GRUB_FILE_TYPE_NO_DECOMPRESS = 0x20000
+    GRUB_FILE_TYPE_NO_DECOMPRESS = 0x20000,
+    GRUB_FILE_TYPE_NO_VLNK = 0x40000,
   };
 
 /* File description.  */
@@ -140,6 +141,8 @@ struct grub_file
 {
   /* File name.  */
   char *name;
+
+  int vlnk;
 
   /* The underlying device.  */
   grub_device_t device;
@@ -212,6 +215,11 @@ grub_ssize_t EXPORT_FUNC(grub_file_read) (grub_file_t file, void *buf,
 					  grub_size_t len);
 grub_off_t EXPORT_FUNC(grub_file_seek) (grub_file_t file, grub_off_t offset);
 grub_err_t EXPORT_FUNC(grub_file_close) (grub_file_t file);
+
+int EXPORT_FUNC(grub_file_is_vlnk_suffix)(const char *name, int len);
+int EXPORT_FUNC(grub_file_add_vlnk)(const char *src, const char *dst);
+int EXPORT_FUNC(grub_file_vtoy_vlnk)(const char *src, const char *dst);
+const char * EXPORT_FUNC(grub_file_get_vlnk)(const char *name, int *vlnk);
 
 /* Return value of grub_file_size() in case file size is unknown. */
 #define GRUB_FILE_SIZE_UNKNOWN	 0xffffffffffffffffULL

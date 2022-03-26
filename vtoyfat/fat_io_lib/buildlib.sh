@@ -27,6 +27,10 @@ ar -rc libfat_io_aa64.a *.o
 rm -f *.o
 
 
+mips64el-linux-musl-gcc -mips64r2 -mabi=64 -O2 -D_FILE_OFFSET_BITS=64 fat*.c -c
+ar -rc libfat_io_m64e.a *.o
+rm -f *.o
+
 cd -
 
 

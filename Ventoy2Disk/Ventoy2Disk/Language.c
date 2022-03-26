@@ -26,3 +26,13 @@ const TCHAR * GetString(enum STR_ID ID)
 {
 	return g_cur_lang_data->MsgString[ID];
 };
+
+static const UINT16 g_unicode_icon[UNICODE_BUTT][3] =
+{
+    { 0xD83D, 0xDD12, 0x0000 },
+};
+
+const UINT16 * GetUnicodeIcon(icon)
+{
+    return g_unicode_icon[icon];
+}

@@ -121,6 +121,9 @@ typedef struct ventoy_os_param
      * vtoy_reserved[2]: vtoy_chain_type     0:Linux    1:Windows  2:wimfile
      * vtoy_reserved[3]: vtoy_iso_format     0:iso9660  1:udf
      * vtoy_reserved[4]: vtoy_windows_cd_prompt
+     * vtoy_reserved[5]: vtoy_linux_remount
+     * vtoy_reserved[6]: vtoy_vlnk
+     * vtoy_reserved[7~10]: vtoy_disk_sig[4] used for vlnk
      *
      */
     grub_uint8_t   vtoy_reserved[32];    // Internal use by ventoy
@@ -135,7 +138,8 @@ typedef struct ventoy_windows_data
 {
     char auto_install_script[384];
     char injection_archive[384];
-    grub_uint8_t reserved[256];
+    grub_uint8_t windows11_bypass_check;
+    grub_uint8_t reserved[255];
 }ventoy_windows_data;
 
 
@@ -149,11 +153,23 @@ typedef struct ventoy_secure_data
     grub_uint8_t magic2[16];     /* VENTOY_GUID */
 }ventoy_secure_data;
 
+
+typedef struct ventoy_vlnk
+{
+    ventoy_guid   guid;         // VENTOY_GUID
+    grub_uint32_t crc32;        // crc32
+    grub_uint32_t disk_signature;
+    grub_uint64_t part_offset; // in bytes
+    char filepath[384];
+    grub_uint8_t reserved[96];
+}ventoy_vlnk;
+
 #pragma pack()
 
 // compile assert check : sizeof(ventoy_os_param) must be 512
 COMPILE_ASSERT(1,sizeof(ventoy_os_param) == 512);
 COMPILE_ASSERT(2,sizeof(ventoy_secure_data) == 4096);
+COMPILE_ASSERT(3,sizeof(ventoy_vlnk) == 512);
 
 
 
@@ -241,6 +257,7 @@ typedef struct ventoy_img_chunk_list
 #pragma pack(1)
 
 #define GRUB_FILE_REPLACE_MAGIC  0x1258BEEF
+#define GRUB_IMG_REPLACE_MAGIC   0x1259BEEF
 
 typedef const char * (*grub_env_get_pf)(const char *name);
 typedef int (*grub_env_set_pf)(const char *name, const char *val);
@@ -259,6 +276,7 @@ typedef struct ventoy_grub_param
     grub_env_get_pf grub_env_get;
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
+    ventoy_grub_param_file_replace img_replace;
     grub_env_printf_pf grub_env_printf;
 }ventoy_grub_param;
 
@@ -267,6 +285,7 @@ typedef struct ventoy_grub_param
 int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 void grub_iso9660_set_nojoliet(int nojoliet);
+int grub_iso9660_is_joliet(void);
 grub_uint64_t grub_iso9660_get_last_read_pos(grub_file_t file);
 grub_uint64_t grub_iso9660_get_last_file_dirent_pos(grub_file_t file);
 grub_uint64_t grub_udf_get_file_offset(grub_file_t file);

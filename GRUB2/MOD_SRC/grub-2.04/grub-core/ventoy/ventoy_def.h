@@ -21,6 +21,8 @@
 #ifndef __VENTOY_DEF_H__
 #define __VENTOY_DEF_H__
 
+#define VTOY_MAX_DIR_DEPTH  32
+
 #define VTOY_MAX_SCRIPT_BUF    (4 * 1024 * 1024)
 
 #define VTOY_PART_BUF_LEN  (128 * 1024)
@@ -29,8 +31,11 @@
 
 #define VTOY_SIZE_1GB     1073741824
 #define VTOY_SIZE_1MB     (1024 * 1024)
+#define VTOY_SIZE_2MB     (2 * 1024 * 1024)
+#define VTOY_SIZE_4MB     (4 * 1024 * 1024)
 #define VTOY_SIZE_512KB   (512 * 1024)
 #define VTOY_SIZE_1KB     1024
+#define VTOY_SIZE_32KB    (32 * 1024)
 
 #define JSON_SUCCESS    0
 #define JSON_FAILED     1
@@ -56,6 +61,19 @@
 #define VTOY_PLAT_ARM64_UEFI    0x41413634
 #define VTOY_PLAT_X86_64_UEFI   0x55454649
 #define VTOY_PLAT_X86_LEGACY    0x42494f53
+#define VTOY_PLAT_MIPS_UEFI     0x4D495053
+
+#define VTOY_COMM_CPIO  "ventoy.cpio"
+#if defined(__arm__) || defined(__aarch64__)
+#define VTOY_ARCH_CPIO  "ventoy_arm64.cpio"
+#elif defined(__mips__)
+#define VTOY_ARCH_CPIO  "ventoy_mips64.cpio"
+#else
+#define VTOY_ARCH_CPIO  "ventoy_x86.cpio"
+#endif
+
+#define ventoy_varg_4(arg) arg[0], arg[1], arg[2], arg[3]
+#define ventoy_varg_8(arg) arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7]
 
 #define VTOY_PWD_CORRUPTED(err) \
 {\
@@ -65,6 +83,20 @@
     grub_exit(); \
     return (err);\
 }
+
+typedef enum VTOY_FILE_FLT
+{
+    VTOY_FILE_FLT_ISO = 0, /* .iso */
+    VTOY_FILE_FLT_WIM,     /* .wim */
+    VTOY_FILE_FLT_EFI,     /* .efi */
+    VTOY_FILE_FLT_IMG,     /* .img */
+    VTOY_FILE_FLT_VHD,     /* .vhd(x) */
+    VTOY_FILE_FLT_VTOY,    /* .vtoy */
+    
+    VTOY_FILE_FLT_BUTT
+}VTOY_FILE_FLT;
+
+#define FILE_FLT(type) (0 == g_vtoy_file_flt[VTOY_FILE_FLT_##type])
 
 typedef struct ventoy_initrd_ctx
 {
@@ -116,6 +148,7 @@ typedef struct cpio_newc_header
 typedef int (*grub_char_check_func)(int c);
 #define ventoy_is_decimal(str)  ventoy_string_check(str, grub_isdigit)
 
+#define OFFSET_OF(TYPE, MEMBER) ((grub_size_t) &((TYPE *)0)->MEMBER)
 
 #pragma pack(1)
 typedef struct ventoy_patch_vhd
@@ -167,14 +200,28 @@ typedef struct ventoy_iso9660_vd
     grub_uint32_t space;
 }ventoy_iso9660_vd;
 
+/* https://wiki.osdev.org/El-Torito */
+typedef struct boot_info_table
+{
+    grub_uint32_t bi_data0;
+    grub_uint32_t bi_data1;
+    grub_uint32_t bi_PrimaryVolumeDescriptor;
+    grub_uint32_t bi_BootFileLocation;
+    grub_uint32_t bi_BootFileLength;
+    grub_uint32_t bi_Checksum;
+    grub_uint8_t bi_Reserved[40];
+}boot_info_table;
+
 #pragma pack()
 
-#define img_type_iso  0
-#define img_type_wim  1
-#define img_type_efi  2
-#define img_type_img  3
-#define img_type_vhd  4
-#define img_type_vtoy 5
+#define img_type_start 0
+#define img_type_iso   0
+#define img_type_wim   1
+#define img_type_efi   2
+#define img_type_img   3
+#define img_type_vhd   4
+#define img_type_vtoy  5
+#define img_type_max   6
 
 typedef struct img_info
 {
@@ -183,6 +230,8 @@ typedef struct img_info
     char name[256];
 
     const char *alias;
+    const char *tip1;
+    const char *tip2;
     const char *class;
     const char *menu_prefix;
     
@@ -205,6 +254,7 @@ typedef struct img_iterator_node
     img_info **tail;
     char dir[400];
     int dirlen;
+    int level;
     int isocnt;
     int done;
     int select;
@@ -255,14 +305,19 @@ extern ventoy_guid  g_ventoy_guid;
 extern ventoy_img_chunk_list g_img_chunk_list;
 extern ventoy_img_chunk_list g_wimiso_chunk_list;
 extern char *g_wimiso_path;
+extern grub_uint32_t g_wimiso_size;
 extern char g_arch_mode_suffix[64];
+extern const char *g_menu_prefix[img_type_max];
 
 extern int g_ventoy_debug;
 void ventoy_debug(const char *fmt, ...);
-#define debug(fmt, ...) if (g_ventoy_debug) ventoy_debug("[VTOY]: "fmt, __VA_ARGS__)
+#define debug(fmt, args...) if (g_ventoy_debug) ventoy_debug("[VTOY]: "fmt, ##args)
 
 #define vtoy_ssprintf(buf, pos, fmt, ...) \
     pos += grub_snprintf(buf + pos, VTOY_MAX_SCRIPT_BUF - pos, fmt, __VA_ARGS__)
+
+#define browser_ssprintf(mbuf, fmt, args...) \
+    (mbuf)->pos += grub_snprintf((mbuf)->buf + (mbuf)->pos, (mbuf)->max - (mbuf)->pos, fmt, ##args)
 
 #define FLAG_HEADER_RESERVED          0x00000001
 #define FLAG_HEADER_COMPRESSION       0x00000002
@@ -365,6 +420,15 @@ typedef struct wim_security_header
     grub_uint32_t count; /* Number of entries */
 }wim_security_header;
 
+typedef struct wim_stream_entry 
+{
+    grub_uint64_t len;
+    grub_uint64_t unused1;
+    wim_hash hash;
+    grub_uint16_t name_len;
+    /* name */
+}wim_stream_entry;
+
 /* Directory entry */
 typedef struct wim_directory_entry 
 {
@@ -388,6 +452,18 @@ typedef struct wim_directory_entry
 
 /** No security information exists for this file */
 #define WIM_NO_SECURITY 0xffffffffUL
+
+typedef struct reg_vk
+{
+    grub_uint32_t res1;
+    grub_uint16_t sig;
+    grub_uint16_t namesize;
+    grub_uint32_t datasize;
+    grub_uint32_t dataoffset;
+    grub_uint32_t datatype;
+    grub_uint16_t flag;
+    grub_uint16_t res2;
+}reg_vk;
 
 #pragma pack()
 
@@ -491,9 +567,28 @@ typedef struct plugin_entry
     const char *key;
     ventoy_plugin_entry_pf entryfunc;
     ventoy_plugin_check_pf checkfunc;
+    int flag;
 }plugin_entry;
 
+typedef struct replace_fs_dir
+{
+    grub_device_t dev;
+    grub_fs_t fs;
+    char fullpath[512];
+    char initrd[512];
+    int curpos;
+    int dircnt;
+    int filecnt;
+}replace_fs_dir;
 
+typedef struct chk_case_fs_dir
+{
+    grub_device_t dev;
+    grub_fs_t fs;
+}chk_case_fs_dir;
+
+int ventoy_strcmp(const char *pattern, const char *str);
+int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n);
 void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param);
 grub_err_t ventoy_cmd_isolinux_initrd_collect(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_grub_initrd_collect(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -507,21 +602,27 @@ grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, 
 grub_err_t ventoy_cmd_initrd_count(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_valid_initrd_count(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_append_ext_sector(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_skip_svd(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_cpio_busybox_64(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_trailer_cpio(grub_extcmd_context_t ctxt, int argc, char **args);
 int ventoy_cpio_newc_fill_head(void *buf, int filesize, const void *filedata, const char *name);
 grub_file_t ventoy_grub_file_open(enum grub_file_type type, const char *fmt, ...);
 grub_uint64_t ventoy_grub_get_file_size(const char *fmt, ...);
-int ventoy_is_file_exist(const char *fmt, ...);
 int ventoy_is_dir_exist(const char *fmt, ...);
 int ventoy_fill_data(grub_uint32_t buflen, char *buffer);
 grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wimdows_reset(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_is_pe64(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_dump_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_sel_wimboot(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_set_wim_prompt(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_ssize_t ventoy_load_file_with_prompt(grub_file_t file, void *buf, grub_ssize_t size);
+int ventoy_need_prompt_load_file(void);
 
 VTOY_JSON *vtoy_json_find_item
 (
@@ -729,13 +830,24 @@ typedef struct ventoy_video_mode
 typedef struct file_fullpath
 {
     char path[256];
+    int vlnk_add;
 }file_fullpath;
 
+typedef struct theme_list
+{
+    file_fullpath theme;
+    struct theme_list *next;
+}theme_list;
+
+#define auto_install_type_file   0
+#define auto_install_type_parent 1
 typedef struct install_template
 {
+    int type;
     int pathlen;
     char isopath[256];
 
+    int timeout;
     int autosel;
     int cursel;
     int templatenum;
@@ -767,6 +879,7 @@ typedef struct persistence_config
     int pathlen;
     char isopath[256];
 
+    int timeout;
     int autosel;
     int cursel;
     int backendnum;
@@ -788,6 +901,20 @@ typedef struct menu_alias
     struct menu_alias *next;
 }menu_alias;
 
+#define vtoy_tip_image_file 0
+#define vtoy_tip_directory  1
+typedef struct menu_tip
+{
+    int type;
+    int pathlen;
+    char isopath[256];
+    char tip1[1024];
+    char tip2[1024];
+
+    struct menu_tip *next;
+}menu_tip;
+
+
 #define vtoy_class_image_file  0
 #define vtoy_class_directory   1
 
@@ -795,6 +922,7 @@ typedef struct menu_class
 {
     int  type;
     int  patlen;
+    int  parent;
     char pattern[256];
     char class[64];
 
@@ -818,6 +946,7 @@ typedef struct custom_boot
 typedef struct conf_replace
 {
     int pathlen;
+    int img;
     char isopath[256];
     char orgconf[256];
     char newconf[256];
@@ -825,8 +954,11 @@ typedef struct conf_replace
     struct conf_replace *next;
 }conf_replace;
 
+#define injection_type_file   0
+#define injection_type_parent 1
 typedef struct injection_config
 {
+    int type;
     int pathlen;
     char isopath[256];
     char archive[256];
@@ -863,8 +995,12 @@ typedef struct vtoy_password
     grub_uint8_t md5[16];
 }vtoy_password;
 
+#define vtoy_menu_pwd_file   0
+#define vtoy_menu_pwd_parent 1
+
 typedef struct menu_password
 {
+    int type;
     int pathlen;
     char isopath[256];
 
@@ -875,11 +1011,15 @@ typedef struct menu_password
 
 extern int g_ventoy_menu_esc;
 extern int g_ventoy_suppress_esc;
+extern int g_ventoy_suppress_esc_default;
 extern int g_ventoy_last_entry;
 extern int g_ventoy_memdisk_mode;
 extern int g_ventoy_iso_raw;
+extern int g_ventoy_grub2_mode;
+extern int g_ventoy_wimboot_mode;
 extern int g_ventoy_iso_uefi_drv;
 extern int g_ventoy_case_insensitive;
+extern int g_ventoy_fn_mutex;
 extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
 
@@ -895,6 +1035,8 @@ extern grub_uint8_t *g_conf_replace_new_buf;
 extern int g_conf_replace_new_len;
 extern int g_conf_replace_new_len_align;
 extern grub_uint64_t g_ventoy_disk_size;
+extern grub_uint64_t g_ventoy_disk_part_size[2];
+extern grub_uint32_t g_ventoy_plat_data;
 
 #define ventoy_unix_fill_virt(new_data, new_len) \
 { \
@@ -912,19 +1054,26 @@ extern grub_uint64_t g_ventoy_disk_size;
     chain->virt_img_size_in_bytes += data_secs * 2048; \
 }
 
+#define ventoy_syscall0(name) grub_##name()
+#define ventoy_syscall1(name, a) grub_##name(a)
+
+void ventoy_str_tolower(char *str);
+void ventoy_str_toupper(char *str);
 char * ventoy_get_line(char *start);
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
 char * ventoy_plugin_get_cur_install_template(const char *isopath);
 install_template * ventoy_plugin_find_install_template(const char *isopath);
 persistence_config * ventoy_plugin_find_persistent(const char *isopath);
+grub_uint64_t ventoy_get_vtoy_partsize(int part);
 void ventoy_plugin_dump_injection(void);
 void ventoy_plugin_dump_auto_install(void);
 int ventoy_fill_windows_rtdata(void *buf, char *isopath);
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);
 const char * ventoy_plugin_get_injection(const char *isopath);
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);
-const char * ventoy_plugin_get_menu_class(int type, const char *name);
+const menu_tip * ventoy_plugin_get_menu_tip(int type, const char *isopath);
+const char * ventoy_plugin_get_menu_class(int type, const char *name, const char *path);
 int ventoy_plugin_check_memdisk(const char *isopath);
 int ventoy_plugin_get_image_list_index(int type, const char *name);
 conf_replace * ventoy_plugin_find_conf_replace(const char *iso);
@@ -933,6 +1082,9 @@ int ventoy_plugin_load_dud(dud *node, const char *isopart);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
 void ventoy_plugin_dump_persistence(void);
+grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_set_theme_path(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_select_theme_cfg(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_plugin_check_json(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_check_password(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_linux_get_main_initrd_index(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -942,12 +1094,16 @@ grub_err_t ventoy_cmd_locate_wim_patch(grub_extcmd_context_t ctxt, int argc, cha
 grub_err_t ventoy_cmd_unix_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 int ventoy_get_disk_guid(const char *filename, grub_uint8_t *guid, grub_uint8_t *signature);
 grub_err_t ventoy_cmd_unix_reset(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_check_vlnk(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_replace_conf(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_replace_grub_conf(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_replace_ko(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_ko_fillmap(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_fill_image_desc(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_gzip_newko(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_unix_freebsd_ver(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_parse_freenas_ver(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_unix_freebsd_ver_elf(grub_extcmd_context_t ctxt, int argc, char **args);
 int ventoy_check_device_result(int ret);
 int ventoy_check_device(grub_device_t dev);
 void ventoy_debug_dump_guid(const char *prefix, grub_uint8_t *guid);
@@ -956,11 +1112,99 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
 grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char **args);
 int ventoy_check_password(const vtoy_password *pwd, int retry);
-int ventoy_gzip_compress(void *mem_in, int mem_in_len, void *mem_out, int mem_out_len);
-grub_uint64_t ventoy_get_part1_size(ventoy_gpt_info *gpt);
 int ventoy_plugin_add_custom_boot(const char *vcfgpath);
 const char * ventoy_plugin_get_custom_boot(const char *isopath);
 grub_err_t ventoy_cmd_dump_custom_boot(grub_extcmd_context_t ctxt, int argc, char **args);
+int ventoy_gzip_compress(void *mem_in, int mem_in_len, void *mem_out, int mem_out_len);
+int ventoy_load_part_table(const char *diskname);
+int ventoy_env_init(void);
+int ventoy_register_all_cmd(void);
+int ventoy_unregister_all_cmd(void);
+int ventoy_chain_file_size(const char *path);
+int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
+
+#define VTOY_CMD_CHECK(a) if (33554432 != g_ventoy_disk_part_size[a]) ventoy_syscall0(exit)
+
+#define vtoy_theme_random_boot_second  0
+#define vtoy_theme_random_boot_day     1
+#define vtoy_theme_random_boot_month   2
+
+#define ventoy_env_export(env, name) \
+{\
+    grub_env_set((env), (name));\
+    grub_env_export(env);\
+}
+
+#define ret_goto_end(a) ret = a; goto end;
+
+extern ventoy_grub_param *g_grub_param;
+
+#pragma pack(1)
+#define VENTOY_UNIX_SEG_MAGIC0    0x11223344
+#define VENTOY_UNIX_SEG_MAGIC1    0x55667788
+#define VENTOY_UNIX_SEG_MAGIC2    0x99aabbcc
+#define VENTOY_UNIX_SEG_MAGIC3    0xddeeff00
+#define VENTOY_UNIX_MAX_SEGNUM    40960
+struct g_ventoy_seg {
+    grub_uint64_t seg_start_bytes;
+    grub_uint64_t seg_end_bytes;
+};
+
+struct g_ventoy_map{
+    grub_uint32_t magic1[4];
+    grub_uint32_t magic2[4];
+    grub_uint64_t segnum;
+    grub_uint64_t disksize;
+    grub_uint8_t diskuuid[16];
+    struct g_ventoy_seg seglist[VENTOY_UNIX_MAX_SEGNUM];
+    grub_uint32_t magic3[4];
+};
+#pragma pack()
+
+typedef struct ventoy_vlnk_part
+{
+    grub_uint32_t disksig;
+    grub_uint64_t partoffset;
+    char disk[64];
+    char device[64];
+    grub_device_t dev;
+    grub_fs_t fs;
+    int probe;
+    struct ventoy_vlnk_part *next;
+}ventoy_vlnk_part;
+
+
+typedef struct browser_mbuf
+{
+    int max;
+    int pos;
+    char *buf;
+}browser_mbuf;
+
+typedef struct browser_node
+{
+    int  dir;
+    char menuentry[1024];
+    char filename[512];
+    struct browser_node *prev;
+    struct browser_node *next;
+}browser_node;
+
+extern char *g_tree_script_buf;
+extern int g_tree_script_pos;
+extern int g_tree_script_pre;
+extern int g_tree_view_menu_style;
+extern int g_sort_case_sensitive;
+extern int g_wimboot_enable;
+extern int g_filt_dot_underscore_file;
+extern int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT];
+extern const char *g_menu_class[img_type_max];
+extern char g_iso_path[256];
+int ventoy_add_vlnk_file(char *dir, const char *name);
+grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **args);
+int ventoy_get_fs_type(const char *fs);
+int ventoy_img_name_valid(const char *filename, grub_size_t namelen);
 
 #endif /* __VENTOY_DEF_H__ */
 

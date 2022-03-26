@@ -1,0 +1,18 @@
+ h - Tampilkan bantuan informasi ini
+F1 - Mode Memdisk (Hanya untuk ukuran WinPE/LiveCD ISO/IMG yang kecil)
+F2 - Browse and boot files in local disk
+F3 - Beralih mode menu antara Treeview <-> ListView
+F4 - Jalankan (boot) Windows/Linux pada disk lokal
+F5 - Alat Utilitas
+F6 - Memuat ubah suai Grub2 Menu
+F7 - Beralih antara mode GUI <-> Mode TEXT
+
+m - Periksa berkas files (md5/sha1/sha256/sha512)
+Ctrl+w - Mode WIMBOOT (Hanya untuk berkas ISO Windows standar)
+Ctrl+r - Mode Grub2 (Hanya untuk distro Linux tertentu)
+Ctrl+i - Mode Kompatibel/Compatible (Hanya untuk debug saja)
+Ctrl+u - Memuat ISO efi driver (Hanya untuk debug saja, tidak dapat dipakai secara umum)
+
+
+
+Tekan ESC untuk kembali ......

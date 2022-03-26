@@ -27,6 +27,33 @@ vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
+ventoy_os_install_dmsetup_by_fuse() {
+    vtlog "ventoy_os_install_dmsetup_by_fuse $*"
+
+    mkdir -p $VTOY_PATH/mnt/fuse $VTOY_PATH/mnt/iso $VTOY_PATH/mnt/squashfs
+
+    vtoydm -p -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/ventoy_dm_table
+    vtoy_fuse_iso -f $VTOY_PATH/ventoy_dm_table -m $VTOY_PATH/mnt/fuse
+
+    mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
+
+    sfsfile=$(ls $VTOY_PATH/mnt/iso/*.sfs)
+
+    mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs
+
+    kVer=$(uname -r)
+    KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$kVer/kernel/drivers/md/dm-mod.ko*)
+    vtlog "insmod $KoName"
+    insmod $KoName
+
+    umount $VTOY_PATH/mnt/squashfs
+    umount $VTOY_PATH/mnt/iso
+    umount $VTOY_PATH/mnt/fuse
+}
+
+
+
+
 wait_for_usb_disk_ready
 
 vtdiskname=$(get_ventoy_disk_name)
@@ -34,6 +61,12 @@ if [ "$vtdiskname" = "unknown" ]; then
     vtlog "ventoy disk not found"
     PATH=$VTPATH_OLD
     exit 0
+fi
+
+if grep -q 'device-mapper' /proc/devices; then
+    vtlog "device-mapper module exist"
+else
+    ventoy_os_install_dmsetup_by_fuse  $vtdiskname
 fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"

@@ -1,0 +1,360 @@
+/*loading ¶¯»­*/
+.loading {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top:0;
+    left:0;
+    z-index: 999999;
+    background-color: rgba(0, 0, 0, 0);
+}
+.loading .title {
+    width: 300px;
+    text-align: center;
+    margin: 250px auto 0px;
+    color: #2F7095;
+    font-weight: 900;
+    font-size: 24px;
+}
+.loading .rectbox {
+    width: 150px;
+    height: 40px;
+    margin: 10px auto;
+}
+.loading .rectbox .title {
+    font-size: 14px;
+    font-family: 'Microsoft YaHei';
+    font-weight: 900;
+    text-align: center;
+    color: rgba(68, 149, 57, 1);
+}
+.loading .rectbox .rect {
+    width: 25px;
+    height: 25px;
+    background-color: rgba(68, 149, 57, 1);
+    margin: 0 2px auto 3px;
+    float: left;
+    -webkit-animation: loading 0.48s infinite ease-in-out;
+    -o-animation: loading 0.48s infinite ease-in-out;
+    animation: loading 0.48s infinite ease-in-out;
+}
+.loading .rectbox .rect1 {
+    -webkit-animation-delay: 0s;
+    -moz-animation-delay: 0s;
+    -o-animation-delay: 0s;
+    animation-delay: 0s;
+}
+.loading .rectbox .rect2 {
+    -webkit-animation-delay: 0.12s;
+    -moz-animation-delay: 0.12s;
+    -o-animation-delay: 0.12s;
+    animation-delay: 0.12s;
+    background-color: rgba(68, 149, 57, 0.2);
+}
+.loading .rectbox .rect3 {
+    -webkit-animation-delay: 0.24s;
+    -moz-animation-delay: 0.24s;
+    -o-animation-delay: 0.24s;
+    animation-delay: 0.24s;
+    background-color: rgba(68, 149, 57, 0.4);
+}
+.loading .rectbox .rect4 {
+    -webkit-animation-delay: 0.36s;
+    -moz-animation-delay: 0.36s;
+    -o-animation-delay: 0.36s;
+    animation-delay: 0.36s;
+    background-color: rgba(68, 149, 57, 0.6);
+}
+.loading .rectbox .rect5 {
+    -webkit-animation-delay: 0.48s;
+    -moz-animation-delay: 0.48s;
+    -o-animation-delay: 0.48s;
+    animation-delay: 0.48s;
+    background-color: rgba(68, 149, 57, 0.8);
+}
+@keyframes loading {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+@-moz-keyframes loading {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+@-ms-keyframes loading {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+@-webkit-keyframes loading {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+
+/*vtoy server is running*/
+#vtoy-main .loading {
+    width: 100%;
+    position: relative;
+    top:0;
+    left:0;
+    background-color: rgba(0, 0, 0, 0);
+}
+#vtoy-main .loading .title {
+    width: 300px;
+    text-align: center;
+    margin: 250px auto 0px;
+    color: #449539;
+    font-weight: 900;
+    font-size: 24px;
+}
+#vtoy-main .loading .rectbox {
+    width: 120px;
+    height: 40px;
+    margin: 10px auto;
+}
+#vtoy-main .loading .rectbox .title {
+    font-size: 14px;
+    font-family: 'Microsoft YaHei';
+    font-weight: 900;
+    text-align: center;
+    color: rgba(68, 149, 57, 1);
+}
+#vtoy-main .loading .rectbox .rect {
+    width: 25px;
+    height: 25px;
+    background-color: rgba(68, 149, 57, 1);
+    margin: 0 2px auto 3px;
+    float: left;
+    -webkit-animation: loading 1.44s infinite ease-in-out;
+    -o-animation: loading 0.48s infinite ease-in-out;
+    animation: loading 0.48s infinite ease-in-out;
+}
+#vtoy-main .loading .rectbox .rect1 {
+    -webkit-animation-delay: 0s;
+    -moz-animation-delay: 0s;
+    -o-animation-delay: 0s;
+    animation-delay: 0s;
+}
+#vtoy-main .loading .rectbox .rect2 {
+    -webkit-animation-delay: 0.36s;
+    -moz-animation-delay: 0.12s;
+    -o-animation-delay: 0.12s;
+    animation-delay: 0.12s;
+    background-color: rgba(68, 149, 57, 0.2);
+}
+#vtoy-main .loading .rectbox .rect3 {
+    -webkit-animation-delay: 0.72s;
+    -moz-animation-delay: 0.24s;
+    -o-animation-delay: 0.24s;
+    animation-delay: 0.24s;
+    background-color: rgba(68, 149, 57, 0.4);
+}
+#vtoy-main .loading .rectbox .rect4 {
+    -webkit-animation-delay: 1.08s;
+    -moz-animation-delay: 0.36s;
+    -o-animation-delay: 0.36s;
+    animation-delay: 0.36s;
+    background-color: rgba(68, 149, 57, 0.6);
+}
+#vtoy-main .loading .rectbox .rect5 {
+    -webkit-animation-delay: 1.44s;
+    -moz-animation-delay: 0.48s;
+    -o-animation-delay: 0.48s;
+    animation-delay: 0.48s;
+    background-color: rgba(68, 149, 57, 0.8);
+}
+@keyframes running {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+@-moz-keyframes running {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+@-ms-keyframes running {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+@-webkit-keyframes running {
+    0% {
+        background-color: rgba(68, 149, 57, 1);
+    }
+    25% {
+        background-color: rgba(68, 149, 57, 0.8);
+    }
+    50% {
+        background-color: rgba(68, 149, 57, 0.6);
+    }
+    75% {
+        background-color: rgba(68, 149, 57, 0.4);
+    }
+    100% {
+        background-color: rgba(68, 149, 57, 0.2);
+    }
+}
+
+
+
+.loadEffect{
+    width: 110px;
+    height: 110px;
+    position: relative;
+    margin: 0 auto;
+    margin-top:0 auto;
+}
+.loadEffect span{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: lightgreen;
+    position: absolute;
+    -webkit-animation: load 1.04s ease infinite;
+}
+@-webkit-keyframes load{
+    0%{
+        opacity: 1;
+    }
+    100%{
+        opacity: 0.2;
+    }
+}
+
+
+.td_ctrl_col{
+    width: 15%;
+    font-weight:bold;
+}
+
+.loadEffect span:nth-child(1){
+    left: 40%;
+    top: -130%;
+    -webkit-animation-delay:0.13s;
+}
+.loadEffect span:nth-child(2){
+    left: 90%;
+    top: 8%;
+    margin-top:-120%;
+    -webkit-animation-delay:0.26s;
+}
+.loadEffect span:nth-child(3){
+    left: 110%;
+    top: -80%;
+    margin-left: %-100;
+    -webkit-animation-delay:0.39s;
+}
+.loadEffect span:nth-child(4){
+    top: -40%;
+    left:110%;
+    -webkit-animation-delay:0.52s;
+}
+.loadEffect span:nth-child(5){
+    left: 40%;
+    top: 0;
+    margin-top:10%;
+    -webkit-animation-delay:0.65s;
+}
+.loadEffect span:nth-child(6){
+    left: -20%;
+    bottom:120%;
+    -webkit-animation-delay:0.78s;
+}
+.loadEffect span:nth-child(7){
+    bottom: 160%;
+    left: -20%;
+    -webkit-animation-delay:0.91s;
+}
+.loadEffect span:nth-child(8){
+    bottom: 200%;
+    left: -10%;
+    -webkit-animation-delay:1.04s;
+}

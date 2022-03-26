@@ -37,9 +37,17 @@ ventoy_os_install_dmsetup_by_fuse() {
 
     mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
     
-    sfsfile=$(ls $VTOY_PATH/mnt/iso/adrv_veket*.sfs)
-    
-    mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs
+    for sfsfile in $(ls $VTOY_PATH/mnt/iso/*drv_veket*.sfs); do
+        mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs        
+        if [ -d $VTOY_PATH/mnt/squashfs/lib/modules ]; then
+            KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
+            if [ -n "$KoName" -a -f $KoName ]; then
+                break
+            fi
+        fi
+        
+        umount $VTOY_PATH/mnt/squashfs
+    done
 
     KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/dax/dax.ko*)
     vtlog "insmod $KoName"

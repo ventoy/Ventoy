@@ -1,7 +1,7 @@
 /******************************************************************************
 * vtoyjump.c
 *
-* Copyright (c) 2020, longpanda <admin@ventoy.net>
+* Copyright (c) 2021, longpanda <admin@ventoy.net>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License as
@@ -31,8 +31,61 @@
 static ventoy_os_param g_os_param;
 static ventoy_windows_data g_windows_data;
 static UINT8 g_os_param_reserved[32];
-static BOOL g_64bit_system = FALSE;
+static INT g_system_bit = VTOY_BIT;
 static ventoy_guid g_ventoy_guid = VENTOY_GUID;
+static HANDLE g_vtoylog_mutex = NULL;
+static HANDLE g_vtoyins_mutex = NULL;
+
+static CHAR g_prog_full_path[MAX_PATH];
+static CHAR g_prog_dir[MAX_PATH];
+static CHAR g_prog_name[MAX_PATH];
+
+#define VTOY_PECMD_PATH      "X:\\Windows\\system32\\ventoy\\PECMD.EXE"
+#define ORG_PECMD_PATH       "X:\\Windows\\system32\\PECMD.EXE"
+#define ORG_PECMD_BK_PATH    "X:\\Windows\\system32\\PECMD.EXE_BACK.EXE"
+
+#define AUTO_RUN_BAT    "X:\\VentoyAutoRun.bat"
+#define AUTO_RUN_LOG    "X:\\VentoyAutoRun.log"
+
+#define LOG_FILE  "X:\\Windows\\system32\\ventoy.log"
+#define MUTEX_LOCK(hmutex)  if (hmutex != NULL) LockStatus = WaitForSingleObject(hmutex, INFINITE)
+#define MUTEX_UNLOCK(hmutex)  if (hmutex != NULL && WAIT_OBJECT_0 == LockStatus) ReleaseMutex(hmutex)
+
+static const char * GetFileNameInPath(const char *fullpath)
+{
+	int i;
+
+	if (strstr(fullpath, ":"))
+	{
+		for (i = (int)strlen(fullpath); i > 0; i--)
+		{
+			if (fullpath[i - 1] == '/' || fullpath[i - 1] == '\\')
+			{
+				return fullpath + i;
+			}
+		}
+	}
+
+	return fullpath;
+}
+
+static int split_path_name(char *fullpath, char *dir, char *name)
+{
+    CHAR ch;
+    CHAR *Pos = NULL;
+
+    Pos = (CHAR *)GetFileNameInPath(fullpath);
+
+    strcpy_s(name, MAX_PATH, Pos);
+
+    ch = *(Pos - 1);
+    *(Pos - 1) = 0;
+    strcpy_s(dir, MAX_PATH, fullpath);
+    *(Pos - 1) = ch;
+
+    return 0;
+}
+
 
 void Log(const char *Fmt, ...)
 {
@@ -41,25 +94,31 @@ void Log(const char *Fmt, ...)
 	FILE *File = NULL;
 	SYSTEMTIME Sys;
 	char szBuf[1024];
+    DWORD LockStatus = 0;
+    DWORD PID = GetCurrentProcessId();
 
 	GetLocalTime(&Sys);
 	Len += sprintf_s(szBuf, sizeof(szBuf),
-		"[%4d/%02d/%02d %02d:%02d:%02d.%03d] ",
+		"[%4d/%02d/%02d %02d:%02d:%02d.%03d] [%u] ",
 		Sys.wYear, Sys.wMonth, Sys.wDay,
 		Sys.wHour, Sys.wMinute, Sys.wSecond,
-		Sys.wMilliseconds);
+        Sys.wMilliseconds, PID);
 
 	va_start(Arg, Fmt);
 	Len += vsnprintf_s(szBuf + Len, sizeof(szBuf)-Len, sizeof(szBuf)-Len, Fmt, Arg);
 	va_end(Arg);
 
-	fopen_s(&File, "ventoy.log", "a+");
-	if (File)
-	{
-		fwrite(szBuf, 1, Len, File);
-		fwrite("\n", 1, 1, File);
-		fclose(File);
-	}
+    MUTEX_LOCK(g_vtoylog_mutex);
+
+    fopen_s(&File, LOG_FILE, "a+");
+    if (File)
+    {
+        fwrite(szBuf, 1, Len, File);
+        fwrite("\n", 1, 1, File);
+        fclose(File);
+    }
+
+    MUTEX_UNLOCK(g_vtoylog_mutex);
 }
 
 
@@ -214,24 +273,6 @@ static BOOL CheckPeHead(BYTE *Head)
 	return TRUE;
 }
 
-static BOOL IsPe64(BYTE *buffer)
-{
-	DWORD pe_off;
-
-	if (!CheckPeHead(buffer))
-	{
-		return FALSE;
-	}
-
-	pe_off = *(UINT32 *)(buffer + 60);
-	if (*(UINT16 *)(buffer + pe_off + 24) == 0x020b)
-	{
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 
 static BOOL CheckOsParam(ventoy_os_param *param)
 {
@@ -309,11 +350,44 @@ static int Utf8ToUtf16(const char* src, WCHAR * dst)
     return MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, size + 1);
 }
 
-static BOOL IsPathExist(BOOL Dir, const char *Fmt, ...)
+static BOOL IsDirExist(const char *Fmt, ...)
+{
+    va_list Arg;    
+    DWORD Attr;
+    int UTF8 = 0;
+    CHAR FilePathA[MAX_PATH];
+    WCHAR FilePathW[MAX_PATH];
+
+    va_start(Arg, Fmt);
+    vsnprintf_s(FilePathA, sizeof(FilePathA), sizeof(FilePathA), Fmt, Arg);
+    va_end(Arg);
+
+    UTF8 = IsUTF8Encode(FilePathA);
+
+    if (UTF8)
+    {
+        Utf8ToUtf16(FilePathA, FilePathW);
+        Attr = GetFileAttributesW(FilePathW);
+    }
+    else
+    {
+        Attr = GetFileAttributesA(FilePathA);
+    }
+    
+    if (Attr != INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_DIRECTORY))
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static BOOL IsFileExist(const char *Fmt, ...)
 {
 	va_list Arg;
 	HANDLE hFile;
 	DWORD Attr;
+    BOOL bRet = FALSE;
     int UTF8 = 0;
 	CHAR FilePathA[MAX_PATH];
 	WCHAR FilePathW[MAX_PATH];
@@ -335,7 +409,7 @@ static BOOL IsPathExist(BOOL Dir, const char *Fmt, ...)
     }
 	if (INVALID_HANDLE_VALUE == hFile)
 	{
-		return FALSE;
+        goto out;
 	}
 
 	CloseHandle(hFile);
@@ -349,25 +423,19 @@ static BOOL IsPathExist(BOOL Dir, const char *Fmt, ...)
         Attr = GetFileAttributesA(FilePathA);
     }
 	
-	if (Dir)
-	{
-		if ((Attr & FILE_ATTRIBUTE_DIRECTORY) == 0)
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		if (Attr & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			return FALSE;
-		}
-	}
+    if (Attr & FILE_ATTRIBUTE_DIRECTORY)
+    {
+        goto out;
+    }
 
-	return TRUE;
+    bRet = TRUE;
+
+out:
+    Log("File <%s> %s", FilePathA, (bRet ? "exist" : "NOT exist"));
+    return bRet;
 }
 
-static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, DISK_EXTENT *DiskExtent)
+static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, UINT32 *DiskSig, DISK_EXTENT *DiskExtent)
 {
 	BOOL Ret;
 	DWORD dwSize;
@@ -402,8 +470,9 @@ static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, DISK_EXTENT *Dis
 	}
 	CloseHandle(Handle);
 
-	memcpy(DiskExtent, DiskExtents.Extents, sizeof(DiskExtent));
-	Log("%C: is in PhysicalDrive%d ", LogicalDrive, DiskExtents.Extents[0].DiskNumber);
+    memcpy(DiskExtent, DiskExtents.Extents, sizeof(DISK_EXTENT));
+    Log("%C: is in PhysicalDrive%d Offset:%llu", LogicalDrive, DiskExtents.Extents[0].DiskNumber, 
+        (ULONGLONG)(DiskExtents.Extents[0].StartingOffset.QuadPart));
 
 	sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", DiskExtents.Extents[0].DiskNumber);
 	Handle = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
@@ -421,60 +490,201 @@ static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, DISK_EXTENT *Dis
 	}
 	
 	memcpy(UUID, SectorBuf + 0x180, 16);
+    if (DiskSig)
+    {
+        memcpy(DiskSig, SectorBuf + 0x1B8, 4);
+    }
+
 	CloseHandle(Handle);
 	return 0;
 }
 
+static int VentoyMountAnywhere(HANDLE Handle)
+{
+    DWORD Status;
+    ATTACH_VIRTUAL_DISK_PARAMETERS AttachParameters;
+
+    Log("VentoyMountAnywhere");
+
+    memset(&AttachParameters, 0, sizeof(AttachParameters));
+    AttachParameters.Version = ATTACH_VIRTUAL_DISK_VERSION_1;
+
+    Status = AttachVirtualDisk(Handle, NULL, ATTACH_VIRTUAL_DISK_FLAG_READ_ONLY | ATTACH_VIRTUAL_DISK_FLAG_PERMANENT_LIFETIME, 0, &AttachParameters, NULL);
+    if (Status != ERROR_SUCCESS)
+    {
+        Log("Failed to attach virtual disk ErrorCode:%u", Status);
+        return 1;
+    }
+
+    return 0;
+}
+
+int VentoyMountY(HANDLE Handle)
+{
+    int  i;
+    BOOL  bRet = FALSE;
+    DWORD Status;
+    DWORD physicalDriveNameSize;
+    CHAR *Pos = NULL;
+    WCHAR physicalDriveName[MAX_PATH];
+    CHAR physicalDriveNameA[MAX_PATH];
+    CHAR cdromDriveName[MAX_PATH];
+    ATTACH_VIRTUAL_DISK_PARAMETERS AttachParameters;
+
+    Log("VentoyMountY");
+
+    memset(&AttachParameters, 0, sizeof(AttachParameters));
+    AttachParameters.Version = ATTACH_VIRTUAL_DISK_VERSION_1;
+
+    Status = AttachVirtualDisk(Handle, NULL, ATTACH_VIRTUAL_DISK_FLAG_READ_ONLY | ATTACH_VIRTUAL_DISK_FLAG_NO_DRIVE_LETTER | ATTACH_VIRTUAL_DISK_FLAG_PERMANENT_LIFETIME, 0, &AttachParameters, NULL);
+    if (Status != ERROR_SUCCESS)
+    {
+        Log("Failed to attach virtual disk ErrorCode:%u", Status);
+        return 1;
+    }
+
+    memset(physicalDriveName, 0, sizeof(physicalDriveName));
+    memset(physicalDriveNameA, 0, sizeof(physicalDriveNameA));
+
+    physicalDriveNameSize = MAX_PATH;
+    Status = GetVirtualDiskPhysicalPath(Handle, &physicalDriveNameSize, physicalDriveName);
+    if (Status != ERROR_SUCCESS)
+    {
+        Log("Failed GetVirtualDiskPhysicalPath ErrorCode:%u", Status);
+        return 1;
+    }
+
+    for (i = 0; physicalDriveName[i]; i++)
+    {
+        physicalDriveNameA[i] = (CHAR)toupper((CHAR)(physicalDriveName[i]));
+    }
+
+    Log("physicalDriveNameA=<%s>", physicalDriveNameA);
+
+    Pos = strstr(physicalDriveNameA, "CDROM");
+    if (!Pos)
+    {
+        Log("Not cdrom phy drive");
+        return 1;
+    }
+
+    sprintf_s(cdromDriveName, sizeof(cdromDriveName), "\\Device\\%s", Pos);
+    Log("cdromDriveName=<%s>", cdromDriveName);
+
+    for (i = 0; i < 3 && (bRet == FALSE); i++)
+    {
+        Sleep(1000);
+        bRet = DefineDosDeviceA(DDD_RAW_TARGET_PATH, "Y:", cdromDriveName);
+        Log("DefineDosDeviceA %s", bRet ? "success" : "failed");
+    }
+
+    return bRet ? 0 : 1;
+}
+
+static BOOL VentoyAPINeedMountY(const char *IsoPath)
+{
+	(void)IsoPath;
+
+    /* TBD */
+    return FALSE;
+}
+
+static int VentoyAttachVirtualDisk(HANDLE Handle, const char *IsoPath)
+{
+    int DriveYFree;
+    DWORD Drives;
+    
+    Drives = GetLogicalDrives();
+    if ((1 << 24) & Drives)
+    {
+        Log("Y: is occupied");
+        DriveYFree = 0;
+    }
+    else
+    {
+        Log("Y: is free now");
+        DriveYFree = 1;
+    }
+
+	if (DriveYFree && VentoyAPINeedMountY(IsoPath))
+    {
+        return VentoyMountY(Handle);
+    }
+    else
+    {
+        return VentoyMountAnywhere(Handle);
+    }
+}
+
 int VentoyMountISOByAPI(const char *IsoPath)
 {
+    int i;
 	HANDLE Handle;
 	DWORD Status;
 	WCHAR wFilePath[512] = { 0 };
 	VIRTUAL_STORAGE_TYPE StorageType;
 	OPEN_VIRTUAL_DISK_PARAMETERS OpenParameters;
-	ATTACH_VIRTUAL_DISK_PARAMETERS AttachParameters;
 
 	Log("VentoyMountISOByAPI <%s>", IsoPath);
 
     if (IsUTF8Encode(IsoPath))
     {
+        Log("This is UTF8 encoding");
         MultiByteToWideChar(CP_UTF8, 0, IsoPath, (int)strlen(IsoPath), wFilePath, (int)(sizeof(wFilePath) / sizeof(WCHAR)));
     }
     else
     {
+        Log("This is ANSI encoding");
         MultiByteToWideChar(CP_ACP, 0, IsoPath, (int)strlen(IsoPath), wFilePath, (int)(sizeof(wFilePath) / sizeof(WCHAR)));
     }
 
 	memset(&StorageType, 0, sizeof(StorageType));
 	memset(&OpenParameters, 0, sizeof(OpenParameters));
-	memset(&AttachParameters, 0, sizeof(AttachParameters));
-
+	
 	OpenParameters.Version = OPEN_VIRTUAL_DISK_VERSION_1;
-	AttachParameters.Version = ATTACH_VIRTUAL_DISK_VERSION_1;
 
-	Status = OpenVirtualDisk(&StorageType, wFilePath, VIRTUAL_DISK_ACCESS_READ, 0, &OpenParameters, &Handle);
-	if (Status != ERROR_SUCCESS)
-	{
-		if (ERROR_VIRTDISK_PROVIDER_NOT_FOUND == Status)
-		{
-			Log("VirtualDisk for ISO file is not supported in current system");
-		}
-		else
-		{
-			Log("Failed to open virtual disk ErrorCode:%u", Status);
-		}
-		return 1;
-	}
+    for (i = 0; i < 10; i++)
+    {
+        Status = OpenVirtualDisk(&StorageType, wFilePath, VIRTUAL_DISK_ACCESS_READ, 0, &OpenParameters, &Handle);
+        if (ERROR_FILE_NOT_FOUND == Status || ERROR_PATH_NOT_FOUND == Status)
+        {
+            Log("OpenVirtualDisk ErrorCode:%u, now wait and retry...", Status);
+            Sleep(1000);
+        }
+        else
+        {
+            if (ERROR_SUCCESS == Status)
+            {
+                Log("OpenVirtualDisk success");
+            }
+            else if (ERROR_VIRTDISK_PROVIDER_NOT_FOUND == Status)
+            {
+                Log("VirtualDisk for ISO file is not supported in current system");
+            }
+            else
+            {
+                Log("Failed to open virtual disk ErrorCode:%u", Status);
+            }
+            break;
+        }
+    }
+
+    if (Status != ERROR_SUCCESS)
+    {
+        return 1;
+    }
 
 	Log("OpenVirtualDisk success");
 
-	Status = AttachVirtualDisk(Handle, NULL, ATTACH_VIRTUAL_DISK_FLAG_READ_ONLY | ATTACH_VIRTUAL_DISK_FLAG_PERMANENT_LIFETIME, 0, &AttachParameters, NULL);
+    Status = VentoyAttachVirtualDisk(Handle, IsoPath);
 	if (Status != ERROR_SUCCESS)
 	{
 		Log("Failed to attach virtual disk ErrorCode:%u", Status);
 		CloseHandle(Handle);
 		return 1;
 	}
+
+    Log("VentoyAttachVirtualDisk success");
 
 	CloseHandle(Handle);
 	return 0;
@@ -538,11 +748,44 @@ static int VentoyFatDiskRead(uint32 Sector, uint8 *Buffer, uint32 SectorCount)
 	return 1;
 }
 
-static CHAR GetMountLogicalDrive(void)
+static BOOL Is2K10PE(void)
+{
+	BOOL bRet = FALSE;
+	FILE *fp = NULL;
+	CHAR szLine[1024];
+
+	fopen_s(&fp, "X:\\Windows\\System32\\PECMD.INI", "r");
+	if (!fp)
+	{
+		return FALSE;
+	}
+
+	memset(szLine, 0, sizeof(szLine));
+	while (fgets(szLine, sizeof(szLine) - 1, fp))
+	{
+		if (strstr(szLine, "2k10\\"))
+		{
+			bRet = TRUE;
+			break;
+		}
+	}
+
+	fclose(fp);
+	return bRet;
+}
+
+static CHAR GetIMDiskMountLogicalDrive(void)
 {
 	CHAR Letter = 'Y';
 	DWORD Drives;
 	DWORD Mask = 0x1000000;
+
+	// fixed use M as mountpoint for 2K10 PE
+	if (Is2K10PE())
+	{
+		Log("Use M: for 2K10 PE");
+		return 'M';
+	}
 
 	Drives = GetLogicalDrives();
     Log("Drives=0x%x", Drives);
@@ -610,32 +853,70 @@ UINT64 GetVentoyEfiPartStartSector(HANDLE hDrive)
 	return StartSector;
 }
 
+static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe)
+{
+	CHAR Letter;
+	CHAR Cmdline[512];
+	WCHAR CmdlineW[512];
+	PROCESS_INFORMATION Pi;
+
+	Log("VentoyRunImdisk <%s> <%s>", IsoPath, imdiskexe);
+
+	Letter = GetIMDiskMountLogicalDrive();
+	sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o ro -f \"%s\" -m %C:", imdiskexe, IsoPath, Letter);
+	Log("mount iso to %C: use imdisk cmd <%s>", Letter, Cmdline);
+
+	if (IsUTF8Encode(IsoPath))
+	{
+		STARTUPINFOW Si;
+		GetStartupInfoW(&Si);
+		Si.dwFlags |= STARTF_USESHOWWINDOW;
+		Si.wShowWindow = SW_HIDE;
+
+		Utf8ToUtf16(Cmdline, CmdlineW);
+		CreateProcessW(NULL, CmdlineW, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+		Log("This is UTF8 encoding");
+	}
+	else
+	{
+		STARTUPINFOA Si;
+		GetStartupInfoA(&Si);
+		Si.dwFlags |= STARTF_USESHOWWINDOW;
+		Si.wShowWindow = SW_HIDE;
+
+		CreateProcessA(NULL, Cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+		Log("This is ANSI encoding");
+	}
+
+	Log("Wait for imdisk process ...");
+	WaitForSingleObject(Pi.hProcess, INFINITE);
+	Log("imdisk process finished");
+
+	return 0;
+}
+
 int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 {
 	int rc = 1;
 	BOOL bRet;
-	CHAR Letter;
 	DWORD dwBytes;
 	HANDLE hDrive;
 	CHAR PhyPath[MAX_PATH];
-	WCHAR PhyPathW[MAX_PATH];
-	STARTUPINFOA Si;
-	PROCESS_INFORMATION Pi;
 	GET_LENGTH_INFORMATION LengthInfo;
 
 	Log("VentoyMountISOByImdisk %s", IsoPath);
 
+	if (IsFileExist("X:\\Windows\\System32\\imdisk.exe"))
+	{
+		Log("imdisk.exe exist, use it directly...");
+		VentoyRunImdisk(IsoPath, "imdisk.exe");
+		return 0;
+	}
+
 	sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", PhyDrive);
-    if (IsUTF8Encode(PhyPath))
-    {
-        Utf8ToUtf16(PhyPath, PhyPathW);
-        hDrive = CreateFileW(PhyPathW, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
-    }
-    else
-    {
-        hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
-    }
-    
+    hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 	if (hDrive == INVALID_HANDLE_VALUE)
 	{
 		Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
@@ -658,7 +939,7 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 
 	if (0 == fl_attach_media(VentoyFatDiskRead, NULL))
 	{
-		if (g_64bit_system)
+		if (g_system_bit == 64)
 		{
 			CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.sys", "ventoy\\imdisk.sys");
 			CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.exe", "ventoy\\imdisk.exe");
@@ -676,20 +957,8 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 
 		if (LoadNtDriver(PhyPath) == 0)
 		{
+			VentoyRunImdisk(IsoPath, "ventoy\\imdisk.exe");
 			rc = 0;
-
-			Letter = GetMountLogicalDrive();
-            sprintf_s(PhyPath, sizeof(PhyPath), "ventoy\\imdisk.exe -a -o ro -f %s -m %C:", IsoPath, Letter);
-
-			Log("mount iso to %C: use imdisk cmd <%s>", Letter, PhyPath);
-
-            GetStartupInfoA(&Si);
-
-            Si.dwFlags |= STARTF_USESHOWWINDOW;
-            Si.wShowWindow = SW_HIDE;
-
-			CreateProcessA(NULL, PhyPath, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
-			WaitForSingleObject(Pi.hProcess, INFINITE);
 		}
 	}
 	fl_shutdown();
@@ -789,7 +1058,7 @@ static int DeleteVentoyPart2MountPoint(DWORD PhyDrive)
     Drives = GetLogicalDrives();
     while (Drives)
     {
-        if ((Drives & 0x01) && IsPathExist(FALSE, "%C:\\ventoy\\ventoy.cpio", Letter))
+        if ((Drives & 0x01) && IsFileExist("%C:\\ventoy\\ventoy.cpio", Letter))
         {
             Log("File %C:\\ventoy\\ventoy.cpio exist", Letter);
 
@@ -851,11 +1120,31 @@ static BOOL check_tar_archive(const char *archive, CHAR *tarName)
     return FALSE;
 }
 
+static UCHAR *g_unxz_buffer = NULL;
+static int g_unxz_len = 0;
+
+static void unxz_error(char *x)
+{
+    Log("%s", x);
+}
+
+static int unxz_flush(void *src, unsigned int size)
+{
+    memcpy(g_unxz_buffer + g_unxz_len, src, size);
+    g_unxz_len += (int)size;
+
+    return (int)size;
+}
+
 static int DecompressInjectionArchive(const char *archive, DWORD PhyDrive)
 {
     int rc = 1;
+    int writelen = 0;
+    UCHAR *Buffer = NULL;
+    UCHAR *RawBuffer = NULL;
     BOOL bRet;
     DWORD dwBytes;
+    DWORD dwSize;
     HANDLE hDrive;
     HANDLE hOut;
     DWORD flags = CREATE_NO_WINDOW;
@@ -893,13 +1182,42 @@ static int DecompressInjectionArchive(const char *archive, DWORD PhyDrive)
 
     if (0 == fl_attach_media(VentoyFatDiskRead, NULL))
     {
-        if (g_64bit_system)
+		if (g_system_bit == 64)
         {
-            CopyFileFromFatDisk("/ventoy/7z/64/7za.exe", "ventoy\\7za.exe");
+            CopyFileFromFatDisk("/ventoy/7z/64/7za.xz", "ventoy\\7za.xz");
         }
         else
         {
-            CopyFileFromFatDisk("/ventoy/7z/32/7za.exe", "ventoy\\7za.exe");
+            CopyFileFromFatDisk("/ventoy/7z/32/7za.xz", "ventoy\\7za.xz");
+        }
+
+        ReadWholeFile2Buf("ventoy\\7za.xz", &Buffer, &dwSize);
+        Log("7za.xz file size:%u", dwSize);
+
+        RawBuffer = malloc(SIZE_1MB * 4);
+        if (RawBuffer)
+        {
+            g_unxz_buffer = RawBuffer;
+            g_unxz_len = 0;
+            unxz(Buffer, (int)dwSize, NULL, unxz_flush, NULL, &writelen, unxz_error);
+            if (writelen == (int)dwSize)
+            {
+                Log("Decompress success 7za.xz(%u) ---> 7za.exe(%d)", dwSize, g_unxz_len);
+            }
+            else
+            {
+                Log("Decompress failed 7za.xz(%u) ---> 7za.exe(%u)", dwSize, dwSize);
+            }
+
+            SaveBuffer2File("ventoy\\7za.exe", RawBuffer, (DWORD)g_unxz_len);
+
+            g_unxz_buffer = NULL;
+            g_unxz_len = 0;
+            free(RawBuffer);
+        }
+        else
+        {
+            Log("Failed to alloc 4MB memory");
         }
 
         sprintf_s(StrBuf, sizeof(StrBuf), "ventoy\\7za.exe x -y -aoa -oX:\\ %s", archive);
@@ -989,50 +1307,225 @@ static int ProcessUnattendedInstallation(const char *script)
     return 0;
 }
 
+static int Windows11BypassCheck(const char *isofile, const char MntLetter)
+{
+    int Ret = 1;
+    DWORD dwHandle;
+    DWORD dwSize;
+    DWORD dwValue = 1;
+    UINT VerLen = 0;
+    CHAR *Buffer = NULL;
+    VS_FIXEDFILEINFO* VerInfo = NULL;
+    CHAR CheckFile[MAX_PATH];
+    UINT16 Major, Minor, Build, Revision;
+
+    Log("Windows11BypassCheck for <%s> %C:", isofile, MntLetter);
+
+    if (FALSE == IsFileExist("%C:\\sources\\boot.wim", MntLetter) ||
+        FALSE == IsFileExist("%C:\\sources\\compatresources.dll", MntLetter))
+    {
+        Log("boot.wim/compatresources.dll not exist, this is not a windows install media.");
+        goto End;
+    }
+
+    if (FALSE == IsFileExist("%C:\\sources\\install.wim", MntLetter) && 
+        FALSE == IsFileExist("%C:\\sources\\install.esd", MntLetter))
+    {
+        Log("install.wim/install.esd not exist, this is not a windows install media.");
+        goto End;
+    }
+
+    sprintf_s(CheckFile, sizeof(CheckFile), "%C:\\sources\\compatresources.dll", MntLetter);
+    dwSize = GetFileVersionInfoSizeA(CheckFile, &dwHandle);
+    if (0 == dwSize)
+    {
+        Log("Failed to get file version info size: %u", LASTERR);
+        goto End;
+    }
+
+    Buffer = malloc(dwSize);
+    if (!Buffer)
+    {
+        goto End;
+    }
+
+    if (FALSE == GetFileVersionInfoA(CheckFile, dwHandle, dwSize, Buffer))
+    {
+        Log("Failed to get file version info : %u", LASTERR);
+        goto End;
+    }
+
+    if (VerQueryValueA(Buffer, "\\", (LPVOID)&VerInfo, &VerLen) && VerLen != 0)
+    {
+        if (VerInfo->dwSignature == VS_FFI_SIGNATURE)
+        {
+            Major = HIWORD(VerInfo->dwFileVersionMS);
+            Minor = LOWORD(VerInfo->dwFileVersionMS);
+            Build = HIWORD(VerInfo->dwFileVersionLS);
+            Revision = LOWORD(VerInfo->dwFileVersionLS);
+
+            Log("FileVersionze: <%u %u %u %u>", Major, Minor, Build, Revision);
+
+            if (Major == 10 && Build > 20000)
+            {
+                Major = 11;
+            }
+
+            if (Major != 11)
+            {
+                Log("This is not Windows 11, not need to bypass.", Major);
+                goto End;
+            }
+        }
+    }
+
+    //Now we really need to bypass windows 11 check. create registry
+    HKEY hKey = NULL;
+    HKEY hSubKey = NULL;
+    LSTATUS Status;
+
+    Status = RegCreateKeyExA(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwSize);
+    if (ERROR_SUCCESS != Status)
+    {
+        Log("Failed to create reg key System\\Setup %u %u", LASTERR, Status);
+        goto End;
+    }
+
+    Status = RegCreateKeyExA(hKey, "LabConfig", 0, NULL, 0, KEY_SET_VALUE | KEY_QUERY_VALUE | KEY_CREATE_SUB_KEY, NULL, &hSubKey, &dwSize);
+    if (ERROR_SUCCESS != Status)
+    {
+        Log("Failed to create LabConfig reg  %u %u", LASTERR, Status);
+        goto End;
+    }
+
+    //set reg value
+    Status += RegSetValueExA(hSubKey, "BypassRAMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassTPMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassSecureBootCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassStorageCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+    Status += RegSetValueExA(hSubKey, "BypassCPUCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+
+    Log("Create bypass registry %s %u", (Status == ERROR_SUCCESS) ? "SUCCESS" : "FAILED", Status);
+
+    Ret = 0;
+
+End:
+    if (Buffer)
+    {
+        free(Buffer);
+    }
+    
+    return Ret; 
+}
+
+static BOOL CheckVentoyDisk(DWORD DiskNum)
+{
+    DWORD dwSize = 0;
+    CHAR PhyPath[128];
+    UINT8 SectorBuf[512];
+    HANDLE Handle;
+    UINT8 check[8] = { 0x56, 0x54, 0x00, 0x47, 0x65, 0x00, 0x48, 0x44 };
+
+    sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", DiskNum);
+    Handle = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    if (Handle == INVALID_HANDLE_VALUE)
+    {
+        Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
+        return FALSE;
+    }
+
+    if (!ReadFile(Handle, SectorBuf, sizeof(SectorBuf), &dwSize, NULL))
+    {
+        Log("ReadFile failed, dwSize:%u  error:%u", dwSize, GetLastError());
+        CloseHandle(Handle);
+        return FALSE;
+    }
+
+    CloseHandle(Handle);
+
+    if (memcmp(SectorBuf + 0x190, check, 8) == 0)
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
 static int VentoyHook(ventoy_os_param *param)
 {
+    int i;
     int rc;
-	CHAR Letter = 'A';
+    BOOL find = FALSE;
+    BOOL vtoyfind = FALSE;
+    CHAR Letter;
+    CHAR MntLetter;
+    CHAR VtoyLetter;
+    DWORD Drives;
+    DWORD NewDrives;
+    DWORD VtoyDiskNum;
+    UINT32 DiskSig;
+    UINT32 VtoySig;
 	DISK_EXTENT DiskExtent;
-	DWORD Drives = GetLogicalDrives();
+    DISK_EXTENT VtoyDiskExtent;
 	UINT8 UUID[16];
 	CHAR IsoPath[MAX_PATH];
 
-	Log("Logical Drives=0x%x Path:<%s>", Drives, param->vtoy_img_path);
+	Log("VentoyHook Path:<%s>", param->vtoy_img_path);
 
     if (IsUTF8Encode(param->vtoy_img_path))
     {
         Log("This file is UTF8 encoding\n");
     }
 
-	while (Drives)
-	{
-        if (Drives & 0x01)
+    for (i = 0; i < 5; i++)
+    {
+        Letter = 'A';
+        Drives = GetLogicalDrives();
+        Log("Logic Drives: 0x%x", Drives);
+
+        while (Drives)
         {
-            sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
-            if (IsPathExist(FALSE, "%s", IsoPath))
+            if (Drives & 0x01)
             {
-                Log("File exist under %C:", Letter);
-                if (GetPhyDiskUUID(Letter, UUID, &DiskExtent) == 0)
+                sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
+                if (IsFileExist("%s", IsoPath))
                 {
-                    if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
+                    Log("File exist under %C:", Letter);
+                    memset(UUID, 0, sizeof(UUID));
+                    memset(&DiskExtent, 0, sizeof(DiskExtent));
+                    if (GetPhyDiskUUID(Letter, UUID, NULL, &DiskExtent) == 0)
                     {
-                        Log("Disk UUID match");
-                        break;
+                        if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
+                        {
+                            Log("Disk UUID match");
+                            find = TRUE;
+                            break;
+                        }
                     }
                 }
+                else
+                {
+                    Log("File NOT exist under %C:", Letter);
+                }
             }
-            else
-            {
-                Log("File NOT exist under %C:", Letter);
-            }
+
+            Drives >>= 1;
+            Letter++;
         }
 
-		Drives >>= 1;
-		Letter++;
-	}
+        if (find)
+        {
+            break;
+        }
+        else
+        {
+            Log("Now wait and retry ...");
+            Sleep(1000);
+        }
+    }
 
-	if (Drives == 0)
+    if (find == FALSE)
 	{
 		Log("Failed to find ISO file");
 		return 1;
@@ -1040,17 +1533,122 @@ static int VentoyHook(ventoy_os_param *param)
 
 	Log("Find ISO file <%s>", IsoPath);
     
-    rc = MountIsoFile(IsoPath, DiskExtent.DiskNumber);
+    //Find VtoyLetter in Vlnk Mode
+    if (g_os_param_reserved[6] == 1)
+    {
+        memcpy(&VtoySig, g_os_param_reserved + 7, 4);
+        for (i = 0; i < 5; i++)
+        {
+            VtoyLetter = 'A';
+            Drives = GetLogicalDrives();
+            Log("Logic Drives: 0x%x  VentoySig:%08X", Drives, VtoySig);
+
+            while (Drives)
+            {
+                if (Drives & 0x01)
+                {
+                    memset(UUID, 0, sizeof(UUID));
+                    memset(&VtoyDiskExtent, 0, sizeof(VtoyDiskExtent));
+                    DiskSig = 0;
+                    if (GetPhyDiskUUID(VtoyLetter, UUID, &DiskSig, &VtoyDiskExtent) == 0)
+                    {
+                        Log("DiskSig=%08X PartStart=%lld", DiskSig, VtoyDiskExtent.StartingOffset.QuadPart);
+                        if (DiskSig == VtoySig && VtoyDiskExtent.StartingOffset.QuadPart == SIZE_1MB)
+                        {
+                            Log("Ventoy Disk Sig match");
+                            vtoyfind = TRUE;
+                            break;
+                        }
+                    }
+                }
+
+                Drives >>= 1;
+                VtoyLetter++;
+            }
+
+            if (vtoyfind)
+            {
+                Log("Find Ventoy Letter: %C", VtoyLetter);
+                break;
+            }
+            else
+            {
+                Log("Now wait and retry ...");
+                Sleep(1000);
+            }
+        }
+
+        if (vtoyfind == FALSE)
+        {
+            Log("Failed to find ventoy disk");
+            return 1;
+        }
+
+        VtoyDiskNum = VtoyDiskExtent.DiskNumber;
+    }
+    else
+    {
+        VtoyLetter = Letter;
+        Log("No vlnk mode %C", Letter);
+
+        VtoyDiskNum = DiskExtent.DiskNumber;
+    }
+
+    if (CheckVentoyDisk(VtoyDiskNum))
+    {
+        Log("Disk check OK %C: %u", VtoyLetter, VtoyDiskNum);
+    }
+    else
+    {
+        Log("Failed to check ventoy disk %u", VtoyDiskNum);
+        return 1;
+    }
+
+    Drives = GetLogicalDrives();
+    Log("Drives before mount: 0x%x", Drives);
+
+    rc = MountIsoFile(IsoPath, VtoyDiskNum);
+
+    NewDrives = GetLogicalDrives();
+    Log("Drives after mount: 0x%x (0x%x)", NewDrives, (NewDrives ^ Drives));
+
+    MntLetter = 'A';
+    NewDrives = (NewDrives ^ Drives);
+    while (NewDrives)
+    {
+        if (NewDrives & 0x01)
+        {
+            if ((NewDrives >> 1) == 0)
+            {
+                Log("The ISO file is mounted at %C:", MntLetter);
+            }
+            else
+            {
+                Log("Maybe the ISO file is mounted at %C:", MntLetter);
+            }
+            break;
+        }
+
+        NewDrives >>= 1;
+        MntLetter++;
+    }
+
     Log("Mount ISO FILE: %s", rc == 0 ? "SUCCESS" : "FAILED");
 
+    //Windows 11 bypass check
+    if (g_windows_data.windows11_bypass_check == 1)
+    {
+        Windows11BypassCheck(IsoPath, MntLetter);
+    }
+
     // for protect
-    rc = DeleteVentoyPart2MountPoint(DiskExtent.DiskNumber);
+    rc = DeleteVentoyPart2MountPoint(VtoyDiskNum);
     Log("Delete ventoy mountpoint: %s", rc == 0 ? "SUCCESS" : "NO NEED");
     
     if (g_windows_data.auto_install_script[0])
     {
-        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", Letter, g_windows_data.auto_install_script);
-        if (IsPathExist(FALSE, "%s", IsoPath))
+        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", VtoyLetter, g_windows_data.auto_install_script);
+        if (IsFileExist("%s", IsoPath))
         {
             Log("use auto install script %s...", IsoPath);
             ProcessUnattendedInstallation(IsoPath);
@@ -1067,11 +1665,51 @@ static int VentoyHook(ventoy_os_param *param)
 
     if (g_windows_data.injection_archive[0])
     {
-        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", Letter, g_windows_data.injection_archive);
-        if (IsPathExist(FALSE, "%s", IsoPath))
+        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", VtoyLetter, g_windows_data.injection_archive);
+        if (IsFileExist("%s", IsoPath))
         {
             Log("decompress injection archive %s...", IsoPath);
-            DecompressInjectionArchive(IsoPath, DiskExtent.DiskNumber);
+            DecompressInjectionArchive(IsoPath, VtoyDiskNum);
+
+            if (IsFileExist("%s", AUTO_RUN_BAT))
+            {
+                HANDLE hOut;
+                DWORD flags = CREATE_NO_WINDOW;
+                CHAR StrBuf[1024];
+                STARTUPINFOA Si;
+                PROCESS_INFORMATION Pi;
+                SECURITY_ATTRIBUTES Sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+
+                Log("%s exist, now run it...", AUTO_RUN_BAT);
+
+                GetStartupInfoA(&Si);
+
+                hOut = CreateFileA(AUTO_RUN_LOG,
+                    FILE_APPEND_DATA,
+                    FILE_SHARE_WRITE | FILE_SHARE_READ,
+                    &Sa,
+                    OPEN_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL,
+                    NULL);
+
+                Si.dwFlags |= STARTF_USESTDHANDLES;
+                if (hOut != INVALID_HANDLE_VALUE)
+                {
+                    Si.hStdError = hOut;
+                    Si.hStdOutput = hOut;
+                }
+
+                sprintf_s(IsoPath, sizeof(IsoPath), "%C:\\%s", Letter, param->vtoy_img_path);
+                sprintf_s(StrBuf, sizeof(StrBuf), "cmd.exe /c %s \"%s\" %C", AUTO_RUN_BAT, IsoPath, MntLetter);
+                CreateProcessA(NULL, StrBuf, NULL, NULL, TRUE, flags, NULL, NULL, &Si, &Pi);
+                WaitForSingleObject(Pi.hProcess, INFINITE);
+
+                SAFE_CLOSE_HANDLE(hOut);
+            }
+            else
+            {
+                Log("%s not exist...", AUTO_RUN_BAT);
+            }
         }
         else
         {
@@ -1086,41 +1724,96 @@ static int VentoyHook(ventoy_os_param *param)
     return 0;
 }
 
-const char * GetFileNameInPath(const char *fullpath)
-{
-	int i;
-	const char *pos = NULL;
 
-	if (strstr(fullpath, ":"))
-	{
-		for (i = (int)strlen(fullpath); i > 0; i--)
-		{
-			if (fullpath[i - 1] == '/' || fullpath[i - 1] == '\\')
-			{
-				return fullpath + i;
-			}
-		}
-	}
-	
-	return fullpath;
+int VentoyJumpWimboot(INT argc, CHAR **argv, CHAR *LunchFile)
+{
+    int rc = 1;
+    char *buf = NULL;
+    DWORD size = 0;
+    DWORD Pos;
+
+	Log("VentoyJumpWimboot %dbit", g_system_bit);
+
+    sprintf_s(LunchFile, MAX_PATH, "X:\\setup.exe");
+
+    ReadWholeFile2Buf("wimboot.data", &buf, &size);
+    Log("wimboot.data size:%d", size);
+
+    memcpy(&g_os_param, buf, sizeof(ventoy_os_param));
+    memcpy(&g_windows_data, buf + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));
+    memcpy(g_os_param_reserved, g_os_param.vtoy_reserved, sizeof(g_os_param_reserved));
+
+    if (g_os_param_reserved[0] == 1)
+    {
+        Log("break here for debug .....");
+        goto End;
+    }
+
+    // convert / to \\   
+    for (Pos = 0; Pos < sizeof(g_os_param.vtoy_img_path) && g_os_param.vtoy_img_path[Pos]; Pos++)
+    {
+        if (g_os_param.vtoy_img_path[Pos] == '/')
+        {
+            g_os_param.vtoy_img_path[Pos] = '\\';
+        }
+    }
+
+    if (g_os_param_reserved[0] == 2)
+    {
+        Log("skip hook for debug .....");
+        rc = 0;
+        goto End;
+    }
+
+    rc = VentoyHook(&g_os_param);
+
+End:
+
+    if (buf)
+    {
+        free(buf);
+    }
+
+    return rc;
+}
+
+static int ventoy_check_create_directory(void)
+{
+    if (IsDirExist("ventoy"))
+    {
+        Log("ventoy directory already exist");
+    }
+    else
+    {
+        Log("ventoy directory not exist, now create it.");
+        if (!CreateDirectoryA("ventoy", NULL))
+        {
+            Log("Failed to create ventoy directory err:%u", GetLastError());
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 {
 	int rc = 1;
+    int stat = 0;
 	DWORD Pos;
 	DWORD PeStart;
     DWORD FileSize;
+    DWORD LockStatus = 0;
 	BYTE *Buffer = NULL; 
 	CHAR ExeFileName[MAX_PATH];
 
 	sprintf_s(ExeFileName, sizeof(ExeFileName), "%s", argv[0]);
-	if (!IsPathExist(FALSE, "%s", ExeFileName))
+	if (!IsFileExist("%s", ExeFileName))
 	{
 		Log("File %s NOT exist, now try %s.exe", ExeFileName, ExeFileName);
 		sprintf_s(ExeFileName, sizeof(ExeFileName), "%s.exe", argv[0]);
 
-		Log("File %s exist ? %s", ExeFileName, IsPathExist(FALSE, "%s", ExeFileName) ? "YES" : "NO");
+		Log("File %s exist ? %s", ExeFileName, IsFileExist("%s", ExeFileName) ? "YES" : "NO");
 	}
 
 	if (ReadWholeFile2Buf(ExeFileName, (void **)&Buffer, &FileSize))
@@ -1128,16 +1821,16 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 		goto End;
 	}
 	
-	g_64bit_system = IsPe64(Buffer);
+	Log("VentoyJump %dbit", g_system_bit);
 
-	if (!IsPathExist(TRUE, "ventoy"))
-	{
-		if (!CreateDirectoryA("ventoy", NULL))
-		{
-			Log("Failed to create ventoy directory err:%u", GetLastError());
-			goto End;
-		}
-	}
+    MUTEX_LOCK(g_vtoyins_mutex);
+    stat = ventoy_check_create_directory();
+    MUTEX_UNLOCK(g_vtoyins_mutex);
+
+    if (stat != 0)
+    {
+        goto End;
+    }
 
 	for (PeStart = 0; PeStart < FileSize; PeStart += 16)
 	{
@@ -1167,7 +1860,19 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 
 			PeStart += sizeof(ventoy_os_param) + sizeof(ventoy_windows_data);
 			sprintf_s(LunchFile, MAX_PATH, "ventoy\\%s", GetFileNameInPath(ExeFileName));
+
+            MUTEX_LOCK(g_vtoyins_mutex);
+            if (IsFileExist("%s", LunchFile))
+            {
+                Log("vtoyjump multiple call ...");
+                rc = 0;
+                MUTEX_UNLOCK(g_vtoyins_mutex);
+                goto End;
+            }
+
 			SaveBuffer2File(LunchFile, Buffer + PeStart, FileSize - PeStart);
+            MUTEX_UNLOCK(g_vtoyins_mutex);
+
 			break;
 		}
 	}
@@ -1197,75 +1902,197 @@ End:
 	return rc;
 }
 
-int main(int argc, char **argv)
+
+int real_main(int argc, char **argv)
 {
-    int i = 0;
-    int rc = 0;
-	CHAR *Pos = NULL;
-	CHAR CurDir[MAX_PATH];
+	int i = 0;
+	int rc = 0;
+	CHAR NewFile[MAX_PATH];
 	CHAR LunchFile[MAX_PATH];
+	CHAR CallParam[1024] = { 0 };
 	STARTUPINFOA Si;
 	PROCESS_INFORMATION Pi;
 
-	if (argv[0] && argv[0][0] && argv[0][1] == ':')
+	Log("#### real_main #### argc = %d", argc);
+    Log("program full path: <%s>", g_prog_full_path);
+    Log("program dir: <%s>", g_prog_dir);
+    Log("program name:: <%s>", g_prog_name);
+
+    Log("argc = %d", argc);
+	for (i = 0; i < argc; i++)
 	{
-		GetCurrentDirectoryA(sizeof(CurDir), CurDir);
-
-		strcpy_s(LunchFile, sizeof(LunchFile), argv[0]);
-		Pos = (char *)GetFileNameInPath(LunchFile);
-
-		strcat_s(CurDir, sizeof(CurDir), "\\");
-		strcat_s(CurDir, sizeof(CurDir), Pos);
-		
-		if (_stricmp(argv[0], CurDir) != 0)
+		Log("argv[%d]=<%s>", i, argv[i]);
+		if (i > 0)
 		{
-			*Pos = 0;
-			SetCurrentDirectoryA(LunchFile);
+			strcat_s(CallParam, sizeof(CallParam), " ");
+			strcat_s(CallParam, sizeof(CallParam), argv[i]);
 		}
 	}
 
-	Log("######## VentoyJump ##########");
-	Log("argc = %d argv[0] = <%s>", argc, argv[0]);
+	GetStartupInfoA(&Si);
+	memset(LunchFile, 0, sizeof(LunchFile));
 
-	if (Pos && *Pos == 0)
+	if (strstr(argv[0], "vtoyjump.exe"))
 	{
-		Log("Old current directory = <%s>", CurDir);
-		Log("New current directory = <%s>", LunchFile);
+		rc = VentoyJumpWimboot(argc, argv, LunchFile);
 	}
 	else
 	{
-		GetCurrentDirectoryA(sizeof(CurDir), CurDir);
-		Log("Current directory = <%s>", CurDir);
+		rc = VentoyJump(argc, argv, LunchFile);
 	}
 
-    GetStartupInfoA(&Si);
+	Log("LunchFile=<%s> CallParam=<%s>", LunchFile, CallParam);
 
-    memset(LunchFile, 0, sizeof(LunchFile));
-    rc = VentoyJump(argc, argv, LunchFile);
+	if (_stricmp(g_prog_name, "winpeshl.exe") != 0 && IsFileExist("ventoy\\%s", g_prog_name))
+	{
+		sprintf_s(NewFile, sizeof(NewFile), "%s_BACK.EXE", g_prog_full_path);
+		MoveFileA(g_prog_full_path, NewFile);
+		Log("Move <%s> to <%s>", g_prog_full_path, NewFile);
 
-    if (g_os_param_reserved[0] == 3)
-    {
-        Log("Open log for debug ...");
-        sprintf_s(LunchFile, sizeof(LunchFile), "%s", "notepad.exe ventoy.log");
-    }
+		sprintf_s(NewFile, sizeof(NewFile), "ventoy\\%s", g_prog_name);
+		CopyFileA(NewFile, g_prog_full_path, TRUE);
+		Log("Copy <%s> to <%s>", NewFile, g_prog_full_path);
+
+		sprintf_s(LunchFile, sizeof(LunchFile), "%s", g_prog_full_path);
+		Log("Final lunchFile is <%s>", LunchFile);
+	}
     else
     {
-        Si.dwFlags |= STARTF_USESHOWWINDOW;
-        Si.wShowWindow = SW_HIDE;
-        Log("Ventoy jump %s ...", rc == 0 ? "success" : "failed");
+        Log("We don't need to recover original <%s>", g_prog_name);
     }
+
+	if (g_os_param_reserved[0] == 3)
+	{
+		Log("Open log for debug ...");
+		sprintf_s(LunchFile, sizeof(LunchFile), "%s", "notepad.exe ventoy.log");
+	}
+	else
+	{
+		if (CallParam[0])
+		{
+			strcat_s(LunchFile, sizeof(LunchFile), CallParam);
+		}
+		else if (NULL == strstr(LunchFile, "setup.exe"))
+		{
+			Log("Not setup.exe, hide windows.");
+			Si.dwFlags |= STARTF_USESHOWWINDOW;
+			Si.wShowWindow = SW_HIDE;
+		}
+
+		Log("Ventoy jump %s ...", rc == 0 ? "success" : "failed");
+	}
+
+	Log("Now launch <%s> ...", LunchFile);
+
+	if (g_os_param_reserved[0] == 4)
+	{
+		Log("Open cmd for debug ...");
+		sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
+	}
+
+    Log("Backup log at this point");
+    CopyFileA(LOG_FILE, "X:\\Windows\\ventoy.backup", TRUE);
 
 	CreateProcessA(NULL, LunchFile, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
 
-    while (rc)
-    {
-        Log("Ventoy hook failed, now wait and retry ...");
-        Sleep(1000);
+	for (i = 0; rc && i < 1800; i++)
+	{
+		Log("Ventoy hook failed, now wait and retry ...");
+		Sleep(1000);
+		rc = VentoyHook(&g_os_param);
+	}
 
-        rc = VentoyHook(&g_os_param);
-    }
-
+	Log("Wait process...");
 	WaitForSingleObject(Pi.hProcess, INFINITE);
 
+	Log("vtoyjump finished");
 	return 0;
 }
+
+static void VentoyToUpper(CHAR *str)
+{
+    int i;
+    for (i = 0; str[i]; i++)
+    {
+        str[i] = (CHAR)toupper(str[i]);
+    }
+}
+
+int main(int argc, char **argv)
+{
+	int i;
+	STARTUPINFOA Si;
+	PROCESS_INFORMATION Pi;
+	CHAR CurDir[MAX_PATH];
+    CHAR NewArgv0[MAX_PATH];
+	CHAR CallParam[1024] = { 0 };
+
+	g_vtoylog_mutex = CreateMutexA(NULL, FALSE, "VTOYLOG_LOCK");
+	g_vtoyins_mutex = CreateMutexA(NULL, FALSE, "VTOYINS_LOCK");
+
+	Log("######## VentoyJump %dbit ##########", g_system_bit);
+
+	GetCurrentDirectoryA(sizeof(CurDir), CurDir);
+	Log("Current directory is <%s>", CurDir);
+	
+	GetModuleFileNameA(NULL, g_prog_full_path, MAX_PATH);
+    split_path_name(g_prog_full_path, g_prog_dir, g_prog_name);
+
+	Log("EXE path: <%s> dir:<%s> name:<%s>", g_prog_full_path, g_prog_dir, g_prog_name);
+
+	if (_stricmp(g_prog_name, "WinLogon.exe") == 0)
+	{
+		Log("This time is rejump back ...");
+		
+		strcpy_s(g_prog_full_path, sizeof(g_prog_full_path), argv[1]);
+        split_path_name(g_prog_full_path, g_prog_dir, g_prog_name);
+
+		return real_main(argc - 1, argv + 1);
+	}
+	else if (_stricmp(g_prog_name, "PECMD.exe") == 0)
+	{
+        strcpy_s(NewArgv0, sizeof(NewArgv0), g_prog_dir);
+        VentoyToUpper(NewArgv0);
+        
+        if (NULL == strstr(NewArgv0, "SYSTEM32") && IsFileExist(ORG_PECMD_BK_PATH))
+        {
+            Log("Just call original pecmd.exe");
+            strcpy_s(CallParam, sizeof(CallParam), ORG_PECMD_PATH);
+        }
+        else
+        {
+            Log("We need to rejump for pecmd ...");
+
+            ventoy_check_create_directory();
+            CopyFileA(g_prog_full_path, "ventoy\\WinLogon.exe", TRUE);
+
+            sprintf_s(CallParam, sizeof(CallParam), "ventoy\\WinLogon.exe %s", g_prog_full_path);
+        }
+		
+		for (i = 1; i < argc; i++)
+		{
+			strcat_s(CallParam, sizeof(CallParam), " ");
+			strcat_s(CallParam, sizeof(CallParam), argv[i]);
+		}
+
+		Log("Now rejump to <%s> ...", CallParam);
+		GetStartupInfoA(&Si);
+		CreateProcessA(NULL, CallParam, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+		Log("Wait rejump process...");
+		WaitForSingleObject(Pi.hProcess, INFINITE);
+		Log("rejump finished");
+		return 0;
+	}
+	else
+	{
+		Log("We don't need to rejump ...");
+
+        strcpy_s(NewArgv0, sizeof(NewArgv0), g_prog_full_path);
+        argv[0] = NewArgv0;
+
+		return real_main(argc, argv);
+	}
+}
+
+

@@ -1,0 +1,363 @@
+<div class="box box-primary" id="control">
+    <div class="box-header">
+        <div class="col-sm-10" style="padding-top:8px;">
+            <i class="glyphicon glyphicon-cd">&nbsp;&nbsp;</i>
+            <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">x</h1>
+        </div>
+        
+        <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
+            <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/en/plugin_dud.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
+        </div>
+    </div>
+    <legend></legend>
+    
+    <div class="box-body">
+      <div class="nav-tabs-custom">
+        <ul class="nav nav-tabs" id="id_tab_dud">
+            <li class=""><a href="#tab_0" data-toggle="tab" aria-expanded="false" style="font-weight:bold" >dud</a></li>
+            <li class=""><a href="#tab_1" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">dud_legacy</a></li>
+            <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">dud_uefi</a></li>
+            <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">dud_ia32</a></li>
+            <li class=""><a href="#tab_4" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">dud_aa64</a></li>
+            <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">dud_mips</a></li>
+        </ul>
+      </div>
+
+      <table id="id_dud_tbl" class="table table-bordered" >
+        <thead>
+          <tr>
+            <th style="width: 5%;">#</th>
+            <th id="id_th_persistence_set" style="width: 80%;"></th>
+            <th id="id_th_operation" style="width: 10%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+</div>
+<script type="text/javascript">
+    
+  function VtoyPageLanguageChange(newlang) {
+    VtoyCommonChangeLanguage(newlang);
+    $('h1[id=id_h1_page_title]').text(g_vtoy_cur_language.STR_PLUG_DUD);
+
+    $("span[id=id_span_file_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_EXIST);
+    });
+    $("span[id=id_span_file_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_NONEXIST);
+    });
+    $("span[id=id_span_file_fuzzy]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_FILE_FUZZY);
+    });
+
+    $("span[id=id_span_dir_exist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_EXIST);
+    });
+    
+    $("span[id=id_span_dir_nonexist]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DIR_NONEXIST);
+    });
+
+    $("th[id=id_th_dud_dat]").each(function(){
+        $(this).text(g_vtoy_cur_language.STR_DUD_FILE);
+    });
+
+    if (newlang === 'en') {
+      $('#id_th_autoins_path').text('Absolute Path');
+      $('#id_th_persistence_set').text('Setting');
+    } else {
+      $('#id_th_autoins_path').text('绝对路径');
+      $('#id_th_persistence_set').text('设置');
+      
+    }
+  }
+  
+
+  function FillDudInnerTable(i, data) {
+    var td1, td2, td3, td4;
+    var inner = data.list;
+    var tabid = '#tbl_inner_' + (i + 1);
+    var $inner_tbl = $(tabid + ' tbody');
+
+    var inaddbtn = ventoy_get_xslg_addbtn('DudInnerAddBtn');
+    var indelbtn = ventoy_get_xslg_delbtn('DudInnerDelBtn');
+
+    $inner_tbl.empty();
+    
+    for (var j = 0; j < inner.length; j++) {
+      var $tr;
+      td1 = '<td style="width: 5%;">'+(j+1)+'</td>';
+      td2 = '<td>'+inner[j].path+'</td>';
+      td3 = '<td style="width: 10%;">'+ventoy_get_status_line(0, inner[j].valid)+'</td>';
+      td4 = '<td style="width: 10%;">' + indelbtn + '</td>';
+
+      $tr = $('<tr>' + td1 + td2 + td3 + td4 + '</tr>');
+      $tr.data('path', inner[j].path);
+      $tr.data('index', j);
+      $tr.data('outpath', data.path);
+      $tr.data('outindex', i);
+
+      $inner_tbl.append($tr);
+    }
+
+    $tr = $('<tr><td></td><td></td><td></td><td>'+inaddbtn+'</td></tr>');
+    $tr.data('outpath', data.path);
+    $tr.data('outindex', i);
+
+    $inner_tbl.append($tr);
+  }
+
+  function FillDudTable(data) {
+    var td1, td2, td3, td4, td5;
+    var addbtn = ventoy_get_addbtn('DudAddBtn');
+    var delbtn = ventoy_get_delbtn('DudDelBtn');
+   
+    var $tbl = $("#id_dud_tbl tbody");
+    $tbl.empty();
+
+    for (var i = 0; i < data.length; i++) {
+      var $tr;
+
+      var tdtbl1 ='<table class="table table-condensed">'+
+                  '<tbody><tr>'+
+                  '<td style="width:90%;vertical-align: middle;">' + data[i].path + '</td>' + 
+                  '<td style="vertical-align: middle;">' + ventoy_get_status_line(data[i].type, data[i].valid) + '</td>' +
+                  '</tr>'+
+                  '<tr><td></td><td></td></tr>'+
+                  '</tbody></table>';
+
+      var tdtbl2 = '<table class="table table-bordered" id="tbl_inner_' + (i+1) + '">'+
+        '<thead><tr><th>#</th><th id="id_th_dud_dat">'+g_vtoy_cur_language.STR_DUD_FILE+'</th><th id="id_th_status">'+g_vtoy_cur_language.STR_STATUS+'</th><th id="id_th_operation">'+g_vtoy_cur_language.STR_OPERATION+'</th></tr></thead><tbody></tbody></table>';
+
+      td1 = '<td style="vertical-align: middle;">' + (i + 1) + '</td>';
+      td2 = '<td>' + tdtbl1 + tdtbl2 + '</td>';
+      td3 = '<td style="vertical-align: middle;text-align: center;">' + delbtn + '</td>';
+      $tr = $('<tr>' + td1 + td2 + td3 + '</tr>');
+
+      $tr.data('path', data[i].path);
+      $tr.data('index', i);
+      $tbl.append($tr);
+    }
+
+    $tbl.append('<tr><td></td><td></td><td style="vertical-align: middle;text-align: center;">' + addbtn + '</td></tr>');
+
+    for (var i = 0; i < data.length; i++) {
+      FillDudInnerTable(i, data[i]);      
+    }
+  }
+
+  function VtoyFillCurrentPageItem(data) {
+    FillDudTable(data);
+  }
+
+
+  function OnClickMultiModeTab() {
+    var href = $(this).attr('href');
+    var index = parseInt(href.substr(5, 1));
+
+    if (index < 0 || index >= g_vtoy_data_default_index || current_tab_index === index) {
+      return;
+    }
+    
+    current_tab_index = index;
+    VtoyFillCurrentPageItem(m_data_dud[index]);
+  }
+
+  function AddDudEntry(type, exist1, path1, path2) {
+    var list = m_data_dud[current_tab_index];
+    var data_array = [
+      {
+        "path": "",
+        "valid": 1
+      }
+    ];
+    var call_array = [
+      ""
+    ];
+
+    call_array[0] = path2.substr(g_current_dir.length);
+    data_array[0].path = path2.substr(g_current_dir.length);
+
+    var data = {
+      "path": path1.substr(g_current_dir.length),
+      "list": data_array,
+      "type": type,
+      "valid": exist1
+    };
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].path === data.path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'dud_add',
+      index: current_tab_index,
+      path: data.path,
+      dud: call_array,
+      type: type
+    }, function(e) {
+      list.push(data);
+      FillDudTable(list);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnAddImageDud(exist1, path1, path2) {
+    AddDudEntry(0, exist1, path1, path2);
+  }
+
+  function OnDudAddClick() {
+    var tip1 = (g_current_os === 'windows') ? '\\ISO\\rhel-server-7.4-x86_64.iso' : "/ISO/rhel-server-7.4-x86_64.iso";
+    var tip2 = (g_current_os === 'windows') ? '\\ISO\\rhel-server-7.*-x86_64.iso' : "/ISO/rhel-server-7.*-x86_64.iso";
+    var tip3 = (g_current_os === 'windows') ? '\\ventoy\\dd.iso' : "/ventoy/dd.iso";
+    var para = {
+        "title": g_vtoy_cur_language.STR_SET_DUD,
+        "label1": g_vtoy_cur_language.STR_FILE_PATH,
+        "label2": g_vtoy_cur_language.STR_SET_DUD_FILE,
+        "tip1": g_current_dir + tip1,
+        "tip2": g_current_dir + tip2,
+        "tip3": g_current_dir + tip3
+    };
+
+    VtoySetFileFile(OnAddImageDud, para);
+  }
+
+  function DudDelEntry(path, index) {
+    callVtoySync({
+        method : 'dud_del',
+        index: current_tab_index,
+        path: path
+    }, function(data) {
+      m_data_dud[current_tab_index].splice(index, 1);
+      FillDudTable(m_data_dud[current_tab_index]);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnDudDelClick() {
+    var $tr = $(this).closest('tr');
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+
+    DudDelEntry(path, index);
+  }
+  
+
+  var m_out_index;
+  var m_out_path;
+  function OnAddDudDatFile(root, valid, extra) {
+    var path = root.substr(g_current_dir.length);
+    var data = m_data_dud[current_tab_index][m_out_index];
+
+    for (var i = 0; i < data.list.length; i++) {
+      if (data.list[i].path === path) {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        return;
+      }
+    }
+
+    callVtoy({
+      method : 'dud_add_inner',
+      index: current_tab_index,
+      outpath: m_out_path,
+      path: path
+    }, function(e) {
+
+      var node = {
+        "path": path,
+        "valid": 1
+      };
+
+      data.list.push(node);
+      FillDudInnerTable(m_out_index, data);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+    
+  }
+
+  function OnDudInnerAddClick() {
+    var $tr = $(this).closest('tr');
+		var outpath = $tr.data('outpath');
+    var outindex = $tr.data('outindex');
+
+    var tip = (g_current_os === 'windows') ? '\\ventoy\\dd.iso' : "/ventoy/dd.iso";
+    var para = {
+        "title": g_vtoy_cur_language.STR_ADD_DUD_FILE,
+        "fuzzy": 0,
+        "tip1": g_current_dir + tip,
+        "tip2": '',
+        "tip3": '',
+        "extra": false,
+        "extra_title": ''
+    };
+
+    m_out_index = outindex;
+    m_out_path = outpath;
+    VtoySelectFilePath(OnAddDudDatFile, para);
+  }
+
+  function DudDelInnerEntry(outpath, outindex, path, index) {
+    callVtoy({
+      method : 'dud_del_inner',
+      index: current_tab_index,
+      outpath: outpath,
+      path: path
+    }, function(e) {
+      var data = m_data_dud[current_tab_index][outindex];
+
+      data.list.splice(index, 1);
+      FillDudInnerTable(outindex, m_data_dud[current_tab_index][outindex]);
+      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+    });
+  }
+
+  function OnDudInnerDelClick() {
+    var $tr = $(this).closest('tr');
+
+		var path = $tr.data('path');
+    var index = $tr.data('index');
+    var outpath = $tr.data('outpath');
+    var outindex = $tr.data('outindex');
+
+    var list = m_data_dud[current_tab_index][outindex].list;
+
+    if (list.length === 1) {
+      ventoy_confirm(g_vtoy_cur_language.STR_DEL_LAST, DudDelEntry, outpath, outindex);
+    } else {
+      DudDelInnerEntry(outpath, outindex, path, index);
+    }
+  }
+
+
+
+
+
+  //Main process
+  var m_data_dud;
+  var current_tab_index = 0;
+  callVtoySync({method : 'get_dud'}, function(data) {
+    m_data_dud = data;
+  });
+  
+  $("#id_dud_tbl").on('click', '.DudAddBtn', OnDudAddClick);
+  $("#id_dud_tbl").on('click', '.DudDelBtn', OnDudDelClick);
+  $("#id_dud_tbl").on('click', '.DudInnerAddBtn', OnDudInnerAddClick);
+  $("#id_dud_tbl").on('click', '.DudInnerDelBtn', OnDudInnerDelClick);
+
+  $('#id_tab_dud a[href="#tab_0"]').click(OnClickMultiModeTab);
+  $('#id_tab_dud a[href="#tab_1"]').click(OnClickMultiModeTab);
+  $('#id_tab_dud a[href="#tab_2"]').click(OnClickMultiModeTab);
+  $('#id_tab_dud a[href="#tab_3"]').click(OnClickMultiModeTab);
+  $('#id_tab_dud a[href="#tab_4"]').click(OnClickMultiModeTab);
+  $('#id_tab_dud a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  $('#id_tab_dud a[href="#tab_0"]').tab('show');
+  VtoyFillCurrentPageItem(m_data_dud[0]);
+  VtoyPageLanguageChange(g_current_language);
+
+</script>
