@@ -716,7 +716,7 @@
         "STR_PRESERVE_SPACE":"Zachovejte místo na spodní straně disku",
         "STR_SPACE_VAL_INVALID":"Neplatná hodnota pro vyhrazený prostor",
         "STR_MENU_CLEAR":"Vymazat Ventoy",
-        "STR_CLEAR_SUCCESS":"Ventoy byl ze zařízení údsěšne odstraněn.",
+        "STR_CLEAR_SUCCESS":"Ventoy byl ze zařízení úspěšne odstraněn.",
         "STR_CLEAR_FAILED":"Nastala chyba při odstraňovaní Ventoy z disku. Múžete USB vytáhnout a znova zastrčit a vyskoušet to znovu. Pro podrobnosti se podívejte do souboru log.txt",
         "STR_MENU_PART_STYLE":"Styl Oddílu",
         "STR_DISK_2TB_MBR_ERROR":"Vyberte GPT pro disk přes 2TB",
