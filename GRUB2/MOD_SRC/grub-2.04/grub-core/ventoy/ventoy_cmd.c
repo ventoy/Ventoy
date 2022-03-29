@@ -3152,7 +3152,7 @@ int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, gr
     }
     else
     {
-        file->read_hook = (grub_disk_read_hook_t)grub_disk_blocklist_read;
+        file->read_hook = (void *)grub_disk_blocklist_read;
         file->read_hook_data = chunklist;
 
         for (size = file->size; size > 0; size -= read)

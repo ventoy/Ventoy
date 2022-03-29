@@ -1623,6 +1623,12 @@ module = {
 };
 
 module = {
+  name = mouse;
+  efi = term/efi/mouse.c;
+  enable = efi;
+};
+
+module = {
   name = hello;
   common = hello/hello.c;
 };
