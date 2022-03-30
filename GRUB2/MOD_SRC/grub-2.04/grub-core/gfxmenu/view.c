@@ -437,16 +437,21 @@ grub_gfxmenu_scroll_chosen_entry (void *data, int diren)
   grub_gfxmenu_view_t view = data;
   const char *item_title;
   int off;
+  int max;
 
   if (!view->menu->size)
     return;
 
   item_title = grub_menu_get_entry (view->menu, view->selected)->title;
   off = view->menu_title_offset[view->selected] + diren;
+  max = grub_utf8_get_num_code (item_title, grub_strlen(item_title));
 
-  if (off < 0
-      || off > grub_utf8_get_num_code (item_title, grub_strlen(item_title)))
-    return;
+  if (diren == 1000000)
+    off = (max >= 20) ? (max - 20) : 0;
+  else if (off < 0)
+    off = 0;
+  else if (off > max)
+    off = max;
 
   view->menu_title_offset[view->selected] = off;
   grub_gfxmenu_redraw_menu (view);

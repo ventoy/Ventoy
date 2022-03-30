@@ -861,6 +861,12 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	    case GRUB_TERM_KEY_LEFT:
 	      menu_scroll_chosen_entry (-1);
 	      break;
+	    case GRUB_TERM_CTRL | GRUB_TERM_KEY_RIGHT:
+	      menu_scroll_chosen_entry (1000000);
+	      break;
+	    case GRUB_TERM_CTRL | GRUB_TERM_KEY_LEFT:
+	      menu_scroll_chosen_entry (-1000000);
+	      break;
 
 	    case '\n':
 	    case '\r':
