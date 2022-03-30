@@ -111,13 +111,14 @@ grub_efi_mouse_prot_init (void)
 
   mouse_input = grub_malloc (sizeof (grub_efi_mouse_prot_t));
   if (!mouse_input)
-    return NULL;
+    goto end;
   mouse_input->mouse = grub_malloc (count
             * sizeof (grub_efi_simple_pointer_protocol_t *));
   if (!mouse_input->mouse)
   {
     grub_free (mouse_input);
-    return NULL;
+    mouse_input = NULL;
+    goto end;
   }
   mouse_input->count = count;
   for (i = 0; i < count; i++)
@@ -135,6 +136,10 @@ grub_efi_mouse_prot_init (void)
        mouse_input->mouse[i]->mode->y, mouse_input->mouse[i]->mode->z);
 #endif
   }
+  
+end:  
+  efi_call_1(b->free_pool, buf);
+
   return mouse_input;
 }
 
