@@ -914,6 +914,12 @@ module = {
 };
 
 module = {
+  name = fwload;
+  efi = commands/efi/fwload.c;
+  enable = efi;
+};
+
+module = {
   name = gptsync;
   common = commands/gptsync.c;
 };
