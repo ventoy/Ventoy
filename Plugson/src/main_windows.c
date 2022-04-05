@@ -1,4 +1,4 @@
-#include <Windows.h>
+﻿#include <Windows.h>
 #include <Shlobj.h>
 #include <tlhelp32.h>
 #include <Psapi.h>
@@ -44,22 +44,22 @@ typedef enum MSGID
 
 const WCHAR *g_msg_cn[MSGID_BUTT] =
 {
-    L"����",
-	L"����",
-    L"���� Ventoy �̸�Ŀ¼�����б����򣡣����ISO�ļ���λ�ã�",
-	L"���� ventoy Ŀ¼ʧ�ܣ��޷�������",
-	L"ventoy Ŀ¼���ڣ����Ǵ�Сд��ƥ�䣬���Ƚ�����������",
-	L"�ڲ����󣬳��򼴽��˳���",
-	L"ˢ��",
-	L"����",
-	L"ֹͣ",
-	L"����",
-	L"�˳�",
+    L"错误",
+	L"提醒",
+    L"请在 Ventoy 盘根目录下运行本程序！（存放ISO文件的位置）",
+	L"创建 ventoy 目录失败，无法继续！",
+	L"ventoy 目录存在，但是大小写不匹配，请先将其重命名！",
+	L"内部错误，程序即将退出！",
+	L"刷新",
+	L"启动",
+	L"停止",
+	L"链接",
+	L"退出",
 
-	L"ֹͣ���к������ҳ�潫��رգ��Ƿ������",
-	L"��ǰ�����������У��Ƿ��˳���",
-	L"���ȹر��������е� VentoyPlugson ����",
-	L"ventoy\\plugson.tar.xz �ļ������ڣ�������ȷ��Ŀ¼�����У�",
+	L"停止运行后浏览器页面将会关闭，是否继续？",
+	L"当前服务正在运行，是否退出？",
+	L"请先关闭正在运行的 VentoyPlugson 程序！",
+	L"ventoy\\plugson.tar.xz 文件不存在，请在正确的目录下运行！",
 };
 const WCHAR *g_msg_en[MSGID_BUTT] =
 {
@@ -468,6 +468,7 @@ static int ParseCmdLine(LPSTR lpCmdLine, char *ip, char *port)
 
 //
 //copy from Rufus
+//Copyright © 2011-2021 Pete Batard <pete@akeo.ie>
 //
 #include <delayimp.h>
 // For delay-loaded DLLs, use LOAD_LIBRARY_SEARCH_SYSTEM32 to avoid DLL search order hijacking.

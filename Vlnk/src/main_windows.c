@@ -1,4 +1,4 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,24 +45,24 @@ typedef enum MSGID
 
 const WCHAR *g_msg_cn[MSGID_BUTT] =
 {
-    L"´íÎó",
-	L"ÌáĞÑ",
-	L"´´½¨",
-	L"½âÎö",	
-    L"Ö¸¶¨µÄÎÄ¼ş²»´æÔÚ", 
-    L"²»Ö§³ÖÎª´ËÎÄ¼ş´´½¨vlnk",
-    L"²»Ö§³ÖµÄÎÄ¼şÏµÍ³",
-    L"²»Ö§³ÖµÄÎÄ¼şºó×ºÃû",
-    L"»ñÈ¡´ÅÅÌĞÅÏ¢Ê±·¢Éú´íÎó",
-    L"Vlnk ÎÄ¼ş´´½¨³É¹¦¡£",
-    L"ÇëÏÈ¹Ø±ÕÕıÔÚÔËĞĞµÄ VentoyVlnk ³ÌĞò£¡",
-    L"´´½¨ÎÄ¼şÊ§°Ü",
-    L"´ËÎÄ¼şÒÑ¾­ÊÇÒ»¸övlnkÎÄ¼şÁË£¡",
-    L"·Ç·¨µÄvlnkÎÄ¼ş!",
-    L"´Ë vlnk ÎÄ¼şÖ¸Ïò ",
-    L"´Ë vlnk Ö¸ÏòµÄÎÄ¼ş²»´æÔÚ£¡",
-    L"ÎÄ¼şÂ·¾¶Ì«³¤£¡",
-    L"·Ç·¨µÄvlnkÎÄ¼şºó×ºÃû!",
+    L"é”™è¯¯",
+	L"æé†’",
+	L"åˆ›å»º",
+	L"è§£æ",	
+    L"æŒ‡å®šçš„æ–‡ä»¶ä¸å­˜åœ¨", 
+    L"ä¸æ”¯æŒä¸ºæ­¤æ–‡ä»¶åˆ›å»ºvlnk",
+    L"ä¸æ”¯æŒçš„æ–‡ä»¶ç³»ç»Ÿ",
+    L"ä¸æ”¯æŒçš„æ–‡ä»¶åç¼€å",
+    L"è·å–ç£ç›˜ä¿¡æ¯æ—¶å‘ç”Ÿé”™è¯¯",
+    L"Vlnk æ–‡ä»¶åˆ›å»ºæˆåŠŸã€‚",
+    L"è¯·å…ˆå…³é—­æ­£åœ¨è¿è¡Œçš„ VentoyVlnk ç¨‹åºï¼",
+    L"åˆ›å»ºæ–‡ä»¶å¤±è´¥",
+    L"æ­¤æ–‡ä»¶å·²ç»æ˜¯ä¸€ä¸ªvlnkæ–‡ä»¶äº†ï¼",
+    L"éæ³•çš„vlnkæ–‡ä»¶!",
+    L"æ­¤ vlnk æ–‡ä»¶æŒ‡å‘ ",
+    L"æ­¤ vlnk æŒ‡å‘çš„æ–‡ä»¶ä¸å­˜åœ¨ï¼",
+    L"æ–‡ä»¶è·¯å¾„å¤ªé•¿ï¼",
+    L"éæ³•çš„vlnkæ–‡ä»¶åç¼€å!",
 };
 const WCHAR *g_msg_en[MSGID_BUTT] =
 {
@@ -834,6 +834,7 @@ static int ParseCmdLine(LPSTR lpCmdLine)
 
 //
 //copy from Rufus
+//Copyright Â© 2011-2021 Pete Batard <pete@akeo.ie>
 //
 #include <delayimp.h>
 // For delay-loaded DLLs, use LOAD_LIBRARY_SEARCH_SYSTEM32 to avoid DLL search order hijacking.
