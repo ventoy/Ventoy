@@ -831,12 +831,66 @@ static int ParseCmdLine(LPSTR lpCmdLine)
     return argc;
 }
 
+
+//
+//copy from Rufus
+//
+#include <delayimp.h>
+// For delay-loaded DLLs, use LOAD_LIBRARY_SEARCH_SYSTEM32 to avoid DLL search order hijacking.
+FARPROC WINAPI dllDelayLoadHook(unsigned dliNotify, PDelayLoadInfo pdli)
+{
+    if (dliNotify == dliNotePreLoadLibrary) {
+        // Windows 7 without KB2533623 does not support the LOAD_LIBRARY_SEARCH_SYSTEM32 flag.
+        // That is is OK, because the delay load handler will interrupt the NULL return value
+        // to mean that it should perform a normal LoadLibrary.
+        return (FARPROC)LoadLibraryExA(pdli->szDll, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    }
+    return NULL;
+}
+
+#if defined(_MSC_VER)
+// By default the Windows SDK headers have a `const` while MinGW does not.
+const
+#endif
+PfnDliHook __pfnDliNotifyHook2 = dllDelayLoadHook;
+
+typedef BOOL(WINAPI *SetDefaultDllDirectories_t)(DWORD);
+static void DllProtect(void)
+{
+    SetDefaultDllDirectories_t pfSetDefaultDllDirectories = NULL;
+
+    // Disable loading system DLLs from the current directory (sideloading mitigation)
+    // PS: You know that official MSDN documentation for SetDllDirectory() that explicitly
+    // indicates that "If the parameter is an empty string (""), the call removes the current
+    // directory from the default DLL search order"? Yeah, that doesn't work. At all.
+    // Still, we invoke it, for platforms where the following call might actually work...
+    SetDllDirectoryA("");
+
+    // For libraries on the KnownDLLs list, the system will always load them from System32.
+    // For other DLLs we link directly to, we can delay load the DLL and use a delay load
+    // hook to load them from System32. Note that, for this to work, something like:
+    // 'somelib.dll;%(DelayLoadDLLs)' must be added to the 'Delay Loaded Dlls' option of
+    // the linker properties in Visual Studio (which means this won't work with MinGW).
+    // For all other DLLs, use SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32).
+    // Finally, we need to perform the whole gymkhana below, where we can't call on
+    // SetDefaultDllDirectories() directly, because Windows 7 doesn't have the API exposed.
+    // Also, no, Coverity, we never need to care about freeing kernel32 as a library.
+    // coverity[leaked_storage]
+
+    pfSetDefaultDllDirectories = (SetDefaultDllDirectories_t)
+        GetProcAddress(LoadLibraryW(L"kernel32.dll"), "SetDefaultDllDirectories");
+    if (pfSetDefaultDllDirectories != NULL)
+        pfSetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+}
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
 {
     DWORD dwAttrib;
 	HANDLE hMutex;
 
     UNREFERENCED_PARAMETER(hPrevInstance);
+
+    DllProtect();
 
     if (GetUserDefaultUILanguage() == 0x0804)
     {
