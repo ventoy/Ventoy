@@ -26,7 +26,7 @@ sfs: fshelp
 reiserfs: fshelp
 part_sunpc:
 zstd:
-gfxmenu: trig video_colors gfxterm bitmap_scale font normal video bitmap
+gfxmenu: video_colors trig gfxterm bitmap_scale font normal video bitmap
 backtrace:
 jfs:
 help: extcmd normal
@@ -227,6 +227,7 @@ gcry_sha256: crypto
 ls: extcmd normal
 usbserial_common: serial usb
 ntfscomp: ntfs
+mouse:
 lzopio: crypto
 video_cirrus: video video_fb
 hello: extcmd

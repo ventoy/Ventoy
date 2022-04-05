@@ -28,6 +28,7 @@ DWORD g_PhyDriveCount = 0;
 static int g_FilterRemovable = 0;
 int g_FilterUSB = 1;
 int g_ForceOperation = 1;
+int g_NoNeedInputYes = 0;
 int g_WriteImage = 0;
 
 int ParseCmdLineOption(LPSTR lpCmdLine)
@@ -50,6 +51,10 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
         else if (strncmp(__argv[i], "-F", 2) == 0)
         {
             g_ForceOperation = 1;
+        }
+        else if (strncmp(__argv[i], "-Y", 2) == 0 || strncmp(__argv[i], "-y", 2) == 0)
+        {
+            g_NoNeedInputYes = 1;
         }
     }
 
