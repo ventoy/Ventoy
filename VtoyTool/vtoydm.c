@@ -641,59 +641,23 @@ int vtoydm_main(int argc, char **argv)
 
     while ((ch = getopt(argc, argv, "s:l:o:d:f:v::i::p::c::h::e::E::")) != -1)
     {
-        if (ch == 'd')
-        {
-            strncpy(diskname, optarg, sizeof(diskname) - 1);
-        }
-        else if (ch == 'f')
-        {
-            strncpy(filepath, optarg, sizeof(filepath) - 1);
-        }
-        else if (ch == 'p')
-        {
-            cmd = CMD_PRINT_TABLE;
-        }
-        else if (ch == 'c')
-        {
-            cmd = CMD_CREATE_DM;
-        }
-        else if (ch == 'i')
-        {
-            cmd = CMD_DUMP_ISO_INFO;
-        }
-        else if (ch == 'e')
-        {
-            cmd = CMD_EXTRACT_ISO_FILE;
-        }
-        else if (ch == 'E')
-        {
-            cmd = CMD_PRINT_EXTRACT_ISO_FILE;
-        }
-        else if (ch == 's')
-        {
-            first_sector = strtoul(optarg, NULL, 10);
-        }
-        else if (ch == 'l')
-        {
-            file_size = strtoull(optarg, NULL, 10);
-        }
-        else if (ch == 'o')
-        {
-            strncpy(outfile, optarg, sizeof(outfile) - 1);
-        }
-        else if (ch == 'v')
-        {
-            verbose = 1;
-        }
-        else if (ch == 'h')
-        {
-            return vtoydm_print_help(stdout);
-        }
-        else
-        {
-            vtoydm_print_help(stderr);
-            return 1;
-        }
+	switch (ch) 
+	{
+	    break; case 'd': 	strncpy(diskname, optarg, sizeof(diskname) - 1);
+	    break; case 'f': 	strncpy(filepath, optarg, sizeof(filepath) - 1);
+	    break; case 'p': 	cmd = CMD_PRINT_TABLE;
+	    break; case 'c': 	cmd = CMD_CREATE_DM;
+	    break; case 'i': 	cmd = CMD_DUMP_ISO_INFO;
+	    break; case 'e': 	cmd = CMD_EXTRACT_ISO_FILE;
+	    break; case 'E': 	cmd = CMD_PRINT_EXTRACT_ISO_FILE;
+	    break; case 's': 	first_sector = strtoul(optarg, NULL, 10);
+	    break; case 'l': 	file_size = strtoull(optarg, NULL, 10);
+	    break; case 'o': 	strncpy(outfile, optarg, sizeof(outfile) - 1);
+	    break; case 'v': 	verbose = 1;
+	    break; case 'h': 	return vtoydm_print_help(stdout);
+	    break; default:  	vtoydm_print_help(stderr); 			return 1;
+	}
+        
     }
 
     if (filepath[0] == 0 || diskname[0] == 0)
