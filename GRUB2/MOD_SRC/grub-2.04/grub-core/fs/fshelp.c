@@ -426,7 +426,7 @@ grub_fshelp_read_file (grub_disk_t disk, grub_fshelp_node_t node,
 	  if (grub_errno)
 	    return -1;
 	}
-      else if (read_hook != (grub_disk_read_hook_t)grub_disk_blocklist_read)
+      else if (read_hook != (grub_disk_read_hook_t)(void *)grub_disk_blocklist_read)
 	grub_memset (buf, 0, blockend);
 
       buf += blocksize - skipfirst;

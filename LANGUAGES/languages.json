@@ -53,6 +53,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -110,6 +112,8 @@
         "STR_PART_RESIZE_SUCCESS":"Təbriklər!#@Zərərsiz Ventoy quraşdırması başa çatdı.",
         "STR_PART_RESIZE_FAILED":"Zərərsiz quraşdırma baş tutmadı, daha ətraflı öyrənmək üçün log.txt jurnal faylına baxın.",
         "STR_PART_RESIZE_UNSUPPORTED":"ZƏrərsiz Ventoy quraşdırması dayandırıldı, belə ki, bəzi şərtlər yerinə yetirilə bilməd. Daha ətraflı məlumat üçün.txt jurnal faylına baxın.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -167,6 +171,8 @@
         "STR_PART_RESIZE_SUCCESS":"축하합니다!#@Ventoy 비파괴 설치가 완료되었습니다.",
         "STR_PART_RESIZE_FAILED":"비파괴 설치에 실패했습니다. 자세한 내용은 log.txt를 확인하십시오.",
         "STR_PART_RESIZE_UNSUPPORTED":"일부 조건을 충족할 수 없기 때문에 Ventoy 비파괴 설치가 중지되었습니다. 자세한 내용은 log.txt를 확인하십시오.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
                 
         "STRXXX":""
     },
@@ -224,6 +230,8 @@
         "STR_PART_RESIZE_SUCCESS":"恭喜你! Ventoy 成功完成了无损安装。",
         "STR_PART_RESIZE_FAILED":"Ventoy 无损安装失败。详细信息请查阅 log.txt 文件。",
         "STR_PART_RESIZE_UNSUPPORTED":"条件不满足，无法进行无损安装。详细信息请查阅 log.txt 文件。",
+        "STR_INSTALL_YES_TIP1":"警告: 所有数据将会丢失！",
+        "STR_INSTALL_YES_TIP2":"请在下面文本框中输入 YES 以确认你是要进行安装而不是升级。",
 
         "STRXXX":""
     },
@@ -281,6 +289,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -338,6 +348,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -395,6 +407,8 @@
         "STR_PART_RESIZE_SUCCESS":"Gratulacje!#@Nieniszcząca instlacja Ventoy zakończyła się pomyślnie.",
         "STR_PART_RESIZE_FAILED":"Nieniszcząca instalacja nie powiodła się, sprawdz log.txt po szczegóły.",
         "STR_PART_RESIZE_UNSUPPORTED":"Nieniszcząca instalacja Ventoy została zatrzymana ponieważ niektóre wymagania nie zostały spełnione. Sprawdz log.txt po szczegóły.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -452,6 +466,8 @@
         "STR_PART_RESIZE_SUCCESS":"Parabéns!#@Instalação não destrutiva do Ventoy concluída com sucesso.",
         "STR_PART_RESIZE_FAILED":"Falha na instalação não destrutiva, cheque o arquivo log.txt para entender.",
         "STR_PART_RESIZE_UNSUPPORTED":"Instalação não destrutiva do Ventoy interrompida devido fato desconhecido. Cheque o arquivo log.txt para detalhes.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -509,6 +525,8 @@
         "STR_PART_RESIZE_SUCCESS":"Tebrikler!#@Ventoy Tahribatsız Kurulum, başarıyla tamamlandı.",
         "STR_PART_RESIZE_FAILED":"Tahribatsız kurulum başarısız oldu, ayrıntılar için log.txt dosyasını kontrol edin.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy Tahribatsız Kurulum, bazı koşullar sağlanmadığı için durduruldu. Ayrıntılı bilgi için log.txt dosyasını kontrol edin.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -566,6 +584,8 @@
         "STR_PART_RESIZE_SUCCESS":"Glückwunsch!#@Die Installation von Ventoy, ohne vorherige Formatierung, wurde erfolgreich abgeschlossen.",
         "STR_PART_RESIZE_FAILED":"Installation ohne vorherige Formatierung fehlgeschlagen. Für Details die log.txt prüfen.",
         "STR_PART_RESIZE_UNSUPPORTED":"Installation ohne vorherige Formatierung wurde auf Grund einiger nicht erfüllbarer Bedingungen gestoppt. Für Details die log.txt prüfen.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -623,6 +643,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -680,6 +702,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -737,7 +761,9 @@
         "STR_PART_RESIZE_SUCCESS":"Gratulujeme!#@Nedestruktivní instalace Ventoy byla úspěšne dokončená.",
         "STR_PART_RESIZE_FAILED":"Nedestruktivní instalace zlyhala. Pro podrobnosti se podívejte do souboru log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Nedestruktivní instalace Ventoy zlyhala, protože některé podmínky nemohli být splněné. Pro podrobnosti se podívejte do souboru log.txt.",
-        
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+
         "STRXXX":""
     },
     {
@@ -793,7 +819,9 @@
         "STR_PART_RESIZE_SUCCESS":"Gratulujeme!#@Nedeštruktívna inštalácia Ventoy bola úspešne dokončená.",
         "STR_PART_RESIZE_FAILED":"Nedeštruktívna inštalácia zlyhala. Pre podrobnosti sa pozrite do súboru log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Nedeštruktívna inštalácia Ventoy zlyhala, lebo niektoré podmienky nemohli byť splnené. Pre podrobnosti sa pozrite do súboru log.txt.",
-        
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+
         "STRXXX":""
     },
     {
@@ -850,6 +878,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -907,6 +937,8 @@
         "STR_PART_RESIZE_SUCCESS":"Поздравляем!#@Неразрушающая установка Ventoy успешно завершена.",
         "STR_PART_RESIZE_FAILED":"Не удалось выполнить неразрушающую установку, проверьте файл log.txt для получения подробной информации.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Ventoy остановлена, поскольку некоторые условия не могут быть выполнены. Проверьте файл log.txt для получения подробной информации.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -964,6 +996,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1021,6 +1055,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1078,6 +1114,8 @@
         "STR_PART_RESIZE_SUCCESS":"Gefeliciteerd!#@De niet-destructieve installatie van Ventoy is met succes voltooid.",
         "STR_PART_RESIZE_FAILED":"Niet-destructieve installatie mislukt. Controleer log.txt voor details.",
         "STR_PART_RESIZE_UNSUPPORTED":"De niet-destructieve installatie van Ventoy is gestopt omdat aan sommige voorwaarden niet kan worden voldaan. Controleer log.txt voor details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1135,6 +1173,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1192,6 +1232,8 @@
         "STR_PART_RESIZE_SUCCESS":"おめでとうございます。#@Ventoyの非破壊的導入は正常に行われました。",
         "STR_PART_RESIZE_FAILED":"Ventoyを非破壊的に導入できませんでした。詳細な記録は log.txt にあります。",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoyを非破壊的に導入できませんでした。非破壊的導入にあたっての要件が満たされていません。詳細な記録は log.txt にあります。",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1249,6 +1291,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulazioni!#@Installazione non distruttiva di Ventoy completata.",
         "STR_PART_RESIZE_FAILED":"Installazione non distruttiva fallita.#@Per i dettagli controlla il file log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy è stata interrotta perché alcune condizioni non possono essere soddisfatte.#@Per i dettagli controlla il file log.txt.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1306,6 +1350,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1363,6 +1409,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1420,6 +1468,8 @@
         "STR_PART_RESIZE_SUCCESS":"恭喜！#@Ventoy 已完成無損安裝。",
         "STR_PART_RESIZE_FAILED":"Ventoy 無損安裝失敗。詳細訊息請檢視 log.txt 檔案。",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy 無損安裝已中止因為未滿足部分條件。詳細訊息請檢視 log.txt 檔案。",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1477,6 +1527,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1534,6 +1586,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1591,6 +1645,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1648,6 +1704,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1705,6 +1763,8 @@
         "STR_PART_RESIZE_SUCCESS":"Chúc mừng bạn!#@Thiết bị đã được cài Ventoy thành công theo cách cài đặt không phá hủy.",
         "STR_PART_RESIZE_FAILED":"Đã xảy ra lỗi trong quá trình cài Ventoy theo cách cài đặt không phá hủy. Xem chi tiết ở tệp log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Cài Ventoy theo cách cài đặt không phá hủy đã bị dừng lại vì chưa đúng điều kiện. Xem chi tiết ở tệp log.txt.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STRXXX":""
     },
     {
@@ -1761,6 +1821,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1773,20 +1835,20 @@
         "STR_ERROR":"Грешка",
         "STR_WARNING":"Предупредување",
         "STR_INFO":"Инфо",
-        "STR_INCORRECT_DIR":"Ве молам покренете ме коректната папка!",
+        "STR_INCORRECT_DIR":"Ве молам покренете ме од коректната папка!",
         "STR_INCORRECT_TREE_DIR":"Не покренувајте ме овде, ве молам превземете ја последната верзија и покренете ме таму.",
-        "STR_DEVICE":"Уред",
+        "STR_DEVICE":"УСБ уред",
         "STR_LOCAL_VER":"Ventoy во пакетот",
-        "STR_DISK_VER":"Ventoy на уредот",
+        "STR_DISK_VER":"Ventoy на УСБ уредот",
         "STR_STATUS":"Статус - Спремен",
         "STR_INSTALL":"Инсталирај",
         "STR_UPDATE":"Ажурирај",
         "STR_UPDATE_TIP":"Операцијата ажурирање е безбедна, ISO датотеките нема да бидат променети.#@Продолжи?",
         "STR_INSTALL_TIP":"УСБ уредот ќе биде форматиран и сите податоци ќе бидат уништени.#@Продолжи?",
         "STR_INSTALL_TIP2":"УСБ уредот ќе биде форматиран и сите податоци ќе бидат уништени.#@Продолжи? (Двојна проверка)",
-        "STR_INSTALL_SUCCESS":"Честитки!#@Ventoy е успешно инсталиран на уредот.",
+        "STR_INSTALL_SUCCESS":"Честитки!#@Ventoy е успешно инсталиран на УСБ уредот.",
         "STR_INSTALL_FAILED":"Се појави грешка при инсталацијата. Отстранете го УСБ уредот и пробајте повторно. Проверете го log.txt за детали.",
-        "STR_UPDATE_SUCCESS":"Честитки!#@Ventoy е успешно ажуриран на уредот.",
+        "STR_UPDATE_SUCCESS":"Честитки!#@Ventoy е успешно ажуриран на УСБ уредот.",
         "STR_UPDATE_FAILED":"Се појави грешка при ажурирањето. Отстранете го УСБ уредот и пробајте повторно. Проверете го log.txt за детали.",
         "STR_WAIT_PROCESS":"Процесот е вклучен, ве молиме почекајте...",
         "STR_MENU_OPTION":"Опции",
@@ -1797,10 +1859,10 @@
         "STR_PRESERVE_SPACE":"Резервирај место на крајот на дискот",
         "STR_SPACE_VAL_INVALID":"Невалидна вредност за резервираното место",
         "STR_MENU_CLEAR":"Отстрани го Ventoy",
-        "STR_CLEAR_SUCCESS":"Ventoy е успешно отстранет од уредот.",
+        "STR_CLEAR_SUCCESS":"Ventoy е успешно отстранет од УСБ уредот.",
         "STR_CLEAR_FAILED":"Се појави грешка при отстранувањето на Ventoy од уредот. Отстранете го УСБ уредот и пробајте повторно. Проверете го log.txt за детали.",
         "STR_MENU_PART_STYLE":"Тип на партиција",
-        "STR_DISK_2TB_MBR_ERROR":"Ве молиме изберете GPT за уредот поголеми од 2TB",
+        "STR_DISK_2TB_MBR_ERROR":"Ве молиме изберете GPT за уреди поголеми од 2TB",
         "STR_SHOW_ALL_DEV":"Прикажи ги сите уреди",
         "STR_PART_ALIGN_4KB":"Порамнете ги партициите со 4KB",
         "STR_WEB_COMMUNICATION_ERR":"Комуникациска грешка:",
@@ -1810,7 +1872,7 @@
         "STR_WEB_TOKEN_MISMATCH":"Ажуриран статус на даемонот, молиме обидете се подоцна.",
         "STR_WEB_SERVICE_BUSY":"Сервисот е зафатен, молиме обидете се подоцна.",
         "STR_MENU_VTSI_CREATE":"Генерирај VTSI датотека",
-        "STR_VTSI_CREATE_TIP":"Овој пат ништо нема да се запише на уредот туку само ќе се генерира VTSI датотека#@Продолжи?",
+        "STR_VTSI_CREATE_TIP":"Овој пат ништо нема да се запише на УСБ уредот туку само ќе се генерира VTSI датотека#@Продолжи?",
         "STR_VTSI_CREATE_SUCCESS":"Успешно креирана VTSI датотека!#@Можете да го користите Rufus(3.15+) за да ја запишете на уредот како и да ја комплетирате инсталацијата на Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Креирањето на VTSI датотека е неуспешно.",
         "STR_MENU_PART_RESIZE":"Недеструктивна инсталација",
@@ -1818,6 +1880,8 @@
         "STR_PART_RESIZE_SUCCESS":"Честитки! Недеструктивната инсталација е успешно завршена.",
         "STR_PART_RESIZE_FAILED":"Недеструктивната инсталација не успеа. Проверете го log.txt за детали.",
         "STR_PART_RESIZE_UNSUPPORTED":"Недеструктивната инсталација на Ventoy е запрена бидејќи некои услови не се исполнети. Проверете го log.txt за детали.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1875,6 +1939,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1932,6 +1998,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -1989,6 +2057,8 @@
         "STR_PART_RESIZE_SUCCESS":"Selamat!#@Pemasangan tanpa merusakkan Ventoy berhasil.",
         "STR_PART_RESIZE_FAILED":"Pemasangan tanpa merusakkan gagal, periksa berkas log.txt untuk detil.",
         "STR_PART_RESIZE_UNSUPPORTED":"Pemasangan tanpa merusakkan Ventoy terhenti karena beberapa kondisi yang tidak mendukung. Periksa berkas log.txt untuk detil.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2046,6 +2116,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2103,6 +2175,8 @@
         "STR_PART_RESIZE_SUCCESS":"Вітаємо!#@Неруйнівна установка Ventoy успішно завершена.",
         "STR_PART_RESIZE_FAILED":"Збій неруйнівної установки, перевірте log.txt для отримання детальної інформації.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неруйнівна установка Ventoy зупинена через неможливість виконання деяких умов. Перевірте log.txt для отримання детальної інформації.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2160,6 +2234,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2217,6 +2293,8 @@
         "STR_PART_RESIZE_SUCCESS":"Gratulerar!#@Ventoy lyckades slutföra en icke-förstörande installation.",
         "STR_PART_RESIZE_FAILED":"Ventoy misslyckades slutföra en icke-förstörande installation. Mer information finns i log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Icke-förstörande installation stoppades eftersom vissa villkor inte kunde uppfyllas. Mer information finns i log.txt.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2274,6 +2352,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2331,6 +2411,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2388,6 +2470,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2445,6 +2529,8 @@
         "STR_PART_RESIZE_SUCCESS":"Onnittelut!#@Ventoyn ei-tuhoisa asennus saapui päätökseen onnistuneesti.",
         "STR_PART_RESIZE_FAILED":"Ei-tuhoisa asennusmuoto epäonnistui, tarkista log.txt nähdäksesi yksityiskohtaiset tiedot.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoyn ei-tuhoisa asennus pysähtyi koska jotkut ehdot eivät täyttyneet. Tarkista log.txt nähdäksesi yksityiskohdat.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2502,6 +2588,8 @@
         "STR_PART_RESIZE_SUCCESS":"Parabéns!#@Instalación non destructiva do Ventoy concluida con suceso.",
         "STR_PART_RESIZE_FAILED":"Erro na instalación non destructiva, revisa o arquivo log.txt para ver os detalles.",
         "STR_PART_RESIZE_UNSUPPORTED":"Instalación non destructiva do Ventoy interrompida porque non se poden cumprir algunhas condicións. Revisa o arquivo log.txt para mais detalles.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2559,6 +2647,8 @@
         "STR_PART_RESIZE_SUCCESS":"Enhorabona!#@La instal·lació no destructiva s'ha completat de forma satisfactòria.",
         "STR_PART_RESIZE_FAILED":"Hi ha hagut un error durant el procés d'instal·lació no destructiva, comproveu el fitxer log.txt per a més detalls.",
         "STR_PART_RESIZE_UNSUPPORTED":"La instal·lació no destructiva de Ventoy no ha estat possible perquè els requeriments no es compleixen. Comproveu el fitxer log.txt per a més detalls.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         
         "STRXXX":""
     },
@@ -2617,6 +2707,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
         "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
+        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
+        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
 
         "STRXXX":""
     }

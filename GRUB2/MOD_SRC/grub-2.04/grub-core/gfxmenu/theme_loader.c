@@ -163,6 +163,12 @@ theme_set_string (grub_gfxmenu_view_t view,
     grub_video_parse_color (value, &view->message_color);
   else if (! grub_strcmp ("message-bg-color", name))
     grub_video_parse_color (value, &view->message_bg_color);
+  else if (! grub_strcmp("menu-tip-left", name))
+    grub_env_set("VTOY_TIP_LEFT", value);
+  else if (! grub_strcmp("menu-tip-top", name))
+    grub_env_set("VTOY_TIP_TOP", value);
+  else if (! grub_strcmp("menu-tip-color", name))
+    grub_env_set("VTOY_TIP_COLOR", value);
   else if (! grub_strcmp ("desktop-image", name))
     {
       struct grub_video_bitmap *raw_bitmap;
@@ -740,6 +746,7 @@ extern int g_menu_update_mode;
 grub_err_t
 grub_gfxmenu_view_load_theme (grub_gfxmenu_view_t view, const char *theme_path)
 {
+  int flag = 0;
   grub_file_t file;
   struct parsebuf p;
 
@@ -783,32 +790,7 @@ grub_gfxmenu_view_load_theme (grub_gfxmenu_view_t view, const char *theme_path)
   }
 }
 
-{
-    const char *tip = grub_env_get("VTOY_MENU_TIP_ENABLE");
-    if (tip && tip[0] == '1')
-    {
-        char tmpmsg[512];
 
-        grub_memset(tmpmsg, 'w', 500);
-        tmpmsg[500] = 0;
-        
-        g_menu_update_mode = 1;
-        p.len += grub_snprintf(p.buf + p.len, 4096, 
-            "\n+ vbox{\n    left = %s\n    top = %s\n"
-            "+ label { id=\"VTOY_MENU_TIP_1\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
-            "+ label { id=\"VTOY_MENU_TIP_2\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
-            "}\n",
-            grub_env_get("VTOY_TIP_LEFT"),
-            grub_env_get("VTOY_TIP_TOP"),
-            tmpmsg,
-            grub_env_get("VTOY_TIP_COLOR"),
-            grub_env_get("VTOY_TIP_ALIGN"),
-            tmpmsg,
-            grub_env_get("VTOY_TIP_COLOR"),
-            grub_env_get("VTOY_TIP_ALIGN")
-        );
-    }
-}
 
   if (view->canvas)
     view->canvas->component.ops->destroy (view->canvas);
@@ -820,6 +802,7 @@ grub_gfxmenu_view_load_theme (grub_gfxmenu_view_t view, const char *theme_path)
     ->ops->set_bounds ((grub_gui_component_t) view->canvas,
                        &view->screen);
 
+parse:    
   while (has_more (&p))
     {
       /* Skip comments (lines beginning with #).  */
@@ -847,6 +830,40 @@ grub_gfxmenu_view_load_theme (grub_gfxmenu_view_t view, const char *theme_path)
       if (grub_errno != GRUB_ERR_NONE)
         goto fail;
     }
+
+
+if (flag == 0)
+{
+    const char *tip = grub_env_get("VTOY_MENU_TIP_ENABLE");
+    if (tip && tip[0] == '1')
+    {
+        char tmpmsg[512];
+
+        grub_memset(tmpmsg, 'w', 500);
+        tmpmsg[500] = 0;
+        
+        g_menu_update_mode = 1;
+        p.len += grub_snprintf(p.buf + p.len, 4096, 
+            "\n+ vbox{\n    left = %s\n    top = %s\n"
+            "+ label { id=\"VTOY_MENU_TIP_1\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
+            "+ label { id=\"VTOY_MENU_TIP_2\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
+            "}\n",
+            grub_env_get("VTOY_TIP_LEFT"),
+            grub_env_get("VTOY_TIP_TOP"),
+            tmpmsg,
+            grub_env_get("VTOY_TIP_COLOR"),
+            grub_env_get("VTOY_TIP_ALIGN"),
+            tmpmsg,
+            grub_env_get("VTOY_TIP_COLOR"),
+            grub_env_get("VTOY_TIP_ALIGN")
+        );
+
+        flag = 1;
+        goto parse;
+    }
+}
+
+
 
   /* Set the new theme path.  */
   grub_free (view->theme_path);
