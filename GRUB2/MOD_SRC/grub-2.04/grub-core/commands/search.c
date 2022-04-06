@@ -68,7 +68,7 @@ iterate_device (const char *name, void *data)
   /* Skip floppy drives when requested.  */
   if (ctx->no_floppy &&
       name[0] == 'f' && name[1] == 'd' && name[2] >= '0' && name[2] <= '9')
-    return 1;
+    return 0;
 
   if (g_no_vtoyefi_part && (grub_strcmp(name, g_vtoyefi_dosname) == 0 || grub_strcmp(name, g_vtoyefi_gptname) == 0)) {
     return 0;

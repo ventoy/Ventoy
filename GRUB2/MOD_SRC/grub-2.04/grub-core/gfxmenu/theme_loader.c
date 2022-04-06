@@ -456,7 +456,8 @@ read_expression (struct parsebuf *p)
       /* Read as a single word -- for numeric values or words without
          whitespace.  */
       start = p->pos;
-      while (has_more (p) && ! is_whitespace (peek_char (p)))
+      while (has_more (p) && ! is_whitespace (peek_char (p))
+             && peek_char (p) != '}')
         read_char (p);
       end = p->pos;
     }
