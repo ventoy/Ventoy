@@ -960,7 +960,7 @@ static int ventoy_plugin_parse_pwdstr(char *pwdstr, vtoy_password *pwd)
                 return 1;
             }
 
-            if (len - 1 - (int)(long)(pos - pwdstr) != 32)
+            if (len - 1 - ((long)pos - (long)pwdstr) != 32)
             {
                 if (NULL == pwd) grub_printf("Invalid md5 salt password format %s\n", pwdstr);
                 return 1;

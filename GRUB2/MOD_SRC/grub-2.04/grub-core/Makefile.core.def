@@ -914,6 +914,12 @@ module = {
 };
 
 module = {
+  name = fwload;
+  efi = commands/efi/fwload.c;
+  enable = efi;
+};
+
+module = {
   name = gptsync;
   common = commands/gptsync.c;
 };
@@ -1121,6 +1127,21 @@ module = {
 module = {
   name = sleep;
   common = commands/sleep.c;
+};
+
+module = {
+  name = smbios;
+
+  common = commands/smbios.c;
+  efi = commands/efi/smbios.c;
+  i386_pc = commands/i386/pc/smbios.c;
+  i386_coreboot = commands/i386/pc/smbios.c;
+  i386_multiboot = commands/i386/pc/smbios.c;
+
+  enable = efi;
+  enable = i386_pc;
+  enable = i386_coreboot;
+  enable = i386_multiboot;
 };
 
 module = {
@@ -1620,6 +1641,12 @@ module = {
 module = {
     name = setkey;
     common = term/setkey.c;
+};
+
+module = {
+  name = mouse;
+  efi = term/efi/mouse.c;
+  enable = efi;
 };
 
 module = {

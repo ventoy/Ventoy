@@ -1,4 +1,4 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include <Shlobj.h>
 #include <tlhelp32.h>
 #include <Psapi.h>
@@ -44,22 +44,22 @@ typedef enum MSGID
 
 const WCHAR *g_msg_cn[MSGID_BUTT] =
 {
-    L"´íÎó",
-	L"ÌáĞÑ",
-    L"ÇëÔÚ Ventoy ÅÌ¸ùÄ¿Â¼ÏÂÔËĞĞ±¾³ÌĞò£¡£¨´æ·ÅISOÎÄ¼şµÄÎ»ÖÃ£©",
-	L"´´½¨ ventoy Ä¿Â¼Ê§°Ü£¬ÎŞ·¨¼ÌĞø£¡",
-	L"ventoy Ä¿Â¼´æÔÚ£¬µ«ÊÇ´óĞ¡Ğ´²»Æ¥Åä£¬ÇëÏÈ½«ÆäÖØÃüÃû£¡",
-	L"ÄÚ²¿´íÎó£¬³ÌĞò¼´½«ÍË³ö£¡",
-	L"Ë¢ĞÂ",
-	L"Æô¶¯",
-	L"Í£Ö¹",
-	L"Á´½Ó",
-	L"ÍË³ö",
+    L"é”™è¯¯",
+	L"æé†’",
+    L"è¯·åœ¨ Ventoy ç›˜æ ¹ç›®å½•ä¸‹è¿è¡Œæœ¬ç¨‹åºï¼ï¼ˆå­˜æ”¾ISOæ–‡ä»¶çš„ä½ç½®ï¼‰",
+	L"åˆ›å»º ventoy ç›®å½•å¤±è´¥ï¼Œæ— æ³•ç»§ç»­ï¼",
+	L"ventoy ç›®å½•å­˜åœ¨ï¼Œä½†æ˜¯å¤§å°å†™ä¸åŒ¹é…ï¼Œè¯·å…ˆå°†å…¶é‡å‘½åï¼",
+	L"å†…éƒ¨é”™è¯¯ï¼Œç¨‹åºå³å°†é€€å‡ºï¼",
+	L"åˆ·æ–°",
+	L"å¯åŠ¨",
+	L"åœæ­¢",
+	L"é“¾æ¥",
+	L"é€€å‡º",
 
-	L"Í£Ö¹ÔËĞĞºóä¯ÀÀÆ÷Ò³Ãæ½«»á¹Ø±Õ£¬ÊÇ·ñ¼ÌĞø£¿",
-	L"µ±Ç°·şÎñÕıÔÚÔËĞĞ£¬ÊÇ·ñÍË³ö£¿",
-	L"ÇëÏÈ¹Ø±ÕÕıÔÚÔËĞĞµÄ VentoyPlugson ³ÌĞò£¡",
-	L"ventoy\\plugson.tar.xz ÎÄ¼ş²»´æÔÚ£¬ÇëÔÚÕıÈ·µÄÄ¿Â¼ÏÂÔËĞĞ£¡",
+	L"åœæ­¢è¿è¡Œåæµè§ˆå™¨é¡µé¢å°†ä¼šå…³é—­ï¼Œæ˜¯å¦ç»§ç»­ï¼Ÿ",
+	L"å½“å‰æœåŠ¡æ­£åœ¨è¿è¡Œï¼Œæ˜¯å¦é€€å‡ºï¼Ÿ",
+	L"è¯·å…ˆå…³é—­æ­£åœ¨è¿è¡Œçš„ VentoyPlugson ç¨‹åºï¼",
+	L"ventoy\\plugson.tar.xz æ–‡ä»¶ä¸å­˜åœ¨ï¼Œè¯·åœ¨æ­£ç¡®çš„ç›®å½•ä¸‹è¿è¡Œï¼",
 };
 const WCHAR *g_msg_en[MSGID_BUTT] =
 {
@@ -464,6 +464,61 @@ static int ParseCmdLine(LPSTR lpCmdLine, char *ip, char *port)
 	return 0;
 }
 
+
+
+//
+//copy from Rufus
+//Copyright Â© 2011-2021 Pete Batard <pete@akeo.ie>
+//
+#include <delayimp.h>
+// For delay-loaded DLLs, use LOAD_LIBRARY_SEARCH_SYSTEM32 to avoid DLL search order hijacking.
+FARPROC WINAPI dllDelayLoadHook(unsigned dliNotify, PDelayLoadInfo pdli)
+{
+	if (dliNotify == dliNotePreLoadLibrary) {
+		// Windows 7 without KB2533623 does not support the LOAD_LIBRARY_SEARCH_SYSTEM32 flag.
+		// That is is OK, because the delay load handler will interrupt the NULL return value
+		// to mean that it should perform a normal LoadLibrary.
+		return (FARPROC)LoadLibraryExA(pdli->szDll, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+	}
+	return NULL;
+}
+
+#if defined(_MSC_VER)
+// By default the Windows SDK headers have a `const` while MinGW does not.
+const
+#endif
+PfnDliHook __pfnDliNotifyHook2 = dllDelayLoadHook;
+
+typedef BOOL(WINAPI* SetDefaultDllDirectories_t)(DWORD);
+static void DllProtect(void)
+{
+	SetDefaultDllDirectories_t pfSetDefaultDllDirectories = NULL;
+
+	// Disable loading system DLLs from the current directory (sideloading mitigation)
+	// PS: You know that official MSDN documentation for SetDllDirectory() that explicitly
+	// indicates that "If the parameter is an empty string (""), the call removes the current
+	// directory from the default DLL search order"? Yeah, that doesn't work. At all.
+	// Still, we invoke it, for platforms where the following call might actually work...
+	SetDllDirectoryA("");
+
+	// For libraries on the KnownDLLs list, the system will always load them from System32.
+	// For other DLLs we link directly to, we can delay load the DLL and use a delay load
+	// hook to load them from System32. Note that, for this to work, something like:
+	// 'somelib.dll;%(DelayLoadDLLs)' must be added to the 'Delay Loaded Dlls' option of
+	// the linker properties in Visual Studio (which means this won't work with MinGW).
+	// For all other DLLs, use SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32).
+	// Finally, we need to perform the whole gymkhana below, where we can't call on
+	// SetDefaultDllDirectories() directly, because Windows 7 doesn't have the API exposed.
+	// Also, no, Coverity, we never need to care about freeing kernel32 as a library.
+	// coverity[leaked_storage]
+
+	pfSetDefaultDllDirectories = (SetDefaultDllDirectories_t)
+		GetProcAddress(LoadLibraryW(L"kernel32.dll"), "SetDefaultDllDirectories");
+	if (pfSetDefaultDllDirectories != NULL)
+		pfSetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+}
+
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
 {
     int rc;
@@ -471,6 +526,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	WCHAR CurDir[MAX_PATH];
 
     UNREFERENCED_PARAMETER(hPrevInstance);
+
+	DllProtect();
 
     if (GetUserDefaultUILanguage() == 0x0804)
     {

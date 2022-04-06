@@ -52,8 +52,12 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # PrimeOS :
+    if $GREP -q 'PrimeOS' /proc/version; then
+        echo 'primeos'; return
+
     # Debian :
-    if $GREP -q '[Dd]ebian' /proc/version; then
+    elif $GREP -q '[Dd]ebian' /proc/version; then
         echo 'debian'; return
 
     # Ubuntu : do the same process with debian
@@ -337,6 +341,24 @@ ventoy_get_os_type() {
     if [ -f /etc/openEuler-release ]; then
         echo "openEuler"; return
     fi
+    
+    
+    #special arch based iso file check
+    if [ -f /init ]; then
+        if $GREP -q 'mount_handler' /init; then
+            if [ -d /hooks ]; then
+                if $BUSYBOX_PATH/ls -1 /hooks/ | $GREP -q '.*iso$'; then
+                    echo "arch"; return
+                fi
+            elif [ -d /hook ]; then
+                if $BUSYBOX_PATH/ls -1 /hook/ | $GREP -q '.*iso$'; then
+                    echo "arch"; return
+                fi
+            fi
+        fi
+    fi
+    
+    
     
     echo "default"
 }

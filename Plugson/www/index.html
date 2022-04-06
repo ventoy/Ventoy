@@ -723,7 +723,7 @@
 
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b id="plugson_build_date">20220204 16:31:23</b>
+                <b id="plugson_build_date">20220311 21:24:51</b>
             </div>
             <strong><a href="https://www.ventoy.net" target="_blank">https://www.ventoy.net</a></strong>
         </footer>
@@ -818,11 +818,6 @@
     
 
     (function ventoy_handshake() {
-
-        if (m_syntax_error === 1) {
-            
-        }
-
         callVtoyCatchErr({
             method : 'handshake'
         },         
@@ -842,6 +837,13 @@
                 Modal.alert({title:title,msg:msg}).on(function(e) {
                 });
                 m_invalid_config = 0;
+            }
+
+            if (data.save_error === 1) {
+                var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
+                var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_CONFIG_SAVE_ERROR_TIP : g_vtoy_cur_language_cn.STR_CONFIG_SAVE_ERROR_TIP;
+                Modal.alert({title:title,msg:msg}).on(function(e) {
+                });
             }
 
             setTimeout(function() {

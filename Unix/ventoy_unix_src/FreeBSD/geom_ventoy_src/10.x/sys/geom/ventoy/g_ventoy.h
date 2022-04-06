@@ -76,6 +76,33 @@ struct g_ventoy_softc {
 	struct mtx	 sc_lock;
 };
 #define	sc_name	sc_geom->name
+
+
+#pragma pack(1)
+#define VENTOY_UNIX_SEG_MAGIC0    0x11223344
+#define VENTOY_UNIX_SEG_MAGIC1    0x55667788
+#define VENTOY_UNIX_SEG_MAGIC2    0x99aabbcc
+#define VENTOY_UNIX_SEG_MAGIC3    0xddeeff00
+#define VENTOY_UNIX_MAX_SEGNUM   40960
+struct g_ventoy_seg {
+    uint64_t seg_start_bytes;
+    uint64_t seg_end_bytes;
+};
+
+struct g_ventoy_map{
+    uint32_t magic1[4];
+    uint32_t magic2[4];
+    uint64_t segnum;
+    uint64_t disksize;
+    uint8_t diskuuid[16];
+    struct g_ventoy_seg seglist[VENTOY_UNIX_MAX_SEGNUM];
+    uint32_t magic3[4];
+};
+#pragma pack()
+
+#define VENTOY_MAP_VALID(magic2) \
+    (magic2[0] == VENTOY_UNIX_SEG_MAGIC0 && magic2[1] == VENTOY_UNIX_SEG_MAGIC1 && magic2[2] == VENTOY_UNIX_SEG_MAGIC2 && magic2[3] == VENTOY_UNIX_SEG_MAGIC3)
+
 #endif	/* _KERNEL */
 
 struct g_ventoy_metadata {

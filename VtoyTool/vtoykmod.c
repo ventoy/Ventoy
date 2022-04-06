@@ -344,7 +344,7 @@ static int vtoykmod_update_vermagic(char *oldbuf, int oldsize, char *newbuf, int
     if (oldver && newver)
     {
         memcpy(oldver, newver, strlen(newver) + 1);
-        if (strstr(newver, "modversions"))
+        //if (strstr(newver, "modversions"))
         {
             *modver = 1;
         }
