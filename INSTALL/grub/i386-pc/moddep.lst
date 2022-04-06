@@ -50,6 +50,7 @@ test_blockarg: extcmd normal
 true:
 affs: fshelp
 iso9660: fshelp
+smbios: extcmd acpi
 exfat: fshelp
 setjmp_test: setjmp functional_test
 gfxterm: font video

@@ -35,6 +35,10 @@
 #include <grub/misc.h>
 #include <grub/kernel.h>
 #include <grub/time.h>
+#include <grub/memory.h>
+#ifdef GRUB_MACHINE_EFI
+#include <grub/efi/efi.h>
+#endif
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 
@@ -162,8 +166,52 @@ static int ventoy_arch_mode_init(void)
     return 0;
 }
 
+#ifdef GRUB_MACHINE_EFI
+static void ventoy_get_uefi_version(char *str, grub_size_t len)
+{
+    grub_efi_uint8_t uefi_minor_1, uefi_minor_2;
+
+    uefi_minor_1 = (grub_efi_system_table->hdr.revision & 0xffff) / 10;
+    uefi_minor_2 = (grub_efi_system_table->hdr.revision & 0xffff) % 10;
+    grub_snprintf(str, len, "%d.%d", (grub_efi_system_table->hdr.revision >> 16), uefi_minor_1);
+    if (uefi_minor_2)
+        grub_snprintf(str, len, "%s.%d", str, uefi_minor_2);
+}
+#endif
+
+static int ventoy_calc_totalmem(grub_uint64_t addr, grub_uint64_t size, grub_memory_type_t type, void *data)
+{
+    grub_uint64_t *total_mem = (grub_uint64_t *)data;
+
+    (void)addr;
+    (void)type;
+
+    *total_mem += size;
+
+    return 0;
+}
+
+static int ventoy_hwinfo_init(void)
+{
+    char str[256];
+    grub_uint64_t total_mem = 0;
+
+    grub_machine_mmap_iterate(ventoy_calc_totalmem, &total_mem);
+
+    grub_snprintf(str, sizeof(str), "%ld", (long)(total_mem / VTOY_SIZE_1MB));
+    ventoy_env_export("grub_total_ram", str);
+    
+#ifdef GRUB_MACHINE_EFI
+    ventoy_get_uefi_version(str, sizeof(str));
+    ventoy_env_export("grub_uefi_version", str);
+#endif
+    
+    return 0;
+}
+
 GRUB_MOD_INIT(ventoy)
 {
+    ventoy_hwinfo_init();
     ventoy_env_init();
     ventoy_arch_mode_init();
     ventoy_register_all_cmd();

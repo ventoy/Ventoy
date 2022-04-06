@@ -225,7 +225,11 @@ ventoy_check_dm_module() {
 
 ventoy_need_dm_patch() {
     if [ "$VTOY_LINUX_REMOUNT" != "01" ]; then
-        $BUSYBOX_PATH/false; return
+        if $GREP -q 'VTOY_LINUX_REMOUNT=1' /proc/cmdline; then
+            :
+        else
+            $BUSYBOX_PATH/false; return
+        fi
     fi
 
     if $GREP -q 'device-mapper' /proc/devices; then

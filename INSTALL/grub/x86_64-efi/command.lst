@@ -12,6 +12,8 @@
 *extract_syslinux_entries_source: syslinuxcfg
 *file: file
 *functional_test: functional_test
+*fwconnect: fwload
+*fwload: fwload
 *gettext: gettext
 *hashsum: hashsum
 *hdparm: hdparm
@@ -50,6 +52,7 @@
 *sha256sum: hashsum
 *sha512sum: hashsum
 *sleep: sleep
+*smbios: smbios
 *submenu: normal
 *syslinux_configfile: syslinuxcfg
 *syslinux_source: syslinuxcfg
