@@ -171,8 +171,8 @@
         "STR_PART_RESIZE_SUCCESS":"축하합니다!#@Ventoy 비파괴 설치가 완료되었습니다.",
         "STR_PART_RESIZE_FAILED":"비파괴 설치에 실패했습니다. 자세한 내용은 log.txt를 확인하십시오.",
         "STR_PART_RESIZE_UNSUPPORTED":"일부 조건을 충족할 수 없기 때문에 Ventoy 비파괴 설치가 중지되었습니다. 자세한 내용은 log.txt를 확인하십시오.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_INSTALL_YES_TIP1":"경고: 데이터가 손실됩니다!",
+        "STR_INSTALL_YES_TIP2":"업그레이드 대신 새로 설치할지 확인하려면 아래 입력란에 예를 입력하십시오.",
                 
         "STRXXX":""
     },
