@@ -32,7 +32,8 @@ ventoy_os_install_dmsetup_by_fuse() {
 
     mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
     
-    mount -t squashfs $VTOY_PATH/mnt/iso/system/squashfs_sys.img  $VTOY_PATH/mnt/squashfs
+    [ -f $VTOY_PATH/mnt/iso/system/squashfs_sys.img ] && mount -t squashfs $VTOY_PATH/mnt/iso/system/squashfs_sys.img  $VTOY_PATH/mnt/squashfs
+    [ -f $VTOY_PATH/mnt/iso/system/squashfs.img ] && mount -t squashfs $VTOY_PATH/mnt/iso/system/squashfs.img  $VTOY_PATH/mnt/squashfs
 
     KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
     vtlog "insmod $KoName"
