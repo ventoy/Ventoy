@@ -2057,8 +2057,8 @@
         "STR_PART_RESIZE_SUCCESS":"Selamat!#@Pemasangan tanpa merusakkan Ventoy berhasil.",
         "STR_PART_RESIZE_FAILED":"Pemasangan tanpa merusakkan gagal, periksa berkas log.txt untuk detil.",
         "STR_PART_RESIZE_UNSUPPORTED":"Pemasangan tanpa merusakkan Ventoy terhenti karena beberapa kondisi yang tidak mendukung. Periksa berkas log.txt untuk detil.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_INSTALL_YES_TIP1":"Peringatan: Data akan hilang!",
+        "STR_INSTALL_YES_TIP2":"Silakan ketik YES pada kotak tulis di bawah untuk meyakinkan bahwa anda memang untuk melakukan pemasangan baru ketimbang memperbaruinya",
         
         "STRXXX":""
     },
