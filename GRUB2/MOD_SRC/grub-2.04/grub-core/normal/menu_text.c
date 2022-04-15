@@ -42,6 +42,7 @@ struct menu_viewer_data
     TIMEOUT_TERSE_NO_MARGIN
   } timeout_msg;
   grub_menu_t menu;
+  int *menu_title_offset;
   struct grub_term_output *term;
 };
 
@@ -525,12 +526,45 @@ menu_text_set_chosen_entry (int entry, void *dataptr)
 }
 
 static void
+menu_text_scroll_chosen_entry (void *dataptr, int diren)
+{
+  struct menu_viewer_data *data = dataptr;
+  const char *orig_title, *scrolled_title;
+  int off;
+  int selected;
+  grub_menu_entry_t entry;
+
+  if (!data->menu->size)
+    return;
+
+  selected = data->first + data->offset;
+  entry = grub_menu_get_entry (data->menu, selected);
+  orig_title = entry->title;
+  off = data->menu_title_offset[selected] + diren;
+  if (off < 0
+      || off > grub_utf8_get_num_code (orig_title, grub_strlen(orig_title)))
+    return;
+
+  scrolled_title =
+    grub_utf8_offset_code (orig_title, grub_strlen (orig_title), off);
+  if (scrolled_title)
+    entry->title = scrolled_title;
+  print_entry (data->geo.first_entry_y + data->offset, 1, entry, data);
+
+  entry->title = orig_title;
+  data->menu_title_offset[selected] = off;
+  grub_term_refresh (data->term);
+}
+
+static void
 menu_text_fini (void *dataptr)
 {
   struct menu_viewer_data *data = dataptr;
 
   grub_term_setcursor (data->term, 1);
   grub_term_cls (data->term);
+  if (data->menu_title_offset)
+    grub_free (data->menu_title_offset);
   grub_free (data);
 }
 
@@ -585,9 +619,14 @@ grub_menu_try_text (struct grub_term_output *term,
       return grub_errno;
     }
 
+  if (menu->size)
+    data->menu_title_offset = grub_zalloc (sizeof (*data->menu_title_offset) * menu->size);
+
   data->term = term;
   instance->data = data;
   instance->set_chosen_entry = menu_text_set_chosen_entry;
+  if (data->menu_title_offset)
+    instance->scroll_chosen_entry = menu_text_scroll_chosen_entry;
   instance->print_timeout = menu_text_print_timeout;
   instance->clear_timeout = menu_text_clear_timeout;
   instance->fini = menu_text_fini;

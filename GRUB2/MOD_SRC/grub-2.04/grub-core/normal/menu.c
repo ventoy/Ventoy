@@ -462,6 +462,15 @@ menu_set_chosen_entry (grub_menu_t menu, int entry)
 }
 
 static void
+menu_scroll_chosen_entry (int diren)
+{
+  struct grub_menu_viewer *cur;
+  for (cur = viewers; cur; cur = cur->next)
+    if (cur->scroll_chosen_entry)
+      cur->scroll_chosen_entry (cur->data, diren);
+}
+
+static void
 menu_print_timeout (int timeout)
 {
   struct grub_menu_viewer *cur;
@@ -671,9 +680,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 
   if (g_ventoy_suppress_esc)
       default_entry = g_ventoy_suppress_esc_default;
-  else if (g_ventoy_last_entry >= 0 && g_ventoy_last_entry < menu->size) {
-      default_entry = g_ventoy_last_entry;
-  } 
+
   /* If DEFAULT_ENTRY is not within the menu entries, fall back to
      the first entry.  */
   else if (default_entry < 0 || default_entry >= menu->size)
@@ -846,6 +853,19 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	      else
 		current_entry = menu->size - 1;
 	      menu_set_chosen_entry (menu, current_entry);
+	      break;
+
+	    case GRUB_TERM_KEY_RIGHT:
+	      menu_scroll_chosen_entry (1);
+	      break;
+	    case GRUB_TERM_KEY_LEFT:
+	      menu_scroll_chosen_entry (-1);
+	      break;
+	    case GRUB_TERM_CTRL | GRUB_TERM_KEY_RIGHT:
+	      menu_scroll_chosen_entry (1000000);
+	      break;
+	    case GRUB_TERM_CTRL | GRUB_TERM_KEY_LEFT:
+	      menu_scroll_chosen_entry (-1000000);
 	      break;
 
 	    case '\n':

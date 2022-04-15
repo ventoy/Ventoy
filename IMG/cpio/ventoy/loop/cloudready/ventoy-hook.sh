@@ -129,6 +129,10 @@ mount -t devtmpfs dev /newdev
 cp -a /dev/mapper/ventoy* /newdev/mapper/
 cp -a /dev/ventoy* /newdev/
 
+if [ "$VTOY_VLNK_BOOT" = "01" ]; then
+    vtLine=$($VTOY_PATH/tool/vtoydump -f /ventoy/ventoy_os_param)
+    vtdiskname=${vtLine%%#*}
+fi
 
 vtshortname="${vtdiskname#/dev/}"
 mv /newdev/${vtshortname} /newdev/backup_${vtshortname}

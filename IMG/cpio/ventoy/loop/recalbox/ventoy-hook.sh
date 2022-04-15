@@ -20,4 +20,6 @@
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
 $SED "/mount.*devtmpfs/a\ $BUSYBOX_PATH/sh $VTOY_PATH/loop/recalbox/ventoy-disk.sh" -i /init
+$SED "/switch_root/i\ $BUSYBOX_PATH/sh $VTOY_PATH/loop/recalbox/ventoy-create-part.sh" -i /init
 
+#$SED "/switch_root/i\ exec /ventoy/busybox/sh" -i /init

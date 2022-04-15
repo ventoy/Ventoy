@@ -167,7 +167,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Res\refresh.ico">
+    <Image Include="Res\plugson.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

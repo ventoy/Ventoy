@@ -1,6 +1,6 @@
  h - Zeigt dieses Hilfe Menu
 F1 - Memdisk Modus (Nur für kleine WinPE/LiveCD ISO/IMG)
-F2 - Neustarten/Herunterfahren
+F2 - Browse and boot files in local disk
 F3 - Menu wechsel zwischen Baum <-> Listen Ansicht
 F4 - Windows/Linux vom lokalem Datenträger starten
 F5 - Dienstprogramme

@@ -471,7 +471,7 @@ grub_err_t
 grub_disk_read (grub_disk_t disk, grub_disk_addr_t sector,
 		grub_off_t offset, grub_size_t size, void *buf)
 {
-    if (disk->read_hook == (grub_disk_read_hook_t)grub_disk_blocklist_read)
+    if (disk->read_hook == (grub_disk_read_hook_t)(void *)grub_disk_blocklist_read)
     {
         return grub_disk_blocklist_read((ventoy_img_chunk_list *)disk->read_hook_data, sector, size, disk->log_sector_size);
     }

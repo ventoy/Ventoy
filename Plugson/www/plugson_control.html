@@ -61,15 +61,17 @@
                       <td class="td_ctrl_col">选项说明</td>
                       <td>
                         指定搜索ISO文件的根目录。默认Ventoy会搜索U盘上的所有目录和子目录，当你U盘上有海量的文件时，这个过程会很慢。<br/>
-                        这种情况下你可以把ISO文件单独放在某个目录下，然后通过这个变量来指定搜索路径，此时Ventoy就只会搜索该目录及其子目录。
+                        这种情况下你可以把ISO文件单独放在某个子目录下，然后通过这个变量来指定搜索路径，此时Ventoy就只会搜索该目录及其子目录。<br/>
+                        注意这里不能设置为U盘根目录，必须为一个子目录。
                       </td>
                     </tr>
                     <tr id="tr_title_desc_en">
                       <td class="td_ctrl_col">Option Description</td>
                       <td>
                         The root path where to search the image files. By default, Ventoy will search all the directories and subdirectories in the USB. This will be very slow when you have huge number of files in the USB. 
-                        In this case, you can put all the image files in one directory and use this to specify the search path. 
-                        After that Ventoy will only search this directory and its subdirectories for image files.
+                        In this case, you can put all the image files in one subdirectory and use this to specify the search path. 
+                        After that Ventoy will only search this directory and its subdirectories for image files.<br/>
+                        Note: the path must not be the mountpoint of the first partition, but a subdirectory.
                       </td>
                     </tr>
                 </table>
@@ -337,6 +339,57 @@
         </div><!-- /.box -->
     
     
+
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_LINUX_REMOUNT
+              <span id="id_span_desc_cn"> —— Linux 启动后继续访问ISO文件所在分区</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_linux_remount_radio0" name="id_ctrl_linux_remount_radio" data-type="0" value="0"/> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_linux_remount_radio1" name="id_ctrl_linux_remount_radio" data-type="1" value="1"/> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> Linux启动后不需要继续访问ISO文件所在的分区。<br/>
+                      <code style="font-weight: bold;">1</code> Linux启动后需要继续访问ISO文件所在的分区。<br/><br/>
+                      该选项只对 Linux 系统镜像有效。<br/>
+                      默认情况下，受Linux内核相关功能的限制，对于Linux系统，在启动后无法继续访问ISO文件所在的分区。在mount的时候会提示 device busy。<br/>
+                      如果这里选择 1，则 Ventoy 会尝试通过一些特殊的手段绕过内核的这个限制，但是这个功能是实验性质的，没有经过大规模和长时间的验证。                      
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> I don't need to access the image partition after boot.<br/>
+                      <code style="font-weight: bold;">1</code> I need to access the image partition after boot. <br/><br/>
+                      This option is only avaliable for Linux distro image files. <br/>
+
+                      By default, the image partition where the ISO files locate can not be accessed after boot. When you try to mount it you will get device busy error.
+                      This is due to linux kernel restriction (device-mapper module).<br/>
+                      If you select 1 here, Ventoy will try to bypass the restriction with some special mechanism.<br/>
+                      But it should be noted that, this is an experimental feature and is not fully tested.
+                      
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
     
     
         <div class="box box-primary box-solid">
@@ -881,6 +934,7 @@
     var level;
 
     data.win11_bypass_check = parseInt($('input:radio[name=id_ctrl_bypass_win11_radio]:checked').val());
+    data.linux_remount = parseInt($('input:radio[name=id_ctrl_linux_remount_radio]:checked').val());
     data.default_search_root = $('input:text[id=id_ctrl_text_search_root]').val();
     data.menu_timeout = parseInt($('input:text[id=id_ctrl_text_timeout]').val());
     data.default_image = $('input:text[id=id_ctrl_text_default_img]').val();
@@ -913,6 +967,7 @@
   function VtoyFillCurrentPageItem(data) {
     //VTOY_WIN11_BYPASS_CHECK
     $('input:radio[name=id_ctrl_bypass_win11_radio]')[data.win11_bypass_check].checked = true;
+    $('input:radio[name=id_ctrl_linux_remount_radio]')[data.linux_remount].checked = true;
 
     //VTOY_DEFAULT_SEARCH_ROOT
     $('input:text[id=id_ctrl_text_search_root]').val(data.default_search_root);
@@ -1014,6 +1069,7 @@
       method : 'save_control',
       index: current_tab_index,
       win11_bypass_check: data.win11_bypass_check,
+      linux_remount:data.linux_remount,
       default_search_root: data.default_search_root,
       menu_timeout: data.menu_timeout,
       default_image: data.default_image,
@@ -1128,7 +1184,7 @@
 
   $('input[type=radio]').each(function(){
     var id = $(this).attr('id');
-    if (id.startsWith('id_ctrl')) {
+    if (typeof(id) != 'undefined' && id.startsWith('id_ctrl')) {
       $(this).change(VtoySaveCurrentPage);
     }
   });

@@ -299,6 +299,7 @@ static int VentoyFillProtectMBR(uint64_t DiskSizeBytes, MBR_HEAD *pMBR)
     vdebug("Disk signature: 0x%08x\n", DiskSignature);
 
     memcpy(pMBR->BootCode + 0x1B8, &DiskSignature, 4);
+    memcpy(pMBR->BootCode + 0x180, &Guid, 16);
 
     DiskSectorCount = DiskSizeBytes / 512 - 1;
     if (DiskSectorCount > 0xFFFFFFFF)
@@ -490,6 +491,7 @@ int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, MBR_HEAD *pMBR
     vdebug("Disk signature: 0x%08x\n", DiskSignature);
 
     memcpy(pMBR->BootCode + 0x1B8, &DiskSignature, 4);
+    memcpy(pMBR->BootCode + 0x180, &Guid, 16);
 
     if (size / 512 > 0xFFFFFFFF)
     {

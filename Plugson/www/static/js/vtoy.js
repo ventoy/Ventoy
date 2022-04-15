@@ -479,6 +479,8 @@ var g_vtoy_cur_language_en =
     "STR_SECURE_BOOT_ENABLE": "Enable",
     "STR_SECURE_BOOT_DISABLE": "Disable",
     "STR_SYNTAX_ERROR_TIP": "Syntax error detected in ventoy.json, so the configuration is not loaded!",
+    "STR_INVALID_CONFIG_TIP": "Invalid configuration detected in ventoy.json, so the configuration is not loaded!",
+    "STR_CONFIG_SAVE_ERROR_TIP": "Failed to write ventoy.json file. Check VentoyPlugson.log for more details!",
 
     "STR_XXX": "xxx"
 };
@@ -613,7 +615,8 @@ var g_vtoy_cur_language_cn =
     "STR_SECURE_BOOT_ENABLE": "开启",
     "STR_SECURE_BOOT_DISABLE": "未开启",
     "STR_SYNTAX_ERROR_TIP": "ventoy.json 文件中存在语法错误，配置未加载!",
-
+    "STR_INVALID_CONFIG_TIP": "ventoy.json 文件中存在错误配置，配置未加载!",
+    "STR_CONFIG_SAVE_ERROR_TIP": "ventoy.json 文件写入失败，详细信息请参考 VentoyPlugson.log 文件!",
 
 
     "STR_XXX": "xxx"
@@ -1064,13 +1067,13 @@ var g_type_select_validator = $("#TypeSelectForm").validate({
 function VtoySelectType(cb, para) {
 
     $('#TypeSelectForm #TypeSelForm_lang_1').text(g_vtoy_cur_language.STR_SELECT);
-
+    
     if (g_current_language === 'en') {
-        $('#SetDirForm #SetDirForm_lang_2').text(" OK");
-        $('#SetDirForm #SetDirForm_lang_3').text("Cancel");
+        $('#TypeSelectForm #TypeSelForm_lang_2').text(" OK");
+        $('#TypeSelectForm #TypeSelForm_lang_3').text("Cancel");
     } else {
-        $('#SetDirForm #SetDirForm_lang_2').text("确定");
-        $('#SetDirForm #SetDirForm_lang_3').text("取消");
+        $('#TypeSelectForm #TypeSelForm_lang_2').text("确定");
+        $('#TypeSelectForm #TypeSelForm_lang_3').text("取消");
     }
     
     var $tbl = $("#id_type_select_table tbody");
@@ -1133,11 +1136,11 @@ function VtoySetKey(cb, para) {
     $('#SetKeyForm #SetKeyForm_lang_3').text(para.title2);
 
     if (g_current_language === 'en') {
-        $('#SetDirForm #SetDirForm_lang_4').text(" OK");
-        $('#SetDirForm #SetDirForm_lang_5').text("Cancel");
+        $('#SetKeyForm #SetKeyForm_lang_4').text(" OK");
+        $('#SetKeyForm #SetKeyForm_lang_5').text("Cancel");
     } else {
-        $('#SetDirForm #SetDirForm_lang_4').text("确定");
-        $('#SetDirForm #SetDirForm_lang_5').text("取消");
+        $('#SetKeyForm #SetKeyForm_lang_4').text("确定");
+        $('#SetKeyForm #SetKeyForm_lang_5').text("取消");
     }
     
     g_set_key_callback = cb;
@@ -1395,15 +1398,15 @@ function VtoySetDirFile(cb, para) {
     $('#SetDirFileModal #SetDirFileForm_label2').text(para.label2);
 
     if (g_current_language === 'en') {
-        $('#SetDirFileModal #SetDirFileModal_ok').text(" OK");
-        $('#SetDirFileModal #SetDirFileModal_cancel').text("Cancel");
+        $('#SetDirFileModal #SetDirFileForm_ok').text(" OK");
+        $('#SetDirFileModal #SetDirFileForm_cancel').text("Cancel");
 
         $('#SetDirFileModal #id_note_dirfile_cn').hide();
         $('#SetDirFileModal #id_note_dirfile_en').show();
 
     } else {
-        $('#SetDirFileModal #SetDirFileModal_ok').text("确定");
-        $('#SetDirFileModal #SetDirFileModal_cancel').text("取消");
+        $('#SetDirFileModal #SetDirFileForm_ok').text("确定");
+        $('#SetDirFileModal #SetDirFileForm_cancel').text("取消");
 
         $('#SetDirFileModal #id_note_dirfile_en').hide();
         $('#SetDirFileModal #id_note_dirfile_cn').show();

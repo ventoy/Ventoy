@@ -48,6 +48,12 @@ else
     fi
 fi
 
+if [ "$VTOY_ARCH" = "i386" ]; then
+    if $BUSYBOX_PATH/vtchmod32 -6; then
+        export VTOY_ARCH=x86_64
+    fi
+fi
+
 echo $VTOY_ARCH > $VTOY_PATH/ventoy_arch
 
 
@@ -81,6 +87,7 @@ export PATH=$BUSYBOX_PATH/:$VTOY_PATH/tool
 
 export VTOY_BREAK_LEVEL=$(hexdump -n 1 -s 449 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 export VTOY_DEBUG_LEVEL=$(hexdump -n 1 -s 450 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+export VTOY_LINUX_REMOUNT=$(hexdump -n 1 -s 454 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 
 #Fixme: busybox shell output redirect seems to have some bug in rhel5
 if uname -a | grep -q el5; then
@@ -108,6 +115,8 @@ fi
 
 if [ "$VTOY_ARCH" = "x86_64" ]; then
     echo "Use x86_64 busybox toolkit ..." >>$VTLOG
+    $BUSYBOX_PATH/xzcat $BUSYBOX_PATH/xzcat64_musl.xz > $BUSYBOX_PATH/xzcat_musl
+    $BUSYBOX_PATH/chmod +x $BUSYBOX_PATH/xzcat_musl
     ln -s $BUSYBOX_PATH/xzminidec64 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup64 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzip64 $VTOY_PATH/tool/lunzip
@@ -117,6 +126,8 @@ if [ "$VTOY_ARCH" = "x86_64" ]; then
     ln -s $VTOY_PATH/tool/zstdcat64 $VTOY_PATH/tool/zstdcat
 elif [ "$VTOY_ARCH" = "i386" ]; then
     echo "Use i386 busybox toolkit ..." >>$VTLOG
+    $BUSYBOX_PATH/xzcat $BUSYBOX_PATH/xzcat32_musl.xz > $BUSYBOX_PATH/xzcat_musl
+    $BUSYBOX_PATH/chmod +x $BUSYBOX_PATH/xzcat_musl
     ln -s $BUSYBOX_PATH/xzminidec32 $BUSYBOX_PATH/xzminidec
     ln -s $VTOY_PATH/tool/dmsetup32 $VTOY_PATH/tool/dmsetup
     ln -s $VTOY_PATH/tool/lunzip32 $VTOY_PATH/tool/lunzip

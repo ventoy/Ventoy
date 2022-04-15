@@ -42,6 +42,7 @@
   DebugLib
 
 [Guids]
+  gEfiGlobalVariableGuid
   gShellVariableGuid
   gEfiVirtualCdGuid
   gEfiFileInfoGuid

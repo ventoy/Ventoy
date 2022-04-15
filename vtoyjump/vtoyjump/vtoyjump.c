@@ -40,6 +40,10 @@ static CHAR g_prog_full_path[MAX_PATH];
 static CHAR g_prog_dir[MAX_PATH];
 static CHAR g_prog_name[MAX_PATH];
 
+#define VTOY_PECMD_PATH      "X:\\Windows\\system32\\ventoy\\PECMD.EXE"
+#define ORG_PECMD_PATH       "X:\\Windows\\system32\\PECMD.EXE"
+#define ORG_PECMD_BK_PATH    "X:\\Windows\\system32\\PECMD.EXE_BACK.EXE"
+
 #define AUTO_RUN_BAT    "X:\\VentoyAutoRun.bat"
 #define AUTO_RUN_LOG    "X:\\VentoyAutoRun.log"
 
@@ -431,7 +435,7 @@ out:
     return bRet;
 }
 
-static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, DISK_EXTENT *DiskExtent)
+static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, UINT32 *DiskSig, DISK_EXTENT *DiskExtent)
 {
 	BOOL Ret;
 	DWORD dwSize;
@@ -466,8 +470,9 @@ static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, DISK_EXTENT *Dis
 	}
 	CloseHandle(Handle);
 
-	memcpy(DiskExtent, DiskExtents.Extents, sizeof(DiskExtent));
-	Log("%C: is in PhysicalDrive%d ", LogicalDrive, DiskExtents.Extents[0].DiskNumber);
+    memcpy(DiskExtent, DiskExtents.Extents, sizeof(DISK_EXTENT));
+    Log("%C: is in PhysicalDrive%d Offset:%llu", LogicalDrive, DiskExtents.Extents[0].DiskNumber, 
+        (ULONGLONG)(DiskExtents.Extents[0].StartingOffset.QuadPart));
 
 	sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", DiskExtents.Extents[0].DiskNumber);
 	Handle = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
@@ -485,6 +490,11 @@ static int GetPhyDiskUUID(const char LogicalDrive, UINT8 *UUID, DISK_EXTENT *Dis
 	}
 	
 	memcpy(UUID, SectorBuf + 0x180, 16);
+    if (DiskSig)
+    {
+        memcpy(DiskSig, SectorBuf + 0x1B8, 4);
+    }
+
 	CloseHandle(Handle);
 	return 0;
 }
@@ -1408,16 +1418,56 @@ End:
     return Ret; 
 }
 
+static BOOL CheckVentoyDisk(DWORD DiskNum)
+{
+    DWORD dwSize = 0;
+    CHAR PhyPath[128];
+    UINT8 SectorBuf[512];
+    HANDLE Handle;
+    UINT8 check[8] = { 0x56, 0x54, 0x00, 0x47, 0x65, 0x00, 0x48, 0x44 };
+
+    sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", DiskNum);
+    Handle = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    if (Handle == INVALID_HANDLE_VALUE)
+    {
+        Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
+        return FALSE;
+    }
+
+    if (!ReadFile(Handle, SectorBuf, sizeof(SectorBuf), &dwSize, NULL))
+    {
+        Log("ReadFile failed, dwSize:%u  error:%u", dwSize, GetLastError());
+        CloseHandle(Handle);
+        return FALSE;
+    }
+
+    CloseHandle(Handle);
+
+    if (memcmp(SectorBuf + 0x190, check, 8) == 0)
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+
 static int VentoyHook(ventoy_os_param *param)
 {
     int i;
     int rc;
     BOOL find = FALSE;
+    BOOL vtoyfind = FALSE;
     CHAR Letter;
     CHAR MntLetter;
+    CHAR VtoyLetter;
     DWORD Drives;
     DWORD NewDrives;
+    DWORD VtoyDiskNum;
+    UINT32 DiskSig;
+    UINT32 VtoySig;
 	DISK_EXTENT DiskExtent;
+    DISK_EXTENT VtoyDiskExtent;
 	UINT8 UUID[16];
 	CHAR IsoPath[MAX_PATH];
 
@@ -1442,7 +1492,9 @@ static int VentoyHook(ventoy_os_param *param)
                 if (IsFileExist("%s", IsoPath))
                 {
                     Log("File exist under %C:", Letter);
-                    if (GetPhyDiskUUID(Letter, UUID, &DiskExtent) == 0)
+                    memset(UUID, 0, sizeof(UUID));
+                    memset(&DiskExtent, 0, sizeof(DiskExtent));
+                    if (GetPhyDiskUUID(Letter, UUID, NULL, &DiskExtent) == 0)
                     {
                         if (memcmp(UUID, param->vtoy_disk_guid, 16) == 0)
                         {
@@ -1481,10 +1533,81 @@ static int VentoyHook(ventoy_os_param *param)
 
 	Log("Find ISO file <%s>", IsoPath);
     
+    //Find VtoyLetter in Vlnk Mode
+    if (g_os_param_reserved[6] == 1)
+    {
+        memcpy(&VtoySig, g_os_param_reserved + 7, 4);
+        for (i = 0; i < 5; i++)
+        {
+            VtoyLetter = 'A';
+            Drives = GetLogicalDrives();
+            Log("Logic Drives: 0x%x  VentoySig:%08X", Drives, VtoySig);
+
+            while (Drives)
+            {
+                if (Drives & 0x01)
+                {
+                    memset(UUID, 0, sizeof(UUID));
+                    memset(&VtoyDiskExtent, 0, sizeof(VtoyDiskExtent));
+                    DiskSig = 0;
+                    if (GetPhyDiskUUID(VtoyLetter, UUID, &DiskSig, &VtoyDiskExtent) == 0)
+                    {
+                        Log("DiskSig=%08X PartStart=%lld", DiskSig, VtoyDiskExtent.StartingOffset.QuadPart);
+                        if (DiskSig == VtoySig && VtoyDiskExtent.StartingOffset.QuadPart == SIZE_1MB)
+                        {
+                            Log("Ventoy Disk Sig match");
+                            vtoyfind = TRUE;
+                            break;
+                        }
+                    }
+                }
+
+                Drives >>= 1;
+                VtoyLetter++;
+            }
+
+            if (vtoyfind)
+            {
+                Log("Find Ventoy Letter: %C", VtoyLetter);
+                break;
+            }
+            else
+            {
+                Log("Now wait and retry ...");
+                Sleep(1000);
+            }
+        }
+
+        if (vtoyfind == FALSE)
+        {
+            Log("Failed to find ventoy disk");
+            return 1;
+        }
+
+        VtoyDiskNum = VtoyDiskExtent.DiskNumber;
+    }
+    else
+    {
+        VtoyLetter = Letter;
+        Log("No vlnk mode %C", Letter);
+
+        VtoyDiskNum = DiskExtent.DiskNumber;
+    }
+
+    if (CheckVentoyDisk(VtoyDiskNum))
+    {
+        Log("Disk check OK %C: %u", VtoyLetter, VtoyDiskNum);
+    }
+    else
+    {
+        Log("Failed to check ventoy disk %u", VtoyDiskNum);
+        return 1;
+    }
+
     Drives = GetLogicalDrives();
     Log("Drives before mount: 0x%x", Drives);
 
-    rc = MountIsoFile(IsoPath, DiskExtent.DiskNumber);
+    rc = MountIsoFile(IsoPath, VtoyDiskNum);
 
     NewDrives = GetLogicalDrives();
     Log("Drives after mount: 0x%x (0x%x)", NewDrives, (NewDrives ^ Drives));
@@ -1519,12 +1642,12 @@ static int VentoyHook(ventoy_os_param *param)
     }
 
     // for protect
-    rc = DeleteVentoyPart2MountPoint(DiskExtent.DiskNumber);
+    rc = DeleteVentoyPart2MountPoint(VtoyDiskNum);
     Log("Delete ventoy mountpoint: %s", rc == 0 ? "SUCCESS" : "NO NEED");
     
     if (g_windows_data.auto_install_script[0])
     {
-        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", Letter, g_windows_data.auto_install_script);
+        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", VtoyLetter, g_windows_data.auto_install_script);
         if (IsFileExist("%s", IsoPath))
         {
             Log("use auto install script %s...", IsoPath);
@@ -1542,11 +1665,11 @@ static int VentoyHook(ventoy_os_param *param)
 
     if (g_windows_data.injection_archive[0])
     {
-        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", Letter, g_windows_data.injection_archive);
+        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", VtoyLetter, g_windows_data.injection_archive);
         if (IsFileExist("%s", IsoPath))
         {
             Log("decompress injection archive %s...", IsoPath);
-            DecompressInjectionArchive(IsoPath, DiskExtent.DiskNumber);
+            DecompressInjectionArchive(IsoPath, VtoyDiskNum);
 
             if (IsFileExist("%s", AUTO_RUN_BAT))
             {
@@ -1886,6 +2009,14 @@ int real_main(int argc, char **argv)
 	return 0;
 }
 
+static void VentoyToUpper(CHAR *str)
+{
+    int i;
+    for (i = 0; str[i]; i++)
+    {
+        str[i] = (CHAR)toupper(str[i]);
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -1920,12 +2051,24 @@ int main(int argc, char **argv)
 	}
 	else if (_stricmp(g_prog_name, "PECMD.exe") == 0)
 	{
-		Log("We need to rejump for pecmd ...");
+        strcpy_s(NewArgv0, sizeof(NewArgv0), g_prog_dir);
+        VentoyToUpper(NewArgv0);
+        
+        if (NULL == strstr(NewArgv0, "SYSTEM32") && IsFileExist(ORG_PECMD_BK_PATH))
+        {
+            Log("Just call original pecmd.exe");
+            strcpy_s(CallParam, sizeof(CallParam), ORG_PECMD_PATH);
+        }
+        else
+        {
+            Log("We need to rejump for pecmd ...");
 
-		ventoy_check_create_directory();
-		CopyFileA(g_prog_full_path, "ventoy\\WinLogon.exe", TRUE);
+            ventoy_check_create_directory();
+            CopyFileA(g_prog_full_path, "ventoy\\WinLogon.exe", TRUE);
 
-		sprintf_s(CallParam, sizeof(CallParam), "ventoy\\WinLogon.exe %s", g_prog_full_path);
+            sprintf_s(CallParam, sizeof(CallParam), "ventoy\\WinLogon.exe %s", g_prog_full_path);
+        }
+		
 		for (i = 1; i < argc; i++)
 		{
 			strcat_s(CallParam, sizeof(CallParam), " ");

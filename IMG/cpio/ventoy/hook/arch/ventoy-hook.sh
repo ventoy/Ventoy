@@ -20,7 +20,7 @@
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
 if $GREP -q '^"$mount_handler"' /init; then
-    echo 'use mount_handler ...' >> $VTLOG
+    echo 'use mount_handler1 ...' >> $VTLOG
     
     vthookfile=/hooks/archiso
     
@@ -37,6 +37,9 @@ if $GREP -q '^"$mount_handler"' /init; then
     if [ -f $vthookfile ]; then
         $SED  '/while ! poll_device "${dev}"/a\    if /ventoy/busybox/sh /ventoy/hook/arch/ventoy-timeout.sh ${dev}; then break; fi'   -i $vthookfile
     fi
+elif $GREP -q '^$mount_handler' /init; then
+    echo 'use mount_handler2 ...' >> $VTLOG
+    $SED "/^\$mount_handler/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/arch/ventoy-disk.sh" -i /init
     
 elif $GREP -q '^KEEP_SEARCHING' /init; then
     echo 'KEEP_SEARCHING found ...' >> $VTLOG

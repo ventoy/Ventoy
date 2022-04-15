@@ -723,7 +723,7 @@
 
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b id="plugson_build_date">20211203 17:44:10</b>
+                <b id="plugson_build_date">20220311 21:24:51</b>
             </div>
             <strong><a href="https://www.ventoy.net" target="_blank">https://www.ventoy.net</a></strong>
         </footer>
@@ -777,6 +777,7 @@
 
     //Main process
     var m_syntax_error;
+    var m_invalid_config;
     callVtoySync({
         method : 'sysinfo'
     }, function(data) {
@@ -784,6 +785,7 @@
         g_current_dir = data.curdir;
         g_current_os = data.os;
         m_syntax_error = data.syntax_error;
+        m_invalid_config = data.invalid_config;
 
         
 
@@ -816,11 +818,6 @@
     
 
     (function ventoy_handshake() {
-
-        if (m_syntax_error === 1) {
-            
-        }
-
         callVtoyCatchErr({
             method : 'handshake'
         },         
@@ -832,6 +829,21 @@
                 Modal.alert({title:title,msg:msg}).on(function(e) {
                 });
                 m_syntax_error = 0;
+            }
+            
+            if (m_invalid_config === 1 && typeof(Modal) === 'object') {
+                var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
+                var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INVALID_CONFIG_TIP : g_vtoy_cur_language_cn.STR_INVALID_CONFIG_TIP;
+                Modal.alert({title:title,msg:msg}).on(function(e) {
+                });
+                m_invalid_config = 0;
+            }
+
+            if (data.save_error === 1) {
+                var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
+                var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_CONFIG_SAVE_ERROR_TIP : g_vtoy_cur_language_cn.STR_CONFIG_SAVE_ERROR_TIP;
+                Modal.alert({title:title,msg:msg}).on(function(e) {
+                });
             }
 
             setTimeout(function() {
