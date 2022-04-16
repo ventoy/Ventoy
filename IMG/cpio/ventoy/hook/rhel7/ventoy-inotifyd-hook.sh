@@ -29,14 +29,7 @@ if is_inotify_ventoy_part $3; then
 
     vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
 
-    vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
-    if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
-        vtScript=$($GREP -m1 'RUN.=' $vtGenRulFile | $AWK -F'RUN.=' '{print $2}' | $SED 's/"\(.*\)".*/\1/')
-        vtlog "vtScript=$vtScript"
-        $vtScript
-    else
-        vtlog "$vtGenRulFile not exist..."
-    fi
+    
 
     vtlog "find ventoy partition ..."
     
@@ -56,6 +49,17 @@ if is_inotify_ventoy_part $3; then
         vtlog "####### This is $vtDM ####### this is abnormal ..."
         ventoy_swap_device /dev/dm-0 /dev/$vtDM
     fi
+    
+    
+    vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
+    if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
+        vtScript=$($GREP -m1 'RUN.=' $vtGenRulFile | $AWK -F'RUN.=' '{print $2}' | $SED 's/"\(.*\)".*/\1/')
+        vtlog "vtScript=$vtScript"
+        $vtScript
+    else
+        vtlog "$vtGenRulFile not exist..."
+    fi
+    
     
     if [ -e /sbin/anaconda-diskroot ]; then
         vtlog "set anaconda-diskroot ..."
