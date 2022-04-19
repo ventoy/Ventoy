@@ -2295,8 +2295,8 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
                               "menuentry \"[Return to ListView]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                              "  echo '%s ...' \n"
-                              "}\n", "return");
+                              "  echo 'return ...' \n"
+                              "}\n");
             }
         }
 
@@ -2350,16 +2350,16 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
         if (g_tree_view_menu_style == 0)
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "menuentry \"%-10s [%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
                           "  echo 'return ...' \n"
-                          "}\n", "<--");
+                          "}\n", "<--", node->dir);
         }
         else
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                          "  echo '%s ...' \n"
-                          "}\n", "return");
+                          "menuentry \"[%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "  echo 'return ...' \n"
+                          "}\n", node->dir);
         }
     }
 
@@ -2397,7 +2397,7 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
 
     if (node != &g_img_iterator_head)
     {
-        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "%s", "}\n");
+        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "}\n");
     }
 
     node->done = 1;
