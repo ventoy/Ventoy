@@ -88,7 +88,7 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 
 
 # Installation Instructions
-See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detail
+See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detailed instructions. 
 
 # Compile Instructions
 Please refer to [BuildVentoyFromSource.txt](DOC/BuildVentoyFromSource.txt)

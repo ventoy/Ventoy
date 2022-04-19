@@ -19,6 +19,10 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
+if [ ! -e /dev/dm-0 ]; then
+    exit 0
+fi
+
 if ! [ -e /dev/mapper/ventoy ]; then
     vtlog "link to /dev/mapper/ventoy"
     ln -s /dev/dm-0 /dev/mapper/ventoy

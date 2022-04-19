@@ -350,10 +350,12 @@ ventoy_dm_patch() {
     fi
     
     #step1: modify vermagic/mod crc/relocation
+    vtlog "$VTOY_PATH/tool/vtoykmod -u $VTOY_PATH/tool/$vtKoName $VTOY_PATH/$vtModName $vtDebug"
     $VTOY_PATH/tool/vtoykmod -u $VTOY_PATH/tool/$vtKoName $VTOY_PATH/$vtModName $vtDebug
     
     #step2: fill parameters
     vtPgsize=$($VTOY_PATH/tool/vtoyksym -p)
+    vtlog "$VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtDebug"
     $VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtDebug
 
     $BUSYBOX_PATH/insmod $VTOY_PATH/tool/$vtKoName
