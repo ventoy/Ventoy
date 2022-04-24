@@ -37,6 +37,12 @@ else
             VTKS="ks=hd:/dev/dm-0:$vtRawKs"
             break
         fi
+        
+        if echo $vtParam | $GREP -q '^inst.ks=.*:/'; then
+            vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
+            VTKS="inst.ks=hd:/dev/dm-0:$vtRawKs"
+            break
+        fi
     done
 fi
 
