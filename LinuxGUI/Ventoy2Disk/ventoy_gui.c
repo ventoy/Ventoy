@@ -1315,7 +1315,7 @@ int main(int argc, char **argv)
             if (env)
             {
                 g_xdg_log = 1;
-                snprintf(g_log_file, sizeof(g_log_file), "%s/ventoy.log", env);
+                snprintf(g_log_file, sizeof(g_log_file), "%s/ventoy/ventoy.log", env);
                 touch_new_file(g_log_file);
             }
             else
@@ -1324,7 +1324,7 @@ int main(int argc, char **argv)
                 if (env && is_dir_exist("%s/.cache", env))
                 {
                     g_xdg_log = 1;
-                    snprintf(g_log_file, sizeof(g_log_file), "%s/.cache/ventoy.log", env);
+                    snprintf(g_log_file, sizeof(g_log_file), "%s/.cache/ventoy/ventoy.log", env);
                     touch_new_file(g_log_file);
                 }
             }
@@ -1333,7 +1333,7 @@ int main(int argc, char **argv)
             if (env)
             {
                 g_xdg_ini = 1;
-                snprintf(g_ini_file, sizeof(g_ini_file), "%s/Ventoy2Disk.ini", env);
+                snprintf(g_ini_file, sizeof(g_ini_file), "%s/ventoy/Ventoy2Disk.ini", env);
                 touch_new_file(g_ini_file);
             }
             else
@@ -1342,7 +1342,7 @@ int main(int argc, char **argv)
                 if (env && is_dir_exist("%s/.config", env))
                 {
                     g_xdg_ini = 1;
-                    snprintf(g_ini_file, sizeof(g_ini_file), "%s/.config/Ventoy2Disk.ini", env);
+                    snprintf(g_ini_file, sizeof(g_ini_file), "%s/.config/ventoy/Ventoy2Disk.ini", env);
                     touch_new_file(g_ini_file);
                 }
             }
