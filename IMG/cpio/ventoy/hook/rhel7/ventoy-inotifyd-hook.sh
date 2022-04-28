@@ -40,11 +40,10 @@ if is_inotify_ventoy_part $3; then
     
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 $vtReplaceOpt
     
-    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    vtDM=$(ventoy_find_dm_id ${blkdev_num})
-
-    cp -a /dev/$vtDM  /dev/ventoy
+    blkdev_num_mknod=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+    $BUSYBOX_PATH/mknod -m 660 /dev/ventoy  b  $blkdev_num_mknod
     $BUSYBOX_PATH/modprobe isofs >/dev/null 2>&1
+    vtlog "mknod /dev/ventoy $blkdev_num_mknod"
 
     vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
     if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
