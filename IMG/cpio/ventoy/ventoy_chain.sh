@@ -93,7 +93,10 @@ ventoy_get_os_type() {
     # Fedora : do the same process with rhel7
     elif $GREP -q '\.fc[0-9][0-9]\.' /proc/version; then
         echo 'rhel7'; return
-        
+
+    elif $GREP -q 'euleros' /proc/version; then
+        echo 'rhel7'; return
+
     # SUSE
     elif $GREP -q 'SUSE' /proc/version; then
         echo 'suse'; return
