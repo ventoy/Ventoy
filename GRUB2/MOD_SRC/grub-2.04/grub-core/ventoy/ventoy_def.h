@@ -1034,6 +1034,7 @@ extern conf_replace *g_conf_replace_node;
 extern grub_uint8_t *g_conf_replace_new_buf;
 extern int g_conf_replace_new_len;
 extern int g_conf_replace_new_len_align;
+extern int g_ventoy_disk_bios_id;
 extern grub_uint64_t g_ventoy_disk_size;
 extern grub_uint64_t g_ventoy_disk_part_size[2];
 extern grub_uint32_t g_ventoy_plat_data;

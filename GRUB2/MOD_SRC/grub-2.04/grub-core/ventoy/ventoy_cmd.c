@@ -113,6 +113,7 @@ grub_uint8_t *g_conf_replace_new_buf = NULL;
 int g_conf_replace_new_len = 0;
 int g_conf_replace_new_len_align = 0;
 
+int g_ventoy_disk_bios_id = 0;
 ventoy_gpt_info *g_ventoy_part_info = NULL;
 grub_uint64_t g_ventoy_disk_size = 0;
 grub_uint64_t g_ventoy_disk_part_size[2];
@@ -4525,6 +4526,8 @@ int ventoy_load_part_table(const char *diskname)
     }
 
     g_ventoy_disk_size = disk->total_sectors * (1U << disk->log_sector_size);
+
+    g_ventoy_disk_bios_id = disk->id;
 
     grub_disk_read(disk, 0, 0, sizeof(ventoy_gpt_info), g_ventoy_part_info);
     grub_disk_close(disk);

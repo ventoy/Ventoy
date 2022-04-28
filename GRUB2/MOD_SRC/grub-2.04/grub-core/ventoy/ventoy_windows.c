@@ -1651,24 +1651,39 @@ static void ventoy_windows_fill_virt_data(    grub_uint64_t isosize, ventoy_chai
     return;
 }
 
-static int ventoy_windows_drive_map(ventoy_chain_head *chain)
+static int ventoy_windows_drive_map(ventoy_chain_head *chain, int vlnk)
 {
+    int hd1 = 0;
     grub_disk_t disk;
         
-    debug("drive map begin <%p> ...\n", chain);
+    debug("drive map begin <%p> <%d> ...\n", chain, vlnk);
 
-    if (chain->disk_drive == 0x80)
+    disk = grub_disk_open("hd1");
+    if (disk)
     {
-        disk = grub_disk_open("hd1");
-        if (disk)
+        grub_disk_close(disk);
+        hd1 = 1;
+        debug("BIOS hd1 exist\n");
+    }
+    else
+    {
+        debug("failed to open disk %s\n", "hd1");
+    }
+
+    if (vlnk)
+    {
+        if (g_ventoy_disk_bios_id == 0x80 && hd1)
         {
-            grub_disk_close(disk);
-            debug("drive map needed %p\n", disk);
+            debug("drive map needed vlnk %p\n", disk);
             chain->drive_map = 0x81;
         }
-        else
+    }
+    else if (chain->disk_drive == 0x80)
+    {
+        if (hd1)
         {
-            debug("failed to open disk %s\n", "hd1");
+            debug("drive map needed normal %p\n", disk);
+            chain->drive_map = 0x81;
         }
     }
     else
@@ -1961,7 +1976,7 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
 
     if (ventoy_is_efi_os() == 0)
     {
-        ventoy_windows_drive_map(chain);        
+        ventoy_windows_drive_map(chain, file->vlnk);        
     }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
@@ -2203,7 +2218,7 @@ static grub_err_t ventoy_vlnk_wim_chain_data(grub_file_t wimfile)
 
     if (ventoy_is_efi_os() == 0)
     {
-        ventoy_windows_drive_map(chain);        
+        ventoy_windows_drive_map(chain, 0);        
     }
 
     grub_file_close(file);
@@ -2357,7 +2372,7 @@ static grub_err_t ventoy_normal_wim_chain_data(grub_file_t wimfile)
 
     if (ventoy_is_efi_os() == 0)
     {
-        ventoy_windows_drive_map(chain);        
+        ventoy_windows_drive_map(chain, 0);        
     }
 
     grub_file_close(file);
