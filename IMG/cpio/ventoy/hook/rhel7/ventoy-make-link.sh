@@ -23,17 +23,20 @@ if [ ! -e /dev/dm-0 ]; then
     exit 0
 fi
 
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
+
 if ! [ -e /dev/mapper/ventoy ]; then
-    vtlog "link to /dev/mapper/ventoy"
-    ln -s /dev/dm-0 /dev/mapper/ventoy
+    vtlog "link /dev/$vtDM to /dev/mapper/ventoy"
+    ln -s /dev/$vtDM /dev/mapper/ventoy
 fi
 
-VTLABEL=$($BUSYBOX_PATH/blkid /dev/dm-0 | $SED 's/.*LABEL="\([^"]*\)".*/\1/')
+VTLABEL=$($BUSYBOX_PATH/blkid /dev/$vtDM | $SED 's/.*LABEL="\([^"]*\)".*/\1/')
 vtlog "VTLABEL=$VTLABEL"
 
 if [ -n "$VTLABEL" ]; then
     if ! [ -e "/dev/disk/by-label/$VTLABEL" ]; then
-        vtlog "link to /dev/disk/by-label/$VTLABEL"
-        ln -s /dev/dm-0 "/dev/disk/by-label/$VTLABEL"
+        vtlog "link /dev/$vtDM to /dev/disk/by-label/$VTLABEL"
+        ln -s /dev/$vtDM "/dev/disk/by-label/$VTLABEL"
     fi
 fi

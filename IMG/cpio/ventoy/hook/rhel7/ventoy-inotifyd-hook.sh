@@ -43,14 +43,9 @@ if is_inotify_ventoy_part $3; then
     blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
     vtDM=$(ventoy_find_dm_id ${blkdev_num})
 
-    if [ "$vtDM" = "dm-0" ]; then
-        vtlog "This is dm-0, OK ..."
-    else
-        vtlog "####### This is $vtDM ####### this is abnormal ..."
-        ventoy_swap_device /dev/dm-0 /dev/$vtDM
-    fi
-    
-    
+    cp -a /dev/$vtDM  /dev/ventoy
+    $BUSYBOX_PATH/modprobe isofs >/dev/null 2>&1
+
     vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
     if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
         vtScript=$($GREP -m1 'RUN.=' $vtGenRulFile | $AWK -F'RUN.=' '{print $2}' | $SED 's/"\(.*\)".*/\1/')
@@ -60,10 +55,9 @@ if is_inotify_ventoy_part $3; then
         vtlog "$vtGenRulFile not exist..."
     fi
     
-    
     if [ -e /sbin/anaconda-diskroot ]; then
-        vtlog "set anaconda-diskroot ..."
-        /sbin/anaconda-diskroot /dev/dm-0    
+        vtlog "set anaconda-diskroot ..."        
+        /sbin/anaconda-diskroot /dev/ventoy
     fi
     
     set_ventoy_hook_finish

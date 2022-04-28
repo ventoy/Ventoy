@@ -28,19 +28,19 @@ else
     for vtParam in $($CAT /proc/cmdline); do
         if echo $vtParam | $GREP -q 'inst.ks=hd:LABEL='; then
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
-            VTKS="inst.ks=hd:/dev/dm-0:$vtRawKs"
+            VTKS="inst.ks=hd:/dev/ventoy:$vtRawKs"
             break
         fi
         
         if echo $vtParam | $GREP -q '^ks=.*:/'; then
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
-            VTKS="ks=hd:/dev/dm-0:$vtRawKs"
+            VTKS="ks=hd:/dev/ventoy:$vtRawKs"
             break
         fi
         
         if echo $vtParam | $GREP -q '^inst.ks=.*:/'; then
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
-            VTKS="inst.ks=hd:/dev/dm-0:$vtRawKs"
+            VTKS="inst.ks=hd:/dev/ventoy:$vtRawKs"
             break
         fi
     done
@@ -75,9 +75,9 @@ fi
 echo "vtInstDD=$vtInstDD" >> $VTLOG
 
 if $GREP -q 'root=live' /proc/cmdline; then
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/dm-0 $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/ventoy $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
 else
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/dm-0 $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/ventoy $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
 fi
 
 ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh
