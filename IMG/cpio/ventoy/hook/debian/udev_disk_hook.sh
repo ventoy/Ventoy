@@ -138,6 +138,14 @@ else
     fi
 fi
 
+#special process for Linx
+if $BUSYBOX_PATH/uname -r | $GREP -q "^2\.6"; then
+    if $GREP -q "linx" /proc/version; then
+        blkdev_num=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | $SED 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
+        vtDM=$(ventoy_find_dm_id ${blkdev_num}) 
+        echo "/dev/$vtDM" > /ventoy/list-devices-usb-part
+    fi
+fi
 
 # OK finish
 set_ventoy_hook_finish
