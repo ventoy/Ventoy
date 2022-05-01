@@ -313,8 +313,8 @@ extern int g_ventoy_debug;
 void ventoy_debug(const char *fmt, ...);
 #define debug(fmt, args...) if (g_ventoy_debug) ventoy_debug("[VTOY]: "fmt, ##args)
 
-#define vtoy_ssprintf(buf, pos, fmt, ...) \
-    pos += grub_snprintf(buf + pos, VTOY_MAX_SCRIPT_BUF - pos, fmt, __VA_ARGS__)
+#define vtoy_ssprintf(buf, pos, fmt, args...) \
+    pos += grub_snprintf(buf + pos, VTOY_MAX_SCRIPT_BUF - pos, fmt, ##args)
 
 #define browser_ssprintf(mbuf, fmt, args...) \
     (mbuf)->pos += grub_snprintf((mbuf)->buf + (mbuf)->pos, (mbuf)->max - (mbuf)->pos, fmt, ##args)
@@ -1034,6 +1034,7 @@ extern conf_replace *g_conf_replace_node;
 extern grub_uint8_t *g_conf_replace_new_buf;
 extern int g_conf_replace_new_len;
 extern int g_conf_replace_new_len_align;
+extern int g_ventoy_disk_bios_id;
 extern grub_uint64_t g_ventoy_disk_size;
 extern grub_uint64_t g_ventoy_disk_part_size[2];
 extern grub_uint32_t g_ventoy_plat_data;

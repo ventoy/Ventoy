@@ -195,7 +195,7 @@
     $('input:text[id=id_tip_text_top]').val(data.top);
     $('input:text[id=id_tip_text_color]').val(data.color);
 
-    FillTipTable(data);
+    FillTipTable(data.tips);
   }
 
 
@@ -208,7 +208,7 @@
     }
     
     current_tab_index = index;
-    VtoyFillCurrentPageItem(m_data_tip[index].tips);
+    VtoyFillCurrentPageItem(m_data_tip[index]);
   }
 
   //Main process
@@ -332,8 +332,9 @@
 
   $('input:text[id=id_tip_text_left]').change(function() {
     var value = $('input:text[id=id_tip_text_left]').val();
-    if (ventoy_check_percent(value)) {
+    if (ventoy_check_percent(value)) {      
       VtoySaveCurrentPage();
+      m_data_tip[current_tab_index].left = value;
     } else {
       Message.error(g_vtoy_cur_language.STR_INVALID_PERCENT);
       $('input:text[id=id_tip_text_left]').val(m_data_tip[current_tab_index].left);
@@ -343,6 +344,7 @@
     var value = $('input:text[id=id_tip_text_top]').val();
     if (ventoy_check_percent(value)) {
       VtoySaveCurrentPage();
+      m_data_tip[current_tab_index].top = value;
     } else {
       Message.error(g_vtoy_cur_language.STR_INVALID_PERCENT);
       $('input:text[id=id_tip_text_top]').val(m_data_tip[current_tab_index].top);
@@ -353,6 +355,7 @@
     if (value.length > 0) {
       if (ventoy_check_color(value)) {
         VtoySaveCurrentPage();
+        m_data_tip[current_tab_index].color = value;
       } else {
         Message.error(g_vtoy_cur_language.STR_INVALID_COLOR);
         $('input:text[id=id_tip_text_color]').val(m_data_tip[current_tab_index].color);

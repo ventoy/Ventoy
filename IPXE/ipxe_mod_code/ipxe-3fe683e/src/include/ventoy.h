@@ -86,7 +86,7 @@ typedef struct ventoy_os_param
     grub_uint64_t  vtoy_img_location_addr;
     grub_uint32_t  vtoy_img_location_len;
 
-    grub_uint64_t  vtoy_reserved[4];     // Internal use by ventoy
+    grub_uint8_t   vtoy_reserved[32];    // Internal use by ventoy
 
     grub_uint8_t   vtoy_disk_signature[4];
     

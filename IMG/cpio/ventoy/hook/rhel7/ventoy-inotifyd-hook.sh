@@ -29,14 +29,7 @@ if is_inotify_ventoy_part $3; then
 
     vtlog "##### INOTIFYD: $2/$3 is created (YES) ..."
 
-    vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
-    if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
-        vtScript=$($GREP -m1 'RUN.=' $vtGenRulFile | $AWK -F'RUN.=' '{print $2}' | $SED 's/"\(.*\)".*/\1/')
-        vtlog "vtScript=$vtScript"
-        $vtScript
-    else
-        vtlog "$vtGenRulFile not exist..."
-    fi
+    
 
     vtlog "find ventoy partition ..."
     
@@ -47,19 +40,23 @@ if is_inotify_ventoy_part $3; then
     
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 $vtReplaceOpt
     
-    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    vtDM=$(ventoy_find_dm_id ${blkdev_num})
+    blkdev_num_mknod=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+    $BUSYBOX_PATH/mknod -m 660 /dev/ventoy  b  $blkdev_num_mknod
+    $BUSYBOX_PATH/modprobe isofs >/dev/null 2>&1
+    vtlog "mknod /dev/ventoy $blkdev_num_mknod"
 
-    if [ "$vtDM" = "dm-0" ]; then
-        vtlog "This is dm-0, OK ..."
+    vtGenRulFile='/etc/udev/rules.d/99-live-squash.rules'
+    if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
+        vtScript=$($GREP -m1 'RUN.=' $vtGenRulFile | $AWK -F'RUN.=' '{print $2}' | $SED 's/"\(.*\)".*/\1/')
+        vtlog "vtScript=$vtScript"
+        $vtScript
     else
-        vtlog "####### This is $vtDM ####### this is abnormal ..."
-        ventoy_swap_device /dev/dm-0 /dev/$vtDM
+        vtlog "$vtGenRulFile not exist..."
     fi
     
     if [ -e /sbin/anaconda-diskroot ]; then
-        vtlog "set anaconda-diskroot ..."
-        /sbin/anaconda-diskroot /dev/dm-0    
+        vtlog "set anaconda-diskroot ..."        
+        /sbin/anaconda-diskroot /dev/ventoy
     fi
     
     set_ventoy_hook_finish

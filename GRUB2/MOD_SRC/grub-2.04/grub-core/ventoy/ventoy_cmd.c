@@ -113,6 +113,7 @@ grub_uint8_t *g_conf_replace_new_buf = NULL;
 int g_conf_replace_new_len = 0;
 int g_conf_replace_new_len_align = 0;
 
+int g_ventoy_disk_bios_id = 0;
 ventoy_gpt_info *g_ventoy_part_info = NULL;
 grub_uint64_t g_ventoy_disk_size = 0;
 grub_uint64_t g_ventoy_disk_part_size[2];
@@ -2295,8 +2296,8 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
                               "menuentry \"[Return to ListView]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                              "  echo '%s ...' \n"
-                              "}\n", "return");
+                              "  echo 'return ...' \n"
+                              "}\n");
             }
         }
 
@@ -2350,16 +2351,16 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
         if (g_tree_view_menu_style == 0)
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "menuentry \"%-10s [%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
                           "  echo 'return ...' \n"
-                          "}\n", "<--");
+                          "}\n", "<--", node->dir);
         }
         else
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                          "  echo '%s ...' \n"
-                          "}\n", "return");
+                          "menuentry \"[%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "  echo 'return ...' \n"
+                          "}\n", node->dir);
         }
     }
 
@@ -2397,7 +2398,7 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
 
     if (node != &g_img_iterator_head)
     {
-        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "%s", "}\n");
+        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "}\n");
     }
 
     node->done = 1;
@@ -4525,6 +4526,8 @@ int ventoy_load_part_table(const char *diskname)
     }
 
     g_ventoy_disk_size = disk->total_sectors * (1U << disk->log_sector_size);
+
+    g_ventoy_disk_bios_id = disk->id;
 
     grub_disk_read(disk, 0, 0, sizeof(ventoy_gpt_info), g_ventoy_part_info);
     grub_disk_close(disk);

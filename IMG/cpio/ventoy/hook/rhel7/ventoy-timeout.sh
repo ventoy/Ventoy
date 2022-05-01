@@ -23,12 +23,14 @@ vtlog "##### $0 $* ..."
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-blkdev_num=$(dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-vtDM=$(ventoy_find_dm_id ${blkdev_num})
+if [ ! -e /dev/ventoy ]; then
+    blkdev_num_mknod=$(dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+    mknod -m 660 /dev/ventoy  b  $blkdev_num_mknod
+fi
 
 if [ -e /sbin/anaconda-diskroot ]; then
-    vtlog "set anaconda-diskroot ..."
-    /sbin/anaconda-diskroot /dev/dm-0    
+    vtlog "set anaconda-diskroot /dev/ventoy ..."
+    /sbin/anaconda-diskroot /dev/ventoy
 fi
 
 PATH=$VTPATH_OLD
