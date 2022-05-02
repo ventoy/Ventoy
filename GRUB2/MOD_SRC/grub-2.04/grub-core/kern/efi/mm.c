@@ -49,6 +49,9 @@ static grub_efi_uintn_t finish_desc_size;
 static grub_efi_uint32_t finish_desc_version;
 int grub_efi_is_finished = 0;
 
+static grub_efi_uint64_t g_total_pages;
+static grub_efi_uint64_t g_required_pages;
+
 /*
  * We need to roll back EFI allocations on exit. Remember allocations that
  * we'll free on exit.
@@ -614,6 +617,9 @@ grub_efi_mm_init (void)
   else if (required_pages > BYTES_TO_PAGES (MAX_HEAP_SIZE))
     required_pages = BYTES_TO_PAGES (MAX_HEAP_SIZE);
 
+  g_total_pages = total_pages;
+  g_required_pages = required_pages;
+
   /* Sort the filtered descriptors, so that GRUB can allocate pages
      from smaller regions.  */
   sort_memory_map (filtered_memory_map, desc_size, filtered_memory_map_end);
@@ -670,3 +676,10 @@ grub_efi_get_ram_base(grub_addr_t *base_addr)
   return GRUB_ERR_NONE;
 }
 #endif
+
+void grub_efi_get_reserved_page_num(grub_uint64_t *total, grub_uint64_t *required)
+{
+    *total = g_total_pages;
+    *required = g_required_pages;
+}
+
