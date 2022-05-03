@@ -5571,19 +5571,22 @@ static grub_err_t ventoy_cmd_fn_mutex_lock(grub_extcmd_context_t ctxt, int argc,
 static grub_err_t ventoy_cmd_dump_rsv_page(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     grub_uint64_t total;
-    grub_uint64_t required;
+    grub_uint64_t org_required;
+    grub_uint64_t new_required;
     
     (void)ctxt;
     (void)argc;
     (void)args;
 
 #ifdef GRUB_MACHINE_EFI
-    grub_efi_get_reserved_page_num(&total, &required);
+    grub_efi_get_reserved_page_num(&total, &org_required, &new_required);
     grub_printf("Total pages: %llu\n", (unsigned long long)total);
-    grub_printf("Required pages: %llu\n", (unsigned long long)required);
+    grub_printf("OrgReq pages: %llu\n", (unsigned long long)org_required);
+    grub_printf("NewReq pages: %llu\n", (unsigned long long)new_required);
 #else
     (void)total;
-    (void)required;
+    (void)org_required;
+    (void)new_required;
     grub_printf("Non EFI mode!\n");
 #endif
 
