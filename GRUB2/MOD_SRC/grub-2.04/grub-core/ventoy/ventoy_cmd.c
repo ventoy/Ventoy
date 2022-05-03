@@ -5582,6 +5582,8 @@ static grub_err_t ventoy_cmd_dump_rsv_page(grub_extcmd_context_t ctxt, int argc,
     grub_printf("Total pages: %llu\n", (unsigned long long)total);
     grub_printf("Required pages: %llu\n", (unsigned long long)required);
 #else
+    (void)total;
+    (void)required;
     grub_printf("Non EFI mode!\n");
 #endif
 
