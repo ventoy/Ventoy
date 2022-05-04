@@ -1291,8 +1291,8 @@
         "STR_PART_RESIZE_SUCCESS":"Congratulazioni!#@Installazione non distruttiva di Ventoy completata.",
         "STR_PART_RESIZE_FAILED":"Installazione non distruttiva fallita.#@Per i dettagli controlla il file log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy è stata interrotta perché alcune condizioni non possono essere soddisfatte.#@Per i dettagli controlla il file log.txt.",
-        "STR_INSTALL_YES_TIP1":"Attenzione: I dati verranno persi!",
-        "STR_INSTALL_YES_TIP2":"Per favore digita YES nella casella di testo qui sotto per confermare che vuoi davvero eseguire un'installazione pulita anziché un aggiornamento.",
+        "STR_INSTALL_YES_TIP1":"Attenzione: i dati verranno persi!",
+        "STR_INSTALL_YES_TIP2":"Digita YES nella casella di testo qui sotto per confermare che vuoi davvero eseguire un'installazione pulita anziché un aggiornamento.",
         
         "STRXXX":""
     },
