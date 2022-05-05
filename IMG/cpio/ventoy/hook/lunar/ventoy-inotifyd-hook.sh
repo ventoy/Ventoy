@@ -35,7 +35,8 @@ if is_inotify_ventoy_part $3; then
     blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
     vtDM=$(ventoy_find_dm_id ${blkdev_num})
 
-    mount -t iso9660 /dev/$vtDM /sysroot
+    cp -a /dev/$vtDM /dev/ventoy
+    mount -t iso9660 /dev/ventoy /sysroot
     
     set_ventoy_hook_finish
 else
