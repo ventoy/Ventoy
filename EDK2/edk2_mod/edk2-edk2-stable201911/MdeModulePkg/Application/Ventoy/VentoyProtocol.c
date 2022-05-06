@@ -155,7 +155,8 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
     ventoy_override_chunk *pOverride = g_override_chunk;
     EFI_BLOCK_IO_PROTOCOL *pRawBlockIo = gBlockData.pRawBlockIo;
     
-    debug("read iso sector %lu count %u Buffer:%p Align:%u", Sector, Count, Buffer, pRawBlockIo->Media->IoAlign);
+    debug("read iso sector %lu count %u Buffer:%p Align:%u blk:%u", 
+        Sector, Count, Buffer, pRawBlockIo->Media->IoAlign, pRawBlockIo->Media->BlockSize);
 
     ReadStart = Sector * 2048;
     ReadEnd = (Sector + Count) * 2048;
