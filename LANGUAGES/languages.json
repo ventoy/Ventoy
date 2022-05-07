@@ -1414,7 +1414,7 @@
         
         "STRXXX":""
     },
-    {
+   {
         "name":"Traditional Chinese（正體中文）",
         "FontFamily":"新細明體",
         "FontSize":14,
@@ -1468,8 +1468,8 @@
         "STR_PART_RESIZE_SUCCESS":"恭喜！#@Ventoy 已完成無損安裝。",
         "STR_PART_RESIZE_FAILED":"Ventoy 無損安裝失敗。詳細訊息請檢視 log.txt 檔案。",
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy 無損安裝已中止因為未滿足部分條件。詳細訊息請檢視 log.txt 檔案。",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_INSTALL_YES_TIP1":"警告：資料將會遺失！",
+        "STR_INSTALL_YES_TIP2":"請在下方的文字輸入框輸入 YES 來證實您想要進行全新安裝取代升級。",
         
         "STRXXX":""
     },
