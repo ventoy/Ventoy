@@ -577,7 +577,8 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
             continue;
         }
 
-        if (CompareMem(g_chain->os_param.vtoy_disk_guid, pBuffer + 0x180, 16) == 0)
+        if (CompareMem(g_chain->os_param.vtoy_disk_guid, pBuffer + 0x180, 16) == 0 &&
+            CompareMem(g_chain->os_param.vtoy_disk_signature, pBuffer + 0x1b8, 4) == 0)
         {
             pMBR = (MBR_HEAD *)pBuffer;
             if (g_os_param_reserved[6] == 0 && pMBR->PartTbl[0].FsFlag != 0xEE)
@@ -599,7 +600,7 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
                               Handles[i],
                               EFI_OPEN_PROTOCOL_GET_PROTOCOL);
             
-            debug("Find Ventoy Disk Handle:%p DP:%s", Handles[i], 
+            debug("Find Ventoy Disk Sig Handle:%p DP:%s", Handles[i], 
                 ConvertDevicePathToText(gBlockData.pDiskDevPath, FALSE, FALSE));
             break;
         }

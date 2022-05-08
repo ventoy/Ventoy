@@ -98,7 +98,9 @@ typedef struct ventoy_os_param
     
     UINT64  vtoy_reserved[4];     // Internal use by ventoy
 
-    UINT8   reserved[31];
+    UINT8   vtoy_disk_signature[4];
+
+    UINT8   reserved[27];
 }ventoy_os_param;
 
 #pragma pack()
