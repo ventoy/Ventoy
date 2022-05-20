@@ -1445,7 +1445,7 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
         AsciiSPrint(TmpName, sizeof(TmpName), "%s", Name);
         for (j = 0; j < 4; j++)
         {
-            if (0 == AsciiStrCmp(g_file_replace_list[i].old_file_name[j], TmpName))
+            if (0 == AsciiStriCmp(g_file_replace_list[i].old_file_name[j], TmpName))
             {
                 g_original_fclose(*New);
                 *New = &g_efi_file_replace.WrapperHandle;
