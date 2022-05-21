@@ -33,10 +33,8 @@ if is_inotify_ventoy_part $3; then
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
 
     blkdev_num_dev=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')  
-    if ! [ -e /dev/dm-0 ]; then
-        mknod -m 660 /dev/dm-0 b $blkdev_num_dev
-    fi
-    blackPanther-root /dev/dm-0
+    mknod -m 660 /dev/ventoy b $blkdev_num_dev
+    blackPanther-root /dev/ventoy
 
     set_ventoy_hook_finish   
 else

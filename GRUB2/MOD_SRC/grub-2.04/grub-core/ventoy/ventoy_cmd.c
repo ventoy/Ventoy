@@ -113,6 +113,7 @@ grub_uint8_t *g_conf_replace_new_buf = NULL;
 int g_conf_replace_new_len = 0;
 int g_conf_replace_new_len_align = 0;
 
+int g_ventoy_disk_bios_id = 0;
 ventoy_gpt_info *g_ventoy_part_info = NULL;
 grub_uint64_t g_ventoy_disk_size = 0;
 grub_uint64_t g_ventoy_disk_part_size[2];
@@ -2295,8 +2296,8 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
                               "menuentry \"[Return to ListView]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                              "  echo '%s ...' \n"
-                              "}\n", "return");
+                              "  echo 'return ...' \n"
+                              "}\n");
             }
         }
 
@@ -2350,16 +2351,16 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
         if (g_tree_view_menu_style == 0)
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "menuentry \"%-10s [%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
                           "  echo 'return ...' \n"
-                          "}\n", "<--");
+                          "}\n", "<--", node->dir);
         }
         else
         {
             vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
-                          "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                          "  echo '%s ...' \n"
-                          "}\n", "return");
+                          "menuentry \"[%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                          "  echo 'return ...' \n"
+                          "}\n", node->dir);
         }
     }
 
@@ -2397,7 +2398,7 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
 
     if (node != &g_img_iterator_head)
     {
-        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "%s", "}\n");
+        vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, "}\n");
     }
 
     node->done = 1;
@@ -4526,6 +4527,8 @@ int ventoy_load_part_table(const char *diskname)
 
     g_ventoy_disk_size = disk->total_sectors * (1U << disk->log_sector_size);
 
+    g_ventoy_disk_bios_id = disk->id;
+
     grub_disk_read(disk, 0, 0, sizeof(ventoy_gpt_info), g_ventoy_part_info);
     grub_disk_close(disk);
 
@@ -5565,6 +5568,33 @@ static grub_err_t ventoy_cmd_fn_mutex_lock(grub_extcmd_context_t ctxt, int argc,
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_dump_rsv_page(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_uint64_t total;
+    grub_uint64_t org_required;
+    grub_uint64_t new_required;
+    
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+#ifdef GRUB_MACHINE_EFI
+    grub_efi_get_reserved_page_num(&total, &org_required, &new_required);
+    grub_printf("Total pages: %llu\n", (unsigned long long)total);
+    grub_printf("OrgReq pages: %llu\n", (unsigned long long)org_required);
+    grub_printf("NewReq pages: %llu\n", (unsigned long long)new_required);
+#else
+    (void)total;
+    (void)org_required;
+    (void)new_required;
+    grub_printf("Non EFI mode!\n");
+#endif
+
+    grub_refresh();
+
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
 int ventoy_env_init(void)
 {
     char buf[64];
@@ -5766,6 +5796,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_iso_vd_id_clear", ventoy_iso_vd_id_clear, 0, NULL, "", "", NULL },
     { "vt_iso_vd_id_begin", ventoy_cmd_iso_vd_id_begin, 0, NULL, "", "", NULL },
     { "vt_fn_mutex_lock", ventoy_cmd_fn_mutex_lock, 0, NULL, "", "", NULL },
+    { "vt_efi_dump_rsv_page", ventoy_cmd_dump_rsv_page, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

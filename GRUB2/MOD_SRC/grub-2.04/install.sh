@@ -9,7 +9,7 @@ mkdir -p $VT_DIR/GRUB2/PXE
 
 make install
 
-PATH=$PATH:$VT_DIR/GRUB2/INSTALL/bin/:$VT_DIR/GRUB2/INSTALL/sbin/
+PATH=$VT_DIR/GRUB2/INSTALL/bin/:$VT_DIR/GRUB2/INSTALL/sbin/:$PATH
 
 net_modules_legacy="net tftp http"
 all_modules_legacy="file setkey date drivemap blocklist regexp newc vga_text ntldr search at_keyboard usb_keyboard  gcry_md5 hashsum gzio xzio lzopio lspci pci ext2 xfs ventoy chain read halt iso9660 linux16 test true sleep reboot echo videotest videoinfo videotest_checksum video_colors video_cirrus video_bochs vga vbe video_fb font video gettext extcmd terminal  linux minicmd help configfile tr trig boot biosdisk disk ls tar squash4 password_pbkdf2 all_video png jpeg part_gpt part_msdos fat exfat ntfs loopback gzio normal  udf gfxmenu gfxterm gfxterm_background gfxterm_menu smbios"

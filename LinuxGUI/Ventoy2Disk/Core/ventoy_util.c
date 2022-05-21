@@ -164,11 +164,40 @@ end:
     return mount;
 }
 
+static int ventoy_mount_path_escape(char *src, char *dst, int len)
+{
+    int i = 0;
+    int n = 0;
+    
+    dst[len - 1] = 0;
+
+    for (i = 0; i < len - 1; i++)
+    {
+        if (src[i] == '\\' && src[i + 1] == '0' && src[i + 2] == '4' && src[i + 3] == '0')
+        {
+            dst[n++] = ' ';
+            i += 3;
+        }
+        else
+        {
+            dst[n++] = src[i];
+        }
+    
+        if (src[i] == 0)
+        {
+            break;
+        }
+    }
+
+    return 0;
+}
+
 int ventoy_try_umount_disk(const char *devpath)
 {
     int rc;
     int len;
-    char line[512];
+    char line[1024];
+    char mntpt[1024];
     char *pos1 = NULL;
     char *pos2 = NULL;
     FILE *fp = NULL;
@@ -193,14 +222,15 @@ int ventoy_try_umount_disk(const char *devpath)
                     *pos2 = 0;
                 }
 
-                rc = umount(pos1 + 1);
+                ventoy_mount_path_escape(pos1 + 1, mntpt, sizeof(mntpt));                
+                rc = umount(mntpt);
                 if (rc)
                 {
-                    vdebug("umount %s %s [ failed ] error:%d\n", devpath, pos1 + 1, errno);                                        
+                    vdebug("umount <%s> <%s> [ failed ] error:%d\n", devpath, mntpt, errno);                                        
                 }
                 else
                 {
-                    vdebug("umount %s %s [ success ]\n", devpath, pos1 + 1);
+                    vdebug("umount <%s> <%s> [ success ]\n", devpath, mntpt);
                 }
             }
         }
@@ -209,7 +239,6 @@ int ventoy_try_umount_disk(const char *devpath)
     fclose(fp);
     return 0;
 }
-
 
 int ventoy_read_file_to_buf(const char *FileName, int ExtLen, void **Bufer, int *BufLen)
 {

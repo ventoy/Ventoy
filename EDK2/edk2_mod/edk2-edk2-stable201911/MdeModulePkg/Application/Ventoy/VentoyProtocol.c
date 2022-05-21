@@ -155,7 +155,8 @@ STATIC EFI_STATUS EFIAPI ventoy_read_iso_sector
     ventoy_override_chunk *pOverride = g_override_chunk;
     EFI_BLOCK_IO_PROTOCOL *pRawBlockIo = gBlockData.pRawBlockIo;
     
-    debug("read iso sector %lu count %u Buffer:%p Align:%u", Sector, Count, Buffer, pRawBlockIo->Media->IoAlign);
+    debug("read iso sector %lu count %u Buffer:%p Align:%u blk:%u", 
+        Sector, Count, Buffer, pRawBlockIo->Media->IoAlign, pRawBlockIo->Media->BlockSize);
 
     ReadStart = Sector * 2048;
     ReadEnd = (Sector + Count) * 2048;
@@ -1444,7 +1445,7 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
         AsciiSPrint(TmpName, sizeof(TmpName), "%s", Name);
         for (j = 0; j < 4; j++)
         {
-            if (0 == AsciiStrCmp(g_file_replace_list[i].old_file_name[j], TmpName))
+            if (0 == AsciiStriCmp(g_file_replace_list[i].old_file_name[j], TmpName))
             {
                 g_original_fclose(*New);
                 *New = &g_efi_file_replace.WrapperHandle;

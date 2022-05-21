@@ -520,13 +520,13 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
 
     if (g_tree_view_menu_style == 0)
     {
-        browser_ssprintf(&mbuf, "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                         "  echo 'return ...' \n}\n", "<--");        
+        browser_ssprintf(&mbuf, "menuentry \"%-10s [(%s)%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                         "  echo 'return ...' \n}\n", "<--", args[0], g_menu_path_buf);        
     }
     else
     {
-        browser_ssprintf(&mbuf, "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                         "  echo 'return ...' \n}\n");        
+        browser_ssprintf(&mbuf, "menuentry \"[(%s)%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
+                         "  echo 'return ...' \n}\n", args[0], g_menu_path_buf);        
     }
 
     for (i = 1; i >= 0; i--)
