@@ -19,6 +19,17 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-echo "-[-a-z0-9]*2 root:root 0666 @$BUSYBOX_PATH/sh $VTOY_PATH/hook/alpine/udev_disk_hook.sh" >> /mdev.conf
-$CAT /etc/mdev.conf >> /mdev.conf
-$BUSYBOX_PATH/mv /mdev.conf /etc/mdev.conf
+PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+
+LineBegin=$(grep -n "ebegin.*Mounting boot media" /init | awk -F: '{print $1}')
+
+grep -n "^eend" /init > /t.list
+while read line; do
+    LineEnd=$(echo $line | awk -F: '{print $1}')
+    if [ $LineEnd -gt $LineBegin ]; then
+        sed "${LineEnd}i\done" -i /init
+        sed "${LineBegin}r /ventoy/hook/alpine/insert.sh" -i /init        
+        break
+    fi
+done < /t.list
+rm -f /t.list

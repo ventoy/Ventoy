@@ -27,8 +27,8 @@ vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-$BUSYBOX_PATH/insmod $VTOY_PATH/modules/dax.ko
-$BUSYBOX_PATH/insmod $VTOY_PATH/modules/dm-mod.ko
+[ -f $VTOY_PATH/modules/dax.ko ] && $BUSYBOX_PATH/insmod $VTOY_PATH/modules/dax.ko
+[ -f $VTOY_PATH/modules/dm-mod.ko ] && $BUSYBOX_PATH/insmod $VTOY_PATH/modules/dm-mod.ko
 
 wait_for_usb_disk_ready
 

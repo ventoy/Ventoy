@@ -64,8 +64,11 @@ if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
     $BUSYBOX_PATH/rm -rf $VTOY_PATH/selinuxfs
 fi
 
-
 echo "VTKS=$VTKS  VTOVERLAY=$VTOVERLAY" >> $VTLOG
+
+if [ -n "$vtRawKs" ]; then
+    echo "$vtRawKs" > $VTOY_PATH/ventoy_ks_rootpath
+fi
 
 if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
     for vtDud in $(ls $VTOY_PATH/ventoy_dud*); do

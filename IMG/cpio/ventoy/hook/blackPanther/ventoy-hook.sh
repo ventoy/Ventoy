@@ -22,4 +22,4 @@
 ventoy_set_inotify_script  blackPanther/ventoy-inotifyd-hook.sh
 $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/blackPanther/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/00-ventoy-inotifyd-start.sh
 
-$SED "s#printf\(.*\)\$CMDLINE#printf\1 root=/dev/dm-0 \$CMDLINE root=/dev/dm-0#" -i /lib/dracut-lib.sh
+$SED "s#printf\(.*\)\$CMDLINE#printf\1 root=/dev/ventoy \$CMDLINE root=/dev/ventoy#" -i /lib/dracut-lib.sh

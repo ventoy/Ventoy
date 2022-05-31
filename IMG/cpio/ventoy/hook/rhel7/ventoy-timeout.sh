@@ -28,6 +28,15 @@ if [ ! -e /dev/ventoy ]; then
     mknod -m 660 /dev/ventoy  b  $blkdev_num_mknod
 fi
 
+if [ -f $VTOY_PATH/ventoy_ks_rootpath ]; then
+    vt_ks_rootpath=$(cat $VTOY_PATH/ventoy_ks_rootpath)
+    vtlog "ks rootpath <$vt_ks_rootpath>"
+    if [ -e /sbin/fetch-kickstart-disk ]; then
+        vtlog "fetch-kickstart-disk ..."        
+        /sbin/fetch-kickstart-disk /dev/ventoy "$vt_ks_rootpath"
+    fi
+fi
+
 if [ -e /sbin/anaconda-diskroot ]; then
     vtlog "set anaconda-diskroot /dev/ventoy ..."
     /sbin/anaconda-diskroot /dev/ventoy

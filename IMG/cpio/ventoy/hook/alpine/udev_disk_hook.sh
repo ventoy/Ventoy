@@ -19,21 +19,16 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if [ "$SUBSYSTEM" != "block" ] || [ "$DEVTYPE" != "partition" ]; then    
-    exit 0
-fi
-
-if [ -b /dev/${MDEV:0:-1} ]; then
-    vtlog "/dev/${MDEV:0:-1} exist"
-else
-    $SLEEP 2
-fi
-
-if is_ventoy_hook_finished || not_ventoy_disk "${MDEV:0:-1}"; then
-    exit 0
-fi
-
 PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+
+wait_for_usb_disk_ready
+
+vtdiskname=$(get_ventoy_disk_name)
+if [ "$vtdiskname" = "unknown" ]; then
+    vtlog "ventoy disk not found"
+    PATH=$VTPATH_OLD
+    exit 0
+fi
 
 #
 # longpanda:
@@ -47,13 +42,17 @@ PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 #   3. unmount and delete the squashfs file
 #
 
+MDEV="${vtdiskname#/dev/}2"
+
 vtoydm -i -f $VTOY_PATH/ventoy_image_map -d /dev/${MDEV:0:-1} > $VTOY_PATH/iso_file_list
 
 vtLine=$(grep '[-][-] modloop-lts ' $VTOY_PATH/iso_file_list)
 sector=$(echo $vtLine | awk '{print $(NF-1)}')
 length=$(echo $vtLine | awk '{print $NF}')
 
+echo -n "Mounting boot media, please wait ......"
 vtoydm -e -f $VTOY_PATH/ventoy_image_map -d /dev/${MDEV:0:-1} -s $sector -l $length -o /vt_modloop
+echo "done"
 
 mkdir -p $VTOY_PATH/mnt
 mount /vt_modloop $VTOY_PATH/mnt

@@ -54,6 +54,15 @@ if is_inotify_ventoy_part $3; then
         vtlog "$vtGenRulFile not exist..."
     fi
     
+    if [ -f $VTOY_PATH/ventoy_ks_rootpath ]; then
+        vt_ks_rootpath=$(cat $VTOY_PATH/ventoy_ks_rootpath)
+        vtlog "ks rootpath <$vt_ks_rootpath>"
+        if [ -e /sbin/fetch-kickstart-disk ]; then
+            vtlog "fetch-kickstart-disk ..."        
+            /sbin/fetch-kickstart-disk /dev/ventoy "$vt_ks_rootpath"
+        fi
+    fi
+    
     if [ -e /sbin/anaconda-diskroot ]; then
         vtlog "set anaconda-diskroot ..."        
         /sbin/anaconda-diskroot /dev/ventoy
