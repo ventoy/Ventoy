@@ -2612,23 +2612,37 @@ static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int arg
 {
     char value[32];
     char *pos = NULL;
+    char *last = NULL;
     const char *id = NULL;
     img_info *cur = NULL;
 
     (void)ctxt;
     
-    if (argc < 1 || argc > 2)
+    if (argc < 1 || argc > 3)
     {
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Usage: %s {var}", cmd_raw_name);
     }
 
     if (g_fake_vlnk_src[0] && g_fake_vlnk_dst[0])
     {
-        grub_env_set(args[0], grub_strchr(g_fake_vlnk_src, '/'));
+        pos = grub_strchr(g_fake_vlnk_src, '/');
+        grub_env_set(args[0], pos);
         if (argc > 1)
         {
             grub_snprintf(value, sizeof(value), "%llu", (ulonglong)(g_fake_vlnk_size));
             grub_env_set(args[1], value);        
+        }
+        
+        if (argc > 2)
+        {
+            for (last = pos; *pos; pos++)
+            {
+                if (*pos == '/')
+                {
+                    last = pos;
+                }
+            }
+            grub_env_set(args[2], last + 1);
         }
 
         goto end;
@@ -2657,6 +2671,12 @@ static grub_err_t ventoy_cmd_chosen_img_path(grub_extcmd_context_t ctxt, int arg
     {
         grub_snprintf(value, sizeof(value), "%llu", (ulonglong)(cur->size));
         grub_env_set(args[1], value);        
+    }
+    
+    if (argc > 2)
+    {
+        grub_snprintf(value, sizeof(value), "%llu", (ulonglong)(cur->size));
+        grub_env_set(args[2], cur->name);
     }
 
 end:
