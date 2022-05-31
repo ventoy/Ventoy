@@ -64,6 +64,10 @@ if [ -f $VTOY_PATH/autoinstall ]; then
             $SED "/^mount \/proc/a export file=$VTOY_PATH/autoinstall; export auto='true'; export priority='critical'"  -i /init
         fi
     fi
+    
+    # if [ -e /bin/check-missing-firmware ]; then
+    #     $SED "/^#!/a\exit 0" -i /bin/check-missing-firmware
+    # fi
 fi
 
 #for ARMA aka Omoikane
