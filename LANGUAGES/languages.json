@@ -585,7 +585,7 @@
         "STR_PART_RESIZE_FAILED":"Installation ohne vorherige Formatierung fehlgeschlagen. Für Details die log.txt prüfen.",
         "STR_PART_RESIZE_UNSUPPORTED":"Installation ohne vorherige Formatierung wurde auf Grund einiger nicht erfüllbarer Bedingungen gestoppt. Für Details die log.txt prüfen.",
         "STR_INSTALL_YES_TIP1":"Warnung: Die Daten gehen verloren!",
-        "STR_INSTALL_YES_TIP2":"Bitte bestätigen Sie in der unteren Textbox mit JA, dass Sie anstelle eines Upgrades eine frische Installation durchführen möchten.",
+        "STR_INSTALL_YES_TIP2":"Bitte bestätigen Sie in der unteren Textbox mit YES, dass Sie anstelle eines Upgrades eine frische Installation durchführen möchten.",
         
         "STRXXX":""
     },
