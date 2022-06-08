@@ -3715,20 +3715,70 @@ static grub_err_t ventoy_cmd_dump_persistence(grub_extcmd_context_t ctxt, int ar
     return 0;
 }
 
+static int ventoy_check_mode_by_name(char *filename, const char *suffix)
+{
+    int i;
+    int len1;
+    int len2;
+    
+    len1 = (int)grub_strlen(filename);
+    len2 = (int)grub_strlen(suffix);
+
+    if (len1 <= len2)
+    {
+        return 0;
+    }
+
+    for (i = len1 - 1; i >= 0; i--)
+    {
+        if (filename[i] == '.')
+        {
+            break;
+        }
+    }
+
+    if (i < len2 + 1)
+    {
+        return 0;
+    }
+
+    if (filename[i - len2 - 1] != '_')
+    {
+        return 0;
+    }
+
+    if (grub_strncasecmp(filename + (i - len2), suffix, len2) == 0)
+    {
+        return 1;
+    }
+    
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_check_mode(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
     (void)argc;
     (void)args;
 
-    if (argc != 1)
+    if (argc != 1 && argc != 2)
     {
         return 1;
     }
 
     if (args[0][0] == '0')
     {
-        return g_ventoy_memdisk_mode ? 0 : 1;
+        if (g_ventoy_memdisk_mode)
+        {
+            return 0;
+        }
+
+        if (argc == 2 && ventoy_check_mode_by_name(args[1], "vtmemdisk"))
+        {
+            return 0;
+        }
+
+        return 1;
     }
     else if (args[0][0] == '1')
     {
@@ -3740,11 +3790,31 @@ static grub_err_t ventoy_cmd_check_mode(grub_extcmd_context_t ctxt, int argc, ch
     }
     else if (args[0][0] == '3')
     {
-        return g_ventoy_grub2_mode ? 0 : 1;
+        if (g_ventoy_grub2_mode)
+        {
+            return 0;
+        }
+    
+        if (argc == 2 && ventoy_check_mode_by_name(args[1], "vtgrub2"))
+        {
+            return 0;
+        }
+
+        return 1;
     }
     else if (args[0][0] == '4')
     {
-        return g_ventoy_wimboot_mode ? 0 : 1;
+        if (g_ventoy_wimboot_mode)
+        {
+            return 0;
+        }
+    
+        if (argc == 2 && ventoy_check_mode_by_name(args[1], "vtwimboot"))
+        {
+            return 0;
+        }
+
+        return 1;
     }
 
     return 1;
