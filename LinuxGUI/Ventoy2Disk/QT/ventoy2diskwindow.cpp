@@ -436,8 +436,7 @@ void Ventoy2DiskWindow::OnInitWindow(void)
     QPixmap pix2;
     char ver[512];
 
-    //ui->labelVentoyLocalSecure->hide();
-    ui->actionSecure_Boot_Support->trigger();
+    ui->labelVentoyLocalSecure->hide();
 
     m_part_group->addAction(ui->actionMBR);
     m_part_group->addAction(ui->actionGPT);
@@ -472,6 +471,8 @@ void Ventoy2DiskWindow::OnInitWindow(void)
     ui->labelVentoyDeviceSecure->setHidden(true);
     ui->labelVentoyDeviceVer->setText("");
     ui->labelVentoyDevicePartStyle->setText("");
+
+    ui->actionSecure_Boot_Support->trigger();
 
     ui->actionShow_All_Devices->setChecked(ventoy_code_get_cur_show_all());
 
@@ -665,7 +666,7 @@ void Ventoy2DiskWindow::on_comboBoxDevice_currentIndexChanged(int index)
     }
     else
     {
-        if (ui->actionSecure_Boot_Support->isChecked())
+        if (!(ui->actionSecure_Boot_Support->isChecked()))
         {
             ui->actionSecure_Boot_Support->trigger();
         }
