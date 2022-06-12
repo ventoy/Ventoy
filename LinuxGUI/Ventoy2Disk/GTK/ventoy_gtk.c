@@ -38,7 +38,7 @@
 #include <gdk/gdkkeysyms.h>
 #include "ventoy_gtk.h"
 
-int g_secure_boot_support = 0;
+int g_secure_boot_support = 1;
 GtkWidget *g_topWindow = NULL;
 GtkWidget *g_partCfgWindow = NULL;
 GtkBuilder *g_pXmlBuilder = NULL;

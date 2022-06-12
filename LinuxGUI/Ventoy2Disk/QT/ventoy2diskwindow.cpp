@@ -436,7 +436,8 @@ void Ventoy2DiskWindow::OnInitWindow(void)
     QPixmap pix2;
     char ver[512];
 
-    ui->labelVentoyLocalSecure->hide();
+    //ui->labelVentoyLocalSecure->hide();
+    ui->actionSecure_Boot_Support->trigger();
 
     m_part_group->addAction(ui->actionMBR);
     m_part_group->addAction(ui->actionGPT);
