@@ -19,6 +19,8 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
+/sbin/mdev -s
+
 # Just for KVM test environment
 $BUSYBOX_PATH/modprobe virtio_blk 2>/dev/null
 $BUSYBOX_PATH/modprobe virtio_pci 2>/dev/null
@@ -34,3 +36,6 @@ for i in 0 1 2 3 4 5 6 7 8 9; do
 done
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
+
+$BUSYBOX_PATH/rm -f /dev/dm-*
+

@@ -19,6 +19,6 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$SED "/mount_boot /i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/disk_hook.sh"  -i /init    
+$SED "/mount_boot[^(]*$/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/daphile/disk_hook.sh"  -i /init    
 
 $SED "s#'\.\*/block/mmcblk[^ ]*'#'\.\*/block/dm-[0-9]*'#" -i /init
