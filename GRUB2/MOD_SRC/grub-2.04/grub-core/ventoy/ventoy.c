@@ -76,7 +76,26 @@ void ventoy_str_toupper(char *str)
     }
 }
 
+char *ventoy_str_last(char *str, char ch)
+{
+    char *pos = NULL;
+    char *last = NULL;
 
+    if (!str)
+    {
+        return NULL;
+    }
+
+    for (pos = str; *pos; pos++)
+    {
+        if (*pos == ch)
+        {
+            last = pos;
+        }
+    }
+
+    return last;
+}
 
 int ventoy_strcmp(const char *pattern, const char *str)
 {

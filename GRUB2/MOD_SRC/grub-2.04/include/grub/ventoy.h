@@ -139,7 +139,13 @@ typedef struct ventoy_windows_data
     char auto_install_script[384];
     char injection_archive[384];
     grub_uint8_t windows11_bypass_check;
-    grub_uint8_t reserved[255];
+
+    grub_uint32_t auto_install_len;
+    
+    grub_uint8_t reserved[255 - 4];
+
+    /* auto_intall file buf */
+    /* ...... + auto_install_len */
 }ventoy_windows_data;
 
 

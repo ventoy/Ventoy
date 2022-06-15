@@ -45,6 +45,7 @@
 #include <grub/charset.h>
 #include <grub/crypto.h>
 #include <grub/lib/crc.h>
+#include <grub/random.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 #include "miniz.h"
@@ -3366,12 +3367,177 @@ end:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_var_expand(int *flag, const char *var, char *value, int len)
+{
+    int i = 0;
+    int n = 0;
+    char c;
+    grub_uint8_t bytes[32];
+
+    if (grub_strncmp(var, "VT_RAND_", 8) == 0)
+    {
+        grub_crypto_get_random(bytes, sizeof(bytes));
+        if (grub_strcmp(var + 8, "9") == 0)
+        {
+            n = 1;
+        }
+        else if (grub_strcmp(var + 8, "99") == 0)
+        {
+            n = 2;
+        }
+        else if (grub_strcmp(var + 8, "999") == 0)
+        {
+            n = 3;
+        }
+        else if (grub_strcmp(var + 8, "9999") == 0)
+        {
+            n = 4;
+        }
+
+        for (i = 0; i < n; i++)
+        {
+            value[i] = '0' + (bytes[i] % 10);
+        }
+    }
+    else
+    {
+        if (*flag == 0)
+        {
+            *flag = 1;
+            grub_printf("\n===================  Parameter Expansion  ===================\n\n");
+        }
+    
+        grub_printf("<%s>: ", var);
+        grub_refresh();
+
+        while (i < (len - 1))
+        {
+            c = grub_getkey();
+            if ((c == '\n') || (c == '\r'))
+            {
+                grub_printf("\n");
+                grub_refresh();
+                break;
+            }
+
+            if (grub_isprint(c))
+            {
+                grub_printf("%c", c);
+                grub_refresh();
+                value[i++] = c;
+                value[i] = 0;
+            }
+            else if (c == '\b')
+            {
+                if (i > 0)
+                {
+                    value[i - 1] = ' ';
+                    grub_printf("\r<%s>: %s", var, value);
+
+                    value[i - 1] = 0;
+                    grub_printf("\r<%s>: %s", var, value);
+                    
+                    grub_refresh();
+                    i--;
+                }
+            }
+        }
+    }
+
+    if (value[0] == 0)
+    {
+        grub_snprintf(value, len, "%s", var);
+    }
+    
+    return 0;
+}
+
+static int ventoy_auto_install_var_expand(install_template *node)
+{
+    int pos = 0;
+    int flag = 0;
+    int newlen = 0;
+    char *start = NULL;
+    char *end = NULL;
+    char *newbuf = NULL;
+    char *curline = NULL;
+    char *nextline = NULL;
+    grub_uint8_t *code = NULL;
+    char value[512];
+
+    code = (grub_uint8_t *)node->filebuf;
+    
+    if ((code[0] == 0xff && code[1] == 0xfe) || (code[0] == 0xfe && code[1] == 0xff))
+    {
+        debug("UCS-2 encoding NOT supported\n");
+        return 0;
+    }
+
+    start = grub_strstr(node->filebuf, "$<");
+    if (!start)
+    {
+        debug("no need to expand variable, no start.\n");
+        return 0;
+    }
+
+    end = grub_strstr(start + 2, ">$");
+    if (!end)
+    {
+        debug("no need to expand variable, no end.\n");
+        return 0;
+    }
+
+    newlen = grub_max(node->filelen * 10, VTOY_SIZE_128KB);
+    newbuf = grub_malloc(newlen);
+    if (!newbuf)
+    {
+        debug("Failed to alloc newbuf %d\n", newlen);
+        return 0;
+    }
+
+    for (curline = node->filebuf; curline; curline = nextline)
+    {
+        nextline = ventoy_get_line(curline);
+
+        start = grub_strstr(curline, "$<");
+        if (start)
+        {
+            end = grub_strstr(start + 2, ">$");
+        }
+
+        if (start && end)
+        {
+            *start = *end = 0;
+            VTOY_APPEND_NEWBUF(curline);
+
+            value[sizeof(value) - 1] = 0;
+            ventoy_var_expand(&flag, start + 2, value, sizeof(value) - 1);
+            VTOY_APPEND_NEWBUF(value);
+            
+            VTOY_APPEND_NEWBUF(end + 2);
+        }
+        else
+        {
+            VTOY_APPEND_NEWBUF(curline);
+        }
+        
+        newbuf[pos++] = '\n';
+    }
+
+    grub_free(node->filebuf);
+    node->filebuf = newbuf;
+    node->filelen = pos;
+
+    return 0;
+}
+
 static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int i = 0;
     int pos = 0;
     int defidx = 1;
     char *buf = NULL;
+    grub_file_t file = NULL;
     char configfile[128];
     install_template *node = NULL;
         
@@ -3439,6 +3605,33 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
     grub_free(buf);
 
     node->cursel = g_ventoy_last_entry - 1;
+
+    grub_check_free(node->filebuf);
+    node->filelen = 0;
+
+    if (node->cursel >= 0 && node->cursel < node->templatenum)
+    {
+        file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", ventoy_get_env("vtoy_iso_part"), 
+            node->templatepath[node->cursel].path);
+        if (file)
+        {
+            node->filebuf = grub_malloc(file->size + 1);
+            if (node->filebuf)
+            {
+                grub_file_read(file, node->filebuf, file->size);
+                grub_file_close(file);
+                node->filebuf[file->size] = 0;
+                node->filelen = (int)file->size;
+
+                ventoy_auto_install_var_expand(node);
+            }
+        }
+        else
+        {
+            debug("Failed to open auto install script <%s%s>\n", 
+                ventoy_get_env("vtoy_iso_part"), node->templatepath[node->cursel].path);
+        }
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }

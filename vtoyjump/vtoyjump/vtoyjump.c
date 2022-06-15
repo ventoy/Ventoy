@@ -47,6 +47,8 @@ static CHAR g_prog_name[MAX_PATH];
 #define AUTO_RUN_BAT    "X:\\VentoyAutoRun.bat"
 #define AUTO_RUN_LOG    "X:\\VentoyAutoRun.log"
 
+#define VTOY_AUTO_FILE   "X:\\_vtoy_auto_install"
+
 #define LOG_FILE  "X:\\Windows\\system32\\ventoy.log"
 #define MUTEX_LOCK(hmutex)  if (hmutex != NULL) LockStatus = WaitForSingleObject(hmutex, INFINITE)
 #define MUTEX_UNLOCK(hmutex)  if (hmutex != NULL && WAIT_OBJECT_0 == LockStatus) ReleaseMutex(hmutex)
@@ -255,9 +257,25 @@ End:
 	return rc;
 }
 
-static BOOL CheckPeHead(BYTE *Head)
+static BOOL CheckPeHead(BYTE *Buffer, DWORD Size, DWORD Offset)
 {
 	UINT32 PeOffset;
+    BYTE *Head = NULL;
+    DWORD End;
+    ventoy_windows_data *pdata = NULL;
+
+    Head = Buffer + Offset;
+    pdata = (ventoy_windows_data *)Head;
+    Head += sizeof(ventoy_windows_data);
+
+    if (pdata->auto_install_script[0] && pdata->auto_install_len > 0)
+    {
+        End = Offset + sizeof(ventoy_windows_data) + pdata->auto_install_len + 60;
+        if (End < Size)
+        {
+            Head += pdata->auto_install_len;
+        }
+    }
 
 	if (Head[0] != 'M' || Head[1] != 'Z')
 	{
@@ -1647,11 +1665,10 @@ static int VentoyHook(ventoy_os_param *param)
     
     if (g_windows_data.auto_install_script[0])
     {
-        sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", VtoyLetter, g_windows_data.auto_install_script);
-        if (IsFileExist("%s", IsoPath))
+        if (IsFileExist("%s", VTOY_AUTO_FILE))
         {
-            Log("use auto install script %s...", IsoPath);
-            ProcessUnattendedInstallation(IsoPath);
+            Log("use auto install script %s...", VTOY_AUTO_FILE);
+            ProcessUnattendedInstallation(VTOY_AUTO_FILE);
         }
         else
         {
@@ -1724,6 +1741,25 @@ static int VentoyHook(ventoy_os_param *param)
     return 0;
 }
 
+static int ExtractWindowsDataFile(char *databuf)
+{
+    int len = 0;
+    char *filedata = NULL;
+    ventoy_windows_data *pdata = (ventoy_windows_data *)databuf;
+
+    Log("ExtractWindowsDataFile: auto install <%s:%d>", pdata->auto_install_script, pdata->auto_install_len);
+
+    filedata = databuf + sizeof(ventoy_windows_data);
+
+    if (pdata->auto_install_script[0] && pdata->auto_install_len > 0)
+    {
+        SaveBuffer2File(VTOY_AUTO_FILE, filedata, pdata->auto_install_len);
+        filedata += pdata->auto_install_len;
+        len = pdata->auto_install_len;
+    }
+    
+    return len;
+}
 
 int VentoyJumpWimboot(INT argc, CHAR **argv, CHAR *LunchFile)
 {
@@ -1741,6 +1777,7 @@ int VentoyJumpWimboot(INT argc, CHAR **argv, CHAR *LunchFile)
 
     memcpy(&g_os_param, buf, sizeof(ventoy_os_param));
     memcpy(&g_windows_data, buf + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));
+    ExtractWindowsDataFile(buf + sizeof(ventoy_os_param));
     memcpy(g_os_param_reserved, g_os_param.vtoy_reserved, sizeof(g_os_param_reserved));
 
     if (g_os_param_reserved[0] == 1)
@@ -1800,6 +1837,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 {
 	int rc = 1;
     int stat = 0;
+    int exlen = 0;
 	DWORD Pos;
 	DWORD PeStart;
     DWORD FileSize;
@@ -1835,12 +1873,13 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 	for (PeStart = 0; PeStart < FileSize; PeStart += 16)
 	{
 		if (CheckOsParam((ventoy_os_param *)(Buffer + PeStart)) && 
-            CheckPeHead(Buffer + PeStart + sizeof(ventoy_os_param) + sizeof(ventoy_windows_data)))
+            CheckPeHead(Buffer, FileSize, PeStart + sizeof(ventoy_os_param)))
 		{
 			Log("Find os pararm at %u", PeStart);
 
             memcpy(&g_os_param, Buffer + PeStart, sizeof(ventoy_os_param));
-            memcpy(&g_windows_data, Buffer + PeStart + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));            
+            memcpy(&g_windows_data, Buffer + PeStart + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));  
+            exlen = ExtractWindowsDataFile(Buffer + PeStart + sizeof(ventoy_os_param));
             memcpy(g_os_param_reserved, g_os_param.vtoy_reserved, sizeof(g_os_param_reserved));
 
             if (g_os_param_reserved[0] == 1)
@@ -1858,7 +1897,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
 				}
 			}
 
-			PeStart += sizeof(ventoy_os_param) + sizeof(ventoy_windows_data);
+			PeStart += sizeof(ventoy_os_param) + sizeof(ventoy_windows_data) + exlen;
 			sprintf_s(LunchFile, MAX_PATH, "ventoy\\%s", GetFileNameInPath(ExeFileName));
 
             MUTEX_LOCK(g_vtoyins_mutex);

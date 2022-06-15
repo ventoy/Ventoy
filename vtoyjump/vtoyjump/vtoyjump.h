@@ -72,7 +72,15 @@ typedef struct ventoy_windows_data
     char auto_install_script[384];
     char injection_archive[384];
     UINT8 windows11_bypass_check;
-    UINT8 reserved[255];
+
+    UINT32 auto_install_len;
+    
+    UINT8 reserved[255 - 4];
+
+    /* auto install script file data ... + auto_install_len */
+    /* ...... */
+
+    
 }ventoy_windows_data;
 
 

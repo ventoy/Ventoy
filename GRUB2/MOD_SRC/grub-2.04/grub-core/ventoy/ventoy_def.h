@@ -36,10 +36,13 @@
 #define VTOY_SIZE_512KB   (512 * 1024)
 #define VTOY_SIZE_1KB     1024
 #define VTOY_SIZE_32KB    (32 * 1024)
+#define VTOY_SIZE_128KB   (128 * 1024)
 
 #define JSON_SUCCESS    0
 #define JSON_FAILED     1
 #define JSON_NOT_FOUND  2
+
+#define WINDATA_FLAG_TEMPLATE   1
 
 #define ulong unsigned long
 #define ulonglong  unsigned long long
@@ -82,6 +85,16 @@
     grub_sleep(5); \
     grub_exit(); \
     return (err);\
+}
+
+#define VTOY_APPEND_NEWBUF(buf) \
+{\
+    char *__c = buf;\
+    while (*__c)\
+    {\
+        newbuf[pos++] = *__c;\
+        __c++;\
+    }\
 }
 
 typedef enum VTOY_FILE_FLT
@@ -488,6 +501,7 @@ typedef struct wim_tail
     grub_uint8_t *jump_bin_data;
     grub_uint32_t bin_raw_len;
     grub_uint32_t bin_align_len;
+    grub_uint32_t windata_flag;
 
     grub_uint8_t *new_meta_data;
     grub_uint32_t new_meta_len;
@@ -853,6 +867,9 @@ typedef struct install_template
     int templatenum;
     file_fullpath *templatepath;
 
+    char *filebuf;
+    int filelen;
+
     struct install_template *next;
 }install_template;
 
@@ -1061,15 +1078,15 @@ extern grub_uint32_t g_ventoy_plat_data;
 void ventoy_str_tolower(char *str);
 void ventoy_str_toupper(char *str);
 char * ventoy_get_line(char *start);
+char *ventoy_str_last(char *str, char ch);
 int ventoy_cmp_img(img_info *img1, img_info *img2);
 void ventoy_swap_img(img_info *img1, img_info *img2);
-char * ventoy_plugin_get_cur_install_template(const char *isopath);
+char * ventoy_plugin_get_cur_install_template(const char *isopath, install_template **cur);
 install_template * ventoy_plugin_find_install_template(const char *isopath);
 persistence_config * ventoy_plugin_find_persistent(const char *isopath);
 grub_uint64_t ventoy_get_vtoy_partsize(int part);
 void ventoy_plugin_dump_injection(void);
 void ventoy_plugin_dump_auto_install(void);
-int ventoy_fill_windows_rtdata(void *buf, char *isopath);
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list);
 const char * ventoy_plugin_get_injection(const char *isopath);
 const char * ventoy_plugin_get_menu_alias(int type, const char *isopath);

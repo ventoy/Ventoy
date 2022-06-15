@@ -2641,9 +2641,14 @@ install_template * ventoy_plugin_find_install_template(const char *isopath)
     return NULL;
 }
 
-char * ventoy_plugin_get_cur_install_template(const char *isopath)
+char * ventoy_plugin_get_cur_install_template(const char *isopath, install_template **cur)
 {
     install_template *node = NULL;
+
+    if (cur)
+    {
+        *cur = NULL;
+    }
 
     node = ventoy_plugin_find_install_template(isopath);
     if ((!node) || (!node->templatepath))
@@ -2654,6 +2659,11 @@ char * ventoy_plugin_get_cur_install_template(const char *isopath)
     if (node->cursel < 0 || node->cursel >= node->templatenum)
     {
         return NULL;
+    }
+
+    if (cur)
+    {
+        *cur = node;
     }
 
     return node->templatepath[node->cursel].path;
