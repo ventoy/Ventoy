@@ -1206,6 +1206,7 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
 grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **args);
 int ventoy_get_fs_type(const char *fs);
 int ventoy_img_name_valid(const char *filename, grub_size_t namelen);
+void * ventoy_alloc_chain(grub_size_t size);
 
 #endif /* __VENTOY_DEF_H__ */
 

@@ -1896,10 +1896,10 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
         }
     }
 
-    chain = grub_malloc(size);
+    chain = ventoy_alloc_chain(size);
     if (!chain)
     {
-        grub_printf("Failed to alloc chain memory size %u\n", size);
+        grub_printf("Failed to alloc chain win1 memory size %u\n", size);
         grub_file_close(file);
         return 1;
     }
@@ -2129,10 +2129,10 @@ static grub_err_t ventoy_vlnk_wim_chain_data(grub_file_t wimfile)
         }
     }
 
-    chain = grub_malloc(size);
+    chain = ventoy_alloc_chain(size);
     if (!chain)
     {
-        grub_printf("Failed to alloc chain memory size %u\n", size);
+        grub_printf("Failed to alloc chain win2 memory size %u\n", size);
         grub_file_close(file);
         return 1;
     }
@@ -2294,10 +2294,10 @@ static grub_err_t ventoy_normal_wim_chain_data(grub_file_t wimfile)
         }
     }
 
-    chain = grub_malloc(size);
+    chain = ventoy_alloc_chain(size);
     if (!chain)
     {
-        grub_printf("Failed to alloc chain memory size %u\n", size);
+        grub_printf("Failed to alloc chain win3 memory size %u\n", size);
         grub_file_close(file);
         return 1;
     }

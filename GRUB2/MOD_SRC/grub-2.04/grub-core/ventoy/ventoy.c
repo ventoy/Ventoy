@@ -38,6 +38,7 @@
 #include <grub/memory.h>
 #ifdef GRUB_MACHINE_EFI
 #include <grub/efi/efi.h>
+#include <grub/efi/memory.h>
 #endif
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
@@ -134,6 +135,22 @@ int ventoy_is_efi_os(void)
 
     return g_efi_os;
 }
+
+void * ventoy_alloc_chain(grub_size_t size)
+{
+    void *p = NULL;
+
+    p = grub_malloc(size);
+#ifdef GRUB_MACHINE_EFI
+    if (!p)
+    {
+        p = grub_efi_allocate_any_pages(GRUB_EFI_BYTES_TO_PAGES(size));
+    }
+#endif
+
+    return p;
+}
+
 
 static int ventoy_arch_mode_init(void)
 {

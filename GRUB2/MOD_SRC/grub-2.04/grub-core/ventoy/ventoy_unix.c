@@ -1185,10 +1185,10 @@ grub_err_t ventoy_cmd_unix_chain_data(grub_extcmd_context_t ctxt, int argc, char
         }
     }
 
-    chain = grub_malloc(size);
+    chain = ventoy_alloc_chain(size);
     if (!chain)
     {
-        grub_printf("Failed to alloc chain memory size %u\n", size);
+        grub_printf("Failed to alloc chain unix memory size %u\n", size);
         grub_file_close(file);
         return 1;
     }
