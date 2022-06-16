@@ -17,15 +17,27 @@
 # 
 #************************************************************************************
 
-. $VTOY_PATH/hook/ventoy-os-lib.sh
+. /ventoy/hook/ventoy-hook-lib.sh
 
-if $GREP -q find_and_mount_installer /init; then
-    echo "find_and_mount_installer" >> $VTLOG
-    $SED "/find_and_mount_installer *$/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/disk-hook.sh" -i  /init
-else
-    echo "find_installer" >> $VTLOG
-    $SED "/\$.*find_installer/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/disk-hook.sh" -i  /init
-fi
+VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-#issue 1674
-$SED "/switch_root/i $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/hidden-hook.sh" -i /init
+NEWROOT=$(grep switch_root /init | awk '{print $3}')
+
+for i in 'usr/bin' 'usr/sbin'; do
+    if [ -f $NEWROOT/$i/udevadm ]; then
+        UPATH=$i
+        break
+    fi
+done
+
+blkdev_num=$(dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
+
+sed "s#UPATH=.*#UPATH=/$UPATH#"  -i /ventoy/hook/clear/udevadm
+sed "s#DM=.*#DM=$vtDM#"  -i /ventoy/hook/clear/udevadm
+
+
+mv $NEWROOT/$UPATH/udevadm  $NEWROOT/$UPATH/udevadm_bk
+cp -a /ventoy/hook/clear/udevadm $NEWROOT/$UPATH/udevadm
+chmod 777 $NEWROOT/$UPATH/udevadm
+
