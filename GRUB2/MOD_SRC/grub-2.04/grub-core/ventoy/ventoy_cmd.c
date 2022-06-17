@@ -3367,37 +3367,32 @@ end:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-static int ventoy_var_expand(int *flag, const char *var, char *value, int len)
+static int ventoy_var_expand(int *flag, const char *var, char *expand, int len)
 {
     int i = 0;
     int n = 0;
     char c;
+    const char *c = var;
     grub_uint8_t bytes[32];
 
-    if (grub_strncmp(var, "VT_RAND_", 8) == 0)
-    {
-        grub_crypto_get_random(bytes, sizeof(bytes));
-        if (grub_strcmp(var + 8, "9") == 0)
-        {
-            n = 1;
-        }
-        else if (grub_strcmp(var + 8, "99") == 0)
-        {
-            n = 2;
-        }
-        else if (grub_strcmp(var + 8, "999") == 0)
-        {
-            n = 3;
-        }
-        else if (grub_strcmp(var + 8, "9999") == 0)
-        {
-            n = 4;
-        }
+    expand[0] = 0;
 
-        for (i = 0; i < n; i++)
+    while (*c)
+    {
+        if (*c == '_' || (*c >= '0' && *c <= '9') || (*c >= 'A' && *c <= 'Z'))
         {
-            value[i] = '0' + (bytes[i] % 10);
+            c++;            
         }
+        else
+        {
+            debug("Invalid variable letter <%c>\n", *c);
+            goto end;
+        }
+    }
+
+    if (grub_strncmp(var, "VT_RAND_9", 9) == 0)
+    {
+        
     }
     else
     {
@@ -3415,27 +3410,32 @@ static int ventoy_var_expand(int *flag, const char *var, char *value, int len)
             c = grub_getkey();
             if ((c == '\n') || (c == '\r'))
             {
-                grub_printf("\n");
-                grub_refresh();
-                break;
+                if (i > 0)
+                {
+                    grub_printf("\n");
+                    grub_refresh();
+                    break;                    
+                }
             }
-
-            if (grub_isprint(c))
+            else if (grub_isprint(c))
             {
-                grub_printf("%c", c);
-                grub_refresh();
-                value[i++] = c;
-                value[i] = 0;
+                if (i + 1 < (len - 1))
+                {
+                    grub_printf("%c", c);
+                    grub_refresh();
+                    expand[i++] = c;
+                    expand[i] = 0;
+                }
             }
             else if (c == '\b')
             {
                 if (i > 0)
                 {
-                    value[i - 1] = ' ';
-                    grub_printf("\r<%s>: %s", var, value);
+                    expand[i - 1] = ' ';
+                    grub_printf("\r<%s>: %s", var, expand);
 
-                    value[i - 1] = 0;
-                    grub_printf("\r<%s>: %s", var, value);
+                    expand[i - 1] = 0;
+                    grub_printf("\r<%s>: %s", var, expand);
                     
                     grub_refresh();
                     i--;
@@ -3444,9 +3444,10 @@ static int ventoy_var_expand(int *flag, const char *var, char *value, int len)
         }
     }
 
-    if (value[0] == 0)
+end:
+    if (expand[0] == 0)
     {
-        grub_snprintf(value, len, "%s", var);
+        grub_snprintf(expand, len, "$<%s>$", var);
     }
     
     return 0;
@@ -3466,6 +3467,12 @@ static int ventoy_auto_install_var_expand(install_template *node)
     char value[512];
 
     code = (grub_uint8_t *)node->filebuf;
+
+    if (node->filelen >= VTOY_SIZE_1MB)
+    {
+        debug("auto install script too long %d\n", node->filelen);
+        return 0;
+    }
     
     if ((code[0] == 0xff && code[1] == 0xfe) || (code[0] == 0xfe && code[1] == 0xff))
     {
@@ -3615,12 +3622,13 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
             node->templatepath[node->cursel].path);
         if (file)
         {
-            node->filebuf = grub_malloc(file->size + 1);
+            node->filebuf = grub_malloc(file->size + 8);
             if (node->filebuf)
             {
                 grub_file_read(file, node->filebuf, file->size);
                 grub_file_close(file);
-                node->filebuf[file->size] = 0;
+                
+                grub_memset(node->filebuf + file->size, 0, 8);
                 node->filelen = (int)file->size;
 
                 ventoy_auto_install_var_expand(node);
