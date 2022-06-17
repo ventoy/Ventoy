@@ -3367,30 +3367,76 @@ end:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_is_builtin_var(const char *var)
+{
+    int i;
+    const char *c;
+    const char *builtin_vars_full[] = 
+    {
+        "VT_DISK_1ST_NONVTOY",
+        "VT_DISK_1ST_NONUSB",
+        NULL
+    };
+
+    for (i = 0; builtin_vars_full[i]; i++)
+    {
+        if (grub_strcmp(builtin_vars_full[i], var) == 0)
+        {
+            return 1;
+        }
+    }
+
+    if (grub_strncmp(var, "VT_DISK_CLOSEST_", 16) == 0)
+    {
+        c = var + 16;
+        while (*c)
+        {
+            if (*c < '0' || *c > '9')
+            {
+                break;
+            }
+            c++;
+        }
+
+        if (*c == 0 && c != (var + 16))
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 static int ventoy_var_expand(int *flag, const char *var, char *expand, int len)
 {
     int i = 0;
     int n = 0;
     char c;
-    const char *c = var;
-    grub_uint8_t bytes[32];
+    const char *ch = var;
 
     expand[0] = 0;
 
-    while (*c)
+    while (*ch)
     {
-        if (*c == '_' || (*c >= '0' && *c <= '9') || (*c >= 'A' && *c <= 'Z'))
+        if (*ch == '_' || (*ch >= '0' && *ch <= '9') || (*ch >= 'A' && *ch <= 'Z'))
         {
-            c++;            
+            ch++;
+            n++;
         }
         else
         {
-            debug("Invalid variable letter <%c>\n", *c);
+            debug("Invalid variable letter <%c>\n", *ch);
             goto end;
         }
     }
 
-    if (grub_strncmp(var, "VT_RAND_9", 9) == 0)
+    if (n > 32)
+    {
+        debug("Invalid variable length:%d <%s>\n", n, var);
+        goto end;
+    }
+
+    if (ventoy_is_builtin_var(var))
     {
         
     }
@@ -3447,7 +3493,7 @@ static int ventoy_var_expand(int *flag, const char *var, char *expand, int len)
 end:
     if (expand[0] == 0)
     {
-        grub_snprintf(expand, len, "$<%s>$", var);
+        grub_snprintf(expand, len, "$$%s$$", var);
     }
     
     return 0;
@@ -3480,14 +3526,14 @@ static int ventoy_auto_install_var_expand(install_template *node)
         return 0;
     }
 
-    start = grub_strstr(node->filebuf, "$<");
+    start = grub_strstr(node->filebuf, "$$");
     if (!start)
     {
         debug("no need to expand variable, no start.\n");
         return 0;
     }
 
-    end = grub_strstr(start + 2, ">$");
+    end = grub_strstr(start + 2, "$$");
     if (!end)
     {
         debug("no need to expand variable, no end.\n");
@@ -3506,10 +3552,10 @@ static int ventoy_auto_install_var_expand(install_template *node)
     {
         nextline = ventoy_get_line(curline);
 
-        start = grub_strstr(curline, "$<");
+        start = grub_strstr(curline, "$$");
         if (start)
         {
-            end = grub_strstr(start + 2, ">$");
+            end = grub_strstr(start + 2, "$$");
         }
 
         if (start && end)
