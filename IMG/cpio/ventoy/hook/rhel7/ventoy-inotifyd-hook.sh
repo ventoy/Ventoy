@@ -49,7 +49,12 @@ if is_inotify_ventoy_part $3; then
     if [ -e $vtGenRulFile ] && $GREP -q dmsquash $vtGenRulFile; then
         vtScript=$($GREP -m1 'RUN.=' $vtGenRulFile | $AWK -F'RUN.=' '{print $2}' | $SED 's/"\(.*\)".*/\1/')
         vtlog "vtScript=$vtScript"
-        $vtScript
+        
+        if $GREP -q SCRE /proc/cmdline; then
+            /sbin/dmsquash-live-root /dev/ventoy
+        else
+            $vtScript
+        fi
     else
         vtlog "$vtGenRulFile not exist..."
     fi
