@@ -40,3 +40,11 @@ fi
 if $GREP -q 'mediacheck=1' /proc/cmdline; then   
     ventoy_copy_device_mapper "${vtdiskname}"
 fi
+
+if [ -f /ventoy/autoinstall ]; then
+    sh /ventoy/hook/default/auto_install_varexp.sh  /ventoy/autoinstall
+fi
+if [ -f /autoinst.xml ]; then
+    sh /ventoy/hook/default/auto_install_varexp.sh  /autoinst.xml
+fi
+

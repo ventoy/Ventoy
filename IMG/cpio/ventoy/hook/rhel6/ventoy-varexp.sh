@@ -1,6 +1,6 @@
-#!/ventoy/busybox/sh
+#!/bin/sh
 #************************************************************************************
-# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# Copyright (c) 2022, longpanda <admin@ventoy.net>
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,24 +17,21 @@
 # 
 #************************************************************************************
 
-. /ventoy/hook/ventoy-hook-lib.sh
+PATH=$PATH:/ventoy/busybox:/ventoy/tool
 
-vtlog "####### $0 $* ########"
-
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
-
-wait_for_usb_disk_ready
-
-vtdiskname=$(get_ventoy_disk_name)
-if [ "$vtdiskname" = "unknown" ]; then
-    vtlog "ventoy disk not found"
-    PATH=$VTPATH_OLD
+if grep -q '\$\$VT_' /ventoy/autoinstall; then
+    :
+else
     exit 0
 fi
 
-vtlog "${vtdiskname#/dev/}2 found..."
-$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/udev_disk_hook.sh "${vtdiskname#/dev/}2"
+if [ -f /sbin/hald ]; then
+    mv /sbin/hald /sbin/hald_bk
+    cp -a /ventoy/tool/hald /sbin/hald
 
-if [ -f /ventoy/autoinstall ]; then
-    sh /ventoy/hook/default/auto_install_varexp.sh  /ventoy/autoinstall
+    rm -f "/ventoy/loader_exec_cmdline"
+    echo "/bin/sh  /ventoy/hook/default/auto_install_varexp.sh /ventoy/autoinstall" > "/ventoy/loader_hook_cmd"
+    echo -n "/sbin/hald_bk" > "/ventoy/loader_exec_file"
 fi
+
+exit 0

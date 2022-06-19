@@ -601,6 +601,7 @@ typedef struct chk_case_fs_dir
     grub_fs_t fs;
 }chk_case_fs_dir;
 
+int ventoy_str_all_digit(const char *str);
 int ventoy_strcmp(const char *pattern, const char *str);
 int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n);
 void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param);
@@ -1207,6 +1208,14 @@ typedef struct browser_node
     struct browser_node *prev;
     struct browser_node *next;
 }browser_node;
+
+typedef struct var_node
+{
+    char var[128];
+    char val[256];
+
+    struct var_node *next;
+}var_node;
 
 extern char *g_tree_script_buf;
 extern int g_tree_script_pos;

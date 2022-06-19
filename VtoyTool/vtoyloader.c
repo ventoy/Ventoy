@@ -91,10 +91,6 @@ int vtoyloader_main(int argc, char **argv)
     {
         rc = vtoy_read_file_to_buf(HOOK_CMD_FILE,  g_hook_cmd,  sizeof(g_hook_cmd) - 1);
         debug("g_hook_cmd=<%s>\n", g_hook_cmd);
-
-        // call hook script
-        rc = system(g_hook_cmd);
-        debug("system return code =<%d>  errno=<%d>\n", rc, errno);
     }
 
     cmdline = (char *)malloc(CMDLINE_BUF_LEN);
@@ -155,6 +151,13 @@ int vtoyloader_main(int argc, char **argv)
     }
 
     debug("execv [%s]...\n", cmdlist[0]);
+
+    // call hook script
+    if (g_hook_cmd[0])
+    {
+        rc = system(g_hook_cmd);
+        debug("system return code =<%d>  errno=<%d>\n", rc, errno);        
+    }
 
     execv(cmdlist[0], cmdlist);
     

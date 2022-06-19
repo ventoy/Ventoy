@@ -483,7 +483,7 @@ static int ventoy_load_efiboot_template(char **buf, int *datalen, int *direntoff
     return 0;
 }
 
-static int ventoy_set_check_result(int ret)
+static int ventoy_set_check_result(int ret, const char *msg)
 {
     char buf[32];
     
@@ -497,7 +497,8 @@ static int ventoy_set_check_result(int ret)
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n\n\n");
         
-        grub_printf("This is NOT a standard Ventoy device and is NOT supported (%d).\n\n", ret);
+        grub_printf("This is NOT a standard Ventoy device and is NOT supported (%d).\n", ret);
+        grub_printf("Error message: <%s>\n\n", msg);
         grub_printf("You should follow the instructions in https://www.ventoy.net to use Ventoy.\n");
         
         grub_printf("\n\nWill exit after 10 seconds ...... ");
@@ -523,7 +524,7 @@ static int ventoy_check_official_device(grub_device_t dev)
     
     if (dev->disk == NULL || dev->disk->partition == NULL)
     {
-        return ventoy_set_check_result(1 | 0x1000);
+        return ventoy_set_check_result(1 | 0x1000, "Internal Error");
     }
 
     if (0 == ventoy_check_file_exist("(%s,2)/ventoy/ventoy.cpio", dev->disk->name) ||
@@ -531,11 +532,17 @@ static int ventoy_check_official_device(grub_device_t dev)
         0 == ventoy_check_file_exist("(%s,2)/tool/mount.exfat-fuse_aarch64", dev->disk->name))
     {
         #ifndef GRUB_MACHINE_EFI
-        if (0 == ventoy_check_file_exist("(ventoydisk)/ventoy/ventoy.cpio", dev->disk->name) ||
-            0 == ventoy_check_file_exist("(ventoydisk)/grub/localboot.cfg", dev->disk->name) ||
-            0 == ventoy_check_file_exist("(ventoydisk)/tool/mount.exfat-fuse_aarch64", dev->disk->name))
+        if (0 == ventoy_check_file_exist("(ventoydisk)/ventoy/ventoy.cpio", dev->disk->name))
         {
-            return ventoy_set_check_result(2 | 0x1000);
+            return ventoy_set_check_result(2 | 0x1000, "File ventoy/ventoy.cpio missing in VTOYEFI partition");
+        }
+        else if (0 == ventoy_check_file_exist("(ventoydisk)/grub/localboot.cfg", dev->disk->name))
+        {
+            return ventoy_set_check_result(2 | 0x1000, "File grub/localboot.cfg missing in VTOYEFI partition");
+        }
+        else if (0 == ventoy_check_file_exist("(ventoydisk)/tool/mount.exfat-fuse_aarch64", dev->disk->name))
+        {
+            return ventoy_set_check_result(2 | 0x1000, "File tool/mount.exfat-fuse_aarch64 missing in VTOYEFI partition");
         }
         else
         {
@@ -555,19 +562,19 @@ static int ventoy_check_official_device(grub_device_t dev)
     }
     if (!file)
     {
-        return ventoy_set_check_result(3 | 0x1000);
+        return ventoy_set_check_result(3 | 0x1000, "File ventoy/ventoy.cpio open failed in VTOYEFI partition");
     }
 
     if (NULL == grub_strstr(file->fs->name, "fat"))
     {
         grub_file_close(file);
-        return ventoy_set_check_result(4 | 0x1000);
+        return ventoy_set_check_result(4 | 0x1000, "VTOYEFI partition is not FAT filesystem");
     }
 
     partition = dev->disk->partition;
     if (partition->number != 0 || partition->start != 2048)
     {
-        return ventoy_set_check_result(5);
+        return ventoy_set_check_result(5, "Ventoy partition is not start at 1MB");
     }
 
     if (workaround)
@@ -579,7 +586,7 @@ static int ventoy_check_official_device(grub_device_t dev)
                 (PartTbl[1].LastLBA + 1 - PartTbl[1].StartLBA) != 65536)
             {
                 grub_file_close(file);
-                return ventoy_set_check_result(6);
+                return ventoy_set_check_result(6, "Disk partition layout check failed.");
             }
         }
         else
@@ -589,7 +596,7 @@ static int ventoy_check_official_device(grub_device_t dev)
                 PartTbl[1].SectorCount != 65536)
             {
                 grub_file_close(file);
-                return ventoy_set_check_result(6);
+                return ventoy_set_check_result(6, "Disk partition layout check failed.");
             }
         }
     }
@@ -600,7 +607,7 @@ static int ventoy_check_official_device(grub_device_t dev)
         if ((partition->number != 1) || (partition->len != 65536) || (offset != partition->start))
         {
             grub_file_close(file);
-            return ventoy_set_check_result(7);
+            return ventoy_set_check_result(7, "Disk partition layout check failed.");
         }
     }
 
@@ -612,21 +619,21 @@ static int ventoy_check_official_device(grub_device_t dev)
         dev2 = grub_device_open(devname);
         if (!dev2)
         {
-            return ventoy_set_check_result(8);
+            return ventoy_set_check_result(8, "Disk open failed");
         }
 
         fs = grub_fs_probe(dev2);
         if (!fs)
         {
             grub_device_close(dev2);
-            return ventoy_set_check_result(9);
+            return ventoy_set_check_result(9, "FS probe failed");
         }
 
         fs->fs_label(dev2, &label);
         if ((!label) || grub_strncmp("VTOYEFI", label, 7))
         {
             grub_device_close(dev2);
-            return ventoy_set_check_result(10);
+            return ventoy_set_check_result(10, "Partition name is not VTOYEFI");
         }
 
         grub_device_close(dev2);    
@@ -636,7 +643,7 @@ static int ventoy_check_official_device(grub_device_t dev)
     disk = grub_disk_open(dev->disk->name);
     if (!disk)
     {
-        return ventoy_set_check_result(11);
+        return ventoy_set_check_result(11, "Disk open failed");
     }
 
     grub_memset(mbr, 0, 512);
@@ -645,10 +652,10 @@ static int ventoy_check_official_device(grub_device_t dev)
     
     if (grub_memcmp(g_check_mbr_data, mbr, 0x30) || grub_memcmp(g_check_mbr_data + 0x30, mbr + 0x190, 16))
     {
-        return ventoy_set_check_result(12);
+        return ventoy_set_check_result(12, "MBR check failed");
     }
 
-    return ventoy_set_check_result(0);
+    return ventoy_set_check_result(0, NULL);
 }
 
 static int ventoy_check_ignore_flag(const char *filename, const struct grub_dirhook_info *info, void *data)
@@ -3367,58 +3374,19 @@ end:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-static int ventoy_is_builtin_var(const char *var)
-{
-    int i;
-    const char *c;
-    const char *builtin_vars_full[] = 
-    {
-        "VT_DISK_1ST_NONVTOY",
-        "VT_DISK_1ST_NONUSB",
-        NULL
-    };
-
-    for (i = 0; builtin_vars_full[i]; i++)
-    {
-        if (grub_strcmp(builtin_vars_full[i], var) == 0)
-        {
-            return 1;
-        }
-    }
-
-    if (grub_strncmp(var, "VT_DISK_CLOSEST_", 16) == 0)
-    {
-        c = var + 16;
-        while (*c)
-        {
-            if (*c < '0' || *c > '9')
-            {
-                break;
-            }
-            c++;
-        }
-
-        if (*c == 0 && c != (var + 16))
-        {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-static int ventoy_var_expand(int *flag, const char *var, char *expand, int len)
+static int ventoy_var_expand(int *record, int *flag, const char *var, char *expand, int len)
 {
     int i = 0;
     int n = 0;
     char c;
     const char *ch = var;
 
+    *record = 0;
     expand[0] = 0;
 
     while (*ch)
     {
-        if (*ch == '_' || (*ch >= '0' && *ch <= '9') || (*ch >= 'A' && *ch <= 'Z'))
+        if (*ch == '_' || (*ch >= '0' && *ch <= '9') || (*ch >= 'A' && *ch <= 'Z') || (*ch >= 'a' && *ch <= 'z'))
         {
             ch++;
             n++;
@@ -3436,16 +3404,16 @@ static int ventoy_var_expand(int *flag, const char *var, char *expand, int len)
         goto end;
     }
 
-    if (ventoy_is_builtin_var(var))
+    if (grub_strncmp(var, "VT_", 3) == 0) /* built-in variables */
     {
-        
+
     }
     else
     {
         if (*flag == 0)
         {
             *flag = 1;
-            grub_printf("\n===================  Parameter Expansion  ===================\n\n");
+            grub_printf("\n===================  Variables Expansion  ===================\n\n");
         }
     
         grub_printf("<%s>: ", var);
@@ -3460,6 +3428,7 @@ static int ventoy_var_expand(int *flag, const char *var, char *expand, int len)
                 {
                     grub_printf("\n");
                     grub_refresh();
+                    *record = 1;
                     break;                    
                 }
             }
@@ -3503,6 +3472,7 @@ static int ventoy_auto_install_var_expand(install_template *node)
 {
     int pos = 0;
     int flag = 0;
+    int record = 0;
     int newlen = 0;
     char *start = NULL;
     char *end = NULL;
@@ -3511,6 +3481,8 @@ static int ventoy_auto_install_var_expand(install_template *node)
     char *nextline = NULL;
     grub_uint8_t *code = NULL;
     char value[512];
+    var_node *CurNode = NULL;
+    var_node *pVarList = NULL;
 
     code = (grub_uint8_t *)node->filebuf;
 
@@ -3563,8 +3535,33 @@ static int ventoy_auto_install_var_expand(install_template *node)
             *start = *end = 0;
             VTOY_APPEND_NEWBUF(curline);
 
-            value[sizeof(value) - 1] = 0;
-            ventoy_var_expand(&flag, start + 2, value, sizeof(value) - 1);
+            for (CurNode = pVarList; CurNode; CurNode = CurNode->next)
+            {
+                if (grub_strcmp(start + 2, CurNode->var) == 0)
+                {
+                    grub_snprintf(value, sizeof(value) - 1, "%s", CurNode->val);
+                    break;
+                }
+            }
+
+            if (!CurNode)
+            {
+                value[sizeof(value) - 1] = 0;
+                ventoy_var_expand(&record, &flag, start + 2, value, sizeof(value) - 1);
+
+                if (record)
+                {
+                    CurNode = grub_zalloc(sizeof(var_node));
+                    if (CurNode)
+                    {
+                        grub_snprintf(CurNode->var, sizeof(CurNode->var), "%s", start + 2);
+                        grub_snprintf(CurNode->val, sizeof(CurNode->val), "%s", value);
+                        CurNode->next = pVarList;
+                        pVarList = CurNode;
+                    }
+                }
+            }
+            
             VTOY_APPEND_NEWBUF(value);
             
             VTOY_APPEND_NEWBUF(end + 2);
@@ -3573,13 +3570,27 @@ static int ventoy_auto_install_var_expand(install_template *node)
         {
             VTOY_APPEND_NEWBUF(curline);
         }
-        
-        newbuf[pos++] = '\n';
+
+        if (pos > 0 && newbuf[pos - 1] == '\r')
+        {
+            newbuf[pos - 1] = '\n';
+        }
+        else
+        {
+            newbuf[pos++] = '\n';
+        }
     }
 
     grub_free(node->filebuf);
     node->filebuf = newbuf;
     node->filelen = pos;
+
+    while (pVarList)
+    {
+        CurNode = pVarList->next;
+        grub_free(pVarList);
+        pVarList = CurNode;
+    }
 
     return 0;
 }

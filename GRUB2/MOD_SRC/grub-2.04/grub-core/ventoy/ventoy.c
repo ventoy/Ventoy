@@ -97,6 +97,24 @@ char *ventoy_str_last(char *str, char ch)
     return last;
 }
 
+int ventoy_str_all_digit(const char *str)
+{
+    if (NULL == str || 0 == *str)
+    {
+        return 0;
+    }
+
+    while (*str)
+    {
+        if (*str < '0' || *str > '9')
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 int ventoy_strcmp(const char *pattern, const char *str)
 {
     while (*pattern && *str)

@@ -128,3 +128,6 @@ if [ -e /usr/sbin/anaconda-diskroot ]; then
     $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
 fi
 
+if [ -f $VTOY_PATH/autoinstall ]; then
+    cp -a $VTOY_PATH/hook/rhel7/ventoy-autoexp.sh /lib/dracut/hooks/pre-mount/99-ventoy-autoexp.sh
+fi
