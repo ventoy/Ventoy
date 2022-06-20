@@ -445,12 +445,16 @@ grub_err_t ventoy_cmd_parse_freenas_ver(grub_extcmd_context_t ctxt, int argc, ch
     ver = vtoy_json_get_string_ex(json->pstChild, "Version");
     if (ver)
     {
-        debug("freenas version:<%s>\n", ver);
+        debug("NAS version:<%s>\n", ver);
+        if (grub_strncmp(ver, "TrueNAS-", 8) == 0)
+        {
+            ver += 8;
+        }
         ventoy_set_env(args[1], ver);
     }
     else
     {
-        debug("freenas version:<%s>\n", "NOT FOUND");
+        debug("NAS version:<%s>\n", "NOT FOUND");
         grub_env_unset(args[1]);
     }
 
