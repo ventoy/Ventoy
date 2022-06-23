@@ -1393,7 +1393,7 @@
         "STR_MENU_PART_STYLE":"Partíció fajtája",
         "STR_DISK_2TB_MBR_ERROR":"2 TB-nál nagyobb lemezhez válassza a GPT-t",
         "STR_SHOW_ALL_DEV":"Az összes eszköz megjelenítése",
-        "STR_PART_ALIGN_4KB":"A partíciók 4 kB-hoz igazítsa",
+        "STR_PART_ALIGN_4KB":"A partíciók 4 kB-hoz igazítása",
         "STR_WEB_COMMUNICATION_ERR":"Kommunikációs hiba:",
         "STR_WEB_REMOTE_ABNORMAL":"Kommunikációs hiba: Távoli hiba",
         "STR_WEB_REQUEST_TIMEOUT":"Kommunikációs hiba: Kérés időtúllépése",
