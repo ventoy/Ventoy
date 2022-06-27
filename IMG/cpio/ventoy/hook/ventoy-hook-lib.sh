@@ -868,3 +868,14 @@ ventoy_check_install_module_xz() {
         $BUSYBOX_PATH/insmod "$1"
     fi
 }
+
+ventoy_check_umount() {
+    for vtLoop in 0 1 2 3 4 5 6 7 8 9; do
+        $BUSYBOX_PATH/umount "$1" > /dev/null 2>&1
+        if $BUSYBOX_PATH/mountpoint -q "$1"; then
+            $SLEEP 1
+        else
+            break
+        fi
+    done
+}

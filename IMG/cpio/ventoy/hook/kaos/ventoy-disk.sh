@@ -49,9 +49,10 @@ ventoy_os_install_dmsetup_by_fuse() {
         insmod $KoName
     fi
     
-    umount $VTOY_PATH/mnt/squashfs
-    umount $VTOY_PATH/mnt/iso
-    umount $VTOY_PATH/mnt/fuse
+    ventoy_check_umount $VTOY_PATH/mnt/squashfs
+    ventoy_check_umount $VTOY_PATH/mnt/iso
+    ventoy_check_umount $VTOY_PATH/mnt/fuse
+    vtlog "umount done"
 }
 
 
