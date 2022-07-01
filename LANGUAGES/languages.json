@@ -758,7 +758,7 @@
         "STR_VTSI_CREATE_FAILED":"Chyba při vytváření VTSI souboru.",
         "STR_MENU_PART_RESIZE":"Nedestruktivní Instalace",
         "STR_PART_RESIZE_TIP":"Ventoy se pokusí o nedestruktivní instalaci. #@Pokračovat?",
-        "STR_PART_RESIZE_SUCCESS":"Gratulujeme!#@Nedestruktivní instalace Ventoy byla úspěšne dokončena.",
+        "STR_PART_RESIZE_SUCCESS":"Gratulujeme!#@Nedestruktivní instalace Ventoy byla úspěšně dokončena.",
         "STR_PART_RESIZE_FAILED":"Nedestruktivní instalace selhala. Pro podrobnosti se podívejte do souboru log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Nedestruktivní instalace Ventoy selhala, protože některé podmínky pro ni nemohly být splněny. Pro podrobnosti se podívejte do souboru log.txt.",
         "STR_INSTALL_YES_TIP1":"Varování: Data budou ztracena!",
