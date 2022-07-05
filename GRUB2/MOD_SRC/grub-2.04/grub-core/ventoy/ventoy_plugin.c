@@ -3054,14 +3054,15 @@ int ventoy_plugin_get_image_list_index(int type, const char *name)
     return 0;
 }
 
-conf_replace * ventoy_plugin_find_conf_replace(const char *iso)
+int ventoy_plugin_find_conf_replace(const char *iso, conf_replace *nodes[VTOY_MAX_CONF_REPLACE])
 {
+    int n = 0;
     int len;
     conf_replace *node;
 
     if (!g_conf_replace_head)
     {
-        return NULL;
+        return 0;
     }
 
     len = (int)grub_strlen(iso);
@@ -3070,11 +3071,15 @@ conf_replace * ventoy_plugin_find_conf_replace(const char *iso)
     {
         if (node->pathlen == len && ventoy_strncmp(node->isopath, iso, len) == 0)
         {
-            return node;
+            nodes[n++] = node;
+            if (n >= VTOY_MAX_CONF_REPLACE)
+            {
+                return n;
+            }
         }
     }
     
-    return NULL;
+    return n;
 }
 
 dud * ventoy_plugin_find_dud(const char *iso)

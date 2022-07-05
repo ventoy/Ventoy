@@ -107,12 +107,14 @@ grub_uint32_t g_wimiso_size = 0;
 
 int g_vhdboot_enable = 0;
 
-grub_uint64_t g_conf_replace_offset = 0;
 grub_uint64_t g_svd_replace_offset = 0;
-conf_replace *g_conf_replace_node = NULL;
-grub_uint8_t *g_conf_replace_new_buf = NULL;
-int g_conf_replace_new_len = 0;
-int g_conf_replace_new_len_align = 0;
+
+int g_conf_replace_count = 0;
+grub_uint64_t g_conf_replace_offset[VTOY_MAX_CONF_REPLACE] = { 0 };
+conf_replace *g_conf_replace_node[VTOY_MAX_CONF_REPLACE] = { NULL };
+grub_uint8_t *g_conf_replace_new_buf[VTOY_MAX_CONF_REPLACE] = { NULL };
+int g_conf_replace_new_len[VTOY_MAX_CONF_REPLACE] = { 0 };
+int g_conf_replace_new_len_align[VTOY_MAX_CONF_REPLACE] = { 0 };
 
 int g_ventoy_disk_bios_id = 0;
 ventoy_gpt_info *g_ventoy_part_info = NULL;
@@ -3250,8 +3252,9 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Can't open file %s\n", args[0]); 
     }
 
-    g_conf_replace_node = NULL;
-    g_conf_replace_offset = 0;
+    g_conf_replace_count = 0;
+    grub_memset(g_conf_replace_node, 0, sizeof(g_conf_replace_node ));
+    grub_memset(g_conf_replace_offset, 0, sizeof(g_conf_replace_offset ));
     
     if (g_img_chunk_list.chunk)
     {
@@ -3294,11 +3297,15 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
 
 static grub_err_t ventoy_select_conf_replace(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int i;
+    int n;
     grub_uint64_t offset = 0;
     grub_uint32_t align = 0;
     grub_file_t file = NULL;
     conf_replace *node = NULL;
-        
+    conf_replace *nodes[VTOY_MAX_CONF_REPLACE] = { NULL };
+    ventoy_grub_param_file_replace *replace = NULL;
+    
     (void)ctxt;
     (void)argc;
     (void)args;
@@ -3310,67 +3317,72 @@ static grub_err_t ventoy_select_conf_replace(grub_extcmd_context_t ctxt, int arg
         return 0;
     }
 
-    node = ventoy_plugin_find_conf_replace(args[1]);
-    if (!node)
+    n = ventoy_plugin_find_conf_replace(args[1], nodes);
+    if (!n)
     {
         debug("Conf replace not found for %s\n", args[1]);
         goto end;
     }
 
-    debug("Find conf replace for %s\n", args[1]);
+    debug("Find %d conf replace for %s\n", n, args[1]);
 
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(loop)%s", node->orgconf);
-    if (file)
+    g_conf_replace_count = n;
+    for (i = 0; i < n; i++)
     {
-        offset = grub_iso9660_get_last_file_dirent_pos(file);
-        grub_file_close(file);  
+        node = nodes[i];
+
+        file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "(loop)%s", node->orgconf);
+        if (file)
+        {
+            offset = grub_iso9660_get_last_file_dirent_pos(file);
+            grub_file_close(file);  
+        }
+        else if (node->img > 0)
+        {
+            offset = 0;
+        }
+        else
+        {
+            debug("<(loop)%s> NOT exist\n", node->orgconf);
+            continue;
+        }
+
+        file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[0], node->newconf);
+        if (!file)
+        {
+            debug("New config file <%s%s> NOT exist\n", args[0], node->newconf);
+            continue;
+        }
+
+        align = ((int)file->size + 2047) / 2048 * 2048;
+
+        if (align > vtoy_max_replace_file_size)
+        {
+            debug("New config file <%s%s> too big\n", args[0], node->newconf);
+            grub_file_close(file);
+            continue;
+        }
+
+        grub_file_read(file, g_conf_replace_new_buf[i], file->size);
+        grub_file_close(file);
+        g_conf_replace_new_len[i] = (int)file->size;
+        g_conf_replace_new_len_align[i] = align;
+
+        g_conf_replace_node[i] = node;
+        g_conf_replace_offset[i] = offset + 2;
+
+        if (node->img > 0)
+        {
+            replace = &(g_grub_param->img_replace[i]);
+            replace->magic = GRUB_IMG_REPLACE_MAGIC;
+            grub_snprintf(replace->old_file_name[replace->old_name_cnt], 256, "%s", node->orgconf);
+            replace->old_name_cnt++;
+        }
+
+        debug("conf_replace OK: newlen[%d]: %d img:%d\n", i, g_conf_replace_new_len[i], node->img);
     }
-    else if (node->img > 0)
-    {
-        offset = 0;
-    }
-    else
-    {
-        debug("<(loop)%s> NOT exist\n", node->orgconf);
-        goto end;
-    }
-
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[0], node->newconf);
-    if (!file)
-    {
-        debug("New config file <%s%s> NOT exist\n", args[0], node->newconf);
-        goto end;
-    }
-
-    align = ((int)file->size + 2047) / 2048 * 2048;
-
-    if (align > vtoy_max_replace_file_size)
-    {
-        debug("New config file <%s%s> too big\n", args[0], node->newconf);
-        goto end;
-    }
-
-    grub_file_read(file, g_conf_replace_new_buf, file->size);
-    g_conf_replace_new_len = (int)file->size;
-    g_conf_replace_new_len_align = align;
-
-    g_conf_replace_node = node;
-    g_conf_replace_offset = offset + 2;
-
-    if (node->img > 0)
-    {
-        g_grub_param->img_replace.magic = GRUB_IMG_REPLACE_MAGIC;
-        g_grub_param->img_replace.old_name_cnt = 1;
-        grub_snprintf(g_grub_param->img_replace.old_file_name[0], 256, "%s", node->orgconf);
-    }
-
-    debug("conf_replace OK: newlen: %d\n", g_conf_replace_new_len);
 
 end:
-    if (file)
-    {
-        grub_file_close(file);        
-    }
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
@@ -5945,6 +5957,7 @@ static grub_err_t ventoy_cmd_dump_rsv_page(grub_extcmd_context_t ctxt, int argc,
 
 int ventoy_env_init(void)
 {
+    int i;
     char buf[64];
 
     grub_env_set("vtdebug_flag", "");
@@ -5952,7 +5965,10 @@ int ventoy_env_init(void)
     g_part_list_buf = grub_malloc(VTOY_PART_BUF_LEN);
     g_tree_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);
     g_list_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);
-    g_conf_replace_new_buf = grub_malloc(vtoy_max_replace_file_size); 
+    for (i = 0; i < VTOY_MAX_CONF_REPLACE; i++)
+    {
+        g_conf_replace_new_buf[i] = grub_malloc(vtoy_max_replace_file_size);         
+    }
 
     ventoy_filt_register(0, ventoy_wrapper_open);
 

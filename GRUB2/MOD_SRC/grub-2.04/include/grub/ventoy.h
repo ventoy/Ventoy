@@ -262,6 +262,7 @@ typedef struct ventoy_img_chunk_list
 
 #pragma pack(1)
 
+#define VTOY_MAX_CONF_REPLACE    2
 #define GRUB_FILE_REPLACE_MAGIC  0x1258BEEF
 #define GRUB_IMG_REPLACE_MAGIC   0x1259BEEF
 
@@ -282,7 +283,7 @@ typedef struct ventoy_grub_param
     grub_env_get_pf grub_env_get;
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
-    ventoy_grub_param_file_replace img_replace;
+    ventoy_grub_param_file_replace img_replace[VTOY_MAX_CONF_REPLACE];
     grub_env_printf_pf grub_env_printf;
 }ventoy_grub_param;
 

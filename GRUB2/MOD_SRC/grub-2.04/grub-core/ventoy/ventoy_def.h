@@ -960,7 +960,7 @@ typedef struct custom_boot
     struct custom_boot *next;
 }custom_boot;
 
-#define vtoy_max_replace_file_size  (2 * 1024 * 1024)
+#define vtoy_max_replace_file_size  (1024 * 1024)
 typedef struct conf_replace
 {
     int pathlen;
@@ -1046,12 +1046,13 @@ extern int g_vhdboot_enable;
 extern int g_plugin_image_list;
 
 extern ventoy_gpt_info *g_ventoy_part_info;
-extern grub_uint64_t g_conf_replace_offset;
+extern int g_conf_replace_count;
+extern grub_uint64_t g_conf_replace_offset[VTOY_MAX_CONF_REPLACE];
 extern grub_uint64_t g_svd_replace_offset;
-extern conf_replace *g_conf_replace_node;
-extern grub_uint8_t *g_conf_replace_new_buf;
-extern int g_conf_replace_new_len;
-extern int g_conf_replace_new_len_align;
+extern conf_replace *g_conf_replace_node[VTOY_MAX_CONF_REPLACE];
+extern grub_uint8_t *g_conf_replace_new_buf[VTOY_MAX_CONF_REPLACE];
+extern int g_conf_replace_new_len[VTOY_MAX_CONF_REPLACE];
+extern int g_conf_replace_new_len_align[VTOY_MAX_CONF_REPLACE];
 extern int g_ventoy_disk_bios_id;
 extern grub_uint64_t g_ventoy_disk_size;
 extern grub_uint64_t g_ventoy_disk_part_size[2];
@@ -1095,7 +1096,7 @@ const menu_tip * ventoy_plugin_get_menu_tip(int type, const char *isopath);
 const char * ventoy_plugin_get_menu_class(int type, const char *name, const char *path);
 int ventoy_plugin_check_memdisk(const char *isopath);
 int ventoy_plugin_get_image_list_index(int type, const char *name);
-conf_replace * ventoy_plugin_find_conf_replace(const char *iso);
+int ventoy_plugin_find_conf_replace(const char *iso, conf_replace *nodes[VTOY_MAX_CONF_REPLACE]);
 dud * ventoy_plugin_find_dud(const char *iso);
 int ventoy_plugin_load_dud(dud *node, const char *isopart);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
