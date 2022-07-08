@@ -2,6 +2,13 @@
 function ventoy_replace_slash(str) {
     var str1 = str.replace(/\\/g, '/');
     var str2 = str1.replace(/\/\//g, '/');
+    
+    if (str2 && str2.length > 0) {
+        if (str2.substr(-1) === "/") {
+            return str2.substr(0, str2.length - 1);
+        }
+    }
+    
     return str2;
 }
 

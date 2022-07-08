@@ -29,10 +29,12 @@ ventoy_add_kernel_udev_rule "loop6" "$VTOY_PATH/hook/rhel6/udev_disk_hook.sh %k"
 
 if [ -f $VTOY_PATH/autoinstall ]; then
     $BUSYBOX_PATH/mv /sbin/loader /sbin/loader_bk
-    $BUSYBOX_PATH/mv $VTOY_PATH/tool/loader /sbin/loader
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/loader /sbin/loader
     
     RawCmdLine=$($BUSYBOX_PATH/cat /proc/cmdline)
     echo -n "/sbin/loader_bk" > "/ventoy/loader_exec_file"
     echo -n "--cmdline=$RawCmdLine ks=file:$VTOY_PATH/autoinstall" > "/ventoy/loader_exec_cmdline"
     #echo 111 > "/ventoy/loader_debug"
+    
+    echo "/bin/sh  /ventoy/hook/rhel6/ventoy-varexp.sh" > "/ventoy/loader_hook_cmd"
 fi

@@ -26,3 +26,6 @@ else
     echo "find_installer" >> $VTLOG
     $SED "/\$.*find_installer/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/disk-hook.sh" -i  /init
 fi
+
+#issue 1674
+$SED "/switch_root/i $BUSYBOX_PATH/sh $VTOY_PATH/hook/clear/hidden-hook.sh" -i /init

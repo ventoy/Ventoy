@@ -171,6 +171,11 @@ static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_p
 
     fs->fs_label(dev, &Label);
 
+    if (ventoy_check_file_exist("(%s)/.ventoyignore", partname))
+    {
+        return 0;
+    }
+
     if (g_tree_view_menu_style == 0)
     {
         grub_snprintf(title, sizeof(title), "%-10s (%s,%s%d) [%s] %s %s", 
@@ -311,6 +316,25 @@ static int ventoy_browser_valid_filename(const char *filename, int len, int *typ
     return 1;
 }
 
+static int ventoy_browser_check_ignore(const char *device, const char *root, const char *dir)
+{
+    grub_file_t file;
+    char fullpath[1024] = {0};
+
+    grub_snprintf(fullpath, 1023, "(%s)%s/%s/.ventoyignore", device, root, dir);
+    file = grub_file_open(fullpath, GRUB_FILE_TYPE_NONE);
+    if (!file)
+    {
+        grub_errno = 0;
+        return 0;
+    }
+    else
+    {
+        grub_file_close(file);
+        return 1;
+    }
+}
+
 static int ventoy_browser_iterate_dir(const char *filename, const struct grub_dirhook_info *info, void *data)
 {
     int type;
@@ -324,6 +348,11 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
     if (info->dir)
     {
         if (!ventoy_browser_valid_dirname(filename, len))
+        {
+            return 0;
+        }
+
+        if (ventoy_browser_check_ignore(g_menu_device, g_menu_path_buf, filename))
         {
             return 0;
         }

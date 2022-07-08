@@ -13,7 +13,7 @@ print_usage() {
     echo ''
     echo '  OPTION: (optional)'
     echo '   -r SIZE_MB  preserve some space at the bottom of the disk (only for install)'
-    echo '   -s/-S       enable/disable secure boot support (default is disabled)'
+    echo '   -s/-S       enable/disable secure boot support (default is enabled)'
     echo '   -g          use GPT partition style, default is MBR (only for install)'
     echo '   -L          Label of the 1st exfat partition (default is Ventoy)'
     echo '   -n          try non-destructive installation (only for install)'
@@ -21,6 +21,7 @@ print_usage() {
 }
 
 
+SECUREBOOT="YES"
 VTNEW_LABEL='Ventoy'
 RESERVE_SIZE_MB=0
 while [ -n "$1" ]; do

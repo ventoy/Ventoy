@@ -262,7 +262,7 @@ void on_devlist_changed(GtkWidget *widget, gpointer data)
     }
     else
     {
-        if (g_secure_boot_support)
+        if (!g_secure_boot_support)
         {
             gtk_check_menu_item_set_active(g_menu_item_secure_boot, 1 - g_secure_boot_support);
         }
@@ -1110,6 +1110,8 @@ void on_init_window(GtkBuilder *pBuilder)
     add_accelerator(agMain, g_install_button, "clicked", GDK_KEY_i);
     add_accelerator(agMain, g_update_button,  "clicked", GDK_KEY_u);
     add_accelerator(agMain, g_refresh_button, "clicked", GDK_KEY_r);
+
+    gtk_check_menu_item_set_active(g_menu_item_secure_boot, 1 - g_secure_boot_support);
 
     fill_dev_list(NULL);
 

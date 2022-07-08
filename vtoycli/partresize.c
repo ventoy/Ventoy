@@ -312,6 +312,7 @@ static int secureboot_proc(char *disk, UINT64 part2start)
 			fl_remove("/EFI/BOOT/grubx64.efi");
 			fl_remove("/EFI/BOOT/grubx64_real.efi");
 			fl_remove("/EFI/BOOT/MokManager.efi");
+			fl_remove("/EFI/BOOT/mmx64.efi");
             fl_remove("/ENROLL_THIS_KEY_IN_MOKMANAGER.cer");
 
 			file = fl_fopen("/EFI/BOOT/BOOTX64.EFI", "wb");
