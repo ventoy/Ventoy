@@ -128,6 +128,12 @@ if [ -e /usr/sbin/anaconda-diskroot ]; then
     $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
 fi
 
+#For Fedora CoreOS
+if $GREP -i -q 'fedora.*coreos' /etc/os-release; then
+    $SED "s#isosrc=.*#isosrc=/dev/mapper/ventoy#" -i /lib/systemd/system-generators/live-generator
+    cp -a $VTOY_PATH/hook/rhel7/ventoy-make-link.sh /lib/dracut/hooks/pre-mount/99-ventoy-premount-mklink.sh
+fi
+
 if [ -f $VTOY_PATH/autoinstall ]; then
     cp -a $VTOY_PATH/hook/rhel7/ventoy-autoexp.sh /lib/dracut/hooks/pre-mount/99-ventoy-autoexp.sh
 fi
