@@ -82,12 +82,34 @@ static volatile ko_param g_ko_param =
 
 #define vdebug(fmt, args...) if(kprintf) kprintf(KERN_ERR fmt, ##args)
 
-static int notrace dmpatch_replace_code(unsigned long addr, unsigned long size, int expect, const char *desc)
+static unsigned char *g_get_patch[MAX_PATCH] = { NULL };
+static unsigned char *g_put_patch[MAX_PATCH] = { NULL };
+
+static void notrace dmpatch_restore_code(unsigned char *opCode)
+{
+    unsigned long align;
+
+    if (opCode)
+    {
+        align = (unsigned long)opCode / g_ko_param.pgsize * g_ko_param.pgsize;
+        set_mem_rw(align, 1);
+        *opCode = 0x80;
+        set_mem_ro(align, 1);        
+    }
+}
+
+static int notrace dmpatch_replace_code
+(
+    unsigned long addr, 
+    unsigned long size, 
+    int expect, 
+    const char *desc, 
+    unsigned char **patch
+)
 {
     int i = 0;
     int cnt = 0;
     unsigned long align;
-    unsigned char *patch[MAX_PATCH];
     unsigned char *opCode = (unsigned char *)addr;
 
     vdebug("patch for %s 0x%lx %d\n", desc, addr, (int)size);
@@ -147,7 +169,7 @@ static int notrace dmpatch_init(void)
     reg_kprobe = (kprobe_reg_pf)g_ko_param.reg_kprobe_addr;
     unreg_kprobe = (kprobe_unreg_pf)g_ko_param.unreg_kprobe_addr;
 
-    r = dmpatch_replace_code(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 2, "dm_get_table_device");
+    r = dmpatch_replace_code(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 2, "dm_get_table_device", g_get_patch);
     if (r)
     {
         rc = -EINVAL;
@@ -155,7 +177,7 @@ static int notrace dmpatch_init(void)
     }
     vdebug("patch dm_get_table_device success\n");
 
-    r = dmpatch_replace_code(g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device");
+    r = dmpatch_replace_code(g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device", g_put_patch);
     if (r)
     {
         rc = -EINVAL;
@@ -174,7 +196,15 @@ out:
 
 static void notrace dmpatch_exit(void)
 {
+    int i = 0;
 
+    for (i = 0; i < MAX_PATCH; i++)
+    {
+        dmpatch_restore_code(g_get_patch[i]);
+        dmpatch_restore_code(g_put_patch[i]);
+    }
+
+    vdebug("dmpatch_exit success\n");
 }
 
 module_init(dmpatch_init);
