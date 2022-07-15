@@ -2294,7 +2294,7 @@
         "STR_PART_RESIZE_FAILED":"Ventoy misslyckades slutföra en icke-förstörande installation. Mer information finns i log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Icke-förstörande installation stoppades eftersom vissa villkor inte kunde uppfyllas. Mer information finns i log.txt.",
         "STR_INSTALL_YES_TIP1":"Varning: Data kommer att gå förlorade!",
-        "STR_INSTALL_YES_TIP2":"Skriv JA i textrutan nedan för att bekräfta att du verkligen vill göra en nyinstallation i stället för att uppgradera.",
+        "STR_INSTALL_YES_TIP2":"Skriv YES i textrutan nedan för att bekräfta att du verkligen vill göra en nyinstallation i stället för att uppgradera.",
         
         "STRXXX":""
     },
