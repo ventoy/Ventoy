@@ -420,7 +420,7 @@
         
         "STR_ERROR":"Erro",
         "STR_WARNING":"Atenção",
-        "STR_INFO":"Info",
+        "STR_INFO":"Informação",
         "STR_INCORRECT_DIR":"Por favor, execute no diretório correto!",
         "STR_INCORRECT_TREE_DIR":"Não me execute aqui, por favor baixe o pacote de instalação lançado, e me execute lá.",
         "STR_DEVICE":"Dispositivo",
@@ -466,8 +466,8 @@
         "STR_PART_RESIZE_SUCCESS":"Parabéns!#@Instalação não destrutiva do Ventoy concluída com sucesso.",
         "STR_PART_RESIZE_FAILED":"Falha na instalação não destrutiva, cheque o arquivo log.txt para entender.",
         "STR_PART_RESIZE_UNSUPPORTED":"Instalação não destrutiva do Ventoy interrompida devido fato desconhecido. Cheque o arquivo log.txt para detalhes.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_INSTALL_YES_TIP1":"Aviso: Os dados serão perdidos!",
+        "STR_INSTALL_YES_TIP2":"Por favor, digite YES na caixa de texto abaixo para confirmar que você realmente quer fazer uma nova instalação em vez de atualização.",
         
         "STRXXX":""
     },
