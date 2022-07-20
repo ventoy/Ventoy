@@ -44,10 +44,15 @@ if [ $vtSplit -eq 1 ]; then
     vtlog "Line number: $vtLine $vtLine1 $vtLine2"
     sed -n "1,${vtLine1}p"  $VTOY_PATH/autoinstall >/tmpcidata/user-data
     sed -n "${vtLine2},\$p" $VTOY_PATH/autoinstall >/tmpcidata/meta-data
+    
+    sh /ventoy/hook/default/auto_install_varexp.sh  /tmpcidata/user-data
+    sh /ventoy/hook/default/auto_install_varexp.sh  /tmpcidata/meta-data
 else
     vtlog "only user-data avaliable"
     cp -a $VTOY_PATH/autoinstall  /tmpcidata/user-data
     touch /tmpcidata/meta-data
+    
+    sh /ventoy/hook/default/auto_install_varexp.sh  /tmpcidata/user-data
 fi
 
 

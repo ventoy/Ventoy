@@ -1,6 +1,6 @@
-#!/ventoy/busybox/sh
+#!/bin/sh
 #************************************************************************************
-# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# Copyright (c) 2022, longpanda <admin@ventoy.net>
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,23 +17,8 @@
 # 
 #************************************************************************************
 
-. /ventoy/hook/ventoy-hook-lib.sh
-
-if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
-    exit 0
+if [ -f /run/install/ks.cfg ]; then
+    sh /ventoy/hook/default/auto_install_varexp.sh  /run/install/ks.cfg
 fi
 
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
-
-modprobe fuse
-mkdir -p $VTOY_PATH/mnt/fuse $VTOY_PATH/mnt/iso
-
-vtoydm -p -f $VTOY_PATH/ventoy_image_map -d "/dev/${1:0:-1}" > $VTOY_PATH/ventoy_dm_table
-vtoy_fuse_iso -f $VTOY_PATH/ventoy_dm_table -m $VTOY_PATH/mnt/fuse
-mount -t iso9660 $VTOY_PATH/mnt/fuse/ventoy.iso  $VTOY_PATH/mnt/iso
-
-# OK finish
-set_ventoy_hook_finish
-
-PATH=$VTPATH_OLD
-
+exit 0

@@ -1443,8 +1443,15 @@ unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
 
     if (chain->os_param.vtoy_reserved[6])
     {
-        g_drive_map1 = 0x80;
-        g_drive_map2 = 0x81;
+        if (g_hddmode)
+        {
+            /* drive map no need for linux vtoy/img boot */
+        }
+        else
+        {
+            g_drive_map1 = 0x80; 
+            g_drive_map2 = 0x81;
+        }
     }
     else if (chain->disk_drive >= 0x80 && chain->drive_map >= 0x80)
     {

@@ -38,6 +38,7 @@ int vtoyloader_main(int argc, char **argv);
 int vtoyvine_main(int argc, char **argv);
 int vtoyksym_main(int argc, char **argv);
 int vtoykmod_main(int argc, char **argv);
+int vtoyexpand_main(int argc, char **argv);
 
 static char *g_vtoytool_name = NULL;
 static cmd_def g_cmd_list[] = 
@@ -46,8 +47,10 @@ static cmd_def g_cmd_list[] =
     { "vtoydump",    vtoydump_main    },
     { "vtoydm",      vtoydm_main      },
     { "loader",      vtoyloader_main  },
+    { "hald",        vtoyloader_main  },
     { "vtoyksym",    vtoyksym_main  },
     { "vtoykmod",    vtoykmod_main  },
+    { "vtoyexpand",  vtoyexpand_main  },
     { "--install",   vtoytool_install },
 };
 

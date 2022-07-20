@@ -1,6 +1,6 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
-# Copyright (c) 2020, longpanda <admin@ventoy.net>
+# Copyright (c) 2022, longpanda <admin@ventoy.net>
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -26,7 +26,7 @@ $SED "1a boot_dev=ventoy1;wkg_dev=ventoy2" -i /init
 #check for ssd will read /sys/block/ventoy, will no exist, need a workaround
 $SED "s#/sys/block/\${WKG_DRV}/#/sys/block/\$vtDM/#g"  -i /init
 
-#skip the resizing process, can't resizing partition
-$SED "s#640M#0M#g"  -i /init
+#resizing process
+$SED "s#partprobe.*#$BUSYBOX_PATH/sh $VTOY_PATH/loop/easyos/ventoy-resize.sh \$WKG_DEV#g"  -i /init
 
 

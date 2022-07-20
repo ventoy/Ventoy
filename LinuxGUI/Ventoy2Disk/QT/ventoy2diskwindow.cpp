@@ -472,6 +472,8 @@ void Ventoy2DiskWindow::OnInitWindow(void)
     ui->labelVentoyDeviceVer->setText("");
     ui->labelVentoyDevicePartStyle->setText("");
 
+    ui->actionSecure_Boot_Support->trigger();
+
     ui->actionShow_All_Devices->setChecked(ventoy_code_get_cur_show_all());
 
     connect(m_thread, &MyQThread::thread_event, this,  &Ventoy2DiskWindow::thread_event);
@@ -664,7 +666,7 @@ void Ventoy2DiskWindow::on_comboBoxDevice_currentIndexChanged(int index)
     }
     else
     {
-        if (ui->actionSecure_Boot_Support->isChecked())
+        if (!(ui->actionSecure_Boot_Support->isChecked()))
         {
             ui->actionSecure_Boot_Support->trigger();
         }

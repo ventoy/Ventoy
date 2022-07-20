@@ -72,7 +72,15 @@ typedef struct ventoy_windows_data
     char auto_install_script[384];
     char injection_archive[384];
     UINT8 windows11_bypass_check;
-    UINT8 reserved[255];
+
+    UINT32 auto_install_len;
+    
+    UINT8 reserved[255 - 4];
+
+    /* auto install script file data ... + auto_install_len */
+    /* ...... */
+
+    
 }ventoy_windows_data;
 
 
@@ -144,6 +152,20 @@ typedef struct VTOY_GPT_INFO
 #pragma pack()
 
 
+
+typedef struct VarDiskInfo
+{
+    UINT64 Capacity;
+    int BusType;
+    BOOL RemovableMedia;
+    BYTE DeviceType;
+    CHAR VendorId[128];
+    CHAR ProductId[128];
+    CHAR ProductRev[128];
+    CHAR SerialNumber[128];
+}VarDiskInfo;
+
+
 #define SAFE_CLOSE_HANDLE(handle) \
 {\
 	if (handle != INVALID_HANDLE_VALUE) \
@@ -152,6 +174,10 @@ typedef struct VTOY_GPT_INFO
 		(handle) = INVALID_HANDLE_VALUE; \
 	}\
 }
+
+#define safe_sprintf(dst, fmt, ...) sprintf_s(dst, sizeof(dst), fmt, __VA_ARGS__)
+#define safe_strcpy(dst, src)  strcpy_s(dst, sizeof(dst), src)
+
 
 #define LASTERR     GetLastError()
 
