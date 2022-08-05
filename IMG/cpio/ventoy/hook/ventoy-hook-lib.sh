@@ -278,11 +278,23 @@ ventoy_dm_patch() {
     
     $CAT /proc/kallsyms | $BUSYBOX_PATH/sort > $VTOY_PATH/kallsyms
     
-    vtLine=$($VTOY_PATH/tool/vtoyksym dm_get_table_device $VTOY_PATH/kallsyms)
+    if $GREP -m1 -q 'open_table_device.isra' $VTOY_PATH/kallsyms; then
+        vtLine=$($VTOY_PATH/tool/vtoyksym open_table_device.isra $VTOY_PATH/kallsyms)
+        vtlog "get open_table_device.isra address $vtLine"
+    else
+        vtLine=$($VTOY_PATH/tool/vtoyksym dm_get_table_device $VTOY_PATH/kallsyms)
+        vtlog "get dm_get_table_device address $vtLine"
+    fi 
     get_addr=$(echo $vtLine | $AWK '{print $1}')
     get_size=$(echo $vtLine | $AWK '{print $2}')
 
-    vtLine=$($VTOY_PATH/tool/vtoyksym dm_put_table_device $VTOY_PATH/kallsyms)
+    if $GREP -m1 -q 'close_table_device.isra' $VTOY_PATH/kallsyms; then
+        vtLine=$($VTOY_PATH/tool/vtoyksym close_table_device.isra $VTOY_PATH/kallsyms)
+        vtlog "get close_table_device.isra address $vtLine"
+    else
+        vtLine=$($VTOY_PATH/tool/vtoyksym dm_put_table_device $VTOY_PATH/kallsyms)
+        vtlog "get dm_put_table_device address $vtLine"
+    fi
     put_addr=$(echo $vtLine | $AWK '{print $1}')
     put_size=$(echo $vtLine | $AWK '{print $2}')
     
@@ -738,6 +750,7 @@ ventoy_udev_disk_common_hook() {
     fi
     
     if $GREP -q 'dm_patch' /proc/modules; then
+        vtlog "remove dm_patch module."
         $BUSYBOX_PATH/rmmod dm_patch
     fi
 }

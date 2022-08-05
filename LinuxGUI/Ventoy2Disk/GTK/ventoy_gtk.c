@@ -936,7 +936,7 @@ void on_part_cfg_ok(GtkWidget *widget, gpointer data)
 
         for (pos = input; *pos; pos++)
         {
-            if (*pos < '0' || *pos >= '9')
+            if (*pos < '0' || *pos > '9')
             {
                 msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_SPACE_VAL_INVALID");
                 return;

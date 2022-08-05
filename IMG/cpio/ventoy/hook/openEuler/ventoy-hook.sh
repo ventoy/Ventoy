@@ -24,18 +24,21 @@ if [ -f $VTOY_PATH/autoinstall ]; then
 else
     for vtParam in $($CAT /proc/cmdline); do
         if echo $vtParam | $GREP -q 'inst.ks=hd:LABEL='; then
+            vtRawKsFull="$vtParam"
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
             VTKS="inst.ks=hd:/dev/ventoy:$vtRawKs"
             break
         fi
         
         if echo $vtParam | $GREP -q '^ks=.*:/'; then
+            vtRawKsFull="$vtParam"
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
             VTKS="ks=hd:/dev/ventoy:$vtRawKs"
             break
         fi
         
         if echo $vtParam | $GREP -q '^inst.ks=.*:/'; then
+            vtRawKsFull="$vtParam"
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
             VTKS="inst.ks=hd:/dev/ventoy:$vtRawKs"
             break
@@ -63,7 +66,13 @@ fi
 echo "VTKS=$VTKS  VTOVERLAY=$VTOVERLAY" >> $VTLOG
 
 if [ -n "$vtRawKs" ]; then
-    echo "$vtRawKs" > $VTOY_PATH/ventoy_ks_rootpath
+    if echo $vtRawKsFull | $EGREP -q "=http|=https|=ftp|=nfs|=hmc"; then
+        echo "vtRawKsFull=$vtRawKsFull no patch needed." >> $VTLOG
+        vtRawKs=""
+        VTKS=""
+    else
+        echo "$vtRawKs" > $VTOY_PATH/ventoy_ks_rootpath
+    fi    
 fi
 
 if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
@@ -98,3 +107,7 @@ if [ -f /usr/sbin/anaconda-diskroot ]; then
     $SED  's/^mount $dev $repodir/mount -oro $dev $repodir/' -i /usr/sbin/anaconda-diskroot
 fi
 
+
+if [ -f $VTOY_PATH/autoinstall ]; then
+    cp -a $VTOY_PATH/hook/openEuler/ventoy-autoexp.sh /lib/dracut/hooks/pre-mount/99-ventoy-autoexp.sh
+fi

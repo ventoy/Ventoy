@@ -362,6 +362,13 @@ ventoy_get_os_type() {
     fi
     
     
+    #Kylin V10 Server
+    if [ -f /usr/sbin/dhclient ]; then
+        if $BUSYBOX_PATH/strings /usr/sbin/dhclient | $GREP -i -q -m1 openeuler; then
+            echo 'openEuler'; return
+        fi
+    fi
+    
     
     echo "default"
 }

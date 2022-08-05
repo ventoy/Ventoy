@@ -3642,7 +3642,7 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
         {
             node->cursel = node->autosel - 1;
             debug("Auto install template auto select %d\n", node->autosel);
-            return 0;
+            goto load;
         }
     }
 
@@ -3682,6 +3682,7 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
 
     node->cursel = g_ventoy_last_entry - 1;
 
+load:
     grub_check_free(node->filebuf);
     node->filelen = 0;
 
