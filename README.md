@@ -33,7 +33,7 @@ Debian, Ubuntu, CentOS(6/7/8/9), RHEL(6/7/8/9), Deepin, Fedora, Rocky Linux, Alm
 DragonFly FreeBSD pfSense GhostBSD FreeNAS TrueNAS XigmaNAS FuryBSD OPNsense HardenedBSD MidnightBSD ClonOS EmergencyBootKit
 
 **ChromeOS**  
-FydeOS, CloudReady
+FydeOS, CloudReady, ChromeOS Flex
 
 **Other**  
 VMware ESXi, Citrix XenServer, Xen XCP-ng

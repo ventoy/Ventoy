@@ -333,12 +333,84 @@ end:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_linux_initrd_collect_hook(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    int len;
+    initrd_info *img = NULL;
+    
+    (void)data;
+
+    if (0 == info->dir)
+    {
+        if (grub_strncmp(filename, "initrd", 6) == 0)
+        {
+            len = (int)grub_strlen(filename);
+            if (grub_strcmp(filename + len - 4, ".img") == 0)
+            {
+                img = grub_zalloc(sizeof(initrd_info));
+                if (img)
+                {
+                    grub_snprintf(img->name, sizeof(img->name), "/boot/%s", filename);
+
+                    if (ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
+                    {
+                        grub_free(img);
+                    }
+                    else
+                    {                        
+                        if (g_initrd_img_list)
+                        {
+                            img->prev = g_initrd_img_tail;
+                            g_initrd_img_tail->next = img;
+                        }
+                        else
+                        {
+                            g_initrd_img_list = img;
+                        }
+
+                        g_initrd_img_tail = img;
+                        g_initrd_img_count++;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+static int ventoy_linux_collect_boot_initrds(void)
+{
+    grub_fs_t fs;
+    grub_device_t dev = NULL;
+
+    dev = grub_device_open("loop");
+    if (!dev)
+    {
+        debug("failed to open device loop\n");
+        goto end;        
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        debug("failed to probe fs %d\n", grub_errno);
+        goto end;
+    }
+
+    fs->fs_dir(dev, "/boot", ventoy_linux_initrd_collect_hook, NULL);
+
+end:
+    return 0;    
+}
+
 static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
 {
     int i = 0;
     int len = 0;
     int dollar = 0;
     int quotation = 0;
+    int initrd_dollar = 0;
     grub_file_t file = NULL;
     char *buf = NULL;
     char *start = NULL;
@@ -421,6 +493,19 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
                 debug("Remove quotation <%s>\n", img->name);
             }
 
+            /* special process for /boot/initrd$XXX.img */
+            if (dollar == 1)
+            {
+                if (grub_strncmp(img->name, "/boot/initrd$", 13) == 0)
+                {
+                    len = (int)grub_strlen(img->name);
+                    if (grub_strcmp(img->name + len - 4, ".img") == 0)
+                    {
+                        initrd_dollar++;                        
+                    }                    
+                }
+            }
+
             if (dollar == 1 || ventoy_find_initrd_by_name(g_initrd_img_list, img->name))
             {
                 grub_free(img);
@@ -457,6 +542,12 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
 
     grub_free(buf);
     grub_file_close(file);
+
+    if (initrd_dollar > 0 && grub_strncmp(fileName, "(loop)/", 7) == 0)
+    {
+        debug("collect initrd variable %d\n", initrd_dollar);
+        ventoy_linux_collect_boot_initrds();
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
