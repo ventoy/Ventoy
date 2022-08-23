@@ -17,6 +17,15 @@ if [ $uid -ne 0 ]; then
     exit 1
 fi
 
+if [ "$1" = "__vbash__" ]; then
+    shift
+else
+    if readlink /bin/sh | grep -q bash; then
+        :
+    else
+        exec /bin/bash $0 "__vbash__" "$@"
+    fi
+fi
 
 OLDDIR=$(pwd)
 
