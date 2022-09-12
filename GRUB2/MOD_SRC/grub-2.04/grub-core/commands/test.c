@@ -229,11 +229,25 @@ test_parse (char **args, int *argn, int argc)
 	      (*argn) += 3;
 	      continue;
 	    }
+      if (grub_strcmp (args[*argn + 1], "-EQ") == 0)
+	    {
+	      update_val (grub_strtoull (args[*argn], 0, 0)
+			  == grub_strtoull (args[*argn + 2], 0, 0), &ctx);
+	      (*argn) += 3;
+	      continue;
+	    }
 
 	  if (grub_strcmp (args[*argn + 1], "-ge") == 0)
 	    {
 	      update_val (grub_strtosl (args[*argn], 0, 0)
 			  >= grub_strtosl (args[*argn + 2], 0, 0), &ctx);
+	      (*argn) += 3;
+	      continue;
+	    }
+	  if (grub_strcmp (args[*argn + 1], "-GE") == 0)
+	    {
+	      update_val (grub_strtoull (args[*argn], 0, 0)
+			  >= grub_strtoull (args[*argn + 2], 0, 0), &ctx);
 	      (*argn) += 3;
 	      continue;
 	    }
@@ -245,11 +259,25 @@ test_parse (char **args, int *argn, int argc)
 	      (*argn) += 3;
 	      continue;
 	    }
+	  if (grub_strcmp (args[*argn + 1], "-GT") == 0)
+	    {
+	      update_val (grub_strtoull (args[*argn], 0, 0)
+			  > grub_strtoull (args[*argn + 2], 0, 0), &ctx);
+	      (*argn) += 3;
+	      continue;
+	    }
 
 	  if (grub_strcmp (args[*argn + 1], "-le") == 0)
 	    {
 	      update_val (grub_strtosl (args[*argn], 0, 0)
 		      <= grub_strtosl (args[*argn + 2], 0, 0), &ctx);
+	      (*argn) += 3;
+	      continue;
+	    }
+	  if (grub_strcmp (args[*argn + 1], "-LE") == 0)
+	    {
+	      update_val (grub_strtoull (args[*argn], 0, 0)
+		      <= grub_strtoull (args[*argn + 2], 0, 0), &ctx);
 	      (*argn) += 3;
 	      continue;
 	    }
@@ -261,11 +289,25 @@ test_parse (char **args, int *argn, int argc)
 	      (*argn) += 3;
 	      continue;
 	    }
+	  if (grub_strcmp (args[*argn + 1], "-LT") == 0)
+	    {
+	      update_val (grub_strtoull (args[*argn], 0, 0)
+			  < grub_strtoull (args[*argn + 2], 0, 0), &ctx);
+	      (*argn) += 3;
+	      continue;
+	    }
 
 	  if (grub_strcmp (args[*argn + 1], "-ne") == 0)
 	    {
 	      update_val (grub_strtosl (args[*argn], 0, 0)
 			  != grub_strtosl (args[*argn + 2], 0, 0), &ctx);
+	      (*argn) += 3;
+	      continue;
+	    }
+	  if (grub_strcmp (args[*argn + 1], "-NE") == 0)
+	    {
+	      update_val (grub_strtoull (args[*argn], 0, 0)
+			  != grub_strtoull (args[*argn + 2], 0, 0), &ctx);
 	      (*argn) += 3;
 	      continue;
 	    }
