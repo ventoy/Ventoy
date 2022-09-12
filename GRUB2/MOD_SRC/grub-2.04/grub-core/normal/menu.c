@@ -945,12 +945,14 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             goto refresh;
             
         case (GRUB_TERM_CTRL | 'r'):
+        case 'r':
             menu_fini ();
             g_ventoy_grub2_mode = 1 - g_ventoy_grub2_mode;
             g_ventoy_menu_refresh = 1;
             goto refresh;
             
         case (GRUB_TERM_CTRL | 'w'):
+        case 'w':
             menu_fini ();
             g_ventoy_wimboot_mode = 1 - g_ventoy_wimboot_mode;
             g_ventoy_menu_refresh = 1;
