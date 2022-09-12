@@ -2622,6 +2622,7 @@ int main(int argc, char **argv)
 	{
 		Log("We don't need to rejump ...");
 
+        ventoy_check_create_directory();
         strcpy_s(NewArgv0, sizeof(NewArgv0), g_prog_full_path);
         argv[0] = NewArgv0;
 
