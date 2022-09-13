@@ -152,6 +152,14 @@ typedef struct VTOY_GPT_INFO
 #pragma pack()
 
 
+typedef struct WinpeshlIniAttr
+{
+    INT FileSize;
+    FILETIME CreateTime;
+    FILETIME LastAccessTime;
+    FILETIME LastWriteTime;
+}WinpeshlIniAttr;
+
 
 typedef struct VarDiskInfo
 {
@@ -186,5 +194,6 @@ int unxz(unsigned char *in, int in_size,
     int(*flush)(void *src, unsigned int size),
     unsigned char *out, int *in_used,
     void(*error)(char *x));
+
 
 #endif
