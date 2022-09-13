@@ -152,15 +152,6 @@ typedef struct VTOY_GPT_INFO
 #pragma pack()
 
 
-typedef struct WinpeshlIniAttr
-{
-    INT FileSize;
-    FILETIME CreateTime;
-    FILETIME LastAccessTime;
-    FILETIME LastWriteTime;
-}WinpeshlIniAttr;
-
-
 typedef struct VarDiskInfo
 {
     UINT64 Capacity;

@@ -36,7 +36,6 @@ static ventoy_guid g_ventoy_guid = VENTOY_GUID;
 static HANDLE g_vtoylog_mutex = NULL;
 static HANDLE g_vtoyins_mutex = NULL;
 
-static INT g_winpeshl_ini_updated = 0;
 static DWORD g_vtoy_disk_drive;
 
 static CHAR g_prog_full_path[MAX_PATH];
@@ -1965,31 +1964,6 @@ static BOOL CheckVentoyDisk(DWORD DiskNum)
     return FALSE;
 }
 
-static int GetWinpeshlIniFileAttr(WinpeshlIniAttr *pAttr)
-{
-    HANDLE hFile;
-    SYSTEMTIME systime;
-
-    hFile = CreateFileA(WINPESHL_INI, FILE_READ_EA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
-        Log("Could not open the file<%s>, error:%u", WINPESHL_INI, GetLastError());
-        return 1;
-    }
-
-    pAttr->FileSize = (INT)GetFileSize(hFile, NULL);
-    GetFileTime(hFile, &pAttr->CreateTime, &pAttr->LastAccessTime, &pAttr->LastWriteTime);
-
-    FileTimeToSystemTime(&pAttr->LastWriteTime, &systime);
-    Log("Winpeshl.ini size:%d LastWriteTime:<%04u/%02u/%02u %02u:%02u:%02u.%03u>", 
-        pAttr->FileSize,
-        systime.wYear, systime.wMonth, systime.wDay, 
-        systime.wHour, systime.wMinute, systime.wSecond, 
-        systime.wMilliseconds);
-
-    CloseHandle(hFile);
-    return 0;
-}
 
 static int VentoyHook(ventoy_os_param *param)
 {
@@ -2011,8 +1985,6 @@ static int VentoyHook(ventoy_os_param *param)
 	CHAR IsoPath[MAX_PATH];
 
 	Log("VentoyHook Path:<%s>", param->vtoy_img_path);
-
-    g_winpeshl_ini_updated = 0;
 
     if (IsUTF8Encode(param->vtoy_img_path))
     {
@@ -2210,34 +2182,8 @@ static int VentoyHook(ventoy_os_param *param)
         sprintf_s(IsoPath, sizeof(IsoPath), "%C:%s", VtoyLetter, g_windows_data.injection_archive);
         if (IsFileExist("%s", IsoPath))
         {
-            int rc1 = -1, rc2 = -1;
-            WinpeshlIniAttr Attr1, Attr2;
-            memset(&Attr1, 0, sizeof(Attr1));
-            memset(&Attr2, 0, sizeof(Attr2));
-
             Log("decompress injection archive %s...", IsoPath);
-
-            if (IsFileExist(WINPESHL_INI))
-            {
-                rc1 = GetWinpeshlIniFileAttr(&Attr1);
-            }
-
             DecompressInjectionArchive(IsoPath, VtoyDiskNum);
-
-            if (IsFileExist(WINPESHL_INI))
-            {
-                rc2 = GetWinpeshlIniFileAttr(&Attr2);
-                if (rc1 == rc2 && rc1 == 0)
-                {
-                    if (Attr1.FileSize != Attr2.FileSize ||
-                        Attr1.LastWriteTime.dwHighDateTime != Attr2.LastWriteTime.dwHighDateTime ||
-                        Attr1.LastWriteTime.dwLowDateTime != Attr2.LastWriteTime.dwLowDateTime)
-                    {
-                        Log("winpeshl.ini file updated");
-                        g_winpeshl_ini_updated = 1;
-                    }
-                }
-            }
 
             if (IsFileExist("%s", AUTO_RUN_BAT))
             {
@@ -2526,11 +2472,13 @@ int real_main(int argc, char **argv)
 	if (strstr(argv[0], "vtoyjump.exe"))
 	{
         wimboot = 1;
-		rc = VentoyJumpWimboot(argc, argv, LunchFile);
+        DeleteFileA(WINPESHL_INI);
+        IsFileExist(WINPESHL_INI);
+        rc = VentoyJumpWimboot(argc, argv, LunchFile);
 	}
 	else
 	{
-		rc = VentoyJump(argc, argv, LunchFile);
+        rc = VentoyJump(argc, argv, LunchFile);
 	}
 
 	Log("LunchFile=<%s> CallParam=<%s>", LunchFile, CallParam);
@@ -2548,10 +2496,10 @@ int real_main(int argc, char **argv)
 		sprintf_s(LunchFile, sizeof(LunchFile), "%s", g_prog_full_path);
 		Log("Final lunchFile is <%s>", LunchFile);
 	}
-    else if (wimboot && g_winpeshl_ini_updated)
+    else if (wimboot && IsFileExist(WINPESHL_INI))
     {
         sprintf_s(LunchFile, MAX_PATH, "X:\\Windows\\system32\\winpeshl.exe");
-        Log("Recall winpeshl.exe");
+        Log("winpeshl.ini updated, now recall winpeshl.exe");
     }
     else
     {
