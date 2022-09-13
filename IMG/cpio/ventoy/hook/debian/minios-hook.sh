@@ -20,5 +20,5 @@
 if [ -f /lib/livekitlib ] && $GREP -q 'debug_log.*find_data_try' /lib/livekitlib; then
     $SED "/debug_log.*find_data_try/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/minios-disk.sh"  -i /lib/livekitlib
 else
-    $SED "/find_data/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/minios-disk.sh"  -i /init
+    $SED "/find_data/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/minios-disk.sh" -i /init
 fi
