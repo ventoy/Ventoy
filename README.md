@@ -32,7 +32,6 @@ Official Website: [https://www.ventoy.net](https://www.ventoy.net)
 # Features
 
 ![avatar](https://www.ventoy.net/static/img/screen/screen_uefi.png)
-
 * 100% open source
 * Simple to use
 * Fast (limited only by the speed of copying iso file)
@@ -430,35 +429,17 @@ Official Website: [https://www.ventoy.net](https://www.ventoy.net)
   
 </details>
 
-# Subscription Service
+# Getting Started
 
-Ventoy is an open source software under GPLv3 license.
-
-*But Ventoy project need to pay for the server hosting, domain name, bandwidth, many USB sticks for test, large capacity of HDD (for downloading ISO files) and so on.
-
-For the better and sustainable development of Ventoy, I provide the [【subscription service】](https://www.ventoy.net/en/doc_subscription.html).*
-
-# Tested Image Report
-
-[【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
-
-# Ventoy Browser
-
-With Ventoy, you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
-  
-# VentoyPlugson
-
-A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
-
-# Installation Instructions
+## Installation Instructions
 
 See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detailed instructions. 
 
-# Compile Instructions
+## Compile Instructions
 
 Please refer to [BuildVentoyFromSource.txt](DOC/BuildVentoyFromSource.txt)
 
-# Document
+## Document
 
 Title | Link
 -|-
@@ -485,15 +466,32 @@ Title | Link
 **Disk Layout GPT** | [https://www.ventoy.net/en/doc_disk_layout_gpt.html](https://www.ventoy.net/en/doc_disk_layout_gpt.html)  
 **Search Configuration** | [https://www.ventoy.net/en/doc_search_path.html](https://www.ventoy.net/en/doc_search_path.html)
 
+## Ventoy Browser
 
-# FAQ
+With Ventoy, you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
+  
+## VentoyPlugson
+
+A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
+
+## Tested Image Report
+
+[【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
+
+## FAQ
 
 See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for details.
 
-
-# Forum
+## Forum
 
 [https://forums.ventoy.net](https://forums.ventoy.net)
+
+# Subscription Service
+
+Ventoy is an open source software under GPLv3 license.
+
+*But Ventoy project need to pay for the server hosting, domain name, bandwidth, many USB sticks for test, large capacity of HDD (for downloading ISO files) and so on.<br/>
+For the better and sustainable development of Ventoy, I provide the [【subscription service】](https://www.ventoy.net/en/doc_subscription.html).*
 
 # Donation
 
