@@ -8,10 +8,10 @@ F6 - Učitava prilagođen GRUB2 meni
 F7 - Mijenja između GUI <-> TEXT načina rada
 
 m - Generira heš odabranog imidž fajla (md5/sha1/sha256/sha512)
-Ctrl+w - WIMBOOT način rada (samo za standardne Windows imidž fajlove)
-Ctrl+r - GRUB2 način rada (samo za neke Linux distribucije)
-Ctrl+i - Kompatibilni način rada (samo za testiranje)
-Ctrl+u - Učitava EFI drajver za imidž fajlove (samo za testiranje)
+w/Ctrl+w - WIMBOOT način rada (samo za standardne Windows imidž fajlove)
+r/Ctrl+r - GRUB2 način rada (samo za neke Linux distribucije)
+i/Ctrl+i - Kompatibilni način rada (samo za testiranje)
+u/Ctrl+u - Učitava EFI drajver za imidž fajlove (samo za testiranje)
 
 
 

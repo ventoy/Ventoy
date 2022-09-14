@@ -8,10 +8,10 @@ F6 - 사용자 지정 Grub2 메뉴 로드
 F7 - GUI 모드 <-> TEXT 모드 간에 전환
 
 m - 체크섬 이미지 파일 (md5/sha1/sha256/sha512)
-Ctrl+w - WIMBOOT 모드 (표준 Windows ISO 전용)
-Ctrl+r - Grub2 모드 (일부 Linux 배포판에만 해당)
-Ctrl+i - 호환 모드 (디버그 전용)
-Ctrl+u - ISO eFi 드라이버 로드 (디버그 전용, 공식적으로 사용할 수 없음)
+w/Ctrl+w - WIMBOOT 모드 (표준 Windows ISO 전용)
+r/Ctrl+r - Grub2 모드 (일부 Linux 배포판에만 해당)
+i/Ctrl+i - 호환 모드 (디버그 전용)
+u/Ctrl+u - ISO eFi 드라이버 로드 (디버그 전용, 공식적으로 사용할 수 없음)
 
 
 

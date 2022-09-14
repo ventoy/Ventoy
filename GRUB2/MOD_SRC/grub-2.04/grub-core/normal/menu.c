@@ -939,6 +939,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             goto refresh;
             
         case (GRUB_TERM_CTRL | 'i'):
+        case 'i':
             menu_fini ();
             g_ventoy_iso_raw = 1 - g_ventoy_iso_raw;
             g_ventoy_menu_refresh = 1;
@@ -959,6 +960,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             goto refresh;
             
         case (GRUB_TERM_CTRL | 'u'):
+        case 'u':
             menu_fini ();
             g_ventoy_iso_uefi_drv = 1 - g_ventoy_iso_uefi_drv;
             g_ventoy_menu_refresh = 1;

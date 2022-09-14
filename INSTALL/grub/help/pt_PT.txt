@@ -8,10 +8,10 @@ F6 - Carregar menu Grub2 personalizado
 F7 - Alternar entre Modo GUI <-> Modo TEXTO
 
 m - Checksum ficheiros de imagem (md5/sha1/sha256/sha512)
-Ctrl+w - Modo WIMBOOT (Apenas para Windows ISO padrão)
-Ctrl+r - Modo Grub2 (Apenas para algumas distros Linux)
-Ctrl+i - Modo Compatível (Apenas para depuração)
-Ctrl+u - Carregar o controlador ISO efi (Apenas para depuração, não pode ser utilizado oficialmente)
+w/Ctrl+w - Modo WIMBOOT (Apenas para Windows ISO padrão)
+r/Ctrl+r - Modo Grub2 (Apenas para algumas distros Linux)
+i/Ctrl+i - Modo Compatível (Apenas para depuração)
+u/Ctrl+u - Carregar o controlador ISO efi (Apenas para depuração, não pode ser utilizado oficialmente)
 
 
 Prima ESC para voltar ......
