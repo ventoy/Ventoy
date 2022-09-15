@@ -1790,19 +1790,150 @@ end:
     return rc;
 }
 
+static int ventoy_extract_init_exe(char *wimfile, grub_uint8_t **pexe_data, grub_uint32_t *pexe_len, char *exe_name)
+{
+    int rc;
+    int ret = 1;
+    grub_uint16_t i;
+    grub_file_t file = NULL;
+    grub_uint32_t exe_len = 0;
+    wim_header *head = NULL;
+    grub_uint16_t *uname = NULL;
+    grub_uint8_t *exe_data = NULL;
+    grub_uint8_t *decompress_data = NULL;
+    wim_lookup_entry *lookup = NULL;
+    wim_security_header *security = NULL;
+    wim_directory_entry *rootdir = NULL;
+    wim_directory_entry *search = NULL;
+    wim_stream_entry *stream = NULL;
+    wim_lookup_entry *replace_look = NULL;
+    wim_header wimhdr;
+    wim_hash hashdata;
+
+    head = &wimhdr;
+
+    file = grub_file_open(wimfile, VENTOY_FILE_TYPE);
+    if (!file)
+    {
+        goto out;
+    }
+
+    grub_file_read(file, head, sizeof(wim_header));
+    rc = ventoy_read_resource(file, head, &head->metadata, (void **)&decompress_data);
+    if (rc)
+    {
+        grub_printf("failed to read meta data %d\n", rc);
+        goto out;
+    }
+
+    security = (wim_security_header *)decompress_data;
+    if (security->len > 0)
+    {
+        rootdir = (wim_directory_entry *)(decompress_data + ((security->len + 7) & 0xFFFFFFF8U));
+    }
+    else
+    {
+        rootdir = (wim_directory_entry *)(decompress_data + 8);
+    }
+
+    debug("read lookup offset:%llu size:%llu\n", (ulonglong)head->lookup.offset, (ulonglong)head->lookup.raw_size);
+    lookup = grub_malloc(head->lookup.raw_size);
+    grub_file_seek(file, head->lookup.offset);
+    grub_file_read(file, lookup, head->lookup.raw_size);
+
+    /* search winpeshl.exe dirent entry */
+    search = search_replace_wim_dirent(file, head, lookup, decompress_data, rootdir);
+    if (!search)
+    {
+        debug("Failed to find replace file %p\n", search);
+        goto out;
+    }
+    
+    uname = (grub_uint16_t *)(search + 1);
+    for (i = 0; i < search->name_len / 2 && i < 200; i++)
+    {
+        exe_name[i] = (char)uname[i];
+    }
+    exe_name[i] = 0;
+    debug("find replace file at %p <%s>\n", search, exe_name);
+
+    grub_memset(&hashdata, 0, sizeof(wim_hash));
+    if (grub_memcmp(&hashdata, search->hash.sha1, sizeof(wim_hash)) == 0)
+    {
+        debug("search hash all 0, now do deep search\n");
+        stream = (wim_stream_entry *)((char *)search + search->len);
+        for (i = 0; i < search->streams; i++)
+        {
+            if (stream->name_len == 0)
+            {
+                grub_memcpy(&hashdata, stream->hash.sha1, sizeof(wim_hash));
+                debug("new search hash: %02x %02x %02x %02x %02x %02x %02x %02x\n", 
+                    ventoy_varg_8(hashdata.sha1));
+                break;
+            }
+            stream = (wim_stream_entry *)((char *)stream + stream->len);
+        }
+    }
+    else
+    {
+        grub_memcpy(&hashdata, search->hash.sha1, sizeof(wim_hash));        
+    }
+
+    /* find and extact winpeshl.exe */
+    replace_look = ventoy_find_look_entry(head, lookup, &hashdata);
+    if (replace_look)
+    {
+        exe_len = (grub_uint32_t)replace_look->resource.raw_size;
+        debug("find replace lookup entry_id:%ld raw_size:%u\n", 
+            ((long)replace_look - (long)lookup) / sizeof(wim_lookup_entry), exe_len);
+
+        if (0 != ventoy_read_resource(file, head, &(replace_look->resource), (void **)&(exe_data)))
+        {
+            exe_len = 0;
+            exe_data = NULL;
+            debug("failed to read replace file meta data %u\n", exe_len);
+        }
+    }
+    else
+    {
+        debug("failed to find lookup entry for replace file %02x %02x %02x %02x\n", 
+            ventoy_varg_4(hashdata.sha1));
+    }
+
+    if (exe_data)
+    {
+        ret = 0;
+        *pexe_data = exe_data;
+        *pexe_len = exe_len;
+    }
+    
+out:
+
+    grub_check_free(lookup);
+    grub_check_free(decompress_data);
+    check_free(file, grub_file_close);
+
+    return ret;
+}
+
 grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc, char **args)
 {
+    int rc = 0;
     int datalen = 0;
     int dataflag = 0;
-    grub_uint32_t size = 0;
+    grub_uint32_t exe_len = 0;
+    grub_uint32_t jump_align = 0;
     const char *addr = NULL;
     ventoy_chain_head *chain = NULL;
-    ventoy_os_param *param = NULL;
-    char envbuf[64];
+    grub_uint8_t *param = NULL;
+    grub_uint8_t *exe_data = NULL;
+    ventoy_windows_data *rtdata = NULL;
+    char envbuf[64] = {0};
+    char exename[128] = {0};
+    wim_tail wim_data;
 
     (void)ctxt;
     (void)argc;
-    (void)args;
 
     addr = grub_env_get("vtoy_chain_mem_addr");
     if (!addr)
@@ -1821,24 +1952,34 @@ grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc,
 
     datalen = ventoy_get_windows_rtdata_len(chain->os_param.vtoy_img_path, &dataflag);
 
-    size = sizeof(ventoy_os_param) + datalen;
-    param = (ventoy_os_param *)grub_zalloc(size);
-    if (!param)
+    rc = ventoy_extract_init_exe(args[0], &exe_data, &exe_len, exename);
+    if (rc)
     {
         return 1;
     }
 
-    grub_memcpy(param, &chain->os_param, sizeof(ventoy_os_param));
-    ventoy_fill_windows_rtdata(param + 1, param->vtoy_img_path, dataflag);
+    grub_memset(&wim_data, 0, sizeof(wim_data));
+    ventoy_cat_exe_file_data(&wim_data, exe_len, exe_data, datalen);
+    grub_check_free(exe_data);
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)param);
+    jump_align = ventoy_align(wim_data.jump_exe_len, 16);
+    param = wim_data.jump_bin_data;
+
+    grub_memcpy(param + jump_align, &chain->os_param, sizeof(ventoy_os_param));
+
+    rtdata = (ventoy_windows_data *)(param + jump_align + sizeof(ventoy_os_param));
+    ventoy_fill_windows_rtdata(rtdata, chain->os_param.vtoy_img_path, dataflag);
+
+    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (ulong)param);
     grub_env_set("vtoy_wimboot_mem_addr", envbuf);
     debug("vtoy_wimboot_mem_addr: %s\n", envbuf);
     
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
+    grub_snprintf(envbuf, sizeof(envbuf), "%u", wim_data.bin_align_len);
     grub_env_set("vtoy_wimboot_mem_size", envbuf);
     debug("vtoy_wimboot_mem_size: %s\n", envbuf);
-    
+
+    grub_env_set(args[1], exename);
+
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 

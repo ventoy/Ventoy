@@ -141,7 +141,7 @@ typedef struct ventoy_windows_data
     grub_uint8_t windows11_bypass_check;
 
     grub_uint32_t auto_install_len;
-    
+
     grub_uint8_t reserved[255 - 4];
 
     /* auto_intall file buf */

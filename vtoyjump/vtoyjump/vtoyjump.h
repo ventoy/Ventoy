@@ -164,6 +164,13 @@ typedef struct VarDiskInfo
     CHAR SerialNumber[128];
 }VarDiskInfo;
 
+typedef struct IsoId
+{
+    CHAR SystemId[64];
+    CHAR VolumeId[64];
+    CHAR PulisherId[256];
+    CHAR PreparerId[256];
+}IsoId;
 
 #define SAFE_CLOSE_HANDLE(handle) \
 {\

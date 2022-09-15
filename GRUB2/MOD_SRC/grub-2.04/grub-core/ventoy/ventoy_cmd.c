@@ -148,8 +148,6 @@ static char g_iso_vd_id_application[130];
 static int g_pager_flag = 0;
 static char g_old_pager[32];
 
-static const char *g_vtoy_winpeshl_ini = "[LaunchApps]\r\nvtoyjump.exe";
-
 const char *g_menu_class[img_type_max] = 
 {
     "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg", "vtoyvhd", "vtoyvtoy"
@@ -1148,6 +1146,10 @@ grub_ssize_t ventoy_load_file_with_prompt(grub_file_t file, void *buf, grub_ssiz
         left -= VTOY_SIZE_2MB;
 
         div = grub_divmod64((grub_uint64_t)((size - left) * 100), (grub_uint64_t)size, &ro);
+        if (div < 1)
+        {
+            div = 1;
+        }
         grub_printf("\r%s   %d%%    ", g_vtoy_prompt_msg, (int)div);
         grub_refresh();  
     }
@@ -5986,12 +5988,6 @@ int ventoy_env_init(void)
         grub_env_export("env_param");
         grub_env_export("ventoy_env_param");
     }
-
-    grub_snprintf(buf, sizeof(buf), "0x%lx", (ulong)g_vtoy_winpeshl_ini);
-    grub_env_set("vtoy_winpeshl_ini_addr", buf);
-
-    grub_snprintf(buf, sizeof(buf), "%d", (int)grub_strlen(g_vtoy_winpeshl_ini));
-    grub_env_set("vtoy_winpeshl_ini_size", buf);
 
     grub_env_export("vtoy_winpeshl_ini_addr");
     grub_env_export("vtoy_winpeshl_ini_size");
