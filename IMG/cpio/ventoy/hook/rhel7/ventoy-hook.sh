@@ -26,6 +26,10 @@ if [ -f $VTOY_PATH/autoinstall ]; then
     VTKS="inst.ks=file:$VTOY_PATH/autoinstall"
 else
     for vtParam in $($CAT /proc/cmdline); do
+        if echo $vtParam | $GREP -q 'ks=file:/'; then
+            continue
+        fi
+    
         if echo $vtParam | $GREP -q 'inst.ks=hd:LABEL='; then
             vtRawKsFull="$vtParam"
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
