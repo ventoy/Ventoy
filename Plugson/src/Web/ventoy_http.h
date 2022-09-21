@@ -58,7 +58,9 @@ typedef struct data_control
     int filter_vtoy;
     int win11_bypass_check;
     int menu_timeout;
+    int secondary_menu_timeout;
     int linux_remount;
+    int secondary_menu;
     char default_search_root[MAX_PATH];
     char default_image[MAX_PATH];
     char default_kbd_layout[32];

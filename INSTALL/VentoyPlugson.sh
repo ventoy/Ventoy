@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./tool/ventoy_lib.sh
 
 print_usage() {    
-    echo 'Usage:  sudo sh VentoyPlugson.sh [OPTION] /dev/sdX'
+    echo 'Usage:  sudo bash VentoyPlugson.sh [OPTION] /dev/sdX'
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -P PORT     http server PORT (default is 24681)'

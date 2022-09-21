@@ -1364,6 +1364,110 @@ static int ventoy_wimdows_locate_wim(const char *disk, wim_patch *patch, int win
     return 0;
 }
 
+grub_err_t ventoy_cmd_sel_winpe_wim(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i = 0;
+    int pos = 0;
+    int len = 0;
+    int find = 0;
+    char *cmd = NULL;
+    wim_patch *node = NULL;
+    wim_patch *tmp = NULL;
+    grub_file_t file = NULL;
+    wim_header *head = NULL;
+    char cfgfile[128];
+
+    (void)ctxt;
+    (void)argc;
+
+    len = 8 * VTOY_SIZE_1KB;
+    cmd = (char *)grub_malloc(len + sizeof(wim_header));
+    if (!cmd)
+    {
+        return 1;
+    }
+
+    head = (wim_header *)(cmd + len);
+    grub_env_unset("vtoy_pe_wim_path");
+
+    for (node = g_wim_patch_head; node; node = node->next)
+    {
+        find = 0;
+        for (tmp = g_wim_patch_head; tmp != node; tmp = tmp->next)
+        {
+            if (tmp->valid && grub_strcasecmp(tmp->path, node->path) == 0)
+            {
+                find = 1;
+                break;
+            }
+        }
+
+        if (find)
+        {
+            continue;
+        }
+        
+        g_ventoy_case_insensitive = 1;
+        file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", args[0], node->path);
+        g_ventoy_case_insensitive = 0;
+        if (!file)
+        {
+            debug("File %s%s NOT exist\n", args[0], node->path);
+            continue;
+        }
+
+        grub_file_read(file, head, sizeof(wim_header));
+        if (grub_memcmp(head->signature, WIM_HEAD_SIGNATURE, sizeof(head->signature)))
+        {
+            debug("Not a valid wim file %s\n", (char *)head->signature);
+            grub_file_close(file);
+            continue;
+        }
+
+        if (head->flags & FLAG_HEADER_COMPRESS_LZMS)
+        {
+            debug("LZMS compress is not supported 0x%x\n", head->flags);
+            grub_file_close(file);
+            continue;
+        }
+
+        grub_file_close(file);
+        node->valid = 1;
+
+        vtoy_len_ssprintf(cmd, pos, len, "menuentry \"%s\" --class=\"sel_wim\"  {\n  echo \"\"\n}\n", node->path);
+    }
+
+    if (pos > 0)
+    {
+        g_ventoy_menu_esc = 1;
+        g_ventoy_suppress_esc = 1;
+        g_ventoy_suppress_esc_default = 0;
+
+        grub_snprintf(cfgfile, sizeof(cfgfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)cmd, pos);
+        grub_script_execute_sourcecode(cfgfile);   
+
+        g_ventoy_menu_esc = 0;
+        g_ventoy_suppress_esc = 0;
+        g_ventoy_suppress_esc_default = 1;
+
+        for (node = g_wim_patch_head; node; node = node->next)
+        {
+            if (node->valid)
+            {
+                if (i == g_ventoy_last_entry)
+                {
+                    grub_env_set("vtoy_pe_wim_path", node->path);
+                    break;
+                }
+                i++;
+            }
+        }
+    }
+
+    grub_free(cmd);
+    return 0;
+}
+
 grub_err_t ventoy_cmd_locate_wim_patch(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int datalen = 0;
@@ -1919,6 +2023,7 @@ out:
 grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc = 0;
+    int wim64 = 0;
     int datalen = 0;
     int dataflag = 0;
     grub_uint32_t exe_len = 0;
@@ -1957,6 +2062,7 @@ grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc,
     {
         return 1;
     }
+    wim64 = ventoy_is_pe64(exe_data);
 
     grub_memset(&wim_data, 0, sizeof(wim_data));
     ventoy_cat_exe_file_data(&wim_data, exe_len, exe_data, datalen);
@@ -1979,6 +2085,7 @@ grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc,
     debug("vtoy_wimboot_mem_size: %s\n", envbuf);
 
     grub_env_set(args[1], exename);
+    grub_env_set(args[2], wim64 ? "64" : "32");
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -2020,7 +2127,10 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
     if (0 == ventoy_compatible && g_wim_valid_patch_count == 0)
     {
         unknown_image = 1;
-        debug("Warning: %s was not recognized by Ventoy\n", args[0]);
+        if (!g_ventoy_wimboot_mode)
+        {
+            debug("Warning: %s was not recognized by Ventoy\n", args[0]);            
+        }
     }
 
     file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s", args[0]);
@@ -2210,6 +2320,67 @@ static int ventoy_get_wim_chunklist(grub_file_t wimfile, ventoy_img_chunk_list *
     ventoy_get_block_list(wimfile, wimchunk, wimfile->device->disk->partition->start);
 
     return 0;
+}
+
+grub_err_t ventoy_cmd_is_standard_winiso(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int i;
+    int ret = 1;
+    char prefix[32] = {0};
+    const char *chkfile[] = 
+    {
+        "boot/bcd", "boot/boot.sdi", NULL
+    };
+
+    (void)ctxt;
+    (void)argc;
+
+    if (ventoy_check_file_exist("%s/sources/boot.wim", args[0]))
+    {
+        prefix[0] = 0;
+    }
+    else if (ventoy_check_file_exist("%s/x86/sources/boot.wim", args[0]))
+    {
+        grub_snprintf(prefix, sizeof(prefix), "/x86");
+    }
+    else if (ventoy_check_file_exist("%s/x64/sources/boot.wim", args[0]))
+    {
+        grub_snprintf(prefix, sizeof(prefix), "/x64");
+    }
+    else
+    {
+        debug("No boot.wim found.\n");
+        goto out;
+    }
+
+    for (i = 0; chkfile[i]; i++)
+    {
+        if (!ventoy_check_file_exist("%s%s/%s", args[0], prefix, chkfile[i]))
+        {
+            debug("%s not found.\n", chkfile[i]);
+            goto out;
+        }
+    }
+
+    if ((!ventoy_check_file_exist("%s%s/sources/install.wim", args[0], prefix)) && 
+        (!ventoy_check_file_exist("%s%s/sources/install.esd", args[0], prefix)))
+    {
+        debug("No install.wim(esd) found.\n");
+        goto out;
+    }
+
+    if (!ventoy_check_file_exist("%s/setup.exe", args[0]))
+    {
+        debug("No setup.exe found.\n");
+        goto out;
+    }
+
+    ret = 0;
+    debug("This is standard Windows ISO.\n");
+
+out:
+
+    return ret;
 }
 
 grub_err_t ventoy_cmd_wim_check_bootable(grub_extcmd_context_t ctxt, int argc, char **args)

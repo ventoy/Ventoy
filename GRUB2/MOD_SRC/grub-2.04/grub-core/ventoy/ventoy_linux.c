@@ -1811,3 +1811,173 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static char *ventoy_systemd_conf_tag(char *buf, const char *tag, int optional)
+{
+    int taglen = 0;
+    char *start = NULL;
+    char *nextline = NULL;
+
+    taglen = grub_strlen(tag);
+    for (start = buf; start; start = nextline)
+    {
+        nextline = ventoy_get_line(start);
+        while (ventoy_isspace(*start))
+        {
+            start++;
+        }
+
+        if (grub_strncmp(start, tag, taglen) == 0 && (start[taglen] == ' ' || start[taglen] == '\t'))
+        {
+            start += taglen;
+            while (ventoy_isspace(*start))
+            {
+                start++;
+            } 
+            return start;
+        }
+    }
+
+    if (optional == 0)
+    {
+        debug("tag<%s> NOT found\n", tag);        
+    }
+    return NULL;
+}
+
+static int ventoy_systemd_conf_hook(const char *filename, const struct grub_dirhook_info *info, void *data)
+{
+    int oldpos = 0;
+    char *tag = NULL;
+    char *bkbuf = NULL;
+    char *filebuf = NULL;
+    grub_file_t file = NULL;
+    systemd_menu_ctx *ctx = (systemd_menu_ctx *)data;
+
+    debug("ventoy_systemd_conf_hook %s\n", filename);
+
+    if (info->dir || NULL == grub_strstr(filename, ".conf"))
+    {
+        return 0;
+    }
+
+
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s/loader/entries/%s", ctx->dev, filename);
+    if (!file)
+    {
+        return 0;
+    }
+
+    filebuf = grub_zalloc(2 * file->size + 8);
+    if (!filebuf)
+    {
+        goto out;
+    }
+
+    bkbuf = filebuf + file->size + 4;
+    grub_file_read(file, bkbuf, file->size);
+
+    oldpos = ctx->pos;
+
+    /* title --> menuentry */
+    grub_memcpy(filebuf, bkbuf, file->size);
+    tag = ventoy_systemd_conf_tag(filebuf, "title", 0);
+    vtoy_check_goto_out(tag);
+    vtoy_len_ssprintf(ctx->buf, ctx->pos, ctx->len, "menuentry \"%s\" {\n", tag);
+
+    /* linux xxx */
+    grub_memcpy(filebuf, bkbuf, file->size);
+    tag = ventoy_systemd_conf_tag(filebuf, "linux", 0);
+    if (!tag)
+    {
+        ctx->pos = oldpos;
+        goto out;
+    }
+    vtoy_len_ssprintf(ctx->buf, ctx->pos, ctx->len, "  echo \"Downloading kernel ...\"\n  linux %s ", tag);
+
+    /* kernel options */
+    grub_memcpy(filebuf, bkbuf, file->size);
+    tag = ventoy_systemd_conf_tag(filebuf, "options", 0);
+    vtoy_len_ssprintf(ctx->buf, ctx->pos, ctx->len, "%s \n", tag ? tag : "");
+
+    
+    /* initrd xxx xxx xxx */
+    vtoy_len_ssprintf(ctx->buf, ctx->pos, ctx->len, "  echo \"Downloading initrd ...\"\n  initrd ");
+    grub_memcpy(filebuf, bkbuf, file->size);
+    tag = ventoy_systemd_conf_tag(filebuf, "initrd", 1);
+    while (tag)
+    {
+        vtoy_len_ssprintf(ctx->buf, ctx->pos, ctx->len, "%s ", tag);
+        tag = ventoy_systemd_conf_tag(tag + grub_strlen(tag) + 1, "initrd", 1);
+    }
+
+    vtoy_len_ssprintf(ctx->buf, ctx->pos, ctx->len, "\n  boot\n}\n");
+
+out:
+    grub_check_free(filebuf);
+    grub_file_close(file);
+    return 0;
+}
+
+grub_err_t ventoy_cmd_linux_systemd_menu(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    static char *buf = NULL;
+    char name[128];
+    char value[64];
+    grub_fs_t fs;
+    char *device_name = NULL;
+    grub_device_t dev = NULL;
+    systemd_menu_ctx ctx;
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (!buf)
+    {
+        buf = grub_malloc(VTOY_LINUX_SYSTEMD_MENU_MAX_BUF);
+        if (!buf)
+        {
+            goto end;
+        }        
+    }
+
+    device_name = grub_file_get_device_name(args[0]);
+    if (!device_name)
+    {
+        debug("failed to get device name %s\n", args[0]);
+        goto end;
+    }
+
+    dev = grub_device_open(device_name);
+    if (!dev)
+    {
+        debug("failed to open device %s\n", device_name);
+        goto end;        
+    }
+
+    fs = grub_fs_probe(dev);
+    if (!fs)
+    {
+        debug("failed to probe fs %d\n", grub_errno);
+        goto end;
+    }
+
+    ctx.dev = args[0];
+    ctx.buf = buf;
+    ctx.pos = 0;
+    ctx.len = VTOY_LINUX_SYSTEMD_MENU_MAX_BUF;
+    fs->fs_dir(dev, "/loader/entries", ventoy_systemd_conf_hook, &ctx);
+
+    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
+    grub_snprintf(value, sizeof(value), "0x%llx", (ulonglong)(ulong)buf);
+    grub_env_set(name, value);
+    
+    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
+    grub_snprintf(value, sizeof(value), "%d", ctx.pos);
+    grub_env_set(name, value);
+
+end:
+    grub_check_free(device_name);
+    check_free(dev, grub_device_close);
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+

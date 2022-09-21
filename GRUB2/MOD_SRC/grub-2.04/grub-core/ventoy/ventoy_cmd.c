@@ -3659,12 +3659,12 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
         vtoy_ssprintf(buf, pos, "set timeout=%d\n", node->timeout);        
     }
     
-    vtoy_ssprintf(buf, pos, "menuentry \"Boot without auto installation template\" {\n"
+    vtoy_ssprintf(buf, pos, "menuentry \"Boot without auto installation template\" --class=\"sel_auto_install\" {\n"
                   "  echo %s\n}\n", "");
 
     for (i = 0; i < node->templatenum; i++)
     {
-        vtoy_ssprintf(buf, pos, "menuentry \"Boot with %s\"{\n"
+        vtoy_ssprintf(buf, pos, "menuentry \"Boot with %s\" --class=\"sel_auto_install\" {\n"
                   "  echo \"\"\n}\n",
                   node->templatepath[i].path);
     }
@@ -3765,12 +3765,12 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
         vtoy_ssprintf(buf, pos, "set timeout=%d\n", node->timeout);        
     }
 
-    vtoy_ssprintf(buf, pos, "menuentry \"Boot without persistence\" {\n"
+    vtoy_ssprintf(buf, pos, "menuentry \"Boot without persistence\" --class=\"sel_persistence\" {\n"
                   "  echo %s\n}\n", "");
     
     for (i = 0; i < node->backendnum; i++)
     {
-        vtoy_ssprintf(buf, pos, "menuentry \"Boot with %s\" {\n"
+        vtoy_ssprintf(buf, pos, "menuentry \"Boot with %s\" --class=\"sel_persistence\" {\n"
                       "  echo \"\"\n}\n",
                       node->backendpath[i].path);
         
@@ -5958,6 +5958,145 @@ static grub_err_t ventoy_cmd_dump_rsv_page(grub_extcmd_context_t ctxt, int argc,
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static grub_err_t ventoy_cmd_need_secondary_menu(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    const char *env = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (g_ventoy_memdisk_mode || g_ventoy_grub2_mode || g_ventoy_wimboot_mode || g_ventoy_iso_raw)
+    {
+        return 1;
+    }
+
+    if (ventoy_check_mode_by_name(args[0], "vtmemdisk") ||
+        ventoy_check_mode_by_name(args[0], "vtgrub2") ||
+        ventoy_check_mode_by_name(args[0], "vtwimboot"))
+    {
+        return 1;
+    }
+
+    env = grub_env_get("VTOY_SECONDARY_BOOT_MENU");
+    if (env && env[0] == '0' && env[1] == 0)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int n = 0;
+    int pos = 0;
+    int len = 0;
+    int select = 0;
+    int timeout = 0;
+    char *cmd = NULL;
+    const char *env = NULL;
+    ulonglong fsize = 0;
+    char cfgfile[128];
+    int seldata[16] = {0};
+
+    (void)ctxt;
+    (void)argc;
+
+    len = 8 * VTOY_SIZE_1KB;
+    cmd = (char *)grub_malloc(len);
+    if (!cmd)
+    {
+        return 1;
+    }
+
+    grub_env_unset("VTOY_CHKSUM_FILE_PATH");
+
+    env = grub_env_get("VTOY_SECONDARY_TIMEOUT");
+    if (env)
+    {
+        timeout = (int)grub_strtol(env, NULL, 10);
+    }
+
+    if (timeout > 0)
+    {
+        vtoy_len_ssprintf(cmd, pos, len, "set timeout=%d\n", timeout);
+    }
+
+    fsize = grub_strtoull(args[2], NULL, 10);
+
+    vtoy_dummy_menuentry(cmd, pos, len, "Boot in normal mode", "second_normal"); seldata[n++] = 1;
+
+    if (grub_strcmp(args[1], "Unix") != 0)
+    {
+        if (grub_strcmp(args[1], "Windows") == 0)
+        {
+            vtoy_dummy_menuentry(cmd, pos, len, "Boot in wimboot mode", "second_wimboot"); seldata[n++] = 2;
+        }
+        else
+        {
+            vtoy_dummy_menuentry(cmd, pos, len, "Boot in grub2 mode", "second_grub2"); seldata[n++] = 3;
+        }
+
+        if (fsize <= VTOY_SIZE_1GB)
+        {
+            vtoy_dummy_menuentry(cmd, pos, len, "Boot in memdisk mode", "second_memdisk"); seldata[n++] = 4;
+        }
+    }
+
+    vtoy_dummy_menuentry(cmd, pos, len, "File checksum", "second_checksum"); seldata[n++] = 5;
+
+    do {
+        g_ventoy_menu_esc = 1;
+        g_ventoy_suppress_esc = 1;
+        g_ventoy_suppress_esc_default = 0;
+        grub_snprintf(cfgfile, sizeof(cfgfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)cmd, pos);
+        grub_script_execute_sourcecode(cfgfile);
+        g_ventoy_menu_esc = 0;
+        g_ventoy_suppress_esc = 0;
+        g_ventoy_suppress_esc_default = 1;
+
+        select = seldata[g_ventoy_last_entry];
+        
+        if (select == 2)
+        {
+            g_ventoy_wimboot_mode = 1;
+        }
+        else if (select == 3)
+        {
+            g_ventoy_grub2_mode = 1;
+        }
+        else if (select == 4)
+        {
+            g_ventoy_memdisk_mode = 1;
+        }
+        else if (select == 5)
+        {
+            grub_env_set("VTOY_CHKSUM_FILE_PATH", args[0]);
+            grub_script_execute_sourcecode("configfile $vtoy_efi_part/grub/checksum.cfg");
+        }
+    }while (select == 5);
+
+    grub_free(cmd);
+    return 0;
+}
+
+static grub_err_t ventoy_cmd_fs_ignore_case(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+
+    if (args[0][0] == '0')
+    {
+        g_ventoy_case_insensitive = 0;
+    }
+    else
+    {
+        g_ventoy_case_insensitive = 1;
+    }
+
+    return 0;
+}
+
 int ventoy_env_init(void)
 {
     int i;
@@ -6158,6 +6297,12 @@ static cmd_para ventoy_cmds[] =
     { "vt_iso_vd_id_begin", ventoy_cmd_iso_vd_id_begin, 0, NULL, "", "", NULL },
     { "vt_fn_mutex_lock", ventoy_cmd_fn_mutex_lock, 0, NULL, "", "", NULL },
     { "vt_efi_dump_rsv_page", ventoy_cmd_dump_rsv_page, 0, NULL, "", "", NULL },
+    { "vt_is_standard_winiso", ventoy_cmd_is_standard_winiso, 0, NULL, "", "", NULL },
+    { "vt_sel_winpe_wim", ventoy_cmd_sel_winpe_wim, 0, NULL, "", "", NULL },
+    { "vt_need_secondary_menu", ventoy_cmd_need_secondary_menu, 0, NULL, "", "", NULL },
+    { "vt_show_secondary_menu", ventoy_cmd_show_secondary_menu, 0, NULL, "", "", NULL },
+    { "vt_fs_ignore_case", ventoy_cmd_fs_ignore_case, 0, NULL, "", "", NULL },
+    { "vt_systemd_menu", ventoy_cmd_linux_systemd_menu, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

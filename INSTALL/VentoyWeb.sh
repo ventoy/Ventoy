@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 print_usage() {    
     echo 'Usage:  VentoyWeb.sh [ OPTION ]'   

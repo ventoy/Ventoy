@@ -390,6 +390,85 @@
         </div><!-- /.box -->
 
 
+
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SECONDARY_BOOT_MENU
+                <span id="id_span_desc_cn"> —— 二级启动菜单显示开关</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_secondary_radio0" name="id_ctrl_secondary_radio" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_secondary_radio1" name="id_ctrl_secondary_radio" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>二级启动菜单控制开关
+                        <code style="font-weight: bold;">0</code> 不显示 &nbsp;&nbsp; 
+                        <code style="font-weight: bold;">1</code> 显示
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                      Secondary boot menu display option
+                      <code style="font-weight: bold;">0</code> Don't display &nbsp;&nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> Display
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SECONDARY_TIMEOUT
+                <span id="id_span_desc_cn"> —— 二级启动菜单倒计时</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <div class="col-sm-9" style="padding-left:0px;">
+                            <input type="text" class="form-control" id="id_ctrl_text_secondary_timeout" name="name_ctrl_text_secondary_timeout"/>
+                        </div>                       
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        二级菜单倒计时（秒）。只有当 <code>VTOY_SECONDARY_BOOT_MENU</code> 设置为1时才有效。<br/>
+                        默认不设置，设置之后，比如设置为10，则在倒计时10秒之后，会自动选择第一项，即：<code>Boot in normal mode</code> <br/>
+                        在倒计时的过程中按任意键会停止倒计时，等待用户操作。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Timeout seconds for the secondary boot menu. Only take effect when <code>VTOY_SECONDARY_BOOT_MENU</code> is 1.<br/>
+                        By default no timeout is set. When you set it to 10 for example, the first entry (<code>Boot in normal mode</code>) will be selected an run after 10 seconds.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+    
     
     
         <div class="box box-primary box-solid">
@@ -906,7 +985,7 @@
             </div><!-- /.box-body -->
         </div><!-- /.box -->
 
-
+        
 
     </div>
    
@@ -935,8 +1014,10 @@
 
     data.win11_bypass_check = parseInt($('input:radio[name=id_ctrl_bypass_win11_radio]:checked').val());
     data.linux_remount = parseInt($('input:radio[name=id_ctrl_linux_remount_radio]:checked').val());
+    data.secondary_menu = parseInt($('input:radio[name=id_ctrl_secondary_radio]:checked').val());
     data.default_search_root = $('input:text[id=id_ctrl_text_search_root]').val();
     data.menu_timeout = parseInt($('input:text[id=id_ctrl_text_timeout]').val());
+    data.secondary_menu_timeout = parseInt($('input:text[id=id_ctrl_text_secondary_timeout]').val());
     data.default_image = $('input:text[id=id_ctrl_text_default_img]').val();
     
     level = $('select[id=id_ctrl_sel_max_depth').val();
@@ -968,6 +1049,7 @@
     //VTOY_WIN11_BYPASS_CHECK
     $('input:radio[name=id_ctrl_bypass_win11_radio]')[data.win11_bypass_check].checked = true;
     $('input:radio[name=id_ctrl_linux_remount_radio]')[data.linux_remount].checked = true;
+    $('input:radio[name=id_ctrl_secondary_radio]')[data.secondary_menu].checked = true;
 
     //VTOY_DEFAULT_SEARCH_ROOT
     $('input:text[id=id_ctrl_text_search_root]').val(data.default_search_root);
@@ -986,6 +1068,9 @@
 
     //VTOY_MENU_TIMEOUT
     $('input:text[id=id_ctrl_text_timeout]').val(data.menu_timeout);
+    
+    //VTOY_SECONDARY_TIMEOUT
+    $('input:text[id=id_ctrl_text_secondary_timeout]').val(data.secondary_menu_timeout);
 
 
     //VTOY_DEFAULT_IMAGE
@@ -1070,8 +1155,10 @@
       index: current_tab_index,
       win11_bypass_check: data.win11_bypass_check,
       linux_remount:data.linux_remount,
+      secondary_menu:data.secondary_menu,
       default_search_root: data.default_search_root,
       menu_timeout: data.menu_timeout,
+      secondary_menu_timeout: data.secondary_menu_timeout,
       default_image: data.default_image,
       max_search_level: data.max_search_level,
       default_kbd_layout: data.default_kbd_layout,
@@ -1198,6 +1285,15 @@
     } else {
       Message.error(g_vtoy_cur_language.STR_INVALID_TIMEOUT);
       $('input:text[id=id_ctrl_text_timeout]').val(m_data_control[current_tab_index].menu_timeout);
+    }
+  });
+  $('input[id=id_ctrl_text_secondary_timeout]').change(function() {
+    var value = $('input:text[id=id_ctrl_text_secondary_timeout]').val();
+    if (/^[0-9][0-9]*$/.test(value)) {
+      VtoySaveCurrentPage();
+    } else {
+      Message.error(g_vtoy_cur_language.STR_INVALID_TIMEOUT);
+      $('input:text[id=id_ctrl_text_secondary_timeout]').val(m_data_control[current_tab_index].secondary_menu_timeout);
     }
   });
 
