@@ -64,11 +64,14 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * MBR and GPT partition style supported (1.0.15+)
 * x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI, MIPS64EL UEFI supported
 * IA32/x86_64 UEFI Secure Boot supported (1.0.07+)
-* Persistence supported (1.0.11+)
+* Linux Persistence supported (1.0.11+)
 * Windows auto installation supported (1.0.09+)
-* RHEL7/8/CentOS/7/8/SUSE/Ubuntu Server/Debian ... auto installation supported (1.0.09+)
+* Linux auto installation supported (1.0.09+)
+* Variables Expansion supported for Windows/Linux auto installation script
 * FAT32/exFAT/NTFS/UDF/XFS/Ext2(3)(4) supported for main partition
 * ISO files larger than 4GB supported
+* Menu alias, Menu tip message supported
+* Password protect supported
 * Native boot menu style for Legacy & UEFI
 * Most types of OS supported, 1000+ iso files tested
 * Linux vDisk boot supported
@@ -97,6 +100,7 @@ Please refer to [BuildVentoyFromSource.txt](DOC/BuildVentoyFromSource.txt)
 Title | Link
 -|-
 **Install & Update** | [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html)
+**Browse/Boot Files In Local Disk** | [https://www.ventoy.net/en/doc_browser.html](https://www.ventoy.net/en/doc_browser.html)
 **Secure Boot** | [https://www.ventoy.net/en/doc_secure.html](https://www.ventoy.net/en/doc_secure.html)
 **Customize Theme** | [https://www.ventoy.net/en/plugin_theme.html](https://www.ventoy.net/en/plugin_theme.html)  
 **Global Control** | [https://www.ventoy.net/en/plugin_control.html](https://www.ventoy.net/en/plugin_control.html)  
