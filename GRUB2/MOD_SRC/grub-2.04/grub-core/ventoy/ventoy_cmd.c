@@ -158,6 +158,8 @@ const char *g_menu_prefix[img_type_max] =
     "iso", "wim", "efi", "img", "vhd", "vtoy"
 };
 
+static int g_vtoy_secondary_need_recover = 0;
+
 static int g_vtoy_load_prompt = 0;
 static char g_vtoy_prompt_msg[64];
 
@@ -6009,6 +6011,7 @@ static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int
         return 1;
     }
 
+    g_vtoy_secondary_need_recover = 0;
     grub_env_unset("VTOY_CHKSUM_FILE_PATH");
 
     env = grub_env_get("VTOY_SECONDARY_TIMEOUT");
@@ -6049,25 +6052,30 @@ static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int
         g_ventoy_menu_esc = 1;
         g_ventoy_suppress_esc = 1;
         g_ventoy_suppress_esc_default = 0;
+        g_ventoy_secondary_menu_on = 1;
         grub_snprintf(cfgfile, sizeof(cfgfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)cmd, pos);
         grub_script_execute_sourcecode(cfgfile);
         g_ventoy_menu_esc = 0;
         g_ventoy_suppress_esc = 0;
         g_ventoy_suppress_esc_default = 1;
+        g_ventoy_secondary_menu_on = 0;
 
         select = seldata[g_ventoy_last_entry];
         
         if (select == 2)
         {
             g_ventoy_wimboot_mode = 1;
+            g_vtoy_secondary_need_recover = 1;
         }
         else if (select == 3)
         {
             g_ventoy_grub2_mode = 1;
+            g_vtoy_secondary_need_recover = 2;
         }
         else if (select == 4)
         {
             g_ventoy_memdisk_mode = 1;
+            g_vtoy_secondary_need_recover = 3;
         }
         else if (select == 5)
         {
@@ -6078,6 +6086,30 @@ static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int
 
     grub_free(cmd);
     return 0;
+}
+
+static grub_err_t ventoy_cmd_secondary_recover_mode(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    if (g_vtoy_secondary_need_recover == 1)
+    {
+        g_ventoy_wimboot_mode = 0;
+    }
+    else if (g_vtoy_secondary_need_recover == 2)
+    {
+        g_ventoy_grub2_mode = 0;
+    }
+    else if (g_vtoy_secondary_need_recover == 3)
+    {
+        g_ventoy_memdisk_mode = 0;
+    }
+
+    g_vtoy_secondary_need_recover = 0;
+    
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
 static grub_err_t ventoy_cmd_fs_ignore_case(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -6303,6 +6335,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_show_secondary_menu", ventoy_cmd_show_secondary_menu, 0, NULL, "", "", NULL },
     { "vt_fs_ignore_case", ventoy_cmd_fs_ignore_case, 0, NULL, "", "", NULL },
     { "vt_systemd_menu", ventoy_cmd_linux_systemd_menu, 0, NULL, "", "", NULL },
+    { "vt_secondary_recover_mode", ventoy_cmd_secondary_recover_mode, 0, NULL, "", "", NULL },
 };
 
 int ventoy_register_all_cmd(void)

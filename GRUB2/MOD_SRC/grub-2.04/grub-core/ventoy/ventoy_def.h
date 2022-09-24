@@ -1039,6 +1039,7 @@ typedef struct menu_password
 }menu_password;
 
 extern int g_ventoy_menu_esc;
+extern int g_ventoy_secondary_menu_on;
 extern int g_ventoy_suppress_esc;
 extern int g_ventoy_suppress_esc_default;
 extern int g_ventoy_last_entry;
