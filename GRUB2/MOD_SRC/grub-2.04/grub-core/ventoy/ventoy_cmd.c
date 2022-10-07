@@ -2183,6 +2183,59 @@ int ventoy_fill_data(grub_uint32_t buflen, char *buffer)
     return len;
 }
 
+static int
+ventoy_password_get (char buf[], unsigned buf_size)
+{
+  unsigned i, cur_len = 0;
+  int key;
+  struct grub_term_coordinate *pos = grub_term_save_pos ();
+
+    while (1)
+    {
+        key = grub_getkey (); 
+        if (key == '\n' || key == '\r')
+            break;
+
+        if (key == GRUB_TERM_ESC)
+        {
+            cur_len = 0;
+            break;
+        }
+
+        if (key == '\b')
+        {
+            if (cur_len)
+            {
+                grub_term_restore_pos (pos);
+                for (i = 0; i < cur_len; i++)
+                    grub_xputs (" ");
+                grub_term_restore_pos (pos);
+                cur_len--;
+                for (i = 0; i < cur_len; i++)
+                    grub_xputs ("*");
+                grub_refresh ();
+            }
+            continue;
+        }
+
+        if (!grub_isprint (key))
+            continue;
+
+        if (cur_len + 2 < buf_size)
+            buf[cur_len++] = key;
+        grub_xputs ("*");
+        grub_refresh ();
+    }
+
+    grub_memset (buf + cur_len, 0, buf_size - cur_len);
+
+    grub_xputs ("\n");
+    grub_refresh ();
+    grub_free (pos);
+
+    return (key != GRUB_TERM_ESC);
+}
+
 int ventoy_check_password(const vtoy_password *pwd, int retry)
 {
     int offset;
@@ -2198,7 +2251,7 @@ int ventoy_check_password(const vtoy_password *pwd, int retry)
         
         if (pwd->type == VTOY_PASSWORD_TXT)
         {
-            grub_password_get(input, 128);
+            ventoy_password_get(input, 128);
             if (grub_strcmp(pwd->text, input) == 0)
             {
                 return 0;
@@ -2206,7 +2259,7 @@ int ventoy_check_password(const vtoy_password *pwd, int retry)
         }
         else if (pwd->type == VTOY_PASSWORD_MD5)
         {
-            grub_password_get(input, 128);
+            ventoy_password_get(input, 128);
             grub_crypto_hash(GRUB_MD_MD5, md5, input, grub_strlen(input));
             if (grub_memcmp(pwd->md5, md5, 16) == 0)
             {
@@ -2216,7 +2269,7 @@ int ventoy_check_password(const vtoy_password *pwd, int retry)
         else if (pwd->type == VTOY_PASSWORD_SALT_MD5)
         {
             offset = (int)grub_snprintf(input, 128, "%s", pwd->salt);
-            grub_password_get(input + offset, 128);
+            ventoy_password_get(input + offset, 128);
             
             grub_crypto_hash(GRUB_MD_MD5, md5, input, grub_strlen(input));
             if (grub_memcmp(pwd->md5, md5, 16) == 0)
