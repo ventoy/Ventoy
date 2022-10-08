@@ -39,6 +39,9 @@ fi
 
 if [ -e /sbin/anaconda-diskroot ]; then
     vtlog "set anaconda-diskroot /dev/ventoy ..."
+
+    #busybox cp doesn't support -t option (issue 1900)
+    /bin/cp -a /bin/cp $BUSYBOX_PATH/cp
     /sbin/anaconda-diskroot /dev/ventoy
 fi
 

@@ -51,6 +51,9 @@ if is_inotify_ventoy_part $3; then
     
     if [ -e /sbin/anaconda-diskroot ]; then
         vtlog "set anaconda-diskroot ..."        
+
+        #busybox cp doesn't support -t option (issue 1900)
+        /bin/cp -a /bin/cp $BUSYBOX_PATH/cp
         /sbin/anaconda-diskroot /dev/ventoy
     fi
     
