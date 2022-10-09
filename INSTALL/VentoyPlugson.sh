@@ -163,7 +163,7 @@ fi
 PART1=$(get_disk_part_name $DISK 1)
 
 if grep -q "^$PART1 " /proc/mounts; then
-    mtpnt=$(grep "^$PART1 " /proc/mounts | awk '{print $2}')
+    mtpnt=$(grep "^$PART1 " /proc/mounts | awk '{print $2}' | sed 's/\\040/ /g')
     fstype=$(grep "^$PART1 " /proc/mounts | awk '{print $3}')
     
     if echo $fstype | grep -q -i 'fuse'; then
