@@ -41,6 +41,24 @@ typedef enum bios_mode
     bios_max
 }bios_mode;
 
+typedef enum plugin_type
+{
+    plugin_type_control = 0,
+    plugin_type_theme,
+    plugin_type_menu_alias,
+    plugin_type_menu_tip,
+    plugin_type_menu_class,
+    plugin_type_auto_install,
+    plugin_type_persistence,
+    plugin_type_injection,
+    plugin_type_conf_replace,
+    plugin_type_password,
+    plugin_type_image_list,
+    plugin_type_auto_memdisk,
+    plugin_type_dud,
+
+    plugin_type_max
+}plugin_type;
 
 typedef struct data_control
 {
@@ -260,8 +278,10 @@ typedef struct data_persistence
     for (i = 0; i < bios_max; i++) \
     {\
         scnprintf(title, sizeof(title), "%s%s", #plug, g_json_title_postfix[i]);\
+        g_json_exist[plugin_type_##plug][i] = 0;\
         if (ventoy_data_cmp_##plug(g_data_##plug + i, g_data_##plug + bios_max))\
         {\
+            g_json_exist[plugin_type_##plug][i] = 1;\
             pos += ventoy_data_save_##plug(g_data_##plug + i, title, JSON_SAVE_BUFFER + pos, JSON_BUF_MAX - pos);\
         }\
     }\
@@ -302,6 +322,7 @@ typedef struct data_persistence
         free(__node);\
         __node = __next;\
     }\
+    (list) = NULL;\
 }
 
 #define vtoy_list_del(last, node, LIST, field) \
@@ -401,6 +422,7 @@ void ventoy_http_exit(void);
 int ventoy_http_start(const char *ip, const char *port);
 int ventoy_http_stop(void);
 int ventoy_data_save_all(void);
+int ventoy_data_real_save_all(int apilock);
 
 #endif /* __VENTOY_HTTP_H__ */
 

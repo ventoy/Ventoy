@@ -60,6 +60,17 @@ static const char *g_ventoy_kbd_layout[] =
     NULL
 };
 
+#define VTOY_DEL_ALL_PATH   "4119ae33-98ea-448e-b9c0-569aafcf1fb4"
+
+static int g_json_exist[plugin_type_max][bios_max];
+static const char *g_plugin_name[plugin_type_max] = 
+{
+    "control", "theme", "menu_alias", "menu_tip", 
+    "menu_class", "auto_install", "persistence", "injection", 
+    "conf_replace", "password", "image_list", 
+    "auto_memdisk", "dud"
+};
+
 static char g_ventoy_help_lang[MAX_LANGUAGE][8];
 
 static char g_pub_path[2 * MAX_PATH];
@@ -341,7 +352,10 @@ static int ventoy_api_sysinfo(struct mg_connection *conn, VTOY_JSON *json)
 
 static int ventoy_api_handshake(struct mg_connection *conn, VTOY_JSON *json)
 {
+    int i = 0;
+    int j = 0;
     int pos = 0;
+    char key[128];
     
     (void)json;
 
@@ -350,6 +364,19 @@ static int ventoy_api_handshake(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_FMT_SINT("status", 0);
     VTOY_JSON_FMT_SINT("save_error", g_sysinfo.config_save_error);
     g_sysinfo.config_save_error = 0;
+
+    for (i = 0; i < plugin_type_max; i++)
+    {
+        scnprintf(key, sizeof(key), "exist_%s", g_plugin_name[i]);
+        VTOY_JSON_FMT_KEY(key);
+        VTOY_JSON_FMT_ARY_BEGIN();
+        for (j = 0; j < bios_max; j++)
+        {
+            VTOY_JSON_FMT_ITEM_INT(g_json_exist[i][j]);
+        }
+        VTOY_JSON_FMT_ARY_ENDEX();
+    }
+    
     VTOY_JSON_FMT_OBJ_END();
     VTOY_JSON_FMT_END(pos);
 
@@ -718,7 +745,7 @@ int ventoy_data_cmp_theme(data_theme *data1, data_theme *data2)
     {
         return 1;
     }
-    
+
     if (ventoy_path_list_cmp(data1->fontslist, data2->fontslist))
     {
         return 1;
@@ -927,7 +954,14 @@ static int ventoy_api_theme_del_file(struct mg_connection *conn, VTOY_JSON *json
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->filelist, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(path_node, data->filelist);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->filelist, path);
+        }    
     }
 
     ret = ventoy_data_save_all();
@@ -982,7 +1016,14 @@ static int ventoy_api_theme_del_font(struct mg_connection *conn, VTOY_JSON *json
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->fontslist, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(path_node, data->fontslist);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->fontslist, path);            
+        }    
     }
 
     ret = ventoy_data_save_all();
@@ -1179,7 +1220,14 @@ static int ventoy_api_alias_del(struct mg_connection *conn, VTOY_JSON *json)
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(data_alias_node, data->list);          
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);            
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -1417,7 +1465,14 @@ static int ventoy_api_tip_del(struct mg_connection *conn, VTOY_JSON *json)
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(data_tip_node, data->list);          
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);  
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -1620,7 +1675,14 @@ static int ventoy_api_class_del(struct mg_connection *conn, VTOY_JSON *json)
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(data_class_node, data->list);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);            
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -1749,7 +1811,14 @@ static int ventoy_api_auto_memdisk_del(struct mg_connection *conn, VTOY_JSON *js
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(path_node, data->list);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);            
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -1924,7 +1993,14 @@ static int ventoy_api_image_list_del(struct mg_connection *conn, VTOY_JSON *json
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(path_node, data->list);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);            
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -2175,7 +2251,14 @@ static int ventoy_api_password_del(struct mg_connection *conn, VTOY_JSON *json)
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(menu_password, data->list);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);            
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -2366,7 +2449,14 @@ static int ventoy_api_conf_replace_del(struct mg_connection *conn, VTOY_JSON *js
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(conf_replace_node, data->list);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);            
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -2555,6 +2645,7 @@ static int ventoy_api_dud_del(struct mg_connection *conn, VTOY_JSON *json)
     int ret;
     int index = 0;
     const char *path = NULL;
+    dud_node *next = NULL;
     dud_node *last = NULL;
     dud_node *node = NULL;
     data_dud *data = NULL;
@@ -2565,7 +2656,20 @@ static int ventoy_api_dud_del(struct mg_connection *conn, VTOY_JSON *json)
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del_ex(last, node, data->list, path, ventoy_free_path_node_list);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            for (node = data->list; node; node = next)
+            {
+                next = node->next;
+                ventoy_free_path_node_list(node->list);
+                free(node);
+            }
+            data->list = NULL;
+        }
+        else
+        {
+            vtoy_list_del_ex(last, node, data->list, path, ventoy_free_path_node_list);
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -2902,6 +3006,7 @@ static int ventoy_api_auto_install_del(struct mg_connection *conn, VTOY_JSON *js
     int index = 0;
     const char *path = NULL;
     auto_install_node *last = NULL;
+    auto_install_node *next = NULL;
     auto_install_node *node = NULL;
     data_auto_install *data = NULL;
     
@@ -2911,7 +3016,20 @@ static int ventoy_api_auto_install_del(struct mg_connection *conn, VTOY_JSON *js
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del_ex(last, node, data->list, path, ventoy_free_path_node_list);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            for (node = data->list; node; node = next)
+            {
+                next = node->next;
+                ventoy_free_path_node_list(node->list);
+                free(node);
+            }
+            data->list = NULL;
+        }
+        else
+        {
+            vtoy_list_del_ex(last, node, data->list, path, ventoy_free_path_node_list);            
+        }
     }
 
     ret = ventoy_data_save_all();
@@ -3229,6 +3347,7 @@ static int ventoy_api_persistence_del(struct mg_connection *conn, VTOY_JSON *jso
     int index = 0;
     const char *path = NULL;
     persistence_node *last = NULL;
+    persistence_node *next = NULL;
     persistence_node *node = NULL;
     data_persistence *data = NULL;
     
@@ -3238,7 +3357,20 @@ static int ventoy_api_persistence_del(struct mg_connection *conn, VTOY_JSON *jso
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del_ex(last, node, data->list, path, ventoy_free_path_node_list);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            for (node = data->list; node; node = next)
+            {
+                next = node->next;
+                ventoy_free_path_node_list(node->list);
+                free(node);
+            }
+            data->list = NULL;
+        }
+        else
+        {
+            vtoy_list_del_ex(last, node, data->list, path, ventoy_free_path_node_list);            
+        }    
     }
 
     ret = ventoy_data_save_all();
@@ -3515,12 +3647,47 @@ static int ventoy_api_injection_del(struct mg_connection *conn, VTOY_JSON *json)
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        vtoy_list_del(last, node, data->list, path);
+        if (strcmp(path, VTOY_DEL_ALL_PATH) == 0)
+        {
+            vtoy_list_free(injection_node, data->list);
+        }
+        else
+        {
+            vtoy_list_del(last, node, data->list, path);            
+        }
     }
 
     ret = ventoy_data_save_all();
 
     ventoy_json_result(conn, ret == 0 ? VTOY_JSON_SUCCESS_RET : VTOY_JSON_FAILED_RET);   
+    return 0;
+}
+
+#if 0
+#endif
+
+static int ventoy_api_preview_json(struct mg_connection *conn, VTOY_JSON *json)
+{
+    int pos = 0;
+    int len = 0;
+    int encodelen = 0;
+    char *encodebuf = NULL;
+    
+    (void)json;
+
+    len = ventoy_data_real_save_all(0);
+    encodebuf = ventoy_base64_encode(JSON_SAVE_BUFFER, len, &encodelen);
+    encodebuf[encodelen] = 0;
+
+    VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);
+    VTOY_JSON_FMT_OBJ_BEGIN();
+    VTOY_JSON_FMT_STRN("json", encodebuf);
+    VTOY_JSON_FMT_OBJ_END();
+    VTOY_JSON_FMT_END(pos);
+
+    free(encodebuf);
+
+    ventoy_json_buffer(conn, JSON_BUFFER, pos);
     return 0;
 }
 
@@ -3534,14 +3701,17 @@ int ventoy_data_save_all(void)
     return 0;
 }
 
-int ventoy_data_real_save_all(void)
+int ventoy_data_real_save_all(int apilock)
 {
     int i = 0;
     int pos = 0;
     char title[64];
 
-    pthread_mutex_lock(&g_api_mutex);
-    
+    if (apilock)
+    {
+        pthread_mutex_lock(&g_api_mutex);        
+    }
+
     ssprintf(pos, JSON_SAVE_BUFFER, JSON_BUF_MAX, "{\n");
 
     ventoy_save_plug(control);
@@ -3565,7 +3735,10 @@ int ventoy_data_real_save_all(void)
     }
     ssprintf(pos, JSON_SAVE_BUFFER, JSON_BUF_MAX, "}\n");
 
-    pthread_mutex_unlock(&g_api_mutex);
+    if (apilock)
+    {
+        pthread_mutex_unlock(&g_api_mutex);        
+    }
 
     return pos;
 }
@@ -3578,7 +3751,7 @@ int ventoy_http_writeback(void)
 
     ventoy_get_json_path(filename, NULL);
 
-    pos = ventoy_data_real_save_all();
+    pos = ventoy_data_real_save_all(1);
         
     #ifdef VENTOY_SIM
     printf("%s", JSON_SAVE_BUFFER);
@@ -3675,11 +3848,11 @@ static JSON_CB g_ventoy_json_cb[] =
     { "save_injection",     ventoy_api_save_injection     },   
     { "injection_add",      ventoy_api_injection_add      },
     { "injection_del",      ventoy_api_injection_del      },
-
+    { "preview_json",       ventoy_api_preview_json       },
     
 };
 
-static int ventoy_json_handler(struct mg_connection *conn, VTOY_JSON *json)
+static int ventoy_json_handler(struct mg_connection *conn, VTOY_JSON *json, char *jsonstr)
 {
     int i;
     const char *method = NULL;
@@ -3696,7 +3869,7 @@ static int ventoy_json_handler(struct mg_connection *conn, VTOY_JSON *json)
         ventoy_api_handshake(conn, json);
         return 0;
     }
-    
+
     for (i = 0; i < (int)(sizeof(g_ventoy_json_cb) / sizeof(g_ventoy_json_cb[0])); i++)
     {
         if (strcmp(method, g_ventoy_json_cb[i].method) == 0)
@@ -3740,7 +3913,7 @@ static int ventoy_request_handler(struct mg_connection *conn)
         if (JSON_SUCCESS == vtoy_json_parse(json, post_data_buf))
         {
             pthread_mutex_lock(&g_api_mutex);
-            ventoy_json_handler(conn, json->pstChild);
+            ventoy_json_handler(conn, json->pstChild, post_data_buf);
             pthread_mutex_unlock(&g_api_mutex);
         }
         else
@@ -5026,7 +5199,8 @@ end:
 
 int ventoy_http_start(const char *ip, const char *port)
 {
-    int i;
+    int i = 0;
+    int ret = 0;
     char addr[128];
     char filename[128];
     char backupname[128];
@@ -5063,9 +5237,12 @@ int ventoy_http_start(const char *ip, const char *port)
     if (ventoy_is_file_exist("%s", filename))
     {
         ventoy_copy_file(filename, backupname);
-        ventoy_load_old_json(filename);
+        ret = ventoy_load_old_json(filename);
+        if (ret == 0)
+        {
+            ventoy_data_real_save_all(0);
+        }
     }
-
 
     /* option */
     scnprintf(addr, sizeof(addr), "%s:%s", ip, port);

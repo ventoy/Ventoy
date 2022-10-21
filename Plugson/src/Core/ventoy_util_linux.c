@@ -33,6 +33,7 @@
 #include <linux/fs.h>
 #include <dirent.h>
 #include <time.h>
+#include <semaphore.h>
 #include <ventoy_define.h>
 #include <ventoy_util.h>
 
@@ -234,30 +235,18 @@ int ventoy_write_buf_to_file(const char *FileName, void *Bufer, int BufLen)
     return 0;
 }
 
-
+static sem_t g_writeback_sem;
 static volatile int g_thread_stop = 0;
 static pthread_t g_writeback_thread;
-static pthread_mutex_t g_writeback_mutex;
-static pthread_cond_t g_writeback_cond;
+
 static void * ventoy_local_thread_run(void* data)
 {
     ventoy_http_writeback_pf callback = (ventoy_http_writeback_pf)data;
 
-    while (1)
+    while (0 == g_thread_stop)
     {
-        pthread_mutex_lock(&g_writeback_mutex);
-        pthread_cond_wait(&g_writeback_cond, &g_writeback_mutex);
-        
-        if (g_thread_stop)
-        {
-            pthread_mutex_unlock(&g_writeback_mutex);
-            break;
-        }
-        else
-        {
-            callback();
-            pthread_mutex_unlock(&g_writeback_mutex);
-        }
+        sem_wait(&g_writeback_sem);
+        callback();
     }    
 
     return NULL;
@@ -265,15 +254,14 @@ static void * ventoy_local_thread_run(void* data)
 
 void ventoy_set_writeback_event(void)
 {
-    pthread_cond_signal(&g_writeback_cond);
+    sem_post(&g_writeback_sem);
 }
 
 int ventoy_start_writeback_thread(ventoy_http_writeback_pf callback)
 {
     g_thread_stop = 0;
-    pthread_mutex_init(&g_writeback_mutex, NULL);
-    pthread_cond_init(&g_writeback_cond, NULL);
 
+    sem_init(&g_writeback_sem, 0, 0);
     pthread_create(&g_writeback_thread, NULL, ventoy_local_thread_run, callback);
 
     return 0;
@@ -282,13 +270,10 @@ int ventoy_start_writeback_thread(ventoy_http_writeback_pf callback)
 void ventoy_stop_writeback_thread(void)
 {
     g_thread_stop = 1;
-    pthread_cond_signal(&g_writeback_cond);
-    
+
+    sem_post(&g_writeback_sem);
     pthread_join(g_writeback_thread, NULL);
-
-
-    pthread_cond_destroy(&g_writeback_cond);
-    pthread_mutex_destroy(&g_writeback_mutex);
+    sem_destroy(&g_writeback_sem);
 }
 
 

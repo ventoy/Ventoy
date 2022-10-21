@@ -311,12 +311,24 @@ uint64_t ventoy_get_disk_size_in_byte(const char *disk)
 
 int ventoy_get_disk_vendor(const char *name, char *vendorbuf, int bufsize)
 {
-    return ventoy_get_sys_file_line(vendorbuf, bufsize, "/sys/block/%s/device/vendor", name);
+    if (strncmp(name, "loop", 4) == 0)
+    {
+        scnprintf(vendorbuf, bufsize, "Local");
+        return 0;
+    }
+    
+    return ventoy_get_sys_file_line(vendorbuf, bufsize, "/sys/block/%s/device/vendor", name);        
 }
 
 int ventoy_get_disk_model(const char *name, char *modelbuf, int bufsize)
 {
-    return ventoy_get_sys_file_line(modelbuf, bufsize, "/sys/block/%s/device/model", name);
+    if (strncmp(name, "loop", 4) == 0)
+    {
+        scnprintf(modelbuf, bufsize, "Loop Device");
+        return 0;
+    }
+
+    return ventoy_get_sys_file_line(modelbuf, bufsize, "/sys/block/%s/device/model", name);  
 }
 
 static int fatlib_media_sector_read(uint32 sector, uint8 *buffer, uint32 sector_count)
@@ -576,9 +588,9 @@ int ventoy_get_disk_info(char **argv)
     char model[128];
     char *disk = argv[4];
 
-    if (strncmp(argv[4], "/dev/", 4) == 0)
+    if (strncmp(argv[4], "/dev/", 5) == 0)
     {
-        disk += 4;
+        disk += 5;
     }
     ventoy_get_disk_vendor(disk, vendor, sizeof(vendor));
     ventoy_get_disk_model(disk, model, sizeof(model));

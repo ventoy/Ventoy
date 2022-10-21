@@ -1,6 +1,6 @@
 <div class="box box-primary" id="control">
     <div class="box-header">
-        <div class="col-sm-8" style="padding-top:8px;">
+        <div class="col-sm-7" style="padding-top:8px;">
             <i class="fa fa-wrench">&nbsp;&nbsp;</i>
             <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">全局控制插件</h1>
         </div>
@@ -8,6 +8,10 @@
         <div class="col-sm-2" style="padding-top:2px;">
           <button id="id_btn_collapse" class="btn btn-sm btn-primary"><i style="font-size: 14px;" class="fa fa-minus"></i></button>
           <button id="id_btn_expand" class="btn btn-sm btn-primary"><i style="font-size: 14px;" class="fa fa-plus"></i></button>
+        </div>
+
+        <div class="col-sm-1" style="padding-top:2px;">
+          <button id="id_btn_reset" class="btn btn-sm btn-danger btn-del"><i class="fa fa-trash"></i><span id="id_btn_span_reset">Reset</span></button>
         </div>
 
         <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
@@ -991,6 +995,7 @@
    
 </div>
 <script type="text/javascript">
+  
   function VtoyPageLanguageChange(newlang) {
     VtoyCommonChangeLanguage(newlang);
 
@@ -1303,6 +1308,18 @@
   $('#id_tab_control a[href="#tab_3"]').click(OnClickMultiModeTab);
   $('#id_tab_control a[href="#tab_4"]').click(OnClickMultiModeTab);
   $('#id_tab_control a[href="#tab_5"]').click(OnClickMultiModeTab);
+  
+  function UpdateTabTitleIcon(data) {
+    CommonUpdateTabTitleIcon(data.exist_control, '#id_tab_control a[href="#tab_', 'control');
+  }
+  $('#id_btn_reset').click(function() { 
+    Modal.confirm({msg:GetResetTabConfigTipMsg(current_tab_index, 'control')}).on(function(e) {
+        if (e) {            
+            VtoyFillCurrentPageItem(m_data_control[g_vtoy_data_default_index]);
+            VtoySaveCurrentPage();
+        }
+    });
+  });
 
   $('#id_tab_control a[href="#tab_0"]').tab('show');
   VtoyFillCurrentPageItem(m_data_control[0]);

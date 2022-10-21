@@ -288,71 +288,6 @@ String.prototype.endsWith = function(str) {
         return false;
 }
 
-window.Message = function() {
-    var _showMsg = function(type, msg, time) {
-        var o = {type : type, msg : msg };
-        if(time) {
-            o.time = time;
-        }
-        _show(o);
-    }
-    
-    var _show = function(options) {
-        var ops = {
-            msg : "提示内容",
-            type: 'S',
-            time: 3000
-        };
-        $.extend(ops, options);
-
-        var msg_class = 'alert-success';
-        if('S' === ops.type || 's' === ops.type) {
-            msg_class = 'alert-success';
-        } else if ('E' === ops.type || 'e' === ops.type) {
-            msg_class = 'alert-danger';
-        } else if ('W' === ops.type || 'w' === ops.type) {
-            msg_class = 'alert-warning';
-        } else if ('I' === ops.type || 'i' === ops.type) {
-            msg_class = 'alert-info';
-        } else {
-            alert("未知的类型，请使用: w-警告;s-成功;e-失败;i-提示");
-            return;
-        }
-        var $messageContainer = $("#fcss_message");
-        if($messageContainer.length === 0) {
-            $messageContainer = $('<div id="fcss_message" style="position:fixed; left: 20%; right: 20%; top:0px; z-index:99999999"></div>');
-            $messageContainer.appendTo($('body'));
-        }
-        var $div = $('<div class="alert ' + msg_class + ' alert-dismissible fade in" role="alert" style="margin-bottom: 0; padding-top:10px; padding-bottom: 10px;"></div>');
-        var $btn = $('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>');
-        $div.append($btn).append(ops.msg).appendTo($messageContainer);
-        setTimeout(function() {
-            $div.remove();
-        }, ops.time);
-    }
-    
-    var _success = function(msg, time) {
-        _showMsg('s', msg, time);
-    }
-    var _error = function(msg, time) {        
-        _showMsg('e', msg, time || 5000);
-    }
-    var _warn = function(msg, time) {
-        _showMsg('w', msg, time);
-    }
-    var _info = function(msg, time) {
-        _showMsg('i', msg, time);
-    }
-    
-    return {
-        success : _success,
-        error	: _error,
-        warn 	: _warn,
-        info    : _info,
-        show	: _show
-    }
-}();
-
 
 var g_vtoy_cur_language_en = 
 {
@@ -376,6 +311,7 @@ var g_vtoy_cur_language_en =
     "STR_OPT_SETTING": "Option Setting",
     "STR_OPT_DESC": "Option Description",
     "STR_EDIT": "Edit",
+    "STR_RESET": "Reset",
     "STR_FILE": "File",
     "STR_DIR": "Dir",
     "STR_SAVE_TIP": "Data in current page has been modified. Do you want to save it?",
@@ -489,6 +425,10 @@ var g_vtoy_cur_language_en =
     "STR_INVALID_CONFIG_TIP": "Invalid configuration detected in ventoy.json, so the configuration is not loaded!",
     "STR_CONFIG_SAVE_ERROR_TIP": "Failed to write ventoy.json file. Check VentoyPlugson.log for more details!",
 
+    "STR_JSON_PREVIEW": "JSON Preview",
+    "STR_JSON_COPY_SUCCESS": "JSON Copy Success",
+    "STR_JSON_COPY_FAILED": "JSON Copy Failed",
+
     "STR_XXX": "xxx"
 };
 
@@ -514,6 +454,7 @@ var g_vtoy_cur_language_cn =
     "STR_OPT_SETTING": "选项设置",
     "STR_OPT_DESC": "选项说明",
     "STR_EDIT": "设置",
+    "STR_RESET": "重置",
     "STR_FILE": "文件",
     "STR_DIR": "目录",
     "STR_SAVE_TIP": "当前页面数据已经修改，是否保存？",
@@ -625,6 +566,9 @@ var g_vtoy_cur_language_cn =
     "STR_INVALID_CONFIG_TIP": "ventoy.json 文件中存在错误配置，配置未加载!",
     "STR_CONFIG_SAVE_ERROR_TIP": "ventoy.json 文件写入失败，详细信息请参考 VentoyPlugson.log 文件!",
 
+    "STR_JSON_PREVIEW": "JSON 预览",
+    "STR_JSON_COPY_SUCCESS": "JSON 内容复制成功",
+    "STR_JSON_COPY_FAILED": "JSON 内容复制失败",
 
     "STR_XXX": "xxx"
 };
@@ -635,11 +579,44 @@ var g_current_language = 'cn';
 var g_vtoy_cur_language = g_vtoy_cur_language_cn;
 var g_vtoy_data_default_index = 6;
 
+var g_bios_postfix = [ "", "_legacy", "_uefi", "_ia32", "_aa64", "_mips" ];
+var g_del_all_path = '4119ae33-98ea-448e-b9c0-569aafcf1fb4';
 var g_file_with_extra = false;
 var g_dir_with_extra = false;
 var g_file_fuzzy_match = 0;
 var g_file_modal_callback;
 var g_dir_modal_callback;
+
+function GetResetTabConfigTipMsg(index, name) {
+    var msgstr;
+    
+    if (g_current_language === 'en') {
+        msgstr = 'Are you sure to reset all the configurations on the <code>' + name + g_bios_postfix[index] + '</code> tab ?';
+    } else {
+        msgstr = '确认要重置 <code>' + name + g_bios_postfix[index] + '</code> 标签页下的所有配置？';
+    }
+    
+    return msgstr;
+}
+
+function CommonUpdateTabTitleIcon(exists, id, name) {
+    var exspan = " <span id='tab_0_icon' class='fa fa-circle' style='color:red;'></span>";
+    for (var i = 0; i < g_vtoy_data_default_index; i++) {
+        var fid = id + i + '"]';
+        var oldhtml = $(fid).html();
+        var newhtml;
+
+        if (exists[i]) {
+            newhtml = name + g_bios_postfix[i] + exspan;
+        } else {
+            newhtml = name + g_bios_postfix[i];
+        }
+        
+        if (newhtml != oldhtml) {
+            $(fid).html(newhtml);
+        }
+    }
+}
 
 function ventoy_file_submit(form, extra) {
     var filepath = $("#FilePath").val();
@@ -920,6 +897,8 @@ function VtoyCommonChangeLanguage(newlang) {
             $(this).text(" Plugin Official Document");
         });
         
+        $('#id_span_copy').text("Copy");
+        $('#id_span_preview').text("Preview");
         $('#id_span_language').text("中文");
         
         $("tr[id=tr_title_desc_cn]").each(function(){
@@ -966,6 +945,8 @@ function VtoyCommonChangeLanguage(newlang) {
             $(this).text(" 插件官网文档");
         });
         
+        $('#id_span_copy').text("复制");
+        $('#id_span_preview').text("预览");
         $('#id_span_language').text("English");
         
         $("tr[id=tr_title_desc_cn]").each(function(){
@@ -1002,7 +983,10 @@ function VtoyCommonChangeLanguage(newlang) {
     $('#id_span_save').text(g_vtoy_cur_language.STR_SAVE);
     $('#id_span_reset').text(g_vtoy_cur_language.STR_RESET);
     $('#id_span_donation').text(g_vtoy_cur_language.STR_PLUG_DONATION);
-
+    
+    $('span[id=id_btn_span_reset]').each(function(){
+        $(this).text(' ' + g_vtoy_cur_language.STR_RESET);
+    });
     $("span[id=id_span_btn_add]").each(function(){
         $(this).text(g_vtoy_cur_language.STR_ADD);
     });

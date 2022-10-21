@@ -199,6 +199,7 @@ extern unsigned char *g_unxz_buffer;
 extern int g_unxz_len;
 void unxz_error(char *x);
 int unxz_flush(void *src, unsigned int size);
+char * ventoy_base64_encode(const char *data, int input_length, int *output_length);
 
 #endif /* __VENTOY_UTIL_H__ */
 
