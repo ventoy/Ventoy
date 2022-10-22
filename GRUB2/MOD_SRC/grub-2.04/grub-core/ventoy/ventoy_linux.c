@@ -1572,7 +1572,6 @@ grub_err_t ventoy_cmd_trailer_cpio(grub_extcmd_context_t ctxt, int argc, char **
     grub_uint8_t *bufend;
     cpio_newc_header *head;
     grub_file_t file;
-    char value[64];
     const grub_uint8_t trailler[124] = {
         0x30, 0x37, 0x30, 0x37, 0x30, 0x31, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
         0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
@@ -1643,11 +1642,8 @@ grub_err_t ventoy_cmd_trailer_cpio(grub_extcmd_context_t ctxt, int argc, char **
             name = (char *)(head + 1);
         }
     }
-    
-    grub_snprintf(value, sizeof(value), "0x%llx", (ulonglong)(ulong)g_ventoy_cpio_buf);
-    ventoy_set_env("ventoy_cpio_addr", value);
-    grub_snprintf(value, sizeof(value), "%d", bufsize);
-    ventoy_set_env("ventoy_cpio_size", value);
+
+    ventoy_memfile_env_set("ventoy_cpio", g_ventoy_cpio_buf, (ulonglong)bufsize);
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -1669,7 +1665,6 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
     const char *pLastChain = NULL;
     const char *compatible;
     ventoy_chain_head *chain;
-    char envbuf[64];
     
     (void)ctxt;
     (void)argc;
@@ -1757,10 +1752,7 @@ grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, cha
         return 1;
     }
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
-    grub_env_set("vtoy_chain_mem_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
-    grub_env_set("vtoy_chain_mem_size", envbuf);
+    ventoy_memfile_env_set("vtoy_chain_mem", chain, (ulonglong)size);
 
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
@@ -1921,8 +1913,6 @@ out:
 grub_err_t ventoy_cmd_linux_systemd_menu(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     static char *buf = NULL;
-    char name[128];
-    char value[64];
     grub_fs_t fs;
     char *device_name = NULL;
     grub_device_t dev = NULL;
@@ -1967,13 +1957,7 @@ grub_err_t ventoy_cmd_linux_systemd_menu(grub_extcmd_context_t ctxt, int argc, c
     ctx.len = VTOY_LINUX_SYSTEMD_MENU_MAX_BUF;
     fs->fs_dir(dev, "/loader/entries", ventoy_systemd_conf_hook, &ctx);
 
-    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
-    grub_snprintf(value, sizeof(value), "0x%llx", (ulonglong)(ulong)buf);
-    grub_env_set(name, value);
-    
-    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
-    grub_snprintf(value, sizeof(value), "%d", ctx.pos);
-    grub_env_set(name, value);
+    ventoy_memfile_env_set(args[1], buf, (ulonglong)(ctx.pos));
 
 end:
     grub_check_free(device_name);
@@ -2011,8 +1995,6 @@ grub_err_t ventoy_cmd_linux_limine_menu(grub_extcmd_context_t ctxt, int argc, ch
     char *start = NULL;
     char *nextline = NULL;
     grub_file_t file = NULL;
-    char name[128];
-    char value[64];
     char *title = NULL;
     char *kernel = NULL;
     char *initrd = NULL;
@@ -2120,13 +2102,7 @@ grub_err_t ventoy_cmd_linux_limine_menu(grub_extcmd_context_t ctxt, int argc, ch
         sub = 0;
     }
 
-    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
-    grub_snprintf(value, sizeof(value), "0x%llx", (ulonglong)(ulong)buf);
-    grub_env_set(name, value);
-    
-    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
-    grub_snprintf(value, sizeof(value), "%d", pos);
-    grub_env_set(name, value);
+    ventoy_memfile_env_set(args[1], buf, (ulonglong)pos);
 
 end:
     grub_check_free(filebuf);

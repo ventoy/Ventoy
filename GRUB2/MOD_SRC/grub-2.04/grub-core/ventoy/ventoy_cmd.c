@@ -1036,8 +1036,6 @@ static grub_err_t ventoy_cmd_concat_efi_iso(grub_extcmd_context_t ctxt, int argc
     int totlen = 0;
     int offset = 0;
     grub_file_t file;
-    char name[32];
-    char value[32];
     char *buf = NULL;
     char *data = NULL;
     ventoy_iso9660_override *dirent;
@@ -1097,13 +1095,7 @@ static grub_err_t ventoy_cmd_concat_efi_iso(grub_extcmd_context_t ctxt, int argc
     grub_file_read(file, data + sizeof(ventoy_chain_head) + len, file->size);
     grub_file_close(file); 
 
-    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
-    grub_snprintf(value, sizeof(value), "0x%llx", (ulonglong)(ulong)data);
-    grub_env_set(name, value);
-    
-    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
-    grub_snprintf(value, sizeof(value), "%d", (int)(totlen));
-    grub_env_set(name, value);
+    ventoy_memfile_env_set(args[1], data, (ulonglong)totlen);
 
     return 0;
 }
@@ -1170,8 +1162,6 @@ grub_ssize_t ventoy_load_file_with_prompt(grub_file_t file, void *buf, grub_ssiz
 static grub_err_t ventoy_cmd_load_file_to_mem(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc = 1;
-    char name[32];
-    char value[32];
     char *buf = NULL;
     grub_file_t file;
     enum grub_file_type type;
@@ -1222,13 +1212,7 @@ static grub_err_t ventoy_cmd_load_file_to_mem(grub_extcmd_context_t ctxt, int ar
         grub_file_read(file, buf, file->size);
     }
 
-    grub_snprintf(name, sizeof(name), "%s_addr", args[2]);
-    grub_snprintf(value, sizeof(value), "0x%llx", (unsigned long long)(unsigned long)buf);
-    grub_env_set(name, value);
-    
-    grub_snprintf(name, sizeof(name), "%s_size", args[2]);
-    grub_snprintf(value, sizeof(value), "%llu", (unsigned long long)file->size);
-    grub_env_set(name, value);
+    ventoy_memfile_env_set(args[2], buf, (ulonglong)(file->size));
 
     grub_file_close(file); 
     rc = 0;
@@ -1240,8 +1224,6 @@ static grub_err_t ventoy_cmd_load_img_memdisk(grub_extcmd_context_t ctxt, int ar
 {
     int rc = 1;
     int headlen;
-    char name[32];
-    char value[32];
     char *buf = NULL;
     grub_file_t file;
     
@@ -1273,13 +1255,7 @@ static grub_err_t ventoy_cmd_load_img_memdisk(grub_extcmd_context_t ctxt, int ar
 
     grub_file_read(file, buf + headlen, file->size);
 
-    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
-    grub_snprintf(value, sizeof(value), "0x%llx", (unsigned long long)(unsigned long)buf);
-    grub_env_set(name, value);
-    
-    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
-    grub_snprintf(value, sizeof(value), "%llu", (unsigned long long)file->size);
-    grub_env_set(name, value);
+    ventoy_memfile_env_set(args[1], buf, (ulonglong)(file->size));
 
     grub_file_close(file); 
     rc = 0;

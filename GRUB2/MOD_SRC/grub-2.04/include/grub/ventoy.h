@@ -304,6 +304,7 @@ grub_uint64_t grub_udf_get_last_file_attr_offset
     grub_uint64_t *fe_entry_size_offset
 );
 int ventoy_is_efi_os(void);
+void ventoy_memfile_env_set(const char *prefix, const void *buf, unsigned long long len);
 
 #endif /* __VENTOY_H__ */
 

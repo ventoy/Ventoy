@@ -1118,7 +1118,6 @@ grub_err_t ventoy_cmd_unix_chain_data(grub_extcmd_context_t ctxt, int argc, char
     const char *pLastChain = NULL;
     const char *compatible;
     ventoy_chain_head *chain;
-    char envbuf[64];
     
     (void)ctxt;
     (void)argc;
@@ -1197,10 +1196,7 @@ grub_err_t ventoy_cmd_unix_chain_data(grub_extcmd_context_t ctxt, int argc, char
         return 1;
     }
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
-    grub_env_set("vtoy_chain_mem_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
-    grub_env_set("vtoy_chain_mem_size", envbuf);
+    ventoy_memfile_env_set("vtoy_chain_mem", chain, (ulonglong)size);
 
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 

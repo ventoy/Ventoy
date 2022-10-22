@@ -2033,7 +2033,6 @@ grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc,
     grub_uint8_t *param = NULL;
     grub_uint8_t *exe_data = NULL;
     ventoy_windows_data *rtdata = NULL;
-    char envbuf[64] = {0};
     char exename[128] = {0};
     wim_tail wim_data;
 
@@ -2076,13 +2075,7 @@ grub_err_t ventoy_cmd_windows_wimboot_data(grub_extcmd_context_t ctxt, int argc,
     rtdata = (ventoy_windows_data *)(param + jump_align + sizeof(ventoy_os_param));
     ventoy_fill_windows_rtdata(rtdata, chain->os_param.vtoy_img_path, dataflag);
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (ulong)param);
-    grub_env_set("vtoy_wimboot_mem_addr", envbuf);
-    debug("vtoy_wimboot_mem_addr: %s\n", envbuf);
-    
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", wim_data.bin_align_len);
-    grub_env_set("vtoy_wimboot_mem_size", envbuf);
-    debug("vtoy_wimboot_mem_size: %s\n", envbuf);
+    ventoy_memfile_env_set("vtoy_wimboot_mem", param, (ulonglong)(wim_data.bin_align_len));
 
     grub_env_set(args[1], exename);
     grub_env_set(args[2], wim64 ? "64" : "32");
@@ -2105,7 +2098,6 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
     const char *pLastChain = NULL;
     const char *compatible;
     ventoy_chain_head *chain;
-    char envbuf[64];
     
     (void)ctxt;
     (void)argc;
@@ -2200,10 +2192,7 @@ grub_err_t ventoy_cmd_windows_chain_data(grub_extcmd_context_t ctxt, int argc, c
         return 1;
     }
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
-    grub_env_set("vtoy_chain_mem_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
-    grub_env_set("vtoy_chain_mem_size", envbuf);
+    ventoy_memfile_env_set("vtoy_chain_mem", chain, (ulonglong)size);
 
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
@@ -2437,7 +2426,6 @@ static grub_err_t ventoy_vlnk_wim_chain_data(grub_file_t wimfile)
     ventoy_img_chunk *chunknode;
     ventoy_override_chunk *override;
     ventoy_img_chunk_list wimchunk;
-    char envbuf[128];
     
     debug("vlnk wim chain data begin <%s> ...\n", wimfile->name);
 
@@ -2494,10 +2482,7 @@ static grub_err_t ventoy_vlnk_wim_chain_data(grub_file_t wimfile)
         return 1;
     }
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
-    grub_env_set("vtoy_chain_mem_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
-    grub_env_set("vtoy_chain_mem_size", envbuf);
+    ventoy_memfile_env_set("vtoy_chain_mem", chain, (ulonglong)size);
 
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
@@ -2602,7 +2587,6 @@ static grub_err_t ventoy_normal_wim_chain_data(grub_file_t wimfile)
     ventoy_img_chunk *chunknode;
     ventoy_override_chunk *override;
     ventoy_img_chunk_list wimchunk;
-    char envbuf[128];
     
     debug("normal wim chain data begin <%s> ...\n", wimfile->name);
 
@@ -2659,10 +2643,7 @@ static grub_err_t ventoy_normal_wim_chain_data(grub_file_t wimfile)
         return 1;
     }
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
-    grub_env_set("vtoy_chain_mem_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
-    grub_env_set("vtoy_chain_mem_size", envbuf);
+    ventoy_memfile_env_set("vtoy_chain_mem", chain, (ulonglong)size);
 
     grub_memset(chain, 0, sizeof(ventoy_chain_head));
 
