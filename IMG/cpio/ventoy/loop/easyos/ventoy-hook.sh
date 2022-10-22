@@ -23,6 +23,9 @@ $SED "/find drives/i $BUSYBOX_PATH/sh $VTOY_PATH/loop/easyos/ventoy-disk.sh; vtD
 
 $SED "1a boot_dev=ventoy1;wkg_dev=ventoy2" -i /init
 
+$SED 's#\(dd *if=/dev/.*WKG_DRV.* *of=/dev/null.*skip\)=[0-9]*#\1=1048576#' -i /init
+$SED "s#WKG_DEV=\"\"#WKG_DEV=ventoy2#g" -i /init
+
 #check for ssd will read /sys/block/ventoy, will no exist, need a workaround
 $SED "s#/sys/block/\${WKG_DRV}/#/sys/block/\$vtDM/#g"  -i /init
 

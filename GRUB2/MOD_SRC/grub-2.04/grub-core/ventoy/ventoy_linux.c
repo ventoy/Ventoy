@@ -1981,3 +1981,155 @@ end:
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_limine_path_convert(char *path)
+{
+    char newpath[256] = {0};
+
+    if (grub_strncmp(path, "boot://2/", 9) == 0)
+    {
+        grub_snprintf(newpath, sizeof(newpath), "(vtimghd,2)/%s", path + 9);
+    }
+    else if (grub_strncmp(path, "boot://1/", 9) == 0)
+    {
+        grub_snprintf(newpath, sizeof(newpath), "(vtimghd,1)/%s", path + 9);
+    }
+
+    if (newpath[0])
+    {
+        grub_snprintf(path, 1024, "%s", newpath);
+    }
+
+    return 0;
+}
+
+grub_err_t ventoy_cmd_linux_limine_menu(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    int pos = 0;
+    int sub = 0;
+    int len = VTOY_LINUX_SYSTEMD_MENU_MAX_BUF;
+    char *filebuf = NULL;
+    char *start = NULL;
+    char *nextline = NULL;
+    grub_file_t file = NULL;
+    char name[128];
+    char value[64];
+    char *title = NULL;
+    char *kernel = NULL;
+    char *initrd = NULL;
+    char *param = NULL;
+    static char *buf = NULL;
+    
+    (void)ctxt;
+    (void)argc;
+
+    if (!buf)
+    {
+        buf = grub_malloc(len + 4 * 1024);
+        if (!buf)
+        {
+            goto end;
+        }        
+    }
+
+    title = buf + len;
+    kernel = title + 1024;
+    initrd = kernel + 1024;
+    param = initrd + 1024;
+    
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, args[0]);
+    if (!file)
+    {
+        return 0;
+    }
+
+    filebuf = grub_zalloc(file->size + 8);
+    if (!filebuf)
+    {
+        goto end;
+    }
+
+    grub_file_read(file, filebuf, file->size);
+    grub_file_close(file);
+
+    
+    title[0] = kernel[0] = initrd[0] = param[0] = 0;
+    for (start = filebuf; start; start = nextline)
+    {
+        nextline = ventoy_get_line(start);
+        while (ventoy_isspace(*start))
+        {
+            start++;
+        }
+
+        if (start[0] == ':')
+        {
+            if (start[1] == ':')
+            {
+                grub_snprintf(title, 1024, "%s", start + 2);
+            }
+            else
+            {
+                if (sub)
+                {
+                    vtoy_len_ssprintf(buf, pos, len, "}\n");
+                    sub = 0;
+                }
+
+                if (nextline && nextline[0] == ':' && nextline[1] == ':')
+                {
+                    vtoy_len_ssprintf(buf, pos, len, "submenu \"[+] %s\" {\n", start + 2);
+                    sub = 1;
+                    title[0] = 0;
+                }
+                else
+                {
+                    grub_snprintf(title, 1024, "%s", start + 1);                    
+                }
+            }
+        }
+        else if (grub_strncmp(start, "KERNEL_PATH=", 12) == 0)
+        {
+            grub_snprintf(kernel, 1024, "%s", start + 12);
+        }
+        else if (grub_strncmp(start, "MODULE_PATH=", 12) == 0)
+        {
+            grub_snprintf(initrd, 1024, "%s", start + 12);
+        }
+        else if (grub_strncmp(start, "KERNEL_CMDLINE=", 15) == 0)
+        {
+            grub_snprintf(param, 1024, "%s", start + 15);
+        }
+
+        if (title[0] && kernel[0] && initrd[0] && param[0])
+        {
+            ventoy_limine_path_convert(kernel);
+            ventoy_limine_path_convert(initrd);
+        
+            vtoy_len_ssprintf(buf, pos, len, "menuentry \"%s\" {\n", title);
+            vtoy_len_ssprintf(buf, pos, len, "  echo \"Downloading kernel ...\"\n  linux %s %s\n", kernel, param);
+            vtoy_len_ssprintf(buf, pos, len, "  echo \"Downloading initrd ...\"\n  initrd %s\n", initrd);
+            vtoy_len_ssprintf(buf, pos, len, "}\n");
+        
+            title[0] = kernel[0] = initrd[0] = param[0] = 0;
+        }
+    }
+
+    if (sub)
+    {
+        vtoy_len_ssprintf(buf, pos, len, "}\n");
+        sub = 0;
+    }
+
+    grub_snprintf(name, sizeof(name), "%s_addr", args[1]);
+    grub_snprintf(value, sizeof(value), "0x%llx", (ulonglong)(ulong)buf);
+    grub_env_set(name, value);
+    
+    grub_snprintf(name, sizeof(name), "%s_size", args[1]);
+    grub_snprintf(value, sizeof(value), "%d", pos);
+    grub_env_set(name, value);
+
+end:
+    grub_check_free(filebuf);
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
