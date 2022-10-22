@@ -2482,6 +2482,22 @@ End:
 }
 
 
+static int vtoy_cmd_delete_file(char *File)
+{
+    CHAR szCmd[MAX_PATH];
+    STARTUPINFOA Si;
+    PROCESS_INFORMATION Pi;
+
+    GetStartupInfoA(&Si);
+    Si.dwFlags |= STARTF_USESHOWWINDOW;
+    Si.wShowWindow = SW_HIDE;
+    sprintf_s(szCmd, sizeof(szCmd), "cmd.exe /c del /F /Q %s", File);
+    CreateProcessA(NULL, szCmd, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+    WaitForSingleObject(Pi.hProcess, INFINITE);
+
+    return 0;
+}
+
 int real_main(int argc, char **argv)
 {
     int i = 0;
@@ -2560,6 +2576,12 @@ int real_main(int argc, char **argv)
     {
         Log("Open cmd for debug ...");
         sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
+    }
+
+    if (IsFileExist(ORG_PECMD_BK_PATH))
+    {
+        Log("Delete backup file <%s>", ORG_PECMD_BK_PATH);
+        vtoy_cmd_delete_file(ORG_PECMD_BK_PATH);
     }
 
     Log("Backup log at this point");
