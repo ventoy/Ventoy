@@ -513,6 +513,7 @@ void ventoy_data_default_control(data_control *data)
 {
     memset(data, 0, sizeof(data_control));
 
+    data->password_asterisk = 1;
     data->secondary_menu = 1;
     data->filter_dot_underscore = 1;
     data->max_search_level = -1;
@@ -539,6 +540,7 @@ int ventoy_data_cmp_control(data_control *data1, data_control *data2)
         data1->filter_vtoy != data2->filter_vtoy ||
         data1->win11_bypass_check != data2->win11_bypass_check ||
         data1->linux_remount != data2->linux_remount ||
+        data1->password_asterisk != data2->password_asterisk ||
         data1->secondary_menu != data2->secondary_menu ||
         data1->menu_timeout != data2->menu_timeout ||
         data1->secondary_menu_timeout != data2->secondary_menu_timeout)
@@ -587,6 +589,7 @@ int ventoy_data_save_control(data_control *data, const char *title, char *buf, i
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_WIN11_BYPASS_CHECK",  win11_bypass_check);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_LINUX_REMOUNT",  linux_remount);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_SECONDARY_BOOT_MENU",  secondary_menu);
+    VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_SHOW_PASSWORD_ASTERISK",  password_asterisk);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_MENU_TIMEOUT",  menu_timeout);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_SECONDARY_TIMEOUT",  secondary_menu_timeout);
 
@@ -634,6 +637,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_SINT("win11_bypass_check",  ctrl->win11_bypass_check);
     VTOY_JSON_FMT_SINT("linux_remount",  ctrl->linux_remount);
     VTOY_JSON_FMT_SINT("secondary_menu",  ctrl->secondary_menu);
+    VTOY_JSON_FMT_SINT("password_asterisk",  ctrl->password_asterisk);
     VTOY_JSON_FMT_SINT("menu_timeout",  ctrl->menu_timeout);
     VTOY_JSON_FMT_SINT("secondary_menu_timeout",  ctrl->secondary_menu_timeout);
     VTOY_JSON_FMT_STRN("default_kbd_layout",  ctrl->default_kbd_layout);
@@ -702,6 +706,7 @@ static int ventoy_api_save_control(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_INT("win11_bypass_check", ctrl->win11_bypass_check);
     VTOY_JSON_INT("linux_remount", ctrl->linux_remount);
     VTOY_JSON_INT("secondary_menu", ctrl->secondary_menu);
+    VTOY_JSON_INT("password_asterisk", ctrl->password_asterisk);
     VTOY_JSON_INT("menu_timeout", ctrl->menu_timeout);
     VTOY_JSON_INT("secondary_menu_timeout", ctrl->secondary_menu_timeout);
 
@@ -3981,31 +3986,35 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
 
             if (strcmp(child->pcName, "VTOY_DEFAULT_MENU_MODE") == 0)
             {
-                CONTROL_PARSE_INT(child, data->default_menu_mode);
+                CONTROL_PARSE_INT_DEF_0(child, data->default_menu_mode);
             }
             else if (strcmp(child->pcName, "VTOY_WIN11_BYPASS_CHECK") == 0)
             {
-                CONTROL_PARSE_INT(child, data->win11_bypass_check);
+                CONTROL_PARSE_INT_DEF_0(child, data->win11_bypass_check);
             }
             else if (strcmp(child->pcName, "VTOY_LINUX_REMOUNT") == 0)
             {
-                CONTROL_PARSE_INT(child, data->linux_remount);
+                CONTROL_PARSE_INT_DEF_0(child, data->linux_remount);
             }
             else if (strcmp(child->pcName, "VTOY_SECONDARY_BOOT_MENU") == 0)
             {
-                CONTROL_PARSE_INT(child, data->secondary_menu);
+                CONTROL_PARSE_INT_DEF_1(child, data->secondary_menu);
+            }
+            else if (strcmp(child->pcName, "VTOY_SHOW_PASSWORD_ASTERISK") == 0)
+            {
+                CONTROL_PARSE_INT_DEF_1(child, data->password_asterisk);
             }
             else if (strcmp(child->pcName, "VTOY_TREE_VIEW_MENU_STYLE") == 0)
             {
-                CONTROL_PARSE_INT(child, data->treeview_style);
+                CONTROL_PARSE_INT_DEF_0(child, data->treeview_style);
             }
             else if (strcmp(child->pcName, "VTOY_FILT_DOT_UNDERSCORE_FILE") == 0)
             {
-                CONTROL_PARSE_INT(child, data->filter_dot_underscore);
+                CONTROL_PARSE_INT_DEF_1(child, data->filter_dot_underscore);
             }
             else if (strcmp(child->pcName, "VTOY_SORT_CASE_SENSITIVE") == 0)
             {
-                CONTROL_PARSE_INT(child, data->sort_casesensitive);
+                CONTROL_PARSE_INT_DEF_0(child, data->sort_casesensitive);
             }
             else if (strcmp(child->pcName, "VTOY_MAX_SEARCH_LEVEL") == 0)
             {
@@ -4058,31 +4067,31 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
             }
             else if (strcmp(child->pcName, "VTOY_VHD_NO_WARNING") == 0)
             {
-                CONTROL_PARSE_INT(child, data->vhd_no_warning);
+                CONTROL_PARSE_INT_DEF_0(child, data->vhd_no_warning);
             }
             else if (strcmp(child->pcName, "VTOY_FILE_FLT_ISO") == 0)
             {
-                CONTROL_PARSE_INT(child, data->filter_iso);
+                CONTROL_PARSE_INT_DEF_0(child, data->filter_iso);
             }
             else if (strcmp(child->pcName, "VTOY_FILE_FLT_IMG") == 0)
             {
-                CONTROL_PARSE_INT(child, data->filter_img);
+                CONTROL_PARSE_INT_DEF_0(child, data->filter_img);
             }
             else if (strcmp(child->pcName, "VTOY_FILE_FLT_EFI") == 0)
             {
-                CONTROL_PARSE_INT(child, data->filter_efi);
+                CONTROL_PARSE_INT_DEF_0(child, data->filter_efi);
             }
             else if (strcmp(child->pcName, "VTOY_FILE_FLT_WIM") == 0)
             {
-                CONTROL_PARSE_INT(child, data->filter_wim);
+                CONTROL_PARSE_INT_DEF_0(child, data->filter_wim);
             }
             else if (strcmp(child->pcName, "VTOY_FILE_FLT_VHD") == 0)
             {
-                CONTROL_PARSE_INT(child, data->filter_vhd);
+                CONTROL_PARSE_INT_DEF_0(child, data->filter_vhd);
             }
             else if (strcmp(child->pcName, "VTOY_FILE_FLT_VTOY") == 0)
             {
-                CONTROL_PARSE_INT(child, data->filter_vtoy);
+                CONTROL_PARSE_INT_DEF_0(child, data->filter_vtoy);
             }
             
         }

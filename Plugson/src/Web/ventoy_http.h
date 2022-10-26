@@ -79,6 +79,7 @@ typedef struct data_control
     int secondary_menu_timeout;
     int linux_remount;
     int secondary_menu;
+    int password_asterisk;
     char default_search_root[MAX_PATH];
     char default_image[MAX_PATH];
     char default_kbd_layout[32];
@@ -402,9 +403,11 @@ else\
     } \
 }
 
-#define CONTROL_PARSE_INT(node, val) \
+#define CONTROL_PARSE_INT_DEF_0(node, val) \
     if (node->unData.pcStrVal[0] == '1') val = 1
 
+#define CONTROL_PARSE_INT_DEF_1(node, val) \
+    if (node->unData.pcStrVal[0] == '0') val = 0
 
 #define VTOY_JSON_INT(key, val) vtoy_json_get_int(json, key, &val)
 #define VTOY_JSON_STR(key, buf) vtoy_json_get_string(json, key, sizeof(buf), buf)

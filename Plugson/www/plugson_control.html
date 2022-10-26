@@ -435,6 +435,49 @@
             </div><!-- /.box-body -->
         </div><!-- /.box -->
         
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SHOW_PASSWORD_ASTERISK
+                <span id="id_span_desc_cn"> —— 输入密码时显示星号</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_asterisk_radio0" name="id_ctrl_asterisk_radio" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_asterisk_radio1" name="id_ctrl_asterisk_radio" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>输入密码时是否显示星号
+                        <code style="font-weight: bold;">0</code> 不显示 &nbsp;&nbsp; 
+                        <code style="font-weight: bold;">1</code> 显示
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                      Display asterisk when typing password
+                      <code style="font-weight: bold;">0</code> Don't display &nbsp;&nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> Display
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+        
+        
         <div class="box box-primary box-solid">
             <div class="box-header with-border">
               <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SECONDARY_TIMEOUT
@@ -1020,6 +1063,7 @@
     data.win11_bypass_check = parseInt($('input:radio[name=id_ctrl_bypass_win11_radio]:checked').val());
     data.linux_remount = parseInt($('input:radio[name=id_ctrl_linux_remount_radio]:checked').val());
     data.secondary_menu = parseInt($('input:radio[name=id_ctrl_secondary_radio]:checked').val());
+    data.password_asterisk = parseInt($('input:radio[name=id_ctrl_asterisk_radio]:checked').val());
     data.default_search_root = $('input:text[id=id_ctrl_text_search_root]').val();
     data.menu_timeout = parseInt($('input:text[id=id_ctrl_text_timeout]').val());
     data.secondary_menu_timeout = parseInt($('input:text[id=id_ctrl_text_secondary_timeout]').val());
@@ -1055,6 +1099,7 @@
     $('input:radio[name=id_ctrl_bypass_win11_radio]')[data.win11_bypass_check].checked = true;
     $('input:radio[name=id_ctrl_linux_remount_radio]')[data.linux_remount].checked = true;
     $('input:radio[name=id_ctrl_secondary_radio]')[data.secondary_menu].checked = true;
+    $('input:radio[name=id_ctrl_asterisk_radio]')[data.password_asterisk].checked = true;
 
     //VTOY_DEFAULT_SEARCH_ROOT
     $('input:text[id=id_ctrl_text_search_root]').val(data.default_search_root);
@@ -1161,6 +1206,7 @@
       win11_bypass_check: data.win11_bypass_check,
       linux_remount:data.linux_remount,
       secondary_menu:data.secondary_menu,
+      password_asterisk:data.password_asterisk,
       default_search_root: data.default_search_root,
       menu_timeout: data.menu_timeout,
       secondary_menu_timeout: data.secondary_menu_timeout,
