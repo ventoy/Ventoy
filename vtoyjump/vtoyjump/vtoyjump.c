@@ -46,7 +46,7 @@ static CHAR g_prog_name[MAX_PATH];
 
 #define VTOY_PECMD_PATH      "X:\\Windows\\system32\\ventoy\\PECMD.EXE"
 #define ORG_PECMD_PATH       "X:\\Windows\\system32\\PECMD.EXE"
-#define ORG_PECMD_BK_PATH    "X:\\Windows\\system32\\PECMD.EXE_BACK.EXE"
+#define ORG_PECMD_BK_PATH    "X:\\Windows\\system32\\VTOYJUMP.EXE"
 
 #define WIMBOOT_FILE         "X:\\Windows\\system32\\vtoy_wimboot"
 #define WIMBOOT_DONE         "X:\\Windows\\system32\\vtoy_wimboot_done"
@@ -2533,7 +2533,7 @@ int real_main(int argc, char **argv)
 
     if (_stricmp(g_prog_name, "winpeshl.exe") != 0 && IsFileExist("ventoy\\%s", g_prog_name))
     {
-        sprintf_s(NewFile, sizeof(NewFile), "%s_BACK.EXE", g_prog_full_path);
+        sprintf_s(NewFile, sizeof(NewFile), "%s\\VTOYJUMP.EXE", g_prog_dir);
         MoveFileA(g_prog_full_path, NewFile);
         Log("Move <%s> to <%s>", g_prog_full_path, NewFile);
 
@@ -2576,12 +2576,6 @@ int real_main(int argc, char **argv)
     {
         Log("Open cmd for debug ...");
         sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
-    }
-
-    if (IsFileExist(ORG_PECMD_BK_PATH))
-    {
-        Log("Delete backup file <%s>", ORG_PECMD_BK_PATH);
-        vtoy_cmd_delete_file(ORG_PECMD_BK_PATH);
     }
 
     Log("Backup log at this point");
