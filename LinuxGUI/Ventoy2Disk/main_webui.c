@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 
     snprintf(g_log_file, sizeof(g_log_file), "log.txt");
     snprintf(g_ini_file, sizeof(g_ini_file), "./Ventoy2Disk.ini");
-    for (i = 0; i < argc; i++)
+    for (i = 1; i < (argc - 1); i++)
     {
         if (argv[i] && argv[i + 1] && strcmp(argv[i], "-l") == 0)
         {

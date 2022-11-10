@@ -1298,14 +1298,14 @@ int main(int argc, char **argv)
     const char *env = NULL;
 
     snprintf(g_log_file, sizeof(g_log_file), "log.txt");
-    for (i = 0; i < argc; i++)
+    for (i = 1; i < argc; i++)
     {
-        if (argv[i] && argv[i + 1] && strcmp(argv[i], "-l") == 0)
+        if (i < (argc - 1) && argv[i] && argv[i + 1] && strcmp(argv[i], "-l") == 0)
         {
             touch_new_file(argv[i + 1]);
             snprintf(g_log_file, sizeof(g_log_file), "%s", argv[i + 1]);
         }
-        else if (argv[i] && argv[i + 1] && strcmp(argv[i], "-i") == 0)
+        else if (i < (argc - 1) && argv[i] && argv[i + 1] && strcmp(argv[i], "-i") == 0)
         {
             touch_new_file(argv[i + 1]);
         }

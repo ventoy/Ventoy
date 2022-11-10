@@ -602,13 +602,14 @@ static int install_proc(ventoy_disk *cur)
 
     if (strstr(out, "success"))
     {
-        while (percent != 100)
+        do
         {
             percent = ventoy_code_get_percent();
             set_progress_bar_percent(percent);
             GTK_MSG_ITERATION();
             usleep(50 * 1000);
         }
+        while (percent != 100);
 
         ret = ventoy_code_get_result();
         ventoy_code_refresh_device();
@@ -726,13 +727,14 @@ static int update_proc(ventoy_disk *cur)
 
     if (strstr(out, "success"))
     {
-        while (percent != 100)
+        do
         {
             percent = ventoy_code_get_percent();
             set_progress_bar_percent(percent);
             GTK_MSG_ITERATION();
             usleep(50 * 1000);
         }
+        while (percent != 100);
 
         ret = ventoy_code_get_result();
         ventoy_code_refresh_device();

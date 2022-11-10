@@ -1053,8 +1053,8 @@
         "STR_PART_RESIZE_SUCCESS":"Поздравляем!#@Неразрушающая установка Ventoy успешно завершена.",
         "STR_PART_RESIZE_FAILED":"Не удалось выполнить неразрушающую установку, проверьте файл log.txt для получения подробной информации.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Ventoy остановлена, поскольку некоторые условия не могут быть выполнены. Проверьте файл log.txt для получения подробной информации.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_INSTALL_YES_TIP1":"Внимание: Данные будут потеряны!",
+        "STR_INSTALL_YES_TIP2":"Пожалуйста, введите YES в текстовом окне ниже, чтобы подтвердить, что вы действительно хотите провести новую установку вместо обновления.",
         
         "STRXXX":""
     },
