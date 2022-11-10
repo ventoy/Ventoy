@@ -128,6 +128,64 @@ static void TrimString(CHAR *String, BOOL TrimLeft)
     return;
 }
 
+static int VentoyProcessRunCmd(const char *Fmt, ...)
+{
+    int Len = 0;
+    va_list Arg;
+    STARTUPINFOA Si;
+    PROCESS_INFORMATION Pi;
+    char szBuf[1024] = { 0 };
+
+    va_start(Arg, Fmt);
+    Len += vsnprintf_s(szBuf + Len, sizeof(szBuf)-Len, sizeof(szBuf)-Len, Fmt, Arg);
+    va_end(Arg);
+
+    GetStartupInfoA(&Si);
+    Si.dwFlags |= STARTF_USESHOWWINDOW;
+    Si.wShowWindow = SW_HIDE;
+
+    Log("Process Run: <%s>", szBuf);
+    CreateProcessA(NULL, szBuf, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+    WaitForSingleObject(Pi.hProcess, INFINITE);
+
+    return 0;
+}
+
+static CHAR VentoyGetFirstFreeDriveLetter(BOOL Reverse)
+{
+    int i;
+    CHAR Letter = 'T';
+    DWORD Drives;
+
+    Drives = GetLogicalDrives();
+
+    if (Reverse)
+    {
+        for (i = 25; i >= 2; i--)
+        {
+            if (0 == (Drives & (1 << i)))
+            {
+                Letter = 'A' + i;
+                break;
+            }
+        }
+    }
+    else
+    {
+        for (i = 2; i < 26; i++)
+        {
+            if (0 == (Drives & (1 << i)))
+            {
+                Letter = 'A' + i;
+                break;
+            }
+        }
+    }
+
+    Log("FirstFreeDriveLetter %u %C:", Reverse, Letter);
+    return Letter;
+}
+
 void Log(const char *Fmt, ...)
 {
     va_list Arg;
@@ -910,6 +968,84 @@ UINT64 GetVentoyEfiPartStartSector(HANDLE hDrive)
     return StartSector;
 }
 
+static int VentoyCopyImdisk(DWORD PhyDrive, CHAR *ImPath)
+{
+    int rc = 1;
+    BOOL bRet;
+    DWORD dwBytes;
+    HANDLE hDrive;
+    CHAR PhyPath[MAX_PATH];
+    GET_LENGTH_INFORMATION LengthInfo;
+
+    if (IsFileExist("X:\\Windows\\System32\\imdisk.exe"))
+    {
+        Log("imdisk.exe already exist, no need to copy...");
+        strcpy_s(ImPath, MAX_PATH, "imdisk.exe");        
+        return 0;
+    }
+
+    if (IsFileExist("X:\\Windows\\System32\\ventoy\\imdisk.exe"))
+    {
+        Log("imdisk.exe already copied, no need to copy...");
+        strcpy_s(ImPath, MAX_PATH, "ventoy\\imdisk.exe");
+        return 0;
+    }
+
+    sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", PhyDrive);
+    hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+    if (hDrive == INVALID_HANDLE_VALUE)
+    {
+        Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
+        goto End;
+    }
+
+    bRet = DeviceIoControl(hDrive, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &LengthInfo, sizeof(LengthInfo), &dwBytes, NULL);
+    if (!bRet)
+    {
+        Log("Could not get phy disk %s size, error:%u", PhyPath, GetLastError());
+        goto End;
+    }
+
+    g_FatPhyDrive = hDrive;
+    g_Part2StartSec = GetVentoyEfiPartStartSector(hDrive);
+
+    Log("Parse FAT fs...");
+
+    fl_init();
+
+    if (0 == fl_attach_media(VentoyFatDiskRead, NULL))
+    {
+        if (g_system_bit == 64)
+        {
+            CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.sys", "ventoy\\imdisk.sys");
+            CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.exe", "ventoy\\imdisk.exe");
+            CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.cpl", "ventoy\\imdisk.cpl");
+        }
+        else
+        {
+            CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.sys", "ventoy\\imdisk.sys");
+            CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.exe", "ventoy\\imdisk.exe");
+            CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.cpl", "ventoy\\imdisk.cpl");
+        }
+
+        GetCurrentDirectoryA(sizeof(PhyPath), PhyPath);
+        strcat_s(PhyPath, sizeof(PhyPath), "\\ventoy\\imdisk.sys");
+
+        if (LoadNtDriver(PhyPath) == 0)
+        {        
+            strcpy_s(ImPath, MAX_PATH, "ventoy\\imdisk.exe");
+            rc = 0;
+        }
+    }
+    fl_shutdown();
+
+End:
+
+    SAFE_CLOSE_HANDLE(hDrive);
+
+    return rc;
+}
+
 static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe)
 {
     CHAR Letter;
@@ -957,72 +1093,15 @@ static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe)
 int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 {
     int rc = 1;
-    BOOL bRet;
-    DWORD dwBytes;
-    HANDLE hDrive;
-    CHAR PhyPath[MAX_PATH];
-    GET_LENGTH_INFORMATION LengthInfo;
+    CHAR ImPath[MAX_PATH];
 
     Log("VentoyMountISOByImdisk %s", IsoPath);
 
-    if (IsFileExist("X:\\Windows\\System32\\imdisk.exe"))
+    if (0 == VentoyCopyImdisk(PhyDrive, ImPath))
     {
-        Log("imdisk.exe exist, use it directly...");
-        VentoyRunImdisk(IsoPath, "imdisk.exe");
-        return 0;
+        VentoyRunImdisk(IsoPath, ImPath);
+        rc = 0;
     }
-
-    sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", PhyDrive);
-    hDrive = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
-    if (hDrive == INVALID_HANDLE_VALUE)
-    {
-        Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
-        goto End;
-    }
-
-    bRet = DeviceIoControl(hDrive, IOCTL_DISK_GET_LENGTH_INFO, NULL, 0, &LengthInfo, sizeof(LengthInfo), &dwBytes, NULL);
-    if (!bRet)
-    {
-        Log("Could not get phy disk %s size, error:%u", PhyPath, GetLastError());
-        goto End;
-    }
-
-    g_FatPhyDrive = hDrive;
-    g_Part2StartSec = GetVentoyEfiPartStartSector(hDrive);
-
-    Log("Parse FAT fs...");
-
-    fl_init();
-
-    if (0 == fl_attach_media(VentoyFatDiskRead, NULL))
-    {
-        if (g_system_bit == 64)
-        {
-            CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.sys", "ventoy\\imdisk.sys");
-            CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.exe", "ventoy\\imdisk.exe");
-            CopyFileFromFatDisk("/ventoy/imdisk/64/imdisk.cpl", "ventoy\\imdisk.cpl");
-        }
-        else
-        {
-            CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.sys", "ventoy\\imdisk.sys");
-            CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.exe", "ventoy\\imdisk.exe");
-            CopyFileFromFatDisk("/ventoy/imdisk/32/imdisk.cpl", "ventoy\\imdisk.cpl");
-        }
-        
-        GetCurrentDirectoryA(sizeof(PhyPath), PhyPath);
-        strcat_s(PhyPath, sizeof(PhyPath), "\\ventoy\\imdisk.sys");
-
-        if (LoadNtDriver(PhyPath) == 0)
-        {
-            VentoyRunImdisk(IsoPath, "ventoy\\imdisk.exe");
-            rc = 0;
-        }
-    }
-    fl_shutdown();
-
-End:
-
-    SAFE_CLOSE_HANDLE(hDrive);
 
     return rc;
 }
@@ -1863,14 +1942,30 @@ static int UnattendVarExpand(const char *script, const char *tmpfile)
 
 //#define VAR_DEBUG 1
 
-static int ProcessUnattendedInstallation(const char *script)
+static int CreateUnattendRegKey(const char *file)
 {
     DWORD dw;
     HKEY hKey;
     LSTATUS Ret;
+
+#ifndef VAR_DEBUG
+    Ret = RegCreateKeyEx(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dw);
+    if (ERROR_SUCCESS == Ret)
+    {
+        Ret = RegSetValueEx(hKey, "UnattendFile", 0, REG_SZ, file, (DWORD)(strlen(file) + 1));
+    }
+#endif
+
+    return 0;
+}
+
+static int ProcessUnattendedInstallation(const char *script, DWORD PhyDrive)
+{
     CHAR Letter;
+    CHAR DrvLetter;
     CHAR TmpFile[MAX_PATH];
     CHAR CurDir[MAX_PATH];
+    CHAR ImPath[MAX_PATH];
 
     Log("Copy unattended XML ...");
     
@@ -1888,7 +1983,7 @@ static int ProcessUnattendedInstallation(const char *script)
 #ifdef VAR_DEBUG
     sprintf_s(CurDir, sizeof(CurDir), "%C:\\AutounattendXXX.xml", Letter);
 #else
-    sprintf_s(CurDir, sizeof(CurDir), "%C:\\Autounattend.xml", Letter);
+    sprintf_s(CurDir, sizeof(CurDir), "%C:\\Unattend.xml", Letter);
 #endif
 
     if (UnattendNeedVarExpand(script))
@@ -1897,21 +1992,32 @@ static int ProcessUnattendedInstallation(const char *script)
         UnattendVarExpand(script, TmpFile);
         
         Log("Expand Copy file <%s> --> <%s>", script, CurDir);
-        CopyFile(TmpFile, CurDir, FALSE);
+        CopyFileA(TmpFile, CurDir, FALSE);
     }
     else
     {
         Log("No var expand copy file <%s> --> <%s>", script, CurDir);
-        CopyFile(script, CurDir, FALSE);
+        CopyFileA(script, CurDir, FALSE);
     }
-    
-#ifndef VAR_DEBUG
-    Ret = RegCreateKeyEx(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dw);
-    if (ERROR_SUCCESS == Ret)
+
+    VentoyCopyImdisk(PhyDrive, ImPath);
+    DrvLetter = VentoyGetFirstFreeDriveLetter(FALSE);
+    VentoyProcessRunCmd("%s -a -s 64M -m %C: -p \"/fs:FAT32 /q /y\"", ImPath, DrvLetter);
+
+    Sleep(300);
+
+    sprintf_s(TmpFile, sizeof(TmpFile), "%C:\\Unattend.xml", DrvLetter);
+    if (CopyFileA(CurDir, TmpFile, FALSE))
     {
-        Ret = RegSetValueEx(hKey, "UnattendFile", 0, REG_SZ, CurDir, (DWORD)(strlen(CurDir) + 1));
+        DeleteFileA(CurDir);
+        Log("Move file <%s> ==> <%s>, use the later as unattend XML", CurDir, TmpFile);
+        CreateUnattendRegKey(TmpFile);
     }
-#endif
+    else
+    {
+        Log("Failed to copy file <%s> ==> <%s>, use OLD", CurDir, TmpFile);
+        CreateUnattendRegKey(CurDir);
+    }
 
     return 0;
 }
@@ -2261,7 +2367,7 @@ static int VentoyHook(ventoy_os_param *param)
         if (IsFileExist("%s", VTOY_AUTO_FILE))
         {
             Log("use auto install script %s...", VTOY_AUTO_FILE);
-            ProcessUnattendedInstallation(VTOY_AUTO_FILE);
+            ProcessUnattendedInstallation(VTOY_AUTO_FILE, VtoyDiskNum);
         }
         else
         {
@@ -2482,22 +2588,6 @@ End:
 }
 
 
-static int vtoy_cmd_delete_file(char *File)
-{
-    CHAR szCmd[MAX_PATH];
-    STARTUPINFOA Si;
-    PROCESS_INFORMATION Pi;
-
-    GetStartupInfoA(&Si);
-    Si.dwFlags |= STARTF_USESHOWWINDOW;
-    Si.wShowWindow = SW_HIDE;
-    sprintf_s(szCmd, sizeof(szCmd), "cmd.exe /c del /F /Q %s", File);
-    CreateProcessA(NULL, szCmd, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
-    WaitForSingleObject(Pi.hProcess, INFINITE);
-
-    return 0;
-}
-
 int real_main(int argc, char **argv)
 {
     int i = 0;
@@ -2575,6 +2665,8 @@ int real_main(int argc, char **argv)
     if (g_os_param_reserved[0] == 4)
     {
         Log("Open cmd for debug ...");
+        Si.dwFlags |= STARTF_USESHOWWINDOW;
+        Si.wShowWindow = SW_NORMAL;
         sprintf_s(LunchFile, sizeof(LunchFile), "%s", "cmd.exe");
     }
 
@@ -2724,4 +2816,3 @@ int main(int argc, char **argv)
         return real_main(argc, argv);
     }
 }
-
