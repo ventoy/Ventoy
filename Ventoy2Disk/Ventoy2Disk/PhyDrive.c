@@ -290,9 +290,9 @@ End:
 
 int GetPhyDriveByLogicalDrive(int DriveLetter, UINT64 *Offset)
 {
-    BOOL Ret;
-    DWORD dwSize;
-    HANDLE Handle;
+    BOOL Ret = FALSE;
+    DWORD dwSize = 0;
+    HANDLE Handle = INVALID_HANDLE_VALUE;
     VOLUME_DISK_EXTENTS DiskExtents;
     CHAR PhyPath[128];
 
@@ -305,6 +305,7 @@ int GetPhyDriveByLogicalDrive(int DriveLetter, UINT64 *Offset)
         return -1;
     }
 
+    memset(&DiskExtents, 0, sizeof(DiskExtents));
     Ret = DeviceIoControl(Handle,
         IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS,
         NULL,
@@ -322,9 +323,10 @@ int GetPhyDriveByLogicalDrive(int DriveLetter, UINT64 *Offset)
     }
     CHECK_CLOSE_HANDLE(Handle);
 
-    Log("LogicalDrive:%s PhyDrive:%d Offset:%llu ExtentLength:%llu",
+    Log("LogicalDrive:%s PhyDrive:%d Num:%d Offset:%llu ExtentLength:%llu",
         PhyPath,
         DiskExtents.Extents[0].DiskNumber,
+        DiskExtents.NumberOfDiskExtents,
         DiskExtents.Extents[0].StartingOffset.QuadPart,
         DiskExtents.Extents[0].ExtentLength.QuadPart
         );
