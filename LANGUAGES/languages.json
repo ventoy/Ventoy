@@ -1003,7 +1003,7 @@
         "name":"Russian (Pусский)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"BL4CKH47H4CK3R, Teraskull, thehugonote",
+        "Author":"BL4CKH47H4CK3R, Teraskull, thehugonote, wiz64",
         
         "STR_ERROR":"Ошибка",
         "STR_WARNING":"Предупреждение",
@@ -1053,8 +1053,8 @@
         "STR_PART_RESIZE_SUCCESS":"Поздравляем!#@Неразрушающая установка Ventoy успешно завершена.",
         "STR_PART_RESIZE_FAILED":"Не удалось выполнить неразрушающую установку, проверьте файл log.txt для получения подробной информации.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Ventoy остановлена, поскольку некоторые условия не могут быть выполнены. Проверьте файл log.txt для получения подробной информации.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_INSTALL_YES_TIP1":"Предупреждение: данные будут потеряны!",
+        "STR_INSTALL_YES_TIP2":"Пожалуйста, введите YES в текстовое поле ниже, чтобы подтвердить, что вы действительно хотите выполнить новую установку вместо обновления.",
         
         "STRXXX":""
     },
