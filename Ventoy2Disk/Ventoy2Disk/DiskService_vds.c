@@ -590,6 +590,7 @@ const char *WindowsErrorString(DWORD error_code)
 #define IVdsVolume_QueryInterface(This, riid, ppvObject) (This)->lpVtbl->QueryInterface(This, riid, ppvObject)
 #define IVdsVolume_Release(This) (This)->lpVtbl->Release(This)
 #define IVdsVolumeMF3_QueryVolumeGuidPathnames(This, pwszPathArray, pulNumberOfPaths) (This)->lpVtbl->QueryVolumeGuidPathnames(This,pwszPathArray,pulNumberOfPaths)
+#define IVdsVolumeMF_Format(This, type, pwsszLabel, dwUnitAllocationSize, bForce, bQuickFormat, bEnableCompression, ppAsync) (This)->lpVtbl->Format(This, type, pwsszLabel, dwUnitAllocationSize, bForce, bQuickFormat, bEnableCompression, ppAsync)
 #define IVdsVolumeMF3_FormatEx2(This, pwszFileSystemTypeName, usFileSystemRevision, ulDesiredUnitAllocationSize, pwszLabel, Options, ppAsync) (This)->lpVtbl->FormatEx2(This, pwszFileSystemTypeName, usFileSystemRevision, ulDesiredUnitAllocationSize, pwszLabel, Options, ppAsync)
 #define IVdsVolumeMF3_Release(This) (This)->lpVtbl->Release(This)
 #define IVdsVolume_GetProperties(This, pVolumeProperties) (This)->lpVtbl->GetProperties(This,pVolumeProperties)
@@ -1410,5 +1411,93 @@ BOOL VDS_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, 
 
 	ret = VDS_VolumeCommProc(INTF_VOLUME, wGuid, VDS_CallBack_ShrinkVolume, (UINT64)&Para);
 	Log("VDS_ShrinkVolume %C: ret:%d (%s)", DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
+	return ret;
+}
+
+
+STATIC BOOL VDS_CallBack_FormatVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
+{
+	HRESULT hr, hr2;
+	ULONG completed;
+	IVdsAsync* pAsync;
+	IVdsVolumeMF3* pVolume = (IVdsVolumeMF3*)pInterface;
+	WCHAR* pFs = NULL;
+	WCHAR FsNTFS[32] = L"NTFS";
+	WCHAR FsFAT32[32] = L"FAT32";
+	VDS_PARA* VdsPara = (VDS_PARA*)data;
+	
+	pFs = (VdsPara->Attr == 1) ? FsNTFS : FsFAT32;
+	Log("VDS_CallBack_FormatVolume (%C:) (%llu) ...", VdsPara->DriveLetter, (ULONGLONG)VdsPara->Attr);
+
+	hr = IVdsVolumeMF3_FormatEx2(pVolume, pFs, 0, 0, L"Ventoy", VDS_FSOF_FORCE | VDS_FSOF_QUICK, &pAsync);
+	while (SUCCEEDED(hr))
+	{
+		hr = IVdsAsync_QueryStatus(pAsync, &hr2, &completed);
+		if (SUCCEEDED(hr))
+		{
+			hr = hr2;
+			if (hr == S_OK)
+			{
+				Log("FormatVolume QueryStatus OK, %lu%%", completed);
+				break;
+			}
+			else if (hr == VDS_E_OPERATION_PENDING)
+			{
+				Log("FormatVolume: %lu%%", completed);
+				hr = S_OK;
+			}
+			else
+			{
+				Log("FormatVolume invalid status:0x%lx", hr);
+			}
+		}
+		Sleep(1000);
+	}
+
+	if (hr != S_OK)
+	{
+		VDS_SET_ERROR(hr);
+		Log("Could not FormatVolume, 0x%x err:0x%lx (%s)", hr, LASTERR, WindowsErrorString(hr));
+
+		VDS_SET_ERROR(hr);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+BOOL VDS_FormatVolume(char DriveLetter, int fs)
+{
+	int i;
+	BOOL ret = FALSE;
+	const char* guid = NULL;
+	CHAR Drive[32] = { 0 };
+	WCHAR wGuid[128] = { 0 };
+	CHAR VolumeGuid[128] = { 0 };
+	VDS_PARA Para;
+
+	Drive[0] = DriveLetter;
+	Drive[1] = ':';
+	Drive[2] = '\\';
+	GetVolumeNameForVolumeMountPointA(Drive, VolumeGuid, sizeof(VolumeGuid) / 2);
+
+	guid = strstr(VolumeGuid, "{");
+	if (!guid)
+	{
+		Log("Can not find volume GUID for %s:", Drive);
+		return FALSE;
+	}
+
+	for (i = 0; i < 128 && guid[i]; i++)
+	{
+		wGuid[i] = guid[i];
+	}
+	Log("VDS_FormatVolume find GUID %C: <%s> ", DriveLetter, VolumeGuid);
+
+	Para.Attr = fs;
+	Para.DriveLetter = DriveLetter;
+
+	ret = VDS_VolumeCommProc(INTF_VOLUME_MF3, wGuid, VDS_CallBack_FormatVolume, (UINT64)&Para);
+	Log("VDS_FormatVolume %C: <%s> ret:%d (%s)", DriveLetter, VolumeGuid, ret, ret ? "SUCCESS" : "FAIL");
+
 	return ret;
 }

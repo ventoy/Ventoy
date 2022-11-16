@@ -85,3 +85,28 @@ BOOL DSPT_CleanDisk(int DriveIndex)
     sprintf_s(CmdBuf, sizeof(CmdBuf), "select disk %d\r\nclean\r\n", DriveIndex);
     return DSPT_CommProc(CmdBuf);
 }
+
+BOOL DSPT_FormatVolume(char DriveLetter, int fs)
+{
+    const char* fsname = NULL;
+    CHAR CmdBuf[256];
+
+    Log("FormatVolumeByDiskpart <%C:>", DriveLetter);
+
+    if (!IsDiskpartExist())
+    {
+        return FALSE;
+    }
+
+    if (fs == 1)
+    {
+        fsname = "NTFS";
+    }
+    else
+    {
+        fsname = "FAT32";
+    }
+
+    sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy QUICK OVERRIDE\r\n", DriveLetter, fsname);
+    return DSPT_CommProc(CmdBuf);
+}

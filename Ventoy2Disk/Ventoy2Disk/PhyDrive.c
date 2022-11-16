@@ -1337,6 +1337,7 @@ int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLett
 End:
     
     PROGRESS_BAR_SET_POS(PT_MOUNT_VOLUME);
+    PROGRESS_BAR_SET_POS(PT_REFORMAT_FINISH);
     
     if (pTmpBuf)
     {
@@ -1608,6 +1609,7 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
 End:
 
     PROGRESS_BAR_SET_POS(PT_MOUNT_VOLUME);
+    PROGRESS_BAR_SET_POS(PT_REFORMAT_FINISH);
 
     Log("retcode:%d\n", rc);
 
@@ -1839,6 +1841,7 @@ End:
             else
             {
                 Log("%s is ventoy part1, already mounted", DriveName);
+                MountDrive = DriveName[0];
                 state = 1;
             }
         }
@@ -1852,12 +1855,35 @@ End:
                 DriveName[0] = MountDrive;
                 bRet = SetVolumeMountPointA(DriveName, DriveLetters);
                 Log("SetVolumeMountPoint <%s> <%s> bRet:%u code:%u", DriveName, DriveLetters, bRet, GetLastError());
+
+                if (bRet)
+                {
+                    state = 1;
+                }
             }
             else
             {
                 Log("Failed to find ventoy volume");
             }
         }
+
+        if (GetVentoyFsType() > 0)
+        {
+            if (state)
+            {
+                Log("Reformat %C:\\ to %s", MountDrive, GetVentoyFsName());
+                DISK_FormatVolume(MountDrive, GetVentoyFsType());
+            }
+            else
+            {
+                Log("Can not reformat %s to %s", DriveName, GetVentoyFsName());
+            }
+        }
+        else
+        {
+            Log("No need to reformat ventoy partition");
+        }
+
         Log("OK\n");
     }
     else

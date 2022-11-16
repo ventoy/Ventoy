@@ -159,7 +159,8 @@ typedef struct PHY_DRIVE_INFO
     STORAGE_BUS_TYPE BusType;
 
     CHAR DriveLetters[64];
-   
+    
+    CHAR VentoyFsType[16];
     CHAR VentoyVersion[32];
 
     BOOL SecureBootSupport;
@@ -192,6 +193,9 @@ typedef enum PROGRESS_POINT
     PT_WRITE_STG1_IMG,
     PT_WRITE_PART_TABLE,
     PT_MOUNT_VOLUME,
+
+    PT_REFORMAT_START,
+    PT_REFORMAT_FINISH = PT_REFORMAT_START + 2,
 
     PT_FINISH
 }PROGRESS_POINT;
@@ -253,6 +257,9 @@ INT_PTR CALLBACK YesDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lP
 INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 int GetReservedSpaceInMB(void);
 int IsPartNeed4KBAlign(void);
+int GetVentoyFsType(void);
+void SetVentoyFsType(int fs);
+const char* GetVentoyFsName(void);
 int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive);
 int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
 int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter);

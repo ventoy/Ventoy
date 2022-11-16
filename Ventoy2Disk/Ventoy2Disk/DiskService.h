@@ -39,7 +39,7 @@ BOOL DISK_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Offset, UINT64 Attr);
 BOOL DISK_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL DISK_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL DISK_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
-
+BOOL DISK_FormatVolume(char DriveLetter, int fs);
 
 
 //VDS com
@@ -51,10 +51,11 @@ BOOL VDS_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL VDS_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL VDS_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
 BOOL VDS_IsLastAvaliable(void);
-
+BOOL VDS_FormatVolume(char DriveLetter, int fs);
 
 //diskpart.exe
 BOOL DSPT_CleanDisk(int DriveIndex);
+BOOL DSPT_FormatVolume(char DriveLetter, int fs);
 
 //powershell.exe
 BOOL PSHELL_CleanDisk(int DriveIndex);
@@ -62,6 +63,7 @@ BOOL PSHELL_DeleteVtoyEFIPartition(int DriveIndex, UINT64 EfiPartOffset);
 BOOL PSHELL_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL PSHELL_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
+BOOL PSHELL_FormatVolume(char DriveLetter, int fs);
 
 //
 // Internel define

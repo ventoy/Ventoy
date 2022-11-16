@@ -109,3 +109,19 @@ BOOL DISK_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter,
 	return ret;
 }
 
+BOOL DISK_FormatVolume(char DriveLetter, int fs)
+{
+	BOOL ret = FALSE;
+
+	//ret = VDS_FormatVolume(DriveLetter, fs);
+	if (!ret)
+	{
+		//ret = DSPT_FormatVolume(DriveLetter, fs);
+		if (!ret)
+		{
+			ret = PSHELL_FormatVolume(DriveLetter, fs);
+		}
+	}
+
+	return ret;
+}

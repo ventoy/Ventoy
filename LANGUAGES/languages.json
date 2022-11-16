@@ -55,6 +55,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"توقفت عملية تثبيت Ventoy بدون تهيئة لعدم استيفاء بعض الشروط. تفقد ملف log.txt للتفاصيل.",
         "STR_INSTALL_YES_TIP1":"تحذير: سيتم فقدان البيانات!",
         "STR_INSTALL_YES_TIP2":"يرجى إدخال YES في مربع النص في الأسفل للتأكيد بأنك تريد عمل تثبيت جديد بدلاً من التحديث.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -114,6 +115,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"ZƏrərsiz Ventoy quraşdırması dayandırıldı, belə ki, bəzi şərtlər yerinə yetirilə bilməd. Daha ətraflı məlumat üçün.txt jurnal faylına baxın.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -173,7 +175,8 @@
         "STR_PART_RESIZE_UNSUPPORTED":"일부 조건을 충족할 수 없기 때문에 Ventoy 비파괴 설치가 중지되었습니다. 자세한 내용은 log.txt를 확인하십시오.",
         "STR_INSTALL_YES_TIP1":"경고: 데이터가 손실됩니다!",
         "STR_INSTALL_YES_TIP2":"업그레이드 대신 새로 설치할지 확인하려면 아래 입력란에 YES를 입력하십시오.",
-                
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        
         "STRXXX":""
     },
     {
@@ -232,7 +235,8 @@
         "STR_PART_RESIZE_UNSUPPORTED":"条件不满足，无法进行无损安装。详细信息请查阅 log.txt 文件。",
         "STR_INSTALL_YES_TIP1":"警告: 所有数据将会丢失！",
         "STR_INSTALL_YES_TIP2":"请在下面文本框中输入 YES 以确认你是要进行安装而不是升级。",
-
+        "STR_PART_VENTOY_FS":"Ventoy 分区文件系统类型",
+        
         "STRXXX":""
     },
     {
@@ -291,6 +295,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -349,6 +354,8 @@
         "STR_VTSI_CREATE_FAILED": "გაფრთხილება: მონაცემები დაიკარგება!",
         "STR_MENU_PART_RESIZE": "გთხოვთ, შეიყვანოთ YES ქვემოთ მოცემულ ტექსტურ ველში, რათა დაადასტუროთ... გსურთ განახლების ნაცვლად განახორციელოთ ახალი ინსტალაცია.",
         "STR_PART_RESIZE_TIP": "Ventoy ჩეეცდება დააყენოს არა-დესტრუქციული რამდენადაც შეეცდება. გსურს გაგრძელება?",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        
         "STRXXX": ""
     },
     {
@@ -407,6 +414,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -466,6 +474,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Nieniszcząca instalacja Ventoy została zatrzymana, ponieważ niektóre wymagania nie zostały spełnione. Sprawdź log.txt po szczegóły.",
         "STR_INSTALL_YES_TIP1":"Ostrzeżenie: Dane zostaną utracone!",
         "STR_INSTALL_YES_TIP2":"Wpisz YES w poniższym polu tekstowym, aby potwierdzić, że naprawdę chcesz przeprowadzić nową instalację zamiast aktualizacji.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -525,6 +534,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Instalação não destrutiva do Ventoy interrompida devido fato desconhecido. Cheque o arquivo log.txt para detalhes.",
         "STR_INSTALL_YES_TIP1":"Aviso: Os dados serão perdidos!",
         "STR_INSTALL_YES_TIP2":"Por favor, digite YES na caixa de texto abaixo para confirmar que você realmente quer fazer uma nova instalação em vez de atualização.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -584,6 +594,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy Tahribatsız Kurulum, bazı koşullar sağlanmadığı için durduruldu. Ayrıntılı bilgi için log.txt dosyasını kontrol edin.",
         "STR_INSTALL_YES_TIP1":"Uyarı: Tüm verileriniz kaybolacak!",
         "STR_INSTALL_YES_TIP2":"Güncelleme yapmak yerine,yeni bir kurulum yapmak istediğinizi doğrulamak için lütfen aşağıdaki metin kutusuna YES yazın.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -643,6 +654,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Installation ohne vorherige Formatierung wurde auf Grund einiger nicht erfüllbarer Bedingungen gestoppt. Für Details die log.txt prüfen.",
         "STR_INSTALL_YES_TIP1":"Warnung: Die Daten gehen verloren!",
         "STR_INSTALL_YES_TIP2":"Bitte bestätigen Sie in der unteren Textbox mit YES, dass Sie anstelle eines Upgrades eine frische Installation durchführen möchten.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -702,6 +714,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -761,6 +774,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"L'installation non destructive de Ventoy s'est arrêtée car certaines conditions ne peuvent pas être remplies. Consultez log.txt pour plus de détails.",
         "STR_INSTALL_YES_TIP1":"Attention : les données seront perdues !",
         "STR_INSTALL_YES_TIP2":"Veuillez saisir YES dans la zone de texte ci-dessous pour confirmer que vous souhaitez bien effectuer une nouvelle installation au lieu d'une mise à niveau.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -820,6 +834,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Nedestruktivní instalace Ventoy selhala, protože některé podmínky pro ni nemohly být splněny. Pro podrobnosti se podívejte do souboru log.txt.",
         "STR_INSTALL_YES_TIP1":"Varování: Data budou ztracena!",
         "STR_INSTALL_YES_TIP2":"Do níže uvedeného textového pole zadejte YES a potvrďte, že skutečně chcete provést novou instalaci namísto aktualizace.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
 
         "STRXXX":""
     },
@@ -878,7 +893,8 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Nedeštruktívna inštalácia Ventoy zlyhala, lebo niektoré podmienky nemohli byť splnené. Podrobnosti nájdete v súbore log.txt.",
         "STR_INSTALL_YES_TIP1":"Varovanie: Dôjde k strate údajov!",
         "STR_INSTALL_YES_TIP2":"Prosím, zadajte YES v textovom poli nižšie, čím potvrdíte, že naozaj chcete vykonať novú inštaláciu miesto aktualizácie.",
-
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        
         "STRXXX":""
     },
     {
@@ -937,6 +953,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Instalación no destructiva de Ventoy detenida porque algunas condiciones no se pueden cumplir. Comprueba log.txt para detalles.",
         "STR_INSTALL_YES_TIP1":"Advertencia: ¡Los datos se perderán!",
         "STR_INSTALL_YES_TIP2":"Por favor ingresa YES en el cuadro de texto a continuación para confirmar que realmente quieres realizar una instalación nueva en vez de actualizar.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -996,6 +1013,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"La instalación no destructiva de Ventoy se ha detenido porque no se han cumplido todos los prerrequisitos.#@Compruebe el archivo log.txt para más información.",
         "STR_INSTALL_YES_TIP1":"Advertencia: ¡Los datos se perderán!",
         "STR_INSTALL_YES_TIP2":"Por favor, escriba YES en el cuadro de texto a continuación para confirmar que realmente quiere realizar una nueva instalación de Ventoy en vez de actualizarlo.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1055,6 +1073,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Ventoy остановлена, поскольку некоторые условия не могут быть выполнены. Проверьте файл log.txt для получения подробной информации.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1114,6 +1133,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy অ-ধ্বংসাত্মক ইনস্টলেশন বন্ধ করা হয়েছে কারণ কিছু শর্ত পূরণ করা যাবে না। বিস্তারিত জানার জন্য log.txt দেখুন।",
         "STR_INSTALL_YES_TIP1":"সতর্কতা: ডেটা হারিয়ে যাবে!",
         "STR_INSTALL_YES_TIP2":"আপনি আপগ্রেড করার পরিবর্তে একটি নতুন ইনস্টল করতে চান তা নিশ্চিত করতে দয়া করে নীচের পাঠ্য বাক্সে Yes লিখুন৷।",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1173,6 +1193,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"वेंटोय गैर-विनाशकारी स्थापना रोक दी गई, कुछ शर्तों को पूरा नहीं किया जा सकता है। विवरण के लिए log.txt की जाँच करें।",
         "STR_INSTALL_YES_TIP1":"चेतावनी: डेटा खो जाएगा!",
         "STR_INSTALL_YES_TIP2":"यह पुष्टि करने के लिए कि आप वास्तव में अपग्रेड के बजाय एक नया इंस्टॉल करना चाहते हैं, कृपया नीचे दिए टेक्स्ट बॉक्स में Yes दर्ज करें।",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1232,6 +1253,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"De niet-destructieve installatie van Ventoy is gestopt omdat aan sommige voorwaarden niet kan worden voldaan. Controleer log.txt voor details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1291,6 +1313,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1350,6 +1373,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoyを非破壊的に導入できませんでした。非破壊的導入にあたっての要件が満たされていません。詳細な記録はlog.txtにあります。",
         "STR_INSTALL_YES_TIP1":"警告: データが消去されます",
         "STR_INSTALL_YES_TIP2":"Ventoyを更新するのではなく新規に導入するということを確認するために，下の入力欄に「YES」と入力してください。",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1409,6 +1433,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy è stata interrotta perché alcune condizioni non possono essere soddisfatte.#@Per i dettagli controlla il file log.txt.",
         "STR_INSTALL_YES_TIP1":"Attenzione: i dati verranno persi!",
         "STR_INSTALL_YES_TIP2":"Digita YES nella casella di testo qui sotto per confermare che vuoi davvero eseguire un'installazione pulita anziché un aggiornamento.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1468,6 +1493,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1527,6 +1553,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"A Ventoy rombolásmentes telepítése leállt, mert bizonyos feltételek nem teljesíthetők. A részleteket lásd a log.txt fájlban.",
         "STR_INSTALL_YES_TIP1":"Figyelmeztetés: Az adatok elvesznek!",
         "STR_INSTALL_YES_TIP2":"Írja a YES szót az alábbi szövegmezőbe, hogy megerősítse, valóban új telepítést szeretne végrehajtani a frissítés helyett.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1586,6 +1613,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy 無損安裝已中止因為未滿足部分條件。詳細訊息請檢視 log.txt 檔案。",
         "STR_INSTALL_YES_TIP1":"警告：資料將會遺失！",
         "STR_INSTALL_YES_TIP2":"請在下方的文字輸入框輸入 YES 來證實您想要進行全新安裝取代升級。",
+        "STR_PART_VENTOY_FS":"Ventoy 分割區文件系統",
         
         "STRXXX":""
     },
@@ -1645,6 +1673,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1704,6 +1733,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1763,6 +1793,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1822,6 +1853,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1881,6 +1913,8 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Cài Ventoy theo cách cài đặt không phá hủy đã bị dừng lại vì chưa đúng điều kiện. Xem chi tiết ở tệp log.txt.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        
         "STRXXX":""
     },
     {
@@ -1939,6 +1973,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -1998,6 +2033,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Недеструктивната инсталација на Ventoy е запрена бидејќи некои услови не се исполнети. Проверете го log.txt за детали.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2057,6 +2093,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2116,6 +2153,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2175,6 +2213,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Pemasangan tanpa merusakkan Ventoy terhenti karena beberapa kondisi yang tidak mendukung. Periksa berkas log.txt untuk detil.",
         "STR_INSTALL_YES_TIP1":"Peringatan: Data akan hilang!",
         "STR_INSTALL_YES_TIP2":"Silakan ketik YES pada kotak tulis di bawah untuk meyakinkan bahwa anda memang untuk melakukan pemasangan baru ketimbang memperbaruinya",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2234,6 +2273,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2293,6 +2333,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Неруйнівна установка Ventoy зупинена через неможливість виконання деяких умов. Перевірте log.txt для отримання детальної інформації.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2352,6 +2393,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2411,6 +2453,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Icke-förstörande installation stoppades eftersom vissa villkor inte kunde uppfyllas. Mer information finns i log.txt.",
         "STR_INSTALL_YES_TIP1":"Varning: Data kommer att gå förlorade!",
         "STR_INSTALL_YES_TIP2":"Skriv YES i textrutan nedan för att bekräfta att du verkligen vill göra en nyinstallation i stället för att uppgradera.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2470,6 +2513,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy je ustavil inštalacijo ker nekateri pogoji niso zadostni. Preveri log.txt a podrobnosti.",
         "STR_INSTALL_YES_TIP1":"Pozor: Podatki bodo izbrisani!",
         "STR_INSTALL_YES_TIP2":"Prosim vtipkajte YES v spodnje okno da potrdite čisto inštalacijo in ne zgolj nadgradnje.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2529,6 +2573,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Неразрушителното инсталиране на Ventoy е спряна, защото някои от условията не могат да бъдат изпълнени. Проверете log.txt за подробности.",
         "STR_INSTALL_YES_TIP1":"Внимание: Ще има загуба на данни!",
         "STR_INSTALL_YES_TIP2":"Въведете „YES“ в полето отдолу, за да потвърдите, че искате да извършите нова инсталация вместо обновяване.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
 
         "STRXXX":""
     },
@@ -2588,6 +2633,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2647,6 +2693,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoyn ei-tuhoisa asennus pysähtyi koska jotkut ehdot eivät täyttyneet. Tarkista log.txt nähdäksesi yksityiskohdat.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2706,6 +2753,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Instalación non destructiva do Ventoy interrompida porque non se poden cumprir algunhas condicións. Revisa o arquivo log.txt para mais detalles.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2765,6 +2813,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"La instal·lació no destructiva de Ventoy no ha estat possible perquè els requeriments no es compleixen. Comproveu el fitxer log.txt per a més detalls.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
@@ -2825,7 +2874,8 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
-
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        
         "STRXXX":""
     },
     {
@@ -2884,6 +2934,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"சில நிபந்தனைகளை பூர்த்தி செய்ய முடியாததால், வென்டோய் அழிவில்லாத நிறுவல் நிறுத்தப்பட்டது. விவரங்களுக்கு log.txt ஐப் பார்க்கவும்.",
         "STR_INSTALL_YES_TIP1":"எச்சரிக்கை: தரவு தொலைந்து போகும்!",
         "STR_INSTALL_YES_TIP2":"மேம்படுத்துவதற்குப் பதிலாக புதிதாக நிறுவ விரும்புகிறீர்கள் என்பதை உறுதிப்படுத்த, கீழே உள்ள உரைப் பெட்டியில் ஆம் என உள்ளிடவும்.",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     }

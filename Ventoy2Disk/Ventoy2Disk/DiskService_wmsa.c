@@ -255,3 +255,27 @@ BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLette
 	Log("PSHELL_ShrinkVolume<%d> %C: ret:%d (%s)", DriveIndex, DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
+
+BOOL PSHELL_FormatVolume(char DriveLetter, int fs)
+{
+	BOOL ret;
+	const char* fsname = NULL;
+	CHAR CmdBuf[512];
+
+	if (fs == 1)
+	{
+		fsname = "NTFS";
+	}
+	else
+	{
+		fsname = "FAT32";
+	}
+
+	sprintf_s(CmdBuf, sizeof(CmdBuf),
+		"format-volume -DriveLetter %C -FileSystem %s -Force -NewFileSystemLabel Ventoy",
+		DriveLetter, fsname);
+
+	ret = PSHELL_CommProc(CmdBuf);
+	Log("PSHELL_FormatVolume %C: ret:%d (%s)", DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
+	return ret;
+}

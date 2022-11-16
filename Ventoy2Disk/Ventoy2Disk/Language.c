@@ -24,7 +24,14 @@
 
 const TCHAR * GetString(enum STR_ID ID)
 {
-	return g_cur_lang_data->MsgString[ID];
+    if (g_cur_lang_data)
+    {
+        return g_cur_lang_data->MsgString[ID];
+    }
+    else
+    {
+        return NULL;
+    }
 };
 
 static const UINT16 g_unicode_icon[UNICODE_BUTT][3] =
