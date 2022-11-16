@@ -594,7 +594,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy Tahribatsız Kurulum, bazı koşullar sağlanmadığı için durduruldu. Ayrıntılı bilgi için log.txt dosyasını kontrol edin.",
         "STR_INSTALL_YES_TIP1":"Uyarı: Tüm verileriniz kaybolacak!",
         "STR_INSTALL_YES_TIP2":"Güncelleme yapmak yerine,yeni bir kurulum yapmak istediğinizi doğrulamak için lütfen aşağıdaki metin kutusuna YES yazın.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_VENTOY_FS":"Ventoy bölümü Dosya Sistemi",
         
         "STRXXX":""
     },
