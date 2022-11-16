@@ -1021,7 +1021,7 @@
         "name":"Russian (Pусский)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"BL4CKH47H4CK3R, Teraskull, thehugonote",
+        "Author":"BL4CKH47H4CK3R, Teraskull, thehugonote, wiz64",
         
         "STR_ERROR":"Ошибка",
         "STR_WARNING":"Предупреждение",
@@ -1071,9 +1071,9 @@
         "STR_PART_RESIZE_SUCCESS":"Поздравляем!#@Неразрушающая установка Ventoy успешно завершена.",
         "STR_PART_RESIZE_FAILED":"Не удалось выполнить неразрушающую установку, проверьте файл log.txt для получения подробной информации.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Ventoy остановлена, поскольку некоторые условия не могут быть выполнены. Проверьте файл log.txt для получения подробной информации.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_INSTALL_YES_TIP1":"Предупреждение: Данные будут потеряны!",
+        "STR_INSTALL_YES_TIP2":"Пожалуйста, введите YES в текстовое поле ниже, чтобы подтвердить, что вы действительно хотите выполнить новую установку вместо обновления.",
+        "STR_PART_VENTOY_FS":"Файловая система для Ventoy раздела",
         
         "STRXXX":""
     },
@@ -1133,7 +1133,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy অ-ধ্বংসাত্মক ইনস্টলেশন বন্ধ করা হয়েছে কারণ কিছু শর্ত পূরণ করা যাবে না। বিস্তারিত জানার জন্য log.txt দেখুন।",
         "STR_INSTALL_YES_TIP1":"সতর্কতা: ডেটা হারিয়ে যাবে!",
         "STR_INSTALL_YES_TIP2":"আপনি আপগ্রেড করার পরিবর্তে একটি নতুন ইনস্টল করতে চান তা নিশ্চিত করতে দয়া করে নীচের পাঠ্য বাক্সে Yes লিখুন৷।",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_VENTOY_FS":"Ventoy পার্টিশনের জন্য ফাইল সিস্টেম",
         
         "STRXXX":""
     },
@@ -1193,7 +1193,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"वेंटोय गैर-विनाशकारी स्थापना रोक दी गई, कुछ शर्तों को पूरा नहीं किया जा सकता है। विवरण के लिए log.txt की जाँच करें।",
         "STR_INSTALL_YES_TIP1":"चेतावनी: डेटा खो जाएगा!",
         "STR_INSTALL_YES_TIP2":"यह पुष्टि करने के लिए कि आप वास्तव में अपग्रेड के बजाय एक नया इंस्टॉल करना चाहते हैं, कृपया नीचे दिए टेक्स्ट बॉक्स में Yes दर्ज करें।",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_VENTOY_FS":"Ventoy विभाजन के लिए फाइल सिस्टम",
         
         "STRXXX":""
     },
