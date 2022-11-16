@@ -425,7 +425,7 @@ int Ventoy2DiskInit(void)
     if (NULL == g_PhyDriveList)
     {
         Log("Failed to alloc phy drive memory");
-        return FALSE;
+        return ERROR_NOT_ENOUGH_MEMORY;
     }
     memset(g_PhyDriveList, 0, sizeof(PHY_DRIVE_INFO)* VENTOY_MAX_PHY_DRIVE);
 

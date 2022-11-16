@@ -2123,7 +2123,10 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 
 	Log("#### Now Refresh PhyDrive ####");
 	Ventoy2DiskDestroy();
-	Ventoy2DiskInit();
+	if (Ventoy2DiskInit())
+	{
+		goto End;
+	}
 	
 	pPhyDrive = GetPhyDriveInfoByPhyDrive(PhyDrive);
 	if (pPhyDrive)
