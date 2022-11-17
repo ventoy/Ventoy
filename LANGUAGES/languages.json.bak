@@ -953,7 +953,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Instalación no destructiva de Ventoy detenida porque algunas condiciones no se pueden cumplir. Comprueba log.txt para detalles.",
         "STR_INSTALL_YES_TIP1":"Advertencia: ¡Los datos se perderán!",
         "STR_INSTALL_YES_TIP2":"Por favor ingresa YES en el cuadro de texto a continuación para confirmar que realmente quieres realizar una instalación nueva en vez de actualizar.",
-        "STR_PART_VENTOY_FS":"Sistema de archivos para partición de Ventoy",
+        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
         
         "STRXXX":""
     },
