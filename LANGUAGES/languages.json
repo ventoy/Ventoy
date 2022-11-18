@@ -602,7 +602,7 @@
         "name":"German (Deutsch)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"luzea & u!^DEV",
+        "Author":"luzea & u!^DEV, wiz64",
         
         "STR_ERROR":"Fehler",
         "STR_WARNING":"Warnung",
@@ -654,7 +654,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Installation ohne vorherige Formatierung wurde auf Grund einiger nicht erfüllbarer Bedingungen gestoppt. Für Details die log.txt prüfen.",
         "STR_INSTALL_YES_TIP1":"Warnung: Die Daten gehen verloren!",
         "STR_INSTALL_YES_TIP2":"Bitte bestätigen Sie in der unteren Textbox mit YES, dass Sie anstelle eines Upgrades eine frische Installation durchführen möchten.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_VENTOY_FS":"Dateisystem für die Ventoy-Partition",
         
         "STRXXX":""
     },
@@ -722,7 +722,7 @@
         "name":"French (Français)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"vboucard, Silejonu",
+        "Author":"vboucard, Silejonu, wiz64",
         
         "STR_ERROR":"Erreur",
         "STR_WARNING":"Avertissement",
@@ -774,7 +774,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"L'installation non destructive de Ventoy s'est arrêtée car certaines conditions ne peuvent pas être remplies. Consultez log.txt pour plus de détails.",
         "STR_INSTALL_YES_TIP1":"Attention : les données seront perdues !",
         "STR_INSTALL_YES_TIP2":"Veuillez saisir YES dans la zone de texte ci-dessous pour confirmer que vous souhaitez bien effectuer une nouvelle installation au lieu d'une mise à niveau.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_VENTOY_FS":"Système de fichiers pour la partition Ventoy",
         
         "STRXXX":""
     },
