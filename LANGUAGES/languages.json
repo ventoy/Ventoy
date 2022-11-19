@@ -1289,7 +1289,7 @@
         "STR_BTN_CANCEL":"Anulare",
         "STR_PRESERVE_SPACE":"Păstrați puțin spațiu în partea de jos a discului",
         "STR_SPACE_VAL_INVALID":"Valoare nevalidă pentru spațiul rezervat",
-        "STR_MENU_CLEAR":"curata Ventoy",
+        "STR_MENU_CLEAR":"Curata Ventoy",
         "STR_CLEAR_SUCCESS":"Ventoy a fost eliminat cu succes de pe dispozitiv.",
         "STR_CLEAR_FAILED":"A apărut o eroare la ștergerea Ventoy de pe disc. Puteți reconecta USB-ul și încerca din nou. Verificați log.txt pentru detalii.",
         "STR_MENU_PART_STYLE":"Stil partiție",
