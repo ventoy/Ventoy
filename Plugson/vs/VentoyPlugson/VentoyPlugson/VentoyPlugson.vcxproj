@@ -99,6 +99,7 @@
     <ClCompile Include="..\..\..\src\Core\ventoy_json.c" />
     <ClCompile Include="..\..\..\src\Core\ventoy_log.c" />
     <ClCompile Include="..\..\..\src\Core\ventoy_md5.c" />
+    <ClCompile Include="..\..\..\src\Core\ventoy_utf.c" />
     <ClCompile Include="..\..\..\src\Core\ventoy_util.c" />
     <ClCompile Include="..\..\..\src\Core\ventoy_util_windows.c" />
     <ClCompile Include="..\..\..\src\Lib\fat_io_lib\fat_access.c" />

@@ -45,6 +45,7 @@ build_func() {
         src/Core/ventoy_json.c \
         src/Core/ventoy_log.c \
         src/Core/ventoy_md5.c \
+        src/Core/ventoy_utf.c \
         src/Core/ventoy_util.c \
         src/Core/ventoy_util_linux.c \
         src/Web/*.c \

@@ -735,7 +735,7 @@
                             
                         </div>
                         <div class="modal-body">
-                            <textarea id="pre_json_preview" class="form-control" rows="30" style="font-family:Menlo,Monaco,Consolas,'Courier New',monospace"></textarea>
+                            <textarea id="pre_json_preview" class="form-control" rows="30" style="font-family:Menlo,Monaco,Consolas,'Courier New',monospace" spellcheck="false"></textarea>
                         </div>
                         <div class="modal-footer">
                             <button id="PrewForm_lang_2" type="button" class="btn btn-primary btn-flat" data-dismiss="modal">确定</button>
@@ -757,7 +757,7 @@
 
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b id="plugson_build_date">20221021 14:42:35</b>
+                <b id="plugson_build_date">20221117 18:12:12</b>
             </div>
             <strong><a href="https://www.ventoy.net" target="_blank">https://www.ventoy.net</a></strong>
         </footer>
@@ -819,7 +819,7 @@
             $('#JsonPeviewForm #JsonPreviewForm_lang_1').text(g_vtoy_cur_language.STR_JSON_PREVIEW);
             $('#JsonPeviewForm #PrewForm_lang_2').text(g_vtoy_cur_language.STR_BTN_OK);
             
-            $('#pre_json_preview').text(atob(data.json));
+            $('#pre_json_preview').text(VtoyUTF16HexToAscii(data.json));            
             $("#JsonPreviewModal").modal();
         });
     }

@@ -22,7 +22,6 @@
 #include <ventoy_define.h>
 #include <ventoy_util.h>
 
-
 static int g_tar_filenum = 0;
 static char *g_tar_buffer = NULL;
 static ventoy_file *g_tar_filelist = NULL;

@@ -3673,24 +3673,47 @@ static int ventoy_api_injection_del(struct mg_connection *conn, VTOY_JSON *json)
 
 static int ventoy_api_preview_json(struct mg_connection *conn, VTOY_JSON *json)
 {
+    int i = 0;
     int pos = 0;
     int len = 0;
-    int encodelen = 0;
+    int utf16enclen = 0;
     char *encodebuf = NULL;
+    unsigned short *utf16buf = NULL;
     
     (void)json;
 
-    len = ventoy_data_real_save_all(0);
-    encodebuf = ventoy_base64_encode(JSON_SAVE_BUFFER, len, &encodelen);
-    encodebuf[encodelen] = 0;
+    /* We can not use json directly, because it will be formated in the JS. */
 
+    len = ventoy_data_real_save_all(0);
+
+    utf16buf = (unsigned short *)malloc(2 * len + 16);    
+    if (!utf16buf)
+    {
+        goto json;
+    }
+
+    utf16enclen = utf8_to_utf16((unsigned char *)JSON_SAVE_BUFFER, len, utf16buf, len + 2);
+
+    encodebuf = (char *)malloc(utf16enclen * 4 + 16);
+    if (!encodebuf)
+    {
+        goto json;
+    }
+
+    for (i = 0; i < utf16enclen; i++)
+    {
+        scnprintf(encodebuf + i * 4, 5, "%04X", utf16buf[i]);
+    }
+
+json:
     VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);
     VTOY_JSON_FMT_OBJ_BEGIN();
-    VTOY_JSON_FMT_STRN("json", encodebuf);
+    VTOY_JSON_FMT_STRN("json", (encodebuf ? encodebuf : ""));
     VTOY_JSON_FMT_OBJ_END();
     VTOY_JSON_FMT_END(pos);
 
-    free(encodebuf);
+    CHECK_FREE(encodebuf);
+    CHECK_FREE(utf16buf);
 
     ventoy_json_buffer(conn, JSON_BUFFER, pos);
     return 0;
@@ -3983,6 +4006,11 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
         if (node->enDataType == JSON_TYPE_OBJECT)
         {
             child = node->pstChild;
+            
+            if (child->enDataType != JSON_TYPE_STRING)
+            {
+                continue;
+            }
 
             if (strcmp(child->pcName, "VTOY_DEFAULT_MENU_MODE") == 0)
             {

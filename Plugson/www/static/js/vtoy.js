@@ -1,4 +1,13 @@
 
+function VtoyUTF16HexToAscii(hex) {
+    var str = "";        
+    for (var i = 0; i < hex.length; i += 4) {
+        str += String.fromCharCode(parseInt(hex.substring(i, i + 4), 16));
+    }
+    
+    return str;
+}
+
 function ventoy_replace_slash(str) {
     var str1 = str.replace(/\\/g, '/');
     var str2 = str1.replace(/\/\//g, '/');
