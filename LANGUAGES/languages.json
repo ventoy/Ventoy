@@ -2188,7 +2188,7 @@
         "STR_BTN_OK":"OK",
         "STR_BTN_CANCEL":"Batal",
         "STR_PRESERVE_SPACE":"Menyisakan sejumlah ruang penyimpanan pada disk di bawah ini",
-        "STR_SPACE_VAL_INVALID":"Nilai penyisaan ruang tidak valid",
+        "STR_SPACE_VAL_INVALID":"Nilai sisa ruang tidak valid",
         "STR_MENU_CLEAR":"Bersihkan Ventoy",
         "STR_CLEAR_SUCCESS":"Ventoy telah berhasil dihapus pada perangkat ini.",
         "STR_CLEAR_FAILED":"Terjadi kesalahan ketika penghapusan berlangsung. Anda perlu mencabut-pasang ulang USB dan coba lagi. Periksa berkas log.txt untuk detil.",
@@ -2204,7 +2204,7 @@
         "STR_WEB_SERVICE_BUSY":"Layanan sedang sibuk, silakan coba lagi nanti.",
         "STR_MENU_VTSI_CREATE":"Membuat berkas VTSI",
         "STR_VTSI_CREATE_TIP":"Saat ini tidak akan menuliskan di perangkat, tetapi hanya membuat berkas VTSI #@Lanjutkan?",
-        "STR_VTSI_CREATE_SUCCESS":"Berkas VTSI berhasil dibuat#@Anda bisa menggunakan Rufus(3.15+) untuk menulisnya ke perangkat untuk menyelesaikan pemasangan Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"Berkas VTSI berhasil dibuat#@Anda bisa menggunakan Rufus(3.15+) untuk menuliskannya ke perangkat untuk menyelesaikan pemasangan Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Berkas VTSI gagal dibuat.",
         "STR_MENU_PART_RESIZE":"Pemasangan tanpa merusakkan",
         "STR_PART_RESIZE_TIP":"Ventoy akan mencoba pemasangan tanpa merusakkan apabila memungkinkan. #@Lanjutkan?",
@@ -2213,7 +2213,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Pemasangan tanpa merusakkan Ventoy terhenti karena beberapa kondisi yang tidak mendukung. Periksa berkas log.txt untuk detil.",
         "STR_INSTALL_YES_TIP1":"Peringatan: Data akan hilang!",
         "STR_INSTALL_YES_TIP2":"Silakan ketik YES pada kotak tulis di bawah untuk meyakinkan bahwa anda memang untuk melakukan pemasangan baru ketimbang memperbaruinya",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_VENTOY_FS":"Berkas Sistem Untuk Partisi Ventoy",
         
         "STRXXX":""
     },
