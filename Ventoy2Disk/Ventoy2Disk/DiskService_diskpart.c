@@ -86,7 +86,7 @@ BOOL DSPT_CleanDisk(int DriveIndex)
     return DSPT_CommProc(CmdBuf);
 }
 
-BOOL DSPT_FormatVolume(char DriveLetter, int fs)
+BOOL DSPT_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
 {
     const char* fsname = NULL;
     CHAR CmdBuf[256];
@@ -98,15 +98,18 @@ BOOL DSPT_FormatVolume(char DriveLetter, int fs)
         return FALSE;
     }
 
-    if (fs == 1)
+    fsname = GetVentoyFsFmtNameByTypeA(fs);
+
+    if (ClusterSize > 0)
     {
-        fsname = "NTFS";
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy UNIT=%u QUICK OVERRIDE\r\n", DriveLetter, fsname, ClusterSize);
     }
     else
     {
-        fsname = "FAT32";
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy QUICK OVERRIDE\r\n", DriveLetter, fsname);
     }
+    
+    Log("Diskpart cmd:<%s>", CmdBuf);
 
-    sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy QUICK OVERRIDE\r\n", DriveLetter, fsname);
     return DSPT_CommProc(CmdBuf);
 }

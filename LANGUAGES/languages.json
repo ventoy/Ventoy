@@ -56,6 +56,9 @@
         "STR_INSTALL_YES_TIP1":"تحذير: سيتم فقدان البيانات!",
         "STR_INSTALL_YES_TIP2":"يرجى إدخال YES في مربع النص في الأسفل للتأكيد بأنك تريد عمل تثبيت جديد بدلاً من التحديث.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     },
@@ -116,6 +119,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         
         "STRXXX":""
     },
@@ -176,7 +183,10 @@
         "STR_INSTALL_YES_TIP1":"경고: 데이터가 손실됩니다!",
         "STR_INSTALL_YES_TIP2":"업그레이드 대신 새로 설치할지 확인하려면 아래 입력란에 YES를 입력하십시오.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -236,6 +246,9 @@
         "STR_INSTALL_YES_TIP1":"警告: 所有数据将会丢失！",
         "STR_INSTALL_YES_TIP2":"请在下面文本框中输入 YES 以确认你是要进行安装而不是升级。",
         "STR_PART_VENTOY_FS":"Ventoy 分区文件系统类型",
+        "STR_PART_FS":"文件系统",
+        "STR_PART_CLUSTER":"簇大小",
+        "STR_PART_CLUSTER_DEFAULT":"系统默认值",
         
         "STRXXX":""
     },
@@ -296,7 +309,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -355,7 +371,10 @@
         "STR_MENU_PART_RESIZE": "გთხოვთ, შეიყვანოთ YES ქვემოთ მოცემულ ტექსტურ ველში, რათა დაადასტუროთ... გსურთ განახლების ნაცვლად განახორციელოთ ახალი ინსტალაცია.",
         "STR_PART_RESIZE_TIP": "Ventoy ჩეეცდება დააყენოს არა-დესტრუქციული რამდენადაც შეეცდება. გსურს გაგრძელება?",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX": ""
     },
     {
@@ -415,7 +434,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -475,7 +497,10 @@
         "STR_INSTALL_YES_TIP1":"Ostrzeżenie: Dane zostaną utracone!",
         "STR_INSTALL_YES_TIP2":"Wpisz YES w poniższym polu tekstowym, aby potwierdzić, że naprawdę chcesz przeprowadzić nową instalację zamiast aktualizacji.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -535,7 +560,10 @@
         "STR_INSTALL_YES_TIP1":"Aviso: Os dados serão perdidos!",
         "STR_INSTALL_YES_TIP2":"Por favor, digite YES na caixa de texto abaixo para confirmar que você realmente quer fazer uma nova instalação em vez de atualização.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -595,7 +623,10 @@
         "STR_INSTALL_YES_TIP1":"Uyarı: Tüm verileriniz kaybolacak!",
         "STR_INSTALL_YES_TIP2":"Güncelleme yapmak yerine,yeni bir kurulum yapmak istediğinizi doğrulamak için lütfen aşağıdaki metin kutusuna YES yazın.",
         "STR_PART_VENTOY_FS":"Ventoy bölümü Dosya Sistemi",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -655,7 +686,10 @@
         "STR_INSTALL_YES_TIP1":"Warnung: Die Daten gehen verloren!",
         "STR_INSTALL_YES_TIP2":"Bitte bestätigen Sie in der unteren Textbox mit YES, dass Sie anstelle eines Upgrades eine frische Installation durchführen möchten.",
         "STR_PART_VENTOY_FS":"Dateisystem für die Ventoy-Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -715,7 +749,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -775,6 +812,9 @@
         "STR_INSTALL_YES_TIP1":"Attention : les données seront perdues !",
         "STR_INSTALL_YES_TIP2":"Veuillez saisir YES dans la zone de texte ci-dessous pour confirmer que vous souhaitez bien effectuer une nouvelle installation au lieu d'une mise à niveau.",
         "STR_PART_VENTOY_FS":"Système de fichiers pour la partition Ventoy",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     },
@@ -835,6 +875,9 @@
         "STR_INSTALL_YES_TIP1":"Varování: Data budou ztracena!",
         "STR_INSTALL_YES_TIP2":"Do níže uvedeného textového pole zadejte YES a potvrďte, že skutečně chcete provést novou instalaci namísto aktualizace.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
 
         "STRXXX":""
     },
@@ -894,7 +937,10 @@
         "STR_INSTALL_YES_TIP1":"Varovanie: Dôjde k strate údajov!",
         "STR_INSTALL_YES_TIP2":"Prosím, zadajte YES v textovom poli nižšie, čím potvrdíte, že naozaj chcete vykonať novú inštaláciu miesto aktualizácie.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -954,7 +1000,10 @@
         "STR_INSTALL_YES_TIP1":"Advertencia: ¡Los datos se perderán!",
         "STR_INSTALL_YES_TIP2":"Por favor ingresa YES en el cuadro de texto a continuación para confirmar que realmente quieres realizar una instalación nueva en vez de actualizar.",
         "STR_PART_VENTOY_FS":"Sistema de archivos para partición de Ventoy",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1014,7 +1063,10 @@
         "STR_INSTALL_YES_TIP1":"Advertencia: ¡Los datos se perderán!",
         "STR_INSTALL_YES_TIP2":"Por favor, escriba YES en el cuadro de texto a continuación para confirmar que realmente quiere realizar una nueva instalación de Ventoy en vez de actualizarlo.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1074,6 +1126,9 @@
         "STR_INSTALL_YES_TIP1":"Предупреждение: Данные будут потеряны!",
         "STR_INSTALL_YES_TIP2":"Пожалуйста, введите YES в текстовое поле ниже, чтобы подтвердить, что вы действительно хотите выполнить новую установку вместо обновления.",
         "STR_PART_VENTOY_FS":"Файловая система для Ventoy раздела",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     },
@@ -1134,7 +1189,10 @@
         "STR_INSTALL_YES_TIP1":"সতর্কতা: ডেটা হারিয়ে যাবে!",
         "STR_INSTALL_YES_TIP2":"আপনি আপগ্রেড করার পরিবর্তে একটি নতুন ইনস্টল করতে চান তা নিশ্চিত করতে দয়া করে নীচের পাঠ্য বাক্সে Yes লিখুন৷।",
         "STR_PART_VENTOY_FS":"Ventoy পার্টিশনের জন্য ফাইল সিস্টেম",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1194,7 +1252,10 @@
         "STR_INSTALL_YES_TIP1":"चेतावनी: डेटा खो जाएगा!",
         "STR_INSTALL_YES_TIP2":"यह पुष्टि करने के लिए कि आप वास्तव में अपग्रेड के बजाय एक नया इंस्टॉल करना चाहते हैं, कृपया नीचे दिए टेक्स्ट बॉक्स में Yes दर्ज करें।",
         "STR_PART_VENTOY_FS":"Ventoy विभाजन के लिए फाइल सिस्टम",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1254,7 +1315,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1314,7 +1378,10 @@
         "STR_INSTALL_YES_TIP1":"Atenție: Datele se vor pierde!",
         "STR_INSTALL_YES_TIP2":"Introduceți DA în caseta de text de mai jos pentru a confirma că într-adevăr doriți să faceți o nouă instalare în loc să faceți upgrade.",
         "STR_PART_VENTOY_FS":"Sistem de fișiere pentru partiția Ventoy",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1374,7 +1441,10 @@
         "STR_INSTALL_YES_TIP1":"警告: データが消去されます",
         "STR_INSTALL_YES_TIP2":"Ventoyを更新するのではなく新規に導入するということを確認するために，下の入力欄に「YES」と入力してください。",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1434,7 +1504,10 @@
         "STR_INSTALL_YES_TIP1":"Attenzione: i dati verranno persi!",
         "STR_INSTALL_YES_TIP2":"Digita YES nella casella di testo qui sotto per confermare che vuoi davvero eseguire un'installazione pulita anziché un aggiornamento.",
         "STR_PART_VENTOY_FS":"File System per partizione Ventoy",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1494,7 +1567,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1554,7 +1630,10 @@
         "STR_INSTALL_YES_TIP1":"Figyelmeztetés: Az adatok elvesznek!",
         "STR_INSTALL_YES_TIP2":"Írja a YES szót az alábbi szövegmezőbe, hogy megerősítse, valóban új telepítést szeretne végrehajtani a frissítés helyett.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
    {
@@ -1614,7 +1693,10 @@
         "STR_INSTALL_YES_TIP1":"警告：資料將會遺失！",
         "STR_INSTALL_YES_TIP2":"請在下方的文字輸入框輸入 YES 來證實您想要進行全新安裝取代升級。",
         "STR_PART_VENTOY_FS":"Ventoy 分割區文件系統",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1674,7 +1756,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1734,7 +1819,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1794,6 +1882,9 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     },
@@ -1854,6 +1945,9 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     },
@@ -1914,7 +2008,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -1974,7 +2071,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2034,6 +2134,9 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     },
@@ -2094,7 +2197,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2154,6 +2260,9 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     },
@@ -2214,7 +2323,10 @@
         "STR_INSTALL_YES_TIP1":"Peringatan: Data akan hilang!",
         "STR_INSTALL_YES_TIP2":"Silakan ketik YES pada kotak tulis di bawah untuk meyakinkan bahwa anda memang untuk melakukan pemasangan baru ketimbang memperbaruinya",
         "STR_PART_VENTOY_FS":"Berkas Sistem Untuk Partisi Ventoy",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2274,7 +2386,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2334,7 +2449,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2394,7 +2512,10 @@
         "STR_INSTALL_YES_TIP1":"Προειδοποίηση: Τα δεδομένα θα χαθούν!",
         "STR_INSTALL_YES_TIP2":"Εισαγάγετε ΝΑΙ στο παρακάτω πλαίσιο κειμένου για να επιβεβαιώσετε ότι όντως θέλετε να κάνετε μια νέα εγκατάσταση αντί για αναβάθμιση.",
         "STR_PART_VENTOY_FS":"Σύστημα αρχείων για το διαμέρισμα Ventoy",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2454,7 +2575,10 @@
         "STR_INSTALL_YES_TIP1":"Varning: Data kommer att gå förlorade!",
         "STR_INSTALL_YES_TIP2":"Skriv YES i textrutan nedan för att bekräfta att du verkligen vill göra en nyinstallation i stället för att uppgradera.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2514,7 +2638,10 @@
         "STR_INSTALL_YES_TIP1":"Pozor: Podatki bodo izbrisani!",
         "STR_INSTALL_YES_TIP2":"Prosim vtipkajte YES v spodnje okno da potrdite čisto inštalacijo in ne zgolj nadgradnje.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2574,6 +2701,9 @@
         "STR_INSTALL_YES_TIP1":"Внимание: Ще има загуба на данни!",
         "STR_INSTALL_YES_TIP2":"Въведете „YES“ в полето отдолу, за да потвърдите, че искате да извършите нова инсталация вместо обновяване.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
 
         "STRXXX":""
     },
@@ -2634,7 +2764,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2694,7 +2827,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2754,7 +2890,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2814,7 +2953,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     
@@ -2875,7 +3017,10 @@
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+
         "STRXXX":""
     },
     {
@@ -2935,6 +3080,9 @@
         "STR_INSTALL_YES_TIP1":"எச்சரிக்கை: தரவு தொலைந்து போகும்!",
         "STR_INSTALL_YES_TIP2":"மேம்படுத்துவதற்குப் பதிலாக புதிதாக நிறுவ விரும்புகிறீர்கள் என்பதை உறுதிப்படுத்த, கீழே உள்ள உரைப் பெட்டியில் ஆம் என உள்ளிடவும்.",
         "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
+        "STR_PART_FS":"File System",
+        "STR_PART_CLUSTER":"Cluster Size",
+        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         
         "STRXXX":""
     }

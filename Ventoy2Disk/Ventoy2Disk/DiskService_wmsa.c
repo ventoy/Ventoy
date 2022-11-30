@@ -256,24 +256,26 @@ BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLette
 	return ret;
 }
 
-BOOL PSHELL_FormatVolume(char DriveLetter, int fs)
+BOOL PSHELL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
 {
 	BOOL ret;
 	const char* fsname = NULL;
 	CHAR CmdBuf[512];
 
-	if (fs == 1)
+	fsname = GetVentoyFsFmtNameByTypeA(fs);
+
+	if (ClusterSize > 0)
 	{
-		fsname = "NTFS";
+		sprintf_s(CmdBuf, sizeof(CmdBuf),
+			"format-volume -DriveLetter %C -FileSystem %s -AllocationUnitSize %u -Force -NewFileSystemLabel Ventoy",
+			DriveLetter, fsname, ClusterSize);
 	}
 	else
 	{
-		fsname = "FAT32";
+		sprintf_s(CmdBuf, sizeof(CmdBuf),
+			"format-volume -DriveLetter %C -FileSystem %s -Force -NewFileSystemLabel Ventoy",
+			DriveLetter, fsname);
 	}
-
-	sprintf_s(CmdBuf, sizeof(CmdBuf),
-		"format-volume -DriveLetter %C -FileSystem %s -Force -NewFileSystemLabel Ventoy",
-		DriveLetter, fsname);
 
 	ret = PSHELL_CommProc(CmdBuf);
 	Log("PSHELL_FormatVolume %C: ret:%d (%s)", DriveLetter, ret, ret ? "SUCCESS" : "FAIL");

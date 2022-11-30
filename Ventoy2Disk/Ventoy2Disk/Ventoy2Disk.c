@@ -251,10 +251,34 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
     return TRUE;
 }
 
+int GetVolumeClusterSize(char Drive)
+{
+    CHAR Volume[32] = { 0 };
+    DWORD SectorsPerCluster = 0;
+    DWORD BytesPerSector = 0;
+    DWORD NumberOfFreeClusters = 0;
+    DWORD TotalNumberOfClusters = 0;
+
+    sprintf_s(Volume, sizeof(Volume), "%C:\\", Drive);
+
+    if (GetDiskFreeSpaceA(Volume, &SectorsPerCluster, &BytesPerSector, &NumberOfFreeClusters, &TotalNumberOfClusters))
+    {
+        Log("GetVolumeClusterSize %s SUCCESS %u %u %u", Volume, SectorsPerCluster, BytesPerSector, SectorsPerCluster * BytesPerSector);
+        return (int)(SectorsPerCluster * BytesPerSector);        
+    }
+    else
+    {
+        Log("GetVolumeClusterSize %s failed err:%u", Volume, LASTERR);
+    }
+
+    return 0;
+}
+
 static int GetVentoyFsNameInPhyDrive(PHY_DRIVE_INFO* CurDrive)
 {
     int i = 0;
     UINT64 Offset;
+
     CHAR Volume[128] = { 0 };
     CHAR FsName[MAX_PATH] = { 0 };
 
@@ -276,6 +300,8 @@ static int GetVentoyFsNameInPhyDrive(PHY_DRIVE_INFO* CurDrive)
 
     if (Volume[0])
     {
+        CurDrive->VentoyFsClusterSize = GetVolumeClusterSize(Volume[0]);
+
         if (GetVolumeInformationA(Volume, NULL, 0, NULL, NULL, NULL, FsName, MAX_PATH))
         {
             if (_stricmp(FsName, "exFAT") == 0)

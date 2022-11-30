@@ -1417,19 +1417,20 @@ BOOL VDS_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, 
 
 STATIC BOOL VDS_CallBack_FormatVolume(void* pInterface, VDS_DISK_PROP* pDiskProp, UINT64 data)
 {
+	int fs;
 	HRESULT hr, hr2;
 	ULONG completed;
 	IVdsAsync* pAsync;
 	IVdsVolumeMF3* pVolume = (IVdsVolumeMF3*)pInterface;
 	WCHAR* pFs = NULL;
-	WCHAR FsNTFS[32] = L"NTFS";
-	WCHAR FsFAT32[32] = L"FAT32";
 	VDS_PARA* VdsPara = (VDS_PARA*)data;
 	
-	pFs = (VdsPara->Attr == 1) ? FsNTFS : FsFAT32;
-	Log("VDS_CallBack_FormatVolume (%C:) (%llu) ...", VdsPara->DriveLetter, (ULONGLONG)VdsPara->Attr);
+	fs = (int)VdsPara->Attr;
+	pFs = GetVentoyFsFmtNameByTypeW(fs);
+	
+	Log("VDS_CallBack_FormatVolume (%C:) (%s) ClusterSize:%u ...", VdsPara->DriveLetter, GetVentoyFsFmtNameByTypeA(fs), VdsPara->ClusterSize);
 
-	hr = IVdsVolumeMF3_FormatEx2(pVolume, pFs, 0, 0, L"Ventoy", VDS_FSOF_FORCE | VDS_FSOF_QUICK, &pAsync);
+	hr = IVdsVolumeMF3_FormatEx2(pVolume, pFs, 0, VdsPara->ClusterSize, L"Ventoy", VDS_FSOF_FORCE | VDS_FSOF_QUICK, &pAsync);
 	while (SUCCEEDED(hr))
 	{
 		hr = IVdsAsync_QueryStatus(pAsync, &hr2, &completed);
@@ -1465,7 +1466,7 @@ STATIC BOOL VDS_CallBack_FormatVolume(void* pInterface, VDS_DISK_PROP* pDiskProp
 
 	return TRUE;
 }
-BOOL VDS_FormatVolume(char DriveLetter, int fs)
+BOOL VDS_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
 {
 	int i;
 	BOOL ret = FALSE;
@@ -1495,6 +1496,7 @@ BOOL VDS_FormatVolume(char DriveLetter, int fs)
 
 	Para.Attr = fs;
 	Para.DriveLetter = DriveLetter;
+	Para.ClusterSize = ClusterSize;
 
 	ret = VDS_VolumeCommProc(INTF_VOLUME_MF3, wGuid, VDS_CallBack_FormatVolume, (UINT64)&Para);
 	Log("VDS_FormatVolume %C: <%s> ret:%d (%s)", DriveLetter, VolumeGuid, ret, ret ? "SUCCESS" : "FAIL");
