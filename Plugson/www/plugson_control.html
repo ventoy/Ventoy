@@ -1229,7 +1229,7 @@
         $('select[id=id_ctrl_sel_help_lang').append(opt);
       }
     }
-    $('select[id=id_ctrl_sel_help_lang').val(data.help_language);
+    $('select[id=id_ctrl_sel_help_lang').val(data.help_text_language);
     
     //VTOY_MENU_LANGUAGE
     if ($("select[id=id_ctrl_sel_menu_lang")[0].options.length === 0)
@@ -1271,7 +1271,8 @@
       filter_img: data.filter_img,
       filter_vhd: data.filter_vhd,
       filter_vtoy: data.filter_vtoy,
-      help_text_language: data.help_text_language
+      help_text_language: data.help_text_language,
+      menu_language: data.menu_language
     }, function(e) {
       Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
     });
