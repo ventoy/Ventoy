@@ -21,6 +21,10 @@ fi
 ls -1 ../INSTALL/grub/help/ | while read line; do 
     echo -n ${line:0:5} >> ./www/helplist
 done 
+[ -f ./www/menulist ] && rm -f ./www/menulist
+ls -1 ../INSTALL/grub/menu/ | while read line; do 
+    echo -n ${line:0:5} >> ./www/menulist
+done 
 echo -n "$plugson_verion" > ./www/buildtime
 
 tar cf www.tar www

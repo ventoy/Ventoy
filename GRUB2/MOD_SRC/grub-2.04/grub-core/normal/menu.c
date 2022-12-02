@@ -50,6 +50,8 @@ int g_ventoy_menu_esc = 0;
 int g_ventoy_fn_mutex = 0;
 int g_ventoy_secondary_menu_on = 0;
 int g_ventoy_terminal_output = 0;
+char g_ventoy_hotkey_tip[256];
+int g_ventoy_virt_esc = 0;
 
 #define VTOY_COMM_HOTKEY(cmdkey) \
 if (0 == g_ventoy_fn_mutex && 0 == g_ventoy_secondary_menu_on) { \
@@ -796,7 +798,12 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	  return default_entry;
 	}
 
-      c = grub_getkey_noblock ();
+    if (g_ventoy_virt_esc > 0) {
+        c = GRUB_TERM_ESC;
+        g_ventoy_virt_esc--;
+    } else {
+        c = grub_getkey_noblock ();
+    }
 
       /* Negative values are returned on error. */
       if ((c != GRUB_TERM_NO_KEY) && (c > 0))

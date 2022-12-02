@@ -31,6 +31,8 @@
 static grub_uint8_t grub_color_menu_normal;
 static grub_uint8_t grub_color_menu_highlight;
 
+extern char g_ventoy_hotkey_tip[256];
+
 struct menu_viewer_data
 {
   int first, offset;
@@ -204,7 +206,7 @@ command-line or ESC to discard edits and return to the GRUB menu."),
 	  ret += grub_print_message_indented_real(szLine, STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
       
 	  ret += grub_print_message_indented_real("\n", STANDARD_MARGIN, STANDARD_MARGIN, term, dry_run);
-	  ret += grub_print_message_indented_real(grub_env_get("VTOY_HOTKEY_TIP"),
+	  ret += grub_print_message_indented_real(g_ventoy_hotkey_tip,
 	     3, 6, term, dry_run);
 	}	
     }

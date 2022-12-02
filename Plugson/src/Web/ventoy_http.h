@@ -22,7 +22,7 @@
 
 #include <civetweb.h>
 
-#define MAX_LANGUAGE  128
+#define MAX_LANGUAGE  256
 
 #define L1 "    "
 #define L2 "        "
@@ -84,6 +84,7 @@ typedef struct data_control
     char default_image[MAX_PATH];
     char default_kbd_layout[32];
     char help_text_language[32];
+    char menu_language[32];
 }data_control;
 
 #define display_mode_gui            0

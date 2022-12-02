@@ -56,12 +56,14 @@ static injection_config *g_injection_head = NULL;
 static auto_memdisk *g_auto_memdisk_head = NULL;
 static image_list *g_image_list_head = NULL;
 static conf_replace *g_conf_replace_head = NULL;
+static VTOY_JSON *g_menu_lang_json = NULL;
 
 static int g_theme_id = 0;
 static int g_theme_num = 0;
 static theme_list *g_theme_head = NULL;
 static int g_theme_random = vtoy_theme_random_boot_second;
 static char g_theme_single_file[256];
+static char g_cur_menu_language[32] = {0};
 
 static int ventoy_plugin_is_parent(const char *pat, int patlen, const char *isopath)
 {
@@ -2446,6 +2448,7 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     int ret = 0;
     int offset = 0;
     char *buf = NULL;
+    const char *env = NULL;
     grub_uint8_t *code = NULL;
     grub_file_t file;
     VTOY_JSON *json = NULL;
@@ -2538,6 +2541,9 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     {
         grub_env_unset("VTOY_MENU_TIP_ENABLE");
     }
+
+    env = grub_env_get("VTOY_MENU_LANGUAGE");
+    ventoy_plugin_load_menu_lang(env ? env : "en_US");
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
@@ -3369,7 +3375,7 @@ grub_err_t ventoy_cmd_select_theme_cfg(grub_extcmd_context_t ctxt, int argc, cha
     }
 
     pos += grub_snprintf(buf + pos, bufsize - pos, 
-            "menuentry 'Return to previous menu [Esc]' --class=vtoyret VTOY_RET {\n"
+            "menuentry '@VTMENU_RETURN_PREVIOUS' --class=vtoyret VTOY_RET {\n"
                 "echo 'Return ...'\n"
             "}\n");
 
@@ -3465,5 +3471,89 @@ grub_err_t ventoy_cmd_set_theme_path(grub_extcmd_context_t ctxt, int argc, char 
     }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
+}
+
+const char *ventoy_get_vmenu_title(const char *vMenu)
+{
+    return vtoy_json_get_string_ex(g_menu_lang_json->pstChild, vMenu);
+}
+
+int ventoy_plugin_load_menu_lang(const char *lang)
+{
+    int ret = 1;
+    grub_file_t file = NULL;
+    char *buf = NULL;
+
+    if (grub_strcmp(lang, g_cur_menu_language) == 0)
+    {
+        debug("Same menu lang %s\n", lang);
+        return 0;
+    }
+    grub_snprintf(g_cur_menu_language, sizeof(g_cur_menu_language), "%s", lang);
+
+    debug("Load menu lang %s\n", g_cur_menu_language);
+
+    if (g_menu_lang_json)
+    {
+        vtoy_json_destroy(g_menu_lang_json);
+        g_menu_lang_json = NULL;
+    }
+
+    g_menu_lang_json = vtoy_json_create();
+    if (!g_menu_lang_json)
+    {
+        goto end;
+    }
+
+    file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "(vt_menu_tarfs)/menu/%s.json", lang);
+    if (!file)
+    {
+        goto end;
+    }
+
+    buf = grub_malloc(file->size + 1);
+    if (!buf)
+    {
+        grub_printf("Failed to malloc memory %lu.\n", (ulong)(file->size + 1));
+        goto end;
+    }
+
+    buf[file->size] = 0;
+    grub_file_read(file, buf, file->size);
+
+    vtoy_json_parse(g_menu_lang_json, buf);
+
+    if (g_default_menu_mode == 0)
+    {
+        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTMENU_STR_HOTKEY_TREE"));
+    }
+    else
+    {
+        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTMENU_STR_HOTKEY_LIST"));
+    }
+
+    g_ventoy_virt_esc = 2;
+    g_ventoy_menu_refresh = 1;
+    ret = 0;
+
+end:
+
+    check_free(file, grub_file_close);
+    grub_check_free(buf);
+
+    return ret;
+}
+
+grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+    grub_printf("%s\n", g_cur_menu_language);
+    grub_printf("%s\n", g_ventoy_hotkey_tip);
+    grub_refresh();
+
+    VENTOY_CMD_RETURN(0);
 }
 

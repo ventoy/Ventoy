@@ -1053,6 +1053,10 @@ extern int g_ventoy_case_insensitive;
 extern int g_ventoy_fn_mutex;
 extern grub_uint8_t g_ventoy_chain_type;
 extern int g_vhdboot_enable;
+extern int g_default_menu_mode;
+extern char g_ventoy_hotkey_tip[256];
+extern int g_ventoy_menu_refresh;
+extern int g_ventoy_virt_esc;
 
 #define VENTOY_IMG_WHITE_LIST   1
 #define VENTOY_IMG_BLACK_LIST   2
@@ -1258,6 +1262,9 @@ grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **
 int ventoy_get_fs_type(const char *fs);
 int ventoy_img_name_valid(const char *filename, grub_size_t namelen);
 void * ventoy_alloc_chain(grub_size_t size);
+int ventoy_plugin_load_menu_lang(const char *lang);
+const char *ventoy_get_vmenu_title(const char *vMenu);
+grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char **args);
 
 #endif /* __VENTOY_DEF_H__ */
 

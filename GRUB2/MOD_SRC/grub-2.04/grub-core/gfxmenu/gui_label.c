@@ -31,6 +31,7 @@ extern int g_ventoy_iso_raw;
 extern int g_ventoy_grub2_mode;
 extern int g_ventoy_wimboot_mode;
 extern int g_ventoy_iso_uefi_drv;
+extern char g_ventoy_hotkey_tip[256];
 
 static const char *align_options[] =
 {
@@ -230,10 +231,7 @@ label_set_property (void *vself, const char *name, const char *value)
             value = g_ventoy_iso_uefi_drv ? grub_env_get("VTOY_ISO_UEFI_DRV_STR") : " ";
        }
        else if (grub_strcmp (value, "@VTOY_HOTKEY_TIP@") == 0) {
-            value = grub_env_get("VTOY_HOTKEY_TIP");
-            if (value == NULL) {
-                value = _(" ");
-            }
+            value = g_ventoy_hotkey_tip;
        }
        
 	  self->template = grub_strdup (value);

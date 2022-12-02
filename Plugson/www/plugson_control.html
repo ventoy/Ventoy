@@ -32,6 +32,42 @@
         </ul>
       </div>
 
+
+      <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_MENU_LANGUAGE
+                <span id="id_span_desc_cn"> —— 菜单语言</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <select id="id_ctrl_sel_menu_lang" name="name_ctrl_sel_menu_lang" class="form-control">
+                            
+                        </select>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        Ventoy 菜单的语言版本。默认是 "en_US"。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Ventoy menu language. Default is "en_US", 
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
       
       <div class="box box-primary box-solid">
             <div class="box-header with-border">
@@ -1092,6 +1128,7 @@
     data.filter_vtoy = parseInt($('input:radio[name=id_ctrl_radio_filt_vtoy]:checked').val());
 
     data.help_text_language = $('select[id=id_ctrl_sel_help_lang').val();
+    data.menu_language = $('select[id=id_ctrl_sel_menu_lang').val();
   }
 
   function VtoyFillCurrentPageItem(data) {
@@ -1192,8 +1229,18 @@
         $('select[id=id_ctrl_sel_help_lang').append(opt);
       }
     }
+    $('select[id=id_ctrl_sel_help_lang').val(data.help_language);
     
-    $('select[id=id_ctrl_sel_help_lang').val(data.help_text_language);
+    //VTOY_MENU_LANGUAGE
+    if ($("select[id=id_ctrl_sel_menu_lang")[0].options.length === 0)
+    {
+      for (var i = 0; i < data.menu_list.length; i++) {
+        var hlang = data.menu_list[i];
+        var opt = '<option title="'+hlang+'">'+hlang+'</option>';
+        $('select[id=id_ctrl_sel_menu_lang').append(opt);
+      }
+    }
+    $('select[id=id_ctrl_sel_menu_lang').val(data.menu_language);
   }
 
   function VtoySaveCurrentPage() {
@@ -1329,6 +1376,7 @@
   $('select[id=id_ctrl_sel_max_depth]').change(VtoySaveCurrentPage);
   $('select[id=id_ctrl_sel_kbd]').change(VtoySaveCurrentPage);
   $('select[id=id_ctrl_sel_help_lang]').change(VtoySaveCurrentPage);
+  $('select[id=id_ctrl_sel_menu_lang]').change(VtoySaveCurrentPage);
   $('input[id=id_ctrl_text_timeout]').change(function() {
     var value = $('input:text[id=id_ctrl_text_timeout]').val();
     if (/^[0-9][0-9]*$/.test(value)) {

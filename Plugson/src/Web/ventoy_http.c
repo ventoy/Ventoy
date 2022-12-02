@@ -72,6 +72,7 @@ static const char *g_plugin_name[plugin_type_max] =
 };
 
 static char g_ventoy_help_lang[MAX_LANGUAGE][8];
+static char g_ventoy_menu_lang[MAX_LANGUAGE][8];
 
 static char g_pub_path[2 * MAX_PATH];
 static data_control g_data_control[bios_max + 1];
@@ -522,6 +523,7 @@ void ventoy_data_default_control(data_control *data)
     
     strlcpy(data->default_kbd_layout, "QWERTY_USA");
     strlcpy(data->help_text_language, "en_US");
+    strlcpy(data->menu_language, "en_US");
 }
 
 int ventoy_data_cmp_control(data_control *data1, data_control *data2)
@@ -551,7 +553,8 @@ int ventoy_data_cmp_control(data_control *data1, data_control *data2)
     if (strcmp(data1->default_search_root, data2->default_search_root) ||
         strcmp(data1->default_image, data2->default_image) ||
         strcmp(data1->default_kbd_layout, data2->default_kbd_layout) ||
-        strcmp(data1->help_text_language, data2->help_text_language))
+        strcmp(data1->help_text_language, data2->help_text_language) ||
+        strcmp(data1->menu_language, data2->menu_language))
     {
         return 1;
     }
@@ -595,6 +598,7 @@ int ventoy_data_save_control(data_control *data, const char *title, char *buf, i
 
     VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_DEFAULT_KBD_LAYOUT", default_kbd_layout);        
     VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_HELP_TXT_LANGUAGE", help_text_language);  
+    VTOY_JSON_FMT_CTRL_STRN(L2, "VTOY_MENU_LANGUAGE", menu_language);  
 
     if (strcmp(def->default_search_root, data->default_search_root))
     {
@@ -642,6 +646,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_SINT("secondary_menu_timeout",  ctrl->secondary_menu_timeout);
     VTOY_JSON_FMT_STRN("default_kbd_layout",  ctrl->default_kbd_layout);
     VTOY_JSON_FMT_STRN("help_text_language",  ctrl->help_text_language);
+    VTOY_JSON_FMT_STRN("menu_language",  ctrl->menu_language);
 
     valid = 0;
     if (ctrl->default_search_root[0] && ventoy_is_directory_exist("%s%s", g_cur_dir, ctrl->default_search_root))
@@ -669,7 +674,15 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     }
     VTOY_JSON_FMT_ARY_ENDEX();
 
+    VTOY_JSON_FMT_KEY("menu_list");
+    VTOY_JSON_FMT_ARY_BEGIN();
 
+    for (i = 0; g_ventoy_menu_lang[i][0]; i++)
+    {
+        VTOY_JSON_FMT_ITEM(g_ventoy_menu_lang[i]);        
+    }
+    VTOY_JSON_FMT_ARY_ENDEX();
+    
     VTOY_JSON_FMT_OBJ_END();
     VTOY_JSON_FMT_END(pos);
 
@@ -713,6 +726,7 @@ static int ventoy_api_save_control(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_STR("default_image", ctrl->default_image);
     VTOY_JSON_STR("default_search_root", ctrl->default_search_root);
     VTOY_JSON_STR("help_text_language", ctrl->help_text_language);
+    VTOY_JSON_STR("menu_language", ctrl->menu_language);
     VTOY_JSON_STR("default_kbd_layout", ctrl->default_kbd_layout);
     
     ret = ventoy_data_save_all();
@@ -4085,6 +4099,17 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
                     }
                 }
             }
+            else if (strcmp(child->pcName, "VTOY_MENU_LANGUAGE") == 0)
+            {
+                for (i = 0; g_ventoy_menu_lang[i][0]; i++)
+                {
+                    if (strcmp(child->unData.pcStrVal, g_ventoy_menu_lang[i]) == 0)
+                    {
+                        strlcpy(data->menu_language, child->unData.pcStrVal);
+                        break;
+                    }
+                }
+            }
             else if (strcmp(child->pcName, "VTOY_MENU_TIMEOUT") == 0)
             {
                 data->menu_timeout = (int)strtol(child->unData.pcStrVal, NULL, 10);
@@ -5326,6 +5351,19 @@ int ventoy_http_init(void)
         }
         free(Buffer);
     }
+
+    Buffer = NULL;
+    BufLen = 0;
+    ventoy_read_file_to_buf("www/menulist", 4, (void **)&Buffer, &BufLen);
+    if (Buffer)
+    {
+        for (i = 0; i < BufLen / 5; i++)
+        {
+            memcpy(g_ventoy_menu_lang[i], Buffer + i * 5, 5);
+            g_ventoy_menu_lang[i][5] = 0;
+        }
+        free(Buffer);
+    }
 #else
     ventoy_file *file;
     file = ventoy_tar_find_file("www/helplist");
@@ -5335,6 +5373,16 @@ int ventoy_http_init(void)
         {
             memcpy(g_ventoy_help_lang[i], (char *)(file->addr) + i * 5, 5);
             g_ventoy_help_lang[i][5] = 0;
+        }
+    }
+    
+    file = ventoy_tar_find_file("www/menulist");
+    if (file)
+    {
+        for (i = 0; i < file->size / 5; i++)
+        {
+            memcpy(g_ventoy_menu_lang[i], (char *)(file->addr) + i * 5, 5);
+            g_ventoy_menu_lang[i][5] = 0;
         }
     }
 #endif
