@@ -686,9 +686,9 @@
         "STR_INSTALL_YES_TIP1":"Warnung: Die Daten gehen verloren!",
         "STR_INSTALL_YES_TIP2":"Bitte bestätigen Sie in der unteren Textbox mit YES, dass Sie anstelle eines Upgrades eine frische Installation durchführen möchten.",
         "STR_PART_VENTOY_FS":"Dateisystem für die Ventoy-Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"Dateisystem",
+        "STR_PART_CLUSTER":"Clustergröße",
+        "STR_PART_CLUSTER_DEFAULT":"Systemstandardwert",
 
         "STRXXX":""
     },
