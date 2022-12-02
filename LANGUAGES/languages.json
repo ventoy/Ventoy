@@ -1189,9 +1189,9 @@
         "STR_INSTALL_YES_TIP1":"সতর্কতা: ডেটা হারিয়ে যাবে!",
         "STR_INSTALL_YES_TIP2":"আপনি আপগ্রেড করার পরিবর্তে একটি নতুন ইনস্টল করতে চান তা নিশ্চিত করতে দয়া করে নীচের পাঠ্য বাক্সে Yes লিখুন৷।",
         "STR_PART_VENTOY_FS":"Ventoy পার্টিশনের জন্য ফাইল সিস্টেম",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"ফাইল সিস্টেম",
+        "STR_PART_CLUSTER":"ক্লাস্টারের আকার",
+        "STR_PART_CLUSTER_DEFAULT":"সিস্টেমের ডিফল্ট মান",
 
         "STRXXX":""
     },
@@ -1252,9 +1252,9 @@
         "STR_INSTALL_YES_TIP1":"चेतावनी: डेटा खो जाएगा!",
         "STR_INSTALL_YES_TIP2":"यह पुष्टि करने के लिए कि आप वास्तव में अपग्रेड के बजाय एक नया इंस्टॉल करना चाहते हैं, कृपया नीचे दिए टेक्स्ट बॉक्स में Yes दर्ज करें।",
         "STR_PART_VENTOY_FS":"Ventoy विभाजन के लिए फाइल सिस्टम",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"फाइल सिस्टम",
+        "STR_PART_CLUSTER":"क्लस्टर साइज",
+        "STR_PART_CLUSTER_DEFAULT":"सिस्टम डिफ़ॉल्ट मान",
 
         "STRXXX":""
     },
