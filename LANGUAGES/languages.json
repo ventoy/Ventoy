@@ -623,7 +623,7 @@
         "STR_INSTALL_YES_TIP1":"Uyarı: Tüm verileriniz kaybolacak!",
         "STR_INSTALL_YES_TIP2":"Güncelleme yapmak yerine,yeni bir kurulum yapmak istediğinizi doğrulamak için lütfen aşağıdaki metin kutusuna YES yazın.",
         "STR_PART_VENTOY_FS":"Ventoy bölümü Dosya Sistemi",
-        "STR_PART_FS":Dosya Sistemi",
+        "STR_PART_FS":"Dosya Sistemi",
         "STR_PART_CLUSTER":"Sektör Boyutu",
         "STR_PART_CLUSTER_DEFAULT":"Sistem varsayılan değeri",
 
@@ -1073,7 +1073,7 @@
         "name":"Russian (Pусский)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"BL4CKH47H4CK3R, Teraskull, thehugonote, wiz64", "dmitrygribenchuk",
+        "Author":"BL4CKH47H4CK3R, Teraskull, thehugonote, wiz64, dmitrygribenchuk",
         
         "STR_ERROR":"Ошибка",
         "STR_WARNING":"Предупреждение",
@@ -2396,7 +2396,7 @@
         "name":"Ukrainian (Українська)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"Teraskull, thehugonote", "dmitrygribenchuk",
+        "Author":"Teraskull, thehugonote, dmitrygribenchuk",
         
         "STR_ERROR":"Помилка",
         "STR_WARNING":"Попередження",
