@@ -1378,9 +1378,9 @@
         "STR_INSTALL_YES_TIP1":"Atenție: Datele se vor pierde!",
         "STR_INSTALL_YES_TIP2":"Introduceți DA în caseta de text de mai jos pentru a confirma că într-adevăr doriți să faceți o nouă instalare în loc să faceți upgrade.",
         "STR_PART_VENTOY_FS":"Sistem de fișiere pentru partiția Ventoy",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"Sistemul de fișiere",
+        "STR_PART_CLUSTER":"Dimensiunea clusterului",
+        "STR_PART_CLUSTER_DEFAULT":"Valoarea implicită a sistemului",
 
         "STRXXX":""
     },
