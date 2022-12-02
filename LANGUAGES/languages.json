@@ -623,9 +623,9 @@
         "STR_INSTALL_YES_TIP1":"Uyarı: Tüm verileriniz kaybolacak!",
         "STR_INSTALL_YES_TIP2":"Güncelleme yapmak yerine,yeni bir kurulum yapmak istediğinizi doğrulamak için lütfen aşağıdaki metin kutusuna YES yazın.",
         "STR_PART_VENTOY_FS":"Ventoy bölümü Dosya Sistemi",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":Dosya Sistemi",
+        "STR_PART_CLUSTER":"Sektör Boyutu",
+        "STR_PART_CLUSTER_DEFAULT":"Sistem varsayılan değeri",
 
         "STRXXX":""
     },
