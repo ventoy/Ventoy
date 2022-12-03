@@ -3079,10 +3079,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"சில நிபந்தனைகளை பூர்த்தி செய்ய முடியாததால், வென்டோய் அழிவில்லாத நிறுவல் நிறுத்தப்பட்டது. விவரங்களுக்கு log.txt ஐப் பார்க்கவும்.",
         "STR_INSTALL_YES_TIP1":"எச்சரிக்கை: தரவு தொலைந்து போகும்!",
         "STR_INSTALL_YES_TIP2":"மேம்படுத்துவதற்குப் பதிலாக புதிதாக நிறுவ விரும்புகிறீர்கள் என்பதை உறுதிப்படுத்த, கீழே உள்ள உரைப் பெட்டியில் ஆம் என உள்ளிடவும்.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"வென்டோய் பகிர்வுக்கான கோப்பு முறைமை",
+        "STR_PART_FS":"கோப்பு முறைமை",
+        "STR_PART_CLUSTER":"கொத்து அளவு",
+        "STR_PART_CLUSTER_DEFAULT":"கணினி இயல்புநிலை மதிப்பு",
         
         "STRXXX":""
     },
