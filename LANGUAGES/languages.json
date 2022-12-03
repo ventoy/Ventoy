@@ -812,9 +812,9 @@
         "STR_INSTALL_YES_TIP1":"Attention : les données seront perdues !",
         "STR_INSTALL_YES_TIP2":"Veuillez saisir YES dans la zone de texte ci-dessous pour confirmer que vous souhaitez bien effectuer une nouvelle installation au lieu d'une mise à niveau.",
         "STR_PART_VENTOY_FS":"Système de fichiers pour la partition Ventoy",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"Système de fichiers",
+        "STR_PART_CLUSTER":"Taille de cluster",
+        "STR_PART_CLUSTER_DEFAULT":"Valeur par défaut du système",
         
         "STRXXX":""
     },
