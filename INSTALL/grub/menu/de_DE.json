@@ -1,8 +1,8 @@
 {
     "VTMENU_LANGUAGE_NAME": "German (Deutsch)",
     
-    "VTMENU_STR_HOTKEY_LIST": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Beenden",
-    "VTMENU_STR_HOTKEY_TREE": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Beenden",
+    "VTMENU_STR_HOTKEY_LIST": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Erweitert",
+    "VTMENU_STR_HOTKEY_TREE": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Erweitert",
     "VTMENU_RETURN_PREVIOUS": "Zu vorherigem Menü [Esc]",
     
     "VTMENU_MENU_LANG": "Menüsprache auswählen",
