@@ -1,19 +1,19 @@
  L - Sprache auswählen
-F1 - Zeigt dieses Hilfe Menu
-F2 - Browse and boot files in local disk
-F3 - Menu wechsel zwischen Baum <-> Listen Ansicht
-F4 - Windows/Linux vom lokalem Datenträger starten
-F5 - Dienstprogramme
+F1 - Zeigt dieses Hilfemenü
+F2 - Durchsuchen und starten von Dateien auf lokalem Datenträger
+F3 - Wechsel zwischen Baum-/Listenansicht
+F4 - Windows/Linux von lokalem Datenträger starten
+F5 - Werkzeuge
 F6 - Benutzerdefiniertes Grub2-Menü laden
-F7 - Wechseln zwischen GUI-Modus <-> TEXT-Modus
+F7 - Wechseln zwischen Grafik-/Text-Modus
 
-m/Ctrl+m - Prüfsummencheck Image Dateien (md5/sha1/sha256/sha512)
-d/Ctrl+d - Memdisk Modus (Nur für kleine WinPE/LiveCD ISO/IMG)
-w/Ctrl+w - WIMBOOT Modus (Nur für Standard Windows ISO)
-r/Ctrl+r - Grub2 Modus (Nur für einige Linux distros)
-i/Ctrl+i - Kompatibilitäts Modus (Nur für Fehleranalyse)
-u/Ctrl+u - Lade ISO efi Treiber (Nur für Fehleranalyse, darf nicht offiziel benutzt werden)
+m/Strg+m - Prüfsumme von Abbilddatei prüfen (md5/sha1/sha256/sha512)
+d/Strg+d - Memdisk-Modus (Nur für kleine WinPE/LiveCD ISO/IMG)
+w/Strg+w - WIMBOOT-Modus (Nur für Standard Windows ISO)
+r/Strg+r - Grub2-Modus (Nur für einige Linux-Distributionen)
+i/Strg+i - Kompatibilitäts-Modus (Nur für Fehleranalyse)
+u/Strg+u - ISO EFI-Treiber laden (Nur für Fehleranalyse, darf offiziell nicht benutzt werden)
 
 
 
-Drücke ESC für Zurück ......
+ESC für Zurück drücken......
