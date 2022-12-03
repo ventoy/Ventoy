@@ -1,8 +1,8 @@
 {
-    "VTMENU_LANGUAGE_NAME": "English (English)",
+    "VTMENU_LANGUAGE_NAME": "Korean (한국어)",
     
-    "VTMENU_STR_HOTKEY_LIST": "L:Language  F1:Help  F2:Browser  F3:ListView  F4:Localboot  F5:Tools  F6:ExMenu",
-    "VTMENU_STR_HOTKEY_TREE": "L:Language  F1:Help  F2:Browser  F3:TreeView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTMENU_STR_HOTKEY_LIST": "L:언어  F1:Help  F2:Browser  F3:ListView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTMENU_STR_HOTKEY_TREE": "L:언어  F1:Help  F2:Browser  F3:TreeView  F4:Localboot  F5:Tools  F6:ExMenu",
     "VTMENU_RETURN_PREVIOUS": "Return to previous menu [Esc]",
     
     "VTMENU_MENU_LANG": "Menu Language Select",
