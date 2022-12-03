@@ -83,7 +83,6 @@ typedef struct data_control
     char default_search_root[MAX_PATH];
     char default_image[MAX_PATH];
     char default_kbd_layout[32];
-    char help_text_language[32];
     char menu_language[32];
 }data_control;
 
@@ -389,7 +388,7 @@ else\
 #define ventoy_parse_json(name) \
 {\
     int __loop;\
-    int __len = strlen(#name);\
+    int __len = (int)strlen(#name);\
     if (strncmp(#name, node->pcName, __len) == 0)\
     {\
         for (__loop = 0; __loop < bios_max; __loop++)\

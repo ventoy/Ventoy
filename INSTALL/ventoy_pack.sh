@@ -221,6 +221,7 @@ cp $OPT VentoyVlnk.exe $tmpdir/
 cp $OPT FOR_X64_ARM.txt $tmpdir/
 mkdir -p $tmpdir/altexe
 cp $OPT Ventoy2Disk_*.exe $tmpdir/altexe/
+cp $OPT VentoyPlugson_*.exe $tmpdir/altexe/
 
 
 
