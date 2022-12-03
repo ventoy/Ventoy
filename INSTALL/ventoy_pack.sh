@@ -101,7 +101,6 @@ done
 echo "menuentry '@VTMENU_RETURN_PREVIOUS' --class=vtoyret VTOY_RET {" >> menulang.cfg
 echo "        echo 'Return ...'" >> menulang.cfg
 echo "}" >> menulang.cfg
-echo "}" >> menulang.cfg
 
 tar czf menu.tar.gz ./menu/
 rm -rf ./menu
@@ -222,6 +221,7 @@ cp $OPT VentoyVlnk.exe $tmpdir/
 cp $OPT FOR_X64_ARM.txt $tmpdir/
 mkdir -p $tmpdir/altexe
 cp $OPT Ventoy2Disk_*.exe $tmpdir/altexe/
+cp $OPT VentoyPlugson_*.exe $tmpdir/altexe/
 
 
 

@@ -1,5 +1,5 @@
- h - Prikazuje ove informacije
-F1 - Memdisk način rada (samo za male WinPE/LiveCD imidž fajlove)
+ L - Izaberite jezik
+F1 - Prikazuje ove informacije
 F2 - Pokreće imidž fajlove na lokalnom disku
 F3 - Mijenja meni između TreeView <-> ListView
 F4 - Pokreće Windows/Linux na lokalnom disku
@@ -7,7 +7,8 @@ F5 - Alati
 F6 - Učitava prilagođen GRUB2 meni
 F7 - Mijenja između GUI <-> TEXT načina rada
 
-m - Generira heš odabranog imidž fajla (md5/sha1/sha256/sha512)
+m/Ctrl+m - Generira heš odabranog imidž fajla (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk način rada (samo za male WinPE/LiveCD imidž fajlove)
 w/Ctrl+w - WIMBOOT način rada (samo za standardne Windows imidž fajlove)
 r/Ctrl+r - GRUB2 način rada (samo za neke Linux distribucije)
 i/Ctrl+i - Kompatibilni način rada (samo za testiranje)

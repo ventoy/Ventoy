@@ -1031,43 +1031,6 @@
         </div><!-- /.box-body -->
       </div><!-- /.box -->
 
-
-        <div class="box box-primary box-solid">
-            <div class="box-header with-border">
-              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_HELP_TXT_LANGUAGE
-                <span id="id_span_desc_cn"> —— 帮助信息语言</span></h3>
-              <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-              </div><!-- /.box-tools -->
-            </div><!-- /.box-header -->
-            <div class="box-body no-padding">
-                <table class="table table-bordered  no-padding">
-                    <tr style="font-weight:bold;">
-                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
-                      <td>
-                        <select id="id_ctrl_sel_help_lang" name="name_ctrl_sel_help_lang" class="form-control">
-                            
-                        </select>
-                      </td>
-                    </tr>
-                    <tr id="tr_title_desc_cn">
-                      <td class="td_ctrl_col">选项说明</td>
-                      <td>
-                        快捷键 <code>h</code> 显示的帮助信息的语言版本。默认是 "en_US"。 
-                        具体请参考 <a target="_blank" href='https://www.ventoy.net/cn/plugin_control.html#vtoy_help_language'>Ventoy 帮助信息</a>
-                      </td>
-                    </tr>
-                    <tr id="tr_title_desc_en">
-                      <td class="td_ctrl_col">Option Description</td>
-                      <td>
-                        The language of the help text when press <code>h</code>. Default is "en_US", 
-                        refer <a target="_blank" href='https://www.ventoy.net/en/plugin_control.html#vtoy_help_language'>Ventoy Help Text</a> for details.
-                      </td>
-                    </tr>
-                </table>
-            </div><!-- /.box-body -->
-        </div><!-- /.box -->
-
         
 
     </div>
@@ -1127,7 +1090,6 @@
     data.filter_vhd = parseInt($('input:radio[name=id_ctrl_radio_filt_vhd]:checked').val());
     data.filter_vtoy = parseInt($('input:radio[name=id_ctrl_radio_filt_vtoy]:checked').val());
 
-    data.help_text_language = $('select[id=id_ctrl_sel_help_lang').val();
     data.menu_language = $('select[id=id_ctrl_sel_menu_lang').val();
   }
 
@@ -1220,17 +1182,6 @@
     //VTOY_FILE_FLT_VTOY
     $('input:radio[name=id_ctrl_radio_filt_vtoy]')[data.filter_vtoy].checked = true;
 
-    //VTOY_HELP_TXT_LANGUAGE
-    if ($("select[id=id_ctrl_sel_help_lang")[0].options.length === 0)
-    {
-      for (var i = 0; i < data.help_list.length; i++) {
-        var hlang = data.help_list[i];
-        var opt = '<option title="'+hlang+'">'+hlang+'</option>';
-        $('select[id=id_ctrl_sel_help_lang').append(opt);
-      }
-    }
-    $('select[id=id_ctrl_sel_help_lang').val(data.help_text_language);
-    
     //VTOY_MENU_LANGUAGE
     if ($("select[id=id_ctrl_sel_menu_lang")[0].options.length === 0)
     {
@@ -1271,7 +1222,6 @@
       filter_img: data.filter_img,
       filter_vhd: data.filter_vhd,
       filter_vtoy: data.filter_vtoy,
-      help_text_language: data.help_text_language,
       menu_language: data.menu_language
     }, function(e) {
       Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
@@ -1376,7 +1326,6 @@
   });
   $('select[id=id_ctrl_sel_max_depth]').change(VtoySaveCurrentPage);
   $('select[id=id_ctrl_sel_kbd]').change(VtoySaveCurrentPage);
-  $('select[id=id_ctrl_sel_help_lang]').change(VtoySaveCurrentPage);
   $('select[id=id_ctrl_sel_menu_lang]').change(VtoySaveCurrentPage);
   $('input[id=id_ctrl_text_timeout]').change(function() {
     var value = $('input:text[id=id_ctrl_text_timeout]').val();
