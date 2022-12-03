@@ -14,6 +14,7 @@ RET=0
 ret=$?
 if [ $ret -eq 0 ]; then
     for i in $(ls $VTOY_PATH/INSTALL/grub/menu); do
+        echo "check INSTALL/grub/menu/$i ..."
         ./checkjson $VTOY_PATH/INSTALL/grub/menu/$i
         ret=$?
         if [ $ret -ne 0 ]; then

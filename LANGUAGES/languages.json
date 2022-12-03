@@ -55,10 +55,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"توقفت عملية تثبيت Ventoy بدون تهيئة لعدم استيفاء بعض الشروط. تفقد ملف log.txt للتفاصيل.",
         "STR_INSTALL_YES_TIP1":"تحذير: سيتم فقدان البيانات!",
         "STR_INSTALL_YES_TIP2":"يرجى إدخال YES في مربع النص في الأسفل للتأكيد بأنك تريد عمل تثبيت جديد بدلاً من التحديث.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"نظام الملفات لقسم Ventoy",
+        "STR_PART_FS":"نظام الملفات",
+        "STR_PART_CLUSTER":"حجم الكتلة",
+        "STR_PART_CLUSTER_DEFAULT":"القيمة الافتراضية للنظام",
         
         "STRXXX":""
     },
@@ -496,10 +496,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Nieniszcząca instalacja Ventoy została zatrzymana, ponieważ niektóre wymagania nie zostały spełnione. Sprawdź log.txt po szczegóły.",
         "STR_INSTALL_YES_TIP1":"Ostrzeżenie: Dane zostaną utracone!",
         "STR_INSTALL_YES_TIP2":"Wpisz YES w poniższym polu tekstowym, aby potwierdzić, że naprawdę chcesz przeprowadzić nową instalację zamiast aktualizacji.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"System plików dla partycji Ventoy",
+        "STR_PART_FS":"System plików",
+        "STR_PART_CLUSTER":"Wielkość klastra",
+        "STR_PART_CLUSTER_DEFAULT":"Wartość domyślna systemu",
 
         "STRXXX":""
     },
@@ -559,10 +559,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Instalação não destrutiva do Ventoy interrompida devido fato desconhecido. Cheque o arquivo log.txt para detalhes.",
         "STR_INSTALL_YES_TIP1":"Aviso: Os dados serão perdidos!",
         "STR_INSTALL_YES_TIP2":"Por favor, digite YES na caixa de texto abaixo para confirmar que você realmente quer fazer uma nova instalação em vez de atualização.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"Sistema de arquivos para partição Ventoy",
+        "STR_PART_FS":"Sistema de arquivo",
+        "STR_PART_CLUSTER":"Tamanho do cluster",
+        "STR_PART_CLUSTER_DEFAULT":"Valor padrão do sistema",
 
         "STRXXX":""
     },
@@ -874,10 +874,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Nedestruktivní instalace Ventoy selhala, protože některé podmínky pro ni nemohly být splněny. Pro podrobnosti se podívejte do souboru log.txt.",
         "STR_INSTALL_YES_TIP1":"Varování: Data budou ztracena!",
         "STR_INSTALL_YES_TIP2":"Do níže uvedeného textového pole zadejte YES a potvrďte, že skutečně chcete provést novou instalaci namísto aktualizace.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"Souborový systém pro Ventoy Partition",
+        "STR_PART_FS":"Souborový systém",
+        "STR_PART_CLUSTER":"Velikost clusteru",
+        "STR_PART_CLUSTER_DEFAULT":"Výchozí hodnota systému",
 
         "STRXXX":""
     },
@@ -1000,9 +1000,9 @@
         "STR_INSTALL_YES_TIP1":"Advertencia: ¡Los datos se perderán!",
         "STR_INSTALL_YES_TIP2":"Por favor ingresa YES en el cuadro de texto a continuación para confirmar que realmente quieres realizar una instalación nueva en vez de actualizar.",
         "STR_PART_VENTOY_FS":"Sistema de archivos para partición de Ventoy",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"Sistema de archivos",
+        "STR_PART_CLUSTER":"Tamaño de cluster",
+        "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
 
         "STRXXX":""
     },
@@ -1062,10 +1062,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"La instalación no destructiva de Ventoy se ha detenido porque no se han cumplido todos los prerrequisitos.#@Compruebe el archivo log.txt para más información.",
         "STR_INSTALL_YES_TIP1":"Advertencia: ¡Los datos se perderán!",
         "STR_INSTALL_YES_TIP2":"Por favor, escriba YES en el cuadro de texto a continuación para confirmar que realmente quiere realizar una nueva instalación de Ventoy en vez de actualizarlo.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"Sistema de archivos para partición de Ventoy",
+        "STR_PART_FS":"Sistema de archivos",
+        "STR_PART_CLUSTER":"Tamaño de cluster",
+        "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
 
         "STRXXX":""
     },
@@ -1314,10 +1314,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"De niet-destructieve installatie van Ventoy is gestopt omdat aan sommige voorwaarden niet kan worden voldaan. Controleer log.txt voor details.",
         "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
         "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"Bestandssysteem voor Ventoy-partitie",
+        "STR_PART_FS":"Bestandssysteem",
+        "STR_PART_CLUSTER":"Clustergrootte",
+        "STR_PART_CLUSTER_DEFAULT":"Standaardwaarde systeem",
 
         "STRXXX":""
     },
@@ -1440,10 +1440,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoyを非破壊的に導入できませんでした。非破壊的導入にあたっての要件が満たされていません。詳細な記録はlog.txtにあります。",
         "STR_INSTALL_YES_TIP1":"警告: データが消去されます",
         "STR_INSTALL_YES_TIP2":"Ventoyを更新するのではなく新規に導入するということを確認するために，下の入力欄に「YES」と入力してください。",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"Ventoy パーティションのファイル システム",
+        "STR_PART_FS":"ファイルシステム",
+        "STR_PART_CLUSTER":"クラスターサイズ",
+        "STR_PART_CLUSTER_DEFAULT":"システムのデフォルト値",
 
         "STRXXX":""
     },
@@ -1503,10 +1503,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy è stata interrotta perché alcune condizioni non possono essere soddisfatte.#@Per i dettagli controlla il file log.txt.",
         "STR_INSTALL_YES_TIP1":"Attenzione: i dati verranno persi!",
         "STR_INSTALL_YES_TIP2":"Digita YES nella casella di testo qui sotto per confermare che vuoi davvero eseguire un'installazione pulita anziché un aggiornamento.",
-        "STR_PART_VENTOY_FS":"File System per partizione Ventoy",
+        "STR_PART_VENTOY_FS":"File system per la partizione Ventoy",
         "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_CLUSTER":"Dimensione del grappolo",
+        "STR_PART_CLUSTER_DEFAULT":"Valore predefinito di sistema",
 
         "STRXXX":""
     },
@@ -1693,9 +1693,9 @@
         "STR_INSTALL_YES_TIP1":"警告：資料將會遺失！",
         "STR_INSTALL_YES_TIP2":"請在下方的文字輸入框輸入 YES 來證實您想要進行全新安裝取代升級。",
         "STR_PART_VENTOY_FS":"Ventoy 分割區文件系統",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"文件系統",
+        "STR_PART_CLUSTER":"簇的大小",
+        "STR_PART_CLUSTER_DEFAULT":"系統默認值",
 
         "STRXXX":""
     },
@@ -2512,9 +2512,9 @@
         "STR_INSTALL_YES_TIP1":"Προειδοποίηση: Τα δεδομένα θα χαθούν!",
         "STR_INSTALL_YES_TIP2":"Εισαγάγετε ΝΑΙ στο παρακάτω πλαίσιο κειμένου για να επιβεβαιώσετε ότι όντως θέλετε να κάνετε μια νέα εγκατάσταση αντί για αναβάθμιση.",
         "STR_PART_VENTOY_FS":"Σύστημα αρχείων για το διαμέρισμα Ventoy",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"Σύστημα αρχείων",
+        "STR_PART_CLUSTER":"Μέγεθος συμπλέγματος",
+        "STR_PART_CLUSTER_DEFAULT":"Προεπιλεγμένη τιμή συστήματος",
 
         "STRXXX":""
     },
@@ -2574,10 +2574,10 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Icke-förstörande installation stoppades eftersom vissa villkor inte kunde uppfyllas. Mer information finns i log.txt.",
         "STR_INSTALL_YES_TIP1":"Varning: Data kommer att gå förlorade!",
         "STR_INSTALL_YES_TIP2":"Skriv YES i textrutan nedan för att bekräfta att du verkligen vill göra en nyinstallation i stället för att uppgradera.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_VENTOY_FS":"Filsystem för Ventoy-partition",
+        "STR_PART_FS":"Filsystem",
+        "STR_PART_CLUSTER":"Klusterstorlek",
+        "STR_PART_CLUSTER_DEFAULT":"Systemets standardvärde",
 
         "STRXXX":""
     },

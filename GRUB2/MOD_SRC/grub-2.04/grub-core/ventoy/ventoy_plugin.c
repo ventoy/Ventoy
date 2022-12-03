@@ -3554,10 +3554,12 @@ grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char *
     {
         grub_env_set(args[0], g_cur_menu_language);
     }
-
-    grub_printf("%s\n", g_cur_menu_language);
-    grub_printf("%s\n", g_ventoy_hotkey_tip);
-    grub_refresh();
+    else
+    {
+        grub_printf("%s\n", g_cur_menu_language);
+        grub_printf("%s\n", g_ventoy_hotkey_tip);
+        grub_refresh();        
+    }
 
     VENTOY_CMD_RETURN(0);
 }
