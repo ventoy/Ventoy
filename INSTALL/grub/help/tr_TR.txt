@@ -1,5 +1,5 @@
- h - Yardım bilgilerini göster
-F1 - Memdisk Modu başlatır(Yalnızca küçük WinPE/LiveCD ISO/IMG ler için bu modu kullanabilirsiniz)
+ L - Dil Seçimi
+F1 - Yardım bilgilerini göster
 F2 - Yerel diskteki dosyalara GÖZAT ve ÖNYÜKLE'meyi sağlar
 F3 - Ventoy Menü modu olarak,Klasör görünümü(Treeview) ile Liste görünümü(ListView) arasında geçiş yapmayı sağlar.
 F4 - Bilgisayarınızda yüklü olan Windows yada Linux işletim sistemini, sabit diskten başlatır.
@@ -7,8 +7,9 @@ F5 - Ventoy Araçlar menüsü
 F6 - Özelleştirilmiş Grub2 menüsünü yükler
 F7 - Grafik Modu(GUI Mode) ile Metin Modu(Text Mode) arasında geçiş yapmayı sağlar
 
-m - İndirilen imaj dosyalarının hatasız indirildiğini teyit etmek için "md5/sha1/sha256/sha512" değerlerini kontrol etmeyi sağlar
+m/Ctrl+m - İndirilen imaj dosyalarının hatasız indirildiğini teyit etmek için "md5/sha1/sha256/sha512" değerlerini kontrol etmeyi sağlar
 w/Ctrl+w - WIMBOOT Modu çalıştırmayı sağlar(Sadece normal Windows ISO ları için)
+d/Ctrl+d - Memdisk Modu başlatır(Yalnızca küçük WinPE/LiveCD ISO/IMG ler için bu modu kullanabilirsiniz)
 r/Ctrl+r - Grub2 Modu çalıştırmayı sağlar (Sadece bazı Linux dağıtımları için)
 i/Ctrl+i - Uyumluluk Modu'nu (Compatible Mode) çalıştırmayı sağlar (Sadece hata ayıklama için bu modu kullanabilirsiniz)
 u/Ctrl+u - ISO efi sürücüsünü yükler(Sadece hata ayıklama için bu mod kullanılabilir, resmi olarak kullanılamaz)

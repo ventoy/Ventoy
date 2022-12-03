@@ -101,7 +101,6 @@ done
 echo "menuentry '@VTMENU_RETURN_PREVIOUS' --class=vtoyret VTOY_RET {" >> menulang.cfg
 echo "        echo 'Return ...'" >> menulang.cfg
 echo "}" >> menulang.cfg
-echo "}" >> menulang.cfg
 
 tar czf menu.tar.gz ./menu/
 rm -rf ./menu

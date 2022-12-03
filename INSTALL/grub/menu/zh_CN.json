@@ -1,8 +1,8 @@
 {
     "VTMENU_LANGUAGE_NAME": "zh_CN  (简体中文)",
 
-    "VTMENU_STR_HOTKEY_LIST": "h:帮助  F1:内存模式  F2:本地浏览  F3:列表模式  F4:本地启动  F5:工具  F6:扩展菜单",
-    "VTMENU_STR_HOTKEY_TREE": "h:帮助  F1:内存模式  F2:本地浏览  F3:树形模式  F4:本地启动  F5:工具  F6:扩展菜单",
+    "VTMENU_STR_HOTKEY_LIST": "L:语言  F1:帮助  F2:本地浏览  F3:列表模式  F4:本地启动  F5:工具  F6:扩展菜单",
+    "VTMENU_STR_HOTKEY_TREE": "L:语言  F1:帮助  F2:本地浏览  F3:树形模式  F4:本地启动  F5:工具  F6:扩展菜单",
     "VTMENU_RETURN_PREVIOUS": "返回上一级菜单 [Esc]",
     
     "VTMENU_MENU_LANG": "菜单语言",

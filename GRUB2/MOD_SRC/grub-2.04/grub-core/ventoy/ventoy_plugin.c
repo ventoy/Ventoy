@@ -3532,7 +3532,8 @@ int ventoy_plugin_load_menu_lang(const char *lang)
         grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTMENU_STR_HOTKEY_LIST"));
     }
 
-    g_ventoy_virt_esc = 2;
+    ventoy_menu_push_key(GRUB_TERM_ESC);
+    ventoy_menu_push_key(GRUB_TERM_ESC);
     g_ventoy_menu_refresh = 1;
     ret = 0;
 
