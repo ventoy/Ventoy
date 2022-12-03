@@ -180,5 +180,8 @@
     <Image Include="Res\secure.ico">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="Res\secure2.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

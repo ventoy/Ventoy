@@ -13,6 +13,11 @@ if [ ! -f ./vs/VentoyPlugson/Release/VentoyPlugson.exe ]; then
     exit 1
 fi
 
+if [ ! -f ./vs/VentoyPlugson/x64/Release/VentoyPlugson_X64.exe ]; then
+    echo "NO VentoyPlugson_X64.exe found"
+    exit 1
+fi
+
 if [ -f ./www.tar.xz ]; then
     rm -f ./www.tar.xz
 fi
@@ -21,6 +26,10 @@ fi
 ls -1 ../INSTALL/grub/help/ | while read line; do 
     echo -n ${line:0:5} >> ./www/helplist
 done 
+[ -f ./www/menulist ] && rm -f ./www/menulist
+ls -1 ../INSTALL/grub/menu/ | while read line; do 
+    echo -n ${line:0:5} >> ./www/menulist
+done 
 echo -n "$plugson_verion" > ./www/buildtime
 
 tar cf www.tar www
@@ -28,6 +37,10 @@ xz --check=crc32 www.tar
 
 rm -f ../INSTALL/VentoyPlugson.exe
 cp -a ./vs/VentoyPlugson/Release/VentoyPlugson.exe ../INSTALL/VentoyPlugson.exe
+
+rm -f ../INSTALL/VentoyPlugson_X64.exe
+cp -a ./vs/VentoyPlugson/x64/Release/VentoyPlugson_X64.exe ../INSTALL/VentoyPlugson_X64.exe
+
 
 rm -f ../INSTALL/tool/plugson.tar.xz
 mv ./www.tar.xz ../INSTALL/tool/plugson.tar.xz

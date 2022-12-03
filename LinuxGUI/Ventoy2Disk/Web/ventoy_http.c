@@ -683,10 +683,45 @@ static int ventoy_write_gpt_part_table(int fd, uint64_t disksize, VTOY_GPT_INFO 
     return 0;
 }
 
+static int ventoy_mbr_need_update(ventoy_disk *disk, MBR_HEAD *mbr)
+{
+    int update = 0;
+    int partition_style;
+    MBR_HEAD LocalMBR;
+
+    partition_style = disk->vtoydata.partition_style;
+    memcpy(mbr, &(disk->vtoydata.gptinfo.MBR), 512);
+    
+    VentoyGetLocalBootImg(&LocalMBR);
+    memcpy(LocalMBR.BootCode + 0x180, mbr->BootCode + 0x180, 16);
+    if (partition_style)
+    {
+        LocalMBR.BootCode[92] = 0x22;        
+    }
+
+    if (memcmp(LocalMBR.BootCode, mbr->BootCode, 440))
+    {
+        memcpy(mbr->BootCode, LocalMBR.BootCode, 440);
+        vlog("MBR boot code different, must update it.\n");
+        update = 1;
+    }
+
+    if (partition_style == 0 && mbr->PartTbl[0].Active == 0)
+    {
+        mbr->PartTbl[0].Active = 0x80;
+        mbr->PartTbl[1].Active = 0;
+        mbr->PartTbl[2].Active = 0;
+        mbr->PartTbl[3].Active = 0;
+        vlog("set MBR partition 1 active flag enabled\n");
+        update = 1;
+    }
+
+    return update;
+}
+
 static void * ventoy_update_thread(void *data)
 {
     int fd;
-    int updateMBR;
     ssize_t len;
     off_t offset;
     MBR_HEAD MBR;
@@ -744,34 +779,17 @@ static void * ventoy_update_thread(void *data)
     len = write(fd, disk->vtoydata.rsvdata, sizeof(disk->vtoydata.rsvdata));
     vlog("Writing reserve data offset:%llu len:%llu ...\n", (_ull)offset, (_ull)len);
 
-    updateMBR = 0;
-    memcpy(&MBR, &(disk->vtoydata.gptinfo.MBR), 512);
-    
-    if (disk->vtoydata.partition_style == 0 && MBR.PartTbl[0].Active == 0)
-    {
-        MBR.PartTbl[0].Active = 0x80;
-        MBR.PartTbl[1].Active = 0;
-        MBR.PartTbl[2].Active = 0;
-        MBR.PartTbl[3].Active = 0;
-        updateMBR = 1;
-        vlog("set MBR partition 1 active flag enabled\n");
-    }
-
-    if (MBR.BootCode[0x190] != 0x56 || MBR.BootCode[0x191] != 0x54)
-    {
-        vlog("set VT data %02x %02x\n", MBR.BootCode[0x190], MBR.BootCode[0x191]);
-        MBR.BootCode[0x190] = 0x56;
-        MBR.BootCode[0x191] = 0x54;
-        updateMBR = 1;
-    }
-
-    if (updateMBR)
+    if (ventoy_mbr_need_update(disk, &MBR))
     {
         offset = lseek(fd, 0, SEEK_SET);
         len = write(fd, &MBR, 512);
         vlog("update MBR offset:%llu len:%llu\n", (_ull)offset, (_ull)len);
     }
-    
+    else
+    {
+        vlog("No need to update MBR\n");
+    }
+
     g_current_progress = PT_SYNC_DATA1;
 
     vlog("fsync data1...\n");

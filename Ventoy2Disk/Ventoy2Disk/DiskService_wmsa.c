@@ -255,3 +255,29 @@ BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLette
 	Log("PSHELL_ShrinkVolume<%d> %C: ret:%d (%s)", DriveIndex, DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
 }
+
+BOOL PSHELL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
+{
+	BOOL ret;
+	const char* fsname = NULL;
+	CHAR CmdBuf[512];
+
+	fsname = GetVentoyFsFmtNameByTypeA(fs);
+
+	if (ClusterSize > 0)
+	{
+		sprintf_s(CmdBuf, sizeof(CmdBuf),
+			"format-volume -DriveLetter %C -FileSystem %s -AllocationUnitSize %u -Force -NewFileSystemLabel Ventoy",
+			DriveLetter, fsname, ClusterSize);
+	}
+	else
+	{
+		sprintf_s(CmdBuf, sizeof(CmdBuf),
+			"format-volume -DriveLetter %C -FileSystem %s -Force -NewFileSystemLabel Ventoy",
+			DriveLetter, fsname);
+	}
+
+	ret = PSHELL_CommProc(CmdBuf);
+	Log("PSHELL_FormatVolume %C: ret:%d (%s)", DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
+	return ret;
+}

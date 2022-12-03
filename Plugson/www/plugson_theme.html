@@ -1,10 +1,12 @@
 <div class="box box-primary" id="control">
     <div class="box-header">
-        <div class="col-sm-10" style="padding-top:8px;">
+        <div class="col-sm-9" style="padding-top:8px;">
             <i class="fa fa-file-image-o">&nbsp;&nbsp;</i>
             <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">主题插件</h1>
         </div>
-        
+        <div class="col-sm-1" style="padding-top:2px;">
+          <button id="id_btn_reset" class="btn btn-sm btn-danger btn-del"><i class="fa fa-trash"></i><span id="id_btn_span_reset">Reset</span></button>
+        </div>
         <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
             <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/cn/plugin_theme.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
         </div>
@@ -513,6 +515,36 @@
   $('#id_tab_theme a[href="#tab_4"]').click(OnClickMultiModeTab);
   $('#id_tab_theme a[href="#tab_5"]').click(OnClickMultiModeTab);
 
+  function UpdateTabTitleIcon(data) {
+    CommonUpdateTabTitleIcon(data.exist_theme, '#id_tab_theme a[href="#tab_', 'theme');
+  }
+  $('#id_btn_reset').click(function() { 
+    Modal.confirm({msg:GetResetTabConfigTipMsg(current_tab_index, 'theme')}).on(function(e) {
+        if (e) {            
+            callVtoySync({
+                method : 'theme_del_file',
+                index: current_tab_index,
+                path: g_del_all_path
+            }, function(data) {
+                
+            });
+            
+            callVtoySync({
+                method : 'theme_del_font',
+                index: current_tab_index,
+                path: g_del_all_path
+            }, function(data) {
+                
+            });
+            
+            m_data_theme[current_tab_index].filelist.length = 0;
+            m_data_theme[current_tab_index].fontslist.length = 0;
+            VtoyFillCurrentPageItem(m_data_theme[g_vtoy_data_default_index]);
+            VtoySaveCurrentPage();
+        }
+    });
+  });
+  
   $('#id_tab_theme a[href="#tab_0"]').tab('show');
   VtoyFillCurrentPageItem(m_data_theme[0]);
   VtoyPageLanguageChange(g_current_language);

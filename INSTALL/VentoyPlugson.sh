@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./tool/ventoy_lib.sh
 
 print_usage() {    
-    echo 'Usage:  sudo sh VentoyPlugson.sh [OPTION] /dev/sdX'
+    echo 'Usage:  sudo bash VentoyPlugson.sh [OPTION] /dev/sdX'
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -P PORT     http server PORT (default is 24681)'
@@ -17,6 +17,15 @@ if [ $uid -ne 0 ]; then
     exit 1
 fi
 
+if [ "$1" = "__vbash__" ]; then
+    shift
+else
+    if readlink /bin/sh | grep -q bash; then
+        :
+    else
+        exec /bin/bash $0 "__vbash__" "$@"
+    fi
+fi
 
 OLDDIR=$(pwd)
 
@@ -154,7 +163,7 @@ fi
 PART1=$(get_disk_part_name $DISK 1)
 
 if grep -q "^$PART1 " /proc/mounts; then
-    mtpnt=$(grep "^$PART1 " /proc/mounts | awk '{print $2}')
+    mtpnt=$(grep "^$PART1 " /proc/mounts | awk '{print $2}' | sed 's/\\040/ /g')
     fstype=$(grep "^$PART1 " /proc/mounts | awk '{print $3}')
     
     if echo $fstype | grep -q -i 'fuse'; then

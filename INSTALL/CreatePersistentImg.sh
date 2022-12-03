@@ -18,6 +18,18 @@ print_usage() {
     echo ''
 }
 
+print_err() {
+    echo ""
+    echo "$*"
+    echo ""
+}
+
+uid=$(id -u)
+if [ $uid -ne 0 ]; then
+    print_err "Please use sudo or run the script as root."
+    exit 1
+fi
+
 while [ -n "$1" ]; do
     if [ "$1" = "-s" ]; then
         shift

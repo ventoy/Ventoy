@@ -75,6 +75,9 @@
     <ClCompile Include="..\..\..\src\main_windows.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\Core\ventoy_utf.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\Core\ventoy_define.h">

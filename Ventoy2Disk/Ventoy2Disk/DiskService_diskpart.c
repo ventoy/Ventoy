@@ -85,3 +85,31 @@ BOOL DSPT_CleanDisk(int DriveIndex)
     sprintf_s(CmdBuf, sizeof(CmdBuf), "select disk %d\r\nclean\r\n", DriveIndex);
     return DSPT_CommProc(CmdBuf);
 }
+
+BOOL DSPT_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
+{
+    const char* fsname = NULL;
+    CHAR CmdBuf[256];
+
+    Log("FormatVolumeByDiskpart <%C:>", DriveLetter);
+
+    if (!IsDiskpartExist())
+    {
+        return FALSE;
+    }
+
+    fsname = GetVentoyFsFmtNameByTypeA(fs);
+
+    if (ClusterSize > 0)
+    {
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy UNIT=%u QUICK OVERRIDE\r\n", DriveLetter, fsname, ClusterSize);
+    }
+    else
+    {
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy QUICK OVERRIDE\r\n", DriveLetter, fsname);
+    }
+    
+    Log("Diskpart cmd:<%s>", CmdBuf);
+
+    return DSPT_CommProc(CmdBuf);
+}

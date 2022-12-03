@@ -37,8 +37,37 @@ if [ "$vtdiskname" = "unknown" ]; then
 fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
-
 ventoy_create_dev_ventoy_part
+
+if ventoy_need_dm_patch; then
+    vtlog "extract a ko file"
+
+    mkdir -p /ventoy/tmpmnt1 /ventoy/tmpmnt2
+    mount /dev/ventoy1 /ventoy/tmpmnt1
+    mount /ventoy/tmpmnt1/boot/batocera /ventoy/tmpmnt2
+    vtKV=$(uname -r)
+    
+    mkdir -p /lib/modules/$vtKV/kernel/
+    vtKO=$(find "/ventoy/tmpmnt2/lib/modules/$vtKV/kernel/fs/" -name "*.ko*" | head -n1)    
+    cp -a $vtKO /lib/modules/$vtKV/kernel/
+    
+    vtlog "vtKV=$vtKV vtKO=$vtKO"
+    
+    umount /ventoy/tmpmnt2
+    umount /ventoy/tmpmnt1
+
+    vtPartid=1
+    cat /vtoy_dm_table | while read vtline; do
+        dmsetup remove ventoy$vtPartid
+        vtPartid=$(expr $vtPartid + 1)
+    done
+    dmsetup remove ventoy
+    
+    vtlog "Recreate device-mapper"
+    ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
+    ventoy_create_dev_ventoy_part
+fi
+
 
 PATH=$VTPATH_OLD
 

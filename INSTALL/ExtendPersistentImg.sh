@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 print_usage() {
     echo 'Usage:  ExtendPersistentImg.sh file size'
@@ -18,6 +18,18 @@ if [ -z "$2" ]; then
     print_usage
     exit 1
 fi
+
+
+if [ "$1" = "__vbash__" ]; then
+    shift
+else
+    if readlink /bin/sh | grep -q bash; then
+        :
+    else
+        exec /bin/bash $0 "__vbash__" "$@"
+    fi
+fi
+
 
 file=$1
 size=$2

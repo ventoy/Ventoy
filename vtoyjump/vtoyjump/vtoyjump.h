@@ -152,7 +152,6 @@ typedef struct VTOY_GPT_INFO
 #pragma pack()
 
 
-
 typedef struct VarDiskInfo
 {
     UINT64 Capacity;
@@ -165,6 +164,13 @@ typedef struct VarDiskInfo
     CHAR SerialNumber[128];
 }VarDiskInfo;
 
+typedef struct IsoId
+{
+    CHAR SystemId[64];
+    CHAR VolumeId[64];
+    CHAR PulisherId[256];
+    CHAR PreparerId[256];
+}IsoId;
 
 #define SAFE_CLOSE_HANDLE(handle) \
 {\
@@ -186,5 +192,6 @@ int unxz(unsigned char *in, int in_size,
     int(*flush)(void *src, unsigned int size),
     unsigned char *out, int *in_used,
     void(*error)(char *x));
+
 
 #endif

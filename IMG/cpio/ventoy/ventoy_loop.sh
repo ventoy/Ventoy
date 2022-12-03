@@ -75,6 +75,10 @@ ventoy_get_os_type() {
         echo 'openwrt'; return
     fi
     
+    if $GREP -q 'easyos' /proc/cmdline; then
+        echo 'easyos'; return
+    fi
+    
     if [ -e /BOOT_SPECS ]; then
         if $GREP -q 'easyos' /BOOT_SPECS; then
             echo 'easyos'; return

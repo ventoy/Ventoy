@@ -88,6 +88,25 @@ tar czf help.tar.gz ./help/
 rm -rf ./help
 cd ../../
 
+#tar menu txt & update menulang.cfg
+cd $tmpmnt/grub/
+
+for vtlang in $(ls menu/); do
+    vtlangname=${vtlang%.*}
+    vtlangtitle=$(grep VTMENU_LANGUAGE_NAME menu/$vtlang | awk -F\" '{print $4}')
+    echo "menuentry \"$vtlangtitle\" --class=menu_lang_item --class=debug_menu_lang --class=F5tool {" >> menulang.cfg
+    echo "    vt_load_menu_lang $vtlangname"  >> menulang.cfg
+    echo "}"  >> menulang.cfg
+done
+echo "menuentry '@VTMENU_RETURN_PREVIOUS' --class=vtoyret VTOY_RET {" >> menulang.cfg
+echo "        echo 'Return ...'" >> menulang.cfg
+echo "}" >> menulang.cfg
+
+tar czf menu.tar.gz ./menu/
+rm -rf ./menu
+cd ../../
+
+
 
 cp $OPT ./ventoy   $tmpmnt/
 cp $OPT ./EFI   $tmpmnt/
@@ -202,6 +221,7 @@ cp $OPT VentoyVlnk.exe $tmpdir/
 cp $OPT FOR_X64_ARM.txt $tmpdir/
 mkdir -p $tmpdir/altexe
 cp $OPT Ventoy2Disk_*.exe $tmpdir/altexe/
+cp $OPT VentoyPlugson_*.exe $tmpdir/altexe/
 
 
 

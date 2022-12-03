@@ -22,7 +22,7 @@
 
 #include <civetweb.h>
 
-#define MAX_LANGUAGE  128
+#define MAX_LANGUAGE  256
 
 #define L1 "    "
 #define L2 "        "
@@ -41,6 +41,24 @@ typedef enum bios_mode
     bios_max
 }bios_mode;
 
+typedef enum plugin_type
+{
+    plugin_type_control = 0,
+    plugin_type_theme,
+    plugin_type_menu_alias,
+    plugin_type_menu_tip,
+    plugin_type_menu_class,
+    plugin_type_auto_install,
+    plugin_type_persistence,
+    plugin_type_injection,
+    plugin_type_conf_replace,
+    plugin_type_password,
+    plugin_type_image_list,
+    plugin_type_auto_memdisk,
+    plugin_type_dud,
+
+    plugin_type_max
+}plugin_type;
 
 typedef struct data_control
 {
@@ -58,11 +76,14 @@ typedef struct data_control
     int filter_vtoy;
     int win11_bypass_check;
     int menu_timeout;
+    int secondary_menu_timeout;
     int linux_remount;
+    int secondary_menu;
+    int password_asterisk;
     char default_search_root[MAX_PATH];
     char default_image[MAX_PATH];
     char default_kbd_layout[32];
-    char help_text_language[32];
+    char menu_language[32];
 }data_control;
 
 #define display_mode_gui            0
@@ -258,8 +279,10 @@ typedef struct data_persistence
     for (i = 0; i < bios_max; i++) \
     {\
         scnprintf(title, sizeof(title), "%s%s", #plug, g_json_title_postfix[i]);\
+        g_json_exist[plugin_type_##plug][i] = 0;\
         if (ventoy_data_cmp_##plug(g_data_##plug + i, g_data_##plug + bios_max))\
         {\
+            g_json_exist[plugin_type_##plug][i] = 1;\
             pos += ventoy_data_save_##plug(g_data_##plug + i, title, JSON_SAVE_BUFFER + pos, JSON_BUF_MAX - pos);\
         }\
     }\
@@ -300,6 +323,7 @@ typedef struct data_persistence
         free(__node);\
         __node = __next;\
     }\
+    (list) = NULL;\
 }
 
 #define vtoy_list_del(last, node, LIST, field) \
@@ -364,7 +388,7 @@ else\
 #define ventoy_parse_json(name) \
 {\
     int __loop;\
-    int __len = strlen(#name);\
+    int __len = (int)strlen(#name);\
     if (strncmp(#name, node->pcName, __len) == 0)\
     {\
         for (__loop = 0; __loop < bios_max; __loop++)\
@@ -379,9 +403,11 @@ else\
     } \
 }
 
-#define CONTROL_PARSE_INT(node, val) \
+#define CONTROL_PARSE_INT_DEF_0(node, val) \
     if (node->unData.pcStrVal[0] == '1') val = 1
 
+#define CONTROL_PARSE_INT_DEF_1(node, val) \
+    if (node->unData.pcStrVal[0] == '0') val = 0
 
 #define VTOY_JSON_INT(key, val) vtoy_json_get_int(json, key, &val)
 #define VTOY_JSON_STR(key, buf) vtoy_json_get_string(json, key, sizeof(buf), buf)
@@ -399,6 +425,7 @@ void ventoy_http_exit(void);
 int ventoy_http_start(const char *ip, const char *port);
 int ventoy_http_stop(void);
 int ventoy_data_save_all(void);
+int ventoy_data_real_save_all(int apilock);
 
 #endif /* __VENTOY_HTTP_H__ */
 

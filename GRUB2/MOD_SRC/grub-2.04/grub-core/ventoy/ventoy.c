@@ -188,6 +188,21 @@ void * ventoy_alloc_chain(grub_size_t size)
     return p;
 }
 
+void ventoy_memfile_env_set(const char *prefix, const void *buf, unsigned long long len)
+{
+    char name[128];
+    char val[64];
+
+    grub_snprintf(name, sizeof(name), "%s_addr", prefix);
+    grub_snprintf(val, sizeof(val), "0x%llx", (ulonglong)(ulong)buf);
+    grub_env_set(name, val);
+    
+    grub_snprintf(name, sizeof(name), "%s_size", prefix);
+    grub_snprintf(val, sizeof(val), "%llu", len);
+    grub_env_set(name, val);
+
+    return;
+}
 
 static int ventoy_arch_mode_init(void)
 {

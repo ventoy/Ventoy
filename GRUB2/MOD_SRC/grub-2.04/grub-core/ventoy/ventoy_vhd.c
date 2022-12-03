@@ -305,7 +305,6 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
     int patchoffset[2];
     ventoy_patch_vhd *patch1;
     ventoy_patch_vhd *patch2;
-    char envbuf[64];
 
     (void)ctxt;
     (void)argc;
@@ -356,15 +355,9 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
 
     /* set buffer and size */
 #ifdef GRUB_MACHINE_EFI
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (ulong)g_vhdboot_totbuf);
-    grub_env_set("vtoy_vhd_buf_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%d", (int)(g_vhdboot_isolen + sizeof(ventoy_chain_head)));
-    grub_env_set("vtoy_vhd_buf_size", envbuf);
+    ventoy_memfile_env_set("vtoy_vhd_buf", g_vhdboot_totbuf, (ulonglong)(g_vhdboot_isolen + sizeof(ventoy_chain_head)));
 #else
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (ulong)g_vhdboot_isobuf);
-    grub_env_set("vtoy_vhd_buf_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%d", g_vhdboot_isolen);
-    grub_env_set("vtoy_vhd_buf_size", envbuf);
+    ventoy_memfile_env_set("vtoy_vhd_buf", g_vhdboot_isobuf, (ulonglong)g_vhdboot_isolen);
 #endif
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
@@ -645,7 +638,6 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     grub_disk_t disk;
     const char *pLastChain = NULL;
     ventoy_chain_head *chain;
-    char envbuf[64];
     
     (void)ctxt;
     (void)argc;
@@ -695,10 +687,7 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
         return 1;
     }
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
-    grub_env_set("vtoy_chain_mem_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
-    grub_env_set("vtoy_chain_mem_size", envbuf);
+    ventoy_memfile_env_set("vtoy_chain_mem", chain, (ulonglong)size);
 
     grub_env_export("vtoy_chain_mem_addr");
     grub_env_export("vtoy_chain_mem_size");

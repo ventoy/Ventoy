@@ -23,7 +23,20 @@
 
 #include <stdio.h>
 
+typedef enum VTOY_FS
+{
+    VTOY_FS_EXFAT = 0,
+    VTOY_FS_NTFS,
+    VTOY_FS_FAT32,
+    VTOY_FS_UDF,
+    VTOY_FS_BUTT
+}VTOY_FS;
+
+#define FAT32_MAX_LIMIT             (32 * 1073741824ULL)
+
+#define SIZE_1KB					(1024)
 #define SIZE_1GB					(1024 * 1024 * 1024)
+#define SIZE_1TB					(1024ULL * 1024ULL * 1024ULL * 1024ULL)
 #define SIZE_1MB                    (1024 * 1024)
 #define SIZE_2MB                    (2048 * 1024)
 #define VENTOY_EFI_PART_SIZE	    (32 * SIZE_1MB)
@@ -159,7 +172,9 @@ typedef struct PHY_DRIVE_INFO
     STORAGE_BUS_TYPE BusType;
 
     CHAR DriveLetters[64];
-   
+    
+    int  VentoyFsClusterSize;
+    CHAR VentoyFsType[16];
     CHAR VentoyVersion[32];
 
     BOOL SecureBootSupport;
@@ -192,6 +207,9 @@ typedef enum PROGRESS_POINT
     PT_WRITE_STG1_IMG,
     PT_WRITE_PART_TABLE,
     PT_MOUNT_VOLUME,
+
+    PT_REFORMAT_START,
+    PT_REFORMAT_FINISH = PT_REFORMAT_START + 2,
 
     PT_FINISH
 }PROGRESS_POINT;
@@ -247,12 +265,23 @@ int INIT unxz(unsigned char *in, int in_size,
     unsigned char *out, int *in_used,
     void(*error)(char *x));
 void disk_io_set_param(HANDLE Handle, UINT64 SectorCount);
+int GetVolumeClusterSize(char Drive);
 
 extern BOOL g_InputYes;
 INT_PTR CALLBACK YesDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK PartDialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
 int GetReservedSpaceInMB(void);
 int IsPartNeed4KBAlign(void);
+int GetVentoyFsType(void);
+void SetVentoyFsType(int fs);
+int GetClusterSize(void);
+void SetClusterSize(int ClusterSize);
+WCHAR* GetClusterSizeTip(void);
+void FormatClusterSizeTip(int Size, WCHAR* pBuf, size_t len);
+const char* GetVentoyFsName(void);
+const char* GetVentoyFsNameByType(int fs);
+CHAR* GetVentoyFsFmtNameByTypeA(int fs);
+WCHAR* GetVentoyFsFmtNameByTypeW(int fs);
 int FindProcessOccupyDisk(HANDLE hDrive, PHY_DRIVE_INFO *pPhyDrive);
 int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 SectorCount, PART_TABLE *Table);
 int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter);
@@ -262,8 +291,6 @@ BOOL PartResizePreCheck(PHY_DRIVE_INFO** ppPhyDrive);
 #define SET_FILE_POS(pos) \
     liCurrentPosition.QuadPart = pos; \
     SetFilePointerEx(hDrive, liCurrentPosition, &liCurrentPosition, FILE_BEGIN)\
-
-#define SECURE_ICON_STRING _UICON(UNICODE_LOCK)
 
 extern int g_WriteImage;
 

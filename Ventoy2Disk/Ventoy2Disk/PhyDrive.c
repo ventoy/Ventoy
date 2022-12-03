@@ -290,9 +290,9 @@ End:
 
 int GetPhyDriveByLogicalDrive(int DriveLetter, UINT64 *Offset)
 {
-    BOOL Ret;
-    DWORD dwSize;
-    HANDLE Handle;
+    BOOL Ret = FALSE;
+    DWORD dwSize = 0;
+    HANDLE Handle = INVALID_HANDLE_VALUE;
     VOLUME_DISK_EXTENTS DiskExtents;
     CHAR PhyPath[128];
 
@@ -305,6 +305,7 @@ int GetPhyDriveByLogicalDrive(int DriveLetter, UINT64 *Offset)
         return -1;
     }
 
+    memset(&DiskExtents, 0, sizeof(DiskExtents));
     Ret = DeviceIoControl(Handle,
         IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS,
         NULL,
@@ -322,9 +323,10 @@ int GetPhyDriveByLogicalDrive(int DriveLetter, UINT64 *Offset)
     }
     CHECK_CLOSE_HANDLE(Handle);
 
-    Log("LogicalDrive:%s PhyDrive:%d Offset:%llu ExtentLength:%llu",
+    Log("LogicalDrive:%s PhyDrive:%d Num:%d Offset:%llu ExtentLength:%llu",
         PhyPath,
         DiskExtents.Extents[0].DiskNumber,
+        DiskExtents.NumberOfDiskExtents,
         DiskExtents.Extents[0].StartingOffset.QuadPart,
         DiskExtents.Extents[0].ExtentLength.QuadPart
         );
@@ -1104,6 +1106,79 @@ static int WriteGrubStage1ToPhyDrive(HANDLE hDrive, int PartStyle)
 }
 
 
+static int FormatPart1LargeFAT32(UINT64 DiskSizeBytes, int CluserSize)
+{
+    MKFS_PARM Option;
+    FRESULT Ret;
+    FATFS FS;
+
+    Option.fmt = FM_FAT32;
+    Option.n_fat = 1;
+    Option.align = 8;
+    Option.n_root = 1;
+
+    if (CluserSize == 0)
+    {
+        // < 32GB select 32KB as cluster size
+        // > 32GB select 128KB as cluster size
+        if (DiskSizeBytes / 1024 / 1024 / 1024 <= 32)
+        {
+            Option.au_size = 32768;
+        }
+        else
+        {
+            Option.au_size = 131072;
+        }
+    }
+    else
+    {
+        Option.au_size = CluserSize;
+    }
+
+    Log("Formatting Part1 large FAT32 ClusterSize:%u(%uKB) ...", CluserSize, CluserSize / 1024);
+
+    disk_io_reset_write_error();
+
+    Ret = f_mkfs(TEXT("0:"), &Option, 0, 8 * 1024 * 1024);
+    if (FR_OK == Ret)
+    {
+        if (disk_io_is_write_error())
+        {
+            Log("Formatting Part1 large FAT32 failed, write error.");
+            return 1;
+        }
+
+        Log("Formatting Part1 large FAT32 success, now set label");
+        
+        Ret = f_mount(&FS, TEXT("0:"), 1);
+        if (FR_OK == Ret)
+        {
+            Log("f_mount SUCCESS");
+            Ret = f_setlabel(TEXT("0:Ventoy"));
+            if (FR_OK == Ret)
+            {
+                Log("f_setlabel SUCCESS");
+                Ret = f_unmount(TEXT("0:"));
+                Log("f_unmount %d %s", Ret, (FR_OK == Ret) ? "SUCCESS" : "FAILED");
+            }
+            else
+            {
+                Log("f_setlabel failed %d", Ret);
+            }
+        }
+        else
+        {
+            Log("f_mount failed %d", Ret);
+        }
+
+        return 0;
+    }
+    else
+    {
+        Log("Formatting Part1 large FAT32 failed");
+        return 1;
+    }
+}
 
 static int FormatPart1exFAT(UINT64 DiskSizeBytes)
 {
@@ -1335,6 +1410,7 @@ int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLett
 End:
     
     PROGRESS_BAR_SET_POS(PT_MOUNT_VOLUME);
+    PROGRESS_BAR_SET_POS(PT_REFORMAT_FINISH);
     
     if (pTmpBuf)
     {
@@ -1606,6 +1682,7 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
 End:
 
     PROGRESS_BAR_SET_POS(PT_MOUNT_VOLUME);
+    PROGRESS_BAR_SET_POS(PT_REFORMAT_FINISH);
 
     Log("retcode:%d\n", rc);
 
@@ -1632,6 +1709,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     UINT64 Part1StartSector = 0;
     UINT64 Part1SectorCount = 0;
     UINT64 Part2StartSector = 0;
+    BOOL LargeFAT32 = FALSE;
 
 	Log("#####################################################");
     Log("InstallVentoy2PhyDrive try%d %s PhyDrive%d <<%s %s %dGB>>", TryId,
@@ -1733,13 +1811,28 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
         Sleep(1000 * 5);
     }
 
-    Log("Formatting part1 exFAT ...");
-    if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
+    if (GetVentoyFsType() == VTOY_FS_FAT32 && (Part1SectorCount * 512 >= FAT32_MAX_LIMIT))
     {
-        Log("FormatPart1exFAT failed.");
-        rc = 1;
-        goto End;
+        Log("Formatting part1 large FAT32 ...");
+        LargeFAT32 = TRUE;
+        if (0 != FormatPart1LargeFAT32(pPhyDrive->SizeInBytes, GetClusterSize()))
+        {
+            Log("FormatPart1LargeFAT32 failed.");
+            rc = 1;
+            goto End;
+        }
     }
+    else
+    {
+        Log("Formatting part1 exFAT ...");
+        if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
+        {
+            Log("FormatPart1exFAT failed.");
+            rc = 1;
+            goto End;
+        }
+    }
+    
 
     PROGRESS_BAR_SET_POS(PT_FORMAT_PART2);
     Log("Writing part2 FAT img ...");
@@ -1837,6 +1930,7 @@ End:
             else
             {
                 Log("%s is ventoy part1, already mounted", DriveName);
+                MountDrive = DriveName[0];
                 state = 1;
             }
         }
@@ -1850,12 +1944,48 @@ End:
                 DriveName[0] = MountDrive;
                 bRet = SetVolumeMountPointA(DriveName, DriveLetters);
                 Log("SetVolumeMountPoint <%s> <%s> bRet:%u code:%u", DriveName, DriveLetters, bRet, GetLastError());
+
+                if (bRet)
+                {
+                    state = 1;
+                }
             }
             else
             {
                 Log("Failed to find ventoy volume");
             }
         }
+
+        if (state)
+        {
+            if (LargeFAT32)
+            {
+                Log("No need to reformat for large FAT32");
+                pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
+            }
+            else if (DISK_FormatVolume(MountDrive, GetVentoyFsType(), Part1SectorCount * 512))
+            {
+                Log("Reformat %C:\\ to %s SUCCESS", MountDrive, GetVentoyFsName());
+                pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
+
+                if ((GetVentoyFsType() != VTOY_FS_UDF) && (pPhyDrive->VentoyFsClusterSize < 2048))
+                {
+                    for (i = 0; i < 10; i++)
+                    {
+                        Log("### Invalid cluster size %d ###", pPhyDrive->VentoyFsClusterSize);
+                    }                    
+                }
+            }
+            else
+            {
+                Log("Reformat %C:\\ to %s FAILED", MountDrive, GetVentoyFsName());
+            }
+        }
+        else
+        {
+            Log("Can not reformat %s to %s", DriveName, GetVentoyFsName());
+        }
+
         Log("OK\n");
     }
     else

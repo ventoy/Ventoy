@@ -48,10 +48,35 @@ int g_ventoy_suppress_esc = 0;
 int g_ventoy_suppress_esc_default = 1;
 int g_ventoy_menu_esc = 0;
 int g_ventoy_fn_mutex = 0;
+int g_ventoy_secondary_menu_on = 0;
 int g_ventoy_terminal_output = 0;
+char g_ventoy_hotkey_tip[256];
+
+static int g_vt_key_num = 0;
+static int g_vt_key_code[128];
+
+static int ventoy_menu_pop_key(void)
+{
+    if (g_vt_key_num > 0 && g_vt_key_num < (int)(sizeof(g_vt_key_code) / sizeof(g_vt_key_code[0])))
+    {
+        g_vt_key_num--;
+        return g_vt_key_code[g_vt_key_num];
+    }
+    return -1;
+}
+
+int ventoy_menu_push_key(int code)
+{
+    if (g_vt_key_num >= 0 && g_vt_key_num < (int)(sizeof(g_vt_key_code) / sizeof(g_vt_key_code[0])))
+    {
+        g_vt_key_code[g_vt_key_num++] = code;
+        return 0;
+    }
+    return -1;
+}
 
 #define VTOY_COMM_HOTKEY(cmdkey) \
-if (0 == g_ventoy_fn_mutex) { \
+if (0 == g_ventoy_fn_mutex && 0 == g_ventoy_secondary_menu_on) { \
     cmdstr = grub_env_get(cmdkey); \
     if (cmdstr) \
     { \
@@ -795,7 +820,11 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
 	  return default_entry;
 	}
 
-      c = grub_getkey_noblock ();
+    if (g_vt_key_num > 0) {
+        c = ventoy_menu_pop_key();
+    } else {
+        c = grub_getkey_noblock ();
+    }
 
       /* Negative values are returned on error. */
       if ((c != GRUB_TERM_NO_KEY) && (c > 0))
@@ -933,66 +962,99 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             goto refresh;
         case GRUB_TERM_KEY_F1:
         case '1':
-            menu_fini ();
-            g_ventoy_memdisk_mode = 1 - g_ventoy_memdisk_mode;
-            g_ventoy_menu_refresh = 1;
-            goto refresh;
-            
-        case (GRUB_TERM_CTRL | 'i'):
-            menu_fini ();
-            g_ventoy_iso_raw = 1 - g_ventoy_iso_raw;
-            g_ventoy_menu_refresh = 1;
-            goto refresh;
-            
-        case (GRUB_TERM_CTRL | 'r'):
-            menu_fini ();
-            g_ventoy_grub2_mode = 1 - g_ventoy_grub2_mode;
-            g_ventoy_menu_refresh = 1;
-            goto refresh;
-            
-        case (GRUB_TERM_CTRL | 'w'):
-            menu_fini ();
-            g_ventoy_wimboot_mode = 1 - g_ventoy_wimboot_mode;
-            g_ventoy_menu_refresh = 1;
-            goto refresh;
-            
-        case (GRUB_TERM_CTRL | 'u'):
-            menu_fini ();
-            g_ventoy_iso_uefi_drv = 1 - g_ventoy_iso_uefi_drv;
-            g_ventoy_menu_refresh = 1;
-            goto refresh;
-
-        case (GRUB_TERM_CTRL | 'h'):
-        case 'h':
-        {
-            cmdstr = grub_env_get("VTOY_HELP_CMD");
-            if (cmdstr)
+            if (0 == g_ventoy_secondary_menu_on)
             {
-                grub_script_execute_sourcecode(cmdstr);
-                while (grub_getkey() != GRUB_TERM_ESC)
-                    ;
+                cmdstr = grub_env_get("VTOY_HELP_CMD");
+                if (cmdstr)
+                {
+                    grub_script_execute_sourcecode(cmdstr);
+                    while (grub_getkey() != GRUB_TERM_ESC)
+                        ;
+                    menu_fini ();
+                    goto refresh;
+                }                
+            }
+            break;
+        case (GRUB_TERM_CTRL | 'd'):
+        case 'd':
+            if (0 == g_ventoy_secondary_menu_on)
+            {
                 menu_fini ();
+                g_ventoy_memdisk_mode = 1 - g_ventoy_memdisk_mode;
+                g_ventoy_menu_refresh = 1;                
                 goto refresh;
             }
+            break;
+        case (GRUB_TERM_CTRL | 'i'):
+        case 'i':
+            if (0 == g_ventoy_secondary_menu_on)
+            {
+                menu_fini ();
+                g_ventoy_iso_raw = 1 - g_ventoy_iso_raw;
+                g_ventoy_menu_refresh = 1;
+                goto refresh;                
+            }
+            break;
+        case (GRUB_TERM_CTRL | 'r'):
+        case 'r':
+            if (0 == g_ventoy_secondary_menu_on)
+            {
+                menu_fini ();
+                g_ventoy_grub2_mode = 1 - g_ventoy_grub2_mode;
+                g_ventoy_menu_refresh = 1;                
+                goto refresh;
+            }
+            break;            
+        case (GRUB_TERM_CTRL | 'w'):
+        case 'w':
+            if (0 == g_ventoy_secondary_menu_on)
+            {
+                menu_fini ();
+                g_ventoy_wimboot_mode = 1 - g_ventoy_wimboot_mode;
+                g_ventoy_menu_refresh = 1;
+                goto refresh;
+            }
+            break;
+        case (GRUB_TERM_CTRL | 'u'):
+        case 'u':
+            if (0 == g_ventoy_secondary_menu_on)
+            {
+                menu_fini ();
+                g_ventoy_iso_uefi_drv = 1 - g_ventoy_iso_uefi_drv;
+                g_ventoy_menu_refresh = 1;
+                goto refresh;
+            }
+            break;
+        case (GRUB_TERM_CTRL | 'l'):
+        case (GRUB_TERM_CTRL | 'L'):
+        case (GRUB_TERM_SHIFT | 'l'):
+        case (GRUB_TERM_SHIFT | 'L'):
+        case 'l':
+        case 'L':
+        {
+            VTOY_COMM_HOTKEY("VTOY_LANG_CMD");
             break;
         }
         case (GRUB_TERM_CTRL | 'm'):
         case 'm':
         {
-            if (g_ventoy_cur_img_path)
-            {
-                grub_env_set("VTOY_CHKSUM_FILE_PATH", g_ventoy_cur_img_path);
-                cmdstr = grub_env_get("VTOY_CHKSUM_CMD");
-                if (cmdstr)
+            if (0 == g_ventoy_secondary_menu_on)
+            {                
+                if (g_ventoy_cur_img_path)
                 {
-                    menu_fini();
-                    grub_script_execute_sourcecode(cmdstr);
-                    goto refresh;
+                    grub_env_set("VTOY_CHKSUM_FILE_PATH", g_ventoy_cur_img_path);
+                    cmdstr = grub_env_get("VTOY_CHKSUM_CMD");
+                    if (cmdstr)
+                    {
+                        menu_fini();
+                        grub_script_execute_sourcecode(cmdstr);
+                        goto refresh;
+                    }
                 }
-            }
-            else
-            {
-                grub_env_set("VTOY_CHKSUM_FILE_PATH", "X");
+                else
+                {
+                    grub_env_set("VTOY_CHKSUM_FILE_PATH", "X");
+                }
             }
             break;
         }
