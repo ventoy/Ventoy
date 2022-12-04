@@ -1,0 +1,19 @@
+ L - Nyelv kiválasztása
+F1 - Jelenítse meg ezt a súgóinformációt
+F2 - A helyi lemezen lévő fájlok böngészése és indítása
+F3 - Menü mód váltása Fanézet <-> Listanézet között
+F4 - Windows/Linux indítása helyi lemezről
+F5 - Segédprogramok
+F6 - Egyéni Grub2 menü betöltése
+F7 - Váltás Grafikus mód <-> Szövege mód között
+
+m/Ctrl+m - Image fájlok ell.összege (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk mód (Csak kis WinPE/LiveCD ISO/IMG esetén)
+w/Ctrl+w - WIMBOOT mód (Csak szabványos Windows ISO esetében)
+r/Ctrl+r - Grub2 mód (Csak néhány Linux disztró esetében)
+i/Ctrl+i - Kompatibilis mód (Csak hibakeresésre)
+u/Ctrl+u - ISO efi driver betöltés (Csak hibakeresésre, hivatalosan nem használható.)
+
+
+
+Nyomjon ESC-et a visszatéréshez ......
