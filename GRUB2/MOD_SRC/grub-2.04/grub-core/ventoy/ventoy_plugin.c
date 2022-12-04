@@ -2448,7 +2448,6 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     int ret = 0;
     int offset = 0;
     char *buf = NULL;
-    const char *env = NULL;
     grub_uint8_t *code = NULL;
     grub_file_t file;
     VTOY_JSON *json = NULL;
@@ -2541,9 +2540,6 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     {
         grub_env_unset("VTOY_MENU_TIP_ENABLE");
     }
-
-    env = grub_env_get("VTOY_MENU_LANGUAGE");
-    ventoy_plugin_load_menu_lang(env ? env : "en_US");
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }

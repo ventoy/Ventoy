@@ -91,7 +91,8 @@ cd ../../
 #tar menu txt & update menulang.cfg
 cd $tmpmnt/grub/
 
-echo "menuentry \"zh_CN  -  Chinese Simplified (¼òÌåÖÐÎÄ)\" --class=menu_lang_item --class=debug_menu_lang --class=F5tool {" >> menulang.cfg
+vtlangtitle=$(grep VTMENU_LANGUAGE_NAME menu/zh_CN.json | awk -F\" '{print $4}')
+echo "menuentry \"zh_CN  -  $vtlangtitle\" --class=menu_lang_item --class=debug_menu_lang --class=F5tool {" >> menulang.cfg
 echo "    vt_load_menu_lang zh_CN"  >> menulang.cfg
 echo "}"  >> menulang.cfg
 
