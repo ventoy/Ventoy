@@ -1,8 +1,8 @@
  L - Pilih Bahasa
 F1 - Tampilkan bantuan informasi ini
-F2 - Browse and boot files in local disk
+F2 - Jelajah dan jalankan boot berkas pada disk lokal
 F3 - Beralih mode menu antara Treeview <-> ListView
-F4 - Jalankan (boot) Windows/Linux pada disk lokal
+F4 - Jalankan boot ke Windows/Linux pada disk lokal
 F5 - Alat Utilitas
 F6 - Memuat ubah suai Grub2 Menu
 F7 - Beralih antara mode GUI <-> Mode TEXT
