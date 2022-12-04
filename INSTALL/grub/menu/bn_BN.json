@@ -1,0 +1,81 @@
+{
+    "VTMENU_LANGUAGE_NAME": "Bengali (বাংলা)",
+    
+    "VTMENU_STR_HOTKEY_LIST": "L:ভাষা  F1:সাহায্য  F2:Browser  F3:ListView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTMENU_STR_HOTKEY_TREE": "L:ভাষা  F1:সাহায্য  F2:Browser  F3:TreeView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTMENU_RETURN_PREVIOUS": "পূর্ববর্তী মেনুতে ফিরে যান [Esc]",
+    
+    "VTMENU_MENU_LANG": "মেনু ভাষা নির্বাচন করুন",
+    
+    "VTMENU_LB_SBOOT_WINDOWS": "Windows অনুসন্ধান করুন এবং বুট করুন",
+    "VTMENU_LB_SBOOT_G4D": "Grub4dos অনুসন্ধান করুন এবং বুট করুন",
+    "VTMENU_LB_SBOOT_HDD1": "১ম(1st) স্থানীয় ডিস্ক বুট করুন",
+    "VTMENU_LB_SBOOT_HDD2": "২য়(2nd) স্থানীয় ডিস্ক বুট করুন",
+    "VTMENU_LB_SBOOT_HDD3": "3য়(3rd) স্থানীয় ডিস্ক বুট করুন",
+    "VTMENU_LB_SBOOT_X64EFI": "BOOTX64.EFI অনুসন্ধান করুন এবং বুট করুন",
+    "VTMENU_LB_SBOOT_IA32EFI": "BOOTIA32.EFI অনুসন্ধান করুন এবং বুট করুন",
+    "VTMENU_LB_SBOOT_AA64EFI": "BOOTAA64.EFI অনুসন্ধান করুন এবং বুট করুন",
+    "VTMENU_LB_SBOOT_XORBOOT": "xorboot অনুসন্ধান করুন এবং বুট করুন",
+    
+    "VTMENU_FILE_CHKSUM": "ফাইল চেকসাম",
+    "VTMENU_CHKSUM_MD5_CALC": "md5sum গণনা করুন",
+    "VTMENU_CHKSUM_SHA1_CALC": "sha1sum গণনা করুন",
+    "VTMENU_CHKSUM_SHA256_CALC": "sha256sum গণনা করুন",
+    "VTMENU_CHKSUM_SHA512_CALC": "sha512sum গণনা করুন",
+    "VTMENU_CHKSUM_MD5_CALC_CHK": "গণনা করুন এবং md5sum চেক করুন",
+    "VTMENU_CHKSUM_SHA1_CALC_CHK": "গণনা করুন এবং sha1sum চেক করুন",
+    "VTMENU_CHKSUM_SHA256_CALC_CHK": "গণনা করুন এবং sha256sum চেক করুন",
+    "VTMENU_CHKSUM_SHA512_CALC_CHK": "গণনা করুন এবং sha512sum চেক করুন",
+    
+    "VTMENU_POWER": "পাওয়ার",
+    "VTMENU_POWER_REBOOT": "রিবুট",
+    "VTMENU_POWER_HALT": "হল্ট",
+    "VTMENU_POWER_BOOT_EFIFW": "EFI সেটআপে রিবুট করুন",
+    
+    "VTMENU_KEYBRD_LAYOUT": "কীবোর্ড লেআউট",
+    "VTMENU_HWINFO": "হার্ডওয়্যার তথ্য",
+    
+    "VTMENU_RESOLUTION_CFG": "রেজোলিউশন কনফিগারেশন",
+    "VTMENU_SCREEN_MODE": "Screen Display মোড",
+    "VTMENU_SCREEN_TEXT_MODE": "Force Text মোড",
+    "VTMENU_SCREEN_GUI_MODE": "Force Graphics মোড",
+    
+    "VTMENU_THEME_SELECT": "থিম নির্বাচন করুন",
+    
+    "VTMENU_UTIL_SHOW_EFI_DRV": "EFI ড্রাইভার দেখান",
+    "VTMENU_UTIL_FIX_BLINIT_FAIL": "Windows BlinitializeLibrary ব্যর্থতার সমাধান করুন",
+    
+    "VTMENU_JSON_CHK_JSON": "প্লাগইন json কনফিগারেশন পরীক্ষা করুন (ventoy.json)",
+    "VTMENU_JSON_CHK_CONTROL": "গ্লোবাল কন্ট্রোল প্লাগইন কনফিগারেশন চেক করুন",
+    "VTMENU_JSON_CHK_THEME": "থিম প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_AUTOINS": "অটো ইন্সটল প্লাগইন কনফিগারেশন চেক করুন",
+    "VTMENU_JSON_CHK_PERSIST": "persistence প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_MENU_ALIAS": "menu alias প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_MENU_TIP": "menu tip প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_MENU_CLASS": "menu class প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_INJECTION": "injection প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_AUTO_MEMDISK": "auto memdisk প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_IMG_LIST": "image list প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_IMG_BLIST": "image blacklist প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_CONF_REPLACE": "boot conf replace প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_DUD": "dud প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTMENU_JSON_CHK_PASSWORD": "password প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    
+    "VTMENU_NORMAL_MODE": "সাধারণ মোডে বুট করুন",
+    "VTMENU_WIMBOOT_MODE": "wimboot মোডে বুট করুন",
+    "VTMENU_GRUB2_MODE": "grub2 মোডে বুট করুন",
+    "VTMENU_MEMDISK_MODE": "memdisk মোডে বুট করুন",
+    
+    "VTMENU_RET_TO_LISTVIEW": "ListView-এ ফিরে যান",
+    "VTMENU_RET_TO_TREEVIEW": "TreeView-এ ফিরে যান",
+    
+    "VTMENU_NO_AUTOINS_SCRIPT": "auto install মোড বিনা বুট করুন",
+    "VTMENU_AUTOINS_USE": "দিয়ে বুট করুন",
+    
+    "VTMENU_NO_PERSIST": "persistence বিনা বুট করুন",
+    "VTMENU_PERSIST_USE": "দিয়ে বুট করুন",
+    
+    "VTMENU_BROWER_RETURN": "ফিরে",
+    
+    "MENU_STR_XXX": ""
+}
