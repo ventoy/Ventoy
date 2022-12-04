@@ -6177,12 +6177,21 @@ static grub_err_t ventoy_cmd_fs_ignore_case(grub_extcmd_context_t ctxt, int argc
     return 0;
 }
 
+static grub_err_t ventoy_cmd_init_menu_lang(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+
+    ventoy_plugin_load_menu_lang(1, args[0]);
+    VENTOY_CMD_RETURN(0);
+}
+
 static grub_err_t ventoy_cmd_load_menu_lang(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
     (void)argc;
 
-    ventoy_plugin_load_menu_lang(args[0]);
+    ventoy_plugin_load_menu_lang(0, args[0]);
     VENTOY_CMD_RETURN(0);
 }
 
@@ -6399,6 +6408,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_limine_menu", ventoy_cmd_linux_limine_menu, 0, NULL, "", "", NULL },
     { "vt_secondary_recover_mode", ventoy_cmd_secondary_recover_mode, 0, NULL, "", "", NULL },
     { "vt_load_menu_lang", ventoy_cmd_load_menu_lang, 0, NULL, "", "", NULL },
+    { "vt_init_menu_lang", ventoy_cmd_init_menu_lang, 0, NULL, "", "", NULL },
     { "vt_cur_menu_lang", ventoy_cmd_cur_menu_lang, 0, NULL, "", "", NULL },
 };
 

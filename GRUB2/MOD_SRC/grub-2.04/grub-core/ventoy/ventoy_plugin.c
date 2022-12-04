@@ -3474,7 +3474,7 @@ const char *ventoy_get_vmenu_title(const char *vMenu)
     return vtoy_json_get_string_ex(g_menu_lang_json->pstChild, vMenu);
 }
 
-int ventoy_plugin_load_menu_lang(const char *lang)
+int ventoy_plugin_load_menu_lang(int init, const char *lang)
 {
     int ret = 1;
     grub_file_t file = NULL;
@@ -3528,9 +3528,12 @@ int ventoy_plugin_load_menu_lang(const char *lang)
         grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTMENU_STR_HOTKEY_LIST"));
     }
 
-    ventoy_menu_push_key(GRUB_TERM_ESC);
-    ventoy_menu_push_key(GRUB_TERM_ESC);
-    g_ventoy_menu_refresh = 1;
+    if (init == 0)
+    {
+        ventoy_menu_push_key(GRUB_TERM_ESC);
+        ventoy_menu_push_key(GRUB_TERM_ESC);
+        g_ventoy_menu_refresh = 1;        
+    }
     ret = 0;
 
 end:

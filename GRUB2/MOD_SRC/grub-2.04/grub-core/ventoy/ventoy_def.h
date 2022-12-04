@@ -1261,7 +1261,7 @@ grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **
 int ventoy_get_fs_type(const char *fs);
 int ventoy_img_name_valid(const char *filename, grub_size_t namelen);
 void * ventoy_alloc_chain(grub_size_t size);
-int ventoy_plugin_load_menu_lang(const char *lang);
+int ventoy_plugin_load_menu_lang(int init, const char *lang);
 const char *ventoy_get_vmenu_title(const char *vMenu);
 grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char **args);
 extern int ventoy_menu_push_key(int code);
