@@ -1,5 +1,5 @@
  L - Language Select
-F1 - Display this help information
+F1 - Display help information
 F2 - Browse and boot files in the local disk
 F3 - Switch menu mode between Treeview <-> ListView
 F4 - Boot Windows/Linux on the local disk
@@ -11,8 +11,8 @@ m/Ctrl+m - Checksum image files (md5/sha1/sha256/sha512)
 d/Ctrl+d - Memdisk Mode (Only for small WinPE/LiveCD ISO/IMG)
 w/Ctrl+w - WIMBOOT Mode (Only for standard Windows ISO)
 r/Ctrl+r - Grub2 Mode (Only for some Linux distros)
-i/Ctrl+i - Compatible Mode (Just only for debugging)
-u/Ctrl+u - Load ISO EFI driver (Just only for debugging, can not be used officially)
+i/Ctrl+i - Compatible Mode (Only for debugging)
+u/Ctrl+u - Load ISO EFI driver (Only for debugging, can not be used officially)
 
 
 
