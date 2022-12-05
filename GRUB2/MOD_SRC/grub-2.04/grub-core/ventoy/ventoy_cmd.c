@@ -2079,6 +2079,13 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
                     img->menu_prefix = "miso";
                 }
             }
+            else if (img_type_img == type)
+            {
+                if (ventoy_plugin_check_memdisk(img->path))
+                {
+                    img->menu_prefix = "mimg";
+                }
+            }
 
             debug("Add %s%s to list %d\n", node->dir, filename, g_ventoy_img_count);
         }
