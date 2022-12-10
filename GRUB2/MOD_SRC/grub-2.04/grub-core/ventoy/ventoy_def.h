@@ -99,6 +99,19 @@
     }\
 }
 
+#define VTOY_SKIP_SPACE(s) \
+    while (ventoy_isspace(*s)) \
+    {\
+        s++;\
+    }
+
+#define VTOY_SKIP_SPACE_NEXT(s, initial) \
+    s += initial;\
+    while (ventoy_isspace(*s)) \
+    {\
+        s++;\
+    }
+
 typedef enum VTOY_FILE_FLT
 {
     VTOY_FILE_FLT_ISO = 0, /* .iso */
