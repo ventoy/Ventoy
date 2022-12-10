@@ -1,6 +1,6 @@
- L - Selecionar Idioma
+ L - Selecionar idioma
 F1 - Mostra esta informação de ajuda
-F2 - Browse and boot files in local disk
+F2 - Navegar e arrancar ficheiros em disco local
 F3 - Alternar o modo menu entre Vista de árvore <-> Vista de lista
 F4 - Arrancar o Windows/Linux em disco local
 F5 - Utilitários
