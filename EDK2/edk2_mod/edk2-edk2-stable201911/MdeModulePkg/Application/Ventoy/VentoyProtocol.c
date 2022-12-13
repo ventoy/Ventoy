@@ -1491,6 +1491,34 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_procotol(EFI_FILE_PROTOCOL *File, B
     return EFI_SUCCESS;
 }
 
+STATIC BOOLEAN EFIAPI ventoy_replace_name_match(CHAR8 *pReplace, CHAR8 *pName)
+{
+    UINTN Len1, Len2;
+    
+    Len1 = AsciiStrLen(pReplace);
+    Len2 = AsciiStrLen(pName);
+
+    if (Len1 == 0 || Len2 == 0)
+    {
+        return FALSE;
+    }
+
+    if (0 == AsciiStriCmp(pReplace, pName))
+    {
+        return TRUE;
+    }
+
+    if (Len1 > 2 && Len2 > 2)
+    {
+        if ((pReplace[0] != '\\') && (pName[0] == '\\') && (0 == AsciiStriCmp(pReplace, pName + 1)))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
 (
     EFI_FILE_HANDLE This, 
@@ -1534,7 +1562,7 @@ STATIC EFI_STATUS EFIAPI ventoy_wrapper_file_open
         AsciiSPrint(TmpName, sizeof(TmpName), "%s", Name);
         for (j = 0; j < 4; j++)
         {
-            if (0 == AsciiStriCmp(g_file_replace_list[i].old_file_name[j], TmpName))
+            if (ventoy_replace_name_match(g_file_replace_list[i].old_file_name[j], TmpName))
             {
                 g_original_fclose(*New);
                 *New = &g_efi_file_replace.WrapperHandle;
