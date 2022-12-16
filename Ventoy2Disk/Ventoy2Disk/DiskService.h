@@ -58,6 +58,8 @@ BOOL VDS_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
 BOOL DSPT_CleanDisk(int DriveIndex);
 BOOL DSPT_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
 
+BOOL CMD_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
+
 //powershell.exe
 BOOL PSHELL_CleanDisk(int DriveIndex);
 BOOL PSHELL_DeleteVtoyEFIPartition(int DriveIndex, UINT64 EfiPartOffset);
@@ -66,11 +68,22 @@ BOOL PSHELL_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
 BOOL PSHELL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
 
+const CHAR* DISK_GetWindowsDir(void);
+
 //
 // Internel define
 //
 
 
+typedef BOOL(*FormatVolume_PF)(char DriveLetter, int fs, DWORD ClusterSize);
+
+typedef struct FmtFunc
+{
+    const char* name;
+    FormatVolume_PF formatFunc;
+}FmtFunc;
+
+#define FMT_DEF(func) { #func, func }
 
 
 #endif

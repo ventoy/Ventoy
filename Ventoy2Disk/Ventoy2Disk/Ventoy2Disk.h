@@ -209,7 +209,7 @@ typedef enum PROGRESS_POINT
     PT_MOUNT_VOLUME,
 
     PT_REFORMAT_START,
-    PT_REFORMAT_FINISH = PT_REFORMAT_START + 2,
+    PT_REFORMAT_FINISH = PT_REFORMAT_START + 16,
 
     PT_FINISH
 }PROGRESS_POINT;
@@ -355,6 +355,8 @@ void InitComboxCtrl(HWND hWnd, int PhyDrive);
 int disk_io_is_write_error(void);
 void disk_io_reset_write_error(void);
 const char* GUID2String(void* guid, char* buf, int len);
+void VentoyStringToUpper(CHAR* str);
+BOOL AlertSuppressInit(void);
 
 #define VTSI_SUPPORT 1
 

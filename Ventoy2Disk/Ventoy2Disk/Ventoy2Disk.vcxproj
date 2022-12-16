@@ -342,6 +342,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AlertSuppress.c" />
     <ClCompile Include="crc32.c" />
     <ClCompile Include="DiskService.c" />
     <ClCompile Include="DiskService_diskpart.c" />

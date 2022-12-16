@@ -1124,5 +1124,14 @@ int GetPhysicalDriveCount(void)
     return Count;
 }
 
-
-
+void VentoyStringToUpper(CHAR* str)
+{
+    while (str && *str)
+    {
+        if (*str >= 'a' && *str <= 'z')
+        {
+            *str = toupper(*str);
+        }        
+        str++;
+    }
+}
