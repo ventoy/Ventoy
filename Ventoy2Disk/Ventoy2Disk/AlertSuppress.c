@@ -73,7 +73,12 @@ static __inline wchar_t* utf8_to_wchar(const char* str)
 	return wstr;
 }
 
-static char title_str[2][128], button_str[128];
+static char g_FormatDiskTitle[256];
+static char g_FormatDiskButton[256];
+
+static char g_LocNotAvaliableTitle[256]; //Location is not available
+static char g_InsertDiskTitle[256]; // Insert disk
+
 static char system_dir[MAX_PATH], sysnative_dir[MAX_PATH];
 
 static HWINEVENTHOOK ap_weh = NULL;
@@ -236,6 +241,96 @@ static __inline HMODULE LoadLibraryU(LPCSTR lpFileName)
 	return ret;
 }
 
+#pragma pack(1)
+typedef struct {
+	WORD      dlgVer;
+	WORD      signature;
+	DWORD     helpID;
+	DWORD     exStyle;
+	DWORD     style;
+	WORD      cDlgItems;
+	short     x;
+	short     y;
+	short     cx;
+	short     cy;
+	//sz_Or_Ord menu;
+	//sz_Or_Ord windowClass;
+	//WCHAR     title[titleLen];
+	//WORD      pointsize;
+	//WORD      weight;
+	//BYTE      italic;
+	//BYTE      charset;
+	//WCHAR     typeface[stringLen];
+} DLGTEMPLATEEX;
+#pragma pack()
+
+static BOOL LoadDialogCaption(HMODULE hMui, DWORD ID, CHAR* title, DWORD len)
+{
+	BOOL bRet = FALSE;
+	int WordNum = 0;
+	HRSRC hDlg = NULL;
+	DLGTEMPLATEEX* pDlgTempEx = NULL;
+	HGLOBAL hTemplate = NULL;
+	WORD* pWordData = NULL;
+
+	hDlg = FindResource(hMui, MAKEINTRESOURCE(1024), RT_DIALOG);
+	if (hDlg)
+	{
+		hTemplate = LoadResource(hMui, hDlg);
+		if (hTemplate)
+		{
+			pDlgTempEx = (DLGTEMPLATEEX*)LockResource(hTemplate);
+			if (pDlgTempEx)
+			{
+				if (pDlgTempEx->signature != 0xFFFF)
+				{
+					return FALSE;
+				}
+
+				pWordData = (WORD *)(pDlgTempEx + 1);
+				
+				//skip menu
+				if (*pWordData == 0x0000)
+				{
+					pWordData += 1;
+				}
+				else if (*pWordData == 0xFFFF)
+				{
+					pWordData += 2;
+				}
+				else
+				{
+					while (*pWordData++)
+					{
+						;
+					}
+				}
+
+				//skip windowClass
+				if (*pWordData == 0x0000)
+				{
+					pWordData += 1;
+				}
+				else if (*pWordData == 0xFFFF)
+				{
+					pWordData += 2;
+				}
+				else
+				{
+					while (*pWordData++)
+					{
+						;
+					}
+				}
+
+				wchar_to_utf8_no_alloc(pWordData, title, len);
+				bRet = TRUE;
+			}
+		}
+	}
+
+	return bRet;
+}
 
 BOOL SetAlertPromptMessages(void)
 {
@@ -270,26 +365,42 @@ BOOL SetAlertPromptMessages(void)
 	hMui = LoadLibraryU(mui_path);
 	if (hMui)
 	{
-		// 4097 = "You need to format the disk in drive %c: before you can use it." (dialog text)
-		// 4125 = "Microsoft Windows" (dialog title)
-		// 4126 = "Format disk" (button)
-		if (LoadStringU(hMui, 4125, title_str[0], sizeof(title_str[0])) <= 0) {
-			static_strcpy(title_str[0], "Microsoft Windows");
-			Log("Warning: Could not locate localized format prompt title string in '%s': %u", mui_path, LASTERR);
-		}
-		if (LoadStringU(hMui, 4126, button_str, sizeof(button_str)) <= 0) {
-			static_strcpy(button_str, "Format disk");
-			Log("Warning: Could not locate localized format prompt button string in '%s': %u", mui_path, LASTERR);
-		}
-		FreeLibrary(hMui);
-
 		Log("LoadLibrary shell32.dll.mui SUCCESS");
 	}
 	else
 	{
 		Log("LoadLibrary shell32.dll.mui FAILED");
+		return FALSE;
 	}
 
+
+	// String Table:
+	// 4097 = "You need to format the disk in drive %c: before you can use it." (dialog text)
+	// 4125 = "Microsoft Windows" (dialog title)
+	// 4126 = "Format disk" (button)
+	if (LoadStringU(hMui, 4125, g_FormatDiskTitle, sizeof(g_FormatDiskTitle)) <= 0) {
+		static_strcpy(g_FormatDiskTitle, "Microsoft Windows");
+		Log("Warning: Could not locate localized format prompt title string in '%s': %u", mui_path, LASTERR);
+	}
+
+	if (LoadStringU(hMui, 4126, g_FormatDiskButton, sizeof(g_FormatDiskButton)) <= 0) {
+		static_strcpy(g_FormatDiskButton, "Format disk");
+		Log("Warning: Could not locate localized format prompt button string in '%s': %u", mui_path, LASTERR);
+	}
+
+	// 32964 = "Location is not available"
+	if (LoadStringU(hMui, 32964, g_LocNotAvaliableTitle, sizeof(g_LocNotAvaliableTitle)) <= 0) {
+		static_strcpy(g_LocNotAvaliableTitle, "Location is not available");
+		Log("Warning: Could not locate localized format prompt title string in '%s': %u", mui_path, LASTERR);
+	}
+
+	if (!LoadDialogCaption(hMui, 1024, g_InsertDiskTitle, sizeof(g_InsertDiskTitle)))
+	{
+		static_strcpy(g_InsertDiskTitle, "Insert disk");
+		Log("Warning: Could not locate insert disk title string in '%s': %u", mui_path, LASTERR);
+	}
+
+	FreeLibrary(hMui);
 	return TRUE;
 }
 
@@ -336,9 +447,16 @@ static BOOL CALLBACK AlertPromptCallback(HWND hWnd, LPARAM lParam)
 
 	if (GetWindowTextU(hWnd, str, sizeof(str)) == 0)
 		return TRUE;
-	if (strcmp(str, button_str) == 0)
+	if (strcmp(str, g_FormatDiskButton) == 0)
 		*found = TRUE;
 	return TRUE;
+}
+
+static volatile BOOL g_AlertPromptHookEnable = FALSE;
+
+void SetAlertPromptHookEnable(BOOL enable)
+{
+	g_AlertPromptHookEnable = enable;
 }
 
 static void CALLBACK AlertPromptHook(HWINEVENTHOOK hWinEventHook, DWORD Event, HWND hWnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
@@ -346,18 +464,41 @@ static void CALLBACK AlertPromptHook(HWINEVENTHOOK hWinEventHook, DWORD Event, H
 	char str[128];
 	BOOL found;
 
-	if (Event == EVENT_SYSTEM_FOREGROUND) {
-		if (GetWindowLongPtr(hWnd, GWL_STYLE) & WS_POPUPWINDOW) {
-			str[0] = 0;
-			GetWindowTextU(hWnd, str, sizeof(str));
-			if (strcmp(str, title_str[0]) == 0) {
-				found = FALSE;
-				EnumChildWindows(hWnd, AlertPromptCallback, (LPARAM)&found);
-				if (found) {
-					SendMessage(hWnd, WM_COMMAND, (WPARAM)IDCANCEL, (LPARAM)0);
-					Log("###### Closed Windows format prompt #######");
-				}
+	if (Event != EVENT_SYSTEM_FOREGROUND)
+	{
+		return;
+	}
+
+	if (!g_AlertPromptHookEnable)
+	{
+		return;
+	}
+
+	//GetWindowTextU(hWnd, str, sizeof(str));
+	//Log("###### EVENT_SYSTEM_FOREGROUND Windows prompt <%s> #######", str);
+
+	if (GetWindowLongPtr(hWnd, GWL_STYLE) & WS_POPUPWINDOW) {
+		str[0] = 0;
+		GetWindowTextU(hWnd, str, sizeof(str));
+		if (strcmp(str, g_FormatDiskTitle) == 0)
+		{
+			found = FALSE;
+			EnumChildWindows(hWnd, AlertPromptCallback, (LPARAM)&found);
+			if (found)
+			{
+				SendMessage(hWnd, WM_COMMAND, (WPARAM)IDCANCEL, (LPARAM)0);
+				Log("###### Detect 'Windows format' prompt, now close it. #######");
 			}
+		}
+		else if (strcmp(str, g_LocNotAvaliableTitle) == 0)
+		{
+			SendMessage(hWnd, WM_COMMAND, (WPARAM)IDCANCEL, (LPARAM)0);
+			Log("###### Detect 'Location is not available' prompt, now close it. #######");
+		}
+		else if (strcmp(str, g_InsertDiskTitle) == 0)
+		{
+			SendMessage(hWnd, WM_COMMAND, (WPARAM)IDCANCEL, (LPARAM)0);
+			Log("###### Detect 'Insert disk' prompt, now close it. #######");
 		}
 	}
 }

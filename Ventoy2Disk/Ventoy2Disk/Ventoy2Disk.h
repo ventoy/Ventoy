@@ -357,6 +357,7 @@ void disk_io_reset_write_error(void);
 const char* GUID2String(void* guid, char* buf, int len);
 void VentoyStringToUpper(CHAR* str);
 BOOL AlertSuppressInit(void);
+void SetAlertPromptHookEnable(BOOL enable);
 
 #define VTSI_SUPPORT 1
 

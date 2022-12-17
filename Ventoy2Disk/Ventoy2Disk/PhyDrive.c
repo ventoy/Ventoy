@@ -1225,7 +1225,45 @@ static int FormatPart1exFAT(UINT64 DiskSizeBytes)
     }
 }
 
+static int ZeroPart1FileSystem(HANDLE hDrive, UINT64 Part2StartSector)
+{
+    int i;
+    DWORD dwSize = 0;
+    LARGE_INTEGER liCurPos;
+    LARGE_INTEGER liNewPos;
+    CHAR TmpBuffer[1024] = { 0 };
 
+    liCurPos.QuadPart = VENTOY_PART1_START_SECTOR * 512;
+    liNewPos.QuadPart = 0;
+    if (0 == SetFilePointerEx(hDrive, liCurPos, &liNewPos, FILE_BEGIN) ||
+        liNewPos.QuadPart != liCurPos.QuadPart)
+    {
+        Log("SetFilePointerEx Failed %u %llu %llu", LASTERR, (ULONGLONG)liCurPos.QuadPart, (ULONGLONG)liNewPos.QuadPart);
+        return 1;
+    }
+
+    for (i = 0; i < 1024; i++)
+    {
+        WriteFile(hDrive, TmpBuffer, 1024, &dwSize, NULL);
+    }
+
+    liCurPos.QuadPart = (Part2StartSector * 512) - (1024 * 1024);
+    liNewPos.QuadPart = 0;
+    if (0 == SetFilePointerEx(hDrive, liCurPos, &liNewPos, FILE_BEGIN) ||
+        liNewPos.QuadPart != liCurPos.QuadPart)
+    {
+        Log("SetFilePointerEx Failed %u %llu %llu", LASTERR, (ULONGLONG)liCurPos.QuadPart, (ULONGLONG)liNewPos.QuadPart);
+        return 1;
+    }
+
+    for (i = 0; i < 1024; i++)
+    {
+        WriteFile(hDrive, TmpBuffer, 1024, &dwSize, NULL);
+    }
+
+    Log("Zero Part1 SUCCESS");
+    return 0;
+}
 
 int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter)
 {
@@ -1826,13 +1864,12 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     }
     else
     {
-        CHAR TmpBuffer[512] = { 0 };
-
         Log("Zero part1 file system ...");
-        SetFilePointer(hDrive, VENTOY_PART1_START_SECTOR * 512, NULL, FILE_BEGIN);
-        for (i = 0; i < 32; i++)
+        if (0 != ZeroPart1FileSystem(hDrive, Part2StartSector))
         {
-            WriteFile(hDrive, TmpBuffer, 512, &dwSize, NULL);
+            Log("ZeroPart1FileSystem failed.");
+            rc = 1;
+            goto End;
         }
     }
 
@@ -1962,7 +1999,7 @@ End:
         Log("Close handle ...");
         CHECK_CLOSE_HANDLE(hDrive);
 
-        ReformatOK = FALSE;
+        ReformatOK = TRUE;
 
         if (state)
         {
@@ -1983,7 +2020,6 @@ End:
 
                 if (bRet)
                 {
-                    ReformatOK = TRUE;
                     Log("Reformat %C:\\ to %s SUCCESS", MountDrive, GetVentoyFsName());
                     pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
 
@@ -1997,6 +2033,7 @@ End:
                 }
                 else
                 {
+                    ReformatOK = FALSE;
                     Log("Reformat %C:\\ to %s FAILED", MountDrive, GetVentoyFsName());
                 }
             }
