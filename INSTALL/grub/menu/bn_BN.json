@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "ফিরে",
     
+    "VTMENU_ENTER_EXIT": "প্রস্থান করার জন্য এন্টার কী টিপুন",
+    "VTMENU_ENTER_REBOOT": "রিবুট করতে এন্টার কী টিপুন",
+    "VTMENU_ENTER_CONTINUE": "চালিয়ে যেতে এন্টার কী টিপুন",
+    
     "MENU_STR_XXX": ""
 }

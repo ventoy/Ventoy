@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "Вернуться",
     
+    "VTMENU_ENTER_EXIT": "нажмите клавишу Enter, чтобы выйти",
+    "VTMENU_ENTER_REBOOT": "нажмите клавишу Enter для перезагрузки",
+    "VTMENU_ENTER_CONTINUE": "нажмите клавишу Enter, чтобы продолжить",
+    
     "MENU_STR_XXX": ""
 }

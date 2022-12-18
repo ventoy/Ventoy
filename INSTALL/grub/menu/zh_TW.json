@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "返回",
     
+    "VTMENU_ENTER_EXIT": "按回車鍵退出",
+    "VTMENU_ENTER_REBOOT": "按回車鍵重啟",
+    "VTMENU_ENTER_CONTINUE": "按回車鍵繼續",
+    
     "MENU_STR_XXX": ""
 }

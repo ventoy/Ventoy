@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "戻る",
     
+    "VTMENU_ENTER_EXIT": "Enterキーを押して終了します",
+    "VTMENU_ENTER_REBOOT": "Enterキーを押して再起動します",
+    "VTMENU_ENTER_CONTINUE": "Enterキーを押して続行します",
+    
     "MENU_STR_XXX": ""
 }

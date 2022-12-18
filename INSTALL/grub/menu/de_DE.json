@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "Zurück",
     
+    "VTMENU_ENTER_EXIT": "Drücken Sie zum Beenden die Eingabetaste",
+    "VTMENU_ENTER_REBOOT": "Drücken Sie die Eingabetaste, um neu zu starten",
+    "VTMENU_ENTER_CONTINUE": "Drücken Sie die Eingabetaste, um fortzufahren",
+    
     "MENU_STR_XXX": ""
 }

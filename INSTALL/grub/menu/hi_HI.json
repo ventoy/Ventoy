@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "लौटें",
     
+    "VTMENU_ENTER_EXIT": "बाहर निकलने के लिए एंटर कुंजी दबाएं",
+    "VTMENU_ENTER_REBOOT": "रिबूट करने के लिए एंटर कुंजी दबाएं",
+    "VTMENU_ENTER_CONTINUE": "जारी रखने के लिए एंटर कुंजी दबाएं",
+    
     "MENU_STR_XXX": ""
 }

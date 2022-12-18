@@ -63,5 +63,9 @@
     "VTMENU_PERSIST_USE": "الإقلاع مع",
     "VTMENU_BROWER_RETURN": "العودة",
     
+    "VTMENU_ENTER_EXIT": "اضغط على مفتاح Enter للخروج",
+    "VTMENU_ENTER_REBOOT": "اضغط على مفتاح Enter لإعادة التشغيل",
+    "VTMENU_ENTER_CONTINUE": "اضغط على مفتاح Enter للمتابعة",
+    
     "MENU_STR_XXX": ""
 }

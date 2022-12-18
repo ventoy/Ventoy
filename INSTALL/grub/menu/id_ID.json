@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "Kembali",
     
+    "VTMENU_ENTER_EXIT": "tekan tombol Enter untuk keluar",
+    "VTMENU_ENTER_REBOOT": "tekan tombol Enter untuk reboot",
+    "VTMENU_ENTER_CONTINUE": "tekan tombol Enter untuk melanjutkan",
+    
     "MENU_STR_XXX": ""
 }

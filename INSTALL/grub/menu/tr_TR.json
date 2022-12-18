@@ -77,5 +77,9 @@
 
     "VTMENU_BROWER_RETURN": "Geri Dön",
 
+    "VTMENU_ENTER_EXIT": "çıkmak için ENTER tuşuna basın",
+    "VTMENU_ENTER_REBOOT": "yeniden başlatmak için ENTER'a basın",
+    "VTMENU_ENTER_CONTINUE": "devam etmek için ENTER'a basın",
+
     "MENU_STR_XXX": ""
 }

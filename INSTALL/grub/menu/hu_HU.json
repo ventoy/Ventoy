@@ -77,5 +77,9 @@
     
     "VTMENU_BROWER_RETURN": "Vissza",
     
+    "VTMENU_ENTER_EXIT": "nyomja meg az Enter billentyűt a kilépéshez",
+    "VTMENU_ENTER_REBOOT": "nyomja meg az Enter billentyűt az újraindításhoz",
+    "VTMENU_ENTER_CONTINUE": "a folytatáshoz nyomja meg az Enter billentyűt",
+    
     "MENU_STR_XXX": ""
 }
