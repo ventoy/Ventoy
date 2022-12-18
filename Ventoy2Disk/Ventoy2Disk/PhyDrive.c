@@ -1750,6 +1750,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     UINT64 Part1SectorCount = 0;
     UINT64 Part2StartSector = 0;
     BOOL LargeFAT32 = FALSE;
+    BOOL DefaultExFAT = FALSE;
 
 	Log("#####################################################");
     Log("InstallVentoy2PhyDrive try%d %s PhyDrive%d <<%s %s %dGB>>", TryId,
@@ -1858,6 +1859,17 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
         if (0 != FormatPart1LargeFAT32(pPhyDrive->SizeInBytes, GetClusterSize()))
         {
             Log("FormatPart1LargeFAT32 failed.");
+            rc = 1;
+            goto End;
+        }
+    }
+    else if (GetVentoyFsType() == VTOY_FS_EXFAT && GetClusterSize() == 0)
+    {
+        Log("Formatting part1 exFAT ...");
+        DefaultExFAT = TRUE;
+        if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
+        {
+            Log("FormatPart1exFAT failed.");
             rc = 1;
             goto End;
         }
@@ -2006,6 +2018,11 @@ End:
             if (LargeFAT32)
             {
                 Log("No need to reformat for large FAT32");
+                pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
+            }
+            else if (DefaultExFAT)
+            {
+                Log("No need to reformat for default exfat");
                 pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
             }
             else
