@@ -669,7 +669,7 @@ int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 S
     return 0;
 }
 
-int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
+int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle, UINT8 FsFlag)
 {
     GUID Guid;
 	int ReservedValue;
@@ -733,7 +733,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
     VentoyFillMBRLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
 
     pMBR->PartTbl[0].Active = 0x80; // bootable
-    pMBR->PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
+    pMBR->PartTbl[0].FsFlag = FsFlag; // File system flag  07:exFAT/NTFS/HPFS  0C:FAT32
 
     //Part2
     PartStartSector += PartSectorCount;

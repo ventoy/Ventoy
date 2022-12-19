@@ -238,7 +238,7 @@ const CHAR * GetBusTypeString(STORAGE_BUS_TYPE Type);
 int VentoyGetLocalBootImg(MBR_HEAD *pMBR);
 int GetHumanReadableGBSize(UINT64 SizeBytes);
 void TrimString(CHAR *String);
-int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle);
+int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle, UINT8 FsFlag);
 int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo);
 BOOL IsVentoyLogicalDrive(CHAR DriveLetter);
 int GetRegDwordValue(HKEY Key, LPCSTR SubKey, LPCSTR ValueName, DWORD *pValue);

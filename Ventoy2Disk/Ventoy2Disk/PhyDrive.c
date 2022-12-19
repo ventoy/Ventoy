@@ -1587,7 +1587,7 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
         memset(pData, 0, 512);
 
         pMBR = (MBR_HEAD *)pData;
-        VentoyFillMBR(pPhyDrive->SizeInBytes, pMBR, PartStyle);
+        VentoyFillMBR(pPhyDrive->SizeInBytes, pMBR, PartStyle, 0x07);
         Part1StartSector = pMBR->PartTbl[0].StartSectorId;
         Part1SectorCount = pMBR->PartTbl[0].SectorCount;
         Part2StartSector = pMBR->PartTbl[1].StartSectorId;
@@ -1751,6 +1751,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     UINT64 Part2StartSector = 0;
     BOOL LargeFAT32 = FALSE;
     BOOL DefaultExFAT = FALSE;
+    UINT8 FsFlag = 0x07;
 
 	Log("#####################################################");
     Log("InstallVentoy2PhyDrive try%d %s PhyDrive%d <<%s %s %dGB>>", TryId,
@@ -1775,7 +1776,12 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     }
     else
     {
-        VentoyFillMBR(pPhyDrive->SizeInBytes, &MBR, PartStyle);
+        if (GetVentoyFsType() == VTOY_FS_FAT32)
+        {
+            FsFlag = 0x0C;
+        }
+
+        VentoyFillMBR(pPhyDrive->SizeInBytes, &MBR, PartStyle, FsFlag);
         Part1StartSector = MBR.PartTbl[0].StartSectorId;
         Part1SectorCount = MBR.PartTbl[0].SectorCount;
         Part2StartSector = MBR.PartTbl[1].StartSectorId;
