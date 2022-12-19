@@ -3371,7 +3371,7 @@ grub_err_t ventoy_cmd_select_theme_cfg(grub_extcmd_context_t ctxt, int argc, cha
     }
 
     pos += grub_snprintf(buf + pos, bufsize - pos, 
-            "menuentry '@VTMENU_RETURN_PREVIOUS' --class=vtoyret VTOY_RET {\n"
+            "menuentry \"$VTLANG_RETURN_PREVIOUS\" --class=vtoyret VTOY_RET {\n"
                 "echo 'Return ...'\n"
             "}\n");
 
@@ -3521,11 +3521,11 @@ int ventoy_plugin_load_menu_lang(int init, const char *lang)
 
     if (g_default_menu_mode == 0)
     {
-        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTMENU_STR_HOTKEY_TREE"));
+        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTLANG_STR_HOTKEY_TREE"));
     }
     else
     {
-        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTMENU_STR_HOTKEY_LIST"));
+        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTLANG_STR_HOTKEY_LIST"));
     }
 
     if (init == 0)

@@ -91,20 +91,20 @@ cd ../../
 #tar menu txt & update menulang.cfg
 cd $tmpmnt/grub/
 
-vtlangtitle=$(grep VTMENU_LANGUAGE_NAME menu/zh_CN.json | awk -F\" '{print $4}')
+vtlangtitle=$(grep VTLANG_LANGUAGE_NAME menu/zh_CN.json | awk -F\" '{print $4}')
 echo "menuentry \"zh_CN  -  $vtlangtitle\" --class=menu_lang_item --class=debug_menu_lang --class=F5tool {" >> menulang.cfg
 echo "    vt_load_menu_lang zh_CN"  >> menulang.cfg
 echo "}"  >> menulang.cfg
 
 ls -1 menu/ | grep -v 'zh_CN' | sort | while read vtlang; do
     vtlangname=${vtlang%.*}
-    vtlangtitle=$(grep VTMENU_LANGUAGE_NAME menu/$vtlang | awk -F\" '{print $4}')
+    vtlangtitle=$(grep VTLANG_LANGUAGE_NAME menu/$vtlang | awk -F\" '{print $4}')
     echo "menuentry \"$vtlangname  -  $vtlangtitle\" --class=menu_lang_item --class=debug_menu_lang --class=F5tool {" >> menulang.cfg
     echo "    vt_load_menu_lang $vtlangname"  >> menulang.cfg
     echo "}"  >> menulang.cfg
 done
-echo "menuentry '@VTMENU_RETURN_PREVIOUS' --class=vtoyret VTOY_RET {" >> menulang.cfg
-echo "        echo 'Return ...'" >> menulang.cfg
+echo "menuentry \"$VTLANG_RETURN_PREVIOUS\" --class=vtoyret VTOY_RET {" >> menulang.cfg
+echo "        echo \"Return ...\"" >> menulang.cfg
 echo "}" >> menulang.cfg
 
 tar czf menu.tar.gz ./menu/

@@ -269,12 +269,14 @@ static int ventoy_hwinfo_init(void)
 
     grub_snprintf(str, sizeof(str), "%ld", (long)(total_mem / VTOY_SIZE_1MB));
     ventoy_env_export("grub_total_ram", str);
-    
+
 #ifdef GRUB_MACHINE_EFI
     ventoy_get_uefi_version(str, sizeof(str));
     ventoy_env_export("grub_uefi_version", str);
+#else
+    ventoy_env_export("grub_uefi_version", "NA");
 #endif
-    
+
     return 0;
 }
 

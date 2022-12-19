@@ -618,13 +618,13 @@ grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **
     {
         browser_ssprintf(&mbuf, "menuentry \"%-10s [%s]\" --class=\"vtoyret\" VTOY_RET {\n  "
                          "  echo 'return ...' \n}\n", "<--", 
-                         ventoy_get_vmenu_title("VTMENU_BROWER_RETURN"));        
+                         ventoy_get_vmenu_title("VTLANG_BROWER_RETURN"));        
     }
     else
     {
         browser_ssprintf(&mbuf, "menuentry \"[%s]\" --class=\"vtoyret\" VTOY_RET {\n  "
                          "  echo 'return ...' \n}\n", 
-                         ventoy_get_vmenu_title("VTMENU_BROWER_RETURN"));      
+                         ventoy_get_vmenu_title("VTLANG_BROWER_RETURN"));      
     }
 
     grub_disk_dev_iterate(ventoy_browser_iterate_disk, &mbuf);
