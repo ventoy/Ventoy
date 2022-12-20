@@ -22,6 +22,12 @@ if [ -f ./www.tar.xz ]; then
     rm -f ./www.tar.xz
 fi
 
+VV=$(grep -m1 '\?v=' ./www/index.html |   sed  's/.*v=\([0-9][0-9]*\).*/\1/g')
+let VV++
+echo V=$VV
+sed "s/\?v=[0-9][0-9]*/?v=$VV/g" -i ./www/index.html 
+
+
 [ -f ./www/helplist ] && rm -f ./www/helplist
 ls -1 ../INSTALL/grub/help/ | while read line; do 
     echo -n ${line:0:5} >> ./www/helplist
