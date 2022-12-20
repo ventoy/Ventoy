@@ -70,6 +70,7 @@
 #define VTOY_JSON_TOKEN_ERR_RET    "{ \"result\" : \"tokenerror\" }"
 #define VTOY_JSON_EXIST_RET        "{ \"result\" : \"exist\" }"
 #define VTOY_JSON_TIMEOUT_RET      "{ \"result\" : \"timeout\" }"
+#define VTOY_JSON_DUPLICATE        "{ \"result\" : \"duplicate\" }"
 #define VTOY_JSON_BUSY_RET         "{ \"result\" : \"busy\" }"
 #define VTOY_JSON_INUSE_RET        "{ \"result\" : \"inuse\" }"
 #define VTOY_JSON_NOTFOUND_RET     "{ \"result\" : \"notfound\" }"

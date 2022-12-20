@@ -918,9 +918,11 @@ static int ventoy_api_theme_add_file(struct mg_connection *conn, VTOY_JSON *json
     int ret;
     int index = 0;
     const char *path = NULL;
+    const char *realpath = NULL;
     path_node *node = NULL;
     path_node *cur = NULL;
     data_theme *data = NULL;
+    char pathbuf[MAX_PATH];
     
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
@@ -928,6 +930,19 @@ static int ventoy_api_theme_add_file(struct mg_connection *conn, VTOY_JSON *json
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
+        realpath = ventoy_real_path(path);
+        scnprintf(pathbuf, sizeof(pathbuf), "%s", realpath);
+    
+        for (node = data->filelist; node; node = node->next)
+        {
+            realpath = ventoy_real_path(node->path);
+            if (strcmp(pathbuf, realpath) == 0)
+            {
+                ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+                return 0;
+            }
+        }
+    
         node = zalloc(sizeof(path_node));
         if (node)
         {
@@ -980,16 +995,31 @@ static int ventoy_api_theme_add_font(struct mg_connection *conn, VTOY_JSON *json
     int ret;
     int index = 0;
     const char *path = NULL;
+    const char *realpath = NULL;
     path_node *node = NULL;
     path_node *cur = NULL;
     data_theme *data = NULL;
-    
+    char pathbuf[MAX_PATH];
+
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
 
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
+        realpath = ventoy_real_path(path);
+        scnprintf(pathbuf, sizeof(pathbuf), "%s", realpath);
+    
+        for (node = data->fontslist; node; node = node->next)
+        {
+            realpath = ventoy_real_path(node->path);
+            if (strcmp(pathbuf, realpath) == 0)
+            {
+                ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+                return 0;
+            }
+        }
+        
         node = zalloc(sizeof(path_node));
         if (node)
         {
