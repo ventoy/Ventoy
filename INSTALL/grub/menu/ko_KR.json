@@ -42,7 +42,7 @@
     
     "VTLANG_THEME_SELECT": "테마 선택",
     
-    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI 유틸리티",
     "VTLANG_UTIL_SHOW_EFI_DRV": "EFI 드라이버 표시",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows 초기화 라이브러리 오류 복구",
     
