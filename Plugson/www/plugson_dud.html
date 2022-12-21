@@ -203,9 +203,13 @@
       dud: call_array,
       type: type
     }, function(e) {
-      list.push(data);
-      FillDudTable(list);
-      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      if (e.result === 'success') {
+        list.push(data);
+        FillDudTable(list);
+        Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      } else if (e.result === 'duplicate') {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+      }
     });
   }
 

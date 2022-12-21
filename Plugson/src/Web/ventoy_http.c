@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include <errno.h>
 #include <time.h>
 
@@ -97,6 +98,9 @@ static char *g_pub_save_buffer = NULL;
 static pthread_mutex_t g_api_mutex;
 static struct mg_context *g_ventoy_http_ctx = NULL;
 
+#define ventoy_is_real_exist_common(xpath, xnode, xtype) \
+    ventoy_path_is_real_exist(xpath, xnode, offsetof(xtype, path), offsetof(xtype, next))
+
 static int ventoy_is_kbd_valid(const char *key)
 {
     int i = 0;
@@ -168,6 +172,40 @@ static void ventoy_free_path_node_list(path_node *list)
         free(node);
         node = next;
     }    
+}
+
+static int ventoy_path_is_real_exist(const char *path, void *head, size_t pathoff, size_t nextoff)
+{
+    char *node = NULL;
+    const char *nodepath = NULL;
+    const char *realpath = NULL;
+    char pathbuf[MAX_PATH];
+
+    if (strchr(path, '*'))
+    {
+        return 0;
+    }
+
+    realpath = ventoy_real_path(path);
+    scnprintf(pathbuf, sizeof(pathbuf), "%s", realpath);
+
+    node = (char *)head;
+    while (node)
+    {
+        nodepath = node + pathoff;
+        if (NULL == strchr(nodepath, '*'))
+        {
+            realpath = ventoy_real_path(nodepath);
+            if (strcmp(pathbuf, realpath) == 0)
+            {
+                return 1;
+            }
+        }
+        
+        memcpy(&node, node + nextoff, sizeof(node));
+    }
+
+    return 0;
 }
 
 static path_node * ventoy_path_node_add_array(VTOY_JSON *array)
@@ -913,16 +951,15 @@ static int ventoy_api_save_theme(struct mg_connection *conn, VTOY_JSON *json)
     return 0;
 }
 
+
 static int ventoy_api_theme_add_file(struct mg_connection *conn, VTOY_JSON *json)
 {
     int ret;
     int index = 0;
     const char *path = NULL;
-    const char *realpath = NULL;
     path_node *node = NULL;
     path_node *cur = NULL;
     data_theme *data = NULL;
-    char pathbuf[MAX_PATH];
     
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
@@ -930,19 +967,12 @@ static int ventoy_api_theme_add_file(struct mg_connection *conn, VTOY_JSON *json
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        realpath = ventoy_real_path(path);
-        scnprintf(pathbuf, sizeof(pathbuf), "%s", realpath);
-    
-        for (node = data->filelist; node; node = node->next)
+        if (ventoy_is_real_exist_common(path, data->filelist, path_node))
         {
-            realpath = ventoy_real_path(node->path);
-            if (strcmp(pathbuf, realpath) == 0)
-            {
-                ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
-                return 0;
-            }
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
         }
-    
+
         node = zalloc(sizeof(path_node));
         if (node)
         {
@@ -989,17 +1019,14 @@ static int ventoy_api_theme_del_file(struct mg_connection *conn, VTOY_JSON *json
     return 0;
 }
 
-
 static int ventoy_api_theme_add_font(struct mg_connection *conn, VTOY_JSON *json)
 {
     int ret;
     int index = 0;
     const char *path = NULL;
-    const char *realpath = NULL;
     path_node *node = NULL;
     path_node *cur = NULL;
     data_theme *data = NULL;
-    char pathbuf[MAX_PATH];
 
     vtoy_json_get_int(json, "index", &index);
     data = g_data_theme + index;
@@ -1007,19 +1034,12 @@ static int ventoy_api_theme_add_font(struct mg_connection *conn, VTOY_JSON *json
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
-        realpath = ventoy_real_path(path);
-        scnprintf(pathbuf, sizeof(pathbuf), "%s", realpath);
-    
-        for (node = data->fontslist; node; node = node->next)
+        if (ventoy_is_real_exist_common(path, data->fontslist, path_node))
         {
-            realpath = ventoy_real_path(node->path);
-            if (strcmp(pathbuf, realpath) == 0)
-            {
-                ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
-                return 0;
-            }
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
         }
-        
+
         node = zalloc(sizeof(path_node));
         if (node)
         {
@@ -1222,6 +1242,12 @@ static int ventoy_api_alias_add(struct mg_connection *conn, VTOY_JSON *json)
     alias = VTOY_JSON_STR_EX("alias");
     if (path && alias)
     {
+        if (ventoy_is_real_exist_common(path, data->list, data_alias_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+
         node = zalloc(sizeof(data_alias_node));
         if (node)
         {
@@ -1467,6 +1493,12 @@ static int ventoy_api_tip_add(struct mg_connection *conn, VTOY_JSON *json)
     tip = VTOY_JSON_STR_EX("tip");
     if (path && tip)
     {
+        if (ventoy_is_real_exist_common(path, data->list, data_tip_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+    
         node = zalloc(sizeof(data_tip_node));
         if (node)
         {
@@ -1816,6 +1848,12 @@ static int ventoy_api_auto_memdisk_add(struct mg_connection *conn, VTOY_JSON *js
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
+        if (ventoy_is_real_exist_common(path, data->list, path_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+
         node = zalloc(sizeof(path_node));
         if (node)
         {
@@ -1998,6 +2036,12 @@ static int ventoy_api_image_list_add(struct mg_connection *conn, VTOY_JSON *json
     path = VTOY_JSON_STR_EX("path");
     if (path)
     {
+        if (ventoy_is_real_exist_common(path, data->list, path_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+
         node = zalloc(sizeof(path_node));
         if (node)
         {
@@ -2253,6 +2297,12 @@ static int ventoy_api_password_add(struct mg_connection *conn, VTOY_JSON *json)
     pwd = VTOY_JSON_STR_EX("pwd");
     if (path && pwd)
     {
+        if (ventoy_is_real_exist_common(path, data->list, menu_password))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+
         node = zalloc(sizeof(menu_password));
         if (node)
         {
@@ -2658,6 +2708,12 @@ static int ventoy_api_dud_add(struct mg_connection *conn, VTOY_JSON *json)
     path = VTOY_JSON_STR_EX("path");
     if (path && array)
     {
+        if (ventoy_is_real_exist_common(path, data->list, dud_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+        
         node = zalloc(sizeof(dud_node));
         if (node)
         {
@@ -3013,6 +3069,12 @@ static int ventoy_api_auto_install_add(struct mg_connection *conn, VTOY_JSON *js
     path = VTOY_JSON_STR_EX("path");
     if (path && array)
     {
+        if (ventoy_is_real_exist_common(path, data->list, auto_install_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }     
+    
         node = zalloc(sizeof(auto_install_node));
         if (node)
         {
@@ -3355,6 +3417,12 @@ static int ventoy_api_persistence_add(struct mg_connection *conn, VTOY_JSON *jso
     path = VTOY_JSON_STR_EX("path");
     if (path && array)
     {
+        if (ventoy_is_real_exist_common(path, data->list, persistence_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+        
         node = zalloc(sizeof(persistence_node));
         if (node)
         {
@@ -3648,6 +3716,12 @@ static int ventoy_api_injection_add(struct mg_connection *conn, VTOY_JSON *json)
     archive = VTOY_JSON_STR_EX("archive");
     if (path && archive)
     {
+        if (ventoy_is_real_exist_common(path, data->list, injection_node))
+        {
+            ventoy_json_result(conn, VTOY_JSON_DUPLICATE);
+            return 0;
+        }
+    
         node = zalloc(sizeof(injection_node));
         if (node)
         {

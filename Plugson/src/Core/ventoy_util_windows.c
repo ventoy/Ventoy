@@ -638,7 +638,8 @@ int CheckRuntimeEnvironment(char Letter, ventoy_disk *disk)
         return 1;
     }
 
-    if (_stricmp(FsName, "NTFS") == 0)
+    /* Fix: enable for all file system on Windows */
+    /* if (_stricmp(FsName, "NTFS") == 0) */
     {
         disk->pathcase = 1;
     }

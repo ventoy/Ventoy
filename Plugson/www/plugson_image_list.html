@@ -221,9 +221,13 @@
       index: current_tab_index,
       path: data.path,
     }, function(e) {
-      list.push(data);
-      FillImageListTable(list);
-      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      if (e.result === 'success') {
+        list.push(data);
+        FillImageListTable(list);
+        Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      } else if (e.result === 'duplicate') {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+      }
     });
   }
 
