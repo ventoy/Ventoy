@@ -42,7 +42,7 @@
     
     "VTLANG_THEME_SELECT": "থিম নির্বাচন করুন",
     
-    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI ইউটিলিটিস",
     "VTLANG_UTIL_SHOW_EFI_DRV": "EFI ড্রাইভার দেখান",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows BlinitializeLibrary ব্যর্থতার সমাধান করুন",
     
