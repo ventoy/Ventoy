@@ -42,7 +42,7 @@
     
     "VTLANG_THEME_SELECT": "Выбор темы",
     
-    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UEFI_UTIL": "UEFI утилиты Вентоя",
     "VTLANG_UTIL_SHOW_EFI_DRV": "Показать драйверы EFI",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Исправить ошибку Windows BlinitializeLibrary",
     
