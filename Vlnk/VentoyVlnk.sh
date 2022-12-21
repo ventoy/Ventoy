@@ -19,7 +19,7 @@ vlog() {
 }
 
 vlnk_suffix() {
-    echo $1 | egrep -q '.*(.vlnk.iso|.vlnk.img|.vlnk.wim|.vlnk.vhd|.vlnk.vhdx|.vlnk.efi|.vlnk.vtoy|.vlnk.dat)$'
+    echo $1 | grep -E -q '.*(.vlnk.iso|.vlnk.img|.vlnk.wim|.vlnk.vhd|.vlnk.vhdx|.vlnk.efi|.vlnk.vtoy|.vlnk.dat)$'
 }
 
 
@@ -38,13 +38,13 @@ for t in 'mountpoint' 'readlink' 'xzcat'; do
 done
 
 machine=$(uname -m)
-if echo $machine | egrep -q 'aarch64|arm64'; then
+if echo $machine | grep -E -q 'aarch64|arm64'; then
     TOOLDIR=aarch64
-elif echo $machine | egrep -q 'x86_64|amd64'; then
+elif echo $machine | grep -E -q 'x86_64|amd64'; then
     TOOLDIR=x86_64
-elif echo $machine | egrep -q 'mips64'; then
+elif echo $machine | grep -E -q 'mips64'; then
     TOOLDIR=mips64el
-elif echo $machine | egrep -q 'i[3-6]86'; then
+elif echo $machine | grep -E -q 'i[3-6]86'; then
     TOOLDIR=i386
 else
     echo "Unsupported machine type $machine"    
@@ -103,7 +103,7 @@ if [ "$CMD" = "c" ]; then
         exit 1
     fi
     
-    if echo $IMG | egrep -q -i '.*(.iso|.img|.wim|.vhd|.vhdx|.efi|.vtoy|.dat)$'; then
+    if echo $IMG | grep -E -q -i '.*(.iso|.img|.wim|.vhd|.vhdx|.efi|.vtoy|.dat)$'; then
         :
     else
         echo "This file is not supported for vlnk!"
@@ -157,7 +157,7 @@ if [ "$CMD" = "c" ]; then
         FS=$(grep " ${FULLDIR} " /proc/mounts | awk '{print $3}')
         vlog "File system of $DEV is $FS"
         
-        if echo $FS | egrep -q "ext2|ext3|ext4|exfat|vfat|fat32|fat16|fat12|ntfs|xfs|udf"; then
+        if echo $FS | grep -E -q "ext2|ext3|ext4|exfat|vfat|fat32|fat16|fat12|ntfs|xfs|udf"; then
             vlog "FS OK"
         elif [ "$FS" = "fuseblk" ]; then
             vlog "$DEV is fuseblk"
@@ -203,7 +203,7 @@ if [ "$CMD" = "c" ]; then
     
     if [ -f "/sys/class/block/$IMGPARTITION/start" ]; then
         PARTSTART=$(cat "/sys/class/block/$IMGPARTITION/start")
-        if echo $IMGPARTITION | egrep -q 'mmc|nbd|nvme'; then
+        if echo $IMGPARTITION | grep -E -q 'mmc|nbd|nvme'; then
             DISK=$(echo /dev/$IMGPARTITION | sed "s/^\(.*\)p[0-9][0-9]*$/\1/")
         else
             DISK=$(echo /dev/$IMGPARTITION | sed "s/^\(.*[^0-9]\)[0-9][0-9]*$/\1/")

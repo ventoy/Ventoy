@@ -434,7 +434,7 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
             PART1_BLKID=$(blkid $PART1)
             blkid $PART1
             
-            if echo $PART1_BLKID | egrep -q -i 'TYPE=ntfs|TYPE=.ntfs'; then
+            if echo $PART1_BLKID | grep -E -q -i 'TYPE=ntfs|TYPE=.ntfs'; then
                 echo "Partition 1 contains NTFS filesystem"
                 
                 which ntfsresize
@@ -452,7 +452,7 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
                     echo "###[FAIL] ntfsresize failed." 
                     exit 1
                 fi
-            elif echo $PART1_BLKID | egrep -q -i 'TYPE=ext[2-4]|TYPE=.ext[2-4]'; then
+            elif echo $PART1_BLKID | grep -E -q -i 'TYPE=ext[2-4]|TYPE=.ext[2-4]'; then
                 echo "Partition 1 contains EXT filesystem"
                 
                 which resize2fs
