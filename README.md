@@ -40,7 +40,7 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 
 # Subscription Service
 Ventoy is an open source software under GPLv3 license.
-But Ventoy project need to pay for the server hosting, domain name, bandwidth, many USB sticks for test, large capacity of HDD (for downloading ISO files) and so on.  
+But the Ventoy project needs to pay for the server hosting, domain name, bandwidth, many USB sticks for testing, large capacity of HDD (for downloading ISO files) and so on.  
 For the better and sustainable development of Ventoy, I provide the [【subscription service】](https://www.ventoy.net/en/doc_subscription.html).
 
 
