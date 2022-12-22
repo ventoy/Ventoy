@@ -1,11 +1,11 @@
 {
     "VTLANG_LANGUAGE_NAME": "Korean (한국어)",
     
-    "VTLANG_STR_HOTKEY_LIST": "L:언어  F1:도움말  F2:찾아보기  F3:목록 보기  F4:로컬 부트  F5:도구  F6:확장 메뉴",
-    "VTLANG_STR_HOTKEY_TREE": "L:언어  F1:도움말  F2:찾아보기  F3:목록 보기  F4:로컬 부트  F5:도구  F6:확장 메뉴",
+    "VTLANG_STR_HOTKEY_LIST": "번역: 비너스걸 L:언어  F1:도움말  F2:찾아보기  F3:목록보기  F4:로컬부트  F5:도구  F6:확장메뉴",
+    "VTLANG_STR_HOTKEY_TREE": "번역: 비너스걸 L:언어  F1:도움말  F2:찾아보기  F3:목록보기  F4:로컬부트  F5:도구  F6:확장메뉴",
     "VTLANG_RETURN_PREVIOUS": "이전 메뉴로 돌아가기 [Esc]",
     
-    "VTLANG_MENU_LANG": "메뉴 언어 선택 (번역: 비너스걸)",
+    "VTLANG_MENU_LANG": "메뉴 언어 선택",
     
     "VTLANG_LB_SBOOT_WINDOWS": "Windows 검색 및 부트",
     "VTLANG_LB_SBOOT_G4D": "Grub4dos 검색 및 부트",
@@ -82,10 +82,10 @@
     "VTLANG_ENTER_REBOOT": "Enter 키를 눌러 재부팅",
     "VTLANG_ENTER_CONTINUE": "계속하려면 Enter 키를 누르십시오",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass check when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "임시 제어 설정",
+    "VTLANG_WIN11_BYPASS_CHECK": "Windows 11을 설치할 때 우회 점검",
+    "VTLANG_LINUX_REMOUNT": "Linux 부트 후 Ventoy 파티션 마운트",
+    "VTLANG_SECONDARY_BOOT_MENU": "보조 부트 메뉴 표시",
     
     "MENU_STR_XXX": ""
 }
