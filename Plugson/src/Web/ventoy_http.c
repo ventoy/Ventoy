@@ -819,12 +819,17 @@ int ventoy_data_save_theme(data_theme *data, const char *title, char *buf, int b
             {
                 VTOY_JSON_FMT_ITEM_PATH_LN(L3, node->path);
             }
-            
+
             VTOY_JSON_FMT_ARY_ENDEX_LN(L2);
         
             if (def->default_file != data->default_file)
             {
                 VTOY_JSON_FMT_SINT_LN(L2, "default_file", data->default_file);                
+            }
+            
+            if (def->resolution_fit != data->resolution_fit)
+            {
+                VTOY_JSON_FMT_SINT_LN(L2, "resolution_fit", data->resolution_fit);                
             }
         }
         else
@@ -888,6 +893,7 @@ int ventoy_data_json_theme(data_theme *data, char *buf, int buflen)
     VTOY_JSON_FMT_OBJ_BEGIN();
 
     VTOY_JSON_FMT_SINT("default_file",  data->default_file);
+    VTOY_JSON_FMT_SINT("resolution_fit",  data->resolution_fit);
     VTOY_JSON_FMT_SINT("display_mode",  data->display_mode);
     VTOY_JSON_FMT_STRN("gfxmode", data->gfxmode);
     
@@ -939,6 +945,7 @@ static int ventoy_api_save_theme(struct mg_connection *conn, VTOY_JSON *json)
     data = g_data_theme + index;
 
     VTOY_JSON_INT("default_file", data->default_file);
+    VTOY_JSON_INT("resolution_fit", data->resolution_fit);
     VTOY_JSON_INT("display_mode", data->display_mode);
     VTOY_JSON_STR("gfxmode", data->gfxmode);
     VTOY_JSON_STR("ventoy_left", data->ventoy_left);
@@ -4252,6 +4259,7 @@ static int ventoy_parse_theme(VTOY_JSON *json, void *p)
     vtoy_json_get_string(child, "ventoy_color", sizeof(data->ventoy_color), data->ventoy_color);
     
     vtoy_json_get_int(child, "default_file", &(data->default_file));    
+    vtoy_json_get_int(child, "resolution_fit", &(data->resolution_fit));    
     vtoy_json_get_string(child, "gfxmode", sizeof(data->gfxmode), data->gfxmode);
     vtoy_json_get_string(child, "serial_param", sizeof(data->serial_param), data->serial_param);
 
@@ -4279,6 +4287,7 @@ static int ventoy_parse_theme(VTOY_JSON *json, void *p)
     if (node)
     {
         data->default_file = 0;
+        data->resolution_fit = 0;
 
         pnode = zalloc(sizeof(path_node));
         if (pnode)

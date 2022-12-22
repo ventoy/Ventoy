@@ -100,6 +100,7 @@ typedef struct path_node
 typedef struct data_theme
 {
     int default_file;
+    int resolution_fit;
     path_node *filelist;
     int display_mode;
     char gfxmode[32];

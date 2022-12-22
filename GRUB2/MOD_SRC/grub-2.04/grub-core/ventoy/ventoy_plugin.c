@@ -35,6 +35,7 @@
 #include <grub/crypto.h>
 #include <grub/time.h>
 #include <grub/font.h>
+#include <grub/video.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 
@@ -59,6 +60,7 @@ static conf_replace *g_conf_replace_head = NULL;
 static VTOY_JSON *g_menu_lang_json = NULL;
 
 static int g_theme_id = 0;
+static int g_theme_res_fit = 0;
 static int g_theme_num = 0;
 static theme_list *g_theme_head = NULL;
 static int g_theme_random = vtoy_theme_random_boot_second;
@@ -377,6 +379,18 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     if (g_theme_num > 0)
     {
         vtoy_json_get_int(json->pstChild, "default_file", &g_theme_id);
+        if (g_theme_id == 0)
+        {
+            vtoy_json_get_int(json->pstChild, "resolution_fit", &g_theme_res_fit);
+            if (g_theme_res_fit != 1)
+            {
+                g_theme_res_fit = 0;
+            }
+
+            grub_snprintf(val, sizeof(val), "%d", g_theme_res_fit);
+            ventoy_env_export("vtoy_res_fit", val);
+        }
+        
         if (g_theme_id > g_theme_num || g_theme_id < 0)
         {
             g_theme_id = 0;
@@ -3381,13 +3395,19 @@ grub_err_t ventoy_cmd_select_theme_cfg(grub_extcmd_context_t ctxt, int argc, cha
     return 0;
 }
 
+extern char g_ventoy_theme_path[256];
+
 grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     grub_uint32_t i = 0;
     grub_uint32_t mod = 0;
+    grub_uint32_t theme_num = 0;
     theme_list *node = g_theme_head;
     struct grub_datetime datetime;
-    
+    struct grub_video_mode_info info;
+    char buf[64];
+    char **pThemePath = NULL;
+
     (void)argc;
     (void)args;
     (void)ctxt;
@@ -3417,41 +3437,82 @@ grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **arg
         goto end;
     }
 
-    grub_memset(&datetime, 0, sizeof(datetime));
-    grub_get_datetime(&datetime);
-
-    if (g_theme_random == vtoy_theme_random_boot_second)
+    pThemePath = (char **)grub_zalloc(sizeof(char *) * g_theme_num);
+    if (!pThemePath)
     {
-        grub_divmod32((grub_uint32_t)datetime.second, (grub_uint32_t)g_theme_num, &mod);
-    }
-    else if (g_theme_random == vtoy_theme_random_boot_day)
-    {
-        grub_divmod32((grub_uint32_t)datetime.day, (grub_uint32_t)g_theme_num, &mod);
-    }
-    else if (g_theme_random == vtoy_theme_random_boot_month)
-    {
-        grub_divmod32((grub_uint32_t)datetime.month, (grub_uint32_t)g_theme_num, &mod);
+        goto end;
     }
 
-    debug("%04d/%02d/%02d %02d:%02d:%02d radom:%d mod:%d\n",
-          datetime.year, datetime.month, datetime.day,
-          datetime.hour, datetime.minute, datetime.second,
-          g_theme_random, mod);
-
-    for (i = 0; i < mod && node; i++)
+    if (g_theme_res_fit)
     {
-        node = node->next;
+        if (grub_video_get_info(&info) == GRUB_ERR_NONE)
+        {
+            debug("get video info success %ux%u\n", info.width, info.height);
+            grub_snprintf(buf, sizeof(buf), "%ux%u", info.width, info.height);
+            for (node = g_theme_head; node; node = node->next)
+            {
+                if (grub_strstr(node->theme.path, buf))
+                {
+                    pThemePath[theme_num++] = node->theme.path;
+                }
+            }
+        }
     }
 
-    debug("random theme %s\n", node->theme.path);
-    grub_env_set("theme", node->theme.path);
+    if (theme_num == 0)
+    {
+        for (node = g_theme_head; node; node = node->next)
+        {
+            pThemePath[theme_num++] = node->theme.path;
+        }
+    }
+
+    if (theme_num == 1)
+    {
+        mod = 0;
+        debug("Only 1 theme match, no need to random.\n");
+    }
+    else
+    {
+        grub_memset(&datetime, 0, sizeof(datetime));
+        grub_get_datetime(&datetime);
+
+        if (g_theme_random == vtoy_theme_random_boot_second)
+        {
+            grub_divmod32((grub_uint32_t)datetime.second, theme_num, &mod);
+        }
+        else if (g_theme_random == vtoy_theme_random_boot_day)
+        {
+            grub_divmod32((grub_uint32_t)datetime.day, theme_num, &mod);
+        }
+        else if (g_theme_random == vtoy_theme_random_boot_month)
+        {
+            grub_divmod32((grub_uint32_t)datetime.month, theme_num, &mod);
+        }
+
+        debug("%04d/%02d/%02d %02d:%02d:%02d theme_num:%d mod:%d\n",
+              datetime.year, datetime.month, datetime.day,
+              datetime.hour, datetime.minute, datetime.second,
+              theme_num, mod);
+    }
+
+    if (argc > 0 && grub_strcmp(args[0], "switch") == 0)
+    {
+        grub_snprintf(g_ventoy_theme_path, sizeof(g_ventoy_theme_path), "%s", pThemePath[mod]);        
+    }
+    else
+    {        
+        debug("random theme %s\n", pThemePath[mod]);
+        grub_env_set("theme", pThemePath[mod]);
+    }
+    g_ventoy_menu_refresh = 1;
 
 end:
 
+    grub_check_free(pThemePath);
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-extern char g_ventoy_theme_path[256];
 grub_err_t ventoy_cmd_set_theme_path(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)argc;
