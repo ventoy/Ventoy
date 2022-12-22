@@ -2359,10 +2359,10 @@
         "STR_INSTALL_YES_TIP1":"Peringatan: Data akan hilang!",
         "STR_INSTALL_YES_TIP2":"Silakan ketik YES pada kotak tulis di bawah untuk meyakinkan bahwa anda memang untuk melakukan pemasangan baru ketimbang memperbaruinya",
         "STR_PART_VENTOY_FS":"Berkas Sistem Untuk Partisi Ventoy",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
-        "STR_DONATE":"Menyumbangkan",
+        "STR_PART_FS":"Berkas Sistem",
+        "STR_PART_CLUSTER":"Ukuran Kelompok",
+        "STR_PART_CLUSTER_DEFAULT":"Nilai Standar Sistem",
+        "STR_DONATE":"Donasi sukarela",
 
         "STRXXX":""
     },
