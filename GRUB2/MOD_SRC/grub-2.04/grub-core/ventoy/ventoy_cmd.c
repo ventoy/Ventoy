@@ -6227,6 +6227,66 @@ static char * ventoy_gfxmode_write_hook(struct grub_env_var *var, const char *va
     return grub_strdup(val);
 }
 
+static ctrl_var_cfg g_ctrl_vars[] = 
+{
+    { "VTOY_WIN11_BYPASS_CHECK",  0 },
+    { "VTOY_LINUX_REMOUNT",       0 },
+    { "VTOY_SECONDARY_BOOT_MENU", 1 },
+    { NULL, 0 }
+};
+
+static const char * ventoy_ctrl_var_read_hook(struct grub_env_var *var, const char *val)
+{
+    int i;
+
+    for (i = 0; g_ctrl_vars[i].name; i++)
+    {
+        if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
+        {
+            return g_ctrl_vars[i].value ? "1" : "0";
+        }
+    }
+
+    return val;
+}
+
+static char * ventoy_ctrl_var_write_hook(struct grub_env_var *var, const char *val)
+{
+    int i;
+
+    for (i = 0; g_ctrl_vars[i].name; i++)
+    {
+        if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
+        {
+            if (val && val[0] == '1' && val[1] == 0)
+            {
+                g_ctrl_vars[i].value = 1;
+                return grub_strdup("1");
+            }
+            else
+            {
+                g_ctrl_vars[i].value = 0;
+                return grub_strdup("0");
+            }
+        }
+    }
+
+    return grub_strdup(val);
+}
+
+static int ventoy_ctrl_var_init(void)
+{
+    int i;
+
+    for (i = 0; g_ctrl_vars[i].name; i++)
+    {
+        ventoy_env_export(g_ctrl_vars[i].name, g_ctrl_vars[i].value ? "1" : "0");
+        grub_register_variable_hook(g_ctrl_vars[i].name, ventoy_ctrl_var_read_hook, ventoy_ctrl_var_write_hook);
+    }
+
+    return 0;
+}
+
 int ventoy_env_init(void)
 {
     int i;
@@ -6236,6 +6296,8 @@ int ventoy_env_init(void)
 
     grub_register_variable_hook("gfxmode", ventoy_gfxmode_read_hook, ventoy_gfxmode_write_hook);
     grub_register_vtoy_menu_lang_hook(ventoy_menu_lang_read_hook);
+
+    ventoy_ctrl_var_init();
 
     g_part_list_buf = grub_malloc(VTOY_PART_BUF_LEN);
     g_tree_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);

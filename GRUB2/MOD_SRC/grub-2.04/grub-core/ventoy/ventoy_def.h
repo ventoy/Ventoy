@@ -1256,6 +1256,12 @@ typedef struct systemd_menu_ctx
     int len;
 }systemd_menu_ctx;
 
+typedef struct ctrl_var_cfg
+{
+    const char *name;
+    int value;
+}ctrl_var_cfg;
+
 #define vtoy_check_goto_out(p)  if (!p) goto out
 
 extern char *g_tree_script_buf;

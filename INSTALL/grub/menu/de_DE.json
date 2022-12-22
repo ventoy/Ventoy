@@ -82,5 +82,10 @@
     "VTLANG_ENTER_REBOOT": "Drücken Sie die Eingabetaste, um neu zu starten",
     "VTLANG_ENTER_CONTINUE": "Drücken Sie die Eingabetaste, um fortzufahren",
     
+    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
+    "VTLANG_WIN11_BYPASS_CHECK": "Bypass check when install Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    
     "MENU_STR_XXX": ""
 }

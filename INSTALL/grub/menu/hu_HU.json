@@ -82,5 +82,10 @@
     "VTLANG_ENTER_REBOOT": "nyomja meg az Enter billentyűt az újraindításhoz",
     "VTLANG_ENTER_CONTINUE": "a folytatáshoz nyomja meg az Enter billentyűt",
     
+    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
+    "VTLANG_WIN11_BYPASS_CHECK": "Bypass check when install Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    
     "MENU_STR_XXX": ""
 }

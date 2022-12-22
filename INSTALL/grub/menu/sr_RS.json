@@ -1,4 +1,4 @@
-{
+
     "VTLANG_LANGUAGE_NAME": "Serbian Latin (Srpski)",
     
     "VTLANG_STR_HOTKEY_LIST": "L:Језик  F1:Help  F2:Browse  F3:ListView  F4:Localboot  F5:Tools  F6:ExMenu",
@@ -81,6 +81,11 @@
     "VTLANG_ENTER_EXIT": "press Enter key to exit",
     "VTLANG_ENTER_REBOOT": "press Enter key to reboot",
     "VTLANG_ENTER_CONTINUE": "press Enter key to continue",
+    
+    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
+    "VTLANG_WIN11_BYPASS_CHECK": "Bypass check when install Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
     
     "MENU_STR_XXX": ""
 }

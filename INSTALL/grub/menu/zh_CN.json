@@ -82,5 +82,10 @@
     "VTLANG_ENTER_REBOOT": "按回车键重启",
     "VTLANG_ENTER_CONTINUE": "按回车键继续",
     
+    "VTLANG_CTRL_TEMP_SET": "控制变量设置",
+    "VTLANG_WIN11_BYPASS_CHECK": "安装 Windows 11 时绕过硬件检查",
+    "VTLANG_LINUX_REMOUNT": "启动 Linux 系统后挂载 Ventoy 分区",
+    "VTLANG_SECONDARY_BOOT_MENU": "显示二级启动菜单",
+    
     "MENU_STR_XXX": ""
 }

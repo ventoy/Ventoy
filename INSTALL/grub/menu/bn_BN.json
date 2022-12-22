@@ -82,5 +82,10 @@
     "VTLANG_ENTER_REBOOT": "রিবুট করতে এন্টার কী টিপুন",
     "VTLANG_ENTER_CONTINUE": "চালিয়ে যেতে এন্টার কী টিপুন",
     
+    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
+    "VTLANG_WIN11_BYPASS_CHECK": "Bypass check when install Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    
     "MENU_STR_XXX": ""
 }
