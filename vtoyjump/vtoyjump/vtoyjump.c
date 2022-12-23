@@ -2119,7 +2119,6 @@ static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Chec
         Status += RegSetValueExA(hSubKey, "BypassRAMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
         Status += RegSetValueExA(hSubKey, "BypassTPMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
         Status += RegSetValueExA(hSubKey, "BypassSecureBootCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
-        Status += RegSetValueExA(hSubKey, "BypassStorageCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
         Status += RegSetValueExA(hSubKey, "BypassCPUCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
 
         Log("Create bypass check registry %s %u", (Status == ERROR_SUCCESS) ? "SUCCESS" : "FAILED", Status);
