@@ -497,6 +497,7 @@ static int ventoy_set_check_result(int ret, const char *msg)
 
     if (ret)
     {
+        grub_cls();
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n\n\n");
@@ -504,10 +505,7 @@ static int ventoy_set_check_result(int ret, const char *msg)
         grub_printf("This is NOT a standard Ventoy device and is NOT supported (%d).\n", ret);
         grub_printf("Error message: <%s>\n\n", msg);
         grub_printf("You should follow the instructions in https://www.ventoy.net to use Ventoy.\n");
-        
-        grub_printf("\n\nWill exit after 10 seconds ...... ");
         grub_refresh();
-        grub_sleep(10);
     }
 
     return ret;
@@ -4975,6 +4973,7 @@ int ventoy_load_part_table(const char *diskname)
 static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int ret;
+    char c;
     
     (void)argc;
     (void)ctxt;
@@ -4982,7 +4981,28 @@ static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int arg
     ret = ventoy_load_part_table(args[0]);
     if (ret)
     {
-        grub_exit();            
+        grub_printf("\n\nPress r/h/e for the corresponding operation.\n");
+        grub_printf(" r --- Reboot\n");
+        grub_printf(" h --- Halt\n");
+        grub_printf(" e --- Exit grub\n");
+        grub_refresh();
+
+        while (1)
+        {
+            c = grub_getkey();
+            if (c == 'r')
+            {
+                grub_reboot();
+            }
+            else if (c == 'h')
+            {   
+                grub_script_execute_sourcecode("halt");
+            }
+            else if (c == 'e')
+            {
+                grub_exit();
+            }
+        }
     }
 
     g_ventoy_disk_part_size[0] = ventoy_get_vtoy_partsize(0);
