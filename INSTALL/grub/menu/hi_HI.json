@@ -82,11 +82,11 @@
     "VTLANG_ENTER_REBOOT": "रिबूट करने के लिए एंटर कुंजी दबाएं",
     "VTLANG_ENTER_CONTINUE": "जारी रखने के लिए एंटर कुंजी दबाएं",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "अस्थायी नियंत्रण सेटिंग्स",
+    "VTLANG_WIN11_BYPASS_CHECK": "जब विंडोज 11 स्थापित करें, CPU/TPM/SECUREBOOT CHECK को बायपास करें",
+    "VTLANG_WIN11_BYPASS_NRO": "विंडोज 11 स्थापित करते समय ऑनलाइन खाते की आवश्यकता बाईपास",
+    "VTLANG_LINUX_REMOUNT": "लिनक्स बूट के बाद वेंटॉय विभाजन को माउंट करें",
+    "VTLANG_SECONDARY_BOOT_MENU": "द्वितीयक बूट मेनू दिखाएं",
     
     "MENU_STR_XXX": ""
 }
