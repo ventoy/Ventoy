@@ -82,11 +82,11 @@
     "VTLANG_ENTER_REBOOT": "রিবুট করতে এন্টার কী টিপুন",
     "VTLANG_ENTER_CONTINUE": "চালিয়ে যেতে এন্টার কী টিপুন",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "অস্থায়ী নিয়ন্ত্রণ সেটিংস",
+    "VTLANG_WIN11_BYPASS_CHECK": "Windows 11 ইনস্টল করার সময় CPU/TPM/SecureBoot চেক বাইপাস করুন",
+    "VTLANG_WIN11_BYPASS_NRO": "Windows 11 ইনস্টল করার সময় অনলাইন অ্যাকাউন্টের প্রয়োজন বাইপাস করুন",
+    "VTLANG_LINUX_REMOUNT": "লিনাক্স বুটের পরে ভেন্টয় পার্টিশনটি মাউন্ট করুন",
+    "VTLANG_SECONDARY_BOOT_MENU": "গৌণ বুট মেনু দেখান",
     
     "MENU_STR_XXX": ""
 }
