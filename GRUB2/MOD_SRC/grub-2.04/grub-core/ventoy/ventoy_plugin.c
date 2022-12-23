@@ -421,19 +421,19 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_left");
     if (value)
     {
-        ventoy_env_export("VTLE_LFT", value);
+        ventoy_env_export(ventoy_left_key, value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_top");
     if (value)
     {
-        ventoy_env_export("VTLE_TOP", value);
+        ventoy_env_export(ventoy_top_key, value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_color");
     if (value)
     {
-        ventoy_env_export("VTLE_CLR", value);
+        ventoy_env_export(ventoy_color_key, value);
     }
 
     node = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "fonts");

@@ -77,6 +77,10 @@
 #define VTOY_ARCH_CPIO  "ventoy_x86.cpio"
 #endif
 
+#define ventoy_left_key     "VTLE_LFT"
+#define ventoy_top_key      "VTLE_TOP"
+#define ventoy_color_key    "VTLE_CLR"
+
 #define ventoy_varg_4(arg) arg[0], arg[1], arg[2], arg[3]
 #define ventoy_varg_8(arg) arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], arg[7]
 
@@ -1256,6 +1260,13 @@ typedef struct systemd_menu_ctx
     int len;
 }systemd_menu_ctx;
 
+typedef struct global_var_cfg
+{
+    const char *name;
+    const char *defval;
+    char *value;
+}global_var_cfg;
+
 typedef struct ctrl_var_cfg
 {
     const char *name;
@@ -1284,6 +1295,8 @@ int ventoy_plugin_load_menu_lang(int init, const char *lang);
 const char *ventoy_get_vmenu_title(const char *vMenu);
 grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char **args);
 extern int ventoy_menu_push_key(int code);
+int ventoy_ctrl_var_init(void);
+int ventoy_global_var_init(void);
 
 #endif /* __VENTOY_DEF_H__ */
 

@@ -148,8 +148,6 @@ static char g_iso_vd_id_application[130];
 static int g_pager_flag = 0;
 static char g_old_pager[32];
 
-static char g_vtoy_gfxmode[64];
-
 const char *g_menu_class[img_type_max] = 
 {
     "vtoyiso", "vtoywim", "vtoyefi", "vtoyimg", "vtoyvhd", "vtoyvtoy"
@@ -364,6 +362,42 @@ static int ventoy_enum_video_mode(void)
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_pre_parse_data(char *src, int size)
+{
+    char c;
+    char *pos = NULL;
+    char buf[256];
+
+    if (size < 20 || grub_strncmp(src, "ventoy_left_top_color", 21))
+    {
+        return 0;
+    }
+
+    pos = src + 21;
+    while (*pos && *pos != '\r' && *pos != '\n')
+    {
+        pos++;
+    }
+
+    c = *pos;
+    *pos = 0;
+
+    if (grub_strlen(src) > 200)
+    {
+        goto end;
+    }
+
+    grub_snprintf(buf, sizeof(buf), 
+        "regexp -s 1:%s -s 2:%s -s 3:%s \"@([^@]*)@([^@]*)@([^@]*)@\" \"%s\"", 
+        ventoy_left_key, ventoy_top_key, ventoy_color_key, src);
+
+    grub_script_execute_sourcecode(buf);
+
+end:    
+    *pos = c;
+    return 0;    
+}
+
 static grub_file_t ventoy_wrapper_open(grub_file_t rawFile, enum grub_file_type type)
 {
     int len;
@@ -397,6 +431,7 @@ static grub_file_t ventoy_wrapper_open(grub_file_t rawFile, enum grub_file_type 
     }
 
     grub_file_read(rawFile, file->data, rawFile->size);
+    ventoy_pre_parse_data((char *)file->data, (int)rawFile->size);
     len = ventoy_fill_data(4096, (char *)file->data + rawFile->size);
 
     g_old_file = rawFile;
@@ -6231,82 +6266,6 @@ static const char * ventoy_menu_lang_read_hook(struct grub_env_var *var, const c
     return ventoy_get_vmenu_title(val);
 }
 
-static const char * ventoy_gfxmode_read_hook(struct grub_env_var *var, const char *val)
-{
-    (void)var;
-    (void)val;
-
-    return g_vtoy_gfxmode;
-}
-
-static char * ventoy_gfxmode_write_hook(struct grub_env_var *var, const char *val)
-{
-    (void)var;
-
-    grub_strncpy(g_vtoy_gfxmode, val, sizeof(g_vtoy_gfxmode) - 1);
-    return grub_strdup(val);
-}
-
-static ctrl_var_cfg g_ctrl_vars[] = 
-{
-    { "VTOY_WIN11_BYPASS_CHECK",  0 },
-    { "VTOY_LINUX_REMOUNT",       0 },
-    { "VTOY_SECONDARY_BOOT_MENU", 1 },
-    { NULL, 0 }
-};
-
-static const char * ventoy_ctrl_var_read_hook(struct grub_env_var *var, const char *val)
-{
-    int i;
-
-    for (i = 0; g_ctrl_vars[i].name; i++)
-    {
-        if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
-        {
-            return g_ctrl_vars[i].value ? "1" : "0";
-        }
-    }
-
-    return val;
-}
-
-static char * ventoy_ctrl_var_write_hook(struct grub_env_var *var, const char *val)
-{
-    int i;
-
-    for (i = 0; g_ctrl_vars[i].name; i++)
-    {
-        if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
-        {
-            if (val && val[0] == '1' && val[1] == 0)
-            {
-                g_ctrl_vars[i].value = 1;
-                return grub_strdup("1");
-            }
-            else
-            {
-                g_ctrl_vars[i].value = 0;
-                return grub_strdup("0");
-            }
-        }
-    }
-
-    return grub_strdup(val);
-}
-
-static int ventoy_ctrl_var_init(void)
-{
-    int i;
-
-    for (i = 0; g_ctrl_vars[i].name; i++)
-    {
-        ventoy_env_export(g_ctrl_vars[i].name, g_ctrl_vars[i].value ? "1" : "0");
-        grub_register_variable_hook(g_ctrl_vars[i].name, ventoy_ctrl_var_read_hook, ventoy_ctrl_var_write_hook);
-    }
-
-    return 0;
-}
-
 int ventoy_env_init(void)
 {
     int i;
@@ -6314,10 +6273,9 @@ int ventoy_env_init(void)
 
     grub_env_set("vtdebug_flag", "");
 
-    grub_register_variable_hook("gfxmode", ventoy_gfxmode_read_hook, ventoy_gfxmode_write_hook);
     grub_register_vtoy_menu_lang_hook(ventoy_menu_lang_read_hook);
-
     ventoy_ctrl_var_init();
+    ventoy_global_var_init();
 
     g_part_list_buf = grub_malloc(VTOY_PART_BUF_LEN);
     g_tree_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);
