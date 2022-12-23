@@ -557,6 +557,8 @@ void ventoy_data_default_control(data_control *data)
     data->max_search_level = -1;
     data->menu_timeout = 0;
     data->secondary_menu_timeout = 0;
+    data->win11_bypass_check = 1;
+    data->win11_bypass_nro = 1;
     
     strlcpy(data->default_kbd_layout, "QWERTY_USA");
     strlcpy(data->menu_language, "en_US");
@@ -577,6 +579,7 @@ int ventoy_data_cmp_control(data_control *data1, data_control *data2)
         data1->filter_vhd != data2->filter_vhd ||
         data1->filter_vtoy != data2->filter_vtoy ||
         data1->win11_bypass_check != data2->win11_bypass_check ||
+        data1->win11_bypass_nro != data2->win11_bypass_nro ||
         data1->linux_remount != data2->linux_remount ||
         data1->password_asterisk != data2->password_asterisk ||
         data1->secondary_menu != data2->secondary_menu ||
@@ -625,6 +628,7 @@ int ventoy_data_save_control(data_control *data, const char *title, char *buf, i
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_VHD", filter_vhd);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_FILE_FLT_VTOY", filter_vtoy);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_WIN11_BYPASS_CHECK",  win11_bypass_check);
+    VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_WIN11_BYPASS_NRO",  win11_bypass_nro);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_LINUX_REMOUNT",  linux_remount);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_SECONDARY_BOOT_MENU",  secondary_menu);
     VTOY_JSON_FMT_CTRL_INT(L2, "VTOY_SHOW_PASSWORD_ASTERISK",  password_asterisk);
@@ -673,6 +677,7 @@ int ventoy_data_json_control(data_control *ctrl, char *buf, int buflen)
     VTOY_JSON_FMT_SINT("filter_vhd", ctrl->filter_vhd);
     VTOY_JSON_FMT_SINT("filter_vtoy", ctrl->filter_vtoy);
     VTOY_JSON_FMT_SINT("win11_bypass_check",  ctrl->win11_bypass_check);
+    VTOY_JSON_FMT_SINT("win11_bypass_nro",  ctrl->win11_bypass_nro);
     VTOY_JSON_FMT_SINT("linux_remount",  ctrl->linux_remount);
     VTOY_JSON_FMT_SINT("secondary_menu",  ctrl->secondary_menu);
     VTOY_JSON_FMT_SINT("password_asterisk",  ctrl->password_asterisk);
@@ -741,6 +746,7 @@ static int ventoy_api_save_control(struct mg_connection *conn, VTOY_JSON *json)
     VTOY_JSON_INT("filter_vhd", ctrl->filter_vhd);
     VTOY_JSON_INT("filter_vtoy", ctrl->filter_vtoy);
     VTOY_JSON_INT("win11_bypass_check", ctrl->win11_bypass_check);
+    VTOY_JSON_INT("win11_bypass_nro", ctrl->win11_bypass_nro);
     VTOY_JSON_INT("linux_remount", ctrl->linux_remount);
     VTOY_JSON_INT("secondary_menu", ctrl->secondary_menu);
     VTOY_JSON_INT("password_asterisk", ctrl->password_asterisk);
@@ -4129,6 +4135,10 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
             else if (strcmp(child->pcName, "VTOY_WIN11_BYPASS_CHECK") == 0)
             {
                 CONTROL_PARSE_INT_DEF_0(child, data->win11_bypass_check);
+            }
+            else if (strcmp(child->pcName, "VTOY_WIN11_BYPASS_NRO") == 0)
+            {
+                CONTROL_PARSE_INT_DEF_0(child, data->win11_bypass_nro);
             }
             else if (strcmp(child->pcName, "VTOY_LINUX_REMOUNT") == 0)
             {

@@ -84,6 +84,7 @@
     
     "VTLANG_CTRL_TEMP_SET": "Настройки временного управления",
     "VTLANG_WIN11_BYPASS_CHECK": "Обойти проверку при установке Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
     "VTLANG_LINUX_REMOUNT": "Смонтировать раздел Ventoy после загрузки Linux",
     "VTLANG_SECONDARY_BOOT_MENU": "Показать вторичное загрузочное меню",
     

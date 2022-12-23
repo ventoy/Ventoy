@@ -172,6 +172,53 @@
           </div><!-- /.box-body -->
         </div><!-- /.box -->
         
+        
+        
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_WIN11_BYPASS_NRO
+              <span id="id_span_desc_cn"> —— 绕过Windows 11 在线账户需求</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_bypass_nro_radio0" name="id_ctrl_bypass_nro_radio" data-type="0" value="0"/> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_bypass_nro_radio1" name="id_ctrl_bypass_nro_radio" data-type="1" value="1"/> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> 不绕过Windows 11安装时的在线账户需求。<br/>
+                      <code style="font-weight: bold;">1</code> 绕过Windows 11安装时的在线账户需求。<br/><br/>
+                      该选项只对标准Windows 11 ISO文件有效，对于其他镜像文件无效。
+                      当设置为1时，Ventoy 会在安装时创建以下注册表项用来绕过 Windows 11 安装时对在线账户的需求。<br/>
+                      <code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE\BypassNRO</code><br/>                      
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> Do not bypass Windows 11 online account requirement.<br/>
+                      <code style="font-weight: bold;">1</code> Bypass Windows 11 online account requirement. <br/><br/>
+                      This option only avaliable for standard Windows 11 ISO files.
+                      When set to 1, Ventoy will create the following registry to bypass Windows 11 online account requirement when install. <br/>
+                      <code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE\BypassNRO</code>
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
       
       
 
@@ -1060,6 +1107,7 @@
     var level;
 
     data.win11_bypass_check = parseInt($('input:radio[name=id_ctrl_bypass_win11_radio]:checked').val());
+    data.win11_bypass_nro = parseInt($('input:radio[name=id_ctrl_bypass_nro_radio]:checked').val());
     data.linux_remount = parseInt($('input:radio[name=id_ctrl_linux_remount_radio]:checked').val());
     data.secondary_menu = parseInt($('input:radio[name=id_ctrl_secondary_radio]:checked').val());
     data.password_asterisk = parseInt($('input:radio[name=id_ctrl_asterisk_radio]:checked').val());
@@ -1096,6 +1144,8 @@
   function VtoyFillCurrentPageItem(data) {
     //VTOY_WIN11_BYPASS_CHECK
     $('input:radio[name=id_ctrl_bypass_win11_radio]')[data.win11_bypass_check].checked = true;
+    //VTOY_WIN11_BYPASS_NRO
+    $('input:radio[name=id_ctrl_bypass_nro_radio]')[data.win11_bypass_nro].checked = true;
     $('input:radio[name=id_ctrl_linux_remount_radio]')[data.linux_remount].checked = true;
     $('input:radio[name=id_ctrl_secondary_radio]')[data.secondary_menu].checked = true;
     $('input:radio[name=id_ctrl_asterisk_radio]')[data.password_asterisk].checked = true;
@@ -1202,6 +1252,7 @@
       method : 'save_control',
       index: current_tab_index,
       win11_bypass_check: data.win11_bypass_check,
+      win11_bypass_nro: data.win11_bypass_nro,
       linux_remount:data.linux_remount,
       secondary_menu:data.secondary_menu,
       password_asterisk:data.password_asterisk,

@@ -2022,7 +2022,7 @@ static int ProcessUnattendedInstallation(const char *script, DWORD PhyDrive)
     return 0;
 }
 
-static int Windows11BypassCheck(const char *isofile, const char MntLetter)
+static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Check, UINT8 NRO)
 {
     int Ret = 1;
     DWORD dwHandle;
@@ -2034,7 +2034,7 @@ static int Windows11BypassCheck(const char *isofile, const char MntLetter)
     CHAR CheckFile[MAX_PATH];
     UINT16 Major, Minor, Build, Revision;
 
-    Log("Windows11BypassCheck for <%s> %C:", isofile, MntLetter);
+    Log("Windows11Bypass for <%s> %C: Check:%u NRO:%u", isofile, MntLetter, Check, NRO);
 
     if (FALSE == IsFileExist("%C:\\sources\\boot.wim", MntLetter) ||
         FALSE == IsFileExist("%C:\\sources\\compatresources.dll", MntLetter))
@@ -2099,28 +2099,53 @@ static int Windows11BypassCheck(const char *isofile, const char MntLetter)
     HKEY hSubKey = NULL;
     LSTATUS Status;
 
-    Status = RegCreateKeyExA(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwSize);
-    if (ERROR_SUCCESS != Status)
+    if (Check)
     {
-        Log("Failed to create reg key System\\Setup %u %u", LASTERR, Status);
-        goto End;
+        Status = RegCreateKeyExA(HKEY_LOCAL_MACHINE, "System\\Setup", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwSize);
+        if (ERROR_SUCCESS != Status)
+        {
+            Log("Failed to create reg key System\\Setup %u %u", LASTERR, Status);
+            goto End;
+        }
+
+        Status = RegCreateKeyExA(hKey, "LabConfig", 0, NULL, 0, KEY_SET_VALUE | KEY_QUERY_VALUE | KEY_CREATE_SUB_KEY, NULL, &hSubKey, &dwSize);
+        if (ERROR_SUCCESS != Status)
+        {
+            Log("Failed to create LabConfig reg  %u %u", LASTERR, Status);
+            goto End;
+        }
+
+        //set reg value
+        Status += RegSetValueExA(hSubKey, "BypassRAMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+        Status += RegSetValueExA(hSubKey, "BypassTPMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+        Status += RegSetValueExA(hSubKey, "BypassSecureBootCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+        Status += RegSetValueExA(hSubKey, "BypassStorageCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+        Status += RegSetValueExA(hSubKey, "BypassCPUCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+
+        Log("Create bypass check registry %s %u", (Status == ERROR_SUCCESS) ? "SUCCESS" : "FAILED", Status);
     }
 
-    Status = RegCreateKeyExA(hKey, "LabConfig", 0, NULL, 0, KEY_SET_VALUE | KEY_QUERY_VALUE | KEY_CREATE_SUB_KEY, NULL, &hSubKey, &dwSize);
-    if (ERROR_SUCCESS != Status)
+
+    if (NRO)
     {
-        Log("Failed to create LabConfig reg  %u %u", LASTERR, Status);
-        goto End;
+        Status = RegCreateKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hKey, &dwSize);
+        if (ERROR_SUCCESS != Status)
+        {
+            Log("Failed to create reg key SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\OOBE %u %u", LASTERR, Status);
+            goto End;
+        }
+
+        Status = RegCreateKeyExA(hKey, "OOBE", 0, NULL, 0, KEY_SET_VALUE | KEY_QUERY_VALUE | KEY_CREATE_SUB_KEY, NULL, &hSubKey, &dwSize);
+        if (ERROR_SUCCESS != Status)
+        {
+            Log("Failed to create OOBE reg  %u %u", LASTERR, Status);
+            goto End;
+        }
+
+        Status += RegSetValueExA(hSubKey, "BypassNRO", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
+        Log("Create BypassNRO registry %s %u", (Status == ERROR_SUCCESS) ? "SUCCESS" : "FAILED", Status);
     }
-
-    //set reg value
-    Status += RegSetValueExA(hSubKey, "BypassRAMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
-    Status += RegSetValueExA(hSubKey, "BypassTPMCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
-    Status += RegSetValueExA(hSubKey, "BypassSecureBootCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
-    Status += RegSetValueExA(hSubKey, "BypassStorageCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
-    Status += RegSetValueExA(hSubKey, "BypassCPUCheck", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
-
-    Log("Create bypass registry %s %u", (Status == ERROR_SUCCESS) ? "SUCCESS" : "FAILED", Status);
+    
 
     Ret = 0;
 
@@ -2353,9 +2378,9 @@ static int VentoyHook(ventoy_os_param *param)
     Log("Mount ISO FILE: %s", rc == 0 ? "SUCCESS" : "FAILED");
 
     //Windows 11 bypass check
-    if (g_windows_data.windows11_bypass_check == 1)
+    if (g_windows_data.windows11_bypass_check == 1 || g_windows_data.windows11_bypass_nro == 1)
     {
-        Windows11BypassCheck(IsoPath, MntLetter);
+        Windows11Bypass(IsoPath, MntLetter, g_windows_data.windows11_bypass_check, g_windows_data.windows11_bypass_nro);
     }
 
     // for protect

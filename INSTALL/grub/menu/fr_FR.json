@@ -83,7 +83,8 @@
     "VTLANG_ENTER_CONTINUE": "appuyez sur la touche Entrée pour continuer",
     
     "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass check when install Windows 11",
+    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
     "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
     "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
     

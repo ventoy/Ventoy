@@ -83,7 +83,8 @@
     "VTLANG_ENTER_CONTINUE": "按回车键继续",
     
     "VTLANG_CTRL_TEMP_SET": "控制变量设置",
-    "VTLANG_WIN11_BYPASS_CHECK": "安装 Windows 11 时绕过硬件检查",
+    "VTLANG_WIN11_BYPASS_CHECK": "安装 Windows 11 时绕过 TPM/安全启动 等硬件检查",
+    "VTLANG_WIN11_BYPASS_NRO": "安装 Windows 11 时绕过在线账户的要求",
     "VTLANG_LINUX_REMOUNT": "启动 Linux 系统后挂载 Ventoy 分区",
     "VTLANG_SECONDARY_BOOT_MENU": "显示二级启动菜单",
     
