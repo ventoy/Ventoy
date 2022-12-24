@@ -5005,10 +5005,64 @@ int ventoy_load_part_table(const char *diskname)
     return 0;
 }
 
+static void ventoy_prompt_end(void)
+{
+    int op = 0;
+    char c;
+
+    grub_printf("\n\n\n");
+    grub_printf(" 1 --- Exit grub\n");
+    grub_printf(" 2 --- Reboot\n");
+    grub_printf(" 3 --- Shut down\n");
+    grub_printf("Please enter your choice: ");
+    grub_refresh();
+
+    while (1)
+    {
+        c = grub_getkey();
+        if (c >= '1' && c <= '3')
+        {
+            if (op == 0)
+            {
+                op = c - '0';
+                grub_printf("%c", c);
+                grub_refresh();
+            }
+        }
+        else if (c == '\r' || c == '\n')
+        {
+            if (op)
+            {
+                if (op == 1)
+                {
+                    grub_exit();
+                }
+                else if (op == 2)
+                {
+                    grub_reboot();
+                }
+                else if (op == 3)
+                {   
+                    grub_script_execute_sourcecode("halt");
+                }
+            }
+        }
+        else if (c == '\b')
+        {
+            if (op)
+            {
+                op = 0;
+                grub_printf("\rPlease enter your choice:   ");
+                grub_printf("\rPlease enter your choice: ");
+                grub_refresh();
+            }
+        }
+    }
+}
+
 static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int ret;
-    char c;
     
     (void)argc;
     (void)ctxt;
@@ -5016,28 +5070,7 @@ static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int arg
     ret = ventoy_load_part_table(args[0]);
     if (ret)
     {
-        grub_printf("\n\nPress r/h/e for the corresponding operation.\n");
-        grub_printf(" r --- Reboot\n");
-        grub_printf(" h --- Halt\n");
-        grub_printf(" e --- Exit grub\n");
-        grub_refresh();
-
-        while (1)
-        {
-            c = grub_getkey();
-            if (c == 'r')
-            {
-                grub_reboot();
-            }
-            else if (c == 'h')
-            {   
-                grub_script_execute_sourcecode("halt");
-            }
-            else if (c == 'e')
-            {
-                grub_exit();
-            }
-        }
+        ventoy_prompt_end();
     }
 
     g_ventoy_disk_part_size[0] = ventoy_get_vtoy_partsize(0);
