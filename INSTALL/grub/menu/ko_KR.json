@@ -84,7 +84,7 @@
     
     "VTLANG_CTRL_TEMP_SET": "임시 제어 설정",
     "VTLANG_WIN11_BYPASS_CHECK": "Windows 11을 설치할 때 우회 점검",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Windows 11 설치 시 온라인 계정 요구 사항 우회",
     "VTLANG_LINUX_REMOUNT": "Linux 부트 후 Ventoy 파티션 마운트",
     "VTLANG_SECONDARY_BOOT_MENU": "보조 부트 메뉴 표시",
     

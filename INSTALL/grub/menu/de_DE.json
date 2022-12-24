@@ -82,11 +82,11 @@
     "VTLANG_ENTER_REBOOT": "Drücken Sie die Eingabetaste, um neu zu starten",
     "VTLANG_ENTER_CONTINUE": "Drücken Sie die Eingabetaste, um fortzufahren",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "Temporäre Steuerungseinstellungen",
+    "VTLANG_WIN11_BYPASS_CHECK": "Umgehen Sie die CPU/TPM/SecureBoot-Prüfung bei der Installation von Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Umgehen Sie die Online-Kontoanforderung bei der Installation von Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Mounten Sie die Ventoy-Partition nach dem Booten von Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Sekundäres Bootmenü anzeigen",
     
     "MENU_STR_XXX": ""
 }

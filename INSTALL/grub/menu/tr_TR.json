@@ -84,7 +84,7 @@
 
     "VTLANG_CTRL_TEMP_SET": "Geçici Kontrol Ayarları",
     "VTLANG_WIN11_BYPASS_CHECK": "Windows11'i yükler iken TPM,CPU,RAM kontrollerini atla",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Windows 11'i yüklerken çevrimiçi hesap gereksinimini atlayın",
     "VTLANG_LINUX_REMOUNT": "Linux sistemi önyükledikten sonra, Ventoy bölümünü bağla",
     "VTLANG_SECONDARY_BOOT_MENU": "İkincil önyükleme menüsünü göster",
 
