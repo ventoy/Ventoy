@@ -48,6 +48,11 @@ typedef enum VTOY_FS
 #define VENTOY_FILE_LOG         "log.txt"
 #define VENTOY_FILE_VERSION     "ventoy\\version"
 
+#define VENTOY_CLI_LOG          "cli_log.txt"
+#define VENTOY_CLI_PERCENT      "cli_percent.txt"
+#define VENTOY_CLI_DONE         "cli_done.txt"
+
+
 #define DRIVE_ACCESS_TIMEOUT        15000		// How long we should retry drive access (in ms)
 #define DRIVE_ACCESS_RETRIES        150			// How many times we should retry
 
@@ -345,6 +350,8 @@ extern int __static_assert__[sizeof(VTSI_FOOTER) == 512 ? 1 : -1];
 
 extern HWND g_DialogHwnd;
 
+extern BOOL g_CLI_Mode;
+
 #define SAFE_FREE(ptr) if (ptr) { free(ptr); (ptr) = NULL; }
 int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle);
 void disk_io_set_imghook(FILE *fp, VTSI_SEGMENT *segment, int maxseg, UINT64 data_offset);
@@ -358,6 +365,11 @@ const char* GUID2String(void* guid, char* buf, int len);
 void VentoyStringToUpper(CHAR* str);
 BOOL AlertSuppressInit(void);
 void SetAlertPromptHookEnable(BOOL enable);
+int VentoyCLIMain(int argc, char** argv);
+BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD* pMBR, UINT64* Part2StartSector, UINT64* GptPart2Attr);
+int GetVentoyFsNameInPhyDrive(PHY_DRIVE_INFO* CurDrive);
+void CLISetReserveSpace(int MB);
+void CLI_UpdatePercent(int Pos);
 
 #define VTSI_SUPPORT 1
 

@@ -76,7 +76,7 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
     return 0;
 }
 
-static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UINT64 *Part2StartSector, UINT64 *GptPart2Attr)
+BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UINT64 *Part2StartSector, UINT64 *GptPart2Attr)
 {
     int i;
     BOOL bRet;
@@ -274,7 +274,7 @@ int GetVolumeClusterSize(char Drive)
     return 0;
 }
 
-static int GetVentoyFsNameInPhyDrive(PHY_DRIVE_INFO* CurDrive)
+int GetVentoyFsNameInPhyDrive(PHY_DRIVE_INFO* CurDrive)
 {
     int i = 0;
     UINT64 Offset;
