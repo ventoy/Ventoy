@@ -232,6 +232,10 @@ label_set_property (void *vself, const char *name, const char *value)
        }
        else if (grub_strcmp (value, "@VTOY_HOTKEY_TIP@") == 0) {
             value = g_ventoy_hotkey_tip;
+       } else if (value[0] == '@' && value[1] == '@' && value[2]) {
+            value = grub_env_get(value + 2);
+            if (!value)
+                value = " ";
        }
        
 	  self->template = grub_strdup (value);

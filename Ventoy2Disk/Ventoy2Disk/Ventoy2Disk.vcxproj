@@ -342,6 +342,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AlertSuppress.c" />
     <ClCompile Include="crc32.c" />
     <ClCompile Include="DiskService.c" />
     <ClCompile Include="DiskService_diskpart.c" />
@@ -366,6 +367,7 @@
     <ClCompile Include="Utility.c" />
     <ClCompile Include="Ventoy2Disk.c" />
     <ClCompile Include="VentoyJson.c" />
+    <ClCompile Include="ventoy_cli.c" />
     <ClCompile Include="WinDialog.c" />
     <ClCompile Include="xz-embedded-20130513\linux\lib\decompress_unxz.c" />
     <ClCompile Include="YesDialog.c" />

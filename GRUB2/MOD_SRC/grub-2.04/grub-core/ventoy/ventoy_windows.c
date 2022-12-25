@@ -1090,6 +1090,12 @@ static int ventoy_fill_windows_rtdata(void *buf, char *isopath, int dataflag)
     {
         data->windows11_bypass_check = 1;
     }
+    
+    env = grub_env_get("VTOY_WIN11_BYPASS_NRO");
+    if (env && env[0] == '1' && env[1] == 0)
+    {
+        data->windows11_bypass_nro = 1;
+    }
 
     pos = grub_strstr(isopath, "/");
     if (!pos)

@@ -295,6 +295,8 @@ theme_set_string (grub_gfxmenu_view_t view,
       if (! view->title_text)
         return grub_errno;
     }
+  else if (! grub_strcmp ("ventoy_left_top_color", name))
+      return grub_errno;
   else
     {
       return grub_error (GRUB_ERR_BAD_ARGUMENT,

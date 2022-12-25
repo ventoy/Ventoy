@@ -33,6 +33,8 @@ function ventoy_get_ulen(str) {
 
 
 function ventoy_common_check_path(path) {
+    var curdir
+    
     if (path.indexOf('//') >= 0) {
         return false;
     }
@@ -41,7 +43,12 @@ function ventoy_common_check_path(path) {
         return false;
     }
 
-    if (path.substr(0, g_current_dir.length) != g_current_dir) {
+    curdir = path.substr(0, g_current_dir.length);    
+    if (curdir.match("^[a-z]:$")) {
+        curdir = curdir.toUpperCase();
+    }
+    
+    if (curdir != g_current_dir) {
         return false;
     }
 

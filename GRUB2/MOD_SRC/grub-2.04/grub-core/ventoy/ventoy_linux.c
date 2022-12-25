@@ -177,10 +177,7 @@ static grub_err_t ventoy_isolinux_initrd_collect(grub_file_t file, const char *p
     {
         nextline = ventoy_get_line(start);
 
-        while (ventoy_isspace(*start))
-        {
-            start++;
-        }
+        VTOY_SKIP_SPACE(start);
 
         offset = 7; // strlen("initrd=") or "INITRD " or "initrd "
         pos = grub_strstr(start, "initrd=");
@@ -438,10 +435,7 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
     {
         nextline = ventoy_get_line(start);
 
-        while (ventoy_isspace(*start))
-        {
-            start++;
-        }
+        VTOY_SKIP_SPACE(start);
 
         if (grub_strncmp(start, "initrd", 6) != 0)
         {
@@ -454,10 +448,7 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
             start++;
         }
 
-        while (ventoy_isspace(*start))
-        {
-            start++;
-        }
+        VTOY_SKIP_SPACE(start);
 
         if (*start == '"')
         {
@@ -528,10 +519,7 @@ static grub_err_t ventoy_grub_cfg_initrd_collect(const char *fileName)
 
             if (*start == ' ' || *start == '\t')
             {
-                while (ventoy_isspace(*start))
-                {
-                    start++;
-                }
+                VTOY_SKIP_SPACE(start);
             }
             else
             {
@@ -1813,18 +1801,12 @@ static char *ventoy_systemd_conf_tag(char *buf, const char *tag, int optional)
     for (start = buf; start; start = nextline)
     {
         nextline = ventoy_get_line(start);
-        while (ventoy_isspace(*start))
-        {
-            start++;
-        }
+        VTOY_SKIP_SPACE(start);
 
         if (grub_strncmp(start, tag, taglen) == 0 && (start[taglen] == ' ' || start[taglen] == '\t'))
         {
             start += taglen;
-            while (ventoy_isspace(*start))
-            {
-                start++;
-            } 
+            VTOY_SKIP_SPACE(start); 
             return start;
         }
     }
@@ -2038,10 +2020,7 @@ grub_err_t ventoy_cmd_linux_limine_menu(grub_extcmd_context_t ctxt, int argc, ch
     for (start = filebuf; start; start = nextline)
     {
         nextline = ventoy_get_line(start);
-        while (ventoy_isspace(*start))
-        {
-            start++;
-        }
+        VTOY_SKIP_SPACE(start);
 
         if (start[0] == ':')
         {

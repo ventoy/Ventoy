@@ -25,10 +25,6 @@
 #include <grub/i18n.h>
 #include <grub/normal.h>
 
-typedef const char * (*get_vmenu_title_pf)(const char *vMenu);
-static get_vmenu_title_pf g_pfvmenu_title = NULL;
-
-
 static const struct grub_arg_option options[] =
   {
     {"class", 1, GRUB_ARG_OPTION_REPEATABLE,
@@ -90,8 +86,6 @@ grub_normal_add_menu_entry (int argc, const char **args,
   char *menu_title = NULL;
   char *menu_sourcecode = NULL;
   char *menu_id = NULL;
-  const char *vmenu = NULL;
-  const char *vaddr = NULL;
   struct grub_menu_entry_class *menu_classes = NULL;
 
   grub_menu_t menu;
@@ -151,17 +145,7 @@ grub_normal_add_menu_entry (int argc, const char **args,
       goto fail;
     }
 
-  if (!g_pfvmenu_title) {        
-    vaddr = grub_env_get("VTOY_VMENU_FUNC_ADDR");
-      if (vaddr)
-        g_pfvmenu_title = (get_vmenu_title_pf)(unsigned long)grub_strtoul(vaddr, NULL, 16);
-  }
-
-  if (g_pfvmenu_title && grub_strncmp(args[0], "@VTMENU_", 8) == 0)
-    vmenu = g_pfvmenu_title(args[0] + 1);
-
-  menu_title = grub_strdup (vmenu ? vmenu : args[0]);
- 
+  menu_title = grub_strdup (args[0]);
   if (! menu_title)
     goto fail;
 

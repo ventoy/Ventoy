@@ -59,6 +59,7 @@
         "STR_PART_FS":"نظام الملفات",
         "STR_PART_CLUSTER":"حجم الكتلة",
         "STR_PART_CLUSTER_DEFAULT":"القيمة الافتراضية للنظام",
+        "STR_DONATE":"يتبرع",
         
         "STRXXX":""
     },
@@ -122,8 +123,8 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Ianə",
 
-        
         "STRXXX":""
     },
     {
@@ -186,7 +187,8 @@
         "STR_PART_FS":"파일 시스템",
         "STR_PART_CLUSTER":"클러스터 크기",
         "STR_PART_CLUSTER_DEFAULT":"시스템 기본값",
-
+        "STR_DONATE":"기부",
+        
         "STRXXX":""
     },
     {
@@ -249,7 +251,72 @@
         "STR_PART_FS":"文件系统",
         "STR_PART_CLUSTER":"簇大小",
         "STR_PART_CLUSTER_DEFAULT":"系统默认值",
+        "STR_DONATE":"捐助",
         
+        "STRXXX":""
+    },
+    {
+        "name":"Danish (Dansk)",
+        "FontFamily":"Courier New",
+        "FontSize":16,
+        "Author":"fhdk",
+
+        "STR_ERROR":"Fejl",
+        "STR_WARNING":"Advarsel",
+        "STR_INFO":"Info",
+        "STR_INCORRECT_DIR":"Skal udføres i den rette mappe!",
+        "STR_INCORRECT_TREE_DIR":"Udfør ikke her, download pakke udgivelsen og udfør i den mappe.",
+        "STR_DEVICE":"Enhed",
+        "STR_LOCAL_VER":"Pakke Version",
+        "STR_DISK_VER":"Enhed Version",
+        "STR_STATUS":"Status - KLAR",
+        "STR_INSTALL":"Installer",
+        "STR_UPDATE":"Opdater",
+        "STR_UPDATE_TIP":"Updatering er sikker, Data indhold bevares uændret.#@Fortsæt?",
+        "STR_INSTALL_TIP":"Alle data på enheden slettes og kan ikke gendannes.#@Fortsæt?",
+        "STR_INSTALL_TIP2":"BEKRÆFT! Alle data på enheden slettes og kan ikke gendannes.#@Fortsæt?",
+        "STR_INSTALL_SUCCESS":"SÅDAN!#@Ventoy er nu overført til enheden.",
+        "STR_INSTALL_FAILED":"Der opstod en fejl under overførslen. Fjern og indsæt enheden på ny for at prøve igen. Læs log.txt for detaljer. Hvis det gantager sig, Se FAQ på den officielle web.",
+        "STR_UPDATE_SUCCESS":"SÅDAN!#@Ventoy er nu opdaterert på enheden",
+        "STR_UPDATE_FAILED":"Der opstod en fejl opdateringen. Fjern og indsæt enheden på ny for at prøve igen. Læs log.txt for detaljer. Hvis det gantager sig, Se FAQ på den officielle web.",
+        "STR_WAIT_PROCESS":"Programmet er optaget, vent venligst...",
+        "STR_MENU_OPTION":"Valg",
+        "STR_MENU_SECURE_BOOT":"Secure Boot Support",
+        "STR_MENU_PART_CFG":"Partition Opsætning",
+        "STR_BTN_OK":"OK",
+        "STR_BTN_CANCEL":"Afbryd",
+        "STR_PRESERVE_SPACE":"Efterlad reserveret plads på enheden",
+        "STR_SPACE_VAL_INVALID":"Ugyldig værdi for reserveret plads",
+        "STR_MENU_CLEAR":"Fjern Ventoy",
+        "STR_CLEAR_SUCCESS":"Ventoy er nu fjernet fra enheden.",
+        "STR_CLEAR_FAILED":"Der opstod en fejl under fjernelse fra enheden. Fjern og indsæt enheden på ny for at prøve igen. Læs log.txt for detaljer.",
+        "STR_MENU_PART_STYLE":"Partition Type",
+        "STR_DISK_2TB_MBR_ERROR":"Vælg GPT for enheder over 2TB",
+        "STR_SHOW_ALL_DEV":"Vis Alle Enheder",
+        "STR_PART_ALIGN_4KB":"Juster partitioner til 4KB blokke.",
+        "STR_WEB_COMMUNICATION_ERR":"Kommunikationsfejl:",
+        "STR_WEB_REMOTE_ABNORMAL":"Kommunikationsfejl: Uventet server",
+        "STR_WEB_REQUEST_TIMEOUT":"Kommunikationsfejl: Server svarer ikke",
+        "STR_WEB_SERVICE_UNAVAILABLE":"Kommunikationsfejl: Server ikke tilgængelig",
+        "STR_WEB_TOKEN_MISMATCH":"Baggrundsstatus er opdateret. Prøv igen seenere.",
+        "STR_WEB_SERVICE_BUSY":"Webservice er optaget, prøv igen senere.",
+        "STR_MENU_VTSI_CREATE":"Opret VTSI File",
+        "STR_VTSI_CREATE_TIP":"Der skrives ikke til enheden, der bliver blot dannet en VTSI fil#@Fortsæt?",
+        "STR_VTSI_CREATE_SUCCESS":"VTSI fil oprettet!#@Du kan nu skrive til enheden ved at bruge Rufus(3.15+) og dermed færddiggøre enheds opsætningen.",
+        "STR_VTSI_CREATE_FAILED":"Oprettelse af VTSI mislykkedes.",
+        "STR_MENU_PART_RESIZE":"Ikke-Destruktiv overførsel",
+        "STR_PART_RESIZE_TIP":"Ventoy vil forsøge en ikke-destruktion overførsel om muligt. #@Fortsæt?",
+        "STR_PART_RESIZE_SUCCESS":"SÅDAN!#@ Den ikke-destruktive overførsel var perfekt.",
+        "STR_PART_RESIZE_FAILED":"Ikke-Destruktiv overførsel fejlede, Læs log.txt for detaljer.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Ikke-Destruktiv overførsel er afbrudt. Betingelser er ikke opfyldt. Læs log.txt for detaljer.",
+        "STR_INSTALL_YES_TIP1":"Advarsel: Data vil gå tabt!",
+        "STR_INSTALL_YES_TIP2":"Indtast ordet YES for at bekræfte en ny overførsel istedet for en opdatring.",
+        "STR_PART_VENTOY_FS":"Fil System For Ventoy Partition",
+        "STR_PART_FS":"Fil System",
+        "STR_PART_CLUSTER":"Klynge størrelse",
+        "STR_PART_CLUSTER_DEFAULT":"System Standard Værdi",
+        "STR_DONATE":"Donering",
+
         "STRXXX":""
     },
     {
@@ -312,6 +379,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Donate",
 
         "STRXXX":""
     },
@@ -320,6 +388,7 @@
         "FontFamily": "Courier New",
         "FontSize": 16,
         "Author": "44f33",
+        
         "STR_ERROR": "შეცდომა",
         "STR_WARNING": "გაფრთხილება",
         "STR_INFO": "ინფორმაცია",
@@ -374,6 +443,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"შემოწირულობა",
 
         "STRXXX": ""
     },
@@ -437,6 +507,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"اهداء",
 
         "STRXXX":""
     },
@@ -500,6 +571,7 @@
         "STR_PART_FS":"System plików",
         "STR_PART_CLUSTER":"Wielkość klastra",
         "STR_PART_CLUSTER_DEFAULT":"Wartość domyślna systemu",
+        "STR_DONATE":"Podarować",
 
         "STRXXX":""
     },
@@ -563,6 +635,7 @@
         "STR_PART_FS":"Sistema de arquivo",
         "STR_PART_CLUSTER":"Tamanho do cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor padrão do sistema",
+        "STR_DONATE":"Doar",
 
         "STRXXX":""
     },
@@ -626,6 +699,7 @@
         "STR_PART_FS":"Dosya Sistemi",
         "STR_PART_CLUSTER":"Sektör Boyutu",
         "STR_PART_CLUSTER_DEFAULT":"Sistem varsayılan değeri",
+        "STR_DONATE":"Ventoy'a Bağış yap",
 
         "STRXXX":""
     },
@@ -689,6 +763,7 @@
         "STR_PART_FS":"Dateisystem",
         "STR_PART_CLUSTER":"Clustergröße",
         "STR_PART_CLUSTER_DEFAULT":"Systemstandardwert",
+        "STR_DONATE":"Spenden",
 
         "STRXXX":""
     },
@@ -752,6 +827,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Donate",
 
         "STRXXX":""
     },
@@ -815,7 +891,8 @@
         "STR_PART_FS":"Système de fichiers",
         "STR_PART_CLUSTER":"Taille de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valeur par défaut du système",
-        
+        "STR_DONATE":"Faire un don",
+
         "STRXXX":""
     },
     {
@@ -878,6 +955,7 @@
         "STR_PART_FS":"Souborový systém",
         "STR_PART_CLUSTER":"Velikost clusteru",
         "STR_PART_CLUSTER_DEFAULT":"Výchozí hodnota systému",
+        "STR_DONATE":"Darovat",
 
         "STRXXX":""
     },
@@ -940,6 +1018,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Darovať",
 
         "STRXXX":""
     },
@@ -1003,6 +1082,7 @@
         "STR_PART_FS":"Sistema de archivos",
         "STR_PART_CLUSTER":"Tamaño de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
+        "STR_DONATE":"Donar",
 
         "STRXXX":""
     },
@@ -1066,6 +1146,7 @@
         "STR_PART_FS":"Sistema de archivos",
         "STR_PART_CLUSTER":"Tamaño de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
+        "STR_DONATE":"Donar",
 
         "STRXXX":""
     },
@@ -1073,63 +1154,64 @@
         "name":"Russian (Русский)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"Dmitry Yerokhin, BL4CKH47H4CK3R, Teraskull, thehugonote, wiz64, dmitrygribenchuk",
+        "Author":"Dmitry Yerokhin, BL4CKH47H4CK3R, Teraskull, thehugonote, wiz64, dmitrygribenchuk, Темак",
         
         "STR_ERROR":"Ошибка",
         "STR_WARNING":"Внимание",
         "STR_INFO":"Информация",
         "STR_INCORRECT_DIR":"Запустите в другой папке!",
-        "STR_INCORRECT_TREE_DIR":"Не запускайте программу здесь, загрузите установочный пакет и запустите его в другом месте.",
+        "STR_INCORRECT_TREE_DIR":"Не запускайте приложение здесь, загрузите установочный пакет и запустите его в другом месте.",
         "STR_DEVICE":"Устройство",
-        "STR_LOCAL_VER":"Ventoy в пакете",
-        "STR_DISK_VER":"Ventoy на устройстве",
-        "STR_STATUS":"Статус - ГОТОВ",
+        "STR_LOCAL_VER":"Вентой в пакете",
+        "STR_DISK_VER":"Вентой на накопителе",
+        "STR_STATUS":"Состояние — ГОТОВ",
         "STR_INSTALL":"Установить",
         "STR_UPDATE":"Обновить",
-        "STR_UPDATE_TIP":"Обновление безопасно, ISO-файлы останутся без изменений.#@Продолжить?",
-        "STR_INSTALL_TIP":"Эта операция отформатирует диск, все данные на нём будут уничтожены.#@Продолжить?",
-        "STR_INSTALL_TIP2":"Эта операция отформатирует диск, все данные на нём будут уничтожены.#@Вы действительно хотите продолжить?",
-        "STR_INSTALL_SUCCESS":"Поздравляем!#@Установка Ventoy на устройстве успешно выполнена.",
-        "STR_INSTALL_FAILED":"Ошибка при установке. Переподключите USB-устройство и попробуйте снова. См. файл log.txt с подробной информацией. Если ошибка не исчезает, см. FAQ на официальном сайте.",
-        "STR_UPDATE_SUCCESS":"Поздравляем!#@Обновление Ventoy на устройстве успешно выполнено.",
-        "STR_UPDATE_FAILED":"Ошибка при обновлении Ventoy. Переподключите USB-устройство и попробуйте снова. См. файл log.txt с подробной информацией. Если ошибка не исчезает, см. FAQ на официальном сайте.",
-        "STR_WAIT_PROCESS":"Процесс запущен, подождите...",
-        "STR_MENU_OPTION":"Опции",
+        "STR_UPDATE_TIP":"Обновление безопасно, ISO-образы останутся без изменений.#@Продолжить?",
+        "STR_INSTALL_TIP":"Это действие отформатирует накопитель, все данные на нём будут уничтожены.#@Продолжить?",
+        "STR_INSTALL_TIP2":"Это действие отформатирует накопитель, все данные на нём будут уничтожены.#@Вы действительно хотите продолжить?",
+        "STR_INSTALL_SUCCESS":"Поздравляем!#@Установка Вентоя на устройстве успешно выполнена.",
+        "STR_INSTALL_FAILED":"Ошибка при установке. Переподключите USB-накопитель и попробуйте снова. См. файл log.txt с подробностями. Если ошибка не исчезает, см. «FAQ» на официальном сайте.",
+        "STR_UPDATE_SUCCESS":"Поздравляем!#@Обновление Вентоя на устройстве успешно выполнено.",
+        "STR_UPDATE_FAILED":"Ошибка при обновлении Вентоя. Переподключите USB-накопитель и попробуйте снова. См. файл log.txt с подробностями. Если ошибка не исчезает, см. «FAQ» на официальном сайте.",
+        "STR_WAIT_PROCESS":"Действие запущено, подождите...",
+        "STR_MENU_OPTION":"Настройки",
         "STR_MENU_SECURE_BOOT":"Поддержка Secure Boot",
         "STR_MENU_PART_CFG":"Дополнительный раздел",
         "STR_BTN_OK":"OK",
         "STR_BTN_CANCEL":"Отмена",
         "STR_PRESERVE_SPACE":"Создать дополнительный раздел в конце диска",
-        "STR_SPACE_VAL_INVALID":"Неверное значение размера раздела",
-        "STR_MENU_CLEAR":"Удалить Ventoy",
-        "STR_CLEAR_SUCCESS":"Удаление Ventoy с устройства успешно выполнено.",
-        "STR_CLEAR_FAILED":"Ошибка при удалении Ventoy. Переподключите USB-устройство и попробуйте снова. См. файл log.txt с подробной информацией.",
+        "STR_SPACE_VAL_INVALID":"Недействительное значение размера раздела",
+        "STR_MENU_CLEAR":"Удалить Вентой",
+        "STR_CLEAR_SUCCESS":"Удаление Вентоя с устройства успешно выполнено.",
+        "STR_CLEAR_FAILED":"Ошибка при удалении Вентоя. Переподключите USB-накопитель и попробуйте снова. См. файл log.txt с подробностями.",
         "STR_MENU_PART_STYLE":"Стиль разметки разделов",
-        "STR_DISK_2TB_MBR_ERROR":"Для дисков объёмом более 2 ТБ выберите GPT",
+        "STR_DISK_2TB_MBR_ERROR":"Для накопителей объёмом более 2 ТБ выберите GPT",
         "STR_SHOW_ALL_DEV":"Показывать все устройства",
         "STR_PART_ALIGN_4KB":"Выравнивать разделы с кластерами по 4 КБ",
         "STR_WEB_COMMUNICATION_ERR":"Ошибка связи:",
-        "STR_WEB_REMOTE_ABNORMAL":"Ошибка связи: Удалённое соединение недействительно",
-        "STR_WEB_REQUEST_TIMEOUT":"Ошибка связи: Истекло время ожидания запроса",
-        "STR_WEB_SERVICE_UNAVAILABLE":"Ошибка связи: Служба недоступна",
-        "STR_WEB_TOKEN_MISMATCH":"Статус демона обновлён, повторите попытку позже.",
+        "STR_WEB_REMOTE_ABNORMAL":"Ошибка связи: удалённое соединение недействительно",
+        "STR_WEB_REQUEST_TIMEOUT":"Ошибка связи: истекло время ожидания запроса",
+        "STR_WEB_SERVICE_UNAVAILABLE":"Ошибка связи: служба недоступна",
+        "STR_WEB_TOKEN_MISMATCH":"Состояние службы обновлено, повторите попытку позже.",
         "STR_WEB_SERVICE_BUSY":"Служба занята, повторите попытку позже.",
         "STR_MENU_VTSI_CREATE":"Создать файл .vtsi",
-        "STR_VTSI_CREATE_TIP":"Вместо установки Ventoy на устройство будет только создан vtsi-файл.#@Продолжить?",
-        "STR_VTSI_CREATE_SUCCESS":"Файл .vtsi успешно создан.#@Вы можете записать его на устройство с помощью программы Rufus (v3.15+), чтобы завершить установку Ventoy.",
+        "STR_VTSI_CREATE_TIP":"Вместо установки Вентоя на накопитель будет создан только vtsi-файл.#@Продолжить?",
+        "STR_VTSI_CREATE_SUCCESS":"Файл .vtsi успешно создан.#@Вы можете записать его на накопитель с помощью приложения Rufus (v3.15+), чтобы завершить установку Вентоя.",
         "STR_VTSI_CREATE_FAILED":"Ошибка создания vtsi-файла.",
         "STR_MENU_PART_RESIZE":"Неразрушающая установка",
-        "STR_PART_RESIZE_TIP":"Ventoy попробует выполнить неразрушающую установку. #@Продолжить?",
-        "STR_PART_RESIZE_SUCCESS":"Поздравляем!#@Неразрушающая установка Ventoy успешно выполнена.",
-        "STR_PART_RESIZE_FAILED":"Не удалось выполнить неразрушающую установку, см. файл log.txt с подробной информацией.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Ventoy остановлена из-за несоответствия некоторым требованиям. См. файл log.txt с подробной информацией.",
-        "STR_INSTALL_YES_TIP1":"ВНИМАНИЕ: Все данные будут потеряны!",
-        "STR_INSTALL_YES_TIP2":"Введите YES в текстовом поле ниже, чтобы подтвердить, что вы действительно хотите выполнить новую установку, а не обновление.",
-        "STR_PART_VENTOY_FS":"Файловая система для раздела Ventoy",
+        "STR_PART_RESIZE_TIP":"Вентой попробует выполнить неразрушающую установку. #@Продолжить?",
+        "STR_PART_RESIZE_SUCCESS":"Поздравляем!#@Неразрушающая установка Вентоя успешно выполнена.",
+        "STR_PART_RESIZE_FAILED":"Не удалось выполнить неразрушающую установку, см. файл log.txt с подробностями.",
+        "STR_PART_RESIZE_UNSUPPORTED":"Неразрушающая установка Вентоя остановлена из-за несоответствия некоторым требованиям. См. файл log.txt с подробностями.",
+        "STR_INSTALL_YES_TIP1":"ВНИМАНИЕ: все данные будут потеряны!",
+        "STR_INSTALL_YES_TIP2":"Введите «YES» в текстовом поле ниже, чтобы подтвердить, что вы действительно хотите выполнить новую установку, а не обновление.",
+        "STR_PART_VENTOY_FS":"Файловая система для раздела Вентоя",
         "STR_PART_FS":"Тип:",
         "STR_PART_CLUSTER":"Размер кластера:",
         "STR_PART_CLUSTER_DEFAULT":"Системное значение по умолчанию",
-        
+        "STR_DONATE":"Пожертвовать",
+
         "STRXXX":""
     },
     {
@@ -1192,6 +1274,7 @@
         "STR_PART_FS":"ফাইল সিস্টেম",
         "STR_PART_CLUSTER":"ক্লাস্টারের আকার",
         "STR_PART_CLUSTER_DEFAULT":"সিস্টেমের ডিফল্ট মান",
+        "STR_DONATE":"দান করুন",
 
         "STRXXX":""
     },
@@ -1255,6 +1338,7 @@
         "STR_PART_FS":"फाइल सिस्टम",
         "STR_PART_CLUSTER":"क्लस्टर साइज",
         "STR_PART_CLUSTER_DEFAULT":"सिस्टम डिफ़ॉल्ट मान",
+        "STR_DONATE":"दान करें",
 
         "STRXXX":""
     },
@@ -1275,13 +1359,13 @@
         "STR_STATUS":"Status - KLAAR",
         "STR_INSTALL":"Installeren",
         "STR_UPDATE":"Bijwerken",
-        "STR_UPDATE_TIP":"Upgraden is veilig: ISO-bestanden blijven ongewijzigd.#@Doorgaan?",
+        "STR_UPDATE_TIP":"Bijwerken is veilig: ISO-bestanden blijven ongewijzigd.#@Doorgaan?",
         "STR_INSTALL_TIP":"Het apparaat wordt geformatteerd en alle gegevens gaan verloren.#@Doorgaan?",
         "STR_INSTALL_TIP2":"Het apparaat wordt geformatteerd en alle gegevens gaan verloren.#@Doorgaan? (Dubbelcheck)",
         "STR_INSTALL_SUCCESS":"Gefeliciteerd!#@Ventoy is met succes op het apparaat geïnstalleerd.",
-        "STR_INSTALL_FAILED":"Er is een fout opgetreden tijdens de installatie. U kunt het USB-apparaat opnieuw aansluiten en het nogmaals proberen. Controleer log.txt voor details.",
+        "STR_INSTALL_FAILED":"Er is een fout opgetreden tijdens de installatie. U kunt het USB-apparaat opnieuw aansluiten en het nogmaals proberen. Controleer log.txt voor details. Raadpleeg de FAQ op de officiële website als het blijft mislukken.",
         "STR_UPDATE_SUCCESS":"Gefeliciteerd!#@Ventoy is met succes bijgewerkt op het apparaat.",
-        "STR_UPDATE_FAILED":"Er is een fout opgetreden tijdens de update. U kunt het USB-apparaat opnieuw aansluiten en het nogmaals proberen. Controleer log.txt voor details.",
+        "STR_UPDATE_FAILED":"Er is een fout opgetreden tijdens de update. U kunt het USB-apparaat opnieuw aansluiten en het nogmaals proberen. Controleer log.txt voor details. Raadpleeg de FAQ op de officiële website als het blijft mislukken.",
         "STR_WAIT_PROCESS":"Ventoy is nog bezig, even geduld...",
         "STR_MENU_OPTION":"Opties",
         "STR_MENU_SECURE_BOOT":"Ondersteuning voor Secure Boot",
@@ -1294,7 +1378,7 @@
         "STR_CLEAR_SUCCESS":"Ventoy is met succes verwijderd van het apparaat.",
         "STR_CLEAR_FAILED":"Er is een fout opgetreden bij het verwijderen van Ventoy. U kunt het USB-apparaat opnieuw aansluiten en het nogmaals proberen. Controleer log.txt voor details.",
         "STR_MENU_PART_STYLE":"Partitietabel",
-        "STR_DISK_2TB_MBR_ERROR":"Selecteer GPT als partitietabel voor apparaten groter dan 2 TB",
+        "STR_DISK_2TB_MBR_ERROR":"Selecteer GPT voor apparaten groter dan 2 TB",
         "STR_SHOW_ALL_DEV":"Alle apparaten weergeven",
         "STR_PART_ALIGN_4KB":"Partities uitlijnen met 4 KB",
         "STR_WEB_COMMUNICATION_ERR":"Communicatiefout:",
@@ -1302,7 +1386,7 @@
         "STR_WEB_REQUEST_TIMEOUT":"Communicatiefout: time-out van verzoek",
         "STR_WEB_SERVICE_UNAVAILABLE":"Communicatiefout: service niet beschikbaar",
         "STR_WEB_TOKEN_MISMATCH":"Daemon-status bijgewerkt, probeer het later opnieuw.",
-        "STR_WEB_SERVICE_BUSY":"Service is bezet, probeer het later opnieuw.",
+        "STR_WEB_SERVICE_BUSY":"Service is bezet. Probeer het later opnieuw.",
         "STR_MENU_VTSI_CREATE":"VTSI-bestand genereren",
         "STR_VTSI_CREATE_TIP":"Deze keer wordt er niet naar het apparaat geschreven, maar wordt er alleen een VTSI-bestand gegenereerd#@Doorgaan?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI-bestand met succes aangemaakt!#@U kunt Rufus(3.15+) gebruiken om het bestand naar het apparaat te schrijven om de installatie van Ventoy te voltooien.",
@@ -1312,13 +1396,14 @@
         "STR_PART_RESIZE_SUCCESS":"Gefeliciteerd!#@De niet-destructieve installatie van Ventoy is met succes voltooid.",
         "STR_PART_RESIZE_FAILED":"Niet-destructieve installatie mislukt. Controleer log.txt voor details.",
         "STR_PART_RESIZE_UNSUPPORTED":"De niet-destructieve installatie van Ventoy is gestopt omdat aan sommige voorwaarden niet kan worden voldaan. Controleer log.txt voor details.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
+        "STR_INSTALL_YES_TIP1":"Waarschuwing: alle gegevens zullen verloren gaan!",
+        "STR_INSTALL_YES_TIP2":"Vul in het onderstaande tekstvak YES in om te bevestigen dat u inderdaad een nieuwe installatie wilt uitvoeren in plaats van een upgrade.",
         "STR_PART_VENTOY_FS":"Bestandssysteem voor Ventoy-partitie",
         "STR_PART_FS":"Bestandssysteem",
         "STR_PART_CLUSTER":"Clustergrootte",
         "STR_PART_CLUSTER_DEFAULT":"Standaardwaarde systeem",
-
+        "STR_DONATE":"Doneer",
+        
         "STRXXX":""
     },
     {
@@ -1381,7 +1466,8 @@
         "STR_PART_FS":"Sistemul de fișiere",
         "STR_PART_CLUSTER":"Dimensiunea clusterului",
         "STR_PART_CLUSTER_DEFAULT":"Valoarea implicită a sistemului",
-
+        "STR_DONATE":"Donează",
+        
         "STRXXX":""
     },
     {
@@ -1444,6 +1530,7 @@
         "STR_PART_FS":"ファイルシステム",
         "STR_PART_CLUSTER":"クラスターサイズ",
         "STR_PART_CLUSTER_DEFAULT":"システムのデフォルト値",
+        "STR_DONATE":"寄付",
 
         "STRXXX":""
     },
@@ -1507,6 +1594,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Dimensione del grappolo",
         "STR_PART_CLUSTER_DEFAULT":"Valore predefinito di sistema",
+        "STR_DONATE":"Donare",
 
         "STRXXX":""
     },
@@ -1570,6 +1658,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Donirajte",
 
         "STRXXX":""
     },
@@ -1633,10 +1722,11 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Adományoz",
 
         "STRXXX":""
     },
-   {
+    {
         "name":"Traditional Chinese（正體中文）",
         "FontFamily":"新細明體",
         "FontSize":14,
@@ -1696,6 +1786,7 @@
         "STR_PART_FS":"文件系統",
         "STR_PART_CLUSTER":"簇的大小",
         "STR_PART_CLUSTER_DEFAULT":"系統默認值",
+        "STR_DONATE":"捐助",
 
         "STRXXX":""
     },
@@ -1759,6 +1850,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Donate",
 
         "STRXXX":""
     },
@@ -1767,7 +1859,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov",
-        
+
         "STR_ERROR":"Грешка",
         "STR_WARNING":"Упозорење",
         "STR_INFO":"Информација",
@@ -1822,6 +1914,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Донирајте",
 
         "STRXXX":""
     },
@@ -1885,7 +1978,8 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
-        
+        "STR_DONATE":"บริจาค",
+
         "STRXXX":""
     },
     {
@@ -1893,7 +1987,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Stein-Ove Bøthun",
-        
+
         "STR_ERROR":"Feil",
         "STR_WARNING":"Advarsel",
         "STR_INFO":"Info",
@@ -1948,14 +2042,15 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
-        
+        "STR_DONATE":"donere",
+
         "STRXXX":""
     },
     {
         "name":"Vietnamese (Tiếng Việt)",
         "FontFamily":"Tahoma",
         "FontSize":14,
-        "Author":"Nguyen Quoc Hoang - cuumay.com",
+        "Author":"Nguyen Quoc Hoang - cuumay.win",
         
         "STR_ERROR":"Lỗi",
         "STR_WARNING":"Cảnh báo",
@@ -2005,12 +2100,13 @@
         "STR_PART_RESIZE_SUCCESS":"Chúc mừng bạn!#@Thiết bị đã được cài Ventoy thành công theo cách cài đặt không phá hủy.",
         "STR_PART_RESIZE_FAILED":"Đã xảy ra lỗi trong quá trình cài Ventoy theo cách cài đặt không phá hủy. Xem chi tiết ở tệp log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Cài Ventoy theo cách cài đặt không phá hủy đã bị dừng lại vì chưa đúng điều kiện. Xem chi tiết ở tệp log.txt.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_INSTALL_YES_TIP1":"Cảnh báo: Dữ liệu sẽ bị mất !",
+        "STR_INSTALL_YES_TIP2":"Vui lòng nhập YES vào textbox bên dưới để xác nhận bạn muốn cài mới thay vì cài nâng cấp.",
+        "STR_PART_VENTOY_FS":"Hệ thống tập tin cho Phân vùng Ventoy",
+        "STR_PART_FS":"Hệ thống tập tin",
+        "STR_PART_CLUSTER":"Cỡ Cluster",
+        "STR_PART_CLUSTER_DEFAULT":"Theo mặc định hệ thống",
+        "STR_DONATE":"Thưởng tác giả",
 
         "STRXXX":""
     },
@@ -2074,6 +2170,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"paaukoti",
 
         "STRXXX":""
     },
@@ -2137,7 +2234,8 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
-        
+        "STR_DONATE":"донира",
+                
         "STRXXX":""
     },
     {
@@ -2200,6 +2298,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"לִתְרוֹם",
 
         "STRXXX":""
     },
@@ -2211,7 +2310,7 @@
         
         "STR_ERROR":"Erro",
         "STR_WARNING":"Aviso",
-        "STR_INFO":"Info",
+        "STR_INFO":"Informação",
         "STR_INCORRECT_DIR":"Execute na pasta correta!",
         "STR_INCORRECT_TREE_DIR":"Não me execute aqui, transfira o pacote de instalação e execute lá.",
         "STR_DEVICE":"Dispositivo",
@@ -2252,18 +2351,19 @@
         "STR_VTSI_CREATE_TIP":"Desta vez não irá gravar no dispositivo, mas apenas gerar um ficheiro VTSI#@Continuar?",
         "STR_VTSI_CREATE_SUCCESS":"Ficheiro VTSI criado com sucesso!#@Pode utilizar o Rufus(3.15+) para o gravar no dispositivo de modo a completar a instalação do Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Falha no ficheiro VTSI criado.",
-        "STR_MENU_PART_RESIZE":"Non-destructive Install",
-        "STR_PART_RESIZE_TIP":"Ventoy will try non-destructive installation if possible. #@Continue?",
-        "STR_PART_RESIZE_SUCCESS":"Congratulations!#@Ventoy non-destructive installation successfully finished.",
-        "STR_PART_RESIZE_FAILED":"Non-destructive installation failed, Check log.txt for details.",
-        "STR_PART_RESIZE_UNSUPPORTED":"Ventoy non-destructive installation stopped because some conditions cannot be met. Check log.txt for details.",
-        "STR_INSTALL_YES_TIP1":"Warning: Data will be lost!",
-        "STR_INSTALL_YES_TIP2":"Please enter YES in the text box below to confirm that you indeed want to do a fresh install instead of upgrade.",
-        "STR_PART_VENTOY_FS":"File System For Ventoy Partition",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
-        
+        "STR_MENU_PART_RESIZE":"Instalação não destrutiva",
+        "STR_PART_RESIZE_TIP":"O Ventoy tentará uma instalação não destrutiva, se possível. #@Continuar?",
+        "STR_PART_RESIZE_SUCCESS":"Parabéns!#@Instalação não destrutiva do Ventoy concluída com sucesso.",
+        "STR_PART_RESIZE_FAILED":"Falha na instalação não destrutiva. Leia o ficheiro log.txt para mais detalhes.",
+        "STR_PART_RESIZE_UNSUPPORTED":"A instalação não destrutiva do Ventoy foi interrompida porque algumas condições não podem ser cumpridas. Leia o ficheiro log.txt para mais detalhes.",
+        "STR_INSTALL_YES_TIP1":"Aviso: Os dados serão perdidos!",
+        "STR_INSTALL_YES_TIP2":"Escreva YES na caixa de texto abaixo para confirmar que deseja de facto fazer uma nova instalação em vez de uma atualização.",
+        "STR_PART_VENTOY_FS":"Sistema de ficheiros para a partição Ventoy",
+        "STR_PART_FS":"Sistema de ficheiros",
+        "STR_PART_CLUSTER":"Tamanho do cluster",
+        "STR_PART_CLUSTER_DEFAULT":"Valor predefinido do sistema",
+        "STR_DONATE":"Doar",
+
         "STRXXX":""
     },
     {
@@ -2323,9 +2423,10 @@
         "STR_INSTALL_YES_TIP1":"Peringatan: Data akan hilang!",
         "STR_INSTALL_YES_TIP2":"Silakan ketik YES pada kotak tulis di bawah untuk meyakinkan bahwa anda memang untuk melakukan pemasangan baru ketimbang memperbaruinya",
         "STR_PART_VENTOY_FS":"Berkas Sistem Untuk Partisi Ventoy",
-        "STR_PART_FS":"File System",
-        "STR_PART_CLUSTER":"Cluster Size",
-        "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_PART_FS":"Berkas Sistem",
+        "STR_PART_CLUSTER":"Ukuran Kelompok",
+        "STR_PART_CLUSTER_DEFAULT":"Nilai Standar Sistem",
+        "STR_DONATE":"Donasi sukarela",
 
         "STRXXX":""
     },
@@ -2389,6 +2490,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Donere",
 
         "STRXXX":""
     },
@@ -2397,7 +2499,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Teraskull, thehugonote, dmitrygribenchuk",
-        
+
         "STR_ERROR":"Помилка",
         "STR_WARNING":"Попередження",
         "STR_INFO":"Інформація",
@@ -2452,6 +2554,7 @@
         "STR_PART_FS":"Файлова система",
         "STR_PART_CLUSTER":"Розмір кластера",
         "STR_PART_CLUSTER_DEFAULT":"Системне значення за умовчанням",
+        "STR_DONATE":"Пожертвуйте",
 
         "STRXXX":""
     },
@@ -2515,9 +2618,11 @@
         "STR_PART_FS":"Σύστημα αρχείων",
         "STR_PART_CLUSTER":"Μέγεθος συμπλέγματος",
         "STR_PART_CLUSTER_DEFAULT":"Προεπιλεγμένη τιμή συστήματος",
+        "STR_DONATE":"Προσφέρω",
 
         "STRXXX":""
     },
+    
     {
         "name":"Swedish (Svenska)",
         "FontFamily":"Courier New",
@@ -2578,6 +2683,7 @@
         "STR_PART_FS":"Filsystem",
         "STR_PART_CLUSTER":"Klusterstorlek",
         "STR_PART_CLUSTER_DEFAULT":"Systemets standardvärde",
+        "STR_DONATE":"Donera",
 
         "STRXXX":""
     },
@@ -2641,6 +2747,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Donirajte",
 
         "STRXXX":""
     },
@@ -2704,6 +2811,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Дарете",
 
         "STRXXX":""
     },
@@ -2712,7 +2820,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Egho",
-       
+
         "STR_ERROR":"Սխալ",
         "STR_WARNING":"Զգուշացում",
         "STR_INFO":"Տեղեկություն",
@@ -2767,6 +2875,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Նվիրաբերել",
 
         "STRXXX":""
     },
@@ -2830,6 +2939,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Lahjoittaa",
 
         "STRXXX":""
     },
@@ -2893,6 +3003,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Doa",
 
         "STRXXX":""
     },
@@ -2956,6 +3067,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"Donar",
 
         "STRXXX":""
     },
@@ -3020,6 +3132,7 @@
         "STR_PART_FS":"File System",
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
+        "STR_DONATE":"შემოწირულობა",
 
         "STRXXX":""
     },
@@ -3083,7 +3196,8 @@
         "STR_PART_FS":"கோப்பு முறைமை",
         "STR_PART_CLUSTER":"கொத்து அளவு",
         "STR_PART_CLUSTER_DEFAULT":"கணினி இயல்புநிலை மதிப்பு",
-        
+        "STR_DONATE":"தானம் செய்",
+                
         "STRXXX":""
     },
     {
@@ -3106,9 +3220,9 @@
         "STR_UPDATE_TIP":"Абнаўленне бяспечна, ISO-файлы застануцца без змен. #@Працягнуць?",
         "STR_INSTALL_TIP":"Дыск будзе адфарматаваны і ўсе дадзеныя будуць страчаныя. #@Працягнуць?",
         "STR_INSTALL_TIP2":"Дыск будзе адфарматаваны і ўсе дадзеныя будуць страчаныя. #@ Вы сапраўды жадаеце працягнуць?",
-        "STR_INSTALL_SUCCESS":"Віншуем! # @ Ventoy быў паспяхова ўстаноўлены на прыладу.",
+        "STR_INSTALL_SUCCESS":"Віншуем! #@ Ventoy быў паспяхова ўстаноўлены на прыладу.",
         "STR_INSTALL_FAILED":"Падчас усталёўкі Ventoy адбылася памылка. Перападлучыце прыладу і паспрабуйце зноў. Праверце файл log.txt для атрымання падрабязнай інфармацыі.",
-        "STR_UPDATE_SUCCESS":"Віншуем! # @ Ventoy быў паспяхова абноўлены на прыладзе.",
+        "STR_UPDATE_SUCCESS":"Віншуем! #@ Ventoy быў паспяхова абноўлены на прыладзе.",
         "STR_UPDATE_FAILED":"Падчас абнаўлення Ventoy адбылася памылка. Перападлучыце прыладу і паспрабуйце зноў. Праверце файл log.txt для атрымання падрабязнай інфармацыі.",
         "STR_WAIT_PROCESS":"Працэс запушчаны, калі ласка пачакайце...",
         "STR_MENU_OPTION":"Параметры",
@@ -3133,11 +3247,11 @@
         "STR_WEB_SERVICE_BUSY":"Служба занятая, паспрабуйце пазней.",
         "STR_MENU_VTSI_CREATE":"Стварыць файл VTSI",
         "STR_VTSI_CREATE_TIP":"На гэты раз Ventoy не будзе ўсталяваны на прыладу, а будзе толькі створаны файл VTSI#@Працягнуць?",
-        "STR_VTSI_CREATE_SUCCESS":"Файл VTSI створаны паспяхова! # @ Вы можаце выкарыстоўваць Rufus (3.15 +), каб запісаць яго на прыладу, для завяршэння ўстаноўкі Ventoy.",
+        "STR_VTSI_CREATE_SUCCESS":"Файл VTSI створаны паспяхова! #@ Вы можаце выкарыстоўваць Rufus (3.15 +), каб запісаць яго на прыладу, для завяршэння ўстаноўкі Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Памылка стварэння файла VTSI.",
         "STR_MENU_PART_RESIZE":"Неразбуральная ўстаноўка",
         "STR_PART_RESIZE_TIP":"Ventoy паспрабуе неразбуральную ўстаноўку, калі гэта магчыма. #@Працягнуць?",
-        "STR_PART_RESIZE_SUCCESS":"Віншуем! # @ Неразбуральная ўстаноўка Ventoy паспяхова завершана.",
+        "STR_PART_RESIZE_SUCCESS":"Віншуем! #@ Неразбуральная ўстаноўка Ventoy паспяхова завершана.",
         "STR_PART_RESIZE_FAILED":"Не атрымалася выканаць неразбуральную ўстаноўку, праверце файл log.txt для атрымання падрабязнай інфармацыі.",
         "STR_PART_RESIZE_UNSUPPORTED":"Неразбуральная ўстаноўка Ventoy спынена, паколькі некаторыя ўмовы не могуць быць выкананы. Праверце файл log.txt для атрымання падрабязнай інфармацыі.",
         "STR_INSTALL_YES_TIP1":"Папярэджанне: Дадзеныя будуць страчаныя!",
@@ -3146,7 +3260,8 @@
         "STR_PART_FS":"Файлавая сістэма",
         "STR_PART_CLUSTER":"Памер кластара",
         "STR_PART_CLUSTER_DEFAULT":"Сістэмнае значэнне па змаўчанні",
-
+        "STR_DONATE":"Ахвяраваць",
+        
         "STRXXX":""
     }
 ]

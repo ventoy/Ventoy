@@ -362,7 +362,8 @@ static grub_err_t
 cmd_append (const char *line, struct syslinux_menu *menu)
 {
   if (!menu->entries)
-    return grub_error (GRUB_ERR_BAD_ARGUMENT, "kernel without label");
+    return GRUB_ERR_NONE;
+    //return grub_error (GRUB_ERR_BAD_ARGUMENT, "kernel without label");
 
   menu->entries->append = grub_strdup (line);
   if (!menu->entries->append)

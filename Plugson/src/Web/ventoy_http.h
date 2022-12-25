@@ -75,6 +75,7 @@ typedef struct data_control
     int filter_vhd;
     int filter_vtoy;
     int win11_bypass_check;
+    int win11_bypass_nro;
     int menu_timeout;
     int secondary_menu_timeout;
     int linux_remount;
@@ -100,6 +101,7 @@ typedef struct path_node
 typedef struct data_theme
 {
     int default_file;
+    int resolution_fit;
     path_node *filelist;
     int display_mode;
     char gfxmode[32];

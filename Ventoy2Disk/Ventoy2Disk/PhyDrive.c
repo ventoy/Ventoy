@@ -725,12 +725,13 @@ int VentoyProcSecureBoot(BOOL SecureBoot)
 			fl_fclose(file);
 
 			Log("Now delete all efi files ...");
-			fl_remove("/EFI/BOOT/BOOTX64.EFI");
-			fl_remove("/EFI/BOOT/grubx64.efi");
+            fl_remove("/EFI/BOOT/BOOTX64.EFI");            
+            fl_remove("/EFI/BOOT/grubx64.efi");            
 			fl_remove("/EFI/BOOT/grubx64_real.efi");
 			fl_remove("/EFI/BOOT/MokManager.efi");
 			fl_remove("/EFI/BOOT/mmx64.efi");
             fl_remove("/ENROLL_THIS_KEY_IN_MOKMANAGER.cer");
+            fl_remove("/EFI/BOOT/grub.efi");
 
 			file = fl_fopen("/EFI/BOOT/BOOTX64.EFI", "wb");
 			Log("Open bootx64 efi file %p ", file);
@@ -1224,7 +1225,45 @@ static int FormatPart1exFAT(UINT64 DiskSizeBytes)
     }
 }
 
+static int ZeroPart1FileSystem(HANDLE hDrive, UINT64 Part2StartSector)
+{
+    int i;
+    DWORD dwSize = 0;
+    LARGE_INTEGER liCurPos;
+    LARGE_INTEGER liNewPos;
+    CHAR TmpBuffer[1024] = { 0 };
 
+    liCurPos.QuadPart = VENTOY_PART1_START_SECTOR * 512;
+    liNewPos.QuadPart = 0;
+    if (0 == SetFilePointerEx(hDrive, liCurPos, &liNewPos, FILE_BEGIN) ||
+        liNewPos.QuadPart != liCurPos.QuadPart)
+    {
+        Log("SetFilePointerEx Failed %u %llu %llu", LASTERR, (ULONGLONG)liCurPos.QuadPart, (ULONGLONG)liNewPos.QuadPart);
+        return 1;
+    }
+
+    for (i = 0; i < 1024; i++)
+    {
+        WriteFile(hDrive, TmpBuffer, 1024, &dwSize, NULL);
+    }
+
+    liCurPos.QuadPart = (Part2StartSector * 512) - (1024 * 1024);
+    liNewPos.QuadPart = 0;
+    if (0 == SetFilePointerEx(hDrive, liCurPos, &liNewPos, FILE_BEGIN) ||
+        liNewPos.QuadPart != liCurPos.QuadPart)
+    {
+        Log("SetFilePointerEx Failed %u %llu %llu", LASTERR, (ULONGLONG)liCurPos.QuadPart, (ULONGLONG)liNewPos.QuadPart);
+        return 1;
+    }
+
+    for (i = 0; i < 1024; i++)
+    {
+        WriteFile(hDrive, TmpBuffer, 1024, &dwSize, NULL);
+    }
+
+    Log("Zero Part1 SUCCESS");
+    return 0;
+}
 
 int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLetter)
 {
@@ -1548,7 +1587,7 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
         memset(pData, 0, 512);
 
         pMBR = (MBR_HEAD *)pData;
-        VentoyFillMBR(pPhyDrive->SizeInBytes, pMBR, PartStyle);
+        VentoyFillMBR(pPhyDrive->SizeInBytes, pMBR, PartStyle, 0x07);
         Part1StartSector = pMBR->PartTbl[0].StartSectorId;
         Part1SectorCount = pMBR->PartTbl[0].SectorCount;
         Part2StartSector = pMBR->PartTbl[1].StartSectorId;
@@ -1698,6 +1737,7 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     int i;
     int rc = 0;
     int state = 0;
+    BOOL ReformatOK;
     HANDLE hDrive;
     DWORD dwSize;
     BOOL bRet;
@@ -1710,6 +1750,8 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     UINT64 Part1SectorCount = 0;
     UINT64 Part2StartSector = 0;
     BOOL LargeFAT32 = FALSE;
+    BOOL DefaultExFAT = FALSE;
+    UINT8 FsFlag = 0x07;
 
 	Log("#####################################################");
     Log("InstallVentoy2PhyDrive try%d %s PhyDrive%d <<%s %s %dGB>>", TryId,
@@ -1734,7 +1776,12 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
     }
     else
     {
-        VentoyFillMBR(pPhyDrive->SizeInBytes, &MBR, PartStyle);
+        if (GetVentoyFsType() == VTOY_FS_FAT32)
+        {
+            FsFlag = 0x0C;
+        }
+
+        VentoyFillMBR(pPhyDrive->SizeInBytes, &MBR, PartStyle, FsFlag);
         Part1StartSector = MBR.PartTbl[0].StartSectorId;
         Part1SectorCount = MBR.PartTbl[0].SectorCount;
         Part2StartSector = MBR.PartTbl[1].StartSectorId;
@@ -1822,9 +1869,10 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
             goto End;
         }
     }
-    else
+    else if (GetVentoyFsType() == VTOY_FS_EXFAT && GetClusterSize() == 0)
     {
         Log("Formatting part1 exFAT ...");
+        DefaultExFAT = TRUE;
         if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
         {
             Log("FormatPart1exFAT failed.");
@@ -1832,7 +1880,16 @@ int InstallVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int PartStyle, int TryId)
             goto End;
         }
     }
-    
+    else
+    {
+        Log("Zero part1 file system ...");
+        if (0 != ZeroPart1FileSystem(hDrive, Part2StartSector))
+        {
+            Log("ZeroPart1FileSystem failed.");
+            rc = 1;
+            goto End;
+        }
+    }
 
     PROGRESS_BAR_SET_POS(PT_FORMAT_PART2);
     Log("Writing part2 FAT img ...");
@@ -1956,6 +2013,12 @@ End:
             }
         }
 
+        // close handle, or it will deny reformat
+        Log("Close handle ...");
+        CHECK_CLOSE_HANDLE(hDrive);
+
+        ReformatOK = TRUE;
+
         if (state)
         {
             if (LargeFAT32)
@@ -1963,27 +2026,68 @@ End:
                 Log("No need to reformat for large FAT32");
                 pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
             }
-            else if (DISK_FormatVolume(MountDrive, GetVentoyFsType(), Part1SectorCount * 512))
+            else if (DefaultExFAT)
             {
-                Log("Reformat %C:\\ to %s SUCCESS", MountDrive, GetVentoyFsName());
+                Log("No need to reformat for default exfat");
                 pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
-
-                if ((GetVentoyFsType() != VTOY_FS_UDF) && (pPhyDrive->VentoyFsClusterSize < 2048))
-                {
-                    for (i = 0; i < 10; i++)
-                    {
-                        Log("### Invalid cluster size %d ###", pPhyDrive->VentoyFsClusterSize);
-                    }                    
-                }
             }
             else
             {
-                Log("Reformat %C:\\ to %s FAILED", MountDrive, GetVentoyFsName());
+                bRet = DISK_FormatVolume(MountDrive, GetVentoyFsType(), Part1SectorCount * 512);
+                for (i = 0; bRet == FALSE && i < 2; i++)
+                {
+                    Log("Wait and retry reformat ...");
+                    Sleep(1000);
+                    bRet = DISK_FormatVolume(MountDrive, GetVentoyFsType(), Part1SectorCount * 512);
+                }
+
+                if (bRet)
+                {
+                    Log("Reformat %C:\\ to %s SUCCESS", MountDrive, GetVentoyFsName());
+                    pPhyDrive->VentoyFsClusterSize = GetVolumeClusterSize(MountDrive);
+
+                    if ((GetVentoyFsType() != VTOY_FS_UDF) && (pPhyDrive->VentoyFsClusterSize < 2048))
+                    {
+                        for (i = 0; i < 10; i++)
+                        {
+                            Log("### Invalid cluster size %d ###", pPhyDrive->VentoyFsClusterSize);
+                        }
+                    }
+                }
+                else
+                {
+                    ReformatOK = FALSE;
+                    Log("Reformat %C:\\ to %s FAILED", MountDrive, GetVentoyFsName());
+                }
             }
         }
         else
         {
             Log("Can not reformat %s to %s", DriveName, GetVentoyFsName());
+        }
+
+        if (!ReformatOK)
+        {
+            Log("Format to exfat with built-in algorithm");
+
+            hDrive = GetPhysicalHandle(pPhyDrive->PhyDrive, TRUE, TRUE, FALSE);
+            if (hDrive == INVALID_HANDLE_VALUE)
+            {
+                Log("Failed to GetPhysicalHandle for write.");
+            }
+            else
+            {
+                if (0 != FormatPart1exFAT(pPhyDrive->SizeInBytes))
+                {
+                    Log("FormatPart1exFAT SUCCESS.");
+                }
+                else
+                {
+                    Log("FormatPart1exFAT FAILED.");
+                }
+
+                CHECK_CLOSE_HANDLE(hDrive);
+            }
         }
 
         Log("OK\n");
@@ -2002,14 +2106,15 @@ End:
 			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
 			Log("###### [Error:] Virtual Disk Service (VDS) Unavailable ######");
 		}
+
+        CHECK_CLOSE_HANDLE(hDrive);
     }
 
     if (pGptInfo)
     {
         free(pGptInfo);
     }
-
-    CHECK_CLOSE_HANDLE(hDrive);
+    
     return rc;
 }
 

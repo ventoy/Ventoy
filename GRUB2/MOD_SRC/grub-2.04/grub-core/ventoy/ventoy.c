@@ -269,12 +269,130 @@ static int ventoy_hwinfo_init(void)
 
     grub_snprintf(str, sizeof(str), "%ld", (long)(total_mem / VTOY_SIZE_1MB));
     ventoy_env_export("grub_total_ram", str);
-    
+
 #ifdef GRUB_MACHINE_EFI
     ventoy_get_uefi_version(str, sizeof(str));
     ventoy_env_export("grub_uefi_version", str);
+#else
+    ventoy_env_export("grub_uefi_version", "NA");
 #endif
-    
+
+    return 0;
+}
+
+static global_var_cfg g_global_vars[] = 
+{
+    { "gfxmode",            "1024x768",   NULL },
+    { ventoy_left_key,      "5%",         NULL },
+    { ventoy_top_key,       "95%",        NULL },
+    { ventoy_color_key,     "#0000ff",    NULL },
+    { NULL,                 NULL,         NULL }
+};
+
+static const char * ventoy_global_var_read_hook(struct grub_env_var *var, const char *val)
+{
+    int i;
+
+    for (i = 0; g_global_vars[i].name; i++)
+    {
+        if (grub_strcmp(g_global_vars[i].name, var->name) == 0)
+        {
+            return g_global_vars[i].value;
+        }
+    }
+
+    return val;
+}
+
+static char * ventoy_global_var_write_hook(struct grub_env_var *var, const char *val)
+{
+    int i;
+
+    for (i = 0; g_global_vars[i].name; i++)
+    {
+        if (grub_strcmp(g_global_vars[i].name, var->name) == 0)
+        {
+            grub_check_free(g_global_vars[i].value);
+            g_global_vars[i].value = grub_strdup(val);
+            break;
+        }
+    }
+
+    return grub_strdup(val);
+}
+
+int ventoy_global_var_init(void)
+{
+    int i;
+
+    for (i = 0; g_global_vars[i].name; i++)
+    {
+        g_global_vars[i].value = grub_strdup(g_global_vars[i].defval);
+        ventoy_env_export(g_global_vars[i].name, g_global_vars[i].defval);        
+        grub_register_variable_hook(g_global_vars[i].name, ventoy_global_var_read_hook, ventoy_global_var_write_hook);
+    }
+
+    return 0;
+}
+
+static ctrl_var_cfg g_ctrl_vars[] = 
+{
+    { "VTOY_WIN11_BYPASS_CHECK",  1 },
+    { "VTOY_WIN11_BYPASS_NRO",    1 },
+    { "VTOY_LINUX_REMOUNT",       0 },
+    { "VTOY_SECONDARY_BOOT_MENU", 1 },
+    { NULL, 0 }
+};
+
+static const char * ventoy_ctrl_var_read_hook(struct grub_env_var *var, const char *val)
+{
+    int i;
+
+    for (i = 0; g_ctrl_vars[i].name; i++)
+    {
+        if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
+        {
+            return g_ctrl_vars[i].value ? "1" : "0";
+        }
+    }
+
+    return val;
+}
+
+static char * ventoy_ctrl_var_write_hook(struct grub_env_var *var, const char *val)
+{
+    int i;
+
+    for (i = 0; g_ctrl_vars[i].name; i++)
+    {
+        if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
+        {
+            if (val && val[0] == '1' && val[1] == 0)
+            {
+                g_ctrl_vars[i].value = 1;
+                return grub_strdup("1");
+            }
+            else
+            {
+                g_ctrl_vars[i].value = 0;
+                return grub_strdup("0");
+            }
+        }
+    }
+
+    return grub_strdup(val);
+}
+
+int ventoy_ctrl_var_init(void)
+{
+    int i;
+
+    for (i = 0; g_ctrl_vars[i].name; i++)
+    {
+        ventoy_env_export(g_ctrl_vars[i].name, g_ctrl_vars[i].value ? "1" : "0");
+        grub_register_variable_hook(g_ctrl_vars[i].name, ventoy_ctrl_var_read_hook, ventoy_ctrl_var_write_hook);
+    }
+
     return 0;
 }
 

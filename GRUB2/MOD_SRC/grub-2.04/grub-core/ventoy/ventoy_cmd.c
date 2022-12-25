@@ -362,6 +362,42 @@ static int ventoy_enum_video_mode(void)
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
+static int ventoy_pre_parse_data(char *src, int size)
+{
+    char c;
+    char *pos = NULL;
+    char buf[256];
+
+    if (size < 20 || grub_strncmp(src, "ventoy_left_top_color", 21))
+    {
+        return 0;
+    }
+
+    pos = src + 21;
+    while (*pos && *pos != '\r' && *pos != '\n')
+    {
+        pos++;
+    }
+
+    c = *pos;
+    *pos = 0;
+
+    if (grub_strlen(src) > 200)
+    {
+        goto end;
+    }
+
+    grub_snprintf(buf, sizeof(buf), 
+        "regexp -s 1:%s -s 2:%s -s 3:%s \"@([^@]*)@([^@]*)@([^@]*)@\" \"%s\"", 
+        ventoy_left_key, ventoy_top_key, ventoy_color_key, src);
+
+    grub_script_execute_sourcecode(buf);
+
+end:    
+    *pos = c;
+    return 0;    
+}
+
 static grub_file_t ventoy_wrapper_open(grub_file_t rawFile, enum grub_file_type type)
 {
     int len;
@@ -395,6 +431,7 @@ static grub_file_t ventoy_wrapper_open(grub_file_t rawFile, enum grub_file_type 
     }
 
     grub_file_read(rawFile, file->data, rawFile->size);
+    ventoy_pre_parse_data((char *)file->data, (int)rawFile->size);
     len = ventoy_fill_data(4096, (char *)file->data + rawFile->size);
 
     g_old_file = rawFile;
@@ -495,6 +532,7 @@ static int ventoy_set_check_result(int ret, const char *msg)
 
     if (ret)
     {
+        grub_cls();
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n");
         grub_printf(VTOY_WARNING"\n\n\n");
@@ -502,10 +540,7 @@ static int ventoy_set_check_result(int ret, const char *msg)
         grub_printf("This is NOT a standard Ventoy device and is NOT supported (%d).\n", ret);
         grub_printf("Error message: <%s>\n\n", msg);
         grub_printf("You should follow the instructions in https://www.ventoy.net to use Ventoy.\n");
-        
-        grub_printf("\n\nWill exit after 10 seconds ...... ");
         grub_refresh();
-        grub_sleep(10);
     }
 
     return ret;
@@ -2355,14 +2390,14 @@ static int ventoy_dynamic_tree_menu(img_iterator_node *node)
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
                               "menuentry \"%-10s [%s]\" --class=\"vtoyret\" VTOY_RET {\n  "
                               "  echo 'return ...' \n"
-                              "}\n", "<--", ventoy_get_vmenu_title("VTMENU_RET_TO_LISTVIEW"));
+                              "}\n", "<--", ventoy_get_vmenu_title("VTLANG_RET_TO_LISTVIEW"));
             }
             else
             {
                 vtoy_ssprintf(g_tree_script_buf, g_tree_script_pos, 
                               "menuentry \"[%s]\" --class=\"vtoyret\" VTOY_RET {\n  "
                               "  echo 'return ...' \n"
-                              "}\n", ventoy_get_vmenu_title("VTMENU_RET_TO_LISTVIEW"));
+                              "}\n", ventoy_get_vmenu_title("VTLANG_RET_TO_LISTVIEW"));
             }
         }
 
@@ -2943,7 +2978,7 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
         vtoy_ssprintf(g_list_script_buf, g_list_script_pos, 
                       "menuentry \"%s [%s]\" --class=\"vtoyret\" VTOY_RET {\n  "
                       "  echo 'return ...' \n"
-                      "}\n", "<--", ventoy_get_vmenu_title("VTMENU_RET_TO_TREEVIEW"));
+                      "}\n", "<--", ventoy_get_vmenu_title("VTLANG_RET_TO_TREEVIEW"));
     }
 
     for (cur = g_ventoy_img_list; cur; cur = cur->next)
@@ -3712,14 +3747,14 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
         vtoy_ssprintf(buf, pos, "set timeout=%d\n", node->timeout);        
     }
     
-    vtoy_ssprintf(buf, pos, "menuentry \"@VTMENU_NO_AUTOINS_SCRIPT\" --class=\"sel_auto_install\" {\n"
+    vtoy_ssprintf(buf, pos, "menuentry \"$VTLANG_NO_AUTOINS_SCRIPT\" --class=\"sel_auto_install\" {\n"
                   "  echo %s\n}\n", "");
 
     for (i = 0; i < node->templatenum; i++)
     {
         vtoy_ssprintf(buf, pos, "menuentry \"%s %s\" --class=\"sel_auto_install\" {\n"
                   "  echo \"\"\n}\n",
-                  ventoy_get_vmenu_title("VTMENU_AUTOINS_USE"),
+                  ventoy_get_vmenu_title("VTLANG_AUTOINS_USE"),
                   node->templatepath[i].path);
     }
 
@@ -3819,14 +3854,14 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
         vtoy_ssprintf(buf, pos, "set timeout=%d\n", node->timeout);        
     }
 
-    vtoy_ssprintf(buf, pos, "menuentry \"@VTMENU_NO_PERSISTENCE\" --class=\"sel_persistence\" {\n"
+    vtoy_ssprintf(buf, pos, "menuentry \"$VTLANG_NO_PERSISTENCE\" --class=\"sel_persistence\" {\n"
                   "  echo %s\n}\n", "");
     
     for (i = 0; i < node->backendnum; i++)
     {
         vtoy_ssprintf(buf, pos, "menuentry \"%s %s\" --class=\"sel_persistence\" {\n"
                       "  echo \"\"\n}\n",
-                      ventoy_get_vmenu_title("VTMENU_PERSIST_USE"),
+                      ventoy_get_vmenu_title("VTLANG_PERSIST_USE"),
                       node->backendpath[i].path);
         
     }
@@ -4970,6 +5005,61 @@ int ventoy_load_part_table(const char *diskname)
     return 0;
 }
 
+static void ventoy_prompt_end(void)
+{
+    int op = 0;
+    char c;
+
+    grub_printf("\n\n\n");
+    grub_printf(" 1 --- Exit grub\n");
+    grub_printf(" 2 --- Reboot\n");
+    grub_printf(" 3 --- Shut down\n");
+    grub_printf("Please enter your choice: ");
+    grub_refresh();
+
+    while (1)
+    {
+        c = grub_getkey();
+        if (c >= '1' && c <= '3')
+        {
+            if (op == 0)
+            {
+                op = c - '0';
+                grub_printf("%c", c);
+                grub_refresh();
+            }
+        }
+        else if (c == '\r' || c == '\n')
+        {
+            if (op)
+            {
+                if (op == 1)
+                {
+                    grub_exit();
+                }
+                else if (op == 2)
+                {
+                    grub_reboot();
+                }
+                else if (op == 3)
+                {   
+                    grub_script_execute_sourcecode("halt");
+                }
+            }
+        }
+        else if (c == '\b')
+        {
+            if (op)
+            {
+                op = 0;
+                grub_printf("\rPlease enter your choice:   ");
+                grub_printf("\rPlease enter your choice: ");
+                grub_refresh();
+            }
+        }
+    }
+}
+
 static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int ret;
@@ -4980,7 +5070,7 @@ static grub_err_t ventoy_cmd_load_part_table(grub_extcmd_context_t ctxt, int arg
     ret = ventoy_load_part_table(args[0]);
     if (ret)
     {
-        grub_exit();            
+        ventoy_prompt_end();
     }
 
     g_ventoy_disk_part_size[0] = ventoy_get_vtoy_partsize(0);
@@ -6082,26 +6172,26 @@ static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int
 
     fsize = grub_strtoull(args[2], NULL, 10);
 
-    vtoy_dummy_menuentry(cmd, pos, len, "@VTMENU_NORMAL_MODE", "second_normal"); seldata[n++] = 1;
+    vtoy_dummy_menuentry(cmd, pos, len, "$VTLANG_NORMAL_MODE", "second_normal"); seldata[n++] = 1;
 
     if (grub_strcmp(args[1], "Unix") != 0)
     {
         if (grub_strcmp(args[1], "Windows") == 0)
         {
-            vtoy_dummy_menuentry(cmd, pos, len, "@VTMENU_WIMBOOT_MODE", "second_wimboot"); seldata[n++] = 2;
+            vtoy_dummy_menuentry(cmd, pos, len, "$VTLANG_WIMBOOT_MODE", "second_wimboot"); seldata[n++] = 2;
         }
         else
         {
-            vtoy_dummy_menuentry(cmd, pos, len, "@VTMENU_GRUB2_MODE", "second_grub2"); seldata[n++] = 3;
+            vtoy_dummy_menuentry(cmd, pos, len, "$VTLANG_GRUB2_MODE", "second_grub2"); seldata[n++] = 3;
         }
 
         if (fsize <= VTOY_SIZE_1GB)
         {
-            vtoy_dummy_menuentry(cmd, pos, len, "@VTMENU_MEMDISK_MODE", "second_memdisk"); seldata[n++] = 4;
+            vtoy_dummy_menuentry(cmd, pos, len, "$VTLANG_MEMDISK_MODE", "second_memdisk"); seldata[n++] = 4;
         }
     }
 
-    vtoy_dummy_menuentry(cmd, pos, len, "@VTMENU_FILE_CHKSUM", "second_checksum"); seldata[n++] = 5;
+    vtoy_dummy_menuentry(cmd, pos, len, "$VTLANG_FILE_CHKSUM", "second_checksum"); seldata[n++] = 5;
 
     do {
         g_ventoy_menu_esc = 1;
@@ -6202,12 +6292,23 @@ static grub_err_t ventoy_cmd_load_menu_lang(grub_extcmd_context_t ctxt, int argc
     VENTOY_CMD_RETURN(0);
 }
 
+
+static const char * ventoy_menu_lang_read_hook(struct grub_env_var *var, const char *val)
+{
+    (void)var;
+    return ventoy_get_vmenu_title(val);
+}
+
 int ventoy_env_init(void)
 {
     int i;
     char buf[64];
 
     grub_env_set("vtdebug_flag", "");
+
+    grub_register_vtoy_menu_lang_hook(ventoy_menu_lang_read_hook);
+    ventoy_ctrl_var_init();
+    ventoy_global_var_init();
 
     g_part_list_buf = grub_malloc(VTOY_PART_BUF_LEN);
     g_tree_script_buf = grub_malloc(VTOY_MAX_SCRIPT_BUF);
@@ -6247,6 +6348,10 @@ int ventoy_env_init(void)
     grub_snprintf(buf, sizeof(buf), "0x%lx", (ulong)ventoy_get_vmenu_title);
     grub_env_set("VTOY_VMENU_FUNC_ADDR", buf);
     grub_env_export("VTOY_VMENU_FUNC_ADDR");
+
+    grub_snprintf(buf, sizeof(buf), "%s-%s", GRUB_TARGET_CPU, GRUB_PLATFORM);
+    grub_env_set("grub_cpu_platform", buf);
+    grub_env_export("grub_cpu_platform");
 
     return 0;
 }
@@ -6417,6 +6522,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_load_menu_lang", ventoy_cmd_load_menu_lang, 0, NULL, "", "", NULL },
     { "vt_init_menu_lang", ventoy_cmd_init_menu_lang, 0, NULL, "", "", NULL },
     { "vt_cur_menu_lang", ventoy_cmd_cur_menu_lang, 0, NULL, "", "", NULL },
+
 };
 
 int ventoy_register_all_cmd(void)

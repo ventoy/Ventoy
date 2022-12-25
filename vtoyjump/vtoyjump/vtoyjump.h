@@ -75,7 +75,9 @@ typedef struct ventoy_windows_data
 
     UINT32 auto_install_len;
     
-    UINT8 reserved[255 - 4];
+    UINT8 windows11_bypass_nro;
+
+    UINT8 reserved[255 - 5];
 
     /* auto install script file data ... + auto_install_len */
     /* ...... */

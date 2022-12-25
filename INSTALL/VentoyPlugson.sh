@@ -30,13 +30,13 @@ fi
 OLDDIR=$(pwd)
 
 machine=$(uname -m)
-if echo $machine | egrep -q 'aarch64|arm64'; then
+if echo $machine | grep -E -q 'aarch64|arm64'; then
     TOOLDIR=aarch64
-elif echo $machine | egrep -q 'x86_64|amd64'; then
+elif echo $machine | grep -E -q 'x86_64|amd64'; then
     TOOLDIR=x86_64
-elif echo $machine | egrep -q 'mips64'; then
+elif echo $machine | grep -E -q 'mips64'; then
     TOOLDIR=mips64el
-elif echo $machine | egrep -q 'i[3-6]86'; then
+elif echo $machine | grep -E -q 'i[3-6]86'; then
     TOOLDIR=i386
 else
     echo "Unsupported machine type $machine"    
@@ -122,7 +122,7 @@ if echo $DISK | grep -q "[a-z]d[a-z][1-9]"; then
     DISK=${DISK:0:-1}
 fi
 
-if echo $DISK | egrep -q "/dev/nvme|/dev/mmcblk/dev/nbd"; then
+if echo $DISK | grep -E -q "/dev/nvme|/dev/mmcblk/dev/nbd"; then
     if echo $DISK | grep -q "p[1-9]$"; then
         DISK=${DISK:0:-2}
     fi
