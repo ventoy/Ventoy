@@ -1,8 +1,8 @@
 {
     "VTLANG_LANGUAGE_NAME": "Portuguese (Português de Portugal)",
     
-    "VTLANG_STR_HOTKEY_LIST": "L:Idioma  F1:Ajuda  F2:Navegar  F3:Estrutura  F4:Arranque local  F5:Ferramentas  F6:Sair",
-    "VTLANG_STR_HOTKEY_TREE": "L:Idioma  F1:Ajuda  F2:Navegar  F3:Estrutura  F4:Arranque local  F5:Ferramentas  F6:Sair",
+    "VTLANG_STR_HOTKEY_LIST": "L:Idioma  F1:Ajuda  F2:Explorar  F3:Estrutura  F4:Arranque local  F5:Ferramentas  F6:Sair",
+    "VTLANG_STR_HOTKEY_TREE": "L:Idioma  F1:Ajuda  F2:Explorar  F3:Estrutura  F4:Arranque local  F5:Ferramentas  F6:Sair",
     "VTLANG_RETURN_PREVIOUS": "Voltar ao menu anterior [Esc]",
     
     "VTLANG_MENU_LANG": "Seleção de idioma do menu",
@@ -82,11 +82,11 @@
     "VTLANG_ENTER_REBOOT": "pressione a tecla Enter para reiniciar",
     "VTLANG_ENTER_CONTINUE": "pressione a tecla Enter para continuar",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "Definições de controlo temporário",
+    "VTLANG_WIN11_BYPASS_CHECK": "Ignorar a verificação de CPU/TPM/SecureBoot ao instalar o Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Ignorar o requisito de conta online ao instalar o Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Montar a partição Ventoy após iniciar o Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Mostrar menu de arranque secundário",
     
     "MENU_STR_XXX": ""
 }
