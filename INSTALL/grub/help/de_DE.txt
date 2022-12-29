@@ -9,7 +9,7 @@ F7 - Wechseln zwischen Grafik-/Text-Modus
 
 m/Strg+m - Prüfsumme von Abbilddatei prüfen (md5/sha1/sha256/sha512)
 d/Strg+d - Memdisk-Modus (Nur für kleine WinPE/LiveCD ISO/IMG)
-w/Strg+w - WIMBOOT-Modus (Nur für Standard Windows ISO)
+w/Strg+w - WIMBOOT-Modus (Nur für Windows/WinPE ISO)
 r/Strg+r - Grub2-Modus (Nur für einige Linux-Distributionen)
 i/Strg+i - Kompatibilitäts-Modus (Nur für Fehleranalyse)
 u/Strg+u - ISO EFI-Treiber laden (Nur für Fehleranalyse, darf offiziell nicht benutzt werden)

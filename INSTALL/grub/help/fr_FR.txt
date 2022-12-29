@@ -9,7 +9,7 @@ F7 - Basculer entre le mode graphique <-> mode texte
 
 m/Ctrl+m - Somme de contrôle des images (md5/sha1/sha256/sha512)
 d/Ctrl+d - Mode Memdisk (pour WinPE/LiveCD ISO/IMG uniquement)
-w/Ctrl+w - Mode WIMBOOT (pour images standards Windows uniquement)
+w/Ctrl+w - Mode WIMBOOT (pour images Windows/WinPE uniquement)
 r/Ctrl+r - Mode GRUB 2 (pour quelques distributions Linux uniquement)
 i/Ctrl+i - Mode Compatible (pour débug uniquement)
 u/Ctrl+u - Charger l’ISO d’un pilote EFI (pour débug uniquement)

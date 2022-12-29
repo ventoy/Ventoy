@@ -9,7 +9,7 @@ F7 - 操作形式を切り替える（GUI ↔ CUI）
 
 m/Ctrl+m - イメージの検査合計を計算する (md5/sha1/sha256/sha512)
 d/Ctrl+d - 主記憶装置上に記憶域を作成する（容量の小さなWinPE・LiveCD専用）
-w/Ctrl+w - WIMBOOTモード（標準的なWindows ISO専用）
+w/Ctrl+w - WIMBOOTモード（Windows/WinPE ISO専用）
 r/Ctrl+r - Grub2モード（一部のLinuxディストリビューション専用）
 i/Ctrl+i - 互換モード（開発用）
 u/Ctrl+u - ISO efiドライバーを読み取る（開発用，非公式）

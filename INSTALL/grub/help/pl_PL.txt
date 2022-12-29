@@ -9,7 +9,7 @@ F7 - Przełączanie między trybem GUI <-> trybem TEKST
 
 m/Ctrl+m — Pliki obrazów z sumą kontrolną (md5/sha1/sha256/sha512)
 d/Ctrl+d — Tryb Memdisk (tylko dla małych WinPE/LiveCD ISO/IMG)
-w/Ctrl+w — tryb WIMBOOT (tylko dla standardowego systemu Windows ISO)
+w/Ctrl+w — tryb WIMBOOT (tylko dla standardowego systemu Windows/WinPE ISO)
 r/Ctrl+r — tryb Grub2 (tylko dla niektórych dystrybucji Linuksa)
 i/Ctrl+i — tryb zgodności (tylko do debugowania)
 u/Ctrl+u — Załaduj sterownik ISO EFI (tylko do debugowania, nie można go oficjalnie używać)

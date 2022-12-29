@@ -9,7 +9,7 @@ F7 - GUI मोड <-> Text मोड के बीच स्विच करे
 
 m/Ctrl+m - चेकसम इमेज फाइल्स (md5/sha1/sha256/sha512)
 d/Ctrl+d - Memdisk मोड (केवल small WinPE/LiveCD ISO/IMG के लिए)
-w/Ctrl+w - WIMBOOT मोड (केवल standard Windows ISO के लिए)
+w/Ctrl+w - WIMBOOT मोड (केवल Windows/WinPE ISO के लिए)
 r/Ctrl+r - Grub2 मोड (केवल कुछ Linux distros के लिए)
 i/Ctrl+i - Compatible मोड (केवल डिबग के लिए)
 u/Ctrl+u - ISO efi ड्राइवर लोड करें (केवल debug के लिए, आधिकारिक तौर पर इस्तेमाल नहीं किया जा सकता)

@@ -9,7 +9,7 @@ F7 - Grafik Modu(GUI Mode) <--> Metin Modu(Text Mode) arasında geçiş yapmayı
 
 m/Ctrl+m - İndirilen imaj dosyalarının hatasız indirildiğini teyit etmek için "md5/sha1/sha256/sha512" değerlerini kontrol etmeyi sağlar
 d/Ctrl+d - Memdisk Modu başlatır(Yalnızca küçük WinPE/LiveCD ISO/IMG ler için bu modu kullanabilirsiniz)
-w/Ctrl+w - WIMBOOT Modu çalıştırmayı sağlar(Sadece normal Windows ISO ları için)
+w/Ctrl+w - WIMBOOT Modu çalıştırmayı sağlar(Sadece normal Windows/WinPE ISO ları için)
 r/Ctrl+r - Grub2 Modu çalıştırmayı sağlar (Sadece bazı Linux dağıtımları için)
 i/Ctrl+i - Uyumluluk Modu'nu (Compatible Mode) çalıştırmayı sağlar (Sadece hata ayıklama için bu modu kullanabilirsiniz)
 u/Ctrl+u - ISO efi sürücüsünü yükler(Sadece hata ayıklama için bu mod kullanılabilir, resmi olarak kullanılamaz)

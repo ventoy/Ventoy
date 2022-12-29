@@ -9,7 +9,7 @@ F7 - Beralih antara mode GUI <-> Mode TEXT
 
 m/Ctrl+m - Periksa berkas files (md5/sha1/sha256/sha512)
 d/Ctrl+d - Mode Memdisk (Hanya untuk ukuran WinPE/LiveCD ISO/IMG yang kecil)
-w/Ctrl+w - Mode WIMBOOT (Hanya untuk berkas ISO Windows standar)
+w/Ctrl+w - Mode WIMBOOT (Hanya untuk berkas ISO Windows/WinPE)
 r/Ctrl+r - Mode Grub2 (Hanya untuk distro Linux tertentu)
 i/Ctrl+i - Mode Kompatibel/Compatible (Hanya untuk debug saja)
 u/Ctrl+u - Memuat ISO efi driver (Hanya untuk debug saja, tidak dapat dipakai secara umum)
