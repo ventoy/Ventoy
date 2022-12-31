@@ -2022,36 +2022,19 @@ static int ProcessUnattendedInstallation(const char *script, DWORD PhyDrive)
     return 0;
 }
 
-static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Check, UINT8 NRO)
+static int VentoyGetFileVersion(const CHAR *FilePath, UINT16 *pMajor, UINT16 *pMinor, UINT16 *pBuild, UINT16 *pRevision)
 {
-    int Ret = 1;
+    int ret = 1;
     DWORD dwHandle;
     DWORD dwSize;
-    DWORD dwValue = 1;
     UINT VerLen = 0;
     CHAR *Buffer = NULL;
     VS_FIXEDFILEINFO* VerInfo = NULL;
-    CHAR CheckFile[MAX_PATH];
     UINT16 Major, Minor, Build, Revision;
 
-    Log("Windows11Bypass for <%s> %C: Check:%u NRO:%u", isofile, MntLetter, Check, NRO);
+    Log("Get file version for <%s>", FilePath);
 
-    if (FALSE == IsFileExist("%C:\\sources\\boot.wim", MntLetter) ||
-        FALSE == IsFileExist("%C:\\sources\\compatresources.dll", MntLetter))
-    {
-        Log("boot.wim/compatresources.dll not exist, this is not a windows install media.");
-        goto End;
-    }
-
-    if (FALSE == IsFileExist("%C:\\sources\\install.wim", MntLetter) && 
-        FALSE == IsFileExist("%C:\\sources\\install.esd", MntLetter))
-    {
-        Log("install.wim/install.esd not exist, this is not a windows install media.");
-        goto End;
-    }
-
-    sprintf_s(CheckFile, sizeof(CheckFile), "%C:\\sources\\compatresources.dll", MntLetter);
-    dwSize = GetFileVersionInfoSizeA(CheckFile, &dwHandle);
+    dwSize = GetFileVersionInfoSizeA(FilePath, &dwHandle);
     if (0 == dwSize)
     {
         Log("Failed to get file version info size: %u", LASTERR);
@@ -2061,10 +2044,11 @@ static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Chec
     Buffer = malloc(dwSize);
     if (!Buffer)
     {
+        Log("malloc failed %u", dwSize);
         goto End;
     }
 
-    if (FALSE == GetFileVersionInfoA(CheckFile, dwHandle, dwSize, Buffer))
+    if (FALSE == GetFileVersionInfoA(FilePath, dwHandle, dwSize, Buffer))
     {
         Log("Failed to get file version info : %u", LASTERR);
         goto End;
@@ -2086,18 +2070,117 @@ static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Chec
                 Major = 11;
             }
 
-            if (Major != 11)
+            if (pMajor)
             {
-                Log("This is not Windows 11, not need to bypass.", Major);
-                goto End;
+                *pMajor = Major;
             }
+            if (pMinor)
+            {
+                *pMinor = Minor;
+            }
+            if (pBuild)
+            {
+                *pBuild = Build;
+            }
+            if (pRevision)
+            {
+                *pRevision = Revision;
+            }
+
+            ret = 0;
+        }
+        else
+        {
+            Log("Invalid verinfo signature 0x%x", VerInfo->dwSignature);
         }
     }
+    else
+    {
+        Log("VerQueryValueA failed %u", LASTERR);
+    }
 
-    //Now we really need to bypass windows 11 check. create registry
+End:
+    if (Buffer)
+    {
+        free(Buffer);
+    }
+
+    return ret;
+}
+
+static BOOL VentoyIsNeedBypass(const char *isofile, const char MntLetter)
+{
+    UINT16 Major; 
+    BOOL bRet = FALSE;
+    CHAR CheckFile[MAX_PATH];
+
+    if (FALSE == IsFileExist("%C:\\sources\\install.wim", MntLetter) &&
+        FALSE == IsFileExist("%C:\\sources\\install.esd", MntLetter))
+    {
+        Log("install.wim/install.esd not exist, this is not a windows install media.");
+        goto End;
+    }
+
+    if (FALSE == IsFileExist("%C:\\sources\\boot.wim", MntLetter))
+    {
+        Log("boot.wim not exist, this is not a windows install media.");
+        goto End;
+    }
+
+    if (IsFileExist("%C:\\sources\\compatresources.dll", MntLetter))
+    {
+        sprintf_s(CheckFile, sizeof(CheckFile), "%C:\\sources\\compatresources.dll", MntLetter);
+    }
+    else if (IsFileExist("%C:\\setup.exe", MntLetter))
+    {
+        sprintf_s(CheckFile, sizeof(CheckFile), "%C:\\setup.exe", MntLetter);
+    }
+    else if (IsFileExist("X:\\setup.exe"))
+    {
+        sprintf_s(CheckFile, sizeof(CheckFile), "X:\\setup.exe");
+    }
+    else
+    {
+        Log("No Check file found");
+        goto End;
+    }
+
+    if (VentoyGetFileVersion(CheckFile, &Major, NULL, NULL, NULL))
+    {
+        goto End;
+    }
+
+    if (Major >= 11)
+    {
+        Log("Enable for Windows 11 %u", Major);
+        bRet = TRUE;
+    }
+    else
+    {
+        Log("This is not Windows 11, not need to bypass.", Major);
+    }
+
+End:
+    return bRet;
+}
+
+static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Check, UINT8 NRO)
+{
+    int Ret = 1;        
     HKEY hKey = NULL;
     HKEY hSubKey = NULL;
     LSTATUS Status;
+    DWORD dwValue;
+    DWORD dwSize;
+
+    Log("Windows11Bypass for <%s> %C: Check:%u NRO:%u", isofile, MntLetter, Check, NRO);
+
+    if (!VentoyIsNeedBypass(isofile, MntLetter))
+    {
+        goto End;
+    }
+
+    //Now we really need to bypass windows 11 check. create registry
 
     if (Check)
     {
@@ -2149,10 +2232,6 @@ static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Chec
     Ret = 0;
 
 End:
-    if (Buffer)
-    {
-        free(Buffer);
-    }
     
     return Ret; 
 }
