@@ -9,7 +9,7 @@ F7 - Mijenja između GUI <-> TEXT načina rada
 
 m/Ctrl+m - Generira heš odabranog imidž fajla (md5/sha1/sha256/sha512)
 d/Ctrl+d - Memdisk način rada (samo za male WinPE/LiveCD imidž fajlove)
-w/Ctrl+w - WIMBOOT način rada (samo za standardne Windows imidž fajlove)
+w/Ctrl+w - WIMBOOT način rada (samo za Windows/WinPE imidž fajlove)
 r/Ctrl+r - GRUB2 način rada (samo za neke Linux distribucije)
 i/Ctrl+i - Kompatibilni način rada (samo za testiranje)
 u/Ctrl+u - Učitava EFI drajver za imidž fajlove (samo za testiranje)

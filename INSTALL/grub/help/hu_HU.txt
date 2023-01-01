@@ -9,7 +9,7 @@ F7 - Váltás Grafikus mód <-> Szövege mód között
 
 m/Ctrl+m - Image fájlok ell.összege (md5/sha1/sha256/sha512)
 d/Ctrl+d - Memdisk mód (Csak kis WinPE/LiveCD ISO/IMG esetén)
-w/Ctrl+w - WIMBOOT mód (Csak szabványos Windows ISO esetében)
+w/Ctrl+w - WIMBOOT mód (Csak Windows/WinPE ISO esetében)
 r/Ctrl+r - Grub2 mód (Csak néhány Linux disztró esetében)
 i/Ctrl+i - Kompatibilis mód (Csak hibakeresésre)
 u/Ctrl+u - ISO efi driver betöltés (Csak hibakeresésre, hivatalosan nem használható.)

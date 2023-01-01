@@ -9,7 +9,7 @@ F7 - 介面在文字模式和圖形模式之間切換。
 
 m/Ctrl+m - 計算檔案校驗值（md5/sha1/sha256/sha512）
 d/Ctrl+d - MEMDISK 模式，把檔載入到記憶體啟動（只適用於檔很小的 WinPE/LiveCD等）
-w/Ctrl+w - WIMBOOT 模式 （只適用於標準的 Windows ISO檔）
+w/Ctrl+w - WIMBOOT 模式 （只適用於 Windows/WinPE ISO檔）
 r/Ctrl+r - Grub2 模式 （只適用於常見的一些 Linux 系統ISO檔）
 i/Ctrl+i - 相容模式 （只用作調試目的，不能正式使用）
 u/Ctrl+u - 載入 ISO efi 驅動（只用作調試目的，不能正式使用）

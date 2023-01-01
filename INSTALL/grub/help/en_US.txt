@@ -9,7 +9,7 @@ F7 - Switch between GUI Mode <-> TEXT Mode
 
 m/Ctrl+m - Checksum image files (md5/sha1/sha256/sha512)
 d/Ctrl+d - Memdisk Mode (Only for small WinPE/LiveCD ISO/IMG)
-w/Ctrl+w - WIMBOOT Mode (Only for standard Windows ISO)
+w/Ctrl+w - WIMBOOT Mode (Only for Windows/WinPE ISO files)
 r/Ctrl+r - Grub2 Mode (Only for some Linux distros)
 i/Ctrl+i - Compatible Mode (Only for debugging)
 u/Ctrl+u - Load ISO EFI driver (Only for debugging, cannot be used officially)

@@ -115,6 +115,92 @@ int ventoy_str_all_digit(const char *str)
     return 1;
 }
 
+int ventoy_str_all_alnum(const char *str)
+{
+    if (NULL == str || 0 == *str)
+    {
+        return 0;
+    }
+
+    while (*str)
+    {
+        if (!grub_isalnum(*str))
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int ventoy_str_len_alnum(const char *str, int len)
+{
+    int i;
+    int slen;
+    
+    if (NULL == str || 0 == *str)
+    {
+        return 0;
+    }
+
+    slen = grub_strlen(str);
+    if (slen <= len)
+    {
+        return 0;
+    }
+
+    for (i = 0; i < len; i++)
+    {
+        if (!grub_isalnum(str[i]))
+        {
+            return 0;
+        }
+    }
+
+    if (str[len] == 0 || grub_isspace(str[len]))
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+char * ventoy_str_basename(char *path)
+{
+    char *pos = NULL;
+    
+    pos = grub_strrchr(path, '/');
+    if (pos)
+    {
+        pos++;
+    }
+    else
+    {
+        pos = path;
+    }
+
+    return pos;
+}
+
+int ventoy_str_chrcnt(const char *str, char c)
+{
+    int n = 0;
+    
+    if (str)
+    {
+        while (*str)
+        {
+            if (*str == c)
+            {
+                n++;                
+            }
+            str++;
+        }        
+    }
+
+    return n;
+}
+
 int ventoy_strcmp(const char *pattern, const char *str)
 {
     while (*pattern && *str)
@@ -144,6 +230,14 @@ int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n)
     }
 
     return (int)(grub_uint8_t)*pattern - (int)(grub_uint8_t)*str;
+}
+
+grub_err_t ventoy_env_int_set(const char *name, int value)
+{
+    char buf[16];
+    
+    grub_snprintf(buf, sizeof(buf), "%d", value);
+    return grub_env_set(name, buf);
 }
 
 void ventoy_debug_dump_guid(const char *prefix, grub_uint8_t *guid)

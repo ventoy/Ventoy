@@ -9,7 +9,7 @@ F7 - GUI 모드 <-> TEXT 모드 간에 전환
 
 m/Ctrl+m - 체크섬 이미지 파일 (md5/sha1/sha256/sha512)
 d/Ctrl+d - Memdisk 모드 (작은 WinPE/LiveCD ISO/IMG 전용)
-w/Ctrl+w - WIMBOOT 모드 (표준 Windows ISO 전용)
+w/Ctrl+w - WIMBOOT 모드 (표준 Windows/WinPE ISO 전용)
 r/Ctrl+r - Grub2 모드 (일부 Linux 배포판에만 해당)
 i/Ctrl+i - 호환 모드 (디버그 전용)
 u/Ctrl+u - ISO EFI 드라이버 불러오기 (디버그 전용, 공식적으로 사용할 수 없음)
