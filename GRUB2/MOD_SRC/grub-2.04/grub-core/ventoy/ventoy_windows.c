@@ -1448,6 +1448,7 @@ grub_err_t ventoy_cmd_sel_winpe_wim(grub_extcmd_context_t ctxt, int argc, char *
         g_ventoy_menu_esc = 1;
         g_ventoy_suppress_esc = 1;
         g_ventoy_suppress_esc_default = 0;
+        g_ventoy_secondary_menu_on = 1;
 
         grub_snprintf(cfgfile, sizeof(cfgfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)cmd, pos);
         grub_script_execute_sourcecode(cfgfile);   
@@ -1455,6 +1456,7 @@ grub_err_t ventoy_cmd_sel_winpe_wim(grub_extcmd_context_t ctxt, int argc, char *
         g_ventoy_menu_esc = 0;
         g_ventoy_suppress_esc = 0;
         g_ventoy_suppress_esc_default = 1;
+        g_ventoy_secondary_menu_on = 0;
 
         for (node = g_wim_patch_head; node; node = node->next)
         {
