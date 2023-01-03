@@ -3763,13 +3763,15 @@ static grub_err_t ventoy_cmd_sel_auto_install(grub_extcmd_context_t ctxt, int ar
     g_ventoy_menu_esc = 1;
     g_ventoy_suppress_esc = 1;
     g_ventoy_suppress_esc_default = defidx;
-
+    g_ventoy_secondary_menu_on = 1;
+    
     grub_snprintf(configfile, sizeof(configfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)buf, pos);
     grub_script_execute_sourcecode(configfile);
     
     g_ventoy_menu_esc = 0;
     g_ventoy_suppress_esc = 0;
     g_ventoy_suppress_esc_default = 1;
+    g_ventoy_secondary_menu_on = 0;
 
     grub_free(buf);
 
@@ -3871,13 +3873,15 @@ static grub_err_t ventoy_cmd_sel_persistence(grub_extcmd_context_t ctxt, int arg
     g_ventoy_menu_esc = 1;
     g_ventoy_suppress_esc = 1;
     g_ventoy_suppress_esc_default = defidx;
-    
+    g_ventoy_secondary_menu_on = 1;
+
     grub_snprintf(configfile, sizeof(configfile), "configfile mem:0x%llx:size:%d", (ulonglong)(ulong)buf, pos);
     grub_script_execute_sourcecode(configfile);
     
     g_ventoy_menu_esc = 0;
     g_ventoy_suppress_esc = 0;
     g_ventoy_suppress_esc_default = 1;
+    g_ventoy_secondary_menu_on = 0;
 
     grub_free(buf);
 
