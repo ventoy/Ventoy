@@ -60,6 +60,23 @@ static CHAR g_prog_name[MAX_PATH];
 #define MUTEX_LOCK(hmutex)  if (hmutex != NULL) LockStatus = WaitForSingleObject(hmutex, INFINITE)
 #define MUTEX_UNLOCK(hmutex)  if (hmutex != NULL && WAIT_OBJECT_0 == LockStatus) ReleaseMutex(hmutex)
 
+#define BREAK()  BreakAndLaunchCmd(__LINE__)
+
+static void BreakAndLaunchCmd(int line)
+{
+    STARTUPINFOA Si;
+    PROCESS_INFORMATION Pi;
+
+    Log("Break at line:%d", line);
+    
+    GetStartupInfoA(&Si);
+    Si.dwFlags |= STARTF_USESHOWWINDOW;
+    Si.wShowWindow = SW_NORMAL;
+
+    CreateProcessA(NULL, "cmd.exe", NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+    WaitForSingleObject(Pi.hProcess, INFINITE);
+}
+
 static const char * GetFileNameInPath(const char *fullpath)
 {
     int i;
@@ -457,6 +474,16 @@ static int IsUTF8Encode(const char *src)
     }
     
     return 0;
+}
+
+static int Utf16ToUtf8(const WCHAR *src, char *dst)
+{
+    int len;
+    int size;
+
+    len = (int)wcslen(src) + 1;
+    size = WideCharToMultiByte(CP_UTF8, 0, src, len, NULL, 0, NULL, NULL);
+    return WideCharToMultiByte(CP_UTF8, 0, src, len, dst, size, NULL, NULL);
 }
 
 static int Utf8ToUtf16(const char* src, WCHAR * dst)
@@ -1046,7 +1073,7 @@ End:
     return rc;
 }
 
-static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe)
+static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe, const char *ExOpt)
 {
     CHAR Letter;
     CHAR Cmdline[512];
@@ -1056,7 +1083,16 @@ static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe)
     Log("VentoyRunImdisk <%s> <%s>", IsoPath, imdiskexe);
 
     Letter = GetIMDiskMountLogicalDrive();
-    sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o ro -f \"%s\" -m %C:", imdiskexe, IsoPath, Letter);
+
+    if (ExOpt)
+    {
+        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o ro,%s -f \"%s\" -m %C:", imdiskexe, ExOpt, IsoPath, Letter);
+    }
+    else
+    {
+        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o ro -f \"%s\" -m %C:", imdiskexe, IsoPath, Letter);
+    }
+    
     Log("mount iso to %C: use imdisk cmd <%s>", Letter, Cmdline);
 
     if (IsUTF8Encode(IsoPath))
@@ -1099,7 +1135,7 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 
     if (0 == VentoyCopyImdisk(PhyDrive, ImPath))
     {
-        VentoyRunImdisk(IsoPath, ImPath);
+        VentoyRunImdisk(IsoPath, ImPath, NULL);
         rc = 0;
     }
 
@@ -2269,6 +2305,75 @@ static BOOL CheckVentoyDisk(DWORD DiskNum)
     return FALSE;
 }
 
+static BOOL VentoyIsLenovoRecovery(CHAR *IsoPath, CHAR *VTLRIPath)
+{
+    int n;
+    int UTF8 = 0;
+    HANDLE hFile;
+    DWORD Attr;
+    WCHAR FilePathW[MAX_PATH];
+
+    UTF8 = IsUTF8Encode(IsoPath);
+
+    if (UTF8)
+    {
+        Utf8ToUtf16(IsoPath, FilePathW);
+
+        n = (int)wcslen(FilePathW);
+        if (n > 4 && _wcsicmp(FilePathW + n - 4, L".iso") == 0)
+        {
+            FilePathW[n - 3] = L'V';
+            FilePathW[n - 2] = L'T';
+            FilePathW[n - 1] = L'L';
+            FilePathW[n - 0] = L'R';
+            FilePathW[n + 1] = L'I';
+            FilePathW[n + 2] = 0;
+
+            hFile = CreateFileW(FilePathW, FILE_READ_EA, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+            if (hFile != INVALID_HANDLE_VALUE)
+            {
+                CloseHandle(hFile);
+                Attr = GetFileAttributesW(FilePathW);
+
+                if ((Attr & FILE_ATTRIBUTE_DIRECTORY) == 0)
+                {
+                    Utf16ToUtf8(FilePathW, VTLRIPath);
+                    return TRUE;
+                }
+            }
+        }
+    }
+    else
+    {
+        n = (int)strlen(IsoPath);
+        if (n > 4 && _stricmp(IsoPath + n - 4, ".iso") == 0)
+        {
+            IsoPath[n - 4] = 0;
+            sprintf_s(VTLRIPath, MAX_PATH, "%s.VTLRI", IsoPath);
+            IsoPath[n - 4] = '.';
+
+            if (IsFileExist(VTLRIPath))
+            {
+                return TRUE;
+            }
+        }
+    }
+    
+    return FALSE;
+}
+
+static int MountVTLRI(CHAR *ImgPath, DWORD PhyDrive)
+{
+    CHAR ImDiskPath[256];
+    
+    Log("MountVTLRI <%s> %u", ImgPath, PhyDrive);
+
+    VentoyCopyImdisk(PhyDrive, ImDiskPath);
+
+    VentoyRunImdisk(ImgPath, ImDiskPath, "rem");
+
+    return 0;
+}
 
 static int VentoyHook(ventoy_os_param *param)
 {
@@ -2288,6 +2393,7 @@ static int VentoyHook(ventoy_os_param *param)
     DISK_EXTENT VtoyDiskExtent;
     UINT8 UUID[16];
     CHAR IsoPath[MAX_PATH];
+    CHAR VTLRIPath[MAX_PATH];
 
     Log("VentoyHook Path:<%s>", param->vtoy_img_path);
 
@@ -2426,8 +2532,17 @@ static int VentoyHook(ventoy_os_param *param)
 
     Drives = GetLogicalDrives();
     Log("Drives before mount: 0x%x", Drives);
-
-    rc = MountIsoFile(IsoPath, VtoyDiskNum);
+    
+    if (VentoyIsLenovoRecovery(IsoPath, VTLRIPath))
+    {
+        Log("This is lenovo recovery image, mount VTLRI file.");
+        rc = MountVTLRI(VTLRIPath, VtoyDiskNum);
+    }
+    else
+    {
+        Log("This is normal image, mount ISO file.");
+        rc = MountIsoFile(IsoPath, VtoyDiskNum);
+    }
 
     NewDrives = GetLogicalDrives();
     Log("Drives after mount: 0x%x (0x%x)", NewDrives, (NewDrives ^ Drives));
