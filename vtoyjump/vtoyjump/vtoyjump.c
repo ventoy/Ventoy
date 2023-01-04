@@ -1073,24 +1073,24 @@ End:
     return rc;
 }
 
-static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe, const char *ExOpt)
+static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe, const char *opt)
 {
     CHAR Letter;
     CHAR Cmdline[512];
     WCHAR CmdlineW[512];
     PROCESS_INFORMATION Pi;
 
-    Log("VentoyRunImdisk <%s> <%s>", IsoPath, imdiskexe);
+    Log("VentoyRunImdisk <%s> <%s> <%s>", IsoPath, imdiskexe, opt);
 
     Letter = GetIMDiskMountLogicalDrive();
 
-    if (ExOpt)
+    if (opt)
     {
-        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o ro,%s -f \"%s\" -m %C:", imdiskexe, ExOpt, IsoPath, Letter);
+        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o %s -f \"%s\" -m %C:", imdiskexe, opt, IsoPath, Letter);
     }
     else
     {
-        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o ro -f \"%s\" -m %C:", imdiskexe, IsoPath, Letter);
+        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -f \"%s\" -m %C:", imdiskexe, IsoPath, Letter);
     }
     
     Log("mount iso to %C: use imdisk cmd <%s>", Letter, Cmdline);
@@ -1135,7 +1135,7 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 
     if (0 == VentoyCopyImdisk(PhyDrive, ImPath))
     {
-        VentoyRunImdisk(IsoPath, ImPath, NULL);
+        VentoyRunImdisk(IsoPath, ImPath, "ro");
         rc = 0;
     }
 

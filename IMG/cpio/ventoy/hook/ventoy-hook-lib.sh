@@ -892,3 +892,17 @@ ventoy_check_umount() {
         fi
     done
 }
+
+ventoy_wait_dir() {
+    vtdir=$1
+    vtsec=0
+    
+    while [ $vtsec -lt $2 ]; do
+        if [ -d "$vtdir" ]; then
+            break
+        else
+            $SLEEP 1
+            vtsec=$(expr $vtsec + 1)
+        fi
+    done
+}

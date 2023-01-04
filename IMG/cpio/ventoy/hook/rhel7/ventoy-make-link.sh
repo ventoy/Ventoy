@@ -26,7 +26,9 @@ fi
 blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
 vtDM=$(ventoy_find_dm_id ${blkdev_num})
 
-if ! [ -e /dev/mapper/ventoy ]; then
+if [ -e /dev/mapper/ventoy ]; then
+    vtlog "/dev/mapper/ventoy already exist"
+else
     vtlog "link /dev/$vtDM to /dev/mapper/ventoy"
     ln -s /dev/$vtDM /dev/mapper/ventoy
 fi
@@ -35,7 +37,13 @@ VTLABEL=$($BUSYBOX_PATH/blkid /dev/$vtDM | $SED 's/.*LABEL="\([^"]*\)".*/\1/')
 vtlog "VTLABEL=$VTLABEL"
 
 if [ -n "$VTLABEL" ]; then
-    if ! [ -e "/dev/disk/by-label/$VTLABEL" ]; then
+    if ! [ -d /dev/disk/by-label ]; then
+        mkdir -p /dev/disk/by-label
+    fi
+
+    if [ -e "/dev/disk/by-label/$VTLABEL" ]; then
+        vtlog "/dev/disk/by-label/$VTLABEL already exist"
+    else
         vtlog "link /dev/$vtDM to /dev/disk/by-label/$VTLABEL"
         ln -s /dev/$vtDM "/dev/disk/by-label/$VTLABEL"
     fi

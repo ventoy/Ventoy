@@ -150,3 +150,19 @@ fi
 if [ -f $VTOY_PATH/autoinstall ]; then
     cp -a $VTOY_PATH/hook/rhel7/ventoy-autoexp.sh /lib/dracut/hooks/pre-mount/99-ventoy-autoexp.sh
 fi
+
+
+#special distro magic
+$BUSYBOX_PATH/mkdir -p $VTOY_PATH/distmagic
+if $GREP -q SCRE /proc/cmdline; then
+    echo 1 > $VTOY_PATH/distmagic/SCRE
+fi
+
+if $GREP -qw 'SA[.]1' /proc/cmdline; then
+if $GREP -qw 'SA[.]2' /proc/cmdline; then
+if $GREP -qw 'rw'     /proc/cmdline; then
+    echo 1 > $VTOY_PATH/distmagic/DELL_PER
+fi
+fi
+fi
+
