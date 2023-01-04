@@ -103,7 +103,7 @@ ls -1 menu/ | grep -v 'zh_CN' | sort | while read vtlang; do
     echo "    vt_load_menu_lang $vtlangname"  >> menulang.cfg
     echo "}"  >> menulang.cfg
 done
-echo "menuentry \"$VTLANG_RETURN_PREVIOUS\" --class=vtoyret VTOY_RET {" >> menulang.cfg
+echo "menuentry \"\$VTLANG_RETURN_PREVIOUS\" --class=vtoyret VTOY_RET {" >> menulang.cfg
 echo "        echo \"Return ...\"" >> menulang.cfg
 echo "}" >> menulang.cfg
 
