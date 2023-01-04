@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:Język F1:Pomoc F2:Przeglądaj F3:ListView F4:Localboot F5:Narzędzia F6:ExMenu",
     "VTLANG_STR_HOTKEY_TREE": "L:Język F1:Pomoc F2:Przeglądaj F3:Widok drzewa F4:Localboot F5:Narzędzia F6:ExMenu",
     "VTLANG_RETURN_PREVIOUS": "Powrót do poprzedniego menu [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Powrót do poprzedniego menu",
     
     "VTLANG_MENU_LANG": "Wybór języka menu",
     

@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L: لغه F1: مساعدة F2: تصفح F3: عرض قائمه F4: اقلا محلي F5: أدوات F6: عوده",
     "VTLANG_STR_HOTKEY_TREE": "L: لغه F1: مساعدة F2: تصفح F3: عرض تصنيف F4: اقلاع محلي F5: أدوات F6: عوده",
     "VTLANG_RETURN_PREVIOUS": "عودة إلى القائمة السابقة [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "عودة إلى القائمة السابقة",
     "VTLANG_MENU_LANG": "اختيار اللغة في القائمة",
     "VTLANG_LB_SBOOT_WINDOWS": "البحث والإقلاع على ويندوز",
     "VTLANG_LB_SBOOT_G4D": "البحث والإقلاع على Grub4dos",

@@ -6163,6 +6163,7 @@ static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int
     }
 
     g_vtoy_secondary_need_recover = 0;
+    grub_env_unset("VTOY_SECOND_EXIT");
     grub_env_unset("VTOY_CHKSUM_FILE_PATH");
 
     env = grub_env_get("VTOY_SECONDARY_TIMEOUT");
@@ -6198,8 +6199,10 @@ static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int
     }
 
     vtoy_dummy_menuentry(cmd, pos, len, "$VTLANG_FILE_CHKSUM", "second_checksum"); seldata[n++] = 5;
+    vtoy_dummy_menuentry(cmd, pos, len, "$VTLANG_RETURN_PRV_NOESC", "second_return"); seldata[n++] = 6;
 
     do {
+        grub_errno = GRUB_ERR_NONE;
         g_ventoy_menu_esc = 1;
         g_ventoy_suppress_esc = 1;
         g_ventoy_suppress_esc_default = 0;
@@ -6233,10 +6236,14 @@ static grub_err_t ventoy_cmd_show_secondary_menu(grub_extcmd_context_t ctxt, int
             grub_env_set("VTOY_CHKSUM_FILE_PATH", args[0]);
             grub_script_execute_sourcecode("configfile $vtoy_efi_part/grub/checksum.cfg");
         }
+        else if (select == 6)
+        {
+            grub_env_set("VTOY_SECOND_EXIT", "1");
+        }
     }while (select == 5);
 
     grub_free(cmd);
-    return 0;
+    VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
 static grub_err_t ventoy_cmd_secondary_recover_mode(grub_extcmd_context_t ctxt, int argc, char **args)

@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Erweitert",
     "VTLANG_STR_HOTKEY_TREE": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Erweitert",
     "VTLANG_RETURN_PREVIOUS": "Zu vorherigem Menü [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Zu vorherigem Menü",
     
     "VTLANG_MENU_LANG": "Menüsprache auswählen",
     

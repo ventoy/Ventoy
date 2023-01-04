@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:Idioma  F1:Ajuda  F2:Navegar  F3:Estrutura  F4:Arranque local  F5:Ferramentas  F6:Sair",
     "VTLANG_STR_HOTKEY_TREE": "L:Idioma  F1:Ajuda  F2:Navegar  F3:Estrutura  F4:Arranque local  F5:Ferramentas  F6:Sair",
     "VTLANG_RETURN_PREVIOUS": "Voltar ao menu anterior [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Voltar ao menu anterior",
     
     "VTLANG_MENU_LANG": "Seleção de idioma do menu",
     

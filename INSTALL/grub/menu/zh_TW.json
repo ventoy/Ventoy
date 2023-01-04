@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:語言  F1:說明  F2:本地瀏覽  F3:清單模式  F4:本地啟動  F5:工具  F6:擴展選單",
     "VTLANG_STR_HOTKEY_TREE": "L:語言  F1:說明  F2:本地瀏覽  F3:樹形模式  F4:本地啟動  F5:工具  F6:擴展選單",
     "VTLANG_RETURN_PREVIOUS": "返回上一級選單 [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "返回上一級選單",
     
     "VTLANG_MENU_LANG": "功能表語言",
     

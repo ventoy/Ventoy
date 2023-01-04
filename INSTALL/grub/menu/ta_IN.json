@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:மொழி F1:உதவி F2:உலாவுக F3:பட்டியல்பார்வை F4:லோக்கல்பூட் F5:கருவிகள்  F6:ExMenu",
     "VTLANG_STR_HOTKEY_TREE": "L:மொழி F1:உதவி F2:உலாவுக  F3:மரப்பார்வை  F4:லோக்கல்பூட் F5:கருவிகள்  F6:ExMenu",
     "VTLANG_RETURN_PREVIOUS": "முந்தைய மெனுவுக்குத் திரும்பு [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "முந்தைய மெனுவுக்குத் திரும்பு",
     
     "VTLANG_MENU_LANG": "மெனு மொழி தேர்வு",
     

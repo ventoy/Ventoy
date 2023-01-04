@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:Langue  F1:Aide  F2:Parcourir  F3:Affichage liste  F4:Démarrage local  F5:Outils  F6:Menu étendu",
     "VTLANG_STR_HOTKEY_TREE": "L:Langue  F1:Aide  F2:Parcourir  F3:Affichage arborescence  F4:Démarrage local  F5:Outils  F6:Menu étendu",
     "VTLANG_RETURN_PREVIOUS": "Retour au menu précédent [Echap]",
+    "VTLANG_RETURN_PRV_NOESC": "Retour au menu précédent",
     
     "VTLANG_MENU_LANG": "Sélection de la langue des menus",
     

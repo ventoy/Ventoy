@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:Nyelv  F1:Súgó  F2:Tallóz  F3:Listanézet  F4:Helyi indítás  F5:Eszközök  F6:Bővített menü",
     "VTLANG_STR_HOTKEY_TREE": "L:Nyelv  F1:Súgó  F2:Tallóz  F3:Fanézet  F4:Helyi indítás  F5:Eszközök  F6:Bővített menü",
     "VTLANG_RETURN_PREVIOUS": "Vissza az előző menübe [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Vissza az előző menübe",
     
     "VTLANG_MENU_LANG": "Menü nyelv kiválasztás",
     

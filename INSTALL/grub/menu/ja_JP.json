@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:言語 F1:説明 F2:閲覧 F3:表示切替(階層) F4:手許から起動 F5:道具 F6:拡張",
     "VTLANG_STR_HOTKEY_TREE": "L:言語 F1:説明 F2:閲覧 F3:表示切替(一覧) F4:手許から起動 F5:道具 F6:拡張",
     "VTLANG_RETURN_PREVIOUS": "前に戻る [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "前に戻る",
     
     "VTLANG_MENU_LANG": "表示言語",
     

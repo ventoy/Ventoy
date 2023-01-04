@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "번역: 비너스걸 L:언어  F1:도움말  F2:찾아보기  F3:목록보기  F4:로컬부트  F5:도구  F6:확장메뉴",
     "VTLANG_STR_HOTKEY_TREE": "번역: 비너스걸 L:언어  F1:도움말  F2:찾아보기  F3:목록보기  F4:로컬부트  F5:도구  F6:확장메뉴",
     "VTLANG_RETURN_PREVIOUS": "이전 메뉴로 돌아가기 [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "이전 메뉴로 돌아가기",
     
     "VTLANG_MENU_LANG": "메뉴 언어 선택",
     

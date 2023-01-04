@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:ভাষা  F1:সাহায্য  F2:Browser  F3:ListView  F4:Localboot  F5:Tools  F6:ExMenu",
     "VTLANG_STR_HOTKEY_TREE": "L:ভাষা  F1:সাহায্য  F2:Browser  F3:TreeView  F4:Localboot  F5:Tools  F6:ExMenu",
     "VTLANG_RETURN_PREVIOUS": "পূর্ববর্তী মেনুতে ফিরে যান [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "পূর্ববর্তী মেনুতে ফিরে যান",
     
     "VTLANG_MENU_LANG": "মেনু ভাষা নির্বাচন করুন",
     

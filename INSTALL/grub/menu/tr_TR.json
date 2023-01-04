@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:Dil  F1:Yardım  F2:Gözat  F3:Liste Görünümü  F4:Önyükleme Seçenekleri  F5:Araçlar  F6:Grub2 Menü",
     "VTLANG_STR_HOTKEY_TREE": "L:Dil  F1:Yardım  F2:Gözat  F3:Ağaç Görünümü   F4:Önyükleme Seçenekleri  F5:Araçlar  F6:Grub2 Menü",
     "VTLANG_RETURN_PREVIOUS": "Önceki menüye geri dön [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Önceki menüye geri dön",
 
     "VTLANG_MENU_LANG": "Menü Dili Seçimi",
 

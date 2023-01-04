@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:Bahasa  F1:Bantuan  F2:Jelajah  F3:ListView  F4:boot lokal  F5:Alat Utilitas  F6:Menu Eksternal",
     "VTLANG_STR_HOTKEY_TREE": "L:Bahasa  F1:Bantuan  F2:Jelajah  F3:ListView  F4:boot lokal  F5:Alat Utilitas  F6:Menu Eksternal",
     "VTLANG_RETURN_PREVIOUS": "Kembali ke menu sebelumnya [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Kembali ke menu sebelumnya",
     
     "VTLANG_MENU_LANG": "Menu Pilihan Bahasa",
     

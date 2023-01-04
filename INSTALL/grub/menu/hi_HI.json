@@ -4,6 +4,7 @@
     "VTLANG_STR_HOTKEY_LIST": "L:भाषा  F1:मदद  F2:ब्राउज़र  F3:ListView  F4:स्थानीयबूट  F5:उपकरण  F6:ExMenu",
     "VTLANG_STR_HOTKEY_TREE": "L:भाषा  F1:मदद  F2:ब्राउज़र  F3:TreeView  F4:स्थानीयबूट  F5:उपकरण  F6:ExMenu",
     "VTLANG_RETURN_PREVIOUS": "पिछले मेनू पर लौटें [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "पिछले मेनू पर लौटें",
     
     "VTLANG_MENU_LANG": "मेनू भाषा का चयन करें",
     
