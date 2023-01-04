@@ -159,7 +159,7 @@ if $GREP -q SCRE /proc/cmdline; then
 fi
 
 if $GREP -qw 'SA[.]1' /proc/cmdline; then
-if $GREP -qw 'SA[.]2' /proc/cmdline; then
+if $GREP -qw 'writable.fsimg' /proc/cmdline; then
 if $GREP -qw 'rw'     /proc/cmdline; then
     echo 1 > $VTOY_PATH/distmagic/DELL_PER
 fi
