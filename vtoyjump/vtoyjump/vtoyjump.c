@@ -916,7 +916,7 @@ static BOOL Is2K10PE(void)
     return bRet;
 }
 
-static CHAR GetIMDiskMountLogicalDrive(void)
+static CHAR GetIMDiskMountLogicalDrive(const char *suffix)
 {
     CHAR Letter = 'Y';
     DWORD Drives;
@@ -927,6 +927,12 @@ static CHAR GetIMDiskMountLogicalDrive(void)
     {
         Log("Use M: for 2K10 PE");
         return 'M';
+    }
+
+    //fixed use Z as mountpoint for Lenovo Product Recovery
+    if (strcmp(suffix, "VTLRI") == 0)
+    {
+        return 'Z';
     }
 
     Drives = GetLogicalDrives();
@@ -1073,26 +1079,18 @@ End:
     return rc;
 }
 
-static int VentoyRunImdisk(const char *IsoPath, const char *imdiskexe, const char *opt)
+static int VentoyRunImdisk(const char *suffix, const char *IsoPath, const char *imdiskexe, const char *opt)
 {
     CHAR Letter;
     CHAR Cmdline[512];
     WCHAR CmdlineW[512];
     PROCESS_INFORMATION Pi;
 
-    Log("VentoyRunImdisk <%s> <%s> <%s>", IsoPath, imdiskexe, opt);
+    Log("VentoyRunImdisk <%s> <%s> <%s> <%s>", suffix, IsoPath, imdiskexe, opt);
 
-    Letter = GetIMDiskMountLogicalDrive();
+    Letter = GetIMDiskMountLogicalDrive(suffix);
 
-    if (opt)
-    {
-        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o %s -f \"%s\" -m %C:", imdiskexe, opt, IsoPath, Letter);
-    }
-    else
-    {
-        sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -f \"%s\" -m %C:", imdiskexe, IsoPath, Letter);
-    }
-    
+    sprintf_s(Cmdline, sizeof(Cmdline), "%s -a -o %s -f \"%s\" -m %C:", imdiskexe, opt, IsoPath, Letter);    
     Log("mount iso to %C: use imdisk cmd <%s>", Letter, Cmdline);
 
     if (IsUTF8Encode(IsoPath))
@@ -1135,7 +1133,7 @@ int VentoyMountISOByImdisk(const char *IsoPath, DWORD PhyDrive)
 
     if (0 == VentoyCopyImdisk(PhyDrive, ImPath))
     {
-        VentoyRunImdisk(IsoPath, ImPath, "ro");
+        VentoyRunImdisk("iso", IsoPath, ImPath, "ro");
         rc = 0;
     }
 
@@ -2370,7 +2368,7 @@ static int MountVTLRI(CHAR *ImgPath, DWORD PhyDrive)
 
     VentoyCopyImdisk(PhyDrive, ImDiskPath);
 
-    VentoyRunImdisk(ImgPath, ImDiskPath, "rem");
+    VentoyRunImdisk("VTLRI", ImgPath, ImDiskPath, "ro,rem");
 
     return 0;
 }
