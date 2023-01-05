@@ -148,9 +148,10 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
     return 0;
 }
 
-static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, int *index)
+static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, int *index, grub_uint64_t *poffset)
 {
     int i;
+    int find = 0;
     int ret = 1;
     grub_uint64_t start;
     grub_file_t file = NULL;
@@ -183,6 +184,7 @@ static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, i
                 if (start == gpt->PartTbl[i].StartLBA)
                 {
                     *index = i;
+                    find = 1;
                     break;
                 }
             }
@@ -196,11 +198,22 @@ static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, i
             if ((grub_uint32_t)start == gpt->MBR.PartTbl[i].StartSectorId)
             {
                 *index = i;
+                find = 1;
                 break;
             }
         }
     }    
 
+    if (find == 0) // MBR Logical partition
+    {
+        if (file->device->disk->partition->number > 0)
+        {
+            *index = file->device->disk->partition->number;
+            debug("Fall back part number: %d\n", *index);
+        }
+    }
+
+    *poffset = start;
     ret = 0;
 
 end:
@@ -226,7 +239,7 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
     else
     {
         gpt = grub_zalloc(sizeof(ventoy_gpt_info));
-        ventoy_vhd_read_parttbl(vhdpath, gpt, &partIndex);
+        ventoy_vhd_read_parttbl(vhdpath, gpt, &partIndex, &offset);
         debug("This is HDD partIndex %d %s\n", partIndex, vhdpath);
     }
 
@@ -249,9 +262,7 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
     }
     else
     {
-        offset = gpt->MBR.PartTbl[partIndex].StartSectorId;
         offset *= 512;
-    
         debug("MBR disk signature: %02x%02x%02x%02x Part(%d) offset:%llu\n",
             gpt->MBR.BootCode[0x1b8 + 0], gpt->MBR.BootCode[0x1b8 + 1],
             gpt->MBR.BootCode[0x1b8 + 2], gpt->MBR.BootCode[0x1b8 + 3],
