@@ -2362,13 +2362,28 @@ static BOOL VentoyIsLenovoRecovery(CHAR *IsoPath, CHAR *VTLRIPath)
 
 static int MountVTLRI(CHAR *ImgPath, DWORD PhyDrive)
 {
-    CHAR ImDiskPath[256];
+    STARTUPINFOA Si;
+    PROCESS_INFORMATION Pi;
+    CHAR Cmdline[256]; 
+    CHAR ImDiskPath[256];    
     
     Log("MountVTLRI <%s> %u", ImgPath, PhyDrive);
 
     VentoyCopyImdisk(PhyDrive, ImDiskPath);
 
     VentoyRunImdisk("VTLRI", ImgPath, ImDiskPath, "ro,rem");
+
+    CopyFileA(g_prog_full_path, "ventoy\\VTLRISRV.exe", FALSE);
+
+    sprintf_s(Cmdline, sizeof(Cmdline), "ventoy\\VTLRISRV.exe VTLRI_SRV %C Z", ImgPath[0]);
+
+
+    GetStartupInfoA(&Si);
+    Si.dwFlags |= STARTF_USESHOWWINDOW;
+    Si.wShowWindow = SW_HIDE;
+    CreateProcessA(NULL, Cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+
+    Log("Process cmdline <%s>", Cmdline);
 
     return 0;
 }
@@ -2939,6 +2954,52 @@ static int vtoy_remove_duplicate_file(char *File)
     return 0;
 }
 
+static int VTLRI_ServiceMain(int argc, char **argv)
+{
+    int n = 0;
+    DWORD Err;
+    BOOL bRet = TRUE;
+    CHAR Drive[16];
+    CHAR FsType[64];
+    CHAR Cmdline[256];
+    PROCESS_INFORMATION Pi;
+    STARTUPINFOA Si;
+
+    //XXX.exe VTLRI_SRV D Z
+    Log("VTLRI_ServiceMain start %s %s %s ...", argv[0], argv[1], argv[2]);
+
+    sprintf_s(Drive, sizeof(Drive), "%C:\\", argv[2][0]);
+
+    while (n < 3)
+    {
+        bRet = GetVolumeInformationA(Drive, NULL, 0, NULL, NULL, NULL, FsType, sizeof(FsType));
+        if (bRet)
+        {
+            Sleep(400);
+        }
+        else
+        {
+            Err = LASTERR;
+            if (Err == ERROR_PATH_NOT_FOUND)
+            {
+                Log("%s not found", Drive);
+                n++;
+            }
+        }
+    }
+
+    sprintf_s(Cmdline, sizeof(Cmdline), "ventoy\\imdisk.exe -d -m %C:", argv[3][0]);
+    Log("Remove disk by <%s>", Cmdline);
+
+    GetStartupInfoA(&Si);
+    Si.dwFlags |= STARTF_USESHOWWINDOW;
+    Si.wShowWindow = SW_HIDE;
+
+    CreateProcessA(NULL, Cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &Si, &Pi);
+    WaitForSingleObject(Pi.hProcess, INFINITE);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int i;
@@ -2952,6 +3013,11 @@ int main(int argc, char **argv)
     g_vtoyins_mutex = CreateMutexA(NULL, FALSE, "VTOYINS_LOCK");
 
     Log("######## VentoyJump %dbit ##########", g_system_bit);
+
+    if (argc > 1 && strcmp(argv[1], "VTLRI_SRV") == 0)
+    {
+        return VTLRI_ServiceMain(argc, argv);
+    }
 
     GetCurrentDirectoryA(sizeof(CurDir), CurDir);
     Log("Current directory is <%s>", CurDir);
