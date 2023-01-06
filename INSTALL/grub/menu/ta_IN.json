@@ -3,10 +3,10 @@
     
     "VTLANG_STR_HOTKEY_LIST": "L:மொழி F1:உதவி F2:உலாவுக F3:பட்டியல்பார்வை F4:லோக்கல்பூட் F5:கருவிகள்  F6:ExMenu",
     "VTLANG_STR_HOTKEY_TREE": "L:மொழி F1:உதவி F2:உலாவுக  F3:மரப்பார்வை  F4:லோக்கல்பூட் F5:கருவிகள்  F6:ExMenu",
-    "VTLANG_RETURN_PREVIOUS": "முந்தைய மெனுவுக்குத் திரும்பு [Esc]",
-    "VTLANG_RETURN_PRV_NOESC": "முந்தைய மெனுவுக்குத் திரும்பு",
+    "VTLANG_RETURN_PREVIOUS": "முந்தைய பட்டியலுக்குத் திரும்பு [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "முந்தைய பட்டியலுக்குத் திரும்பு",
     
-    "VTLANG_MENU_LANG": "மெனு மொழி தேர்வு",
+    "VTLANG_MENU_LANG": "மொழி தேர்வு பட்டியல்",
     
     "VTLANG_LB_SBOOT_WINDOWS": "விண்டோஸைத் தேடி துவக்கவும்",
     "VTLANG_LB_SBOOT_G4D": "Grub4dos ஐத் தேடி துவக்கவும்",
@@ -43,7 +43,7 @@
     
     "VTLANG_THEME_SELECT": "தீம் தேர்வு",
     
-    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI பயன்பாடுகள்",
     "VTLANG_UTIL_SHOW_EFI_DRV": "EFI இயக்கிகளைக் காட்டு",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows BlinitializeLibrary தோல்வியைச் சரிசெய்தல்",
     
@@ -52,9 +52,9 @@
     "VTLANG_JSON_CHK_THEME": "தீம் செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
     "VTLANG_JSON_CHK_AUTOINS": "தானாக நிறுவும் செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
     "VTLANG_JSON_CHK_PERSIST": "நிலைத்தன்மை செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
-    "VTLANG_JSON_CHK_MENU_ALIAS": "மெனு மாற்று செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
-    "VTLANG_JSON_CHK_MENU_TIP": "மெனு முனை செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
-    "VTLANG_JSON_CHK_MENU_CLASS": "மெனு வகுப்பு செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "பட்டியலில் மாற்று செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
+    "VTLANG_JSON_CHK_MENU_TIP": "பட்டியலில் முனை செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
+    "VTLANG_JSON_CHK_MENU_CLASS": "பட்டியலில் வகுப்பு செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
     "VTLANG_JSON_CHK_INJECTION": "ஊசி செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
     "VTLANG_JSON_CHK_AUTO_MEMDISK": "ஆட்டோ மெம்டிஸ்க் செருகுநிரல் உள்ளமைவைச் சரிபார்க்கவும்",
     "VTLANG_JSON_CHK_IMG_LIST": "பட பட்டியல் செருகுநிரல் உள்ளமைவை சரிபார்க்கவும்",
@@ -83,11 +83,11 @@
     "VTLANG_ENTER_REBOOT": "மறுதொடக்கம் செய்ய Enter விசையை அழுத்தவும்",
     "VTLANG_ENTER_CONTINUE": "தொடர Enter விசையை அழுத்தவும்",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "தற்காலிக கட்டுப்பாட்டு அமைப்புகள்",
+    "VTLANG_WIN11_BYPASS_CHECK": "விண்டோஸ் 11 ஐ நிறுவும் போது CPU/TPM/SecureBoot சரிபார்பை புறக்கணிக்கவும்",
+    "VTLANG_WIN11_BYPASS_NRO": "விண்டோஸ் 11 ஐ நிறுவும் போது ஆன்லைன் கணக்கின் தேவையை புறக்கணிக்கவும்",
+    "VTLANG_LINUX_REMOUNT": "லினக்ஸை துவக்கிய பிறகு Ventoy பகிர்வை ஏற்றவும்",
+    "VTLANG_SECONDARY_BOOT_MENU": "இரண்டாம் நிலை துவக்க பட்டியலைக்  காட்டு",
     
     "MENU_STR_XXX": ""
 }
