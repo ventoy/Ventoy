@@ -492,7 +492,7 @@ static int Utf8ToUtf16(const char* src, WCHAR * dst)
     return MultiByteToWideChar(CP_UTF8, 0, src, -1, dst, size + 1);
 }
 
-static BOOL IsDirExist(const char *Fmt, ...)
+BOOL IsDirExist(const char *Fmt, ...)
 {
     va_list Arg;    
     DWORD Attr;
@@ -524,7 +524,7 @@ static BOOL IsDirExist(const char *Fmt, ...)
     return FALSE;
 }
 
-static BOOL IsFileExist(const char *Fmt, ...)
+BOOL IsFileExist(const char *Fmt, ...)
 {
     va_list Arg;
     HANDLE hFile;
@@ -2204,7 +2204,7 @@ static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Chec
     HKEY hKey = NULL;
     HKEY hSubKey = NULL;
     LSTATUS Status;
-    DWORD dwValue;
+    DWORD dwValue = 1;
     DWORD dwSize;
 
     Log("Windows11Bypass for <%s> %C: Check:%u NRO:%u", isofile, MntLetter, Check, NRO);
@@ -2260,6 +2260,8 @@ static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Chec
 
         Status += RegSetValueExA(hSubKey, "BypassNRO", 0, REG_DWORD, (LPBYTE)&dwValue, sizeof(DWORD));
         Log("Create BypassNRO registry %s %u", (Status == ERROR_SUCCESS) ? "SUCCESS" : "FAILED", Status);
+
+        SetupMonNroStart(isofile);
     }
     
 

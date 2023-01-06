@@ -195,5 +195,9 @@ int unxz(unsigned char *in, int in_size,
     unsigned char *out, int *in_used,
     void(*error)(char *x));
 
+void Log(const char* Fmt, ...);
+int SetupMonNroStart(const char* isopath);
+BOOL IsFileExist(const char* Fmt, ...);
+BOOL IsDirExist(const char* Fmt, ...);
 
 #endif

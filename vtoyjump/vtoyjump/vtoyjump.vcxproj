@@ -168,6 +168,7 @@
     <ClCompile Include="fat_io_lib\fat_string.c" />
     <ClCompile Include="fat_io_lib\fat_table.c" />
     <ClCompile Include="fat_io_lib\fat_write.c" />
+    <ClCompile Include="setupmon.c" />
     <ClCompile Include="vtoyjump.c" />
     <ClCompile Include="xz-embedded-20130513\linux\lib\decompress_unxz.c" />
   </ItemGroup>
