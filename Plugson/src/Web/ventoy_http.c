@@ -4134,11 +4134,11 @@ static int ventoy_parse_control(VTOY_JSON *json, void *p)
             }
             else if (strcmp(child->pcName, "VTOY_WIN11_BYPASS_CHECK") == 0)
             {
-                CONTROL_PARSE_INT_DEF_0(child, data->win11_bypass_check);
+                CONTROL_PARSE_INT_DEF_1(child, data->win11_bypass_check);
             }
             else if (strcmp(child->pcName, "VTOY_WIN11_BYPASS_NRO") == 0)
             {
-                CONTROL_PARSE_INT_DEF_0(child, data->win11_bypass_nro);
+                CONTROL_PARSE_INT_DEF_1(child, data->win11_bypass_nro);
             }
             else if (strcmp(child->pcName, "VTOY_LINUX_REMOUNT") == 0)
             {
