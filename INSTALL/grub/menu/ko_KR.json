@@ -31,7 +31,7 @@
     "VTLANG_POWER": "전원",
     "VTLANG_POWER_REBOOT": "다시 부트",
     "VTLANG_POWER_HALT": "끄기",
-    "VTLANG_POWER_BOOT_EFIFW": "EFI 설정으로 재부트",
+    "VTLANG_POWER_BOOT_EFIFW": "EFI 설정으로 다시 부트",
     
     "VTLANG_KEYBRD_LAYOUT": "키보드 레이아웃",
     "VTLANG_HWINFO": "하드웨어 정보",
