@@ -12,6 +12,7 @@
 
 char g_ventoy_dir[MAX_PATH];
 
+static BOOL g_ChromeFirst = TRUE;
 static BOOL g_running = FALSE;
 static HWND g_refresh_button;
 static HWND g_start_button;
@@ -118,14 +119,17 @@ static void OpenURL(void)
 
 	sprintf_s(url, sizeof(url), "http://%s:%s/index.html", g_sysinfo.ip, g_sysinfo.port);
 
-    for (i = 0; Browsers[i] != NULL; i++)
-    {
-        if (ventoy_is_file_exist("%s", Browsers[i]))
-        {
-            ShellExecuteA(NULL, "open", Browsers[i], url, NULL, SW_SHOW);
-            return;
-        }
-    }
+	if (g_ChromeFirst)
+	{
+		for (i = 0; Browsers[i] != NULL; i++)
+		{
+			if (ventoy_is_file_exist("%s", Browsers[i]))
+			{
+				ShellExecuteA(NULL, "open", Browsers[i], url, NULL, SW_SHOW);
+				return;
+			}
+		}
+	}
 
     ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOW);
 }
@@ -521,11 +525,21 @@ static void DllProtect(void)
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
 {
+	int i;
     int rc;
 	HANDLE hMutex;
 	WCHAR CurDir[MAX_PATH];
 
     UNREFERENCED_PARAMETER(hPrevInstance);
+
+	for (i = 0; i < __argc; i++)
+	{
+		if (__argv[i] && _stricmp(__argv[i], "/F") == 0)
+		{
+			g_ChromeFirst = FALSE;
+			break;
+		}
+	}
 
 	DllProtect();
 
