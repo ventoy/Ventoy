@@ -260,6 +260,7 @@ grub_cmd_hashsum (struct grub_extcmd_context *ctxt,
       grub_file_t file;
       grub_err_t err;
       unsigned j;
+      int vlnk = 0;
       file = grub_file_open (args[i], GRUB_FILE_TYPE_TO_HASH
 			     | (!uncompress ? GRUB_FILE_TYPE_NO_DECOMPRESS
 				: GRUB_FILE_TYPE_NONE));
@@ -272,6 +273,7 @@ grub_cmd_hashsum (struct grub_extcmd_context *ctxt,
 	  unread++;
 	  continue;
 	}
+      vlnk = file->vlnk;
       err = hash_file (file, hash, result);
       grub_file_close (file);
       if (err)
@@ -288,7 +290,7 @@ grub_cmd_hashsum (struct grub_extcmd_context *ctxt,
 	    grub_printf ("%02x", ((grub_uint8_t *) result)[j]);
         len += grub_snprintf(hashsum + len, sizeof(hashsum) - len, "%02x", ((grub_uint8_t *) result)[j]);
       }
-      grub_printf ("  %s\n", args[i]);
+      grub_printf ("  %s\n", vlnk ? grub_file_get_vlnk(args[i], NULL) : args[i]);
       grub_env_set("VT_LAST_CHECK_SUM", hashsum);
     }
 

@@ -200,7 +200,8 @@ const char *grub_file_get_vlnk(const char *name, int *vlnk)
 
     if (len == g_vtoy_vlnk.srclen && grub_strcmp(name, g_vtoy_vlnk.src) == 0)
     {
-        *vlnk = 1;
+        if (vlnk)
+            *vlnk = 1;
         return g_vtoy_vlnk.dst; 
     }
     
@@ -208,7 +209,8 @@ const char *grub_file_get_vlnk(const char *name, int *vlnk)
     {
         if (node->srclen == len && grub_strcmp(name, node->src) == 0)
         {
-            *vlnk = 1;
+            if (vlnk)
+                *vlnk = 1;
             return node->dst;
         }
         node = node->next;
