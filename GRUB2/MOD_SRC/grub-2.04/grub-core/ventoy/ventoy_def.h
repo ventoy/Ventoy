@@ -62,6 +62,8 @@
 
 #define VTOY_WARNING  "!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!"
 
+#define VTOY_CHKSUM_NUM  4
+
 #define VTOY_PLAT_I386_UEFI     0x49413332
 #define VTOY_PLAT_ARM64_UEFI    0x41413634
 #define VTOY_PLAT_X86_64_UEFI   0x55454649
