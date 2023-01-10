@@ -66,6 +66,7 @@ static theme_list *g_theme_head = NULL;
 static int g_theme_random = vtoy_theme_random_boot_second;
 static char g_theme_single_file[256];
 static char g_cur_menu_language[32] = {0};
+static char g_push_menu_language[32] = {0};
 
 static int ventoy_plugin_is_parent(const char *pat, int patlen, const char *isopath)
 {
@@ -3623,4 +3624,34 @@ grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char *
 
     VENTOY_CMD_RETURN(0);
 }
+
+grub_err_t ventoy_cmd_push_menulang(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)argc;
+    (void)ctxt;
+
+    if (g_push_menu_language[0] == 0)
+    {
+        grub_memcpy(g_push_menu_language, g_cur_menu_language, sizeof(g_push_menu_language));
+        ventoy_plugin_load_menu_lang(0, args[0]);
+    }
+
+    VENTOY_CMD_RETURN(0);
+}
+
+grub_err_t ventoy_cmd_pop_menulang(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)argc;
+    (void)ctxt;
+    (void)args;
+
+    if (g_push_menu_language[0])
+    {
+        ventoy_plugin_load_menu_lang(0, g_push_menu_language);
+        g_push_menu_language[0] = 0;
+    }
+
+    VENTOY_CMD_RETURN(0);
+}
+
 

@@ -1313,6 +1313,8 @@ grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char *
 extern int ventoy_menu_push_key(int code);
 int ventoy_ctrl_var_init(void);
 int ventoy_global_var_init(void);
+grub_err_t ventoy_cmd_push_menulang(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_pop_menulang(grub_extcmd_context_t ctxt, int argc, char **args);
 
 #endif /* __VENTOY_DEF_H__ */
 

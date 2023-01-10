@@ -951,12 +951,12 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             menu_fini ();
             if (g_ventoy_terminal_output == 0)
             {
-                grub_script_execute_sourcecode("terminal_output console");
+                grub_script_execute_sourcecode("vt_push_menu_lang en_US\nterminal_output console");
                 g_ventoy_terminal_output = 1;
             }
             else
             {
-                grub_script_execute_sourcecode("terminal_output gfxterm");
+                grub_script_execute_sourcecode("terminal_output gfxterm\nvt_pop_menu_lang");
                 g_ventoy_terminal_output = 0;
             }
             goto refresh;
