@@ -262,6 +262,10 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
     }
     else
     {
+        if (offset == 0)
+        {
+            offset = gpt->MBR.PartTbl[partIndex].StartSectorId;
+        }
         offset *= 512;
         debug("MBR disk signature: %02x%02x%02x%02x Part(%d) offset:%llu\n",
             gpt->MBR.BootCode[0x1b8 + 0], gpt->MBR.BootCode[0x1b8 + 1],
