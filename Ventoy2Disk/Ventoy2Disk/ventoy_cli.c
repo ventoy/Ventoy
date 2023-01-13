@@ -17,11 +17,15 @@ typedef struct CLI_CFG
     int PartStyle;
     int ReserveMB;
     BOOL USBCheck;
+    BOOL NonDest;
+    int fstype;
 }CLI_CFG;
 
 BOOL g_CLI_Mode = FALSE;
 static int g_CLI_OP;
 static int g_CLI_PhyDrive;
+
+static PHY_DRIVE_INFO* g_CLI_PhyDrvInfo = NULL;
 
 static int CLI_GetPhyDriveInfo(int PhyDrive, PHY_DRIVE_INFO* pInfo)
 {
@@ -33,6 +37,7 @@ static int CLI_GetPhyDriveInfo(int PhyDrive, PHY_DRIVE_INFO* pInfo)
     STORAGE_PROPERTY_QUERY Query;
     STORAGE_DESCRIPTOR_HEADER DevDescHeader;
     STORAGE_DEVICE_DESCRIPTOR* pDevDesc;
+    STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR diskAlignment;
 
     safe_sprintf(PhyDrivePath, "\\\\.\\PhysicalDrive%d", PhyDrive);
     Handle = CreateFileA(PhyDrivePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
@@ -103,11 +108,34 @@ static int CLI_GetPhyDriveInfo(int PhyDrive, PHY_DRIVE_INFO* pInfo)
         return 1;
     }
 
+
+    memset(&Query, 0, sizeof(STORAGE_PROPERTY_QUERY));
+    Query.PropertyId = StorageAccessAlignmentProperty;
+    Query.QueryType = PropertyStandardQuery;
+    memset(&diskAlignment, 0, sizeof(STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR));
+
+    bRet = DeviceIoControl(Handle,
+        IOCTL_STORAGE_QUERY_PROPERTY,
+        &Query,
+        sizeof(STORAGE_PROPERTY_QUERY),
+        &diskAlignment,
+        sizeof(STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR),
+        &dwBytes,
+        NULL);
+    if (!bRet)
+    {
+        Log("DeviceIoControl3 error:%u dwBytes:%u", LASTERR, dwBytes);
+    }
+
+
     pInfo->PhyDrive = PhyDrive;
     pInfo->SizeInBytes = LengthInfo.Length.QuadPart;
     pInfo->DeviceType = pDevDesc->DeviceType;
     pInfo->RemovableMedia = pDevDesc->RemovableMedia;
     pInfo->BusType = pDevDesc->BusType;
+
+    pInfo->BytesPerLogicalSector = diskAlignment.BytesPerLogicalSector;
+    pInfo->BytesPerPhysicalSector = diskAlignment.BytesPerPhysicalSector;
 
     if (pDevDesc->VendorIdOffset)
     {
@@ -143,12 +171,14 @@ static int CLI_GetPhyDriveInfo(int PhyDrive, PHY_DRIVE_INFO* pInfo)
 static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_CFG *pCfg)
 {
     int i;
+    int fstype = VTOY_FS_EXFAT;
     int op = -1;
     char* opt = NULL;
     int PhyDrive = -1;
     int PartStyle = 0;
     int ReserveMB = 0;
     BOOL USBCheck = TRUE;
+    BOOL NonDest = FALSE;
     MBR_HEAD MBR;
     UINT64 Part2GPTAttr = 0;
     UINT64 Part2StartSector = 0;
@@ -176,6 +206,10 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         {
             USBCheck = FALSE;
         }
+        else if (_stricmp(opt, "/NonDest") == 0)
+        {
+            NonDest = TRUE;
+        }
         else if (_strnicmp(opt, "/Drive:", 7) == 0)
         {
             Log("Get PhyDrive by logical drive %C:", opt[7]);
@@ -189,6 +223,17 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         {
             ReserveMB = (int)strtol(opt + 3, NULL, 10);
         }
+        else if (_strnicmp(opt, "/FS:", 4) == 0)
+        {
+            if (_stricmp(opt + 4, "NTFS") == 0)
+            {
+                fstype = VTOY_FS_NTFS;
+            }
+            else if (_stricmp(opt + 4, "FAT32") == 0)
+            {
+                fstype = VTOY_FS_FAT32;
+            }
+        }
     }
 
     if (op < 0 || PhyDrive < 0)
@@ -197,10 +242,10 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         return 1;
     }
 
-    Log("Ventoy CLI %s PhyDrive:%d %s SecureBoot:%d ReserveSpace:%dMB USBCheck:%u",
+    Log("Ventoy CLI %s PhyDrive:%d %s SecureBoot:%d ReserveSpace:%dMB USBCheck:%u FS:%s NonDest:%d",
         op == 0 ? "install" : "update",
         PhyDrive, PartStyle ? "GPT" : "MBR",
-        g_SecureBoot, ReserveMB, USBCheck
+        g_SecureBoot, ReserveMB, USBCheck, GetVentoyFsFmtNameByTypeA(fstype), NonDest
         );
 
     if (CLI_GetPhyDriveInfo(PhyDrive, pDrvInfo))
@@ -231,13 +276,50 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         }
     }
 
+    if (op == 0 && NonDest)
+    {
+        GetLettersBelongPhyDrive(PhyDrive, pDrvInfo->DriveLetters, sizeof(pDrvInfo->DriveLetters));
+    }
+
     pCfg->op = op;
     pCfg->PartStyle = PartStyle;
     pCfg->ReserveMB = ReserveMB;
     pCfg->USBCheck = USBCheck;
+    pCfg->NonDest = NonDest;
+    pCfg->fstype = fstype;
 
     return 0;
 }
+
+static int Ventoy_CLI_NonDestInstall(PHY_DRIVE_INFO* pDrvInfo, CLI_CFG* pCfg)
+{
+    int rc;
+    int TryId = 1;
+
+    Log("Ventoy_CLI_NonDestInstall start ...");
+
+    if (pDrvInfo->BytesPerLogicalSector == 4096 && pDrvInfo->BytesPerPhysicalSector == 4096)
+    {
+        Log("Ventoy does not support 4k native disk.");
+        rc = 1;
+        goto out;
+    }
+
+    if (!PartResizePreCheck(NULL))
+    {
+        Log("#### Part Resize PreCheck Failed ####");
+        rc = 1;
+        goto out;
+    }
+
+    rc = PartitionResizeForVentoy(pDrvInfo);
+
+out:
+    Log("Ventoy_CLI_NonDestInstall [%s]", rc == 0 ? "SUCCESS" : "FAILED");
+
+    return rc;
+}
+
 
 static int Ventoy_CLI_Install(PHY_DRIVE_INFO* pDrvInfo, CLI_CFG *pCfg)
 {
@@ -246,10 +328,19 @@ static int Ventoy_CLI_Install(PHY_DRIVE_INFO* pDrvInfo, CLI_CFG *pCfg)
 
     Log("Ventoy_CLI_Install start ...");
     
+    if (pDrvInfo->BytesPerLogicalSector == 4096 && pDrvInfo->BytesPerPhysicalSector == 4096)
+    {
+        Log("Ventoy does not support 4k native disk.");
+        rc = 1;
+        goto out;
+    }
+
     if (pCfg->ReserveMB > 0)
     {
         CLISetReserveSpace(pCfg->ReserveMB);
     }
+
+    SetVentoyFsType(pCfg->fstype);
 
     rc = InstallVentoy2PhyDrive(pDrvInfo, pCfg->PartStyle, TryId++);
     if (rc)
@@ -274,6 +365,9 @@ static int Ventoy_CLI_Install(PHY_DRIVE_INFO* pDrvInfo, CLI_CFG *pCfg)
         }
     }
 
+    SetVentoyFsType(VTOY_FS_EXFAT);
+
+out:
     Log("Ventoy_CLI_Install [%s]", rc == 0 ? "SUCCESS" : "FAILED");
 
     return rc;
@@ -351,6 +445,11 @@ static void CLI_WriteDoneFile(int ret)
     }
 }
 
+PHY_DRIVE_INFO* CLI_PhyDrvInfo(void)
+{
+    return g_CLI_PhyDrvInfo;
+}
+
 /*
  * Ventoy2Disk.exe VTOYCLI  { /I | /U }  { /Drive:F: | /PhyDrive:1 }  /GPT  /NoSB  /R:4096 /NoUSBCheck
  * 
@@ -364,7 +463,7 @@ int VentoyCLIMain(int argc, char** argv)
     DeleteFileA(VENTOY_CLI_PERCENT);
     DeleteFileA(VENTOY_CLI_DONE);
 
-    pDrvInfo = (PHY_DRIVE_INFO*)malloc(sizeof(PHY_DRIVE_INFO));
+    g_CLI_PhyDrvInfo = pDrvInfo = (PHY_DRIVE_INFO*)malloc(sizeof(PHY_DRIVE_INFO));
     if (!pDrvInfo)
     {
         goto end;
@@ -388,7 +487,16 @@ int VentoyCLIMain(int argc, char** argv)
 
     if (CliCfg.op == 0)
     {
-        ret = Ventoy_CLI_Install(pDrvInfo, &CliCfg);
+        if (CliCfg.NonDest)
+        {
+            ret = Ventoy_CLI_NonDestInstall(pDrvInfo, &CliCfg);
+        }
+        else
+        {
+            AlertSuppressInit();
+            SetAlertPromptHookEnable(TRUE);
+            ret = Ventoy_CLI_Install(pDrvInfo, &CliCfg);
+        }
     }
     else
     {

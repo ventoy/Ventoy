@@ -58,6 +58,7 @@
 #define VTOY_JSON_NOT_READY_RET    "{ \"result\" : \"notready\" }"
 #define VTOY_JSON_NOT_SUPPORT_RET  "{ \"result\" : \"notsupport\" }"
 #define VTOY_JSON_MBR_2TB_RET      "{ \"result\" : \"mbr2tb\" }"
+#define VTOY_JSON_4KN_RET          "{ \"result\" : \"4kn\" }"
 #define VTOY_JSON_INVALID_RSV_RET      "{ \"result\" : \"reserve_invalid\" }"
 #define VTOY_JSON_FILE_NOT_FOUND_RET     "{ \"result\" : \"file_not_found\" }"
 

@@ -260,6 +260,33 @@ static int ventoy_is_possible_blkdev(const char *name)
     return 1;
 }
 
+int ventoy_is_disk_4k_native(const char *disk)
+{
+    int fd;
+    int rc = 0;
+    int logsector = 0;
+    int physector = 0;
+    char diskpath[256] = {0};
+
+    snprintf(diskpath, sizeof(diskpath) - 1, "/dev/%s", disk);
+
+    fd = open(diskpath, O_RDONLY | O_BINARY);
+    if (fd >= 0)
+    {
+        ioctl(fd, BLKSSZGET, &logsector);
+        ioctl(fd, BLKPBSZGET, &physector);
+        
+        if (logsector == 4096 && physector == 4096)
+        {
+            rc = 1;
+        }
+        close(fd);
+    }
+
+    vdebug("is 4k native disk <%s> <%d>\n", disk, rc);    
+    return rc;
+}
+
 uint64_t ventoy_get_disk_size_in_byte(const char *disk)
 {
     int fd;
@@ -591,6 +618,7 @@ int ventoy_get_disk_info(const char *name, ventoy_disk *info)
         scnprintf(info->part2_path, "/dev/%s2", name);
     }
     
+    info->is4kn = ventoy_is_disk_4k_native(name);
     info->size_in_byte = ventoy_get_disk_size_in_byte(name);
 
     ventoy_get_disk_devnum(name, &info->major, &info->minor);

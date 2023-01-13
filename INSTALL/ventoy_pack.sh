@@ -169,7 +169,26 @@ sed 's/.*SCRIPT_DEL_THIS \(.*\)/\1/g' -i $tmpdir/WebUI/index.html
 
 #32MB disk img
 dd status=none if=$LOOP of=$tmpdir/ventoy/ventoy.disk.img bs=512 count=$VENTOY_SECTOR_NUM skip=$part2_start_sector
+
+
+#4k image
+# echo "make 4K img ..."
+# dd status=none if=/dev/zero of=$tmpdir/ventoy/ventoy_4k.disk.img bs=1M count=32
+# mkfs.vfat -F 16 -n VTOYEFI -s 1 -S 4096 $tmpdir/ventoy/ventoy_4k.disk.img
+# vDIR1=$(mktemp -d)
+# vDIR2=$(mktemp -d)
+# mount $tmpdir/ventoy/ventoy.disk.img $vDIR1
+# mount $tmpdir/ventoy/ventoy_4k.disk.img $vDIR2
+# cp -a $vDIR1/* $vDIR2/
+# umount $vDIR1
+# umount $vDIR2
+# rm -rf $vDIR1 $vDIR2
+
+# xz --check=crc32 $tmpdir/ventoy/ventoy_4k.disk.img
+
 xz --check=crc32 $tmpdir/ventoy/ventoy.disk.img
+
+
 
 losetup -d $LOOP && rm -f img.bin
 

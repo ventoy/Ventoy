@@ -94,6 +94,8 @@ typedef enum STR_ID
 
 	STR_DONATE, //54
 
+	STR_4KN_UNSUPPORTED, //55
+
 	STR_ID_MAX
 }STR_ID;
 

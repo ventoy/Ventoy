@@ -761,6 +761,8 @@
                 vtoy_in_progress = true;
                 progressDisableItem(vtoy_in_progress);
                 queryProgress(1);
+            }else if (data.result === '4kn') {
+                ventoy_display_alert('error', vtoy_cur_language.STR_4KN_UNSUPPORTED);
             } else {
                 ventoy_display_alert('error', vtoy_cur_language.STR_INSTALL_FAILED);
             }

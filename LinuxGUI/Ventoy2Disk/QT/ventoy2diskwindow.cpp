@@ -512,6 +512,14 @@ void Ventoy2DiskWindow::on_ButtonInstall_clicked()
     }
 
     cur = g_disk_list + index;
+
+    if (cur->is4kn)
+    {
+        lang_string("STR_4KN_UNSUPPORTED", msg);
+        QMessageBox::critical(NULL, title_err, msg);
+        return;
+    }
+
     if (ventoy_code_get_cur_part_style() == 0 && cur->size_in_byte > 2199023255552ULL)
     {
         lang_string("STR_DISK_2TB_MBR_ERROR", msg);

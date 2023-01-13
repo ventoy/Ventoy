@@ -60,6 +60,7 @@
         "STR_PART_CLUSTER":"حجم الكتلة",
         "STR_PART_CLUSTER_DEFAULT":"القيمة الافتراضية للنظام",
         "STR_DONATE":"يتبرع",
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
         
         "STRXXX":""
     },
@@ -124,7 +125,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Ianə",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -188,6 +190,7 @@
         "STR_PART_CLUSTER":"클러스터 크기",
         "STR_PART_CLUSTER_DEFAULT":"시스템 기본값",
         "STR_DONATE":"기부",
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
         
         "STRXXX":""
     },
@@ -252,6 +255,7 @@
         "STR_PART_CLUSTER":"簇大小",
         "STR_PART_CLUSTER_DEFAULT":"系统默认值",
         "STR_DONATE":"捐助",
+        "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支持原生 4K 扇区的磁盘。",
         
         "STRXXX":""
     },
@@ -316,7 +320,8 @@
         "STR_PART_CLUSTER":"Klynge størrelse",
         "STR_PART_CLUSTER_DEFAULT":"System Standard Værdi",
         "STR_DONATE":"Donering",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -380,7 +385,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donate",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -444,7 +450,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"შემოწირულობა",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX": ""
     },
     {
@@ -508,7 +515,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"اهداء",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -572,7 +580,8 @@
         "STR_PART_CLUSTER":"Wielkość klastra",
         "STR_PART_CLUSTER_DEFAULT":"Wartość domyślna systemu",
         "STR_DONATE":"Podarować",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -636,7 +645,8 @@
         "STR_PART_CLUSTER":"Tamanho do cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor padrão do sistema",
         "STR_DONATE":"Doar",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -700,7 +710,8 @@
         "STR_PART_CLUSTER":"Sektör Boyutu",
         "STR_PART_CLUSTER_DEFAULT":"Sistem varsayılan değeri",
         "STR_DONATE":"Ventoy'a Bağış yap",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -764,7 +775,8 @@
         "STR_PART_CLUSTER":"Clustergröße",
         "STR_PART_CLUSTER_DEFAULT":"Systemstandardwert",
         "STR_DONATE":"Spenden",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -828,7 +840,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donate",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -892,7 +905,8 @@
         "STR_PART_CLUSTER":"Taille de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valeur par défaut du système",
         "STR_DONATE":"Faire un don",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -956,7 +970,8 @@
         "STR_PART_CLUSTER":"Velikost clusteru",
         "STR_PART_CLUSTER_DEFAULT":"Výchozí hodnota systému",
         "STR_DONATE":"Darovat",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1019,7 +1034,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Darovať",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1083,7 +1099,8 @@
         "STR_PART_CLUSTER":"Tamaño de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
         "STR_DONATE":"Donar",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1147,7 +1164,8 @@
         "STR_PART_CLUSTER":"Tamaño de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
         "STR_DONATE":"Donar",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1211,7 +1229,8 @@
         "STR_PART_CLUSTER":"Размер кластера:",
         "STR_PART_CLUSTER_DEFAULT":"Системное значение по умолчанию",
         "STR_DONATE":"Пожертвовать",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1275,7 +1294,8 @@
         "STR_PART_CLUSTER":"ক্লাস্টারের আকার",
         "STR_PART_CLUSTER_DEFAULT":"সিস্টেমের ডিফল্ট মান",
         "STR_DONATE":"দান করুন",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1339,7 +1359,8 @@
         "STR_PART_CLUSTER":"क्लस्टर साइज",
         "STR_PART_CLUSTER_DEFAULT":"सिस्टम डिफ़ॉल्ट मान",
         "STR_DONATE":"दान करें",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1403,6 +1424,7 @@
         "STR_PART_CLUSTER":"Clustergrootte",
         "STR_PART_CLUSTER_DEFAULT":"Standaardwaarde systeem",
         "STR_DONATE":"Doneer",
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
         
         "STRXXX":""
     },
@@ -1467,6 +1489,7 @@
         "STR_PART_CLUSTER":"Dimensiunea clusterului",
         "STR_PART_CLUSTER_DEFAULT":"Valoarea implicită a sistemului",
         "STR_DONATE":"Donează",
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
         
         "STRXXX":""
     },
@@ -1531,7 +1554,8 @@
         "STR_PART_CLUSTER":"クラスターサイズ",
         "STR_PART_CLUSTER_DEFAULT":"システムのデフォルト値",
         "STR_DONATE":"寄付",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1595,7 +1619,8 @@
         "STR_PART_CLUSTER":"Dimensione del cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valore predefinito di sistema",
         "STR_DONATE":"Donare",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1659,7 +1684,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donirajte",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1723,7 +1749,8 @@
         "STR_PART_CLUSTER":"Klaszter méret",
         "STR_PART_CLUSTER_DEFAULT":"Rendszer alapérték",
         "STR_DONATE":"Adományoz",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1787,7 +1814,8 @@
         "STR_PART_CLUSTER":"簇的大小",
         "STR_PART_CLUSTER_DEFAULT":"系統默認值",
         "STR_DONATE":"捐助",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1851,7 +1879,8 @@
         "STR_PART_CLUSTER":"Veličina klastera",
         "STR_PART_CLUSTER_DEFAULT":"Podrazumevana sistemska vrednost",
         "STR_DONATE":"Donirajte",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1915,7 +1944,8 @@
         "STR_PART_CLUSTER":"Величина кластера",
         "STR_PART_CLUSTER_DEFAULT":"Подразумевана системска вредност",
         "STR_DONATE":"Донирајте",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -1979,7 +2009,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"บริจาค",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2043,7 +2074,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"donere",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2107,7 +2139,8 @@
         "STR_PART_CLUSTER":"Cỡ Cluster",
         "STR_PART_CLUSTER_DEFAULT":"Theo mặc định hệ thống",
         "STR_DONATE":"Thưởng tác giả",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2171,7 +2204,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"paaukoti",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2235,7 +2269,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"донира",
-                
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2299,7 +2334,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"לִתְרוֹם",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2363,7 +2399,8 @@
         "STR_PART_CLUSTER":"Tamanho do cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor predefinido do sistema",
         "STR_DONATE":"Doar",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2427,7 +2464,8 @@
         "STR_PART_CLUSTER":"Ukuran Kelompok",
         "STR_PART_CLUSTER_DEFAULT":"Nilai Standar Sistem",
         "STR_DONATE":"Donasi sukarela",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2491,7 +2529,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donere",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2555,7 +2594,8 @@
         "STR_PART_CLUSTER":"Розмір кластера",
         "STR_PART_CLUSTER_DEFAULT":"Системне значення за умовчанням",
         "STR_DONATE":"Пожертвуйте",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2619,7 +2659,8 @@
         "STR_PART_CLUSTER":"Μέγεθος συμπλέγματος",
         "STR_PART_CLUSTER_DEFAULT":"Προεπιλεγμένη τιμή συστήματος",
         "STR_DONATE":"Προσφέρω",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     
@@ -2684,7 +2725,8 @@
         "STR_PART_CLUSTER":"Klusterstorlek",
         "STR_PART_CLUSTER_DEFAULT":"Systemets standardvärde",
         "STR_DONATE":"Donera",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2748,7 +2790,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donirajte",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2812,7 +2855,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Дарете",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2876,7 +2920,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Նվիրաբերել",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -2940,7 +2985,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Lahjoittaa",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -3004,7 +3050,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Doa",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -3068,7 +3115,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donar",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     
@@ -3133,7 +3181,8 @@
         "STR_PART_CLUSTER":"Cluster Size",
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"შემოწირულობა",
-
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -3197,7 +3246,8 @@
         "STR_PART_CLUSTER":"கொத்து அளவு",
         "STR_PART_CLUSTER_DEFAULT":"கணினி இயல்புநிலை மதிப்பு",
         "STR_DONATE":"தானம் செய்",
-                
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        
         "STRXXX":""
     },
     {
@@ -3261,6 +3311,7 @@
         "STR_PART_CLUSTER":"Памер кластара",
         "STR_PART_CLUSTER_DEFAULT":"Сістэмнае значэнне па змаўчанні",
         "STR_DONATE":"Ахвяраваць",
+        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
         
         "STRXXX":""
     }

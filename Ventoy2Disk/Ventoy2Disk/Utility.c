@@ -40,6 +40,56 @@ void TraceOut(const char *Fmt, ...)
     }
 }
 
+typedef struct LogBuf
+{
+    int Len; 
+    char szBuf[1024];    
+    struct LogBuf* next;
+}LogBuf;
+
+static BOOL g_LogCache = FALSE;
+static LogBuf* g_LogHead = NULL;
+static LogBuf* g_LogTail = NULL;
+
+void LogCache(BOOL cache)
+{
+    g_LogCache = cache;
+}
+
+void LogFlush(void)
+{
+    FILE* File = NULL;
+    LogBuf* Node = NULL;
+    LogBuf* Next = NULL;
+
+    if (g_CLI_Mode)
+    {
+        fopen_s(&File, VENTOY_CLI_LOG, "a+");
+    }
+    else
+    {
+        fopen_s(&File, VENTOY_FILE_LOG, "a+");
+    }
+
+    if (File)
+    {
+        for (Node = g_LogHead; Node; Node = Node->next)
+        {
+            fwrite(Node->szBuf, 1, Node->Len, File);
+            fwrite("\n", 1, 1, File);
+        }
+        fclose(File);
+    }
+
+    for (Node = g_LogHead; Node; Node = Next)
+    {
+        Next = Node->next;
+        free(Node);
+    }
+
+    g_LogHead = g_LogTail = NULL;
+}
+
 void Log(const char *Fmt, ...)
 {
     va_list Arg;
@@ -58,6 +108,30 @@ void Log(const char *Fmt, ...)
     va_start(Arg, Fmt);
     Len += vsnprintf_s(szBuf + Len, sizeof(szBuf)-Len - 1, sizeof(szBuf)-Len-1, Fmt, Arg);
     va_end(Arg);
+
+    if (g_LogCache)
+    {
+        LogBuf* Node = NULL;
+        Node = malloc(sizeof(LogBuf));
+        if (Node)
+        {
+            memcpy(Node->szBuf, szBuf, Len);
+            Node->next = NULL;
+            Node->Len = Len;
+
+            if (g_LogTail)
+            {
+                g_LogTail->next = Node;
+                g_LogTail = Node;
+            }
+            else
+            {
+                g_LogHead = g_LogTail = Node;
+            }
+        }
+
+        return;
+    }
 
     if (g_CLI_Mode)
     {

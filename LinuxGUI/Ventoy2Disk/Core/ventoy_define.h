@@ -137,6 +137,7 @@ typedef struct ventoy_disk
     char disk_model[256]; // Sandisk/Kingston ...
     char human_readable_size[32];
 
+    int is4kn;
     int major;
     int minor;
     int type;

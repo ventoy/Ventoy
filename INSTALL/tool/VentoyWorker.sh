@@ -185,14 +185,27 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
         fi
     else
         if parted -v > /dev/null 2>&1; then
-            PARTTOOL='parted'
+            PARTTOOL='parted'            
         elif fdisk -v >/dev/null 2>&1; then
-            PARTTOOL='fdisk'
+            PARTTOOL='fdisk'            
         else
             vterr "Both parted and fdisk are not found in the system, Ventoy can't create new partitions."
             exit 1
         fi
     fi
+    
+    if [ "$PARTTOOL" = "parted" ]; then
+        if parted $DISK p | grep -i -q 'sector size.*4096.*4096'; then
+            vterr "Currently Ventoy does not support 4K native device."
+            exit 1
+        fi
+    else
+        if fdisk -l $DISK | grep -i -q 'sector size.*4096.*4096'; then
+            vterr "Currently Ventoy does not support 4K native device."
+            exit 1
+        fi
+    fi
+    
 
     version=$(get_disk_ventoy_version $DISK)
     if [ $? -eq 0 ]; then

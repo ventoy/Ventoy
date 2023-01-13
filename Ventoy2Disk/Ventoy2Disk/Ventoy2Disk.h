@@ -176,6 +176,9 @@ typedef struct PHY_DRIVE_INFO
     CHAR SerialNumber[128];
     STORAGE_BUS_TYPE BusType;
 
+    DWORD BytesPerLogicalSector;
+    DWORD BytesPerPhysicalSector;
+
     CHAR DriveLetters[64];
     
     int  VentoyFsClusterSize;
@@ -234,6 +237,8 @@ extern int g_FilterUSB;
 
 void TraceOut(const char *Fmt, ...);
 void Log(const char *Fmt, ...);
+void LogCache(BOOL cache);
+void LogFlush(void);
 BOOL IsPathExist(BOOL Dir, const char *Fmt, ...);
 void DumpWindowsVersion(void);
 const CHAR* GetLocalVentoyVersion(void);
@@ -370,6 +375,15 @@ BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD* pMBR, UINT64* Pa
 int GetVentoyFsNameInPhyDrive(PHY_DRIVE_INFO* CurDrive);
 void CLISetReserveSpace(int MB);
 void CLI_UpdatePercent(int Pos);
+int GetLettersBelongPhyDrive(int PhyDrive, char* DriveLetters, size_t Length);
+PHY_DRIVE_INFO* CLI_PhyDrvInfo(void);
+
+#define UTF8_Log(fmt, wstr) \
+{\
+    memset(TmpPathA, 0, sizeof(TmpPathA));\
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, TmpPathA, sizeof(TmpPathA), NULL, NULL);\
+    Log(fmt, TmpPathA);\
+}
 
 #define VTSI_SUPPORT 1
 

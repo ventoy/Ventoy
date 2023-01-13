@@ -492,7 +492,7 @@ format_ventoy_disk_gpt() {
     for i in 0 1 2 3 4 5 6 7 8 9; do
         check_umount_disk "$PART2"
         
-        if mkfs.vfat -F 16 -n VTOYEFI $PART2; then
+        if mkfs.vfat -F 16 -n VTOYEFI -s 1 $PART2; then
             echo 'success'
             break
         else

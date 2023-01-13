@@ -139,7 +139,7 @@ static DWORD GetVentoyVolumeName(int PhyDrive, UINT64 StartSectorId, CHAR *NameB
     return Status;
 }
 
-static int GetLettersBelongPhyDrive(int PhyDrive, char *DriveLetters, size_t Length)
+int GetLettersBelongPhyDrive(int PhyDrive, char *DriveLetters, size_t Length)
 {
     int n = 0;
     DWORD DataSize = 0;
@@ -355,6 +355,7 @@ int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount)
     STORAGE_PROPERTY_QUERY Query;
     STORAGE_DESCRIPTOR_HEADER DevDescHeader;
     STORAGE_DEVICE_DESCRIPTOR *pDevDesc;
+    STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR diskAlignment;
     int PhyDriveId[VENTOY_MAX_PHY_DRIVE];
 
     Count = GetPhysicalDriveCount();
@@ -468,11 +469,34 @@ int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount)
             continue;
         }
 
+
+
+        memset(&Query, 0, sizeof(STORAGE_PROPERTY_QUERY));
+        Query.PropertyId = StorageAccessAlignmentProperty;
+        Query.QueryType = PropertyStandardQuery;
+        memset(&diskAlignment, 0, sizeof(STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR));
+
+        bRet = DeviceIoControl(Handle,
+                               IOCTL_STORAGE_QUERY_PROPERTY,
+                               &Query,
+                               sizeof(STORAGE_PROPERTY_QUERY),
+                               &diskAlignment,
+                               sizeof(STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR),
+                               &dwBytes,
+                               NULL);
+        if (!bRet)
+        {
+            Log("DeviceIoControl3 error:%u dwBytes:%u", LASTERR, dwBytes);            
+        }
+
         CurDrive->PhyDrive = i;
         CurDrive->SizeInBytes = LengthInfo.Length.QuadPart;
         CurDrive->DeviceType = pDevDesc->DeviceType;
         CurDrive->RemovableMedia = pDevDesc->RemovableMedia;
         CurDrive->BusType = pDevDesc->BusType;
+
+        CurDrive->BytesPerLogicalSector = diskAlignment.BytesPerLogicalSector;
+        CurDrive->BytesPerPhysicalSector = diskAlignment.BytesPerPhysicalSector;
 
         if (pDevDesc->VendorIdOffset)
         {
@@ -508,9 +532,10 @@ int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount)
 
     for (i = 0, CurDrive = pDriveList; i < (int)DriveCount; i++, CurDrive++)
     {
-        Log("PhyDrv:%d BusType:%-4s Removable:%u Size:%dGB(%llu) Name:%s %s",
+        Log("PhyDrv:%d BusType:%-4s Removable:%u Size:%dGB(%llu) Sector:%u/%u Name:%s %s",
             CurDrive->PhyDrive, GetBusTypeString(CurDrive->BusType), CurDrive->RemovableMedia,
             GetHumanReadableGBSize(CurDrive->SizeInBytes), CurDrive->SizeInBytes,
+            CurDrive->BytesPerLogicalSector, CurDrive->BytesPerPhysicalSector,
             CurDrive->VendorId, CurDrive->ProductId);
     }
 
@@ -2351,30 +2376,37 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 
 	Sleep(2000);
 
-	//Refresh disk list
-	PhyDrive = pPhyDrive->PhyDrive;
+    if (g_CLI_Mode)
+    {
+        Log("### Ventoy non-destructive CLI installation successfully finished.");
+    }
+    else
+    {
+        //Refresh disk list
+        PhyDrive = pPhyDrive->PhyDrive;
 
-	Log("#### Now Refresh PhyDrive ####");
-	Ventoy2DiskDestroy();
-	Ventoy2DiskInit();
-	
-	pPhyDrive = GetPhyDriveInfoByPhyDrive(PhyDrive);
-	if (pPhyDrive)
-	{
-		if (pPhyDrive->VentoyVersion[0] == 0)
-		{
-			Log("After process the Ventoy version is still invalid");
-			goto End;
-		}
+        Log("#### Now Refresh PhyDrive ####");
+        Ventoy2DiskDestroy();
+        Ventoy2DiskInit();
 
-		Log("### Ventoy non-destructive installation successfully finished <%s>", pPhyDrive->VentoyVersion);
-	}
-	else
-	{
-		Log("### Ventoy non-destructive installation successfully finished <not found>");
-	}
+        pPhyDrive = GetPhyDriveInfoByPhyDrive(PhyDrive);
+        if (pPhyDrive)
+        {
+            if (pPhyDrive->VentoyVersion[0] == 0)
+            {
+                Log("After process the Ventoy version is still invalid");
+                goto End;
+            }
 
-	InitComboxCtrl(g_DialogHwnd, PhyDrive);
+            Log("### Ventoy non-destructive installation successfully finished <%s>", pPhyDrive->VentoyVersion);
+        }
+        else
+        {
+            Log("### Ventoy non-destructive installation successfully finished <not found>");
+        }
+
+        InitComboxCtrl(g_DialogHwnd, PhyDrive);
+    }
 
 	rc = 0;
 

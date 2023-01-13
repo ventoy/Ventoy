@@ -1122,6 +1122,13 @@ static int ventoy_api_install(struct mg_connection *conn, VTOY_JSON *json)
         return 0;
     }
 
+    if (disk->is4kn)
+    {
+        vlog("disk %s is 4k native, not supported.\n", diskname);
+        ventoy_json_result(conn, VTOY_JSON_4KN_RET);
+        return 0;
+    }
+
     scnprintf(path, "/sys/block/%s", diskname);
     if (access(path, F_OK) < 0)
     {

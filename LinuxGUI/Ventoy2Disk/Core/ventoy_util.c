@@ -579,3 +579,68 @@ int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, MBR_HEAD *pMBR
     return 0;
 }
 
+int ventoy_fill_mbr_4k(uint64_t size, uint64_t reserve, int align4k, MBR_HEAD *pMBR)
+{
+    ventoy_guid Guid;
+    uint32_t DiskSignature;
+    uint32_t DiskSectorCount;
+    uint32_t PartSectorCount;
+    uint32_t PartStartSector;
+	uint32_t ReservedSector;
+
+    VentoyGetLocalBootImg(pMBR);
+
+    ventoy_gen_preudo_uuid(&Guid);
+
+    memcpy(&DiskSignature, &Guid, sizeof(uint32_t));
+
+    vdebug("Disk signature: 0x%08x\n", DiskSignature);
+
+    memcpy(pMBR->BootCode + 0x1B8, &DiskSignature, 4);
+    memcpy(pMBR->BootCode + 0x180, &Guid, 16);
+
+    if (size / 4096 > 0xFFFFFFFF)
+    {
+        DiskSectorCount = 0xFFFFFFFF;
+    }
+    else
+    {
+        DiskSectorCount = (uint32_t)(size / 4096);
+    }
+
+	if (reserve <= 0)
+	{
+		ReservedSector = 0;
+	}
+	else
+	{
+		ReservedSector = (uint32_t)(reserve / 4096);
+	}
+
+    // check aligned with 4KB
+    vdebug("no need to align with 4KB for 4K native disk\n");
+
+	vlog("ReservedSector: %u\n", ReservedSector);
+
+    //Part1
+    PartStartSector = VTOYIMG_PART_START_SECTOR >> 3;
+	PartSectorCount = DiskSectorCount - ReservedSector - VTOYEFI_PART_BYTES / 4096 - PartStartSector;
+    VentoyFillMBRLocation(size, PartStartSector, PartSectorCount, pMBR->PartTbl);
+
+    pMBR->PartTbl[0].Active = 0x80; // bootable
+    pMBR->PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
+
+    //Part2
+    PartStartSector += PartSectorCount;
+    PartSectorCount = VTOYEFI_PART_BYTES / 4096;
+    VentoyFillMBRLocation(size, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
+
+    pMBR->PartTbl[1].Active = 0x00; 
+    pMBR->PartTbl[1].FsFlag = 0xEF; // EFI System Partition
+
+    pMBR->Byte55 = 0x55;
+    pMBR->ByteAA = 0xAA;
+
+    return 0;
+}
+
