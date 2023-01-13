@@ -653,7 +653,7 @@
         "name":"Turkish (Türkçe)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"Erhan Kültür/crasadure, Oğuz Ersen",
+        "Author":"Erhan Kültür,Tayfun Akkoyun, Oğuz Ersen",
         
         "STR_ERROR":"Hata",
         "STR_WARNING":"Uyarı",
@@ -710,7 +710,7 @@
         "STR_PART_CLUSTER":"Sektör Boyutu",
         "STR_PART_CLUSTER_DEFAULT":"Sistem varsayılan değeri",
         "STR_DONATE":"Ventoy'a Bağış yap",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"Diskiniz 4K(4096byte) sektör yapısına sahip.Ventoy, 4K sektör yapısına sahip cihazlara şu anda destek vermemektedir.",
         
         "STRXXX":""
     },
