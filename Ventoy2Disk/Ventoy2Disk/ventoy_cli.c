@@ -233,6 +233,10 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
             {
                 fstype = VTOY_FS_FAT32;
             }
+            else if (_stricmp(opt + 4, "UDF") == 0)
+            {
+                fstype = VTOY_FS_UDF;
+            }
         }
     }
 

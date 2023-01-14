@@ -169,7 +169,7 @@
       <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson64.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>

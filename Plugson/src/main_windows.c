@@ -82,6 +82,14 @@ const WCHAR *g_msg_en[MSGID_BUTT] =
 	L"ventoy\\plugson.tar.xz does not exist, please run under the correct directory!",
 };
 
+#define UTF8_Log(fmt, wstr) \
+{\
+    memset(TmpPathA, 0, sizeof(TmpPathA));\
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, TmpPathA, sizeof(TmpPathA), NULL, NULL);\
+    vlog(fmt, TmpPathA);\
+}
+
+
 const WCHAR **g_msg_lang = NULL;
 
 HINSTANCE g_hInst;
@@ -399,7 +407,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
         {
             InitDialog(hWnd, wParam, lParam);
             break;
-        }        
+        }
         case WM_CLOSE:
         {
 			if (g_running)
@@ -414,6 +422,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
 
             OnDestroyDialog();
             EndDialog(hWnd, 0);
+			break;
         }
     }
 
@@ -527,8 +536,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 {
 	int i;
     int rc;
+	int status = 0;
 	HANDLE hMutex;
+	WCHAR* Pos = NULL;
 	WCHAR CurDir[MAX_PATH];
+	WCHAR ExePath[MAX_PATH];
+	WCHAR CurDirBk[MAX_PATH];
+	WCHAR ExePathBk[MAX_PATH];
+	CHAR TmpPathA[MAX_PATH];
 
     UNREFERENCED_PARAMETER(hPrevInstance);
 
@@ -562,11 +577,66 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	GetCurrentDirectoryW(MAX_PATH, CurDir);
+	GetCurrentDirectoryW(MAX_PATH, CurDirBk);
+	GetModuleFileNameW(NULL, ExePath, MAX_PATH);
+	GetModuleFileNameW(NULL, ExePathBk, MAX_PATH);
+
+	for (Pos = NULL, i = 0; i < MAX_PATH && ExePath[i]; i++)
+	{
+		if (ExePath[i] == '\\' || ExePath[i] == '/')
+		{
+			Pos = ExePath + i;
+		}
+	}
+
+	if (Pos)
+	{
+		*Pos = 0;
+		if (wcscmp(CurDir, ExePath))
+		{
+			status |= 1;
+			SetCurrentDirectoryW(ExePath);
+			GetCurrentDirectoryW(MAX_PATH, CurDir);
+		}
+		else
+		{
+			status |= 2;
+		}
+	}
+
+	Pos = wcsstr(CurDir, L"\\altexe");
+	if (Pos)
+	{
+		*Pos = 0;
+		status |= 4;
+		SetCurrentDirectoryW(CurDir);
+	}
+
+
 	WideCharToMultiByte(CP_UTF8, 0, CurDir, -1, g_cur_dir, MAX_PATH, NULL, 0);
 
 	sprintf_s(g_ventoy_dir, sizeof(g_ventoy_dir), "%s", g_cur_dir);
-	sprintf_s(g_log_file, sizeof(g_log_file), "%s\\%s", g_cur_dir, LOG_FILE);
+	sprintf_s(g_log_file, sizeof(g_log_file), "%s", LOG_FILE);
 	ventoy_log_init();
+
+	vlog("====================== Ventoy Plugson =========================\n");
+
+	UTF8_Log("Current Directory <%s>\n", CurDirBk);
+	UTF8_Log("Exe file path <%s>\n", ExePathBk);
+	
+	if (status & 1)
+	{
+		UTF8_Log("Change current dir to exe <%s>\n", ExePath);
+	}
+	if (status & 2)
+	{
+		vlog("Current directory check OK.\n");
+	}
+	if (status & 4)
+	{
+		UTF8_Log("altexe detected, change current dir to <%s>\n", CurDir);
+	}
+
 
     if (!ventoy_is_file_exist("%s\\ventoy\\%s", g_ventoy_dir, PLUGSON_TXZ))
     {        
@@ -585,7 +655,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	vlog("===============================================\n");
-	vlog("===== Ventoy Plugson %s:%s =====\n", g_sysinfo.ip, g_sysinfo.port);
+	vlog("========= Ventoy Plugson %s:%s =========\n", g_sysinfo.ip, g_sysinfo.port);
 	vlog("===============================================\n");
 
 
@@ -605,7 +675,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     ventoy_http_init();
 
     g_hInst = hInstance;
-    DialogBoxA(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc);
+    DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc);
 
     return 0;
 }

@@ -54,8 +54,6 @@ void ventoy_set_loglevel(int level)
     g_ventoy_log_level = level;
 }
 
-
-
 void ventoy_syslog_printf(const char *Fmt, ...)
 {
     char log[512];
