@@ -734,6 +734,11 @@ read_property (struct parsebuf *p)
                   "%s:%d:%d property value invalid; "
                   "enclose literal values in quotes (\")",
                   p->filename, p->line_num, p->col_num);
+      
+      grub_printf("File: %s\nLine:%d Column:%d\n"
+                  "property value invalid; enclose literal values in quotes (\")\n\n",
+                  p->filename, p->line_num, p->col_num);
+
       goto done;
     }
 
