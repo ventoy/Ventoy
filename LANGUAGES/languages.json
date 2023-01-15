@@ -190,7 +190,7 @@
         "STR_PART_CLUSTER":"클러스터 크기",
         "STR_PART_CLUSTER_DEFAULT":"시스템 기본값",
         "STR_DONATE":"기부",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"현재 Ventoy는 4K 네이티브 장치를 지원하지 않습니다.",
         
         "STRXXX":""
     },
