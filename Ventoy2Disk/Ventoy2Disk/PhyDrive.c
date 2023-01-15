@@ -2150,7 +2150,6 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 	int rc = 1;
 	int PhyDrive;
 	int PartStyle;
-	INT64 ReservedValue;
 	UINT64 RecudeBytes;
 	GUID Guid;
 	MBR_HEAD MBR;
@@ -2186,13 +2185,6 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 	PROGRESS_BAR_SET_POS(PT_LOCK_FOR_CLEAN);
 
 	RecudeBytes = VENTOY_EFI_PART_SIZE;
-	ReservedValue = GetReservedSpaceInMB();
-	if (ReservedValue > 0)
-	{
-		Log("Reduce add reserved space %lldMB", (LONGLONG)ReservedValue);
-		RecudeBytes += (UINT64)(ReservedValue * SIZE_1MB);
-	}
-
 
 	if (pPhyDrive->ResizeNoShrink == FALSE)
 	{
