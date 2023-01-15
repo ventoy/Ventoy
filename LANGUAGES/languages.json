@@ -1749,7 +1749,7 @@
         "STR_PART_CLUSTER":"Klaszter méret",
         "STR_PART_CLUSTER_DEFAULT":"Rendszer alapérték",
         "STR_DONATE":"Adományoz",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"Jelenleg a Ventoy nem támogat natív 4K eszközt.",
         
         "STRXXX":""
     },
