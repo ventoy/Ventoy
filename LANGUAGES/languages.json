@@ -1229,7 +1229,7 @@
         "STR_PART_CLUSTER":"Размер кластера:",
         "STR_PART_CLUSTER_DEFAULT":"Системное значение по умолчанию",
         "STR_DONATE":"Пожертвовать",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"В настоящее время Ventoy не поддерживает родные устройства 4K.",
         
         "STRXXX":""
     },
@@ -1294,7 +1294,7 @@
         "STR_PART_CLUSTER":"ক্লাস্টারের আকার",
         "STR_PART_CLUSTER_DEFAULT":"সিস্টেমের ডিফল্ট মান",
         "STR_DONATE":"দান করুন",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"বর্তমানে Ventoy 4K নেটিভ ডিভাইস সমর্থন করে না।",
         
         "STRXXX":""
     },
