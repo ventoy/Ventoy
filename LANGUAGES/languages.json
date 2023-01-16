@@ -1359,7 +1359,7 @@
         "STR_PART_CLUSTER":"क्लस्टर साइज",
         "STR_PART_CLUSTER_DEFAULT":"सिस्टम डिफ़ॉल्ट मान",
         "STR_DONATE":"दान करें",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"वर्तमान में Ventoy 4K नेटिव डिवाइस को सपोर्ट नहीं करता है।",
         
         "STRXXX":""
     },
