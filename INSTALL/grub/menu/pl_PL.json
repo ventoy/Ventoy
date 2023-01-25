@@ -1,7 +1,7 @@
 ﻿{
     "VTLANG_LANGUAGE_NAME": "Polish (Poland)",
     
-    "VTLANG_STR_HOTKEY_LIST": "L:Język F1:Pomoc F2:Przeglądaj F3:ListView F4:Localboot F5:Narzędzia F6:ExMenu",
+    "VTLANG_STR_HOTKEY_LIST": "L:Język F1:Pomoc F2:Przeglądaj F3:Widok listy F4:Localboot F5:Narzędzia F6:ExMenu",
     "VTLANG_STR_HOTKEY_TREE": "L:Język F1:Pomoc F2:Przeglądaj F3:Widok drzewa F4:Localboot F5:Narzędzia F6:ExMenu",
     "VTLANG_RETURN_PREVIOUS": "Powrót do poprzedniego menu [Esc]",
     "VTLANG_RETURN_PRV_NOESC": "Powrót do poprzedniego menu",
@@ -50,16 +50,16 @@
     "VTLANG_JSON_CHK_JSON": "Sprawdź konfigurację wtyczki json (ventoy.json)",
     "VTLANG_JSON_CHK_CONTROL": "Sprawdź konfigurację wtyczki globalnej kontroli",
     "VTLANG_JSON_CHK_THEME": "Sprawdź konfigurację wtyczki motywu",
-    "VTLANG_JSON_CHK_AUTOINS": "Sprawdź konfigurację automatycznej instalacji wtyczki",
+    "VTLANG_JSON_CHK_AUTOINS": "Sprawdź konfigurację wtyczki automatycznej instalacji",
     "VTLANG_JSON_CHK_PERSIST": "Sprawdź konfigurację wtyczki trwałości",
     "VTLANG_JSON_CHK_MENU_ALIAS": "Sprawdź konfigurację wtyczek aliasów menu",
     "VTLANG_JSON_CHK_MENU_TIP": "Sprawdź konfigurację wtyczki podpowiedzi menu",
     "VTLANG_JSON_CHK_MENU_CLASS": "Sprawdź konfigurację wtyczki klasy menu",
-    "VTLANG_JSON_CHK_INJECTION": "Sprawdź konfigurację wtyczki wtrysku",
+    "VTLANG_JSON_CHK_INJECTION": "Sprawdź konfigurację wtyczki wstrzykiwania",
     "VTLANG_JSON_CHK_AUTO_MEMDISK": "Sprawdź automatyczną konfigurację wtyczki memdisk",
     "VTLANG_JSON_CHK_IMG_LIST": "Sprawdź konfigurację wtyczki listy obrazów",
     "VTLANG_JSON_CHK_IMG_BLIST": "Sprawdź konfigurację wtyczki czarnej listy obrazów",
-    "VTLANG_JSON_CHK_CONF_REPLACE": "Sprawdź konfigurację bootowania zamień konfigurację wtyczki",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "Sprawdź konfigurację wtyczki zastępującej konfigurację bootowania",
     "VTLANG_JSON_CHK_DUD": "Sprawdź konfigurację wtyczki dud",
     "VTLANG_JSON_CHK_PASSWORD": "Sprawdź konfigurację wtyczki hasła",
     
@@ -69,7 +69,7 @@
     "VTLANG_MEMDISK_MODE": "Uruchom w trybie memdisk",
     
     "VTLANG_RET_TO_LISTVIEW": "Powrót do widoku listy",
-    "VTLANG_RET_TO_TREEVIEW": "Powrót do TreeView",
+    "VTLANG_RET_TO_TREEVIEW": "Powrót do widoku drzewa",
     
     "VTLANG_NO_AUTOINS_SCRIPT": "Uruchom bez szablonu automatycznej instalacji",
     "VTLANG_AUTOINS_USE": "Uruchom z",
