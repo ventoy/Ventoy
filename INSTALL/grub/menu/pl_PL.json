@@ -6,9 +6,9 @@
     "VTLANG_RETURN_PREVIOUS": "Powrót do poprzedniego menu [Esc]",
     "VTLANG_RETURN_PRV_NOESC": "Powrót do poprzedniego menu",
     
-    "VTLANG_MENU_LANG": "Wybór języka menu",
+    "VTLANG_MENU_LANG": "Wybierz język menu",
     
-    "VTLANG_LB_SBOOT_WINDOWS": "Wyszukaj i uruchom system Windows",
+    "VTLANG_LB_SBOOT_WINDOWS": "WWyszukaj i uruchom Windows",
     "VTLANG_LB_SBOOT_G4D": "Wyszukaj i uruchom Grub4dos",
     "VTLANG_LB_SBOOT_HDD1": "Uruchom pierwszy dysk lokalny",
     "VTLANG_LB_SBOOT_HDD2": "Uruchom drugi dysk lokalny",
@@ -28,10 +28,10 @@
     "VTLANG_CHKSUM_SHA256_CALC_CHK": "Oblicz i sprawdź sumę sha256",
     "VTLANG_CHKSUM_SHA512_CALC_CHK": "Oblicz i sprawdź sumę sha512",
     
-    "VTLANG_POWER": "Moc",
+    "VTLANG_POWER": "Zasilanie",
     "VTLANG_POWER_REBOOT": "Uruchom ponownie",
-    "VTLANG_POWER_HALT": "Zatrzymanie",
-    "VTLANG_POWER_BOOT_EFIFW": "Uruchom ponownie do konfiguracji EFI",
+    "VTLANG_POWER_HALT": "Zakończ",
+    "VTLANG_POWER_BOOT_EFIFW": "Uruchom ponownie i przejdź do konfiguracji EFI",
     
     "VTLANG_KEYBRD_LAYOUT": "Układy klawiatury",
     "VTLANG_HWINFO": "Informacje o sprzęcie",
@@ -43,7 +43,7 @@
     
     "VTLANG_THEME_SELECT": "Wybór motywu",
     
-    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UEFI_UTIL": "Narzędzia UEFI Ventoy",
     "VTLANG_UTIL_SHOW_EFI_DRV": "Pokaż sterowniki EFI",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Napraw błąd BlinitializeLibrary systemu Windows",
     
@@ -74,7 +74,7 @@
     "VTLANG_NO_AUTOINS_SCRIPT": "Uruchom bez szablonu automatycznej instalacji",
     "VTLANG_AUTOINS_USE": "Uruchom z",
     
-    "VTLANG_NO_PERSIST": "Uruchom bez trwałości",
+    "VTLANG_NO_PERSIST": "Uruchom bez zachowania",
     "VTLANG_PERSIST_USE": "Uruchom z",
     
     "VTLANG_BROWER_RETURN": "Powrót",
@@ -83,11 +83,11 @@
     "VTLANG_ENTER_REBOOT": "naciśnij klawisz Enter, aby ponownie uruchomić",
     "VTLANG_ENTER_CONTINUE": "naciśnij klawisz Enter, aby kontynuować",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "Tymczasowe ustawienia kontroli",
+    "VTLANG_WIN11_BYPASS_CHECK": "Pominięcie kontroli CPU/TPM/SecureBoot podczas instalacji Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Pominięcie wymogu posiadania konta online podczas instalacji systemu Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Zamontuj partycję Ventoy po starcie Linuksa",
+    "VTLANG_SECONDARY_BOOT_MENU": "Pokaż dodatkowe menu startowe",
     
     "MENU_STR_XXX": ""
 }
