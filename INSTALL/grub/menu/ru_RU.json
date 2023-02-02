@@ -8,7 +8,7 @@
     
     "VTLANG_MENU_LANG": "Выбор языка меню",
     
-    "VTLANG_LB_SBOOT_WINDOWS": "Найти и загрузить винду",
+    "VTLANG_LB_SBOOT_WINDOWS": "Найти и загрузить Windows",
     "VTLANG_LB_SBOOT_G4D": "Найти и загрузить Grub4dos",
     "VTLANG_LB_SBOOT_HDD1": "Загрузить 1-й локальный диск",
     "VTLANG_LB_SBOOT_HDD2": "Загрузить 2-й локальный диск",
@@ -28,9 +28,9 @@
     "VTLANG_CHKSUM_SHA256_CALC_CHK": "Вычислить и проверить sha256sum",
     "VTLANG_CHKSUM_SHA512_CALC_CHK": "Вычислить и проверить sha512sum",
     
-    "VTLANG_POWER": "Включить",
+    "VTLANG_POWER": "Питание",
     "VTLANG_POWER_REBOOT": "Перезагрузить",
-    "VTLANG_POWER_HALT": "Остановить",
+    "VTLANG_POWER_HALT": "Завершить роботу",
     "VTLANG_POWER_BOOT_EFIFW": "Перезагрузиться в настройку EFI",
     
     "VTLANG_KEYBRD_LAYOUT": "Раскладки клавиатуры",
@@ -43,9 +43,9 @@
     
     "VTLANG_THEME_SELECT": "Выбор темы",
     
-    "VTLANG_UEFI_UTIL": "UEFI утилиты Вентоя",
+    "VTLANG_UEFI_UTIL": "UEFI утилиты Ventoy",
     "VTLANG_UTIL_SHOW_EFI_DRV": "Показать драйверы EFI",
-    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Исправить ошибку винды «BlinitializeLibrary»",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Исправить ошибку Windows «BlinitializeLibrary»",
     
     "VTLANG_JSON_CHK_JSON": "Проверить настройки расширения «json» (ventoy.json)",
     "VTLANG_JSON_CHK_CONTROL": "Проверить настройки расширения «global control»",
@@ -68,8 +68,8 @@
     "VTLANG_GRUB2_MODE": "Загрузиться в режиме grub2",
     "VTLANG_MEMDISK_MODE": "Загрузиться в режиме memdisk",
     
-    "VTLANG_RET_TO_LISTVIEW": "Вернуться к ВидуСписком",
-    "VTLANG_RET_TO_TREEVIEW": "Вернуться к ВидуДревом",
+    "VTLANG_RET_TO_LISTVIEW": "Вернуться к Виду списком",
+    "VTLANG_RET_TO_TREEVIEW": "Вернуться к Виду древом",
     
     "VTLANG_NO_AUTOINS_SCRIPT": "Загрузка без шаблона автоматической установки",
     "VTLANG_AUTOINS_USE": "Загрузиться с",
@@ -84,9 +84,9 @@
     "VTLANG_ENTER_CONTINUE": "нажмите клавишу ввода, чтобы продолжить",
     
     "VTLANG_CTRL_TEMP_SET": "Настройки временного управления",
-    "VTLANG_WIN11_BYPASS_CHECK": "Обойти проверку при установке 11-ой винды",
-    "VTLANG_WIN11_BYPASS_NRO": "Обойти требование сетевой учётной записи при установке 11-ой винды",
-    "VTLANG_LINUX_REMOUNT": "Смонтировать раздел Вентоя после загрузки линукса",
+    "VTLANG_WIN11_BYPASS_CHECK": "Обойти проверку CPU/TPM/SecureBoot при установке Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Обойти требование сетевой учётной записи при установке Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Смонтировать раздел Ventoy после загрузки Linux",
     "VTLANG_SECONDARY_BOOT_MENU": "Показать вторичное загрузочное меню",
     
     "MENU_STR_XXX": ""
