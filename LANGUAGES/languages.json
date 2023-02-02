@@ -1099,7 +1099,7 @@
         "STR_PART_CLUSTER":"Tamaño de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
         "STR_DONATE":"Donar",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"Actualmente Ventoy no soporta dispositivos nativos 4K.",
         
         "STRXXX":""
     },
