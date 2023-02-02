@@ -3246,7 +3246,7 @@
         "STR_PART_CLUSTER":"கொத்து அளவு",
         "STR_PART_CLUSTER_DEFAULT":"கணினி இயல்புநிலை மதிப்பு",
         "STR_DONATE":"தானம் செய்",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native device.",
+        "STR_4KN_UNSUPPORTED":"தற்போது, வெண்டோய் 4K சொந்த சாதனங்களை ஆதரிக்கவில்லை.",
         
         "STRXXX":""
     },
