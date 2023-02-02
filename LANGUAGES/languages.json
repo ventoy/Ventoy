@@ -1809,7 +1809,7 @@
         "STR_PART_RESIZE_UNSUPPORTED":"Ventoy 無損安裝已中止因為未滿足部分條件。詳細訊息請檢視 log.txt 檔案。",
         "STR_INSTALL_YES_TIP1":"警告：資料將會遺失！",
         "STR_INSTALL_YES_TIP2":"請在下方的文字輸入框輸入 YES 來證實您想要進行全新安裝取代升級。",
-        "STR_PART_VENTOY_FS":"Ventoy 分割區文件系統",
+        "STR_PART_VENTOY_FS":"Ventoy 磁區的檔案系統",
         "STR_PART_FS":"檔案系統",
         "STR_PART_CLUSTER":"磁區單位大小",
         "STR_PART_CLUSTER_DEFAULT":"系統預設值",
