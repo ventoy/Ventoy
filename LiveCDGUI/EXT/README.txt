@@ -1,5 +1,5 @@
 
-Files bellow are from Porteus-Kiosk-5.2.0-x86_64.iso (https://porteus-kiosk.org/public/5.2/)
+Files below are from Porteus-Kiosk-5.2.0-x86_64.iso (https://porteus-kiosk.org/public/5.2/)
 
 MD5SUM:
 42857b439725a0e1adb0c396849f57c9  EXT/000-kernel.xzm
