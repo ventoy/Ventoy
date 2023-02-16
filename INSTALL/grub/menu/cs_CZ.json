@@ -63,7 +63,7 @@
     "VTLANG_JSON_CHK_DUD": "Zkontrolovat konfiguraci zásuvného modulu dud",
     "VTLANG_JSON_CHK_PASSWORD": "Zkontrolovat konfiguraci zásuvného modulu hesla",
     
-    "VTLANG_NORMAL_MODE": "Spustit normélně",
+    "VTLANG_NORMAL_MODE": "Spustit normálně",
     "VTLANG_WIMBOOT_MODE": "Spustit v režimu wimboot",
     "VTLANG_GRUB2_MODE": "Spustit v režimu grub2",
     "VTLANG_MEMDISK_MODE": "Spustit v režimu memdisk",
