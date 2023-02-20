@@ -176,7 +176,8 @@ typedef struct ko_param
     unsigned long sym_get_size;
     unsigned long sym_put_addr;
     unsigned long sym_put_size;
-    unsigned long padding[3];
+    unsigned long kv_major;
+    unsigned long padding[2];
 }ko_param;
 
 #pragma pack()
@@ -484,6 +485,7 @@ int vtoykmod_fill_param(char **argv)
             param->sym_put_size = strtoul(argv[8], NULL, 10);
             param->reg_kprobe_addr = strtoul(argv[9], NULL, 16);
             param->unreg_kprobe_addr = strtoul(argv[10], NULL, 16);
+            param->kv_major = (unsigned long)(argv[11][0] - '0');
 
             debug("pgsize=%lu (%s)\n", param->pgsize, argv[1]);
             debug("printk_addr=0x%lx (%s)\n", param->printk_addr, argv[2]);
@@ -495,6 +497,7 @@ int vtoykmod_fill_param(char **argv)
             debug("sym_put_size=%lu (%s)\n", param->sym_put_size, argv[8]);
             debug("reg_kprobe_addr=0x%lx (%s)\n", param->reg_kprobe_addr, argv[9]);
             debug("unreg_kprobe_addr=0x%lx (%s)\n", param->unreg_kprobe_addr, argv[10]);
+            debug("kv_major=%lu (%s)\n", param->kv_major, argv[11]);
             
             break;
         }

@@ -305,6 +305,9 @@ ventoy_dm_patch() {
     
     if [ "$VTOY_DEBUG_LEVEL" = "01" ]; then
         printk_addr=$($GREP ' printk$' /proc/kallsyms | $AWK '{print $1}')
+        if [ -z "$printk_addr" ]; then
+            printk_addr=$($GREP ' _printk$' /proc/kallsyms | $AWK '{print $1}')
+        fi
         vtDebug="-v"
     else
         printk_addr=0
@@ -367,8 +370,8 @@ ventoy_dm_patch() {
     
     #step2: fill parameters
     vtPgsize=$($VTOY_PATH/tool/vtoyksym -p)
-    vtlog "$VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtDebug"
-    $VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtDebug
+    vtlog "$VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKv $vtDebug"
+    $VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKv $vtDebug
 
     $BUSYBOX_PATH/insmod $VTOY_PATH/tool/$vtKoName
     

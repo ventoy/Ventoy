@@ -51,7 +51,8 @@ typedef struct ko_param
     unsigned long sym_get_size;
     unsigned long sym_put_addr;
     unsigned long sym_put_size;
-    unsigned long padding[3];
+    unsigned long kv_major;
+    unsigned long padding[2];
 }ko_param;
 
 #pragma pack()
@@ -69,13 +70,23 @@ static volatile ko_param g_ko_param =
 };
 
 #if defined(CONFIG_X86_64)
-#define PATCH_OP_POS    3
-#define CODE_MATCH(code, i) \
+#define PATCH_OP_POS1    3
+#define CODE_MATCH1(code, i) \
     (code[i] == 0x40 && code[i + 1] == 0x80 && code[i + 2] == 0xce && code[i + 3] == 0x80)
+
+#define PATCH_OP_POS2    1
+#define CODE_MATCH2(code, i) \
+    (code[i] == 0x0C && code[i + 1] == 0x80 && code[i + 2] == 0x89 && code[i + 3] == 0xC6)
+
 #elif defined(CONFIG_X86_32)
-#define PATCH_OP_POS    2
-#define CODE_MATCH(code, i) \
+#define PATCH_OP_POS1    2
+#define CODE_MATCH1(code, i) \
     (code[i] == 0x80 && code[i + 1] == 0xca && code[i + 2] == 0x80 && code[i + 3] == 0xe8)
+
+#define PATCH_OP_POS2    2
+#define CODE_MATCH2(code, i) \
+    (code[i] == 0x80 && code[i + 1] == 0xca && code[i + 2] == 0x80 && code[i + 3] == 0xe8)
+
 #else
 #error "unsupported arch"
 #endif
@@ -100,6 +111,7 @@ static void notrace dmpatch_restore_code(unsigned char *opCode)
 
 static int notrace dmpatch_replace_code
 (
+    int style,
     unsigned long addr, 
     unsigned long size, 
     int expect, 
@@ -112,14 +124,25 @@ static int notrace dmpatch_replace_code
     unsigned long align;
     unsigned char *opCode = (unsigned char *)addr;
 
-    vdebug("patch for %s 0x%lx %d\n", desc, addr, (int)size);
+    vdebug("patch for %s style[%d] 0x%lx %d\n", desc, style, addr, (int)size);
 
     for (i = 0; i < (int)size - 4; i++)
     {
-        if (CODE_MATCH(opCode, i) && cnt < MAX_PATCH)
+        if (style == 1)
         {
-            patch[cnt] = opCode + i + PATCH_OP_POS;
-            cnt++;
+            if (CODE_MATCH1(opCode, i) && cnt < MAX_PATCH)
+            {
+                patch[cnt] = opCode + i + PATCH_OP_POS1;
+                cnt++;
+            }
+        }
+        else
+        {
+            if (CODE_MATCH2(opCode, i) && cnt < MAX_PATCH)
+            {
+                patch[cnt] = opCode + i + PATCH_OP_POS2;
+                cnt++;
+            }
         }
     }
 
@@ -169,7 +192,13 @@ static int notrace dmpatch_init(void)
     reg_kprobe = (kprobe_reg_pf)g_ko_param.reg_kprobe_addr;
     unreg_kprobe = (kprobe_unreg_pf)g_ko_param.unreg_kprobe_addr;
 
-    r = dmpatch_replace_code(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 2, "dm_get_table_device", g_get_patch);
+    r = dmpatch_replace_code(1, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 2, "dm_get_table_device", g_get_patch);
+    if (r && g_ko_param.kv_major >= 5)
+    {
+        vdebug("new patch dm_get_table_device...\n");
+        r = dmpatch_replace_code(2, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 1, "dm_get_table_device", g_get_patch);
+    }
+    
     if (r)
     {
         rc = -EINVAL;
@@ -177,7 +206,7 @@ static int notrace dmpatch_init(void)
     }
     vdebug("patch dm_get_table_device success\n");
 
-    r = dmpatch_replace_code(g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device", g_put_patch);
+    r = dmpatch_replace_code(1, g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device", g_put_patch);
     if (r)
     {
         rc = -EINVAL;
