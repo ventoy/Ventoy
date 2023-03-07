@@ -392,6 +392,11 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
             return 0;
         }
 
+        if (grub_file_is_vlnk_suffix(filename, len))
+        {
+            return 0;
+        }
+
         node = grub_zalloc(sizeof(browser_node));
         if (!node)
         {

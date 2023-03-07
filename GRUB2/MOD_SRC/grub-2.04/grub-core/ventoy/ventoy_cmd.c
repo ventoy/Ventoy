@@ -1767,6 +1767,10 @@ static int ventoy_check_vlnk_data(ventoy_vlnk *vlnk, int print, char *dst, int s
                         cur->fs->fs_close(&file);
                         grub_snprintf(dst, size - 1, "(%s)%s", cur->device, vlnk->filepath);
                     }
+                    else
+                    {
+                        grub_errno = 0;
+                    }
                 }
             }
         }
