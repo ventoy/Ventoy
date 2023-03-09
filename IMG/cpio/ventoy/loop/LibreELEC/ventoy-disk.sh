@@ -34,9 +34,12 @@ else
     vtBit=32
 fi
 
-xz -d $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko.xz
-insmod $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko
-
+if [ -f $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko.xz ]; then
+    xz -d $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko.xz
+    insmod $VTOY_PATH/vtloopex/dm-mod/$vtKerVer/$vtBit/dm-mod.ko
+elif [ -f $VTOY_PATH/modules/dm-mod.ko ]; then
+    insmod $VTOY_PATH/modules/dm-mod.ko
+fi
 
 wait_for_usb_disk_ready
 
