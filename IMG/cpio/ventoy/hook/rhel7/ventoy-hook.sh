@@ -125,6 +125,13 @@ if $GREP -i -q Fedora /proc/version; then
     fi
 fi
 
+if $GREP -i -q Fedora /etc/os-release; then
+    if $GREP -q 'Server Edition' /etc/os-release; then
+        vtNeedRepo="yes"
+    fi
+fi
+
+
 echo "vtNeedRepo=$vtNeedRepo" >> $VTLOG
 
 if [ "$vtNeedRepo" = "yes" ]; then
