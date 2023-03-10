@@ -1,8 +1,8 @@
 {
     "VTLANG_LANGUAGE_NAME": "Korean (한국어)",
     
-    "VTLANG_STR_HOTKEY_LIST": " L:언어  F1:도움말  F2:찾아보기  F3:목록보기  F4:로컬부팅  F5:도구  F6:확장메뉴",
-    "VTLANG_STR_HOTKEY_TREE": " L:언어  F1:도움말  F2:찾아보기  F3:트리보기  F4:로컬부팅  F5:도구  F6:확장메뉴",
+    "VTLANG_STR_HOTKEY_LIST": " L:언어  F1:도움말  F2:찾아보기  F3:목록 보기  F4:로컬 부팅  F5:도구  F6:확장 메뉴",
+    "VTLANG_STR_HOTKEY_TREE": " L:언어  F1:도움말  F2:찾아보기  F3:트리 보기  F4:로컬 부팅  F5:도구  F6:확장 메뉴",
     "VTLANG_RETURN_PREVIOUS": "이전 메뉴로 돌아가기 [Esc]",
     "VTLANG_RETURN_PRV_NOESC": "이전 메뉴로 돌아가기",
     
@@ -19,19 +19,19 @@
     "VTLANG_LB_SBOOT_XORBOOT": "xorboot 검색 및 부팅",
     
     "VTLANG_FILE_CHKSUM": "파일 체크섬",
-    "VTLANG_CHKSUM_MD5_CALC": "md5sum 계산",
-    "VTLANG_CHKSUM_SHA1_CALC": "sha1sum 계산",
-    "VTLANG_CHKSUM_SHA256_CALC": "sha256sum 계산",
-    "VTLANG_CHKSUM_SHA512_CALC": "sha512sum 계산",
-    "VTLANG_CHKSUM_MD5_CALC_CHK": "md5sum 계산 및 확인",
-    "VTLANG_CHKSUM_SHA1_CALC_CHK": "sha1sum 계산 및 확인",
-    "VTLANG_CHKSUM_SHA256_CALC_CHK": "sha256sum 계산 및 확인",
-    "VTLANG_CHKSUM_SHA512_CALC_CHK": "sha512sum 계산 및 확인",
+    "VTLANG_CHKSUM_MD5_CALC": "md5 검사값 계산",
+    "VTLANG_CHKSUM_SHA1_CALC": "sha1 검사값 계산",
+    "VTLANG_CHKSUM_SHA256_CALC": "sha256 검사값 계산",
+    "VTLANG_CHKSUM_SHA512_CALC": "sha512 검사값 계산",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "md5 검사값 계산 및 확인",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "sha1 검사값 계산 및 확인",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "sha256 검사값 계산 및 확인",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "sha512 검사값 계산 및 확인",
     
     "VTLANG_POWER": "전원",
     "VTLANG_POWER_REBOOT": "다시 시작",
     "VTLANG_POWER_HALT": "전원 끄기",
-    "VTLANG_POWER_BOOT_EFIFW": "EFI 설정으로 다시 시작",
+    "VTLANG_POWER_BOOT_EFIFW": "UEFI 설정으로 다시 시작",
     
     "VTLANG_KEYBRD_LAYOUT": "키보드 레이아웃",
     "VTLANG_HWINFO": "하드웨어 정보",
@@ -44,11 +44,10 @@
     "VTLANG_THEME_SELECT": "테마 선택",
     
     "VTLANG_UEFI_UTIL": "Ventoy UEFI 유틸리티",
-    "VTLANG_UTIL_SHOW_EFI_DRV": "EFI 드라이버 표시",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "UEFI 드라이버 표시",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows 초기화 라이브러리 오류 복구",
     
-    "VTLANG_JSON_CHK_JSON": "플러그인 json 구성 확인 (ventoy.json)",
-    
+    "VTLANG_JSON_CHK_JSON": "플러그인 파일 구성 확인 (ventoy.json)",    
     "VTLANG_JSON_CHK_CONTROL": "전역 제어 플러그인 구성 확인",
     "VTLANG_JSON_CHK_THEME": "테마 플러그인 구성 확인",
     "VTLANG_JSON_CHK_AUTOINS": "자동 설치 플러그인 구성 확인",
@@ -64,7 +63,7 @@
     "VTLANG_JSON_CHK_DUD": "드라이버 업데이트 디스크 플러그인 구성 확인",
     "VTLANG_JSON_CHK_PASSWORD": "암호 플러그인 구성 확인",
     
-    "VTLANG_NORMAL_MODE": "정상 모드로 부팅",
+    "VTLANG_NORMAL_MODE": "일반 모드로 부팅",
     "VTLANG_WIMBOOT_MODE": "wimboot 모드로 부팅",
     "VTLANG_GRUB2_MODE": "grub2 모드로 부팅",
     "VTLANG_MEMDISK_MODE": "메모리 디스크 모드로 부팅",
@@ -74,6 +73,7 @@
     
     "VTLANG_NO_AUTOINS_SCRIPT": "자동 설치 스크립트 사용 안 함",
     "VTLANG_AUTOINS_USE": "부팅 대상",
+    
     "VTLANG_NO_PERSIST": "영구화된 데이터 파일 사용 안 함",
     "VTLANG_PERSIST_USE": "부팅 대상",
     
