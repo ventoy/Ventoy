@@ -24,6 +24,7 @@
 
 if [ -f $VTOY_PATH/autoinstall ]; then
     VTKS="inst.ks=file:$VTOY_PATH/autoinstall"
+    cp -a $VTOY_PATH/hook/rhel7/ventoy-autoexp.sh /lib/dracut/hooks/pre-mount/99-ventoy-autoexp.sh
 else
     for vtParam in $($CAT /proc/cmdline); do
         if echo $vtParam | $GREP -q 'ks=file:/'; then
@@ -90,23 +91,7 @@ if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
 fi
 echo "vtInstDD=$vtInstDD" >> $VTLOG
 
-if $GREP -q 'root=live' /proc/cmdline; then
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/ventoy $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
-else
-    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/ventoy $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh
-fi
 
-ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh
-
-#Fedora
-if $BUSYBOX_PATH/which dmsquash-live-root > /dev/null; then
-    vtPriority=99
-else
-    vtPriority=01
-fi
-
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/${vtPriority}-ventoy-inotifyd-start.sh
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-timeout.sh /lib/dracut/hooks/initqueue/timeout/${vtPriority}-ventoy-timeout.sh
 
 vtNeedRepo=
 if [ -f /etc/system-release ]; then
@@ -131,12 +116,52 @@ if $GREP -i -q Fedora /etc/os-release; then
     fi
 fi
 
-
 echo "vtNeedRepo=$vtNeedRepo" >> $VTLOG
 
 if [ "$vtNeedRepo" = "yes" ]; then
     $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-repo.sh /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh
 fi
+
+
+#iso-scan (currently only for Fedora)
+if $GREP -q Fedora /etc/os-release; then
+    if ventoy_iso_scan_check; then
+        echo "iso_scan process ..." >> $VTLOG
+        
+        vtIsoPath=$(/ventoy/tool/vtoydump -p /ventoy/ventoy_os_param)
+        VTISO_SCAN="iso-scan/filename=$vtIsoPath"    
+        echo -n $vtIsoPath > /ventoy/vtoy_iso_scan
+
+        $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE $VTISO_SCAN $VTKS $VTOVERLAY $vtInstDD#" -i /lib/dracut-lib.sh    
+        if [ "$VTOY_LINUX_REMOUNT" = "01" -a "$vtNeedRepo" != "yes" ]; then
+            ventoy_rw_iso_scan
+        fi
+
+        exit 0
+    fi
+fi
+
+
+echo "common process ..." >> $VTLOG
+if $GREP -q 'root=live' /proc/cmdline; then
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/ventoy $VTKS $VTOVERLAY $VTISO_SCAN $vtInstDD#" -i /lib/dracut-lib.sh
+else
+    $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE inst.stage2=hd:/dev/ventoy $VTKS $VTOVERLAY $VTISO_SCAN $vtInstDD#" -i /lib/dracut-lib.sh
+fi
+
+
+ventoy_set_inotify_script  rhel7/ventoy-inotifyd-hook.sh
+
+#Fedora
+if $BUSYBOX_PATH/which dmsquash-live-root > /dev/null; then
+    vtPriority=99
+else
+    vtPriority=01
+fi
+
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/${vtPriority}-ventoy-inotifyd-start.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/rhel7/ventoy-timeout.sh /lib/dracut/hooks/initqueue/timeout/${vtPriority}-ventoy-timeout.sh
+
 
 if [ -e /sbin/dmsquash-live-root ]; then
     echo "patch /sbin/dmsquash-live-root ..." >> $VTLOG
@@ -152,10 +177,6 @@ fi
 if $GREP -i -q 'fedora.*coreos' /etc/os-release; then
     $SED "s#isosrc=.*#isosrc=/dev/mapper/ventoy#" -i /lib/systemd/system-generators/live-generator
     cp -a $VTOY_PATH/hook/rhel7/ventoy-make-link.sh /lib/dracut/hooks/pre-mount/99-ventoy-premount-mklink.sh
-fi
-
-if [ -f $VTOY_PATH/autoinstall ]; then
-    cp -a $VTOY_PATH/hook/rhel7/ventoy-autoexp.sh /lib/dracut/hooks/pre-mount/99-ventoy-autoexp.sh
 fi
 
 

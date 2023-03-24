@@ -121,3 +121,48 @@ ventoy_check_mount() {
         $BUSYBOX_PATH/mount $1 $2
     fi
 }
+
+ventoy_has_exfat_ko() {
+    vtExfat=''
+    vtKerVer=$($BUSYBOX_PATH/uname -r)
+    if [ -d /lib/modules/$vtKerVer/kernel/fs/exfat ]; then
+        vtExfat=$(ls /lib/modules/$vtKerVer/kernel/fs/exfat/)
+    fi
+    [ -n "$vtExfat" ]
+}
+
+ventoy_is_exfat_part() {
+    $VTOY_PATH/tool/vtoydump -s /ventoy/ventoy_os_param | $GREP -q exfat
+}
+
+ventoy_iso_scan_path() {
+    if [ -f /sbin/iso-scan ]; then
+        echo -n '/sbin/iso-scan'
+    elif [ -f /bin/iso-scan ]; then
+        echo -n '/bin/iso-scan'
+    else
+        echo -n ''
+    fi
+}
+
+ventoy_has_iso_scan() {
+    vtScanPath=$(ventoy_iso_scan_path)
+    [ -n "$vtScanPath" ]
+}
+
+ventoy_rw_iso_scan() {
+    vtScanPath=$(ventoy_iso_scan_path)
+    if [ -n "$vtScanPath" ]; then
+        if $GREP -q 'mount.* ro .*isoscan' $vtScanPath; then
+            $SED -i 's/\(mount.*-o.*\) ro /\1 rw /' $vtScanPath
+        fi
+    fi
+}
+
+ventoy_iso_scan_check() {
+    if ventoy_is_exfat_part; then
+        if ventoy_has_exfat_ko; then
+            ventoy_has_iso_scan
+        fi
+    fi
+}
