@@ -18,7 +18,7 @@ You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.<br
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
-  1000+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
+  1100+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
 <br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
 </h4>
 
@@ -73,7 +73,7 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * Menu alias, Menu tip message supported
 * Password protect supported
 * Native boot menu style for Legacy & UEFI
-* Most types of OS supported, 1000+ iso files tested
+* Most types of OS supported, 1100+ iso files tested
 * Linux vDisk boot supported
 * Not only boot but also complete installation process
 * Menu dynamically switchable between List/TreeView mode
