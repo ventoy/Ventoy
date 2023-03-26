@@ -503,7 +503,7 @@ int vtoykmod_fill_param(char **argv)
             debug("reg_kprobe_addr=0x%lx (%s)\n", param->reg_kprobe_addr, argv[9]);
             debug("unreg_kprobe_addr=0x%lx (%s)\n", param->unreg_kprobe_addr, argv[10]);
             debug("kv_major=%lu (%s)\n", param->kv_major, argv[11]);
-            debug("ibt=0x%lx (%s)\n", param->ibt, argv[11]);
+            debug("ibt=0x%lx (%s)\n", param->ibt, argv[12]);
             
             break;
         }
