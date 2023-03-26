@@ -24,6 +24,9 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#ifdef VTOY_X86_64
+#include <cpuid.h>
+#endif
 
 #define _ull unsigned long long
 
@@ -177,7 +180,8 @@ typedef struct ko_param
     unsigned long sym_put_addr;
     unsigned long sym_put_size;
     unsigned long kv_major;
-    unsigned long padding[2];
+    unsigned long ibt;
+    unsigned long padding[1];
 }ko_param;
 
 #pragma pack()
@@ -486,6 +490,7 @@ int vtoykmod_fill_param(char **argv)
             param->reg_kprobe_addr = strtoul(argv[9], NULL, 16);
             param->unreg_kprobe_addr = strtoul(argv[10], NULL, 16);
             param->kv_major = (unsigned long)(argv[11][0] - '0');
+            param->ibt = strtoul(argv[12], NULL, 16);;
 
             debug("pgsize=%lu (%s)\n", param->pgsize, argv[1]);
             debug("printk_addr=0x%lx (%s)\n", param->printk_addr, argv[2]);
@@ -498,6 +503,7 @@ int vtoykmod_fill_param(char **argv)
             debug("reg_kprobe_addr=0x%lx (%s)\n", param->reg_kprobe_addr, argv[9]);
             debug("unreg_kprobe_addr=0x%lx (%s)\n", param->unreg_kprobe_addr, argv[10]);
             debug("kv_major=%lu (%s)\n", param->kv_major, argv[11]);
+            debug("ibt=0x%lx (%s)\n", param->ibt, argv[11]);
             
             break;
         }
@@ -513,6 +519,26 @@ int vtoykmod_fill_param(char **argv)
     free(buf);
     return 0;
 }
+
+#ifdef VTOY_X86_64
+static int vtoykmod_check_ibt(void)
+{
+    uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+    
+    __cpuid_count(7, 0, eax, ebx, ecx, edx);
+    
+    if (edx & (1 << 20))
+    {
+        return 0;
+    }
+    return 1;
+}
+#else
+static int vtoykmod_check_ibt(void)
+{
+    return 1;
+}
+#endif
 
 int vtoykmod_main(int argc, char **argv)
 {
@@ -534,6 +560,10 @@ int vtoykmod_main(int argc, char **argv)
     else if (argv[1][0] == '-' && argv[1][1] == 'u')
     {
         return vtoykmod_update(argv[2], argv[3]);
+    }
+    else if (argv[1][0] == '-' && argv[1][1] == 'I')
+    {
+        return vtoykmod_check_ibt();
     }
 
     return 0;
