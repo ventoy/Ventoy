@@ -1,0 +1,7 @@
+
+obj-m += dm_patch_ibt.o
+
+EXTRA_CFLAGS := -Wall -DVTOY_IBT -fcf-protection=branch -mindirect-branch-register
+
+dm_patch_ibt-objs := dmpatch.o
+

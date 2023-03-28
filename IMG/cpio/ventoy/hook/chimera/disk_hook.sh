@@ -19,22 +19,14 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-vtlog "##### $0 $* ..."
-
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
-
-if [ -f /ventoy/vtoy_iso_scan ]; then
-    repopath=$(cat /ventoy/vtoy_iso_scan)
-    repodev=$(vtoydump -f /ventoy/ventoy_os_param | awk -F'#' '{print $1}')
-    if echo $repodev | egrep -q "nvme|mmc|nbd"; then
-        vtpart1=${repodev}p1
+for i in 0 1 2 3 4 5 6 7 8 9; do 
+    vtdiskname=$(get_ventoy_disk_name)
+    if [ "$vtdiskname" = "unknown" ]; then
+        vtlog "wait for disk ..."
+        $SLEEP 3
     else
-        vtpart1=${repodev}1
+        break
     fi
-    echo "inst.repo=hd:${vtpart1}:${repopath}" >> /sysroot/etc/cmdline
-else
-    repodev=$(ls $VTOY_PATH/dev_backup*)
-    echo "inst.repo=hd:/dev/${repodev#*dev_backup_}" >> /sysroot/etc/cmdline
-fi
+done
 
-PATH=$VTPATH_OLD
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"

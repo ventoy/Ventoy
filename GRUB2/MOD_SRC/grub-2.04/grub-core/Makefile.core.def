@@ -1533,7 +1533,7 @@ module = {
   name = squash4;
   common = fs/squash4.c;
   cflags = '$(CFLAGS_POSIX) -Wno-undef';
-  cppflags = '-I$(srcdir)/lib/posix_wrap -I$(srcdir)/lib/xzembed -I$(srcdir)/lib/minilzo -DMINILZO_HAVE_CONFIG_H';
+  cppflags = '-I$(srcdir)/lib/posix_wrap -I$(srcdir)/lib/xzembed -I$(srcdir)/lib/minilzo -I$(srcdir)/lib/zstd -DMINILZO_HAVE_CONFIG_H';
 };
 
 module = {

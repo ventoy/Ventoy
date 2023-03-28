@@ -369,6 +369,9 @@ ventoy_get_os_type() {
         fi
     fi
     
+    if $GREP -q 'chimera' /proc/version; then
+        echo 'chimera'; return
+    fi
     
     echo "default"
 }
