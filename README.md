@@ -10,19 +10,19 @@
   <img src="https://img.shields.io/github/actions/workflow/status/ventoy/Ventoy/ci.yml?label=actions&logo=github&style=for-the-badge">
 </p>
 
-<h4 align="left">
-Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files. <br/>
-With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
+<b>
+Ventoy is an open source tool to create bootable USB drive for boot files. <br/>
+With Ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
 You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
-You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.<br/>
+You can also browse ISO/WIM/IMG/VHD(X)/EFI files in local disk and boot them.<br/>
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
-Both MBR and GPT partition style are supported in the same way.<br/>
-Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
-  1100+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
-<br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
-</h4>
+Both MBR and GPT partition styles are supported in the same way.<br/>
+Most types of OS are supported (Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen.) <br/>
+1100+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). More than 90% of <a href="https://distrowatch.com/">DistroWatch</a>-tracked distros are supported (<a href="https://www.ventoy.net/en/distrowatch.html">details</a>). <br/>
+<br/><a href=https://www.ventoy.net>Website</a>
+</b>
 
-# Tested OS
+# Tested systems
 **Windows**  
 Windows 7, Windows 8, Windows 8.1, Windows 10, Windows 11, Windows Server 2012, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Windows Server 2022, WinPE
 
@@ -40,15 +40,14 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 
 # Subscription Service
 Ventoy is an open source software under GPLv3 license.
-But the Ventoy project needs to pay for the server hosting, domain name, bandwidth, many USB sticks for testing, large capacity of HDD (for downloading ISO files) and so on.  
-For the better and sustainable development of Ventoy, I provide the [【subscription service】](https://www.ventoy.net/en/doc_subscription.html).
-
+But the Ventoy project needs to pay for the server hosting, the domain name, bandwidth, many USB sticks for testing, large capacity of HDD (for downloading ISO files) and so on.  
+For the better and sustainable development of Ventoy, please get the [Subscription Service](https://www.ventoy.net/en/doc_subscription.html).
 
 # Tested Image Report
-[【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
+*See [How to report a successfully tested image file](https://github.com/ventoy/Ventoy/issues/1195)*
 
 # Ventoy Browser
-With Ventoy, you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
+With Ventoy, you can also browse boot files on your local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
   
 # VentoyPlugson
 A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
@@ -56,13 +55,18 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 # Features
 * 100% open source
 * Simple to use
-* Fast (limited only by the speed of copying iso file)
-* Can be installed in USB/Local Disk/SSD/NVMe/SD Card
-* Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
-* Support to browse and boot ISO/WIM/IMG/VHD(x)/EFI files in local disk
-* No need to be continuous in disk for ISO/WIM/IMG/VHD(x)/EFI files
+* Fast (limited only by the speed of copying files)
+* Can be installed in USB/Local Disk/SSD/NVMe/SD card
+* Directly boots from boot files, no extraction needed
+* Can browse and boot boot files on your local disk
+* No need to be continuous in disk for bootable files
 * MBR and GPT partition style supported (1.0.15+)
-* x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI, MIPS64EL UEFI supported
+* The most popular boot types are supported:
+   * x86 Legacy BIOS
+   * IA32 UEFI
+   * x86_64 UEFI
+   * ARM64 UEFI
+   * MIPS64EL UEFI
 * IA32/x86_64 UEFI Secure Boot supported (1.0.07+)
 * Linux Persistence supported (1.0.11+)
 * Windows auto installation supported (1.0.09+)
@@ -70,15 +74,16 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * Variables Expansion supported for Windows/Linux auto installation script
 * FAT32/exFAT/NTFS/UDF/XFS/Ext2(3)(4) supported for main partition
 * ISO files larger than 4GB supported
-* Menu alias, Menu tip message supported
-* Password protect supported
+* Menu alias and menu tip messages supported
+* Password protection supported for security
 * Native boot menu style for Legacy & UEFI
 * Most types of OS supported, 1100+ iso files tested
 * Linux vDisk boot supported
 * Not only boot but also complete installation process
-* Menu dynamically switchable between List/TreeView mode
-* "Ventoy Compatible" concept
-* Plugin Framework and GUI plugin configurator
+* Menu dynamically switchable between list and tree view
+* *Ventoy Compatible* concept
+* Plugin framework
+  * GUI plugin configurator
 * Injection files to runtime environment
 * Boot configuration file dynamically replacement
 * Highly customizable theme and menu
@@ -96,7 +101,9 @@ See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_sta
 # Compile Instructions
 Please refer to [BuildVentoyFromSource.txt](DOC/BuildVentoyFromSource.txt)
 
-# Document
+# Documentation
+*Documentation is written in Chinese before translation so sorry for the bad English.*
+
 Title | Link
 -|-
 **Install & Update** | [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html)
@@ -118,37 +125,28 @@ Title | Link
 **Menu Alias** | [https://www.ventoy.net/en/plugin_menualias.html](https://www.ventoy.net/en/plugin_menualias.html)  
 **Menu Extension** | [https://www.ventoy.net/en/plugin_grubmenu.html](https://www.ventoy.net/en/plugin_grubmenu.html)  
 **Memdisk Mode** | [https://www.ventoy.net/en/doc_memdisk.html](https://www.ventoy.net/en/doc_memdisk.html)  
-**TreeView Mode** | [https://www.ventoy.net/en/doc_treeview.html](https://www.ventoy.net/en/doc_treeview.html)  
-**Disk Layout MBR** | [https://www.ventoy.net/en/doc_disk_layout.html](https://www.ventoy.net/en/doc_disk_layout.html)  
-**Disk Layout GPT** | [https://www.ventoy.net/en/doc_disk_layout_gpt.html](https://www.ventoy.net/en/doc_disk_layout_gpt.html)  
+**TreeView Mode** | [https://www.ventoy.net/en/doc_treeview.html](https://www.ventoy.net/en/doc_treeview.html) 
+**Disk Layout MBR** | [https://www.ventoy.net/en/doc_disk_layout.html](https://www.ventoy.net/en/doc_disk_layout.html) 
+**Disk Layout GPT** | [https://www.ventoy.net/en/doc_disk_layout_gpt.html](https://www.ventoy.net/en/doc_disk_layout_gpt.html) 
 **Search Configuration** | [https://www.ventoy.net/en/doc_search_path.html](https://www.ventoy.net/en/doc_search_path.html)
 
 
 # FAQ
-See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for detail
-
+*See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html)*
 
 # Forum
-[https://forums.ventoy.net](https://forums.ventoy.net)
+*See [https://forums.ventoy.net](https://forums.ventoy.net)*
 
 # Donation
-It would be much appreciated if you want to make a small donation to support my work!  
-Alipay, WeChat Pay, PayPal and Bitcoin are available for donation. You can choose any of them.  
+It would be much appreciated if you want to make a small donation to support my work!
+AliPay, WeChat Pay, PayPal and Bitcoin are available for donation. You can choose any of them.  
 
-Alipay | WeChat Pay
+AliPay | WeChat Pay
 -|-
 <img src="https://www.ventoy.net/static/img/AliPay.png" width="250" height="250">|<img src="https://www.ventoy.net/static/img/WeChatPay.png" width="250" height="250">
 
 **PayPal**  
-You can transfer to my paypal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
+You can transfer to my PayPal account `admin@ventoy.net` or at [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy).
 
-**Bitcoin**  
-Bitcoin Address `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
-
-
-
-
-
-
-
-
+**Bitcoin**
+Code: `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
