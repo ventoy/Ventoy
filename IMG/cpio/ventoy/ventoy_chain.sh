@@ -229,6 +229,10 @@ ventoy_get_os_type() {
         echo 'android'; return
     fi 
     
+    if $GREP -q 'android.google' /proc/version; then
+        echo 'android'; return
+    fi
+    
     if $GREP -q 'adelielinux' /proc/version; then
         echo 'adelie'; return
     fi
