@@ -160,9 +160,14 @@ ventoy_rw_iso_scan() {
 }
 
 ventoy_iso_scan_check() {
+    vtCheckOk=0
     if ventoy_is_exfat_part; then
         if ventoy_has_exfat_ko; then
-            ventoy_has_iso_scan
+            if ventoy_has_iso_scan; then
+                vtCheckOk=1
+            fi
         fi
     fi
+    
+    [ $vtCheckOk -eq 1 ]
 }
