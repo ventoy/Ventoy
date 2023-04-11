@@ -148,9 +148,8 @@ AliPay | WeChat Pay
 **PayPal**  
 You can transfer to my PayPal account `admin@ventoy.net` or at [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy).
 
-**Bitcoin**
 <details>
-    <summary>Show Bitcoin code</summary>
-    `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
+    <summary><b>Bitcoin code</b></summary>
+    19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT
 </details>
 
