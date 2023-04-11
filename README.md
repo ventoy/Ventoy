@@ -11,20 +11,20 @@
 </p>
 
 <b>
-Ventoy is an open source tool to create bootable USB drive for boot files. <br/>
+Ventoy is an open source tool to create bootable USB drive for boot (ISO/WIM/IMG/VHD(x)/EFI) files. <br/>
 With Ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
 You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
 You can also browse ISO/WIM/IMG/VHD(X)/EFI files in local disk and boot them.<br/>
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
-Both MBR and GPT partition styles are supported in the same way.<br/>
-Most types of OS are supported (Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen.) <br/>
-1100+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). More than 90% of <a href="https://distrowatch.com/">DistroWatch</a>-tracked distros are supported (<a href="https://www.ventoy.net/en/distrowatch.html">details</a>). <br/>
+Both MBR and GPT partition styles are supported functionally.<br/>
+Most types of OS are supported (Windows/WinPE/Linux/Unix/ChromeOS/VMware/Xen.) <br/>
+1100+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). More than 90% of <a href="https://distrowatch.com/">DistroWatch</a> tracked distros are supported (<a href="https://www.ventoy.net/en/distrowatch.html">details</a>). <br/>
 <br/><a href=https://www.ventoy.net>Website</a>
 </b>
 
 # Tested systems
 **Windows**  
-Windows 7, Windows 8, Windows 8.1, Windows 10, Windows 11, Windows Server 2012, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Windows Server 2022, WinPE
+Windows 7, Windows 8, Windows 8.1, Windows 10, Windows 11, Windows Server 2012, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Windows Server 2022, Windows PE
 
 **Linux**  
 Debian, Ubuntu, CentOS(6/7/8/9), RHEL(6/7/8/9), Deepin, Fedora, Rocky Linux, AlmaLinux, EuroLinux(6/7/8/9), openEuler, OpenAnolis, SLES, openSUSE, MX Linux, Manjaro, Linux Mint, Endless OS, Elementary OS, Solus, Linx, Zorin, antiX, PClinuxOS, Arch, ArcoLinux, ArchLabs, BlackArch, Obarun, Artix Linux, Puppy Linux, Tails, Slax, Kali, Mageia, Slackware, Q4OS, Archman, Gentoo, Pentoo, NixOS, Kylin, openKylin, Ubuntu Kylin, KylinSec, Lubuntu, Xubuntu, Kubuntu, Ubuntu MATE, Ubuntu Budgie, Ubuntu Studio, Bluestar, OpenMandriva, ExTiX, Netrunner, ALT Linux, Nitrux, Peppermint, KDE neon, Linux Lite, Parrot OS, Qubes, Pop OS, ROSA, Void Linux, Star Linux, EndeavourOS, MakuluLinux, Voyager, Feren, ArchBang, LXLE, Knoppix, Calculate Linux, Clear Linux, Pure OS, Oracle Linux, Trident, Septor, Porteus, Devuan, GoboLinux, 4MLinux, Simplicity Linux, Zeroshell, Android-x86, netboot.xyz, Slitaz, SuperGrub2Disk, Proxmox VE, Kaspersky Rescue, SystemRescueCD, MemTest86, MemTest86+, MiniTool Partition Wizard, Parted Magic, veket, Sabayon, Scientific, alpine, ClearOS, CloneZilla, Berry Linux, Trisquel, Ataraxia Linux, Minimal Linux Live, BackBox Linux, Emmabuntüs, ESET SysRescue Live,Nova Linux, AV Linux, RoboLinux, NuTyX, IPFire, SELKS, ZStack, Enso Linux, Security Onion, Network Security Toolkit, Absolute Linux, TinyCore, Springdale Linux, Frost Linux, Shark Linux, LinuxFX, Snail Linux, Astra Linux, Namib Linux, Resilient Linux, Virage Linux, Blackweb Security OS, R-DriveImage, O-O.DiskImage, Macrium, ToOpPy LINUX, GNU Guix, YunoHost, foxclone, siduction, Adelie Linux, Elive, Pardus, CDlinux, AcademiX, Austrumi, Zenwalk, Anarchy, DuZeru, BigLinux, OpenMediaVault, Ubuntu DP, Exe GNU/Linux, 3CX Phone System, KANOTIX, Grml, Karoshi, PrimTux, ArchStrike, CAELinux, Cucumber, Fatdog, ForLEx, Hanthana, Kwort, MiniNo, Redcore, Runtu, Asianux, Clu Linux Live, Uruk, OB2D, BlueOnyx, Finnix, HamoniKR, Parabola, LinHES, LinuxConsole, BEE free, Untangle, Pearl, Thinstation, TurnKey, tuxtrans, Neptune, HefftorLinux, GeckoLinux, Mabox Linux, Zentyal, Maui, Reborn OS, SereneLinux , SkyWave Linux, Kaisen Linux, Regata OS, TROM-Jaro, DRBL Linux, Chalet OS, Chapeau, Desa OS, BlankOn, OpenMamba, Frugalware, Kibojoe Linux, Revenge OS, Tsurugi Linux, Drauger OS, Hash Linux, gNewSense, Ikki Boot, SteamOS, Hyperbola, VyOS, EasyNAS, SuperGamer, Live Raizo, Swift Linux, RebeccaBlackOS, Daphile, CRUX, Univention, Ufficio Zero, Rescuezilla, Phoenix OS, Garuda Linux, Mll, NethServer, OSGeoLive, Easy OS, Volumio, FreedomBox, paldo, UBOS, Recalbox, batocera, Lakka, LibreELEC, Pardus Topluluk, Pinguy, KolibriOS, Elastix, Arya, Omoikane, Omarine, Endian Firewall, Hamara, Rocks Cluster, MorpheusArch, Redo, Slackel, SME Server, APODIO, Smoothwall, Dragora, Linspire, Secure-K OS, Peach OSI, Photon, Plamo, SuperX, Bicom, Ploplinux, HP SPP, LliureX, Freespire, DietPi, BOSS, Webconverger, Lunar, TENS, Source Mage, RancherOS, T2, Vine, Pisi, blackPanther, mAid, Acronis, Active.Boot, AOMEI, Boot.Repair, CAINE, DaRT, EasyUEFI, R-Drive, PrimeOS, Avira Rescue System, bitdefender, Checkra1n Linux, Lenovo Diagnostics, Clover, Bliss-OS, Lenovo BIOS Update, Arcabit Rescue Disk, MiyoLinux, TeLOS, Kerio Control, RED OS, OpenWrt, MocaccinoOS, EasyStartup, Pyabr, Refracta, Eset SysRescue, Linpack Xtreme, Archcraft, NHVBOOT, pearOS, SeaTools, Easy Recovery Essentional, iKuai, StorageCraft SCRE, ZFSBootMenu, TROMjaro, BunsenLabs, Todo en Uno, ChallengerOS, Nobara, Holo, CachyOS, Peux OS, Vanilla OS, ShredOS, paladin, Palen1x, dban, ReviOS, HelenOS, XeroLinux, ......
@@ -39,8 +39,8 @@ FydeOS, CloudReady, ChromeOS Flex
 VMware ESXi, Citrix XenServer, Xen XCP-ng
 
 # Subscription Service
-Ventoy is an open source software under GPLv3 license.
-But the Ventoy project needs to pay for the server hosting, the domain name, bandwidth, many USB sticks for testing, large capacity of HDD (for downloading ISO files) and so on.  
+Ventoy is open source software under GPLv3 license.
+However, the Ventoy project needs to pay for the server hosting, the domain name, bandwidth, many USB sticks for testing, large capacity of HDD (for downloading ISO files) and so on.  
 For the better and sustainable development of Ventoy, please get the [Subscription Service](https://www.ventoy.net/en/doc_subscription.html).
 
 # Tested Image Report
@@ -56,8 +56,8 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * 100% open source
 * Simple to use
 * Fast (limited only by the speed of copying files)
-* Can be installed in USB/Local Disk/SSD/NVMe/SD card
-* Directly boots from boot files, no extraction needed
+* Can be installed on USB/Local Disk/SSD/NVMe/SD card
+* Directly boots from ISO/WIM/IMG/VHD(x)/EFI boot files, no extraction needed
 * Can browse and boot boot files on your local disk
 * No need to be continuous in disk for bootable files
 * MBR and GPT partition style supported (1.0.15+)
