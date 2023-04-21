@@ -125,6 +125,7 @@ fi
 
 #iso-scan (currently only for Fedora)
 if $GREP -q Fedora /etc/os-release; then
+if /ventoy/tool/vtoydump -a /ventoy/ventoy_os_param; then
     if ventoy_iso_scan_check; then
         echo "iso_scan process ..." >> $VTLOG
         
@@ -139,6 +140,7 @@ if $GREP -q Fedora /etc/os-release; then
 
         exit 0
     fi
+fi    
 fi
 
 

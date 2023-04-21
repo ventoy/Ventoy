@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -444,6 +445,29 @@ static int vtoy_vlnk_printf(ventoy_os_param *param, char *diskname)
     return 1;
 }
 
+static int vtoy_check_iso_path_alpnum(ventoy_os_param *param)
+{
+    char c;
+    int i = 0;
+    
+    while (param->vtoy_img_path[i])
+    {
+        c = param->vtoy_img_path[i]; 
+        
+        if (isalnum(c) || c == '_' || c == '-')
+        {
+            
+        }
+        else
+        {
+            return 1;
+        }
+        i++;
+    }
+
+    return 0;
+}
+
 static int vtoy_check_device(ventoy_os_param *param, const char *device)
 {
     unsigned long long size; 
@@ -560,6 +584,7 @@ int vtoydump_main(int argc, char **argv)
     int rc;
     int ch;
     int print_path = 0;
+    int check_ascii = 0;
     int print_fs = 0;
     int vlnk_print = 0;
     char filename[256] = {0};
@@ -567,7 +592,7 @@ int vtoydump_main(int argc, char **argv)
     char device[64] = {0};
     ventoy_os_param *param = NULL;
 
-    while ((ch = getopt(argc, argv, "c:f:p:t:s:v::")) != -1)
+    while ((ch = getopt(argc, argv, "a:c:f:p:t:s:v::")) != -1)
     {
         if (ch == 'f')
         {
@@ -584,6 +609,11 @@ int vtoydump_main(int argc, char **argv)
         else if (ch == 'p')
         {
             print_path = 1;
+            strncpy(filename, optarg, sizeof(filename) - 1);
+        }
+        else if (ch == 'a')
+        {
+            check_ascii = 1;
             strncpy(filename, optarg, sizeof(filename) - 1);
         }
         else if (ch == 't')
@@ -659,6 +689,10 @@ int vtoydump_main(int argc, char **argv)
     else if (device[0])
     {
         rc = vtoy_check_device(param, device);
+    }
+    else if (check_ascii)
+    {
+        rc = vtoy_check_iso_path_alpnum(param);
     }
     else
     {
