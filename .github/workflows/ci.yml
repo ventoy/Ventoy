@@ -12,26 +12,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Run docker-compose up
       run: docker-compose up
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ventoy-windows
         path: INSTALL/ventoy-*windows*
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ventoy-linux
         path: INSTALL/ventoy-*linux*
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ventoy-livecd
         path: INSTALL/ventoy-*livecd*
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: SHA256SUM
         path: INSTALL/sha256.txt
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: xxx-build-log
         path: DOC/build.log
