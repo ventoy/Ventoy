@@ -1814,7 +1814,7 @@
         "STR_PART_CLUSTER":"磁叢大小",
         "STR_PART_CLUSTER_DEFAULT":"系統預設值",
         "STR_DONATE":"贊助",
-        "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支援單位磁區大小為4K的硬碟。",
+        "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支援磁區單位大小為4K的硬碟。",
         
         "STRXXX":""
     },
