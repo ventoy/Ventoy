@@ -1811,7 +1811,7 @@
         "STR_INSTALL_YES_TIP2":"請在下方的文字輸入框輸入 YES 來證實您想要進行全新安裝取代升級。",
         "STR_PART_VENTOY_FS":"Ventoy 磁區的檔案系統",
         "STR_PART_FS":"檔案系統",
-        "STR_PART_CLUSTER":"磁簇大小",
+        "STR_PART_CLUSTER":"磁叢大小",
         "STR_PART_CLUSTER_DEFAULT":"系統預設值",
         "STR_DONATE":"贊助",
         "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支援單位磁區大小為4K的硬碟。",
