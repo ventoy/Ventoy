@@ -905,7 +905,7 @@
         "STR_PART_CLUSTER":"Taille de cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valeur par défaut du système",
         "STR_DONATE":"Faire un don",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
+        "STR_4KN_UNSUPPORTED":"Actuellement, Ventoy ne prend pas en charge les appareils natifs 4K.",
         
         "STRXXX":""
     },
@@ -1489,7 +1489,7 @@
         "STR_PART_CLUSTER":"Dimensiunea clusterului",
         "STR_PART_CLUSTER_DEFAULT":"Valoarea implicită a sistemului",
         "STR_DONATE":"Donează",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
+        "STR_4KN_UNSUPPORTED":"Momentan, Ventoy nu suporta dispozitive native 4k.",
         
         "STRXXX":""
     },
