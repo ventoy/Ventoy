@@ -143,7 +143,7 @@ if grep "$DISK" /proc/mounts; then
 fi
 
 #check swap partition
-if swapon --help 2>&1 | grep -q '^ \-s,'; then
+if swapon --help 2>&1 | grep -q '^ -s,'; then
     if swapon -s | grep -q "^${DISK}[0-9]"; then
         vterr "$DISK is used as swap, please swapoff it first!"
         exit 1
