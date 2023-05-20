@@ -229,10 +229,7 @@ grub_cmd_chainloader (grub_command_t cmd __attribute__ ((unused)),
   if (! file)
     goto fail;
 
-  /* Get the root device's device path.  */
-  dev = grub_device_open (0);
-  if (! dev)
-    goto fail;
+  dev = file->device;
 
   if (dev->disk)
     dev_handle = grub_efidisk_get_device_handle (dev->disk);
@@ -257,15 +254,12 @@ grub_cmd_chainloader (grub_command_t cmd __attribute__ ((unused)),
   if (dev_handle)
     dp = grub_efi_get_device_path (dev_handle);
 
-  if (! dp)
+  if (dp != NULL)
     {
-      grub_error (GRUB_ERR_BAD_DEVICE, "not a valid root device");
-      goto fail;
+      file_path = make_file_path (dp, filename);
+      if (! file_path)
+        goto fail;
     }
-
-  file_path = make_file_path (dp, filename);
-  if (! file_path)
-    goto fail;
 
   //grub_printf ("file path: ");
   //grub_efi_print_device_path (file_path);
@@ -390,15 +384,11 @@ grub_cmd_chainloader (grub_command_t cmd __attribute__ ((unused)),
     }
 
   grub_file_close (file);
-  grub_device_close (dev);
 
   grub_loader_set (grub_chainloader_boot, grub_chainloader_unload, 0);
   return 0;
 
  fail:
-
-  if (dev)
-    grub_device_close (dev);
 
   if (file)
     grub_file_close (file);
