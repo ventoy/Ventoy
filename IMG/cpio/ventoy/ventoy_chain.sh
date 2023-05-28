@@ -64,9 +64,9 @@ ventoy_get_os_type() {
     elif $GREP -q '[Uu]buntu' /proc/version; then
         echo 'debian'; return
         
-    # Deepin : do the same process with debian
+    # Deepin :
     elif $GREP -q '[Dd]eepin' /proc/version; then
-        echo 'debian'; return
+        echo 'deepin'; return
 
     # rhel5/CentOS5 and all other distributions based on them
     elif $GREP -q 'el5' /proc/version; then
@@ -169,9 +169,9 @@ ventoy_get_os_type() {
         elif $GREP -q 'fuyu' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'deepin' /etc/os-release; then
-            echo 'debian'; return
+            echo 'deepin'; return
         elif $GREP -q 'chinauos' /etc/os-release; then
-            echo 'debian'; return
+            echo 'deepin'; return
         fi
     fi
     

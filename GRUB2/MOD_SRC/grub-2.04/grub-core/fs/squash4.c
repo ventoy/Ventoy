@@ -405,24 +405,16 @@ static grub_ssize_t zstd_decompress_wrap(char *inbuf, grub_size_t insize, grub_o
 {
   char *udata = NULL;
   int usize = data->blksz;
+  if (usize < 8192)
+    usize = 8192;
 
-  if (off == 0)
-  {
-    ZSTD_decompress(outbuf, len, inbuf, insize);      
-  }
-  else
-  {
-    if (usize < 8192)
-      usize = 8192;
-
-    udata = grub_malloc (usize);
-    if (!udata)
-      return -1;
+  udata = grub_malloc (usize);
+  if (!udata)
+    return -1;
   
-    ZSTD_decompress(udata, usize, inbuf, insize);      
-    grub_memcpy(outbuf, udata + off, len);
-    grub_free(udata);
-  }
+  ZSTD_decompress(udata, usize, inbuf, insize);      
+  grub_memcpy(outbuf, udata + off, len);
+  grub_free(udata);
   
   return len;
 }
@@ -551,7 +543,7 @@ grub_squash_iterate_dir (grub_fshelp_node_t dir,
       break;
     case grub_cpu_to_le16_compile_time (SQUASH_TYPE_LONG_DIR):
       off = grub_le_to_cpu16 (dir->ino.long_dir.offset);
-      endoff = grub_le_to_cpu16 (dir->ino.long_dir.size) + off - 3;
+      endoff = grub_le_to_cpu32 (dir->ino.long_dir.size) + off - 3;
       chunk = grub_le_to_cpu32 (dir->ino.long_dir.chunk);
       break;
     default:
