@@ -1822,13 +1822,13 @@
         "name":"Serbian Latin (Srpski)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov, Stefan Šućur",
+        "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov, Stefan Šućur, Kosta Stojiljković",
         
         "STR_ERROR":"Greška",
         "STR_WARNING":"Upozorenje",
         "STR_INFO":"Informacija",
         "STR_INCORRECT_DIR":"Molim Vas, pokrenite me u pravom direktorijumu!",
-        "STR_INCORRECT_TREE_DIR":"Nemojте me pokretati ovde, molim Vas preuzmite objavljeni instalacioni paket i pokrenite me tamo.",
+        "STR_INCORRECT_TREE_DIR":"Nemojtе me pokretati ovde, molim Vas preuzmite objavljeni instalacioni paket i pokrenite me tamo.",
         "STR_DEVICE":"Uređaj",
         "STR_LOCAL_VER":"Ventoy u paketu",
         "STR_DISK_VER":"Ventoy u uređaju",
@@ -1879,7 +1879,7 @@
         "STR_PART_CLUSTER":"Veličina klastera",
         "STR_PART_CLUSTER_DEFAULT":"Podrazumevana sistemska vrednost",
         "STR_DONATE":"Donirajte",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
+        "STR_4KN_UNSUPPORTED":"Ventoy trenutno ne podržava 4K izvorne uređaje.",
         
         "STRXXX":""
     },
@@ -1887,7 +1887,7 @@
         "name":"Serbian Cyrillic (Српски)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov, Stefan Šućur",
+        "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov, Stefan Šućur, Kosta Stojiljković",
 
         "STR_ERROR":"Грешка",
         "STR_WARNING":"Упозорење",
@@ -1923,7 +1923,7 @@
         "STR_SHOW_ALL_DEV":"Прикажи све уређаје",
         "STR_PART_ALIGN_4KB":"Поравнајте партиције са 4KB",
         "STR_WEB_COMMUNICATION_ERR":"Комуникациона грешка:",
-        "STR_WEB_REMOTE_ABNORMAL":"Комуникациона грешка: ненормално даљинско управљање",
+        "STR_WEB_REMOTE_ABNORMAL":"Комуникациона грешка: Ненормално даљинско управљање",
         "STR_WEB_REQUEST_TIMEOUT":"Комуникациона грешка: Захтев је истекао",
         "STR_WEB_SERVICE_UNAVAILABLE":"Комуникациона грешка: Сервис је недоступан",
         "STR_WEB_TOKEN_MISMATCH":"Статус демона ажуриран, покушајте поново касније.",
@@ -1944,7 +1944,7 @@
         "STR_PART_CLUSTER":"Величина кластера",
         "STR_PART_CLUSTER_DEFAULT":"Подразумевана системска вредност",
         "STR_DONATE":"Донирајте",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
+        "STR_4KN_UNSUPPORTED":"Ventoy тренутно не подржава 4К изворне уређаје.",
         
         "STRXXX":""
     },
