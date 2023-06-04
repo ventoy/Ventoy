@@ -236,7 +236,7 @@
     <div class="row" style="margin-top:-10px; width:535px; font-family:courier new; font-weight:bold;align:center;text-align:center;">
         <ul class="nav nav-tabs" style="margin-left:5px;">
           <li class="dropdown">
-            <a class="dropdown-toggle noselect" id='vtoy_option' data-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">配置选项 <span class="caret"></span></a>
+            <a class="dropdown-toggle noselect" id='vtoy_option' tabindex=0 data-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">配置选项 <span class="caret"></span></a>
             <ul class="dropdown-menu noselect">
               <li role="presentation"><a role="menuitem" onclick="on_secure_boot()"><span id='vtoy_check_secure_boot' class="fa fa-check select"></span><span  id='vtoy_menu_secure_boot'>安全启动支持</span><span class="fa fa-check select"></span></a></li>              
 
@@ -253,7 +253,7 @@
             </ul>
           </li>
           <li class="dropdown">
-            <a class="dropdown-toggle noselect" id='vtoy_language' data-toggle="dropdown" aria-expanded="false" style="cursor: pointer;;">Languages <span class="caret"></span></a>
+            <a class="dropdown-toggle noselect" id='vtoy_language' tabindex=0 data-toggle="dropdown" aria-expanded="false" style="cursor: pointer;;">Languages <span class="caret"></span></a>
             <ul class="dropdown-menu pull-left noselect" style="height:300px;overflow:scroll"  id='vtoy_language_dropbox'>              
             </ul>
           </li>
@@ -271,7 +271,7 @@
                 </select>
             </div>
           
-            <div style="float:right;">
+            <div tabindex=0 style="float:right;">
                 <img src="static/img/refresh.ico" alt="" id="refresh_dev_img" style="cursor: pointer;"></img>
             </div>
         </div>
