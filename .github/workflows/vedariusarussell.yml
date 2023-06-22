@@ -1,7 +1,6 @@
-name: Ventoy CI
-
-on:
-  push:
+name: vedariusarussell
+on:   Ventoy CI
+  push:vedariusarussell
     branches: [ master ]
   pull_request:
     branches: [ master ]
