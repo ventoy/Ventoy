@@ -2191,7 +2191,7 @@ static BOOL VentoyIsNeedBypass(const char *isofile, const char MntLetter)
     }
     else
     {
-        Log("This is not Windows 11, not need to bypass.", Major);
+        Log("This is not Windows 11, not need to bypass %u.", Major);
     }
 
 End:
