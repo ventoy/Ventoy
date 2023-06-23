@@ -1,8 +1,8 @@
 
 ==========================================
-1. Compile Enviroment
+1. Compile Environment
 ==========================================
-    My build envrioment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
+    My build environment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
     Because Ventoy is based on many open source projects, so the environment is important. I suggest you test it on a virtual machine firstly.
 
 1.1 Install CentOS 7.8
@@ -54,7 +54,7 @@
     mv /opt/output /opt/mips64el-linux-musl-gcc730
     
 
-2.4 Set PATH envrioment
+2.4 Set PATH environment
     export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin:/opt/mips64el-linux-musl-gcc730/bin
     better to add this line to /root/.bashrc and relogin as root
 
