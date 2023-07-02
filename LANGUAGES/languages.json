@@ -1614,11 +1614,11 @@
         "STR_PART_RESIZE_UNSUPPORTED":"L'installazione non distruttiva di Ventoy è stata interrotta perché alcune condizioni non possono essere soddisfatte.#@Controlla il file log.txt per i dettagli.",
         "STR_INSTALL_YES_TIP1":"Attenzione: i dati verranno persi!",
         "STR_INSTALL_YES_TIP2":"Digita YES nella casella di testo qui sotto per confermare che vuoi davvero eseguire un'installazione pulita anziché un aggiornamento.",
-        "STR_PART_VENTOY_FS":"File system per la partizione Ventoy",
+        "STR_PART_VENTOY_FS":"File system partizione Ventoy",
         "STR_PART_FS":"File system",
-        "STR_PART_CLUSTER":"Dimensione del cluster",
-        "STR_PART_CLUSTER_DEFAULT":"Valore predefinito di sistema",
-        "STR_DONATE":"Donare",
+        "STR_PART_CLUSTER":"Dimensione cluster",
+        "STR_PART_CLUSTER_DEFAULT":"Valore predefinito sistema",
+        "STR_DONATE":"Dona",
         "STR_4KN_UNSUPPORTED":"Attualmente Ventoy non supporta dispositivi nativi 4K.",
         
         "STRXXX":""
