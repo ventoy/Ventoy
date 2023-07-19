@@ -342,10 +342,12 @@ grub_file_read (grub_file_t file, void *buf, grub_size_t len)
   if (len == 0)
     return 0;
 
-  if (grub_strncmp(file->name, GRUB_MEMFILE_MEM, grub_strlen(GRUB_MEMFILE_MEM)) == 0) {
+  if (file->name) {
+    if (grub_strncmp(file->name, GRUB_MEMFILE_MEM, grub_strlen(GRUB_MEMFILE_MEM)) == 0) {
       grub_memcpy(buf, (grub_uint8_t *)(file->data) + file->offset, len);
       file->offset += len;
       return len;
+    }
   }
   
   read_hook = file->read_hook;
