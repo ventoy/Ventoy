@@ -30,7 +30,7 @@
     
     "VTLANG_POWER": "Питание",
     "VTLANG_POWER_REBOOT": "Перезагрузить",
-    "VTLANG_POWER_HALT": "Завершить роботу",
+    "VTLANG_POWER_HALT": "Завершить работу",
     "VTLANG_POWER_BOOT_EFIFW": "Перезагрузиться в настройку EFI",
     
     "VTLANG_KEYBRD_LAYOUT": "Раскладки клавиатуры",
