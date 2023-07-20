@@ -47,7 +47,7 @@
     "VTLANG_UTIL_SHOW_EFI_DRV": "UEFI 드라이버 표시",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows 초기화 라이브러리 오류 복구",
     
-    "VTLANG_JSON_CHK_JSON": "플러그인 파일 구성 확인 (ventoy.json)",    
+    "VTLANG_JSON_CHK_JSON": "플러그인 파일 구성 확인 (ventoy.json)",
     "VTLANG_JSON_CHK_CONTROL": "전역 제어 플러그인 구성 확인",
     "VTLANG_JSON_CHK_THEME": "테마 플러그인 구성 확인",
     "VTLANG_JSON_CHK_AUTOINS": "자동 설치 플러그인 구성 확인",
@@ -78,12 +78,13 @@
     "VTLANG_PERSIST_USE": "부팅 대상",
     
     "VTLANG_BROWER_RETURN": "돌아가기",
+    
     "VTLANG_ENTER_EXIT": "종료하려면 Enter 키를 누르십시오",
     "VTLANG_ENTER_REBOOT": "다시 시작하려면 Enter 키를 누르십시오",
     "VTLANG_ENTER_CONTINUE": "계속하려면 Enter 키를 누르십시오",
     
     "VTLANG_CTRL_TEMP_SET": "임시 제어 설정",
-    "VTLANG_WIN11_BYPASS_CHECK": "Windows 11 설치 시 CPU/TPM/Secure Boot 검사 회피",
+    "VTLANG_WIN11_BYPASS_CHECK": "Windows 11 설치 시 CPU/TPM/SecureBoot 검사 회피",
     "VTLANG_WIN11_BYPASS_NRO": "Windows 11 설치 시 온라인 계정 요구 사항 무시",
     "VTLANG_LINUX_REMOUNT": "Linux 부팅 후 Ventoy 파티션 마운트",
     "VTLANG_SECONDARY_BOOT_MENU": "보조 부팅 메뉴 표시",
