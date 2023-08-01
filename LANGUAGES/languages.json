@@ -588,7 +588,7 @@
         "name":"Portuguese Brazilian (Português do Brasil)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"EstevaoCostaG3, David BrazSan, Hildo Guillardi Júnior, Chrystian Rubio",
+        "Author":"EstevaoCostaG3, David BrazSan, Hildo Guillardi Júnior, Chrystian Rubio, Delphox",
         
         "STR_ERROR":"Erro",
         "STR_WARNING":"Atenção",
@@ -645,7 +645,7 @@
         "STR_PART_CLUSTER":"Tamanho do cluster",
         "STR_PART_CLUSTER_DEFAULT":"Valor padrão do sistema",
         "STR_DONATE":"Doar",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
+        "STR_4KN_UNSUPPORTED":"Atualmente o Ventoy não suporta dispositivos 4K nativos.",
         
         "STRXXX":""
     },
