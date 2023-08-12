@@ -1837,7 +1837,7 @@
         "STR_SHOW_ALL_DEV":"Vis alle enheter",
         "STR_PART_ALIGN_4KB":"Juster partisjoner med 4KB",
         "STR_WEB_COMMUNICATION_ERR":"Kommunikasjonsfeil:",
-        "STR_WEB_REMOTE_ABNORMAL":"Kommunikasjonsfeil: unormalt serveroppførsel",
+        "STR_WEB_REMOTE_ABNORMAL":"Kommunikasjonsfeil: uventet serveroppførsel",
         "STR_WEB_REQUEST_TIMEOUT":"Kommunikasjonsfeil: Forespørselen ble tidsavbrutt",
         "STR_WEB_SERVICE_UNAVAILABLE":"Kommunikasjonsfeil: Tjeneste utilgjengelig",
         "STR_WEB_TOKEN_MISMATCH":"Bakgrunnsprosessens status har blitt oppdatert, vennligst prøv igjen senere.",
