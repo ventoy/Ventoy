@@ -2718,14 +2718,14 @@
         "STR_PART_RESIZE_SUCCESS":"Gratulerar!#@Ventoy lyckades slutföra en icke-förstörande installation.",
         "STR_PART_RESIZE_FAILED":"Ventoy misslyckades slutföra en icke-förstörande installation. Mer information finns i log.txt.",
         "STR_PART_RESIZE_UNSUPPORTED":"Icke-förstörande installation stoppades eftersom vissa villkor inte kunde uppfyllas. Mer information finns i log.txt.",
-        "STR_INSTALL_YES_TIP1":"Varning: Data kommer att gå förlorade!",
+        "STR_INSTALL_YES_TIP1":"Varning: Data kommer att gå förlorad!",
         "STR_INSTALL_YES_TIP2":"Skriv YES i textrutan nedan för att bekräfta att du verkligen vill göra en nyinstallation i stället för att uppgradera.",
         "STR_PART_VENTOY_FS":"Filsystem för Ventoy-partition",
         "STR_PART_FS":"Filsystem",
         "STR_PART_CLUSTER":"Klusterstorlek",
         "STR_PART_CLUSTER_DEFAULT":"Systemets standardvärde",
         "STR_DONATE":"Donera",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
+        "STR_4KN_UNSUPPORTED":"För närvarande stöder inte Ventoy 4K-enheter.",
         
         "STRXXX":""
     },
