@@ -253,6 +253,7 @@ int VentoyFillGpt(UINT64 DiskSizeBytes, VTOY_GPT_INFO *pInfo);
 BOOL IsVentoyLogicalDrive(CHAR DriveLetter);
 int GetRegDwordValue(HKEY Key, LPCSTR SubKey, LPCSTR ValueName, DWORD *pValue);
 int GetPhysicalDriveCount(void);
+BOOL VentoyPhydriveMatch(PHY_DRIVE_INFO* pPhyDrive);
 int GetAllPhysicalDriveInfo(PHY_DRIVE_INFO *pDriveList, DWORD *pDriveCount);
 int GetPhyDriveByLogicalDrive(int DriveLetter, UINT64*Offset);
 int GetVentoyVerInPhyDrive(const PHY_DRIVE_INFO *pDriveInfo, UINT64 Part2StartSector, CHAR *VerBuf, size_t BufLen, BOOL *pSecureBoot);
@@ -387,5 +388,12 @@ PHY_DRIVE_INFO* CLI_PhyDrvInfo(void);
 
 #define VTSI_SUPPORT 1
 
+
+#define WM_OFFSET        (WM_USER + 40)
+#define WM_WIDTH_CHANGE  (WM_OFFSET + 1)
+
+
+int ExpandDlg(HWND hParent, UINT uiID, int WidthDelta);
+int MoveDlg(HWND hParent, UINT uiID, int WidthDelta);
 
 #endif
