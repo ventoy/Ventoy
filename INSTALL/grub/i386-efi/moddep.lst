@@ -201,7 +201,7 @@ cbmemc: cbtable normal terminfo
 hfsplus: fshelp
 gcry_cast5: crypto
 extcmd:
-squash4: fshelp lzopio zfs xzio gzio
+squash4: fshelp zstd lzopio zfs xzio gzio
 part_plan:
 minix_be:
 gcry_whirlpool: crypto

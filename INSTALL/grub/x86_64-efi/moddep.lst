@@ -26,7 +26,7 @@ sfs: fshelp
 reiserfs: fshelp
 part_sunpc:
 zstd:
-gfxmenu: video_colors trig gfxterm bitmap_scale font normal video bitmap
+gfxmenu: video_colors trig bitmap_scale gfxterm font normal video bitmap
 backtrace:
 jfs:
 help: extcmd normal
@@ -121,7 +121,7 @@ ehci: cs5536 usb boot
 crypto:
 part_bsd: part_msdos
 cs5536:
-ventoy: ext2 fshelp elf btrfs font crypto gcry_md5 exfat udf div extcmd datetime normal video gcry_sha1 mmap iso9660
+ventoy: ext2 fshelp elf btrfs crypto font gcry_md5 exfat udf datetime div extcmd normal video gcry_sha1 mmap iso9660
 gcry_sha512: crypto
 password: crypto normal
 fshelp:
@@ -202,7 +202,7 @@ cbmemc: cbtable normal terminfo
 hfsplus: fshelp
 gcry_cast5: crypto
 extcmd:
-squash4: fshelp lzopio zfs xzio gzio
+squash4: fshelp zstd lzopio zfs xzio gzio
 part_plan:
 minix_be:
 gcry_whirlpool: crypto

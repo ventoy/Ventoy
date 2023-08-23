@@ -588,7 +588,7 @@
         "name":"Portuguese Brazilian (Português Brasileiro)",
         "FontFamily":"Courier New",
         "FontSize":16,
-        "Author":"EstevaoCostaG3, David BrazSan, Hildo Guillardi Júnior, Chrystian Rubio", Felipe
+        "Author":"EstevaoCostaG3, David BrazSan, Hildo Guillardi Júnior, Chrystian Rubio, Felipe",
         
         "STR_ERROR":"Erro",
         "STR_WARNING":"Aviso",
@@ -605,7 +605,7 @@
         "STR_INSTALL_TIP":"O dispositivo será formatado e todos os dados serão perdidos.#@Continuar?",
         "STR_INSTALL_TIP2":"O dispositivo será formatado e todos os dados serão perdidos.#@Continuar? (Verificação Dupla)",
         "STR_INSTALL_SUCCESS":"Parabéns!#@O Ventoy foi instalado com sucesso no dispositivo.",
-        "STR_INSTALL_FAILED":"Um erro ocorreu durante a instalação. Você pode re-inserir o dispositivo USB e tentar de novo. Verifique o log.txt para mais detalhes. Se ele sempre falha por favor refira-se ao FAQ no site oficial da web."
+        "STR_INSTALL_FAILED":"Um erro ocorreu durante a instalação. Você pode re-inserir o dispositivo USB e tentar de novo. Verifique o log.txt para mais detalhes. Se ele sempre falha por favor refira-se ao FAQ no site oficial da web.",
         "STR_UPDATE_SUCCESS":"Parabéns!#@O Ventoy foi atualizado com sucesso no dispositivo.",
         "STR_UPDATE_FAILED":"Um erro ocorreu durante a atualização. Você pode re-inserir o dispositivo USB e tentar de novo. Verifique o log.txt para mais detalhes. Se ele sempre falha por favor refira-se ao FAQ no site oficial da web.",
         "STR_WAIT_PROCESS":"Um thread está em execução, por favor espere...",

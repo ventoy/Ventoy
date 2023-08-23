@@ -1099,6 +1099,7 @@ static grub_err_t ventoy_linux_locate_initrd(int filt, int *filtcnt)
         if (filtbysize 
             && (NULL == grub_strstr(node->name, "minirt.gz"))
             && (NULL == grub_strstr(node->name, "initrd.xz"))
+            && (NULL == grub_strstr(node->name, "initrd.gz"))
             )
         {
             if (filt > 0 && file->size <= g_ventoy_cpio_size + 2048)
