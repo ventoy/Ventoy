@@ -28,6 +28,7 @@ vtlog "####### $0 $* ########"
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
 ventoy_os_install_dmsetup_by_fuse() {
+    local drvdir=""
     vtlog "ventoy_os_install_dmsetup_by_fuse $*"
 
     mkdir -p $VTOY_PATH/mnt/fuse $VTOY_PATH/mnt/iso $VTOY_PATH/mnt/squashfs
@@ -37,11 +38,13 @@ ventoy_os_install_dmsetup_by_fuse() {
 
     mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
     
+    
     for sfsfile in $(ls $VTOY_PATH/mnt/iso/*drv_veket*.sfs); do
         mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs        
         if [ -d $VTOY_PATH/mnt/squashfs/lib/modules ]; then
             KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
             if [ -n "$KoName" -a -f $KoName ]; then
+                drvdir=$VTOY_PATH/mnt/squashfs/lib/modules/$2
                 break
             fi
         fi
@@ -49,11 +52,29 @@ ventoy_os_install_dmsetup_by_fuse() {
         umount $VTOY_PATH/mnt/squashfs
     done
 
-    KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/dax/dax.ko*)
+
+    if [ -z "$drvdir" ]; then
+        vtlog "retry for usr/lib dir"
+        for sfsfile in $(ls $VTOY_PATH/mnt/iso/*drv_veket*.sfs); do
+            mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs        
+            if [ -d $VTOY_PATH/mnt/squashfs/usr/lib/modules ]; then
+                KoName=$(ls $VTOY_PATH/mnt/squashfs/usr/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
+                if [ -n "$KoName" -a -f $KoName ]; then
+                    drvdir=$VTOY_PATH/mnt/squashfs/usr/lib/modules/$2
+                    break
+                fi
+            fi
+            
+            umount $VTOY_PATH/mnt/squashfs
+        done
+    fi
+    
+
+    KoName=$(ls $drvdir/kernel/drivers/dax/dax.ko*)
     vtlog "insmod $KoName"
     insmod $KoName 
     
-    KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
+    KoName=$(ls $drvdir/kernel/drivers/md/dm-mod.ko*)
     vtlog "insmod $KoName"
     insmod $KoName 
 

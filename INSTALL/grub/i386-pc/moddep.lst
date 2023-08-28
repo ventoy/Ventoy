@@ -83,7 +83,7 @@ gfxterm_background: video_colors bitmap_scale gfxterm extcmd video bitmap
 search_fs_uuid:
 gcry_dsa: pgp mpi
 keystatus: extcmd
-linux: ventoy verifiers normal vbe video boot relocator mmap
+linux: ventoy verifiers vbe normal video boot relocator mmap
 geli: cryptodisk crypto gcry_sha512 pbkdf2 gcry_sha256
 cmdline_cat_test: font functional_test normal procfs video_fb
 rdmsr: extcmd
@@ -124,7 +124,7 @@ crypto:
 part_bsd: part_msdos
 cs5536: pci
 biosdisk:
-ventoy: ext2 fshelp elf btrfs crypto font gcry_md5 exfat udf div extcmd datetime normal video gcry_sha1 iso9660 acpi
+ventoy: ext2 fshelp elf btrfs crypto font gcry_md5 exfat udf div extcmd datetime normal video gcry_sha1 iso9660 reboot acpi
 lsapm:
 gcry_sha512: crypto
 password: crypto normal
@@ -208,7 +208,7 @@ cmosdump:
 hfsplus: fshelp
 gcry_cast5: crypto
 extcmd:
-squash4: fshelp lzopio zfs xzio gzio
+squash4: fshelp zstd lzopio zfs xzio gzio
 part_plan:
 minix_be:
 gcry_whirlpool: crypto

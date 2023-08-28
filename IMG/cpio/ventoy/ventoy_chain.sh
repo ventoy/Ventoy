@@ -376,6 +376,14 @@ ventoy_get_os_type() {
     if $GREP -q 'chimera' /proc/version; then
         echo 'chimera'; return
     fi
+
+    
+    if $GREP -q '4.19.' /proc/version; then
+        if [ -d /lib/dracut/hooks ]; then
+            echo 'openEuler'; return
+        fi
+    fi
+    
     
     echo "default"
 }
