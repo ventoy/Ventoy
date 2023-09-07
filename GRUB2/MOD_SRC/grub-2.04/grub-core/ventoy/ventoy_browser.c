@@ -202,10 +202,9 @@ static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_p
     else
     {
         browser_ssprintf(mbuf, "menuentry \"%s\" --class=vtoydisk {\n"
-            "  set bs=0x%lx \n"
-            "  vt_browser_dir %s,%d ${bs} /\n"
+            "  vt_browser_dir %s,%d 0x%lx /\n"
             "}\n",
-            title, (ulong)fs, disk->name, partition->number + 1,);
+            title, disk->name, partition->number + 1, (ulong)fs);
     }
 
     ventoy_browser_mbuf_extend(mbuf);
@@ -371,17 +370,19 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
         {
             grub_snprintf(node->menuentry, sizeof(node->menuentry),
                 "menuentry \"%-10s [%s]\" --class=vtoydir {\n"
-                "  vt_browser_dir %s 0x%lx \"%s/%s\"\n"
+                "  set bs=0x%lx \n"
+                "  vt_browser_dir %s ${bs} \"%s/%s\"\n"
                 "}\n",
-                "DIR", filename, g_menu_device, (ulong)g_menu_fs, g_menu_path_buf, filename);
+                "DIR", filename, (ulong)g_menu_fs, g_menu_device, (ulong)g_menu_fs, g_menu_path_buf, filename);
         }
         else
         {
             grub_snprintf(node->menuentry, sizeof(node->menuentry),
                 "menuentry \"[%s]\" --class=vtoydir {\n"
-                "  vt_browser_dir %s 0x%lx \"%s/%s\"\n"
+                "  set bs=0x%lx \n"
+                "  vt_browser_dir %s ${bs} \"%s/%s\"\n"
                 "}\n",
-                filename, g_menu_device, (ulong)g_menu_fs, g_menu_path_buf, filename);
+                filename, (ulong)g_menu_fs, g_menu_device, (ulong)g_menu_fs, g_menu_path_buf, filename);
         }
     }
     else
