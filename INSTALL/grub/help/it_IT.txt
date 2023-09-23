@@ -1,0 +1,19 @@
+ L - Selezione lingua
+F1 - Mostra informazioni di aiuto
+F2 - Sfoglia e avvia file sul disco locale
+F3 - Cambia la modalità del menu tra VistaAlbero <-> VistaLista
+F4 - Avvia Windows/Linux sul disco locale
+F5 - Utilità
+F6 - Carica il menu Grub2 personalizzato
+F7 - Passa tra Modalità GUI <-> Modalità TESTO
+
+m/Ctrl+m - Checksum dei file immagine (md5/sha1/sha256/sha512)
+d/Ctrl+d - Modalità Memdisk (Solo per i file ISO/IMG di WinPE/LiveCD piccoli)
+w/Ctrl+w - Modalità WIMBOOT (SOlo per i file ISO di Windows/WinPE)
+r/Ctrl+r - Modalità Grub2 (Solo per alcune distro Linux)
+i/Ctrl+i - Modalità Compatibile (Solo per debugging)
+u/Ctrl+u - Carica driver EFI ISO (Solo per debugging, non può essere usato ufficialmente)
+
+
+
+Premi ESC per ritornare ......
