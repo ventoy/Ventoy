@@ -195,7 +195,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     fi
     
     if [ "$PARTTOOL" = "parted" ]; then
-        if parted $DISK p | grep -i -q 'sector size.*4096.*4096'; then
+        if parted -s $DISK p 2>&1 | grep -i -q 'sector size.*4096.*4096'; then
             vterr "Currently Ventoy does not support 4K native device."
             exit 1
         fi
