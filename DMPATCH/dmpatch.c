@@ -78,15 +78,25 @@ static volatile ko_param g_ko_param =
 #define PATCH_OP_POS2    1
 #define CODE_MATCH2(code, i) \
     (code[i] == 0x0C && code[i + 1] == 0x80 && code[i + 2] == 0x89 && code[i + 3] == 0xC6)
+    
+#define PATCH_OP_POS3    4
+#define CODE_MATCH3(code, i) \
+    (code[i] == 0x44 && code[i + 1] == 0x89 && code[i + 2] == 0xe8 && code[i + 3] == 0x0c && code[i + 4] == 0x80)
+
+
+
+
 
 #elif defined(CONFIG_X86_32)
 #define PATCH_OP_POS1    2
 #define CODE_MATCH1(code, i) \
     (code[i] == 0x80 && code[i + 1] == 0xca && code[i + 2] == 0x80 && code[i + 3] == 0xe8)
 
-#define PATCH_OP_POS2    2
-#define CODE_MATCH2(code, i) \
-    (code[i] == 0x80 && code[i + 1] == 0xca && code[i + 2] == 0x80 && code[i + 3] == 0xe8)
+#define PATCH_OP_POS2    PATCH_OP_POS1
+#define CODE_MATCH2      CODE_MATCH1
+#define PATCH_OP_POS3    PATCH_OP_POS1
+#define CODE_MATCH3      CODE_MATCH1
+
 
 #else
 #error "unsupported arch"
@@ -173,7 +183,7 @@ static int notrace dmpatch_replace_code
 
     vdebug("patch for %s style[%d] 0x%lx %d\n", desc, style, addr, (int)size);
 
-    for (i = 0; i < (int)size - 4; i++)
+    for (i = 0; i < (int)size - 8; i++)
     {
         if (style == 1)
         {
@@ -183,7 +193,7 @@ static int notrace dmpatch_replace_code
                 cnt++;
             }
         }
-        else
+        else if (style == 2)
         {
             if (CODE_MATCH2(opCode, i) && cnt < MAX_PATCH)
             {
@@ -191,7 +201,19 @@ static int notrace dmpatch_replace_code
                 cnt++;
             }
         }
+        else if (style == 3)
+        {
+            if (CODE_MATCH3(opCode, i) && cnt < MAX_PATCH)
+            {
+                patch[cnt] = opCode + i + PATCH_OP_POS3;
+                cnt++;
+            }
+        }
     }
+
+
+
+
 
     if (cnt != expect || cnt >= MAX_PATCH)
     {
@@ -297,9 +319,16 @@ static int notrace dmpatch_init(void)
     r = dmpatch_replace_code(1, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 2, "dm_get_table_device", g_get_patch);
     if (r && g_ko_param.kv_major >= 5)
     {
-        vdebug("new patch dm_get_table_device...\n");
+        vdebug("new2 patch dm_get_table_device...\n");
         r = dmpatch_replace_code(2, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 1, "dm_get_table_device", g_get_patch);
     }
+
+    if (r && g_ko_param.kv_major >= 5)
+    {
+        vdebug("new3 patch dm_get_table_device...\n");
+        r = dmpatch_replace_code(3, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 1, "dm_get_table_device", g_get_patch);
+    }
+    
     
     if (r)
     {

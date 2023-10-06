@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FTPIP=168.0.0.209
+FTPIP=192.168.44.1
 FTPUSR='a:a'
 
 rm -f dmpatch.c Makefile Makefile_IBT
@@ -27,7 +27,7 @@ mkdir ./aa
 cp -a *.c aa/
 cp -a Makefile aa/
 
-cd /home/panda/linux-source-5.13.0
+cd /home/panda/linux-source-5.15.0
 make modules M=/home/panda/build/aa/
 strip --strip-debug /home/panda/build/aa/dm_patch.ko
 cd -
@@ -43,7 +43,7 @@ mkdir ./aa
 cp -a *.c aa/
 cp -a Makefile_IBT aa/Makefile
 
-cd /home/panda/linux-source-5.13.0
+cd /home/panda/linux-source-5.15.0
 make modules M=/home/panda/build/aa/
 strip --strip-debug /home/panda/build/aa/dm_patch_ibt.ko
 cd -

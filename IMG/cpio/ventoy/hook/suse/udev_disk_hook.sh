@@ -54,6 +54,21 @@ if [ -z "$dmsetup_path" ]; then
     ventoy_os_install_dmsetup "/dev/${1:0:-1}"
 fi
 
+if [ -f /proc/devices ]; then
+    vtlog "/proc/devices exist OK"
+else
+    for i in 1 2 3 4 5 6 7 8 9; do
+        if [ -f /proc/devices ]; then
+            vtlog "/proc/devices exist OK now"
+            break
+        else
+            vtlog "/proc/devices NOT exist, wait $i"
+            $BUSYBOX_PATH/sleep 1
+        fi
+    done
+fi
+
+
 ventoy_udev_disk_common_hook $*
 
 # OK finish

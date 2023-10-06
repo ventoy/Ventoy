@@ -1,10 +1,12 @@
-1. install ubuntu 21.10
-2. apt-get install build-essential flex libncurses-dev linux-headers-generic linux-source libssl-dev ...... and so on
-3. cp /lib/modules/5.13.0-23-generic/build/Module.symvers ./
-4. /boot/config-5.13.0-23-generic as .config   make oldconfig
+1. install ubuntu 22.04  5.15.0-25
+2. apt-get install build-essential flex libncurses-dev linux-headers-generic linux-source libssl-dev bison yacc vim libelf-dev  ...... and so on
+3. cp /lib/modules/5.15.0-25-generic/build/Module.symvers ./
+4. /boot/config-5.15.0-25-generic as .config   make oldconfig
 5. make menuconfig 
     1. close CONFIG_STACKPROTECTOR
     2. close CONFIG_RETPOLINE
+    3. close CONFIG_UBSAN_BOUNDS
+    4. close CONFIG_UBSAN_ENUM
 
 6. modify ./scripts/mod/modpost.c
     1. skip add_srcversion (just return)
