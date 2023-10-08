@@ -60,7 +60,8 @@ check_tool_work_ok() {
         return
     fi
    
-    if mkexfatfs -V > /dev/null; then
+    # exfatprogs-1.2.1: mkexfatfs -V returns 1 instead of 0
+    if [ ! -z "$(command -v mkexfatfs)" ]; then
         vtdebug "mkexfatfs test ok ..."
     else
         vtdebug "mkexfatfs test fail ..."
