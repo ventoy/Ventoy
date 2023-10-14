@@ -357,7 +357,12 @@
       var id = $(this).attr('id');
       if (typeof(id) != 'undefined' && id.startsWith('id_theme_file')) {
         $(this).change(function() {
-          m_data_theme[current_tab_index].default_file =parseInt(id.substr(id.length - 1));
+          var prelen = 'id_theme_file_radio'.length;
+          m_data_theme[current_tab_index].default_file = parseInt(id.substr(id.length - 1));
+          if (id.substr(0, prelen) === 'id_theme_file_radio') {
+              m_data_theme[current_tab_index].default_file = parseInt(id.substr(prelen));
+          }
+          
           VtoySaveCurrentPage();
         });
       }
