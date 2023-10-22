@@ -137,7 +137,7 @@ fi
 #check mountpoint
 check_umount_disk "$DISK"
 
-if grep "$DISK" /proc/mounts; then
+if grep -w "$DISK" /proc/mounts; then
     vterr "$DISK is already mounted, please umount it first!"
     exit 1
 fi
