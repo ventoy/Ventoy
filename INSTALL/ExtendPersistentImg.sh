@@ -20,6 +20,11 @@ if [ -z "$2" ]; then
     exit 1
 fi
 
+uid=$(id -u)
+if [ $uid -ne 0 ]; then
+    print_err "Please use sudo or run the script as root."
+    exit 1
+fi
 
 if [ "$1" = "__vbash__" ]; then
     shift
@@ -34,11 +39,6 @@ fi
 
 file=$1
 size=$2
-
-if [ "$EUID" -ne 0 ]
-  then echo "Please run as root"
-  exit
-fi
 
 if [ ! -f "$file" ]; then
     echo "$file not exist."
