@@ -50,6 +50,32 @@ vtoy_gen_uuid() {
     fi
 }
 
+# Use exfatprogs instead of exfat-utils to handle exFAT filesystem operations
+#   https://github.com/storaged-project/udisks/issues/903
+# Kernel 5.7 and above: Install the exfatprogs package
+#   https://wiki.gentoo.org/wiki/ExFAT
+# exfatprogs and exfat-utils packages conflict
+#   https://forums.fedoraforum.org/showthread.php?325580-exfatprogs-and-exfat-utils-packages-conflict&p=1844223
+mkfs_exfat_() {
+    local label=$1
+    local sectors=$2 # sectors per block
+    shift 2
+    mkfs.exfat -L "$label" -c "$(expr "$sectors" / 2)K" "$@"
+}
+mkexfatfs_() {
+    local label=$1
+    local sectors=$2 # sectors per block
+    shift 2
+    # mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
+    mkexfatfs -n "$label" -s "$sectors" "$@"
+}
+mkexfatfs=
+if [ ! -z "$(comand -v mkfs.exfat)" ]; then
+    mkexfatfs=mkfs_exfat_
+elif [ ! -z "$(comand -v mkexfatfs)" ]; then
+    mkexfatfs=mkexfatfs_
+fi
+
 check_tool_work_ok() {
     
     if echo 1 | hexdump > /dev/null; then
@@ -60,7 +86,7 @@ check_tool_work_ok() {
         return
     fi
    
-    if mkexfatfs -V > /dev/null; then
+    if [ ! -z "$mkexfatfs" ]; then
         vtdebug "mkexfatfs test ok ..."
     else
         vtdebug "mkexfatfs test fail ..."
