@@ -4,8 +4,9 @@ print_usage() {
     echo 'Usage:  ExtendPersistentImg.sh file size'
     echo '   file   persistent dat file'
     echo '   size   extend size in MB'
-    echo 'Example:'
-    echo '   sh ExtendPersistentImg.sh ubuntu.dat 2048'
+    echo 'Examples:'
+    echo '   sh ExtendPersistentImg.sh ubuntu.dat 2048 - This command would extend ubuntu.dat by 2048MB (2GB)'
+    echo '   sh ExtendPersistentImg.sh ubuntu.dat -2048 - This command reduces ubuntu.dat by 2048MB (-2GB)'
     echo ''
 }
 
@@ -33,6 +34,11 @@ fi
 
 file=$1
 size=$2
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
 
 if [ ! -f "$file" ]; then
     echo "$file not exist."
