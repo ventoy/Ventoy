@@ -108,8 +108,8 @@ freeloop=$(losetup -f)
 losetup $freeloop "$outputfile"
 
 if [ ! -z "$passphrase" ]; then
-    printf "$passphrase" | cryptsetup -q --verbose luksFormat $freeloop -
-    printf "$passphrase" | cryptsetup -q --verbose luksOpen $freeloop persist_decrypted -
+    printf -- "$passphrase" | cryptsetup -q --verbose luksFormat $freeloop -
+    printf -- "$passphrase" | cryptsetup -q --verbose luksOpen $freeloop persist_decrypted -
     _freeloop=$freeloop
     freeloop="/dev/mapper/persist_decrypted"
 fi
