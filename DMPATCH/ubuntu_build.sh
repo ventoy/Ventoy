@@ -1,65 +1,70 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-FTPIP=192.168.44.1
+# Configurable variables
+FTPIP="192.168.44.1"
 FTPUSR='a:a'
+KERNEL_SOURCE_DIR="/home/panda/linux-source-5.15.0"
+BUILD_DIR="/home/panda/build"
+MODULE_NAME="dm_patch"
+MODULE_NAME_IBT="${MODULE_NAME}_ibt"
+MODULE_FILES=("dmpatch.c" "Makefile" "Makefile_IBT")
 
-rm -f dmpatch.c Makefile Makefile_IBT
+# Function to download files
+download_file() {
+    local file=$1
+    curl -s -u "$FTPUSR" "ftp://$FTPIP/$file" -o "$file"
+    if [ -f "$file" ]; then
+        echo "Download $file OK ..."
+    else
+        echo "Download $file FAILED ..."
+        exit 1
+    fi
+}
 
-for f in dmpatch.c Makefile Makefile_IBT; do
-	curl -s -u $FTPUSR ftp://$FTPIP/$f -o $f
-	if [ -f $f ]; then
-		echo "download $f OK ..."
-	else
-		echo "download $f FAILED ..."
-		exit 1
-	fi
+# Function to build module
+build_module() {
+    local module_name=$1
+    local makefile=$2
+
+    echo "Building $module_name.ko ..."
+
+    # Create a clean build directory
+    rm -rf "./$module_name"
+    mkdir "./$module_name"
+    cp *.c "$module_name/"
+    cp "$makefile" "$module_name/Makefile"
+
+    # Build the module
+    (cd "$KERNEL_SOURCE_DIR" && make modules M="$BUILD_DIR/$module_name/")
+    strip --strip-debug "$BUILD_DIR/$module_name/$module_name.ko"
+
+    # Copy the built module
+    cp "$module_name/$module_name.ko" ./
+}
+
+# Download required files
+for file in "${MODULE_FILES[@]}"; do
+    download_file "$file"
 done
 
-
-
+# Remove previous kernel modules
 rm -f *.ko
 
+# Build modules
+build_module "$MODULE_NAME" "Makefile"
+build_module "$MODULE_NAME_IBT" "Makefile_IBT"
 
-echo "build dm_patch.ko ..."
-rm -rf ./aa
-mkdir ./aa
+# Remove build directories
+rm -rf ./$MODULE_NAME
+rm -rf ./$MODULE_NAME_IBT
 
-cp -a *.c aa/
-cp -a Makefile aa/
+# Upload built modules
+curl -s -T "$MODULE_NAME.ko" -u "$FTPUSR" "ftp://$FTPIP/${MODULE_NAME}_64.ko" || exit 1
+curl -s -T "$MODULE_NAME_IBT.ko" -u "$FTPUSR" "ftp://$FTPIP/${MODULE_NAME_IBT}_64.ko" || exit 1
 
-cd /home/panda/linux-source-5.15.0
-make modules M=/home/panda/build/aa/
-strip --strip-debug /home/panda/build/aa/dm_patch.ko
-cd -
-
-cp -a aa/dm_patch.ko  ./
-
-
-
-echo "build dm_patch_ibt.ko ..."
-rm -rf ./aa
-mkdir ./aa
-
-cp -a *.c aa/
-cp -a Makefile_IBT aa/Makefile
-
-cd /home/panda/linux-source-5.15.0
-make modules M=/home/panda/build/aa/
-strip --strip-debug /home/panda/build/aa/dm_patch_ibt.ko
-cd -
-
-cp -a aa/dm_patch_ibt.ko ./
-
-rm -rf ./aa
-
-
-curl -s -T dm_patch.ko -u $FTPUSR ftp://$FTPIP/dm_patch_64.ko || exit 1
-curl -s -T dm_patch_ibt.ko -u $FTPUSR ftp://$FTPIP/dm_patch_ibt_64.ko || exit 1
-
-
-if [ -f ./dm_patch.ko -a -f ./dm_patch_ibt.ko ]; then
-	echo -e "\n\n=============== SUCCESS =============\n\n"
+# Check success
+if [ -f "./$MODULE_NAME.ko" -a -f "./$MODULE_NAME_IBT.ko" ]; then
+    echo -e "\n\n=============== SUCCESS =============\n\n"
 else
-	echo -e "\n\n=============== FAILED ==============\n\n"
+    echo -e "\n\n=============== FAILED ==============\n\n"
 fi
-
