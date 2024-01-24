@@ -1,0 +1,17 @@
+L - Selectează Limba
+F1 - Afișează informații de ajutor
+F2 - Navighează și încarcă fișiere de pe discul local
+F3 - Schimbă modul de afișare între Treeview <-> ListView
+F4 - Pornește Windows/Linux de pe discul local
+F5 - Utilități
+F6 - Încarcă Meniul Grub2 Personalizat
+F7 - Schimbă între Modul GUI <-> Modul TEXT
+
+m/Ctrl+m - Verifică suma de control a fișierelor imagine (md5/sha1/sha256/sha512)
+d/Ctrl+d - Mod Memdisk (Doar pentru imagini ISO/IMG mici WinPE/LiveCD)
+w/Ctrl+w - Mod WIMBOOT (Doar pentru fișiere ISO Windows/WinPE)
+r/Ctrl+r - Mod Grub2 (Doar pentru anumite distribuții Linux)
+i/Ctrl+i - Mod Compatibil (Doar pentru depanare)
+u/Ctrl+u - Încarcă driverul EFI ISO (Doar pentru depanare, nu poate fi utilizat oficial)
+
+Apasă ESC pentru a reveni...
