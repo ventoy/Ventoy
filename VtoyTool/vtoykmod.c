@@ -644,6 +644,16 @@ int vtoykmod_main(int argc, char **argv)
         }
     }
 
+    if (verbose)
+    {
+        printf("==== Dump Argv ====\n");
+        for (i = 0; i < argc; i++)
+        {
+            printf("<%s> ", argv[i]);
+        }
+        printf("\n");
+    }
+
     if (argv[1][0] == '-' && argv[1][1] == 'f')
     {
         return vtoykmod_fill_param(argv + 2);
