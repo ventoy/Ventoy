@@ -344,6 +344,15 @@ ventoy_dm_patch() {
     get_addr=$(echo $vtLine | $AWK '{print $1}')
     get_size=$(echo $vtLine | $AWK '{print $2}')
 
+    vtLine=$($VTOY_PATH/tool/vtoyksym blkdev_get_by_dev $VTOY_PATH/kallsyms) 
+    vtlog "get blkdev_get_by_dev address $vtLine"        
+    blkdev_get_addr=$(echo $vtLine | $AWK '{print $1}')
+    
+    vtLine=$($VTOY_PATH/tool/vtoyksym blkdev_put $VTOY_PATH/kallsyms) 
+    vtlog "get blkdev_put address $vtLine"        
+    blkdev_put_addr=$(echo $vtLine | $AWK '{print $1}')
+    
+
     if $GREP -m1 -q 'close_table_device.isra' $VTOY_PATH/kallsyms; then
         vtLine=$($VTOY_PATH/tool/vtoyksym close_table_device.isra $VTOY_PATH/kallsyms)
         vtlog "get close_table_device.isra address $vtLine"
@@ -383,6 +392,7 @@ ventoy_dm_patch() {
     
     vtlog get_addr=$get_addr  get_size=$get_size
     vtlog put_addr=$put_addr  put_size=$put_size
+    vtlog blkdev_get_addr=$blkdev_get_addr blkdev_put_addr=$blkdev_put_addr
     vtlog kprobe_reg_addr=$kprobe_reg_addr  kprobe_unreg_addr=$kprobe_unreg_addr
     vtlog ro_addr=$ro_addr  rw_addr=$rw_addr  printk_addr=$printk_addr
 
@@ -397,6 +407,8 @@ ventoy_dm_patch() {
 
 
     vtKv=$($BUSYBOX_PATH/uname -r)
+    vtKVMajor=$(echo $vtKv | $AWK -F. '{print $1}')
+    vtKVMinor=$(echo $vtKv | $AWK -F. '{print $2}')
     
     if [ ! -d /lib/modules/$vtKv ]; then
         vtlog "No modules directory found"
@@ -437,13 +449,18 @@ ventoy_dm_patch() {
        
     
     #step1: modify vermagic/mod crc/relocation
-    vtlog "$VTOY_PATH/tool/vtoykmod -u $VTOY_PATH/tool/$vtKoName $VTOY_PATH/$vtModName $vtDebug"
-    $VTOY_PATH/tool/vtoykmod -u $VTOY_PATH/tool/$vtKoName $VTOY_PATH/$vtModName $vtDebug >>$VTLOG 2>&1
+    vtlog "$VTOY_PATH/tool/vtoykmod -u $vtKVMajor $vtKVMinor $VTOY_PATH/tool/$vtKoName $VTOY_PATH/$vtModName $vtDebug"
+    $VTOY_PATH/tool/vtoykmod -u $vtKVMajor $vtKVMinor $VTOY_PATH/tool/$vtKoName $VTOY_PATH/$vtModName $vtDebug >>$VTLOG 2>&1
     
     #step2: fill parameters
     vtPgsize=$($VTOY_PATH/tool/vtoyksym -p)
-    vtlog "$VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKv $vtIBT $vtDebug"
-    $VTOY_PATH/tool/vtoykmod -f $VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKv $vtIBT $vtDebug >>$VTLOG 2>&1
+    
+    vtPrams="$VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKVMajor $vtIBT $vtKVMinor $blkdev_get_addr $blkdev_put_addr $vtDebug"
+    
+    
+    vtlog "$VTOY_PATH/tool/vtoykmod -f $vtPrams"
+    $VTOY_PATH/tool/vtoykmod -f $vtPrams >>$VTLOG 2>&1
+
 
     vtlog "insmod $VTOY_PATH/tool/$vtKoName"
     $BUSYBOX_PATH/insmod $VTOY_PATH/tool/$vtKoName  >>$VTLOG 2>&1
