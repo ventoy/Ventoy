@@ -188,6 +188,9 @@ typedef struct ko_param
     unsigned long sym_put_size;
     unsigned long kv_major;
     unsigned long ibt;
+    unsigned long kv_minor;
+    unsigned long blkdev_get_addr;
+    unsigned long blkdev_put_addr;
     unsigned long padding[1];
 }ko_param;
 
@@ -243,7 +246,7 @@ static int vtoykmod_read_file(char *name, char **buf)
     return size;
 }
 
-static int vtoykmod_find_section64(char *buf, char *section, int *offset, int *len)
+static int vtoykmod_find_section64(char *buf, char *section, int *offset, int *len, Elf64_Shdr **shdr)
 {
     uint16_t i;
     int cmplen;
@@ -265,6 +268,10 @@ static int vtoykmod_find_section64(char *buf, char *section, int *offset, int *l
         {
             *offset = (int)(sec[i].sh_offset);
             *len = (int)(sec[i].sh_size);
+            if (shdr)
+            {
+                *shdr = sec + i;
+            }
             return 0;
         }
     }
@@ -272,7 +279,7 @@ static int vtoykmod_find_section64(char *buf, char *section, int *offset, int *l
     return 1;
 }
 
-static int vtoykmod_find_section32(char *buf, char *section, int *offset, int *len)
+static int vtoykmod_find_section32(char *buf, char *section, int *offset, int *len, Elf32_Shdr **shdr)
 {
     uint16_t i;
     int cmplen;
@@ -294,6 +301,10 @@ static int vtoykmod_find_section32(char *buf, char *section, int *offset, int *l
         {
             *offset = (int)(sec[i].sh_offset);
             *len = (int)(sec[i].sh_size);
+            if (shdr)
+            {
+                *shdr = sec + i;
+            }
             return 0;
         }
     }
@@ -411,7 +422,7 @@ static int vtoykmod_update_vermagic(char *oldbuf, int oldsize, char *newbuf, int
     return 0;
 }
 
-int vtoykmod_update(char *oldko, char *newko)
+int vtoykmod_update(int kvMajor, int kvMinor, char *oldko, char *newko)
 {
     int rc = 0;
     int modver = 0;
@@ -419,6 +430,7 @@ int vtoykmod_update(char *oldko, char *newko)
     int newoff, newlen;
     int oldsize, newsize;
     char *newbuf, *oldbuf;
+    Elf64_Shdr *sec = NULL;
 
     oldsize = vtoykmod_read_file(oldko, &oldbuf);
     newsize = vtoykmod_read_file(newko, &newbuf);
@@ -435,13 +447,13 @@ int vtoykmod_update(char *oldko, char *newko)
     {
         if (oldbuf[EI_CLASS] == ELFCLASS64)
         {
-            rc  = vtoykmod_find_section64(oldbuf, "__versions", &oldoff, &oldlen);
-            rc += vtoykmod_find_section64(newbuf, "__versions", &newoff, &newlen);            
+            rc  = vtoykmod_find_section64(oldbuf, "__versions", &oldoff, &oldlen, NULL);
+            rc += vtoykmod_find_section64(newbuf, "__versions", &newoff, &newlen, NULL);            
         }
         else
         {
-            rc  = vtoykmod_find_section32(oldbuf, "__versions", &oldoff, &oldlen);
-            rc += vtoykmod_find_section32(newbuf, "__versions", &newoff, &newlen);
+            rc  = vtoykmod_find_section32(oldbuf, "__versions", &oldoff, &oldlen, NULL);
+            rc += vtoykmod_find_section32(newbuf, "__versions", &newoff, &newlen, NULL);
         }
 
         if (rc == 0)
@@ -459,8 +471,8 @@ int vtoykmod_update(char *oldko, char *newko)
     {
         Elf64_Rela *oldRela, *newRela;
         
-        rc  = vtoykmod_find_section64(oldbuf, ".rela.gnu.linkonce.this_module", &oldoff, &oldlen);
-        rc += vtoykmod_find_section64(newbuf, ".rela.gnu.linkonce.this_module", &newoff, &newlen);
+        rc  = vtoykmod_find_section64(oldbuf, ".rela.gnu.linkonce.this_module", &oldoff, &oldlen, NULL);
+        rc += vtoykmod_find_section64(newbuf, ".rela.gnu.linkonce.this_module", &newoff, &newlen, NULL);
         if (rc == 0)
         {
             oldRela = (Elf64_Rela *)(oldbuf + oldoff);
@@ -478,13 +490,31 @@ int vtoykmod_update(char *oldko, char *newko)
         {
             debug("section .rela.gnu.linkonce.this_module not found\n");
         }
+
+        if (kvMajor > 6 || (kvMajor == 6 && kvMinor >= 3))
+        {
+            rc  = vtoykmod_find_section64(oldbuf, ".gnu.linkonce.this_module", &oldoff, &oldlen, &sec);
+            rc += vtoykmod_find_section64(newbuf, ".gnu.linkonce.this_module", &newoff, &newlen, NULL);
+            if (rc == 0)
+            {
+                debug("section .gnu.linkonce.this_module change oldlen:0x%x to newlen:0x%x\n", oldlen, newlen);
+                if (sec)
+                {
+                    sec->sh_size = newlen;                
+                }
+            }
+            else
+            {
+                debug("section .gnu.linkonce.this_module not found\n");
+            }
+        }
     }
     else
     {
         Elf32_Rel *oldRel, *newRel;
         
-        rc  = vtoykmod_find_section32(oldbuf, ".rel.gnu.linkonce.this_module", &oldoff, &oldlen);
-        rc += vtoykmod_find_section32(newbuf, ".rel.gnu.linkonce.this_module", &newoff, &newlen);
+        rc  = vtoykmod_find_section32(oldbuf, ".rel.gnu.linkonce.this_module", &oldoff, &oldlen, NULL);
+        rc += vtoykmod_find_section32(newbuf, ".rel.gnu.linkonce.this_module", &newoff, &newlen, NULL);
         if (rc == 0)
         {
             oldRel = (Elf32_Rel *)(oldbuf + oldoff);
@@ -542,8 +572,11 @@ int vtoykmod_fill_param(char **argv)
             param->sym_put_size = strtoul(argv[8], NULL, 10);
             param->reg_kprobe_addr = strtoul(argv[9], NULL, 16);
             param->unreg_kprobe_addr = strtoul(argv[10], NULL, 16);
-            param->kv_major = (unsigned long)(argv[11][0] - '0');
+            param->kv_major = strtoul(argv[11], NULL, 10);
             param->ibt = strtoul(argv[12], NULL, 16);;
+            param->kv_minor = strtoul(argv[13], NULL, 10);
+            param->blkdev_get_addr = strtoul(argv[14], NULL, 16);
+            param->blkdev_put_addr = strtoul(argv[15], NULL, 16);
 
             debug("pgsize=%lu (%s)\n", param->pgsize, argv[1]);
             debug("printk_addr=0x%lx (%s)\n", param->printk_addr, argv[2]);
@@ -557,6 +590,9 @@ int vtoykmod_fill_param(char **argv)
             debug("unreg_kprobe_addr=0x%lx (%s)\n", param->unreg_kprobe_addr, argv[10]);
             debug("kv_major=%lu (%s)\n", param->kv_major, argv[11]);
             debug("ibt=0x%lx (%s)\n", param->ibt, argv[12]);
+            debug("kv_minor=%lu (%s)\n", param->kv_minor, argv[13]);
+            debug("blkdev_get_addr=0x%lx (%s)\n", param->blkdev_get_addr, argv[14]);
+            debug("blkdev_put_addr=0x%lx (%s)\n", param->blkdev_put_addr, argv[15]);
             
             break;
         }
@@ -596,6 +632,8 @@ static int vtoykmod_check_ibt(void)
 int vtoykmod_main(int argc, char **argv)
 {
     int i;
+    int kvMajor = 0;
+    int kvMinor = 0;
 
     for (i = 0; i < argc; i++)
     {
@@ -606,13 +644,25 @@ int vtoykmod_main(int argc, char **argv)
         }
     }
 
+    if (verbose)
+    {
+        printf("==== Dump Argv ====\n");
+        for (i = 0; i < argc; i++)
+        {
+            printf("<%s> ", argv[i]);
+        }
+        printf("\n");
+    }
+
     if (argv[1][0] == '-' && argv[1][1] == 'f')
     {
         return vtoykmod_fill_param(argv + 2);
     }
     else if (argv[1][0] == '-' && argv[1][1] == 'u')
     {
-        return vtoykmod_update(argv[2], argv[3]);
+        kvMajor = (int)strtol(argv[2], NULL, 10);
+        kvMinor = (int)strtol(argv[3], NULL, 10);
+        return vtoykmod_update(kvMajor, kvMinor, argv[4], argv[5]);
     }
     else if (argv[1][0] == '-' && argv[1][1] == 'I')
     {

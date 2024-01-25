@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Română (Romanian)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:Limba  F1:Ajutor  F2:Răsfoiește  F3:ListView  F4:Boot local  F5:Instrumente  F6:ExMenu",
+    "VTLANG_STR_HOTKEY_TREE": "L:Limba  F1:Ajutor  F2:Răsfoiește  F3:TreeView  F4:Boot local  F5:Instrumente  F6:ExMenu",
+    "VTLANG_RETURN_PREVIOUS": "Întoarce-te la meniul anterior [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Întoarce-te la meniul anterior",
+    
+    "VTLANG_MENU_LANG": "Selectează Limba Meniului",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Caută și pornește Windows",
+    "VTLANG_LB_SBOOT_G4D": "Caută și pornește Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "Boot diskul local 1",
+    "VTLANG_LB_SBOOT_HDD2": "Boot diskul local 2",
+    "VTLANG_LB_SBOOT_HDD3": "Boot diskul local 3",
+    "VTLANG_LB_SBOOT_X64EFI": "Caută și pornește BOOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "Caută și pornește BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": "Caută și pornește BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "Caută și pornește xorboot",
+    
+    "VTLANG_FILE_CHKSUM": "Sumă de control a fișierelor",
+    "VTLANG_CHKSUM_MD5_CALC": "Calculează md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC": "Calculează sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC": "Calculează sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC": "Calculează sha512sum",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "Calculează și verifică md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "Calculează și verifică sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "Calculează și verifică sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "Calculează și verifică sha512sum",
+    
+    "VTLANG_POWER": "Alimentare",
+    "VTLANG_POWER_REBOOT": "Repornește",
+    "VTLANG_POWER_HALT": "Oprire",
+    "VTLANG_POWER_BOOT_EFIFW": "Repornește în setările EFI",
+    
+    "VTLANG_KEYBRD_LAYOUT": "Aspect tastatură",
+    "VTLANG_HWINFO": "Informații hardware",
+    
+    "VTLANG_RESOLUTION_CFG": "Configurare rezoluție",
+    "VTLANG_SCREEN_MODE": "Mod afișare ecran",
+    "VTLANG_SCREEN_TEXT_MODE": "Forțează modul text",
+    "VTLANG_SCREEN_GUI_MODE": "Forțează modul grafic",
+    
+    "VTLANG_THEME_SELECT": "Selectează temă",
+    
+    "VTLANG_UEFI_UTIL": "Utilități Ventoy UEFI",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "Afișează driverele EFI",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Remediază eroarea BlinitializeLibrary la Windows",
+    
+    "VTLANG_JSON_CHK_JSON": "Verifică configurarea json a plugin-ului (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "Verifică configurarea globală a plugin-ului de control",
+    "VTLANG_JSON_CHK_THEME": "Verifică configurarea plugin-ului temă",
+    "VTLANG_JSON_CHK_AUTOINS": "Verifică configurarea plugin-ului de instalare automată",
+    "VTLANG_JSON_CHK_PERSIST": "Verifică configurarea plugin-ului de persistență",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "Verifică configurarea plugin-ului alias de meniu",
+    "VTLANG_JSON_CHK_MENU_TIP": "Verifică configurarea plugin-ului de sfaturi pentru meniu",
+    "VTLANG_JSON_CHK_MENU_CLASS": "Verifică configurarea plugin-ului de clasă pentru meniu",
+    "VTLANG_JSON_CHK_INJECTION": "Verifică configurarea plugin-ului de injecție",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "Verifică configurarea plugin-ului auto memdisk",
+    "VTLANG_JSON_CHK_IMG_LIST": "Verifică configurarea plugin-ului listă de imagini",
+    "VTLANG_JSON_CHK_IMG_BLIST": "Verifică configurarea plugin-ului listă neagră de imagini",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "Verifică configurarea plugin-ului înlocuirea conf de boot",
+    "VTLANG_JSON_CHK_DUD": "Verifică configurarea plugin-ului dud",
+    "VTLANG_JSON_CHK_PASSWORD": "Verifică configurarea plugin-ului de parolă",
+    
+    "VTLANG_NORMAL_MODE": "Boot în mod normal",
+    "VTLANG_WIMBOOT_MODE": "Boot în mod wimboot",
+    "VTLANG_GRUB2_MODE": "Boot în mod grub2",
+    "VTLANG_MEMDISK_MODE": "Boot în mod memdisk",
+    
+    "VTLANG_RET_TO_LISTVIEW": "Întoarce-te la ListView",
+    "VTLANG_RET_TO_TREEVIEW": "Întoarce-te la TreeView",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "Boot fără șablonul de instalare automată",
+    "VTLANG_AUTOINS_USE": "Boot cu",
+    
+    "VTLANG_NO_PERSIST": "Boot fără persistență",
+    "VTLANG_PERSIST_USE": "Boot cu",
+    
+    "VTLANG_BROWER_RETURN": "Întoarce-te",
+    
+    "VTLANG_ENTER_EXIT": "apeasă tasta Enter pentru a ieși",
+    "VTLANG_ENTER_REBOOT": "apeasă tasta Enter pentru a reporni",
+    "VTLANG_ENTER_CONTINUE": "apeasă tasta Enter pentru a continua",
+    
+    "VTLANG_CTRL_TEMP_SET": "Setări temporare de control",
+    "VTLANG_WIN11_BYPASS_CHECK": "Ocolește verificarea CPU/TPM/SecureBoot la instalarea Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Ocolește cerința de cont online la instalarea Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Montează partitia Ventoy după boot Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Afișează meniul secundar de boot",
+    
+    "MENU_STR_XXX": ""
+}
