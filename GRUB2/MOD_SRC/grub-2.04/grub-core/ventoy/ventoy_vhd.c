@@ -504,7 +504,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
     vhd_footer_t vhdfoot;
     VDIPREHEADER vdihdr;
     char type[16] = {0};
-    ventoy_gpt_info *gpt;
+    ventoy_gpt_info *gpt = NULL;
     
     (void)ctxt;
 
