@@ -1,7 +1,7 @@
 {
     "VTLANG_LANGUAGE_NAME": "Arabic (العربية)",
     
-    "VTLANG_STR_HOTKEY_LIST": "L: لغة F1: مساعدة F2: تصفح F3: عرض قائمة F4: إقلاع محلي F5: أدوات F6: عوده",
+    "VTLANG_STR_HOTKEY_LIST": "L: لغة F1: مساعدة F2: تصفح F3: عرض لائحي F4: إقلاع محلي F5: أدوات F6: عوده",
     "VTLANG_STR_HOTKEY_TREE": "L: لغة F1: مساعدة F2: تصفح F3: عرض شجري F4: إقلاع محلي F5: أدوات F6: عوده",
     "VTLANG_RETURN_PREVIOUS": "عودة إلى القائمة السابقة [Esc]",
     "VTLANG_RETURN_PRV_NOESC": "عودة إلى القائمة السابقة",
