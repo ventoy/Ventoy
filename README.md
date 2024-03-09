@@ -1,59 +1,32 @@
-<h1 align="center">
-  <a href=https://www.ventoy.net/>Ventoy</a>
-</h1>
+<div align="center">
+    <!-- Logo -->
+    <h1><img src="https://www.ventoy.net/static/img/ventoy.png?v=1" height="24px" alt="Ventoy logo"> Ventoy</h1>
+    <a href="https://www.ventoy.net">Visit our website: ventoy.net</a>
+    <!-- Badges -->
+    <div>
+        <br>
+        <img alt="Release number" src="https://img.shields.io/github/release/ventoy/Ventoy.svg?style=flat">
+        <img alt="License" src="https://img.shields.io/github/license/ventoy/Ventoy?style=flat">
+        <img alt="Star count" src="https://img.shields.io/github/stars/ventoy/Ventoy?style=flat">
+        <img alt="Download count" src="https://img.shields.io/github/downloads/ventoy/Ventoy/total.svg?style=flat">
+        <img alt="Action status" src="https://img.shields.io/github/actions/workflow/status/ventoy/Ventoy/ci.yml?label=actions&logo=github&style=flat">
+    </div>
+</div>
 
-<p align="center">
-  <img src="https://img.shields.io/github/release/ventoy/Ventoy.svg?style=for-the-badge">
-  <img src="https://img.shields.io/github/license/ventoy/Ventoy?style=for-the-badge">
-  <img src="https://img.shields.io/github/stars/ventoy/Ventoy?style=for-the-badge">
-  <img src="https://img.shields.io/github/downloads/ventoy/Ventoy/total.svg?style=for-the-badge">
-  <img src="https://img.shields.io/github/actions/workflow/status/ventoy/Ventoy/ci.yml?label=actions&logo=github&style=for-the-badge">
-</p>
+## About
 
-<h4 align="left">
-Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files. <br/>
-With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
-You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
-You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.<br/>
-x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
-Both MBR and GPT partition style are supported in the same way.<br/>
-Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
-  1100+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
-<br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
-</h4>
+An open-source tool to create a bootable USD drive for multiple ISO, WIM, IMG, VHD(x), EFI files.
 
-# Tested OS
-**Windows**  
-Windows 7, Windows 8, Windows 8.1, Windows 10, Windows 11, Windows Server 2012, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Windows Server 2022, WinPE
+With Ventoy, you don't need to repeatedly format the disk -- simply copy the image files to the USB drive and boot it. You can copy multiple images at a time and select which one you'd like to boot to from a menu. Furthermore, you can browse image files in the local disk and boot them right there. Simple!
 
-**Linux**  
-Debian, Ubuntu, CentOS(6/7/8/9), RHEL(6/7/8/9), Deepin, Fedora, Rocky Linux, AlmaLinux, EuroLinux(6/7/8/9), openEuler, OpenAnolis, SLES, openSUSE, MX Linux, Manjaro, Linux Mint, Endless OS, Elementary OS, Solus, Linx, Zorin, antiX, PClinuxOS, Arch, ArcoLinux, ArchLabs, BlackArch, Obarun, Artix Linux, Puppy Linux, Tails, Slax, Kali, Mageia, Slackware, Q4OS, Archman, Gentoo, Pentoo, NixOS, Kylin, openKylin, Ubuntu Kylin, KylinSec, Lubuntu, Xubuntu, Kubuntu, Ubuntu MATE, Ubuntu Budgie, Ubuntu Studio, Bluestar, OpenMandriva, ExTiX, Netrunner, ALT Linux, Nitrux, Peppermint, KDE neon, Linux Lite, Parrot OS, Qubes, Pop OS, ROSA, Void Linux, Star Linux, EndeavourOS, MakuluLinux, Voyager, Feren, ArchBang, LXLE, Knoppix, Calculate Linux, Clear Linux, Pure OS, Oracle Linux, Trident, Septor, Porteus, Devuan, GoboLinux, 4MLinux, Simplicity Linux, Zeroshell, Android-x86, netboot.xyz, Slitaz, SuperGrub2Disk, Proxmox VE, Kaspersky Rescue, SystemRescueCD, MemTest86, MemTest86+, MiniTool Partition Wizard, Parted Magic, veket, Sabayon, Scientific, alpine, ClearOS, CloneZilla, Berry Linux, Trisquel, Ataraxia Linux, Minimal Linux Live, BackBox Linux, Emmabuntüs, ESET SysRescue Live,Nova Linux, AV Linux, RoboLinux, NuTyX, IPFire, SELKS, ZStack, Enso Linux, Security Onion, Network Security Toolkit, Absolute Linux, TinyCore, Springdale Linux, Frost Linux, Shark Linux, LinuxFX, Snail Linux, Astra Linux, Namib Linux, Resilient Linux, Virage Linux, Blackweb Security OS, R-DriveImage, O-O.DiskImage, Macrium, ToOpPy LINUX, GNU Guix, YunoHost, foxclone, siduction, Adelie Linux, Elive, Pardus, CDlinux, AcademiX, Austrumi, Zenwalk, Anarchy, DuZeru, BigLinux, OpenMediaVault, Ubuntu DP, Exe GNU/Linux, 3CX Phone System, KANOTIX, Grml, Karoshi, PrimTux, ArchStrike, CAELinux, Cucumber, Fatdog, ForLEx, Hanthana, Kwort, MiniNo, Redcore, Runtu, Asianux, Clu Linux Live, Uruk, OB2D, BlueOnyx, Finnix, HamoniKR, Parabola, LinHES, LinuxConsole, BEE free, Untangle, Pearl, Thinstation, TurnKey, tuxtrans, Neptune, HefftorLinux, GeckoLinux, Mabox Linux, Zentyal, Maui, Reborn OS, SereneLinux , SkyWave Linux, Kaisen Linux, Regata OS, TROM-Jaro, DRBL Linux, Chalet OS, Chapeau, Desa OS, BlankOn, OpenMamba, Frugalware, Kibojoe Linux, Revenge OS, Tsurugi Linux, Drauger OS, Hash Linux, gNewSense, Ikki Boot, SteamOS, Hyperbola, VyOS, EasyNAS, SuperGamer, Live Raizo, Swift Linux, RebeccaBlackOS, Daphile, CRUX, Univention, Ufficio Zero, Rescuezilla, Phoenix OS, Garuda Linux, Mll, NethServer, OSGeoLive, Easy OS, Volumio, FreedomBox, paldo, UBOS, Recalbox, batocera, Lakka, LibreELEC, Pardus Topluluk, Pinguy, KolibriOS, Elastix, Arya, Omoikane, Omarine, Endian Firewall, Hamara, Rocks Cluster, MorpheusArch, Redo, Slackel, SME Server, APODIO, Smoothwall, Dragora, Linspire, Secure-K OS, Peach OSI, Photon, Plamo, SuperX, Bicom, Ploplinux, HP SPP, LliureX, Freespire, DietPi, BOSS, Webconverger, Lunar, TENS, Source Mage, RancherOS, T2, Vine, Pisi, blackPanther, mAid, Acronis, Active.Boot, AOMEI, Boot.Repair, CAINE, DaRT, EasyUEFI, R-Drive, PrimeOS, Avira Rescue System, bitdefender, Checkra1n Linux, Lenovo Diagnostics, Clover, Bliss-OS, Lenovo BIOS Update, Arcabit Rescue Disk, MiyoLinux, TeLOS, Kerio Control, RED OS, OpenWrt, MocaccinoOS, EasyStartup, Pyabr, Refracta, Eset SysRescue, Linpack Xtreme, Archcraft, NHVBOOT, pearOS, SeaTools, Easy Recovery Essentional, iKuai, StorageCraft SCRE, ZFSBootMenu, TROMjaro, BunsenLabs, Todo en Uno, ChallengerOS, Nobara, Holo, CachyOS, Peux OS, Vanilla OS, ShredOS, paladin, Palen1x, dban, ReviOS, HelenOS, XeroLinux, ......
+Most operating systems are supported ([details](https://github.com/ventoy/Ventoy/tree/master?tab=readme-ov-file#tested-os)). Over 1,100 ISO files are tested ([list](https://www.ventoy.net/en/isolist.html)), and over 90% of the distros in [distrowatch.com](https://distrowatch.com) are supported ([details](https://www.ventoy.net/en/distrowatch.html)).
 
-**Unix**  
-DragonFly FreeBSD pfSense GhostBSD FreeNAS TrueNAS XigmaNAS FuryBSD OPNsense HardenedBSD MidnightBSD ClonOS EmergencyBootKit
+<div align="center">
+    <!-- Product Showcase -->
+    <img src="https://www.ventoy.net/static/img/screen/screen_uefi.png" width="720px" alt="Ventoy screenshot">
+</div>
 
-**ChromeOS**  
-FydeOS, CloudReady, ChromeOS Flex
-
-**Other**  
-VMware ESXi, Citrix XenServer, Xen XCP-ng
-
-# Subscription Service
-Ventoy is an open source software under GPLv3 license.
-But the Ventoy project needs to pay for the server hosting, domain name, bandwidth, many USB sticks for testing, large capacity of HDD (for downloading ISO files) and so on.  
-For the better and sustainable development of Ventoy, I provide the [【subscription service】](https://www.ventoy.net/en/doc_subscription.html).
-
-
-# Tested Image Report
-[【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
-
-# Ventoy Browser
-With Ventoy, you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
-  
-# VentoyPlugson
-A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
-
-# Features
+## Features
 * 100% open source
 * Simple to use
 * Fast (limited only by the speed of copying iso file)
@@ -87,16 +60,42 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * Data nondestructive during version upgrade
 * No need to update Ventoy when a new distro is released
 
-![avatar](https://www.ventoy.net/static/img/screen/screen_uefi.png)
 
 
-# Installation Instructions
-See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detailed instructions. 
+## Tested operating systems
 
-# Compile Instructions
-Please refer to [BuildVentoyFromSource.txt](DOC/BuildVentoyFromSource.txt)
+### Windows
 
-# Document
+Windows 7, Windows 8, Windows 8.1, Windows 10, Windows 11, WinPE
+
+### Windows Server
+
+Windows Server 2012, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Windows Server 2022
+
+### Linux
+
+Debian, Ubuntu, CentOS(6/7/8/9), RHEL(6/7/8/9), Deepin, Fedora, Rocky Linux, AlmaLinux, EuroLinux(6/7/8/9), openEuler, OpenAnolis, SLES, openSUSE, MX Linux, Manjaro, Linux Mint, Endless OS, Elementary OS, Solus, Linx, Zorin, antiX, PClinuxOS, Arch, ArcoLinux, ArchLabs, BlackArch, Obarun, Artix Linux, Puppy Linux, Tails, Slax, Kali, Mageia, Slackware, Q4OS, Archman, Gentoo, Pentoo, NixOS, Kylin, openKylin, Ubuntu Kylin, KylinSec, Lubuntu, Xubuntu, Kubuntu, Ubuntu MATE, Ubuntu Budgie, Ubuntu Studio, Bluestar, OpenMandriva, ExTiX, Netrunner, ALT Linux, Nitrux, Peppermint, KDE neon, Linux Lite, Parrot OS, Qubes, Pop OS, ROSA, Void Linux, Star Linux, EndeavourOS, MakuluLinux, Voyager, Feren, ArchBang, LXLE, Knoppix, Calculate Linux, Clear Linux, Pure OS, Oracle Linux, Trident, Septor, Porteus, Devuan, GoboLinux, 4MLinux, Simplicity Linux, Zeroshell, Android-x86, netboot.xyz, Slitaz, SuperGrub2Disk, Proxmox VE, Kaspersky Rescue, SystemRescueCD, MemTest86, MemTest86+, MiniTool Partition Wizard, Parted Magic, veket, Sabayon, Scientific, alpine, ClearOS, CloneZilla, Berry Linux, Trisquel, Ataraxia Linux, Minimal Linux Live, BackBox Linux, Emmabuntüs, ESET SysRescue Live,Nova Linux, AV Linux, RoboLinux, NuTyX, IPFire, SELKS, ZStack, Enso Linux, Security Onion, Network Security Toolkit, Absolute Linux, TinyCore, Springdale Linux, Frost Linux, Shark Linux, LinuxFX, Snail Linux, Astra Linux, Namib Linux, Resilient Linux, Virage Linux, Blackweb Security OS, R-DriveImage, O-O.DiskImage, Macrium, ToOpPy LINUX, GNU Guix, YunoHost, foxclone, siduction, Adelie Linux, Elive, Pardus, CDlinux, AcademiX, Austrumi, Zenwalk, Anarchy, DuZeru, BigLinux, OpenMediaVault, Ubuntu DP, Exe GNU/Linux, 3CX Phone System, KANOTIX, Grml, Karoshi, PrimTux, ArchStrike, CAELinux, Cucumber, Fatdog, ForLEx, Hanthana, Kwort, MiniNo, Redcore, Runtu, Asianux, Clu Linux Live, Uruk, OB2D, BlueOnyx, Finnix, HamoniKR, Parabola, LinHES, LinuxConsole, BEE free, Untangle, Pearl, Thinstation, TurnKey, tuxtrans, Neptune, HefftorLinux, GeckoLinux, Mabox Linux, Zentyal, Maui, Reborn OS, SereneLinux , SkyWave Linux, Kaisen Linux, Regata OS, TROM-Jaro, DRBL Linux, Chalet OS, Chapeau, Desa OS, BlankOn, OpenMamba, Frugalware, Kibojoe Linux, Revenge OS, Tsurugi Linux, Drauger OS, Hash Linux, gNewSense, Ikki Boot, SteamOS, Hyperbola, VyOS, EasyNAS, SuperGamer, Live Raizo, Swift Linux, RebeccaBlackOS, Daphile, CRUX, Univention, Ufficio Zero, Rescuezilla, Phoenix OS, Garuda Linux, Mll, NethServer, OSGeoLive, Easy OS, Volumio, FreedomBox, paldo, UBOS, Recalbox, batocera, Lakka, LibreELEC, Pardus Topluluk, Pinguy, KolibriOS, Elastix, Arya, Omoikane, Omarine, Endian Firewall, Hamara, Rocks Cluster, MorpheusArch, Redo, Slackel, SME Server, APODIO, Smoothwall, Dragora, Linspire, Secure-K OS, Peach OSI, Photon, Plamo, SuperX, Bicom, Ploplinux, HP SPP, LliureX, Freespire, DietPi, BOSS, Webconverger, Lunar, TENS, Source Mage, RancherOS, T2, Vine, Pisi, blackPanther, mAid, Acronis, Active.Boot, AOMEI, Boot.Repair, CAINE, DaRT, EasyUEFI, R-Drive, PrimeOS, Avira Rescue System, bitdefender, Checkra1n Linux, Lenovo Diagnostics, Clover, Bliss-OS, Lenovo BIOS Update, Arcabit Rescue Disk, MiyoLinux, TeLOS, Kerio Control, RED OS, OpenWrt, MocaccinoOS, EasyStartup, Pyabr, Refracta, Eset SysRescue, Linpack Xtreme, Archcraft, NHVBOOT, pearOS, SeaTools, Easy Recovery Essentional, iKuai, StorageCraft SCRE, ZFSBootMenu, TROMjaro, BunsenLabs, Todo en Uno, ChallengerOS, Nobara, Holo, CachyOS, Peux OS, Vanilla OS, ShredOS, paladin, Palen1x, dban, ReviOS, HelenOS, XeroLinux, ......
+
+#### Unix
+
+DragonFly, FreeBSD, pfSense, GhostBSD, FreeNASS TrueNAS, XigmaNAS, FuryBSD, OPNsense, HardenedBSD, MidnightBSD, ClonOS, EmergencyBootKit,
+
+#### ChromeOS
+FydeOS, CloudReady, ChromeOS Flex
+
+### Other
+
+VMware ESXi, Citrix XenServer, Xen XCP-ng
+
+## Installation
+
+Our website features tutorials regarding how you may:
+
+* [install a prebuilt binary](https://www.ventoy.net/en/doc_start.html)
+* [compile from source](DOC/BuildVentoyFromSource.txt)
+
+A complete list of tutorials is as follows:
+
 Title | Link
 -|-
 **Install & Update** | [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html)
@@ -123,32 +122,33 @@ Title | Link
 **Disk Layout GPT** | [https://www.ventoy.net/en/doc_disk_layout_gpt.html](https://www.ventoy.net/en/doc_disk_layout_gpt.html)  
 **Search Configuration** | [https://www.ventoy.net/en/doc_search_path.html](https://www.ventoy.net/en/doc_search_path.html)
 
+## Links
 
-# FAQ
-See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for detail
+* [Frequently-asked questions](https://www.ventoy.net/en/faq.html)
+* [Forums](https://forums.ventoy.net)
 
+## Support us
 
-# Forum
-[https://forums.ventoy.net](https://forums.ventoy.net)
+We appreciate your support in keeping Ventoy free and open-source. Your funding will go towards server hosting, domain name and bandwith costs, USB sticks and hard drives for testing, and other operational costs.
 
-# Donation
-It would be much appreciated if you want to make a small donation to support my work!  
-Alipay, WeChat Pay, PayPal and Bitcoin are available for donation. You can choose any of them.  
+In order to keep Ventoy free and open-source, we provide the optional [subscription service](https://www.ventoy.net/en/doc_subscription.html).
+
+Alternatively, you can make a one-off donation via:
+
+### Alipay / WeChat Pay
 
 Alipay | WeChat Pay
 -|-
 <img src="https://www.ventoy.net/static/img/AliPay.png" width="250" height="250">|<img src="https://www.ventoy.net/static/img/WeChatPay.png" width="250" height="250">
 
-**PayPal**  
-You can transfer to my paypal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
+### PayPal
 
-**Bitcoin**  
-Bitcoin Address `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
+You can transfer to my PayPal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
 
+### Crypto
 
+Bitcoin address: `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
 
+### LiberaPay
 
-
-
-
-
+Recurring donation: [https://liberapay.com/Ventoy/donate](https://liberapay.com/Ventoy/donate)
