@@ -1,7 +1,7 @@
 <div align="center">
     <!-- Logo -->
     <h1><img src="https://www.ventoy.net/static/img/ventoy.png?v=1" height="24px" alt="Ventoy logo"> Ventoy</h1>
-    <a href="https://www.ventoy.net">ventoy.net</a>
+    <a href="https://www.ventoy.net">Visit our website: ventoy.net</a>
     <!-- Badges -->
     <div>
         <br>
@@ -19,7 +19,7 @@ An open-source tool to create a bootable USD drive for multiple ISO, WIM, IMG, V
 
 With Ventoy, you don't need to repeatedly format the disk -- simply copy the image files to the USB drive and boot it. You can copy multiple images at a time and select which one you'd like to boot to from a menu. Furthermore, you can browse image files in the local disk and boot them right there. Simple!
 
-Most operating systems are supported (see details below). Over 1,100 ISO files are tested ([list](https://www.ventoy.net/en/isolist.html)), and over 90% of the distros in [distrowatch.com](https://distrowatch.com) are supported ([details](https://www.ventoy.net/en/distrowatch.html)).
+Most operating systems are supported ([details](https://github.com/ventoy/Ventoy/tree/master?tab=readme-ov-file#tested-os)). Over 1,100 ISO files are tested ([list](https://www.ventoy.net/en/isolist.html)), and over 90% of the distros in [distrowatch.com](https://distrowatch.com) are supported ([details](https://www.ventoy.net/en/distrowatch.html)).
 
 <div align="center">
     <!-- Product Showcase -->
@@ -129,7 +129,7 @@ Title | Link
 
 ## Support us
 
-We appreciate your support in keeping Ventoy free and open-source. Your funding will help us pay for server hosting, domain name, bandwith, USB sticks for testing, hard drives, and other operational costs.
+We appreciate your support in keeping Ventoy free and open-source. Your funding will go towards server hosting, domain name and bandwith costs, USB sticks and hard drives for testing, and other operational costs.
 
 In order to keep Ventoy free and open-source, we provide the optional [subscription service](https://www.ventoy.net/en/doc_subscription.html).
 
@@ -143,8 +143,12 @@ Alipay | WeChat Pay
 
 ### PayPal
 
-You can transfer to my paypal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
+You can transfer to my PayPal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
 
 ### Crypto
 
-Bitcoin Address `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
+Bitcoin address: `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
+
+### LiberaPay
+
+Recurring donation: [https://liberapay.com/Ventoy/donate](https://liberapay.com/Ventoy/donate)
