@@ -56,7 +56,7 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 # Features
 * 100% open source
 * Simple to use
-* Fast (limited only by the speed of copying the iso file)
+* Fast (limited only by the speed of copying the ISO file)
 * Can be installed in USB/Local Disk/SSD/NVMe/SD Card
 * Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
 * Support to browse and boot ISO/WIM/IMG/VHD(x)/EFI files in the local disk
@@ -83,7 +83,7 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * Boot configuration file dynamically replacement
 * Highly customizable theme and menu
 * USB drive write-protected support
-* USB normal use unaffected
+* USB normal use is unaffected
 * Data nondestructive during version upgrade
 * No need to update Ventoy when a new distro is released
 
@@ -132,7 +132,7 @@ See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for
 [https://forums.ventoy.net](https://forums.ventoy.net)
 
 # Donation
-It would be much appreciated if you want to make a small donation to support my work!  
+I would appreciate it if you could make a small donation to support my work!  
 Alipay, WeChat Pay, PayPal, and Bitcoin are available for donation. You can choose any of them.  
 
 Alipay | WeChat Pay
