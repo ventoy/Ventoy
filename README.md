@@ -1,2 +1,2 @@
-#Ventoy 2
+# Ventoy 2
 A mod of Ventoy that adds extra features
