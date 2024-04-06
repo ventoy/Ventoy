@@ -352,6 +352,10 @@ ventoy_dm_patch() {
     vtlog "get blkdev_put address $vtLine"        
     blkdev_put_addr=$(echo $vtLine | $AWK '{print $1}')
     
+    vtLine=$($VTOY_PATH/tool/vtoyksym bdev_open_by_dev $VTOY_PATH/kallsyms) 
+    vtlog "get bdev_open_by_dev address $vtLine"        
+    bdev_open_addr=$(echo $vtLine | $AWK '{print $1}')
+    
 
     if $GREP -m1 -q 'close_table_device.isra' $VTOY_PATH/kallsyms; then
         vtLine=$($VTOY_PATH/tool/vtoyksym close_table_device.isra $VTOY_PATH/kallsyms)
@@ -394,7 +398,7 @@ ventoy_dm_patch() {
     vtlog put_addr=$put_addr  put_size=$put_size
     vtlog blkdev_get_addr=$blkdev_get_addr blkdev_put_addr=$blkdev_put_addr
     vtlog kprobe_reg_addr=$kprobe_reg_addr  kprobe_unreg_addr=$kprobe_unreg_addr
-    vtlog ro_addr=$ro_addr  rw_addr=$rw_addr  printk_addr=$printk_addr
+    vtlog ro_addr=$ro_addr  rw_addr=$rw_addr  printk_addr=$printk_addr bdev_open_addr=$bdev_open_addr
 
     if [ "$get_addr" = "0" -o "$put_addr" = "0" ]; then
         vtlog "Invalid symbol address"
@@ -409,6 +413,7 @@ ventoy_dm_patch() {
     vtKv=$($BUSYBOX_PATH/uname -r)
     vtKVMajor=$(echo $vtKv | $AWK -F. '{print $1}')
     vtKVMinor=$(echo $vtKv | $AWK -F. '{print $2}')
+    vtKVSubMinor=$(echo $vtKv | $AWK -F. '{print $3}')
     
     if [ ! -d /lib/modules/$vtKv ]; then
         vtlog "No modules directory found"
@@ -455,7 +460,7 @@ ventoy_dm_patch() {
     #step2: fill parameters
     vtPgsize=$($VTOY_PATH/tool/vtoyksym -p)
     
-    vtPrams="$VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKVMajor $vtIBT $vtKVMinor $blkdev_get_addr $blkdev_put_addr $vtDebug"
+    vtPrams="$VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKVMajor $vtIBT $vtKVMinor $blkdev_get_addr $blkdev_put_addr $vtKVSubMinor $bdev_open_addr  $vtDebug"
     
     
     vtlog "$VTOY_PATH/tool/vtoykmod -f $vtPrams"

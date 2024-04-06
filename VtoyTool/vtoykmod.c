@@ -191,6 +191,8 @@ typedef struct ko_param
     unsigned long kv_minor;
     unsigned long blkdev_get_addr;
     unsigned long blkdev_put_addr;
+    unsigned long bdev_open_addr;
+    unsigned long kv_subminor;
     unsigned long padding[1];
 }ko_param;
 
@@ -577,6 +579,8 @@ int vtoykmod_fill_param(char **argv)
             param->kv_minor = strtoul(argv[13], NULL, 10);
             param->blkdev_get_addr = strtoul(argv[14], NULL, 16);
             param->blkdev_put_addr = strtoul(argv[15], NULL, 16);
+            param->kv_subminor = strtoul(argv[16], NULL, 10);
+            param->bdev_open_addr = strtoul(argv[17], NULL, 16);
 
             debug("pgsize=%lu (%s)\n", param->pgsize, argv[1]);
             debug("printk_addr=0x%lx (%s)\n", param->printk_addr, argv[2]);
@@ -593,6 +597,8 @@ int vtoykmod_fill_param(char **argv)
             debug("kv_minor=%lu (%s)\n", param->kv_minor, argv[13]);
             debug("blkdev_get_addr=0x%lx (%s)\n", param->blkdev_get_addr, argv[14]);
             debug("blkdev_put_addr=0x%lx (%s)\n", param->blkdev_put_addr, argv[15]);
+            debug("kv_subminor=%lu (%s)\n", param->kv_subminor, argv[16]);
+            debug("bdev_open_addr=0x%lx (%s)\n", param->bdev_open_addr, argv[17]);
             
             break;
         }
