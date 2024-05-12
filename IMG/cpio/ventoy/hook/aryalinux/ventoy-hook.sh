@@ -20,7 +20,7 @@
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
 $BUSYBOX_PATH/mkdir /dev
-$BUSYBOX_PATH/mknod -m 660 /dev/console b 5 1
+$BUSYBOX_PATH/mknod -m 660 /dev/console c 5 1
 
 $SED "/for device in/i $BUSYBOX_PATH/sh $VTOY_PATH/hook/aryalinux/disk_hook.sh" -i /init
 #$SED "/for device in/i exec $BUSYBOX_PATH/sh" -i /init
