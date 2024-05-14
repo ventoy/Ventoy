@@ -451,39 +451,24 @@ static u64 notrace dmpatch_ibt_save(void) { return 0; }
 static void notrace dmpatch_ibt_restore(u64 save) { (void)save; }
 #endif
 
-static int notrace dmpatch_init(void)
+static int notrace dmpatch_process(unsigned long a, unsigned long b, unsigned long c)
 {
     int r = 0;
     int rc = 0;
-    u64 msr = 0;
-    
-    if (g_ko_param.ibt == 0x8888)
-    {
-        msr = dmpatch_ibt_save();
-    }
-    
-    kprintf = (printk_pf)(g_ko_param.printk_addr); 
+    unsigned long kv_major = 0;
+    unsigned long kv_minor = 0;
+    unsigned long kv_subminor = 0;
 
-    vdebug("dmpatch_init start pagesize=%lu kernel=%lu.%lu.%lu ...\n", 
-        g_ko_param.pgsize, g_ko_param.kv_major, g_ko_param.kv_minor, g_ko_param.kv_subminor);
-    
-    if (g_ko_param.struct_size != sizeof(ko_param))
-    {
-        vdebug("Invalid struct size %d %d\n", (int)g_ko_param.struct_size, (int)sizeof(ko_param));
-        return -EINVAL;
-    }
-    
-    if (g_ko_param.sym_get_addr == 0 || g_ko_param.sym_put_addr == 0 || 
-        g_ko_param.ro_addr == 0 || g_ko_param.rw_addr == 0)
-    {
-        return -EINVAL;
-    }
+    vdebug("dmpatch_process as KV %d.%d.%d ...\n", (int)a, (int)b, (int)c);
 
-    set_mem_ro = (set_memory_attr_pf)(g_ko_param.ro_addr);
-    set_mem_rw = (set_memory_attr_pf)(g_ko_param.rw_addr);
-    reg_kprobe = (kprobe_reg_pf)g_ko_param.reg_kprobe_addr;
-    unreg_kprobe = (kprobe_unreg_pf)g_ko_param.unreg_kprobe_addr;
+    kv_major = g_ko_param.kv_major;
+    kv_minor = g_ko_param.kv_minor;
+    kv_subminor = g_ko_param.kv_subminor;
 
+    g_ko_param.kv_major = a;
+    g_ko_param.kv_minor = b;
+    g_ko_param.kv_subminor = c;
+    
     if (dmpatch_kv_above(6, 5, 0)) /* >= kernel 6.5 */
     {
         vdebug("new interface patch dm_get_table_device...\n");
@@ -531,14 +516,66 @@ static int notrace dmpatch_init(void)
     vdebug("######## dm patch success ###########\n");
     vdebug("#####################################\n");
 
+out:
+
+    g_ko_param.kv_major = kv_major;
+    g_ko_param.kv_minor = kv_minor;
+    g_ko_param.kv_subminor = kv_subminor;
+
+	return rc;
+}
+
+static int notrace dmpatch_init(void)
+{
+    int rc = 0;
+    u64 msr = 0;
+    
+    if (g_ko_param.ibt == 0x8888)
+    {
+        msr = dmpatch_ibt_save();
+    }
+    
+    kprintf = (printk_pf)(g_ko_param.printk_addr); 
+
+    vdebug("dmpatch_init start pagesize=%lu kernel=%lu.%lu.%lu ...\n", 
+        g_ko_param.pgsize, g_ko_param.kv_major, g_ko_param.kv_minor, g_ko_param.kv_subminor);
+    
+    if (g_ko_param.struct_size != sizeof(ko_param))
+    {
+        vdebug("Invalid struct size %d %d\n", (int)g_ko_param.struct_size, (int)sizeof(ko_param));
+        return -EINVAL;
+    }
+    
+    if (g_ko_param.sym_get_addr == 0 || g_ko_param.sym_put_addr == 0 || 
+        g_ko_param.ro_addr == 0 || g_ko_param.rw_addr == 0)
+    {
+        return -EINVAL;
+    }
+
+    set_mem_ro = (set_memory_attr_pf)(g_ko_param.ro_addr);
+    set_mem_rw = (set_memory_attr_pf)(g_ko_param.rw_addr);
+    reg_kprobe = (kprobe_reg_pf)g_ko_param.reg_kprobe_addr;
+    unreg_kprobe = (kprobe_unreg_pf)g_ko_param.unreg_kprobe_addr;
+
+    rc = dmpatch_process(g_ko_param.kv_major, g_ko_param.kv_minor, g_ko_param.kv_subminor);
+    if (rc)
+    {
+        if (g_ko_param.kv_major >= 5)
+        {
+            rc = dmpatch_process(6, 5, 0);
+            if (rc)
+            {
+                rc = dmpatch_process(6, 7, 0);
+            }
+        }
+    }
+
     if (g_ko_param.ibt == 0x8888)
     {
         dmpatch_ibt_restore(msr);
     }
 
-out:
-
-	return rc;
+    return rc;
 }
 
 static void notrace dmpatch_exit(void)
