@@ -1,0 +1,19 @@
+ L - Lựa chọn ngôn ngữ
+F1 - Hiển thị thông tin trợ giúp
+F2 - Duyệt tìm và khởi động tệp từ ổ đĩa trên máy
+F3 - Chuyển đổi chế độ bảng chọn giữa dạng cây <-> dạng danh sách.
+F4 - Khởi động Windows hoặc GNU/Linux trên đĩa cục bộ
+F5 - Các tiện ích 
+F6 - Tải menu GRUB2 tuỳ chọn
+F7 - Chuyển giữa giao diện đồ hoạ <-> giao diện văn bản
+
+m/Ctrl+m - Checksum các tệp ảnh đĩa (md5/sha1/sha256/sha512)
+d/Ctrl+d - Chế độ Memdisk (Chỉ dùng cho các tệp ISO/IMG WinPE/LiveCD có kích thước nhỏ)
+w/Ctrl+w - Chế độ WIMBOOT (Chỉ dùng cho các tệp ISO Windows/WinPE)
+r/Ctrl+r - Chế độ Grub2 (Chỉ dùng cho một vài bản phân phối của GNU/Linux)
+i/Ctrl+i - Chế độ tương thích (Chỉ dùng cho việc sửa lỗi)
+u/Ctrl+u - Tải ISO của một driver EFI (Chỉ dùng cho việc sửa lỗi, không thể dùng chính thức)
+
+
+
+Nhấn ESC để quay lại ......

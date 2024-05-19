@@ -244,6 +244,15 @@ static int ventoy_browser_valid_dirname(const char *name, int len)
         return 0;
     }
 
+    if (g_filt_trash_dir)
+    {
+        if (0 == grub_strncmp(name, ".trash-", 7) ||
+            0 == grub_strcmp(name, ".Trashes"))
+        {
+            return 0;
+        }
+    }
+
     if (name[0] == '$')
     {
         if (0 == grub_strncmp(name, "$RECYCLE.BIN", 12) ||
