@@ -34,7 +34,7 @@
     https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9           ===>  /home/Ventoy-master/ExFAT/libfuse-fuse-2.9.9.zip
     https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz           ===>  /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
     https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2 ===> /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2
-    http://ftp.loongnix.cn/toolchain/gcc/release/mips/gcc7/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz ===> /opt/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz    
+    https://github.com/ventoy/vtoytoolchain/releases/download/1.0/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz ===> /opt/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
     https://github.com/ventoy/musl-cross-make/releases/download/latest/output.tar.bz2 ===> /opt/output.tar.bz2
 
 
