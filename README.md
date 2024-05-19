@@ -10,19 +10,17 @@
   <img src="https://img.shields.io/github/actions/workflow/status/ventoy/Ventoy/ci.yml?label=actions&logo=github&style=for-the-badge">
 </p>
 
-<h4 align="left">
-Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files. <br/>
-With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
-You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
-You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.<br/>
-x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
-Both MBR and GPT partition style are supported in the same way.<br/>
-Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
-  1100+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
-<br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
-</h4>
+<p>Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files.</p>
+<p>With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.</p> 
+<p>You can copy many image files at a time and ventoy will give you a boot menu to select them.</p>
+<p>You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.</p>
+<p>x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.</p>
+<p>Both MBR and GPT partition style are supported in the same way.</p>
+<p>Most platforms are supported, including Windows, WinPE, Linux, Unix, ChromeOS, VMware, Xen &hellip;</p>
+<p>Over 1,100 <a href="https://www.ventoy.net/en/isolist.html">ISO files</a> have been tested. Over 90% of <a href="https://distrowatch.com/">distrowatch.com</a> <a href="https://www.ventoy.net/en/distrowatch.html">distributions</a> are supported.</p>
 
-# Tested OS
+# Tested Operating Systems
+
 **Windows**  
 Windows 7, Windows 8, Windows 8.1, Windows 10, Windows 11, Windows Server 2012, Windows Server 2012 R2, Windows Server 2016, Windows Server 2019, Windows Server 2022, WinPE
 
