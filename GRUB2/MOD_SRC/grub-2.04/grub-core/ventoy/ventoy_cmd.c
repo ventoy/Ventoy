@@ -65,6 +65,7 @@ int g_initrd_img_count = 0;
 int g_valid_initrd_count = 0;
 int g_default_menu_mode = 0;
 int g_filt_dot_underscore_file = 0;
+int g_filt_trash_dir = 1;
 int g_sort_case_sensitive = 0;
 int g_tree_view_menu_style = 0;
 static grub_file_t g_old_file;
@@ -1900,9 +1901,14 @@ static int ventoy_collect_img_files(const char *filename, const struct grub_dirh
             return 0;
         }
 
-        if (filename[0] == '$' && 0 == grub_strncmp(filename, "$RECYCLE.BIN", 12))
+        if (g_filt_trash_dir)
         {
-            return 0;
+            if (0 == grub_strncmp(filename, ".trash-", 7) ||
+                0 == grub_strcmp(filename, ".Trashes") ||
+                0 == grub_strncmp(filename, "$RECYCLE.BIN", 12))
+            {
+                return 0;
+            }
         }
 
         if (g_plugin_image_list == VENTOY_IMG_WHITE_LIST)
@@ -2830,6 +2836,12 @@ static grub_err_t ventoy_cmd_list_img(grub_extcmd_context_t ctxt, int argc, char
     if (strdata && strdata[0] == '1' && strdata[1] == 0)
     {
         g_filt_dot_underscore_file = 1;
+    }
+    
+    strdata = ventoy_get_env("VTOY_FILT_TRASH_DIR");
+    if (strdata && strdata[0] == '0' && strdata[1] == 0)
+    {
+        g_filt_trash_dir = 0;
     }
 
     strdata = ventoy_get_env("VTOY_SORT_CASE_SENSITIVE");
