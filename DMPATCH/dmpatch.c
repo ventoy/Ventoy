@@ -58,6 +58,7 @@ typedef struct ko_param
     unsigned long blkdev_put_addr;
     unsigned long bdev_open_addr;
     unsigned long kv_subminor;
+    unsigned long bdev_file_open_addr;
     unsigned long padding[1];
 }ko_param;
 
@@ -318,12 +319,19 @@ static unsigned int notrace dmpatch_patch_claim_ptr(void)
 
     if (dmpatch_kv_above(6, 7, 0)) /* >= 6.7 kernel */
     {
-        vdebug("Get addr: 0x%lx %lu 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_open_addr);
+        vdebug("Get addr: 0x%lx %lu open 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_open_addr);
         offset1 = dmpatch_find_call_offset(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_open_addr);
         if (offset1 == 0)
         {
             vdebug("call bdev_open_addr Not found\n");
-            return 1;
+
+            vdebug("Get addr: 0x%lx %lu file_open 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_file_open_addr);
+            offset1 = dmpatch_find_call_offset(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_file_open_addr);
+            if (offset1 == 0)
+            {            
+                vdebug("call bdev_file_open_addr Not found\n");
+                return 1;
+            }
         }
     }
     else
@@ -339,6 +347,7 @@ static unsigned int notrace dmpatch_patch_claim_ptr(void)
             return 1;
         }
     }
+
     
     vdebug("call addr1:0x%lx  call addr2:0x%lx\n", 
         g_ko_param.sym_get_addr + offset1, 
