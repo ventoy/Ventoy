@@ -335,8 +335,9 @@ ventoy_dm_patch() {
     $CAT /proc/kallsyms | $BUSYBOX_PATH/sort > $VTOY_PATH/kallsyms
     
     if $GREP -m1 -q 'open_table_device.isra' $VTOY_PATH/kallsyms; then
-        vtLine=$($VTOY_PATH/tool/vtoyksym open_table_device.isra $VTOY_PATH/kallsyms)
-        vtlog "get open_table_device.isra address $vtLine"
+        vtISRA=$($GREP -m1 'open_table_device.isra' $VTOY_PATH/kallsyms | $AWK '{print $3}')
+        vtLine=$($VTOY_PATH/tool/vtoyksym $vtISRA $VTOY_PATH/kallsyms)
+        vtlog "get $vtISRA address $vtLine"
     else
         vtLine=$($VTOY_PATH/tool/vtoyksym dm_get_table_device $VTOY_PATH/kallsyms)
         vtlog "get dm_get_table_device address $vtLine"
