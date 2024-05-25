@@ -47,7 +47,7 @@
     "VTLANG_UTIL_SHOW_EFI_DRV": "Afficher les pilotes EFI",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Contourner l’échec de Windows BlinitializeLibrary",
     
-    "VTLANG_JSON_CHK_JSON": "Afficher le fichiers de configuration (ventoy.json)",
+    "VTLANG_JSON_CHK_JSON": "Afficher le fichier de configuration (ventoy.json)",
     "VTLANG_JSON_CHK_CONTROL": "Afficher la configuration du plugin de contrôle global",
     "VTLANG_JSON_CHK_THEME": "Afficher la configuration du plugin de thème",
     "VTLANG_JSON_CHK_AUTOINS": "Afficher la configuration du plugin d’installation automatique",
