@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -30,10 +31,12 @@ static int verbose = 0;
 int vtoyksym_main(int argc, char **argv)
 {
     int i;
+    int len = 0;
     unsigned long long addr1 = 0;
     unsigned long long addr2 = 0;
     char sym[256];
     char line[1024];
+    char *start = NULL;
     const char *name = NULL;
     FILE *fp;
 
@@ -68,9 +71,11 @@ int vtoyksym_main(int argc, char **argv)
     snprintf(sym, sizeof(sym), " %s", argv[1]);
     debug("lookup for <%s>\n", sym);
 
+    len = (int)strlen(sym);
     while (fgets(line, sizeof(line), fp))
     {
-        if (strstr(line, sym))
+        start = strstr(line, sym);
+        if (start && (start > line) && isspace(*(start + len)))
         {
             addr1 = strtoull(line, NULL, 16);
             if (!fgets(line, sizeof(line), fp))

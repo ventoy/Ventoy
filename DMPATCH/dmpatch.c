@@ -53,6 +53,12 @@ typedef struct ko_param
     unsigned long sym_put_size;
     unsigned long kv_major;
     unsigned long ibt;
+    unsigned long kv_minor;
+    unsigned long blkdev_get_addr;
+    unsigned long blkdev_put_addr;
+    unsigned long bdev_open_addr;
+    unsigned long kv_subminor;
+    unsigned long bdev_file_open_addr;
     unsigned long padding[1];
 }ko_param;
 
@@ -150,10 +156,31 @@ static volatile ko_param g_ko_param =
 
 #define vdebug(fmt, args...) if(kprintf) kprintf(KERN_ERR fmt, ##args)
 
+static unsigned int g_claim_ptr = 0;
 static unsigned char *g_get_patch[MAX_PATCH] = { NULL };
 static unsigned char *g_put_patch[MAX_PATCH] = { NULL };
 
-static void notrace dmpatch_restore_code(unsigned char *opCode)
+static int notrace dmpatch_kv_above(unsigned long Major, unsigned long Minor, unsigned long SubMinor)
+{
+    if (g_ko_param.kv_major != Major)
+    {
+        return (g_ko_param.kv_major > Major) ? 1 : 0;
+    }
+
+    if (g_ko_param.kv_minor != Minor)
+    {
+        return (g_ko_param.kv_minor > Minor) ? 1 : 0;
+    }
+
+    if (g_ko_param.kv_subminor != SubMinor)
+    {
+        return (g_ko_param.kv_subminor > SubMinor) ? 1 : 0;
+    }
+
+    return 1;
+}
+
+static void notrace dmpatch_restore_code(int bytes, unsigned char *opCode, unsigned int code)
 {
     unsigned long align;
 
@@ -161,7 +188,14 @@ static void notrace dmpatch_restore_code(unsigned char *opCode)
     {
         align = (unsigned long)opCode / g_ko_param.pgsize * g_ko_param.pgsize;
         set_mem_rw(align, 1);
-        *opCode = 0x80;
+        if (bytes == 1)
+        {
+            *opCode = (unsigned char)code;            
+        }
+        else
+        {
+            *(unsigned int *)opCode = code;
+        }
         set_mem_ro(align, 1);        
     }
 }
@@ -235,6 +269,148 @@ static int notrace dmpatch_replace_code
     return 0;
 }
 
+static unsigned long notrace dmpatch_find_call_offset(unsigned long addr, unsigned long size, unsigned long func)
+{
+    unsigned long i = 0;
+    unsigned long dest;
+    unsigned char *opCode = NULL;
+    unsigned char aucOffset[8] = { 0, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF };
+
+    opCode = (unsigned char *)addr;
+    
+    for (i = 0; i + 4 < size; i++)
+    {
+        if (opCode[i] == 0xE8)
+        {
+            aucOffset[0] = opCode[i + 1];
+            aucOffset[1] = opCode[i + 2];
+            aucOffset[2] = opCode[i + 3];
+            aucOffset[3] = opCode[i + 4];
+
+            dest = addr + i + 5 + *(unsigned long *)aucOffset;
+            if (dest == func)
+            {
+                return i;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static unsigned int notrace dmpatch_patch_claim_ptr(void)
+{
+    unsigned long i = 0;
+    unsigned long t = 0;
+    unsigned long offset1 = 0;
+    unsigned long offset2 = 0;
+    unsigned long align = 0;
+    unsigned char *opCode = NULL;
+
+    opCode = (unsigned char *)g_ko_param.sym_get_addr;
+    for (i = 0; i < 4; i++)
+    {
+        vdebug("%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
+            opCode[i + 0], opCode[i + 1], opCode[i + 2], opCode[i + 3],
+            opCode[i + 4], opCode[i + 5], opCode[i + 6], opCode[i + 7],
+            opCode[i + 8], opCode[i + 9], opCode[i + 10], opCode[i + 11],
+            opCode[i + 12], opCode[i + 13], opCode[i + 14], opCode[i + 15]);
+    }
+
+    if (dmpatch_kv_above(6, 7, 0)) /* >= 6.7 kernel */
+    {
+        vdebug("Get addr: 0x%lx %lu open 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_open_addr);
+        offset1 = dmpatch_find_call_offset(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_open_addr);
+        if (offset1 == 0)
+        {
+            vdebug("call bdev_open_addr Not found\n");
+
+            vdebug("Get addr: 0x%lx %lu file_open 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_file_open_addr);
+            offset1 = dmpatch_find_call_offset(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_file_open_addr);
+            if (offset1 == 0)
+            {            
+                vdebug("call bdev_file_open_addr Not found\n");
+                return 1;
+            }
+        }
+    }
+    else
+    {
+        vdebug("Get addr: 0x%lx %lu 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.blkdev_get_addr);
+        vdebug("Put addr: 0x%lx %lu 0x%lx\n", g_ko_param.sym_put_addr, g_ko_param.sym_put_size, g_ko_param.blkdev_put_addr);        
+
+        offset1 = dmpatch_find_call_offset(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.blkdev_get_addr);
+        offset2 = dmpatch_find_call_offset(g_ko_param.sym_put_addr, g_ko_param.sym_put_size, g_ko_param.blkdev_put_addr);
+        if (offset1 == 0 || offset2 == 0)
+        {
+            vdebug("call blkdev_get or blkdev_put Not found, %lu %lu\n", offset1, offset2);
+            return 1;
+        }
+    }
+
+    
+    vdebug("call addr1:0x%lx  call addr2:0x%lx\n", 
+        g_ko_param.sym_get_addr + offset1, 
+        g_ko_param.sym_put_addr + offset2);
+    
+    opCode = (unsigned char *)g_ko_param.sym_get_addr;
+    for (i = offset1 - 1, t = 0; (i > 0) && (t < 24); i--, t++)
+    {
+        /* rdx */
+        if (opCode[i] == 0x48 && opCode[i + 1] == 0xc7 && opCode[i + 2] == 0xc2)
+        {
+            g_claim_ptr = *(unsigned int *)(opCode + i + 3);
+            g_get_patch[0] = opCode + i + 3;
+            vdebug("claim_ptr(%08X) found at get addr 0x%lx\n", g_claim_ptr, g_ko_param.sym_get_addr + i + 3);
+            break;
+        }
+    }
+
+    if (g_claim_ptr == 0)
+    {
+        vdebug("Claim_ptr not found in get\n");
+        return 1;
+    }
+
+    
+    align = (unsigned long)g_get_patch[0] / g_ko_param.pgsize * g_ko_param.pgsize;
+    set_mem_rw(align, 1);
+    *(unsigned int *)(g_get_patch[0]) = 0;
+    set_mem_ro(align, 1);  
+
+
+    if (offset2 > 0)
+    {        
+        opCode = (unsigned char *)g_ko_param.sym_put_addr;
+        for (i = offset2 - 1, t = 0; (i > 0) && (t < 24); i--, t++)
+        {
+            /* rsi */
+            if (opCode[i] == 0x48 && opCode[i + 1] == 0xc7 && opCode[i + 2] == 0xc6)
+            {
+                if (*(unsigned int *)(opCode + i + 3) == g_claim_ptr)
+                {
+                    vdebug("claim_ptr found at put addr 0x%lx\n", g_ko_param.sym_put_addr + i + 3);
+                    g_put_patch[0] = opCode + i + 3;
+                    break;                
+                }
+            }
+        }    
+
+        if (g_put_patch[0] == 0)
+        {
+            vdebug("Claim_ptr not found in put\n");
+            return 1;
+        }
+        
+        align = (unsigned long)g_put_patch[0] / g_ko_param.pgsize * g_ko_param.pgsize;
+        set_mem_rw(align, 1);
+        *(unsigned int *)(g_put_patch[0]) = 0;
+        set_mem_ro(align, 1);   
+    }
+
+    return 0;
+}
+
 #ifdef VTOY_IBT
 static __always_inline unsigned long long dmpatch_rdmsr(unsigned int msr)
 {
@@ -256,7 +432,7 @@ static __always_inline void dmpatch_wrmsr(unsigned int msr, u32 low, u32 high)
 		     : : "c" (msr), "a"(low), "d" (high) : "memory");
 }
 
-static u64 dmpatch_ibt_save(void)
+static u64 notrace dmpatch_ibt_save(void)
 {
     u64 msr = 0;
     u64 val = 0;
@@ -268,7 +444,7 @@ static u64 dmpatch_ibt_save(void)
     return msr;
 }
 
-static void dmpatch_ibt_restore(u64 save)
+static void notrace dmpatch_ibt_restore(u64 save)
 {
 	u64 msr;
 
@@ -280,13 +456,86 @@ static void dmpatch_ibt_restore(u64 save)
     dmpatch_wrmsr(MSR_IA32_S_CET, (u32)(msr & 0xffffffffULL), (u32)(msr >> 32));
 }
 #else
-static u64 dmpatch_ibt_save(void) { return 0; }
-static void dmpatch_ibt_restore(u64 save) { (void)save; }
+static u64 notrace dmpatch_ibt_save(void) { return 0; }
+static void notrace dmpatch_ibt_restore(u64 save) { (void)save; }
 #endif
+
+static int notrace dmpatch_process(unsigned long a, unsigned long b, unsigned long c)
+{
+    int r = 0;
+    int rc = 0;
+    unsigned long kv_major = 0;
+    unsigned long kv_minor = 0;
+    unsigned long kv_subminor = 0;
+
+    vdebug("dmpatch_process as KV %d.%d.%d ...\n", (int)a, (int)b, (int)c);
+
+    kv_major = g_ko_param.kv_major;
+    kv_minor = g_ko_param.kv_minor;
+    kv_subminor = g_ko_param.kv_subminor;
+
+    g_ko_param.kv_major = a;
+    g_ko_param.kv_minor = b;
+    g_ko_param.kv_subminor = c;
+    
+    if (dmpatch_kv_above(6, 5, 0)) /* >= kernel 6.5 */
+    {
+        vdebug("new interface patch dm_get_table_device...\n");
+        r = dmpatch_patch_claim_ptr();
+    }
+    else
+    {
+        r = dmpatch_replace_code(1, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 2, "dm_get_table_device", g_get_patch);
+        if (r && g_ko_param.kv_major >= 5)
+        {
+            vdebug("new2 patch dm_get_table_device...\n");
+            r = dmpatch_replace_code(2, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 1, "dm_get_table_device", g_get_patch);
+        }
+
+        if (r && g_ko_param.kv_major >= 5)
+        {
+            vdebug("new3 patch dm_get_table_device...\n");
+            r = dmpatch_replace_code(3, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 1, "dm_get_table_device", g_get_patch);
+        }
+    }
+
+    if (r)
+    {
+        rc = -EFAULT;
+        goto out;
+    }
+    vdebug("patch dm_get_table_device success\n");
+
+    if (dmpatch_kv_above(6, 5, 0))
+    {
+        r = 0;
+    }
+    else
+    {
+        r = dmpatch_replace_code(1, g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device", g_put_patch);        
+        if (r)
+        {
+            rc = -EFAULT;
+            goto out;
+        }
+        vdebug("patch dm_put_table_device success\n");
+    }
+
+    vdebug("#####################################\n");
+    vdebug("######## dm patch success ###########\n");
+    vdebug("#####################################\n");
+
+out:
+
+    g_ko_param.kv_major = kv_major;
+    g_ko_param.kv_minor = kv_minor;
+    g_ko_param.kv_subminor = kv_subminor;
+
+	return rc;
+}
 
 static int notrace dmpatch_init(void)
 {
-    int r = 0;
     int rc = 0;
     u64 msr = 0;
     
@@ -297,7 +546,8 @@ static int notrace dmpatch_init(void)
     
     kprintf = (printk_pf)(g_ko_param.printk_addr); 
 
-    vdebug("dmpatch_init start pagesize=%lu ...\n", g_ko_param.pgsize);
+    vdebug("dmpatch_init start pagesize=%lu kernel=%lu.%lu.%lu ...\n", 
+        g_ko_param.pgsize, g_ko_param.kv_major, g_ko_param.kv_minor, g_ko_param.kv_subminor);
     
     if (g_ko_param.struct_size != sizeof(ko_param))
     {
@@ -316,47 +566,25 @@ static int notrace dmpatch_init(void)
     reg_kprobe = (kprobe_reg_pf)g_ko_param.reg_kprobe_addr;
     unreg_kprobe = (kprobe_unreg_pf)g_ko_param.unreg_kprobe_addr;
 
-    r = dmpatch_replace_code(1, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 2, "dm_get_table_device", g_get_patch);
-    if (r && g_ko_param.kv_major >= 5)
+    rc = dmpatch_process(g_ko_param.kv_major, g_ko_param.kv_minor, g_ko_param.kv_subminor);
+    if (rc)
     {
-        vdebug("new2 patch dm_get_table_device...\n");
-        r = dmpatch_replace_code(2, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 1, "dm_get_table_device", g_get_patch);
+        if (g_ko_param.kv_major >= 5)
+        {
+            rc = dmpatch_process(6, 5, 0);
+            if (rc)
+            {
+                rc = dmpatch_process(6, 7, 0);
+            }
+        }
     }
-
-    if (r && g_ko_param.kv_major >= 5)
-    {
-        vdebug("new3 patch dm_get_table_device...\n");
-        r = dmpatch_replace_code(3, g_ko_param.sym_get_addr, g_ko_param.sym_get_size, 1, "dm_get_table_device", g_get_patch);
-    }
-    
-    
-    if (r)
-    {
-        rc = -EINVAL;
-        goto out;
-    }
-    vdebug("patch dm_get_table_device success\n");
-
-    r = dmpatch_replace_code(1, g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device", g_put_patch);
-    if (r)
-    {
-        rc = -EINVAL;
-        goto out;
-    }
-    vdebug("patch dm_put_table_device success\n");
-
-    vdebug("#####################################\n");
-    vdebug("######## dm patch success ###########\n");
-    vdebug("#####################################\n");
 
     if (g_ko_param.ibt == 0x8888)
     {
         dmpatch_ibt_restore(msr);
     }
 
-out:
-
-	return rc;
+    return rc;
 }
 
 static void notrace dmpatch_exit(void)
@@ -369,10 +597,21 @@ static void notrace dmpatch_exit(void)
         msr = dmpatch_ibt_save();
     }
 
-    for (i = 0; i < MAX_PATCH; i++)
+    if (g_claim_ptr)
     {
-        dmpatch_restore_code(g_get_patch[i]);
-        dmpatch_restore_code(g_put_patch[i]);
+        dmpatch_restore_code(4, g_get_patch[0], g_claim_ptr);
+        if (g_put_patch[0])
+        {
+            dmpatch_restore_code(4, g_put_patch[0], g_claim_ptr);
+        }
+    }
+    else
+    {        
+        for (i = 0; i < MAX_PATCH; i++)
+        {
+            dmpatch_restore_code(1, g_get_patch[i], 0x80);
+            dmpatch_restore_code(1, g_put_patch[i], 0x80);
+        }
     }
 
     vdebug("dmpatch_exit success\n");

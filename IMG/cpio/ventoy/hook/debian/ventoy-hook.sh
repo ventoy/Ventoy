@@ -49,6 +49,8 @@ ventoy_get_debian_distro() {
             echo 'mll'; return
         elif $GREP -m1 -q 'stratodesk.com' /init; then
             echo 'stratodesk'; return
+        elif $GREP -q "\bPVE\b" /init; then
+            echo 'pve'; return
         fi
     fi
 

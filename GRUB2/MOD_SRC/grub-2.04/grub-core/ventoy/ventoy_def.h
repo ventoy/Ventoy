@@ -1298,6 +1298,7 @@ extern int g_tree_view_menu_style;
 extern int g_sort_case_sensitive;
 extern int g_wimboot_enable;
 extern int g_filt_dot_underscore_file;
+extern int g_filt_trash_dir;
 extern int g_vtoy_file_flt[VTOY_FILE_FLT_BUTT];
 extern const char *g_menu_class[img_type_max];
 extern char g_iso_path[256];
