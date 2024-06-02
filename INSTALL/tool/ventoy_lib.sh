@@ -70,9 +70,9 @@ mkexfatfs_() {
     mkexfatfs -n "$label" -s "$sectors" "$@"
 }
 mkexfatfs=
-if [ ! -z "$(comand -v mkfs.exfat)" ]; then
+if [ ! -z "$(command -v mkfs.exfat)" ]; then
     mkexfatfs=mkfs_exfat_
-elif [ ! -z "$(comand -v mkexfatfs)" ]; then
+elif [ ! -z "$(command -v mkexfatfs)" ]; then
     mkexfatfs=mkexfatfs_
 fi
 
