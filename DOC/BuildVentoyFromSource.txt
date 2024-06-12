@@ -6,7 +6,7 @@
     Ventoy is based on many open source projects, so the build environment is important. I suggest you first test it on a virtual machine.
 
 1.1 Install CentOS 7.8
-    I use CentOS-7-x86_64-Everything-2003.iso and select Minimal install
+ 
     
 1.2 Install Packages    
     yum install \
@@ -14,8 +14,16 @@
         mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils \
         flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-* \
         libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim \
-        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso
-    
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso 
+        
+ 1.3 Install Ubuntu or other debian based distro
+ 
+    sudo apt install
+        libXpm net-tools bzip2 wget vim gcc gcc-c++ samba dos2unix glibc-devel glibc.i686 glibc-devel.i686 
+        mpfr.i686 mpfr-devel.i686 zlib.i686 rsync autogen autoconf automake libtool gettext* bison binutils 
+        flex device-mapper-devel SDL libpciaccess libusb freetype freetype-devel gnu-free-* qemu-* virt-*
+        libvirt* vte* NetworkManager-bluetooth brlapi fuse-devel dejavu* gnu-efi* pesign shim 
+        iscsi-initiator-utils grub2-tools zip nasm acpica-tools glibc-static zlib-static xorriso 
 
 
 ==========================================
