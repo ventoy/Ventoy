@@ -335,8 +335,9 @@ ventoy_dm_patch() {
     $CAT /proc/kallsyms | $BUSYBOX_PATH/sort > $VTOY_PATH/kallsyms
     
     if $GREP -m1 -q 'open_table_device.isra' $VTOY_PATH/kallsyms; then
-        vtLine=$($VTOY_PATH/tool/vtoyksym open_table_device.isra $VTOY_PATH/kallsyms)
-        vtlog "get open_table_device.isra address $vtLine"
+        vtISRA=$($GREP -m1 'open_table_device.isra' $VTOY_PATH/kallsyms | $AWK '{print $3}')
+        vtLine=$($VTOY_PATH/tool/vtoyksym $vtISRA $VTOY_PATH/kallsyms)
+        vtlog "get $vtISRA address $vtLine"
     else
         vtLine=$($VTOY_PATH/tool/vtoyksym dm_get_table_device $VTOY_PATH/kallsyms)
         vtlog "get dm_get_table_device address $vtLine"
@@ -355,6 +356,10 @@ ventoy_dm_patch() {
     vtLine=$($VTOY_PATH/tool/vtoyksym bdev_open_by_dev $VTOY_PATH/kallsyms) 
     vtlog "get bdev_open_by_dev address $vtLine"        
     bdev_open_addr=$(echo $vtLine | $AWK '{print $1}')
+    
+    vtLine=$($VTOY_PATH/tool/vtoyksym bdev_file_open_by_dev $VTOY_PATH/kallsyms) 
+    vtlog "get bdev_file_open_by_dev address $vtLine"        
+    bdev_file_open_addr=$(echo $vtLine | $AWK '{print $1}')
     
 
     if $GREP -m1 -q 'close_table_device.isra' $VTOY_PATH/kallsyms; then
@@ -398,7 +403,7 @@ ventoy_dm_patch() {
     vtlog put_addr=$put_addr  put_size=$put_size
     vtlog blkdev_get_addr=$blkdev_get_addr blkdev_put_addr=$blkdev_put_addr
     vtlog kprobe_reg_addr=$kprobe_reg_addr  kprobe_unreg_addr=$kprobe_unreg_addr
-    vtlog ro_addr=$ro_addr  rw_addr=$rw_addr  printk_addr=$printk_addr bdev_open_addr=$bdev_open_addr
+    vtlog ro_addr=$ro_addr  rw_addr=$rw_addr  printk_addr=$printk_addr bdev_open_addr=$bdev_open_addr bdev_file_open_addr=$bdev_file_open_addr
 
     if [ "$get_addr" = "0" -o "$put_addr" = "0" ]; then
         vtlog "Invalid symbol address"
@@ -460,7 +465,7 @@ ventoy_dm_patch() {
     #step2: fill parameters
     vtPgsize=$($VTOY_PATH/tool/vtoyksym -p)
     
-    vtPrams="$VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKVMajor $vtIBT $vtKVMinor $blkdev_get_addr $blkdev_put_addr $vtKVSubMinor $bdev_open_addr  $vtDebug"
+    vtPrams="$VTOY_PATH/tool/$vtKoName $vtPgsize 0x$printk_addr 0x$ro_addr 0x$rw_addr $get_addr $get_size $put_addr $put_size 0x$kprobe_reg_addr 0x$kprobe_unreg_addr $vtKVMajor $vtIBT $vtKVMinor $blkdev_get_addr $blkdev_put_addr $vtKVSubMinor $bdev_open_addr $bdev_file_open_addr  $vtDebug"
     
     
     vtlog "$VTOY_PATH/tool/vtoykmod -f $vtPrams"

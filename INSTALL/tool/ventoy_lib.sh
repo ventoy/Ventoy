@@ -92,6 +92,10 @@ get_disk_part_name() {
         echo ${DISK}p${2}
     elif echo $DISK | grep -q "/dev/nbd[0-9]"; then
         echo ${DISK}p${2}
+    elif echo $DISK | grep -q "/dev/zd[0-9]"; then
+        echo ${DISK}p${2}
+    elif echo $DISK | grep -q "/dev/md[0-9]"; then
+        echo ${DISK}p${2}
     else
         echo ${DISK}${2}
     fi
@@ -209,14 +213,14 @@ get_disk_ventoy_version() {
 wait_and_create_part() {
     vPART1=$1
     vPART2=$2
-    echo 'Wait for partitions ...'
+    echo 'Wait for partitions $vPART1 and $vPART2 ...'
     for i in 0 1 2 3 4 5 6 7 8 9; do
         if ls -l $vPART1 2>/dev/null | grep -q '^b'; then
             if ls -l $vPART2 2>/dev/null | grep -q '^b'; then
                 break
             fi
         else
-            echo "Wait for $vPART1/$vPART2 ..."
+            echo "Wait for $vPART1 and $vPART2 ..."
             sleep 1
         fi
     done
