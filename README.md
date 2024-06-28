@@ -12,13 +12,13 @@
 
 <h4 align="left">
 Ventoy is an open source tool to create bootable USB drive for ISO/WIM/IMG/VHD(x)/EFI files. <br/>
-With ventoy, you don't need to format the disk over and over, you just need to copy the image files to the USB drive and boot it.   
-You can copy many image files at a time and ventoy will give you a boot menu to select them. <br/> 
+With Ventoy, you don't need to format the disk over and over again, you just need to copy the image files to the USB drive and boot it.   
+You can copy many image files at a time and Ventoy will give you a boot menu to select them. <br/> 
 You can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them.<br/>
 x86 Legacy BIOS, IA32 UEFI, x86_64 UEFI, ARM64 UEFI and MIPS64EL UEFI are supported in the same way.<br/>
 Both MBR and GPT partition style are supported in the same way.<br/>
 Most type of OS supported(Windows/WinPE/Linux/Unix/ChromeOS/Vmware/Xen...) <br/>
-  1200+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
+  1200+ ISO files are tested (<a href="https://www.ventoy.net/en/isolist.html">List</a>). 90%+ distros in <a href="https://distrowatch.com/">distrowatch.com</a> are supported (<a href="https://www.ventoy.net/en/distrowatch.html">Details</a>). <br/>
 <br/>Official Website: <a href=https://www.ventoy.net>https://www.ventoy.net</a>
 </h4>
 
@@ -43,15 +43,15 @@ VMware ESXi, Citrix XenServer, Xen XCP-ng
 [【How to report a successfully tested image file】](https://github.com/ventoy/Ventoy/issues/1195)
 
 # Ventoy Browser
-With Ventoy, you can also browse ISO/WIM/IMG/VHD(x)/EFI files in local disk and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
+With Ventoy, you can also browse ISO/WIM/IMG/VHD(x)/EFI files in any of your disk's and boot them. [Notes](https://www.ventoy.net/en/doc_browser.html)
   
 # VentoyPlugson
-A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plugin_plugson.html)
+You can configure Ventoy with [VentoyPlugson.](https://www.ventoy.net/en/plugin_plugson.html)
 
 # Features
 * 100% open source
 * Simple to use
-* Fast (limited only by the speed of copying iso file)
+* Fast (limited only by the speed of copying the image file)
 * Can be installed in USB/Local Disk/SSD/NVMe/SD Card
 * Directly boot from ISO/WIM/IMG/VHD(x)/EFI files, no extraction needed
 * Support to browse and boot ISO/WIM/IMG/VHD(x)/EFI files in local disk
@@ -127,7 +127,7 @@ See [https://www.ventoy.net/en/faq.html](https://www.ventoy.net/en/faq.html) for
 [https://forums.ventoy.net](https://forums.ventoy.net)
 
 # Donation
-It would be much appreciated if you want to make a small donation to support my work!  
+It would be much appreciated if you make a small donation to support my work!  
 Alipay, WeChat Pay, PayPal and Bitcoin are available for donation. You can choose any of them.  
 
 Alipay | WeChat Pay
@@ -135,7 +135,7 @@ Alipay | WeChat Pay
 <img src="https://www.ventoy.net/static/img/AliPay.png" width="250" height="250">|<img src="https://www.ventoy.net/static/img/WeChatPay.png" width="250" height="250">
 
 **PayPal**  
-You can transfer to my paypal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
+You can transfer to my PayPal account `admin@ventoy.net` or just click [https://www.paypal.me/ventoy](https://www.paypal.me/ventoy)  
 
 **Bitcoin**  
 Bitcoin Address `19mZDWzZgzkHCi9YX9H3fYCUuCHq3W6wfT`
