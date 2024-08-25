@@ -64,8 +64,6 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
 grub_err_t
 grub_arch_efi_linux_check_image (struct linux_arch_kernel_header * lh)
 {
-  if (lh->magic != GRUB_LINUX_ARMXX_MAGIC_SIGNATURE)
-    return grub_error(GRUB_ERR_BAD_OS, "invalid magic number");
 
   if ((lh->code0 & 0xffff) != GRUB_PE32_MAGIC)
     return grub_error (GRUB_ERR_NOT_IMPLEMENTED_YET,
