@@ -248,6 +248,7 @@ typedef struct
 #define EM_NUM		95
 #define EM_AARCH64	183		/* ARM 64-bit architecture */
 #define EM_RISCV	243		/* RISC-V */
+#define EM_LOONGARCH	258		/* LoongArch */
 
 /* If it is necessary to assign new unofficial EM_* values, please
    pick large random numbers (0x8523, 0xa7f2, etc.) to minimize the
@@ -2530,6 +2531,28 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_RISCV_SET16           55
 #define R_RISCV_SET32           56
 #define R_RISCV_32_PCREL        57
+
+/* LoongArch relocations */
+#define R_LARCH_NONE			      0
+#define R_LARCH_64			      2
+#define R_LARCH_MARK_LA			      20
+#define R_LARCH_SOP_PUSH_PCREL		      22
+#define R_LARCH_SOP_PUSH_ABSOLUTE	      23
+#define R_LARCH_SOP_PUSH_PLT_PCREL	      29
+#define R_LARCH_SOP_SUB			      32
+#define R_LARCH_SOP_SL			      33
+#define R_LARCH_SOP_SR			      34
+#define R_LARCH_SOP_ADD			      35
+#define R_LARCH_SOP_AND			      36
+#define R_LARCH_SOP_IF_ELSE		      37
+#define R_LARCH_SOP_POP_32_S_10_5	      38
+#define R_LARCH_SOP_POP_32_U_10_12	      39
+#define R_LARCH_SOP_POP_32_S_10_12	      40
+#define R_LARCH_SOP_POP_32_S_10_16	      41
+#define R_LARCH_SOP_POP_32_S_10_16_S2	      42
+#define R_LARCH_SOP_POP_32_S_5_20	      43
+#define R_LARCH_SOP_POP_32_S_0_5_10_16_S2     44
+#define R_LARCH_SOP_POP_32_S_0_10_10_16_S2    45
 
 #ifdef GRUB_TARGET_WORDSIZE
 #if GRUB_TARGET_WORDSIZE == 32
