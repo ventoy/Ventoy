@@ -33,6 +33,7 @@ enum
 {
   GRUB_LOADER_FLAG_NORETURN = 1,
   GRUB_LOADER_FLAG_PXE_NOT_UNLOAD = 2,
+  GRUB_LOADER_FLAG_EFI_KEEP_ALLOCATED_MEMORY = 4,
 };
 
 void EXPORT_FUNC (grub_loader_set) (grub_err_t (*boot) (void),

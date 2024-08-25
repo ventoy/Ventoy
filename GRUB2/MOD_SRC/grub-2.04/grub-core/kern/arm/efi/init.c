@@ -71,4 +71,7 @@ grub_machine_fini (int flags)
   efi_call_1 (b->close_event, tmr_evt);
 
   grub_efi_fini ();
+
+  if (!(flags & GRUB_LOADER_FLAG_EFI_KEEP_ALLOCATED_MEMORY))
+    grub_efi_memory_fini ();
 }

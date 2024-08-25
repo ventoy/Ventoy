@@ -70,6 +70,11 @@ grub_machine_init (void)
 void
 grub_machine_fini (int flags)
 {
-  if (flags & GRUB_LOADER_FLAG_NORETURN)
-    grub_efi_fini ();
+  if (!(flags & GRUB_LOADER_FLAG_NORETURN))
+    return;
+
+  grub_efi_fini ();
+
+  if (!(flags & GRUB_LOADER_FLAG_EFI_KEEP_ALLOCATED_MEMORY))
+    grub_efi_memory_fini ();
 }
