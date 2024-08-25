@@ -299,6 +299,7 @@ grub_arch_dl_get_tramp_got_size (const void *ehdr, grub_size_t *tramp,
 #endif
 
 #if defined (__aarch64__) || defined (__sparc__) || (defined (__mips__) && (_MIPS_SIM == _ABI64)) || \
+    defined (__loongarch_lp64) || \
     (defined(__riscv) && (__riscv_xlen == 64))
 #define GRUB_ARCH_DL_TRAMP_ALIGN 8
 #define GRUB_ARCH_DL_GOT_ALIGN 8
