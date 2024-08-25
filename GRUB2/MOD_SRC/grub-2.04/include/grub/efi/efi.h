@@ -23,6 +23,18 @@
 #include <grub/types.h>
 #include <grub/dl.h>
 #include <grub/efi/api.h>
+#include <grub/efi/pe32.h>
+
+#define GRUB_LINUX_ARM_MAGIC_SIGNATURE 0x016f2818
+
+struct linux_arch_kernel_header {
+  grub_uint32_t code0;
+  grub_uint32_t code1;
+  grub_uint64_t reserved[6];
+  grub_uint32_t magic;
+  grub_uint32_t hdr_offset; /* Offset of PE/COFF header. */
+  struct grub_pe_image_header pe_image_header;
+};
 
 /* Functions.  */
 void *EXPORT_FUNC(grub_efi_locate_protocol) (grub_efi_guid_t *protocol,
@@ -97,7 +109,6 @@ extern void (*EXPORT_VAR(grub_efi_net_config)) (grub_efi_handle_t hnd,
 #if defined(__arm__) || defined(__aarch64__) || defined(__riscv) || defined(__loongarch__)
 void *EXPORT_FUNC(grub_efi_get_firmware_fdt)(void);
 grub_err_t EXPORT_FUNC(grub_efi_get_ram_base)(grub_addr_t *);
-#include <grub/cpu/linux.h>
 grub_err_t grub_arch_efi_linux_check_image(struct linux_arch_kernel_header *lh);
 grub_err_t grub_arch_efi_linux_boot_image(grub_addr_t addr, grub_size_t size,
                                            char *args);
