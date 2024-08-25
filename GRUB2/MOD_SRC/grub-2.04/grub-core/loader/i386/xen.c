@@ -801,8 +801,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
       if (err)
 	goto fail;
 
-      if (grub_initrd_load (&initrd_ctx, argv,
-			    get_virtual_current_address (ch)))
+      if (grub_initrd_load (&initrd_ctx, get_virtual_current_address (ch)))
 	goto fail;
     }
 

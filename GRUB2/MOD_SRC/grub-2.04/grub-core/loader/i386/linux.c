@@ -1467,7 +1467,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
     initrd_mem_target = get_physical_target_address (ch);
   }
 
-  if (grub_initrd_load (&initrd_ctx, argv, initrd_mem))
+  if (grub_initrd_load (&initrd_ctx, initrd_mem))
     goto fail;
 
   grub_dprintf ("linux", "Initrd, addr=0x%x, size=0x%x\n",

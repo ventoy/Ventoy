@@ -657,7 +657,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
       goto fail;
     }
 
-  if (grub_initrd_load (&initrd_ctx, argv, initrd_mem))
+  if (grub_initrd_load (&initrd_ctx, initrd_mem))
     goto fail;
 
   initrd_start = (grub_addr_t) initrd_mem;

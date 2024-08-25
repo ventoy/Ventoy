@@ -422,7 +422,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
   grub_dprintf ("loader", "Loading initrd to 0x%08x\n",
 		(grub_addr_t) initrd_start);
 
-  if (grub_initrd_load (&initrd_ctx, argv, (void *) initrd_start))
+  if (grub_initrd_load (&initrd_ctx, (void *) initrd_start))
     goto fail;
 
   initrd_end = initrd_start + size;

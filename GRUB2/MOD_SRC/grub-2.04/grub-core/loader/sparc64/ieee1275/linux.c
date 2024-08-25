@@ -413,7 +413,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
   grub_dprintf ("loader", "Loading initrd at vaddr 0x%lx, paddr 0x%lx, size 0x%lx\n",
 		addr, paddr, size);
 
-  if (grub_initrd_load (&initrd_ctx, argv, (void *) addr))
+  if (grub_initrd_load (&initrd_ctx, (void *) addr))
     goto fail;
 
   initrd_addr = addr;

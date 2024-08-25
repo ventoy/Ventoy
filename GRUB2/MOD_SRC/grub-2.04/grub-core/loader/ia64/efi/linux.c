@@ -563,7 +563,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
   grub_dprintf ("linux", "[addr=0x%lx, size=0x%lx]\n",
 		(grub_uint64_t) initrd_mem, initrd_size);
 
-  if (grub_initrd_load (&initrd_ctx, argv, initrd_mem))
+  if (grub_initrd_load (&initrd_ctx, initrd_mem))
     goto fail;
  fail:
   grub_initrd_close (&initrd_ctx);

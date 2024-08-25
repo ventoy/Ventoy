@@ -941,7 +941,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
     initrd_dest = get_virtual_current_address (ch);
   }
 
-  if (grub_initrd_load (&initrd_ctx, argv, initrd_dest))
+  if (grub_initrd_load (&initrd_ctx, initrd_dest))
     goto fail;
 
   grub_snprintf ((char *) linux_args_addr + rd_addr_arg_off,

@@ -455,7 +455,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
     initrd_dest = get_physical_target_address (ch) | 0x80000000;
   }
 
-  if (grub_initrd_load (&initrd_ctx, argv, initrd_src))
+  if (grub_initrd_load (&initrd_ctx, initrd_src))
     goto fail;
 
 #ifdef GRUB_MACHINE_MIPS_QEMU_MIPS

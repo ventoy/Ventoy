@@ -458,7 +458,7 @@ grub_cmd_initrd (grub_command_t cmd __attribute__ ((unused)),
     initrd_addr = get_physical_target_address (ch);
   }
 
-  if (grub_initrd_load (&initrd_ctx, argv, initrd_chunk))
+  if (grub_initrd_load (&initrd_ctx, initrd_chunk))
     goto fail;
 
   lh->ramdisk_image = initrd_addr;

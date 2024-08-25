@@ -21,4 +21,4 @@ grub_initrd_close (struct grub_linux_initrd_context *initrd_ctx);
 
 grub_err_t
 grub_initrd_load (struct grub_linux_initrd_context *initrd_ctx,
-		  char *argv[], void *target);
+		  void *target);
