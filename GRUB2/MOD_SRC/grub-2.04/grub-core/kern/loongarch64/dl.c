@@ -58,7 +58,7 @@ grub_arch_dl_relocate_symbols (grub_dl_t mod, void *ehdr,
        rel = (Elf_Rel *) ((char *) rel + s->sh_entsize))
     {
       Elf_Sym *sym;
-      grub_uint64_t *place;
+      void *place;
       grub_uint64_t sym_addr;
 
       if (rel->r_offset >= seg->size)
@@ -72,18 +72,66 @@ grub_arch_dl_relocate_symbols (grub_dl_t mod, void *ehdr,
       if (s->sh_type == SHT_RELA)
 	sym_addr += ((Elf_Rela *) rel)->r_addend;
 
-      place = (grub_uint64_t *) ((grub_addr_t) seg->addr + rel->r_offset);
+      place = (void *) ((grub_addr_t) seg->addr + rel->r_offset);
 
       switch (ELF_R_TYPE (rel->r_info))
 	{
 	case R_LARCH_64:
-	  *place = sym_addr;
+	  {
+	    grub_uint64_t *abs_place = place;
+
+	    grub_dprintf ("dl", "reloc_abs64 %p => 0x%016llx, %p\n",
+			  place, (unsigned long long) sym_addr, abs_place);
+
+	    *abs_place += (grub_uint64_t) sym_addr;
+	  }
 	  break;
 	case R_LARCH_MARK_LA:
 	  break;
 	case R_LARCH_SOP_PUSH_PCREL:
 	case R_LARCH_SOP_PUSH_PLT_PCREL:
 	  grub_loongarch64_sop_push (&stack, sym_addr - (grub_uint64_t)place);
+	  break;
+	case R_LARCH_B26:
+	  {
+	    grub_uint32_t *abs_place = place;
+	    grub_ssize_t off = sym_addr - (grub_addr_t) place;
+
+	    grub_loongarch64_b26 (abs_place, off);
+	  }
+	  break;
+	case R_LARCH_ABS_HI20:
+	  {
+	    grub_uint32_t *abs_place = place;
+	    grub_loongarch64_xxx_hi20 (abs_place, sym_addr);
+	  }
+	  break;
+	case R_LARCH_ABS64_LO20:
+	  {
+	    grub_uint32_t *abs_place = place;
+	    grub_loongarch64_xxx64_lo20 (abs_place, sym_addr);
+	  }
+	  break;
+	case R_LARCH_ABS64_HI12:
+	  {
+	    grub_uint32_t *abs_place = place;
+	    grub_loongarch64_xxx64_hi12 (abs_place, sym_addr);
+	  }
+	  break;
+	case R_LARCH_PCALA_HI20:
+	  {
+	    grub_uint32_t *abs_place = place;
+	    grub_int32_t off = (((sym_addr + 0x800) & ~0xfffULL) - ((grub_addr_t)place & ~0xfffULL));
+
+	    grub_loongarch64_xxx_hi20 (abs_place, off);
+	  }
+	  break;
+	case R_LARCH_ABS_LO12:
+	case R_LARCH_PCALA_LO12:
+	  {
+	    grub_uint32_t *abs_place = place;
+	    grub_loongarch64_xxx_lo12 (abs_place, sym_addr);
+	  }
 	  break;
 	GRUB_LOONGARCH64_RELOCATION (&stack, place, sym_addr)
 	default:

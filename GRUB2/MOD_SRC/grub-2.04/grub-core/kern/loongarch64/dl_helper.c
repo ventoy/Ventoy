@@ -199,3 +199,62 @@ grub_loongarch64_sop_32_s_0_10_10_16_s2 (grub_loongarch64_stack_t stack,
   *place =(*place) | (((a >> 2) & 0xffff) << 10);
   *place =(*place) | ((a >> 18) & 0x3ff);
 }
+
+void grub_loongarch64_b26 (grub_uint32_t *place, grub_int64_t offset)
+{
+  grub_uint32_t val;
+  const grub_uint32_t insmask = grub_cpu_to_le32_compile_time (0xfc000000);
+
+  grub_dprintf ("dl", "  reloc_xxxx64 %p %c= 0x%llx\n",
+		place, offset > 0 ? '+' : '-',
+		offset < 0 ? (long long) -(unsigned long long) offset : offset);
+
+  val = ((offset >> 18) & 0x3ff) | (((offset >> 2) & 0xffff) << 10);
+
+  *place &= insmask;
+  *place |= grub_cpu_to_le32 (val) & ~insmask;
+}
+
+void grub_loongarch64_xxx_hi20 (grub_uint32_t *place, grub_int64_t offset)
+{
+  const grub_uint32_t insmask = grub_cpu_to_le32_compile_time (0xfe00001f);
+  grub_uint32_t val;
+
+  offset >>= 12;
+  val = ((offset & 0xfffff) << 5);
+
+  *place &= insmask;
+  *place |= grub_cpu_to_le32 (val) & ~insmask;
+}
+
+void grub_loongarch64_xxx_lo12 (grub_uint32_t *place, grub_int64_t offset)
+{
+  const grub_uint32_t insmask = grub_cpu_to_le32_compile_time (0xffc003ff);
+
+  *place &= insmask;
+  *place |= grub_cpu_to_le32 (offset << 10) & ~insmask;
+}
+
+void grub_loongarch64_xxx64_hi12 (grub_uint32_t *place, grub_int64_t offset)
+{
+  const grub_uint32_t insmask = grub_cpu_to_le32_compile_time (0xffc003ff);
+  grub_uint32_t val;
+
+  offset >>= 52;
+  val = ((offset & 0xfff) << 10);
+
+  *place &= insmask;
+  *place |= grub_cpu_to_le32 (val) & ~insmask;
+}
+
+void grub_loongarch64_xxx64_lo20 (grub_uint32_t *place, grub_int64_t offset)
+{
+  const grub_uint32_t insmask = grub_cpu_to_le32_compile_time (0xfe00001f);
+  grub_uint32_t val;
+
+  offset >>= 32;
+  val = ((offset & 0xfffff) << 5);
+
+  *place &= insmask;
+  *place |= grub_cpu_to_le32 (val) & ~insmask;
+}

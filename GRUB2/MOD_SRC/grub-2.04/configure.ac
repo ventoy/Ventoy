@@ -833,6 +833,21 @@ if ( test "x$target_cpu" = xi386 || test "x$target_cpu" = xx86_64 ) && test "x$p
   TARGET_CFLAGS="$TARGET_CFLAGS -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow"
 fi
 
+if test "x$target_cpu" = xloongarch64; then
+  AC_CACHE_CHECK([whether _mno_explicit_relocs works], [grub_cv_cc_mno_explicit_relocs], [
+    CFLAGS="$TARGET_CFLAGS -mno-explicit-relocs -Werror"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+	[grub_cv_cc_mno_explicit_relocs=yes],
+	[grub_cv_cc_mno_explicit_relocs=no])
+  ])
+  if test "x$grub_cv_cc_mno_explicit_relocs" = xyes; then
+    TARGET_CFLAGS="$TARGET_CFLAGS -mno-explicit-relocs -fno-plt"
+    TARGET_CCASFLAGS="$TARGET_CCASFLAGS -mno-explicit-relocs -fno-plt"
+  fi
+  TARGET_CFLAGS="$TARGET_CFLAGS -Wa,-mla-global-with-abs"
+  TARGET_CCASFLAGS="$TARGET_CCASFLAGS -Wa,-mla-global-with-abs"
+fi
+
 # GRUB doesn't use float or doubles at all. Yet some toolchains may decide
 # that floats are a good fit to run instead of what's written in the code.
 # Given that floating point unit is disabled (if present to begin with)

@@ -1192,11 +1192,20 @@ SUFFIX (relocate_addrs) (Elf_Ehdr *e, struct section_metadata *smd,
 	       }
 	     case EM_LOONGARCH:
 	       {
+		 grub_int64_t pc;
+
+		 grub_uint32_t *t32 = (grub_uint32_t *) target;
 		 sym_addr += addend;
+
+		 pc = offset + target_section_addr + image_target->vaddr_offset;
+
 		 switch (ELF_R_TYPE (info))
 		   {
 		   case R_LARCH_64:
-		     *target = grub_host_to_target64 (grub_target_to_host64 (*target) + sym_addr);
+		     {
+		       grub_uint64_t *t64 = (grub_uint64_t *) target;
+		       *t64 = grub_host_to_target64 (grub_target_to_host64 (*t64) + sym_addr);
+		     }
 		     break;
 		   case R_LARCH_MARK_LA:
 		     break;
@@ -1206,6 +1215,37 @@ SUFFIX (relocate_addrs) (Elf_Ehdr *e, struct section_metadata *smd,
 						-(target_section_addr
 						  +offset
 						  +image_target->vaddr_offset));
+		     break;
+		   case R_LARCH_B26:
+		     {
+		       grub_int64_t off;
+
+		       off = sym_addr - target_section_addr - offset - image_target->vaddr_offset;
+
+		       grub_loongarch64_b26 (t32, off);
+		     }
+		     break;
+		   case R_LARCH_ABS_HI20:
+		     grub_loongarch64_xxx_hi20 (t32, sym_addr);
+		     break;
+		   case R_LARCH_ABS64_LO20:
+		     grub_loongarch64_xxx64_lo20 (t32, sym_addr);
+		     break;
+		   case R_LARCH_ABS64_HI12:
+		     grub_loongarch64_xxx64_hi12 (t32, sym_addr);
+		     break;
+		   case R_LARCH_PCALA_HI20:
+		     {
+		       grub_int32_t hi20;
+
+		       hi20 = (((sym_addr + 0x800) & ~0xfffULL) - (pc & ~0xfffULL));
+
+		       grub_loongarch64_xxx_hi20 (t32, hi20);
+		     }
+		     break;
+		   case R_LARCH_ABS_LO12:
+		   case R_LARCH_PCALA_LO12:
+		     grub_loongarch64_xxx_lo12 (t32, sym_addr);
 		     break;
 		   GRUB_LOONGARCH64_RELOCATION (&stack, target, sym_addr)
 		   default:
@@ -1801,6 +1841,13 @@ translate_relocation_pe (struct translate_context *ctx,
 	case R_LARCH_SOP_POP_32_S_5_20:
 	case R_LARCH_SOP_POP_32_S_0_5_10_16_S2:
 	case R_LARCH_SOP_POP_32_S_0_10_10_16_S2:
+	case R_LARCH_B26:
+	case R_LARCH_ABS_HI20:
+	case R_LARCH_ABS_LO12:
+	case R_LARCH_ABS64_LO20:
+	case R_LARCH_ABS64_HI12:
+	case R_LARCH_PCALA_HI20:
+	case R_LARCH_PCALA_LO12:
 	  grub_util_info ("  %s:  not adding fixup: 0x%08x : 0x%08x",
 			  __FUNCTION__,
 			  (unsigned int) addr,

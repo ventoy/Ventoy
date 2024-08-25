@@ -2553,6 +2553,13 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_LARCH_SOP_POP_32_S_5_20	      43
 #define R_LARCH_SOP_POP_32_S_0_5_10_16_S2     44
 #define R_LARCH_SOP_POP_32_S_0_10_10_16_S2    45
+#define R_LARCH_B26			      66
+#define R_LARCH_ABS_HI20		      67
+#define R_LARCH_ABS_LO12		      68
+#define R_LARCH_ABS64_LO20		      69
+#define R_LARCH_ABS64_HI12		      70
+#define R_LARCH_PCALA_HI20		      71
+#define R_LARCH_PCALA_LO12		      72
 
 #ifdef GRUB_TARGET_WORDSIZE
 #if GRUB_TARGET_WORDSIZE == 32

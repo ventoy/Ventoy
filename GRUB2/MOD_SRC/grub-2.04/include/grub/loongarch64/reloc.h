@@ -57,6 +57,12 @@ void grub_loongarch64_sop_32_s_0_5_10_16_s2  (grub_loongarch64_stack_t stack,
 void grub_loongarch64_sop_32_s_0_10_10_16_s2 (grub_loongarch64_stack_t stack,
 					      grub_uint64_t *place);
 
+void grub_loongarch64_b26	  (grub_uint32_t *place, grub_int64_t offset);
+void grub_loongarch64_xxx_hi20	  (grub_uint32_t *place, grub_int64_t offset);
+void grub_loongarch64_xxx_lo12	  (grub_uint32_t *place, grub_int64_t offset);
+void grub_loongarch64_xxx64_hi12  (grub_uint32_t *place, grub_int64_t offset);
+void grub_loongarch64_xxx64_lo20  (grub_uint32_t *place, grub_int64_t offset);
+
 #define GRUB_LOONGARCH64_RELOCATION(STACK, PLACE, OFFSET)	\
   case R_LARCH_SOP_PUSH_ABSOLUTE:				\
     grub_loongarch64_sop_push (STACK, OFFSET);			\

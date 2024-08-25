@@ -140,6 +140,13 @@ struct grub_module_verifier_arch archs[] = {
       R_LARCH_SOP_POP_32_S_5_20,
       R_LARCH_SOP_POP_32_S_0_5_10_16_S2,
       R_LARCH_SOP_POP_32_S_0_10_10_16_S2,
+      R_LARCH_B26,
+      R_LARCH_ABS_HI20,
+      R_LARCH_ABS_LO12,
+      R_LARCH_ABS64_LO20,
+      R_LARCH_ABS64_HI12,
+      R_LARCH_PCALA_HI20,
+      R_LARCH_PCALA_LO12,
       -1
     }, (int[]){
       -1
