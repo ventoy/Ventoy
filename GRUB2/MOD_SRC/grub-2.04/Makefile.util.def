@@ -161,6 +161,7 @@ library = {
   common = grub-core/kern/ia64/dl_helper.c;
   common = grub-core/kern/arm/dl_helper.c;
   common = grub-core/kern/arm64/dl_helper.c;
+  common = grub-core/kern/loongarch64/dl_helper.c;
   common = grub-core/lib/minilzo/minilzo.c;
   common = grub-core/lib/xzembed/xz_dec_bcj.c;
   common = grub-core/lib/xzembed/xz_dec_lzma2.c;

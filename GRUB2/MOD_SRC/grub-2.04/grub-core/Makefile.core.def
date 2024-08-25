@@ -65,6 +65,10 @@ kernel = {
   arm64_efi_ldflags          = '-Wl,-r,-d';
   arm64_efi_stripflags       = '--strip-unneeded -K start -R .note -R .comment -R .note.gnu.gold-version -R .eh_frame';
 
+  loongarch64_efi_cflags       = '-fshort-wchar';
+  loongarch64_efi_ldflags      = '-Wl,-r';
+  loongarch64_efi_stripflags   = '--strip-unneeded -K start -R .note -R .comment -R .note.gnu.gold-version -R .eh_frame';
+
   riscv32_efi_ldflags      = '-Wl,-r,-d';
   riscv32_efi_stripflags   = '--strip-unneeded -K start -R .note -R .comment -R .note.gnu.gold-version -R .eh_frame';
 
@@ -125,6 +129,7 @@ kernel = {
   arm_coreboot_startup = kern/arm/startup.S;
   arm_efi_startup = kern/arm/efi/startup.S;
   arm64_efi_startup = kern/arm64/efi/startup.S;
+  loongarch64_efi_startup = kern/loongarch64/efi/startup.S;
   riscv32_efi_startup = kern/riscv/efi/startup.S;
   riscv64_efi_startup = kern/riscv/efi/startup.S;
 
@@ -259,6 +264,9 @@ kernel = {
   arm64_efi = kern/arm64/efi/init.c;
   arm64_efi = kern/efi/fdt.c;
 
+  loongarch64_efi = kern/loongarch64/efi/init.c;
+  loongarch64_efi = kern/efi/fdt.c;
+
   riscv32_efi = kern/riscv/efi/init.c;
   riscv32_efi = kern/efi/fdt.c;
 
@@ -345,6 +353,11 @@ kernel = {
   arm64 = kern/arm64/cache_flush.S;
   arm64 = kern/arm64/dl.c;
   arm64 = kern/arm64/dl_helper.c;
+
+  loongarch64 = kern/loongarch64/cache.c;
+  loongarch64 = kern/loongarch64/cache_flush.S;
+  loongarch64 = kern/loongarch64/dl.c;
+  loongarch64 = kern/loongarch64/dl_helper.c;
 
   riscv32 = kern/riscv/cache.c;
   riscv32 = kern/riscv/cache_flush.S;
@@ -848,6 +861,7 @@ module = {
   enable = arm64_efi;
   enable = arm_uboot;
   enable = arm_coreboot;
+  enable = loongarch64_efi;
   enable = riscv32_efi;
   enable = riscv64_efi;
 };
@@ -1762,6 +1776,7 @@ module = {
   extra_dist = lib/arm/setjmp.S;
   extra_dist = lib/arm64/setjmp.S;
   extra_dist = lib/riscv/setjmp.S;
+  extra_dist = lib/loongarch64/setjmp.S;
 };
 
 module = {
@@ -1864,6 +1879,7 @@ module = {
   arm_efi = loader/arm64/linux.c;
   arm_uboot = loader/arm/linux.c;
   arm64 = loader/arm64/linux.c;
+  loongarch64 = loader/efi/linux.c;
   riscv32 = loader/riscv/linux.c;
   riscv64 = loader/riscv/linux.c;
   common = loader/linux.c;
@@ -1960,6 +1976,7 @@ module = {
   enable = ia64_efi;
   enable = arm_efi;
   enable = arm64_efi;
+  enable = loongarch64_efi;
   enable = riscv32_efi;
   enable = riscv64_efi;
   enable = mips;
