@@ -70,7 +70,6 @@ typedef struct zap_leaf_phys {
 	 */
 
 	grub_uint16_t l_hash[0];
-        grub_properly_aligned_t l_entries[0];
 } zap_leaf_phys_t;
 
 typedef union zap_leaf_chunk {

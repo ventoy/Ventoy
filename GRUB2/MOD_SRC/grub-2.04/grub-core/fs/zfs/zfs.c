@@ -141,7 +141,10 @@ ZAP_LEAF_NUMCHUNKS (int bs)
 static inline zap_leaf_chunk_t *
 ZAP_LEAF_CHUNK (zap_leaf_phys_t *l, int bs, int idx)
 {
-  return &((zap_leaf_chunk_t *) (l->l_entries 
+  grub_properly_aligned_t *l_entries;
+
+  l_entries = (grub_properly_aligned_t *) ALIGN_UP((grub_addr_t)l->l_hash, sizeof (grub_properly_aligned_t));
+  return &((zap_leaf_chunk_t *) (l_entries
 				 + (ZAP_LEAF_HASH_NUMENTRIES(bs) * 2)
 				 / sizeof (grub_properly_aligned_t)))[idx];
 }
