@@ -94,9 +94,14 @@ EFI_STATUS EFIAPI vdisk_block_io_write
 EFI_STATUS EFIAPI vdisk_fill_device_path(VOID)
 {
     UINTN NameLen = 0;
-    UINT8 TmpBuf[128] = {0};
+    UINT8 TmpBuf[128];
+    UINT8 i;
     VENDOR_DEVICE_PATH *venPath = NULL;
 
+    for (i = 0; i < 128; i++)
+    {
+        TmpBuf[i] = 0;
+    }
     venPath = (VENDOR_DEVICE_PATH *)TmpBuf;
     NameLen = StrSize(VDISK_BLOCK_DEVICE_PATH_NAME);
     venPath->Header.Type = HARDWARE_DEVICE_PATH;
