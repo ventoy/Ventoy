@@ -1,0 +1,19 @@
+ L - Výběr jazyka
+F1 - Zobrazení nápovědy
+F2 - Procházet spouštět soubory na disku
+F3 - Přepínat mezi zobrazením stromu a seznamu
+F4 - Spustit Windows/Linux na disku
+F5 - Nástroje
+F6 - Nahrát vlastní Grub2 nabídku
+F7 - Přepínat mezi grafickým a textovým režimem
+
+m/Ctrl+m - Kontrolní součky obrazů (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk režim (pouze pro malé WinPE/LiveCD ISO/IMG)
+w/Ctrl+w - WIMBOOT režim (pouze pro Windows/WinPE ISO soubory)
+r/Ctrl+r - Grub2 režim (pouze pro některé linuxové distribuce)
+i/Ctrl+i - Režim kompatibility (pouze pro ladění)
+u/Ctrl+u - Nahrát ISO EFI ovladač (pouze pro ladění, oficiálně nejde použít)
+
+
+
+Stiskněte ESC pro návrat ......

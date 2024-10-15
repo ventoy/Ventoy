@@ -472,6 +472,8 @@ void Ventoy2DiskWindow::OnInitWindow(void)
     ui->labelVentoyDeviceVer->setText("");
     ui->labelVentoyDevicePartStyle->setText("");
 
+    ui->actionSecure_Boot_Support->trigger();
+
     ui->actionShow_All_Devices->setChecked(ventoy_code_get_cur_show_all());
 
     connect(m_thread, &MyQThread::thread_event, this,  &Ventoy2DiskWindow::thread_event);
@@ -510,6 +512,14 @@ void Ventoy2DiskWindow::on_ButtonInstall_clicked()
     }
 
     cur = g_disk_list + index;
+
+    if (cur->is4kn)
+    {
+        lang_string("STR_4KN_UNSUPPORTED", msg);
+        QMessageBox::critical(NULL, title_err, msg);
+        return;
+    }
+
     if (ventoy_code_get_cur_part_style() == 0 && cur->size_in_byte > 2199023255552ULL)
     {
         lang_string("STR_DISK_2TB_MBR_ERROR", msg);
@@ -664,7 +674,7 @@ void Ventoy2DiskWindow::on_comboBoxDevice_currentIndexChanged(int index)
     }
     else
     {
-        if (ui->actionSecure_Boot_Support->isChecked())
+        if (!(ui->actionSecure_Boot_Support->isChecked()))
         {
             ui->actionSecure_Boot_Support->trigger();
         }

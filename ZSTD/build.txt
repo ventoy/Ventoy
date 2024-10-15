@@ -4,7 +4,7 @@ Build a static linked, small zstdcat tool
 use an old version of zstd
 https://codeload.github.com/facebook/zstd/zip/v1.0.0
 
-======== Build Envrioment ======== 
+======== Build Environment ======== 
 build for 32bit, static linked with dietlibc
 1. install centos 6.10 i386 with CentOS-6.10-i386-bin-DVD1.iso
 2. yum install gcc gettext gettext-devel

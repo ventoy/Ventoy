@@ -148,9 +148,10 @@ static int ventoy_vhd_patch_path(char *vhdpath, ventoy_patch_vhd *patch1, ventoy
     return 0;
 }
 
-static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, int *index)
+static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, int *index, grub_uint64_t *poffset)
 {
     int i;
+    int find = 0;
     int ret = 1;
     grub_uint64_t start;
     grub_file_t file = NULL;
@@ -183,6 +184,7 @@ static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, i
                 if (start == gpt->PartTbl[i].StartLBA)
                 {
                     *index = i;
+                    find = 1;
                     break;
                 }
             }
@@ -196,11 +198,22 @@ static int ventoy_vhd_read_parttbl(const char *filename, ventoy_gpt_info *gpt, i
             if ((grub_uint32_t)start == gpt->MBR.PartTbl[i].StartSectorId)
             {
                 *index = i;
+                find = 1;
                 break;
             }
         }
     }    
 
+    if (find == 0) // MBR Logical partition
+    {
+        if (file->device->disk->partition->number > 0)
+        {
+            *index = file->device->disk->partition->number;
+            debug("Fall back part number: %d\n", *index);
+        }
+    }
+
+    *poffset = start;
     ret = 0;
 
 end:
@@ -226,7 +239,7 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
     else
     {
         gpt = grub_zalloc(sizeof(ventoy_gpt_info));
-        ventoy_vhd_read_parttbl(vhdpath, gpt, &partIndex);
+        ventoy_vhd_read_parttbl(vhdpath, gpt, &partIndex, &offset);
         debug("This is HDD partIndex %d %s\n", partIndex, vhdpath);
     }
 
@@ -249,9 +262,11 @@ static int ventoy_vhd_patch_disk(const char *vhdpath, ventoy_patch_vhd *patch1, 
     }
     else
     {
-        offset = gpt->MBR.PartTbl[partIndex].StartSectorId;
+        if (offset == 0)
+        {
+            offset = gpt->MBR.PartTbl[partIndex].StartSectorId;
+        }
         offset *= 512;
-    
         debug("MBR disk signature: %02x%02x%02x%02x Part(%d) offset:%llu\n",
             gpt->MBR.BootCode[0x1b8 + 0], gpt->MBR.BootCode[0x1b8 + 1],
             gpt->MBR.BootCode[0x1b8 + 2], gpt->MBR.BootCode[0x1b8 + 3],
@@ -305,7 +320,6 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
     int patchoffset[2];
     ventoy_patch_vhd *patch1;
     ventoy_patch_vhd *patch2;
-    char envbuf[64];
 
     (void)ctxt;
     (void)argc;
@@ -356,15 +370,9 @@ grub_err_t ventoy_cmd_patch_vhdboot(grub_extcmd_context_t ctxt, int argc, char *
 
     /* set buffer and size */
 #ifdef GRUB_MACHINE_EFI
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (ulong)g_vhdboot_totbuf);
-    grub_env_set("vtoy_vhd_buf_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%d", (int)(g_vhdboot_isolen + sizeof(ventoy_chain_head)));
-    grub_env_set("vtoy_vhd_buf_size", envbuf);
+    ventoy_memfile_env_set("vtoy_vhd_buf", g_vhdboot_totbuf, (ulonglong)(g_vhdboot_isolen + sizeof(ventoy_chain_head)));
 #else
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (ulong)g_vhdboot_isobuf);
-    grub_env_set("vtoy_vhd_buf_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%d", g_vhdboot_isolen);
-    grub_env_set("vtoy_vhd_buf_size", envbuf);
+    ventoy_memfile_env_set("vtoy_vhd_buf", g_vhdboot_isobuf, (ulonglong)g_vhdboot_isolen);
 #endif
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
@@ -496,7 +504,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
     vhd_footer_t vhdfoot;
     VDIPREHEADER vdihdr;
     char type[16] = {0};
-    ventoy_gpt_info *gpt;
+    ventoy_gpt_info *gpt = NULL;
     
     (void)ctxt;
 
@@ -645,7 +653,6 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
     grub_disk_t disk;
     const char *pLastChain = NULL;
     ventoy_chain_head *chain;
-    char envbuf[64];
     
     (void)ctxt;
     (void)argc;
@@ -667,6 +674,11 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
         return 1;
     }
 
+    if (grub_strncmp(args[0], g_iso_path, grub_strlen(g_iso_path)))
+    {
+        file->vlnk = 1;
+    }
+
     img_chunk_size = g_img_chunk_list.cur_chunk * sizeof(ventoy_img_chunk);
     
     size = sizeof(ventoy_chain_head) + img_chunk_size;
@@ -682,18 +694,15 @@ grub_err_t ventoy_cmd_raw_chain_data(grub_extcmd_context_t ctxt, int argc, char 
         }
     }
 
-    chain = grub_malloc(size);
+    chain = ventoy_alloc_chain(size);
     if (!chain)
     {
-        grub_printf("Failed to alloc chain memory size %u\n", size);
+        grub_printf("Failed to alloc chain raw memory size %u\n", size);
         grub_file_close(file);
         return 1;
     }
 
-    grub_snprintf(envbuf, sizeof(envbuf), "0x%lx", (unsigned long)chain);
-    grub_env_set("vtoy_chain_mem_addr", envbuf);
-    grub_snprintf(envbuf, sizeof(envbuf), "%u", size);
-    grub_env_set("vtoy_chain_mem_size", envbuf);
+    ventoy_memfile_env_set("vtoy_chain_mem", chain, (ulonglong)size);
 
     grub_env_export("vtoy_chain_mem_addr");
     grub_env_export("vtoy_chain_mem_size");

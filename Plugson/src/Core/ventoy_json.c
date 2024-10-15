@@ -425,7 +425,7 @@ int vtoy_json_parse(VTOY_JSON *pstJson, const char *szJsonData)
     char *pcNewBuf = NULL;
     const char *pcEnd = NULL;
 
-    uiMemSize = strlen(szJsonData) + 1;
+    uiMemSize = (uint32_t)strlen(szJsonData) + 1;
     pcNewBuf = (char *)malloc(uiMemSize);
     if (NULL == pcNewBuf)
     {

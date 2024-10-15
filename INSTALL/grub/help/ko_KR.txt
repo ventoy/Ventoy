@@ -1,0 +1,19 @@
+ L - 언어 선택
+F1 - 이 도움말 정보 표시
+F2 - 로컬 디스크에서 파일 찾아보기 및 부팅
+F3 - 트리보기 <-> 목록보기 간에 메뉴 모드 전환
+F4 - 로컬 디스크에서 Windows/Linux 부팅
+F5 - 유틸리티
+F6 - 사용자 지정 Grub2 메뉴 불러오기
+F7 - 그래픽 모드 <-> 텍스트 모드 간에 전환
+
+m/Ctrl+m - 체크섬 이미지 파일 (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk 모드 (작은 WinPE/LiveCD ISO/IMG 전용)
+w/Ctrl+w - WIMBOOT 모드 (표준 Windows/WinPE ISO 전용)
+r/Ctrl+r - Grub2 모드 (일부 Linux 배포판에만 해당)
+i/Ctrl+i - 호환 모드 (디버그 전용, 공식적으로 사용할 수 없음)
+u/Ctrl+u - ISO EFI 드라이버 불러오기 (디버그 전용, 공식적으로 사용할 수 없음)
+
+
+
+돌아가려면 ESC를 누르십시오 ......

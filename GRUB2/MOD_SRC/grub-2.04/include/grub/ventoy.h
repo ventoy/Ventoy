@@ -121,6 +121,9 @@ typedef struct ventoy_os_param
      * vtoy_reserved[2]: vtoy_chain_type     0:Linux    1:Windows  2:wimfile
      * vtoy_reserved[3]: vtoy_iso_format     0:iso9660  1:udf
      * vtoy_reserved[4]: vtoy_windows_cd_prompt
+     * vtoy_reserved[5]: vtoy_linux_remount
+     * vtoy_reserved[6]: vtoy_vlnk
+     * vtoy_reserved[7~10]: vtoy_disk_sig[4] used for vlnk
      *
      */
     grub_uint8_t   vtoy_reserved[32];    // Internal use by ventoy
@@ -136,7 +139,15 @@ typedef struct ventoy_windows_data
     char auto_install_script[384];
     char injection_archive[384];
     grub_uint8_t windows11_bypass_check;
-    grub_uint8_t reserved[255];
+
+    grub_uint32_t auto_install_len;
+
+    grub_uint8_t windows11_bypass_nro;
+
+    grub_uint8_t reserved[255 - 5];
+
+    /* auto_intall file buf */
+    /* ...... + auto_install_len */
 }ventoy_windows_data;
 
 
@@ -150,11 +161,23 @@ typedef struct ventoy_secure_data
     grub_uint8_t magic2[16];     /* VENTOY_GUID */
 }ventoy_secure_data;
 
+
+typedef struct ventoy_vlnk
+{
+    ventoy_guid   guid;         // VENTOY_GUID
+    grub_uint32_t crc32;        // crc32
+    grub_uint32_t disk_signature;
+    grub_uint64_t part_offset; // in bytes
+    char filepath[384];
+    grub_uint8_t reserved[96];
+}ventoy_vlnk;
+
 #pragma pack()
 
 // compile assert check : sizeof(ventoy_os_param) must be 512
 COMPILE_ASSERT(1,sizeof(ventoy_os_param) == 512);
 COMPILE_ASSERT(2,sizeof(ventoy_secure_data) == 4096);
+COMPILE_ASSERT(3,sizeof(ventoy_vlnk) == 512);
 
 
 
@@ -241,6 +264,7 @@ typedef struct ventoy_img_chunk_list
 
 #pragma pack(1)
 
+#define VTOY_MAX_CONF_REPLACE    2
 #define GRUB_FILE_REPLACE_MAGIC  0x1258BEEF
 #define GRUB_IMG_REPLACE_MAGIC   0x1259BEEF
 
@@ -261,7 +285,7 @@ typedef struct ventoy_grub_param
     grub_env_get_pf grub_env_get;
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
-    ventoy_grub_param_file_replace img_replace;
+    ventoy_grub_param_file_replace img_replace[VTOY_MAX_CONF_REPLACE];
     grub_env_printf_pf grub_env_printf;
 }ventoy_grub_param;
 
@@ -282,6 +306,7 @@ grub_uint64_t grub_udf_get_last_file_attr_offset
     grub_uint64_t *fe_entry_size_offset
 );
 int ventoy_is_efi_os(void);
+void ventoy_memfile_env_set(const char *prefix, const void *buf, unsigned long long len);
 
 #endif /* __VENTOY_H__ */
 

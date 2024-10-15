@@ -1,17 +1,18 @@
- h - Mostra esta informação de ajuda
-F1 - Modo Memdisk (Apenas para pequenos WinPE/LiveCD ISO/IMG)
-F2 - Reiniciar/Desligar
+ L - Selecionar idioma
+F1 - Mostra esta informação de ajuda
+F2 - Navegar e arrancar ficheiros em disco local
 F3 - Alternar o modo menu entre Vista de árvore <-> Vista de lista
 F4 - Arrancar o Windows/Linux em disco local
 F5 - Utilitários
 F6 - Carregar menu Grub2 personalizado
 F7 - Alternar entre Modo GUI <-> Modo TEXTO
 
-m - Checksum ficheiros de imagem (md5/sha1/sha256/sha512)
-Ctrl+w - Modo WIMBOOT (Apenas para Windows ISO padrão)
-Ctrl+r - Modo Grub2 (Apenas para algumas distros Linux)
-Ctrl+i - Modo Compatível (Apenas para depuração)
-Ctrl+u - Carregar o controlador ISO efi (Apenas para depuração, não pode ser utilizado oficialmente)
+m/Ctrl+m - Checksum ficheiros de imagem (md5/sha1/sha256/sha512)
+d/Ctrl+d - Modo Memdisk (Apenas para pequenos WinPE/LiveCD ISO/IMG)
+w/Ctrl+w - Modo WIMBOOT (Apenas para Windows/WinPE ISO padrão)
+r/Ctrl+r - Modo Grub2 (Apenas para algumas distros Linux)
+i/Ctrl+i - Modo Compatível (Apenas para depuração)
+u/Ctrl+u - Carregar o controlador ISO efi (Apenas para depuração, não pode ser utilizado oficialmente)
 
 
 Prima ESC para voltar ......

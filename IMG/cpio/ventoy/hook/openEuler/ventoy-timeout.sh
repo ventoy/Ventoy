@@ -23,12 +23,26 @@ vtlog "##### $0 $* ..."
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-blkdev_num=$(dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-vtDM=$(ventoy_find_dm_id ${blkdev_num})
+if [ ! -e /dev/ventoy ]; then
+    blkdev_num_mknod=$(dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+    mknod -m 660 /dev/ventoy  b  $blkdev_num_mknod
+fi
+
+if [ -f $VTOY_PATH/ventoy_ks_rootpath ]; then
+    vt_ks_rootpath=$(cat $VTOY_PATH/ventoy_ks_rootpath)
+    vtlog "ks rootpath <$vt_ks_rootpath>"
+    if [ -e /sbin/fetch-kickstart-disk ]; then
+        vtlog "fetch-kickstart-disk ..."        
+        /sbin/fetch-kickstart-disk /dev/ventoy "$vt_ks_rootpath"
+    fi
+fi
 
 if [ -e /sbin/anaconda-diskroot ]; then
-    vtlog "set anaconda-diskroot ..."
-    /sbin/anaconda-diskroot /dev/dm-0    
+    vtlog "set anaconda-diskroot /dev/ventoy ..."
+
+    #busybox cp doesn't support -t option (issue 1900)
+    /bin/cp -a /bin/cp $BUSYBOX_PATH/cp
+    /sbin/anaconda-diskroot /dev/ventoy
 fi
 
 PATH=$VTPATH_OLD

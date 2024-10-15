@@ -1,4 +1,4 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include <Shlobj.h>
 #include <tlhelp32.h>
 #include <Psapi.h>
@@ -12,6 +12,7 @@
 
 char g_ventoy_dir[MAX_PATH];
 
+static BOOL g_ChromeFirst = TRUE;
 static BOOL g_running = FALSE;
 static HWND g_refresh_button;
 static HWND g_start_button;
@@ -44,22 +45,22 @@ typedef enum MSGID
 
 const WCHAR *g_msg_cn[MSGID_BUTT] =
 {
-    L"´íÎó",
-	L"ÌáĞÑ",
-    L"ÇëÔÚ Ventoy ÅÌ¸ùÄ¿Â¼ÏÂÔËĞĞ±¾³ÌĞò£¡£¨´æ·ÅISOÎÄ¼şµÄÎ»ÖÃ£©",
-	L"´´½¨ ventoy Ä¿Â¼Ê§°Ü£¬ÎŞ·¨¼ÌĞø£¡",
-	L"ventoy Ä¿Â¼´æÔÚ£¬µ«ÊÇ´óĞ¡Ğ´²»Æ¥Åä£¬ÇëÏÈ½«ÆäÖØÃüÃû£¡",
-	L"ÄÚ²¿´íÎó£¬³ÌĞò¼´½«ÍË³ö£¡",
-	L"Ë¢ĞÂ",
-	L"Æô¶¯",
-	L"Í£Ö¹",
-	L"Á´½Ó",
-	L"ÍË³ö",
+    L"é”™è¯¯",
+	L"æé†’",
+    L"è¯·åœ¨ Ventoy ç›˜æ ¹ç›®å½•ä¸‹è¿è¡Œæœ¬ç¨‹åºï¼ï¼ˆå­˜æ”¾ISOæ–‡ä»¶çš„ä½ç½®ï¼‰",
+	L"åˆ›å»º ventoy ç›®å½•å¤±è´¥ï¼Œæ— æ³•ç»§ç»­ï¼",
+	L"ventoy ç›®å½•å­˜åœ¨ï¼Œä½†æ˜¯å¤§å°å†™ä¸åŒ¹é…ï¼Œè¯·å…ˆå°†å…¶é‡å‘½åï¼",
+	L"å†…éƒ¨é”™è¯¯ï¼Œç¨‹åºå³å°†é€€å‡ºï¼",
+	L"åˆ·æ–°",
+	L"å¯åŠ¨",
+	L"åœæ­¢",
+	L"é“¾æ¥",
+	L"é€€å‡º",
 
-	L"Í£Ö¹ÔËĞĞºóä¯ÀÀÆ÷Ò³Ãæ½«»á¹Ø±Õ£¬ÊÇ·ñ¼ÌĞø£¿",
-	L"µ±Ç°·şÎñÕıÔÚÔËĞĞ£¬ÊÇ·ñÍË³ö£¿",
-	L"ÇëÏÈ¹Ø±ÕÕıÔÚÔËĞĞµÄ VentoyPlugson ³ÌĞò£¡",
-	L"ventoy\\plugson.tar.xz ÎÄ¼ş²»´æÔÚ£¬ÇëÔÚÕıÈ·µÄÄ¿Â¼ÏÂÔËĞĞ£¡",
+	L"åœæ­¢è¿è¡Œåæµè§ˆå™¨é¡µé¢å°†ä¼šå…³é—­ï¼Œæ˜¯å¦ç»§ç»­ï¼Ÿ",
+	L"å½“å‰æœåŠ¡æ­£åœ¨è¿è¡Œï¼Œæ˜¯å¦é€€å‡ºï¼Ÿ",
+	L"è¯·å…ˆå…³é—­æ­£åœ¨è¿è¡Œçš„ VentoyPlugson ç¨‹åºï¼",
+	L"ventoy\\plugson.tar.xz æ–‡ä»¶ä¸å­˜åœ¨ï¼Œè¯·åœ¨æ­£ç¡®çš„ç›®å½•ä¸‹è¿è¡Œï¼",
 };
 const WCHAR *g_msg_en[MSGID_BUTT] =
 {
@@ -80,6 +81,14 @@ const WCHAR *g_msg_en[MSGID_BUTT] =
 	L"Please close another running VentoyPlugson instance!",
 	L"ventoy\\plugson.tar.xz does not exist, please run under the correct directory!",
 };
+
+#define UTF8_Log(fmt, wstr) \
+{\
+    memset(TmpPathA, 0, sizeof(TmpPathA));\
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, TmpPathA, sizeof(TmpPathA), NULL, NULL);\
+    vlog(fmt, TmpPathA);\
+}
+
 
 const WCHAR **g_msg_lang = NULL;
 
@@ -118,14 +127,17 @@ static void OpenURL(void)
 
 	sprintf_s(url, sizeof(url), "http://%s:%s/index.html", g_sysinfo.ip, g_sysinfo.port);
 
-    for (i = 0; Browsers[i] != NULL; i++)
-    {
-        if (ventoy_is_file_exist("%s", Browsers[i]))
-        {
-            ShellExecuteA(NULL, "open", Browsers[i], url, NULL, SW_SHOW);
-            return;
-        }
-    }
+	if (g_ChromeFirst)
+	{
+		for (i = 0; Browsers[i] != NULL; i++)
+		{
+			if (ventoy_is_file_exist("%s", Browsers[i]))
+			{
+				ShellExecuteA(NULL, "open", Browsers[i], url, NULL, SW_SHOW);
+				return;
+			}
+		}
+	}
 
     ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOW);
 }
@@ -395,7 +407,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
         {
             InitDialog(hWnd, wParam, lParam);
             break;
-        }        
+        }
         case WM_CLOSE:
         {
 			if (g_running)
@@ -410,6 +422,7 @@ INT_PTR CALLBACK DialogProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lPara
 
             OnDestroyDialog();
             EndDialog(hWnd, 0);
+			break;
         }
     }
 
@@ -464,13 +477,86 @@ static int ParseCmdLine(LPSTR lpCmdLine, char *ip, char *port)
 	return 0;
 }
 
+
+
+//
+//copy from Rufus
+//Copyright Â© 2011-2021 Pete Batard <pete@akeo.ie>
+//
+#include <delayimp.h>
+// For delay-loaded DLLs, use LOAD_LIBRARY_SEARCH_SYSTEM32 to avoid DLL search order hijacking.
+FARPROC WINAPI dllDelayLoadHook(unsigned dliNotify, PDelayLoadInfo pdli)
+{
+	if (dliNotify == dliNotePreLoadLibrary) {
+		// Windows 7 without KB2533623 does not support the LOAD_LIBRARY_SEARCH_SYSTEM32 flag.
+		// That is is OK, because the delay load handler will interrupt the NULL return value
+		// to mean that it should perform a normal LoadLibrary.
+		return (FARPROC)LoadLibraryExA(pdli->szDll, NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+	}
+	return NULL;
+}
+
+#if defined(_MSC_VER)
+// By default the Windows SDK headers have a `const` while MinGW does not.
+const
+#endif
+PfnDliHook __pfnDliNotifyHook2 = dllDelayLoadHook;
+
+typedef BOOL(WINAPI* SetDefaultDllDirectories_t)(DWORD);
+static void DllProtect(void)
+{
+	SetDefaultDllDirectories_t pfSetDefaultDllDirectories = NULL;
+
+	// Disable loading system DLLs from the current directory (sideloading mitigation)
+	// PS: You know that official MSDN documentation for SetDllDirectory() that explicitly
+	// indicates that "If the parameter is an empty string (""), the call removes the current
+	// directory from the default DLL search order"? Yeah, that doesn't work. At all.
+	// Still, we invoke it, for platforms where the following call might actually work...
+	SetDllDirectoryA("");
+
+	// For libraries on the KnownDLLs list, the system will always load them from System32.
+	// For other DLLs we link directly to, we can delay load the DLL and use a delay load
+	// hook to load them from System32. Note that, for this to work, something like:
+	// 'somelib.dll;%(DelayLoadDLLs)' must be added to the 'Delay Loaded Dlls' option of
+	// the linker properties in Visual Studio (which means this won't work with MinGW).
+	// For all other DLLs, use SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32).
+	// Finally, we need to perform the whole gymkhana below, where we can't call on
+	// SetDefaultDllDirectories() directly, because Windows 7 doesn't have the API exposed.
+	// Also, no, Coverity, we never need to care about freeing kernel32 as a library.
+	// coverity[leaked_storage]
+
+	pfSetDefaultDllDirectories = (SetDefaultDllDirectories_t)
+		GetProcAddress(LoadLibraryW(L"kernel32.dll"), "SetDefaultDllDirectories");
+	if (pfSetDefaultDllDirectories != NULL)
+		pfSetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32);
+}
+
+
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, INT nCmdShow)
 {
+	int i;
     int rc;
+	int status = 0;
 	HANDLE hMutex;
+	WCHAR* Pos = NULL;
 	WCHAR CurDir[MAX_PATH];
+	WCHAR ExePath[MAX_PATH];
+	WCHAR CurDirBk[MAX_PATH];
+	WCHAR ExePathBk[MAX_PATH];
+	CHAR TmpPathA[MAX_PATH];
 
     UNREFERENCED_PARAMETER(hPrevInstance);
+
+	for (i = 0; i < __argc; i++)
+	{
+		if (__argv[i] && _stricmp(__argv[i], "/F") == 0)
+		{
+			g_ChromeFirst = FALSE;
+			break;
+		}
+	}
+
+	DllProtect();
 
     if (GetUserDefaultUILanguage() == 0x0804)
     {
@@ -491,11 +577,66 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	GetCurrentDirectoryW(MAX_PATH, CurDir);
+	GetCurrentDirectoryW(MAX_PATH, CurDirBk);
+	GetModuleFileNameW(NULL, ExePath, MAX_PATH);
+	GetModuleFileNameW(NULL, ExePathBk, MAX_PATH);
+
+	for (Pos = NULL, i = 0; i < MAX_PATH && ExePath[i]; i++)
+	{
+		if (ExePath[i] == '\\' || ExePath[i] == '/')
+		{
+			Pos = ExePath + i;
+		}
+	}
+
+	if (Pos)
+	{
+		*Pos = 0;
+		if (wcscmp(CurDir, ExePath))
+		{
+			status |= 1;
+			SetCurrentDirectoryW(ExePath);
+			GetCurrentDirectoryW(MAX_PATH, CurDir);
+		}
+		else
+		{
+			status |= 2;
+		}
+	}
+
+	Pos = wcsstr(CurDir, L"\\altexe");
+	if (Pos)
+	{
+		*Pos = 0;
+		status |= 4;
+		SetCurrentDirectoryW(CurDir);
+	}
+
+
 	WideCharToMultiByte(CP_UTF8, 0, CurDir, -1, g_cur_dir, MAX_PATH, NULL, 0);
 
 	sprintf_s(g_ventoy_dir, sizeof(g_ventoy_dir), "%s", g_cur_dir);
-	sprintf_s(g_log_file, sizeof(g_log_file), "%s\\%s", g_cur_dir, LOG_FILE);
+	sprintf_s(g_log_file, sizeof(g_log_file), "%s", LOG_FILE);
 	ventoy_log_init();
+
+	vlog("====================== Ventoy Plugson =========================\n");
+
+	UTF8_Log("Current Directory <%s>\n", CurDirBk);
+	UTF8_Log("Exe file path <%s>\n", ExePathBk);
+	
+	if (status & 1)
+	{
+		UTF8_Log("Change current dir to exe <%s>\n", ExePath);
+	}
+	if (status & 2)
+	{
+		vlog("Current directory check OK.\n");
+	}
+	if (status & 4)
+	{
+		UTF8_Log("altexe detected, change current dir to <%s>\n", CurDir);
+	}
+
 
     if (!ventoy_is_file_exist("%s\\ventoy\\%s", g_ventoy_dir, PLUGSON_TXZ))
     {        
@@ -514,7 +655,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	vlog("===============================================\n");
-	vlog("===== Ventoy Plugson %s:%s =====\n", g_sysinfo.ip, g_sysinfo.port);
+	vlog("========= Ventoy Plugson %s:%s =========\n", g_sysinfo.ip, g_sysinfo.port);
 	vlog("===============================================\n");
 
 
@@ -534,7 +675,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     ventoy_http_init();
 
     g_hInst = hInstance;
-    DialogBoxA(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc);
+    DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DialogProc);
 
     return 0;
 }

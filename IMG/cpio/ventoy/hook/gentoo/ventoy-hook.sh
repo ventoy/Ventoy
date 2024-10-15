@@ -24,6 +24,9 @@ if $GREP -q kaspersky /proc/version; then
     if [ -f /ventoy/ventoy_persistent_map ]; then
         $SED "/sysresccd_parsecmdline[^(]*$/a\ BACKSTORE_CMD='LABEL=casper-rw,noloop'"  -i /init
     fi
+elif $GREP -q 'setting up the root filesystem' /init; then
+    $SED "/setting up the root filesystem/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/disk_hook.sh"  -i /init
+    $SED "/setting up the root filesystem/a\ export CDROOT_DEV=/dev/mapper/ventoy"  -i /init
 elif [ -d /etc/udev/rules.d ] || [ -d /lib/udev/rules.d ]; then    
     ventoy_systemd_udevd_work_around
     ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"

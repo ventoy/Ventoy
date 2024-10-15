@@ -70,6 +70,7 @@
 #define VTOY_JSON_TOKEN_ERR_RET    "{ \"result\" : \"tokenerror\" }"
 #define VTOY_JSON_EXIST_RET        "{ \"result\" : \"exist\" }"
 #define VTOY_JSON_TIMEOUT_RET      "{ \"result\" : \"timeout\" }"
+#define VTOY_JSON_DUPLICATE        "{ \"result\" : \"duplicate\" }"
 #define VTOY_JSON_BUSY_RET         "{ \"result\" : \"busy\" }"
 #define VTOY_JSON_INUSE_RET        "{ \"result\" : \"inuse\" }"
 #define VTOY_JSON_NOTFOUND_RET     "{ \"result\" : \"notfound\" }"
@@ -151,6 +152,9 @@ typedef struct tagVTOY_JSON
 #define VTOY_JSON_FMT_ITEM_L(P, Item)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\",", P, (Item))
 #define VTOY_JSON_FMT_ITEM_LN(P, Item)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\",\n", P, (Item))
 #define VTOY_JSON_FMT_ITEM_PATH_LN(P, Item)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\",\n", P, ventoy_real_path(Item))
+
+#define VTOY_JSON_FMT_ITEM_INT(Item)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%d,", (Item))
+
 
 #define VTOY_JSON_FMT_COMA()  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, ",")
 #define VTOY_JSON_FMT_COMA_N(cnt)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, ",\n")

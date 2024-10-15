@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Chinese Traditional (正體中文)",
+
+    "VTLANG_STR_HOTKEY_LIST": "L:語言  F1:說明  F2:瀏覽  F3:清單檢視  F4:本機啟動  F5:工具  F6:附加選單",
+    "VTLANG_STR_HOTKEY_TREE": "L:語言  F1:說明  F2:瀏覽  F3:樹狀檢視  F4:本機啟動  F5:工具  F6:附加選單",
+    "VTLANG_RETURN_PREVIOUS": "返回上一層選單 [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "返回上一層選單",
+    
+    "VTLANG_MENU_LANG": "選單語言",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "搜尋並啟動 Windows",
+    "VTLANG_LB_SBOOT_G4D": "搜尋並啟動 Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "啟動本機硬碟1中的系統",
+    "VTLANG_LB_SBOOT_HDD2": "啟動本機硬碟2中的系統",
+    "VTLANG_LB_SBOOT_HDD3": "啟動本機硬碟3中的系統",
+    "VTLANG_LB_SBOOT_X64EFI": "搜尋並啟動 BOOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "搜尋並啟動 BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": "搜尋並啟動 BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "搜尋並啟動 xorboot",
+
+    "VTLANG_FILE_CHKSUM": "校驗檔案",
+    "VTLANG_CHKSUM_MD5_CALC": "計算 MD5 檢查碼",
+    "VTLANG_CHKSUM_SHA1_CALC": "計算 SHA1 檢查碼",
+    "VTLANG_CHKSUM_SHA256_CALC": "計算 SHA256 檢查碼",
+    "VTLANG_CHKSUM_SHA512_CALC": "計算 SHA512 檢查碼",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "計算並檢查 MD5 檢查碼",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "計算並檢查 SHA1 檢查碼",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "計算並檢查 SHA256 檢查碼",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "計算並檢查 SHA512 檢查碼",
+    
+    "VTLANG_POWER": "電源",
+    "VTLANG_POWER_REBOOT": "重新開機",
+    "VTLANG_POWER_HALT": "關機",
+    "VTLANG_POWER_BOOT_EFIFW": "重新開機進入 UEFI 設定選單",
+    
+    "VTLANG_KEYBRD_LAYOUT": "鍵盤設定",
+    "VTLANG_HWINFO": "硬體資訊",
+    
+    "VTLANG_RESOLUTION_CFG": "螢幕解析度",
+    "VTLANG_SCREEN_MODE": "顯示模式",
+    "VTLANG_SCREEN_TEXT_MODE": "強制文字模式",
+    "VTLANG_SCREEN_GUI_MODE": "強制圖形模式",
+    
+    "VTLANG_THEME_SELECT": "主題風格選擇",
+    
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI 實用程式",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "顯示 UEFI 驅動",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "修復 Windows BlinitializeLibrary 錯誤",
+    
+    "VTLANG_JSON_CHK_JSON": "檢查外掛程式設定檔 (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "設定檢查 —— 全域控制外掛程式",
+    "VTLANG_JSON_CHK_THEME": "設定檢查 —— 主題風格外掛程式",
+    "VTLANG_JSON_CHK_AUTOINS": "設定檢查 —— 自動安裝外掛程式",
+    "VTLANG_JSON_CHK_PERSIST": "設定檢查 —— 永久性外掛程式",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "設定檢查 —— 功能表別名外掛程式",
+    "VTLANG_JSON_CHK_MENU_TIP": "設定檢查 —— 功能表提示外掛程式",
+    "VTLANG_JSON_CHK_MENU_CLASS": "設定檢查 —— 功能表分類外掛程式",
+    "VTLANG_JSON_CHK_INJECTION": "設定檢查 —— 檔注入外掛程式",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "設定檢查 —— 自動 memdisk 模式外掛程式",
+    "VTLANG_JSON_CHK_IMG_LIST": "設定檢查 —— 映像檔清單外掛程式（白名單）",
+    "VTLANG_JSON_CHK_IMG_BLIST": "設定檢查 —— 映像檔清單外掛程式（黑名單）",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "設定檢查 —— 啟動設定替換外掛程式",
+    "VTLANG_JSON_CHK_DUD": "設定檢查 —— Driver Update Disk外掛程式",
+    "VTLANG_JSON_CHK_PASSWORD": "設定檢查 —— 密碼外掛程式",
+    
+    "VTLANG_NORMAL_MODE": "以正常模式啟動",
+    "VTLANG_WIMBOOT_MODE": "以 wimboot 模式啟動",
+    "VTLANG_GRUB2_MODE": "以 grub2 模式啟動",
+    "VTLANG_MEMDISK_MODE": "以 memdisk 模式啟動",
+    
+    "VTLANG_RET_TO_LISTVIEW": "返回到清單檢視",
+    "VTLANG_RET_TO_TREEVIEW": "返回到樹狀檢視",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "不使用自動安裝腳本",
+    "VTLANG_AUTOINS_USE": "使用",
+    
+    "VTLANG_NO_PERSIST": "不使用永久性資料檔案",
+    "VTLANG_PERSIST_USE": "使用",
+    
+    "VTLANG_BROWER_RETURN": "返回",
+    
+    "VTLANG_ENTER_EXIT": "按 Enter 鍵退出",
+    "VTLANG_ENTER_REBOOT": "按 Enter 鍵重新開機",
+    "VTLANG_ENTER_CONTINUE": "按 Enter 鍵繼續",
+
+    "VTLANG_CTRL_TEMP_SET": "控制變數設定",
+    "VTLANG_WIN11_BYPASS_CHECK": "安裝 Windows 11 時繞過TPM/安全啟動等硬體檢查",
+    "VTLANG_WIN11_BYPASS_NRO": "安裝 Windows 11 時繞過登入帳戶的需求",
+    "VTLANG_LINUX_REMOUNT": "啟動 Linux 系統後掛載 Ventoy 分區",
+    "VTLANG_SECONDARY_BOOT_MENU": "顯示次要啟動選單",
+    
+    "MENU_STR_XXX": ""
+}

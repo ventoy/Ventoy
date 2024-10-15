@@ -35,6 +35,7 @@
 #include <grub/crypto.h>
 #include <grub/time.h>
 #include <grub/font.h>
+#include <grub/video.h>
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
 
@@ -56,12 +57,16 @@ static injection_config *g_injection_head = NULL;
 static auto_memdisk *g_auto_memdisk_head = NULL;
 static image_list *g_image_list_head = NULL;
 static conf_replace *g_conf_replace_head = NULL;
+static VTOY_JSON *g_menu_lang_json = NULL;
 
 static int g_theme_id = 0;
+static int g_theme_res_fit = 0;
 static int g_theme_num = 0;
 static theme_list *g_theme_head = NULL;
 static int g_theme_random = vtoy_theme_random_boot_second;
 static char g_theme_single_file[256];
+static char g_cur_menu_language[32] = {0};
+static char g_push_menu_language[32] = {0};
 
 static int ventoy_plugin_is_parent(const char *pat, int patlen, const char *isopath)
 {
@@ -171,11 +176,11 @@ static int ventoy_plugin_theme_check(VTOY_JSON *json, const char *isodisk)
         grub_printf("file: %s\n", value);
         if (value[0] == '/')
         {
-            exist = ventoy_is_file_exist("%s%s", isodisk, value);
+            exist = ventoy_check_file_exist("%s%s", isodisk, value);
         }
         else
         {
-            exist = ventoy_is_file_exist("%s/ventoy/%s", isodisk, value);
+            exist = ventoy_check_file_exist("%s/ventoy/%s", isodisk, value);
         }
         
         if (exist == 0)
@@ -195,11 +200,11 @@ static int ventoy_plugin_theme_check(VTOY_JSON *json, const char *isodisk)
                 grub_printf("file: %s\n", value);
                 if (value[0] == '/')
                 {
-                    exist = ventoy_is_file_exist("%s%s", isodisk, value);
+                    exist = ventoy_check_file_exist("%s%s", isodisk, value);
                 }
                 else
                 {
-                    exist = ventoy_is_file_exist("%s/ventoy/%s", isodisk, value);
+                    exist = ventoy_check_file_exist("%s/ventoy/%s", isodisk, value);
                 }
 
                 if (exist == 0)
@@ -375,6 +380,18 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     if (g_theme_num > 0)
     {
         vtoy_json_get_int(json->pstChild, "default_file", &g_theme_id);
+        if (g_theme_id == 0)
+        {
+            vtoy_json_get_int(json->pstChild, "resolution_fit", &g_theme_res_fit);
+            if (g_theme_res_fit != 1)
+            {
+                g_theme_res_fit = 0;
+            }
+
+            grub_snprintf(val, sizeof(val), "%d", g_theme_res_fit);
+            ventoy_env_export("vtoy_res_fit", val);
+        }
+        
         if (g_theme_id > g_theme_num || g_theme_id < 0)
         {
             g_theme_id = 0;
@@ -405,19 +422,19 @@ static int ventoy_plugin_theme_entry(VTOY_JSON *json, const char *isodisk)
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_left");
     if (value)
     {
-        ventoy_env_export("VTLE_LFT", value);
+        ventoy_env_export(ventoy_left_key, value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_top");
     if (value)
     {
-        ventoy_env_export("VTLE_TOP", value);
+        ventoy_env_export(ventoy_top_key, value);
     }
     
     value = vtoy_json_get_string_ex(json->pstChild, "ventoy_color");
     if (value)
     {
-        ventoy_env_export("VTLE_CLR", value);
+        ventoy_env_export(ventoy_color_key, value);
     }
 
     node = vtoy_json_find_item(json->pstChild, JSON_TYPE_ARRAY, "fonts");
@@ -463,7 +480,7 @@ static int ventoy_plugin_check_path(const char *path, const char *file)
         return 1;
     }
 
-    if (!ventoy_is_file_exist("%s%s", path, file))
+    if (!ventoy_check_file_exist("%s%s", path, file))
     {
         grub_printf("%s%s does NOT exist\n", path, file);
         return 1;
@@ -561,7 +578,7 @@ static int ventoy_plugin_parse_fullpath
     {
         debug("%s is string type data\n", node->pcName);
 
-        if ((node->unData.pcStrVal[0] != '/') || (!ventoy_is_file_exist("%s%s", isodisk, node->unData.pcStrVal)))
+        if ((node->unData.pcStrVal[0] != '/') || (!ventoy_check_file_exist("%s%s", isodisk, node->unData.pcStrVal)))
         {
             debug("%s%s file not found\n", isodisk, node->unData.pcStrVal);
             return 1;
@@ -596,7 +613,7 @@ static int ventoy_plugin_parse_fullpath
             
             for (count = 0, child = node->pstChild; child; child = child->pstNext)
             {
-                if (ventoy_is_file_exist("%s%s", isodisk, child->unData.pcStrVal))
+                if (ventoy_check_file_exist("%s%s", isodisk, child->unData.pcStrVal))
                 {
                     grub_snprintf(path->path, sizeof(path->path), "%s", child->unData.pcStrVal);
                     path++;
@@ -960,7 +977,7 @@ static int ventoy_plugin_parse_pwdstr(char *pwdstr, vtoy_password *pwd)
                 return 1;
             }
 
-            if (len - 1 - (int)(long)(pos - pwdstr) != 32)
+            if (len - 1 - ((long)pos - (long)pwdstr) != 32)
             {
                 if (NULL == pwd) grub_printf("Invalid md5 salt password format %s\n", pwdstr);
                 return 1;
@@ -1401,7 +1418,7 @@ static int ventoy_plugin_menualias_check(VTOY_JSON *json, const char *isodisk)
                 {
                     grub_printf("image: <%s> [ * ]\n", path);
                 }
-                else if (ventoy_is_file_exist("%s%s", isodisk, path))
+                else if (ventoy_check_file_exist("%s%s", isodisk, path))
                 {
                     grub_printf("image: <%s> [ OK ]\n", path);
                 }
@@ -1542,7 +1559,7 @@ static int ventoy_plugin_menutip_check(VTOY_JSON *json, const char *isodisk)
                 {
                     grub_printf("image: <%s> [ * ]\n", path);
                 }
-                else if (ventoy_is_file_exist("%s%s", isodisk, path))
+                else if (ventoy_check_file_exist("%s%s", isodisk, path))
                 {
                     grub_printf("image: <%s> [ OK ]\n", path);
                 }
@@ -2641,9 +2658,14 @@ install_template * ventoy_plugin_find_install_template(const char *isopath)
     return NULL;
 }
 
-char * ventoy_plugin_get_cur_install_template(const char *isopath)
+char * ventoy_plugin_get_cur_install_template(const char *isopath, install_template **cur)
 {
     install_template *node = NULL;
+
+    if (cur)
+    {
+        *cur = NULL;
+    }
 
     node = ventoy_plugin_find_install_template(isopath);
     if ((!node) || (!node->templatepath))
@@ -2654,6 +2676,11 @@ char * ventoy_plugin_get_cur_install_template(const char *isopath)
     if (node->cursel < 0 || node->cursel >= node->templatenum)
     {
         return NULL;
+    }
+
+    if (cur)
+    {
+        *cur = node;
     }
 
     return node->templatepath[node->cursel].path;
@@ -2684,6 +2711,8 @@ persistence_config * ventoy_plugin_find_persistent(const char *isopath)
 int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, ventoy_img_chunk_list *chunk_list)
 {
     int rc = 1;
+    int len = 0;
+    char *path = NULL;
     grub_uint64_t start = 0;
     grub_file_t file = NULL;
     persistence_config *node = NULL;
@@ -2704,10 +2733,22 @@ int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, vento
         return 1;
     }
 
-    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", g_iso_disk_name, node->backendpath[index].path);
+    path = node->backendpath[index].path;
+
+    if (node->backendpath[index].vlnk_add == 0)
+    {
+        len = grub_strlen(path);
+        if (len > 9 && grub_strncmp(path + len - 9, ".vlnk.dat", 9) == 0)
+        {
+            ventoy_add_vlnk_file(NULL, path);
+            node->backendpath[index].vlnk_add = 1;
+        }
+    }
+    
+    file = ventoy_grub_file_open(VENTOY_FILE_TYPE, "%s%s", g_iso_disk_name, path);
     if (!file)
     {
-        debug("Failed to open file %s%s\n", g_iso_disk_name, node->backendpath[index].path);
+        debug("Failed to open file %s%s\n", g_iso_disk_name, path);
         goto end;
     }
 
@@ -3030,14 +3071,15 @@ int ventoy_plugin_get_image_list_index(int type, const char *name)
     return 0;
 }
 
-conf_replace * ventoy_plugin_find_conf_replace(const char *iso)
+int ventoy_plugin_find_conf_replace(const char *iso, conf_replace *nodes[VTOY_MAX_CONF_REPLACE])
 {
+    int n = 0;
     int len;
     conf_replace *node;
 
     if (!g_conf_replace_head)
     {
-        return NULL;
+        return 0;
     }
 
     len = (int)grub_strlen(iso);
@@ -3046,11 +3088,15 @@ conf_replace * ventoy_plugin_find_conf_replace(const char *iso)
     {
         if (node->pathlen == len && ventoy_strncmp(node->isopath, iso, len) == 0)
         {
-            return node;
+            nodes[n++] = node;
+            if (n >= VTOY_MAX_CONF_REPLACE)
+            {
+                return n;
+            }
         }
     }
     
-    return NULL;
+    return n;
 }
 
 dud * ventoy_plugin_find_dud(const char *iso)
@@ -3340,7 +3386,7 @@ grub_err_t ventoy_cmd_select_theme_cfg(grub_extcmd_context_t ctxt, int argc, cha
     }
 
     pos += grub_snprintf(buf + pos, bufsize - pos, 
-            "menuentry 'Return to previous menu [Esc]' --class=vtoyret VTOY_RET {\n"
+            "menuentry \"$VTLANG_RETURN_PREVIOUS\" --class=vtoyret VTOY_RET {\n"
                 "echo 'Return ...'\n"
             "}\n");
 
@@ -3350,13 +3396,19 @@ grub_err_t ventoy_cmd_select_theme_cfg(grub_extcmd_context_t ctxt, int argc, cha
     return 0;
 }
 
+extern char g_ventoy_theme_path[256];
+
 grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     grub_uint32_t i = 0;
     grub_uint32_t mod = 0;
+    grub_uint32_t theme_num = 0;
     theme_list *node = g_theme_head;
     struct grub_datetime datetime;
-    
+    struct grub_video_mode_info info;
+    char buf[64];
+    char **pThemePath = NULL;
+
     (void)argc;
     (void)args;
     (void)ctxt;
@@ -3386,41 +3438,82 @@ grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **arg
         goto end;
     }
 
-    grub_memset(&datetime, 0, sizeof(datetime));
-    grub_get_datetime(&datetime);
-
-    if (g_theme_random == vtoy_theme_random_boot_second)
+    pThemePath = (char **)grub_zalloc(sizeof(char *) * g_theme_num);
+    if (!pThemePath)
     {
-        grub_divmod32((grub_uint32_t)datetime.second, (grub_uint32_t)g_theme_num, &mod);
-    }
-    else if (g_theme_random == vtoy_theme_random_boot_day)
-    {
-        grub_divmod32((grub_uint32_t)datetime.day, (grub_uint32_t)g_theme_num, &mod);
-    }
-    else if (g_theme_random == vtoy_theme_random_boot_month)
-    {
-        grub_divmod32((grub_uint32_t)datetime.month, (grub_uint32_t)g_theme_num, &mod);
+        goto end;
     }
 
-    debug("%04d/%02d/%02d %02d:%02d:%02d radom:%d mod:%d\n",
-          datetime.year, datetime.month, datetime.day,
-          datetime.hour, datetime.minute, datetime.second,
-          g_theme_random, mod);
-
-    for (i = 0; i < mod && node; i++)
+    if (g_theme_res_fit)
     {
-        node = node->next;
+        if (grub_video_get_info(&info) == GRUB_ERR_NONE)
+        {
+            debug("get video info success %ux%u\n", info.width, info.height);
+            grub_snprintf(buf, sizeof(buf), "%ux%u", info.width, info.height);
+            for (node = g_theme_head; node; node = node->next)
+            {
+                if (grub_strstr(node->theme.path, buf))
+                {
+                    pThemePath[theme_num++] = node->theme.path;
+                }
+            }
+        }
     }
 
-    debug("random theme %s\n", node->theme.path);
-    grub_env_set("theme", node->theme.path);
+    if (theme_num == 0)
+    {
+        for (node = g_theme_head; node; node = node->next)
+        {
+            pThemePath[theme_num++] = node->theme.path;
+        }
+    }
+
+    if (theme_num == 1)
+    {
+        mod = 0;
+        debug("Only 1 theme match, no need to random.\n");
+    }
+    else
+    {
+        grub_memset(&datetime, 0, sizeof(datetime));
+        grub_get_datetime(&datetime);
+
+        if (g_theme_random == vtoy_theme_random_boot_second)
+        {
+            grub_divmod32((grub_uint32_t)datetime.second, theme_num, &mod);
+        }
+        else if (g_theme_random == vtoy_theme_random_boot_day)
+        {
+            grub_divmod32((grub_uint32_t)datetime.day, theme_num, &mod);
+        }
+        else if (g_theme_random == vtoy_theme_random_boot_month)
+        {
+            grub_divmod32((grub_uint32_t)datetime.month, theme_num, &mod);
+        }
+
+        debug("%04d/%02d/%02d %02d:%02d:%02d theme_num:%d mod:%d\n",
+              datetime.year, datetime.month, datetime.day,
+              datetime.hour, datetime.minute, datetime.second,
+              theme_num, mod);
+    }
+
+    if (argc > 0 && grub_strcmp(args[0], "switch") == 0)
+    {
+        grub_snprintf(g_ventoy_theme_path, sizeof(g_ventoy_theme_path), "%s", pThemePath[mod]);        
+    }
+    else
+    {        
+        debug("random theme %s\n", pThemePath[mod]);
+        grub_env_set("theme", pThemePath[mod]);
+    }
+    g_ventoy_menu_refresh = 1;
 
 end:
 
+    grub_check_free(pThemePath);
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
-extern char g_ventoy_theme_path[256];
 grub_err_t ventoy_cmd_set_theme_path(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)argc;
@@ -3437,4 +3530,128 @@ grub_err_t ventoy_cmd_set_theme_path(grub_extcmd_context_t ctxt, int argc, char 
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
+
+const char *ventoy_get_vmenu_title(const char *vMenu)
+{
+    return vtoy_json_get_string_ex(g_menu_lang_json->pstChild, vMenu);
+}
+
+int ventoy_plugin_load_menu_lang(int init, const char *lang)
+{
+    int ret = 1;
+    grub_file_t file = NULL;
+    char *buf = NULL;
+
+    if (grub_strcmp(lang, g_cur_menu_language) == 0)
+    {
+        debug("Same menu lang %s\n", lang);
+        return 0;
+    }
+    grub_snprintf(g_cur_menu_language, sizeof(g_cur_menu_language), "%s", lang);
+
+    debug("Load menu lang %s\n", g_cur_menu_language);
+
+    if (g_menu_lang_json)
+    {
+        vtoy_json_destroy(g_menu_lang_json);
+        g_menu_lang_json = NULL;
+    }
+
+    g_menu_lang_json = vtoy_json_create();
+    if (!g_menu_lang_json)
+    {
+        goto end;
+    }
+
+    file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "(vt_menu_tarfs)/menu/%s.json", lang);
+    if (!file)
+    {
+        goto end;
+    }
+
+    buf = grub_malloc(file->size + 1);
+    if (!buf)
+    {
+        grub_printf("Failed to malloc memory %lu.\n", (ulong)(file->size + 1));
+        goto end;
+    }
+
+    buf[file->size] = 0;
+    grub_file_read(file, buf, file->size);
+
+    vtoy_json_parse(g_menu_lang_json, buf);
+
+    if (g_default_menu_mode == 0)
+    {
+        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTLANG_STR_HOTKEY_TREE"));
+    }
+    else
+    {
+        grub_snprintf(g_ventoy_hotkey_tip, sizeof(g_ventoy_hotkey_tip), "%s", ventoy_get_vmenu_title("VTLANG_STR_HOTKEY_LIST"));
+    }
+
+    if (init == 0)
+    {
+        ventoy_menu_push_key(GRUB_TERM_ESC);
+        ventoy_menu_push_key(GRUB_TERM_ESC);
+        g_ventoy_menu_refresh = 1;        
+    }
+    ret = 0;
+
+end:
+
+    check_free(file, grub_file_close);
+    grub_check_free(buf);
+
+    return ret;
+}
+
+grub_err_t ventoy_cmd_cur_menu_lang(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+
+    if (argc > 0)
+    {
+        grub_env_set(args[0], g_cur_menu_language);
+    }
+    else
+    {
+        grub_printf("%s\n", g_cur_menu_language);
+        grub_printf("%s\n", g_ventoy_hotkey_tip);
+        grub_refresh();        
+    }
+
+    VENTOY_CMD_RETURN(0);
+}
+
+grub_err_t ventoy_cmd_push_menulang(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)argc;
+    (void)ctxt;
+
+    if (g_push_menu_language[0] == 0)
+    {
+        grub_memcpy(g_push_menu_language, g_cur_menu_language, sizeof(g_push_menu_language));
+        ventoy_plugin_load_menu_lang(0, args[0]);
+    }
+
+    VENTOY_CMD_RETURN(0);
+}
+
+grub_err_t ventoy_cmd_pop_menulang(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)argc;
+    (void)ctxt;
+    (void)args;
+
+    if (g_push_menu_language[0])
+    {
+        ventoy_plugin_load_menu_lang(0, g_push_menu_language);
+        g_push_menu_language[0] = 0;
+    }
+
+    VENTOY_CMD_RETURN(0);
+}
+
 

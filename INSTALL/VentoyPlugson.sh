@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 . ./tool/ventoy_lib.sh
 
 print_usage() {    
-    echo 'Usage:  sudo sh VentoyPlugson.sh [OPTION] /dev/sdX'
+    echo 'Usage:  sudo bash VentoyPlugson.sh [OPTION] /dev/sdX'
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -P PORT     http server PORT (default is 24681)'
@@ -17,17 +17,26 @@ if [ $uid -ne 0 ]; then
     exit 1
 fi
 
+if [ "$1" = "__vbash__" ]; then
+    shift
+else
+    if readlink /bin/sh | grep -q bash; then
+        :
+    else
+        exec /bin/bash $0 "__vbash__" "$@"
+    fi
+fi
 
 OLDDIR=$(pwd)
 
 machine=$(uname -m)
-if echo $machine | egrep -q 'aarch64|arm64'; then
+if echo $machine | grep -E -q 'aarch64|arm64'; then
     TOOLDIR=aarch64
-elif echo $machine | egrep -q 'x86_64|amd64'; then
+elif echo $machine | grep -E -q 'x86_64|amd64'; then
     TOOLDIR=x86_64
-elif echo $machine | egrep -q 'mips64'; then
+elif echo $machine | grep -E -q 'mips64'; then
     TOOLDIR=mips64el
-elif echo $machine | egrep -q 'i[3-6]86'; then
+elif echo $machine | grep -E -q 'i[3-6]86'; then
     TOOLDIR=i386
 else
     echo "Unsupported machine type $machine"    
@@ -113,7 +122,7 @@ if echo $DISK | grep -q "[a-z]d[a-z][1-9]"; then
     DISK=${DISK:0:-1}
 fi
 
-if echo $DISK | egrep -q "/dev/nvme|/dev/mmcblk/dev/nbd"; then
+if echo $DISK | grep -E -q "/dev/nvme|/dev/mmcblk/dev/nbd"; then
     if echo $DISK | grep -q "p[1-9]$"; then
         DISK=${DISK:0:-2}
     fi
@@ -154,7 +163,7 @@ fi
 PART1=$(get_disk_part_name $DISK 1)
 
 if grep -q "^$PART1 " /proc/mounts; then
-    mtpnt=$(grep "^$PART1 " /proc/mounts | awk '{print $2}')
+    mtpnt=$(grep "^$PART1 " /proc/mounts | awk '{print $2}' | sed 's/\\040/ /g')
     fstype=$(grep "^$PART1 " /proc/mounts | awk '{print $3}')
     
     if echo $fstype | grep -q -i 'fuse'; then
@@ -187,7 +196,7 @@ fi
 
 #change current directory to Ventoy disk
 cd "$mtpnt"
-$OLDDIR/tool/$TOOLDIR/Plugson "$HOST" "$PORT" "$OLDDIR" "$DISK" $version "$fstype" $partstyle $secureboot   &
+"$OLDDIR/tool/$TOOLDIR/Plugson" "$HOST" "$PORT" "$OLDDIR" "$DISK" $version "$fstype" $partstyle $secureboot   &
 wID=$!
 sleep 1
 

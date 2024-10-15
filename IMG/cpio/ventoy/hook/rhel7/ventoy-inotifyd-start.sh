@@ -27,5 +27,8 @@ if [ "$vtdisk" = "unknown" ]; then
     $BUSYBOX_PATH/nohup $VTOY_PATH/tool/inotifyd $vtHook  /dev:n  2>&-  & 
 else
     vtlog "... $vtdisk already exist ..."
-    $BUSYBOX_PATH/sh $vtHook n /dev "${vtdisk#/dev/}2"
+    
+    #don't call it too early issue 2225
+    #$BUSYBOX_PATH/sh $vtHook n /dev "${vtdisk#/dev/}2"
+    cp -a  $VTOY_PATH/hook/rhel7/ventoy-inotifyd-call.sh /lib/dracut/hooks/initqueue/settled/90-ventoy-inotifyd-call.sh   
 fi

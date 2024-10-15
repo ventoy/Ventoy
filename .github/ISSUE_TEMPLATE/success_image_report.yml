@@ -85,7 +85,7 @@ body:
   - type: input
     id: testenv
     attributes:
-      label: Test envrionment
+      label: Test environment
       description: The manufacturer/model and other details about your computer (or VM).
       placeholder: Lenovo Thinkpad T420 laptop
     validations:

@@ -93,6 +93,12 @@
     <ClCompile Include="DiskService.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="YesDialog.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AlertSuppress.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ventoy2Disk.h">
@@ -175,6 +181,9 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="Res\secure.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="Res\secure2.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

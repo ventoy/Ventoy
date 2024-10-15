@@ -78,6 +78,9 @@ fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
-ln -s /dev/dm-0 /dev/root
+blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')
+vtDM=$(ventoy_find_dm_id ${blkdev_num})
+cp -a /dev/$vtDM /dev/ventoy
+ln -s /dev/$vtDM /dev/root
 
 PATH=$VTPATH_OLD

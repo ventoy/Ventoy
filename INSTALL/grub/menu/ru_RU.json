@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Russian (Русский)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидСписок  F4:ЛокалЗагрузка  F5:Сервис  F6:РасширМеню",
+    "VTLANG_STR_HOTKEY_TREE": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидДерево  F4:ЛокалЗагрузка  F5:Сервис  F6:РасширМеню",
+    "VTLANG_RETURN_PREVIOUS": "Вернуться в предыдущее меню [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Вернуться в предыдущее меню",
+    
+    "VTLANG_MENU_LANG": "Выбор языка меню",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Найти и загрузить Windows",
+    "VTLANG_LB_SBOOT_G4D": "Найти и загрузить Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "Загрузить 1-й локальный диск",
+    "VTLANG_LB_SBOOT_HDD2": "Загрузить 2-й локальный диск",
+    "VTLANG_LB_SBOOT_HDD3": "Загрузить 3-й локальный диск",
+    "VTLANG_LB_SBOOT_X64EFI": "Найти и загрузить OOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "Найти и загрузить BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": "Найти и загрузить BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "Найти и загрузить xorboot",
+    
+    "VTLANG_FILE_CHKSUM": "Контрольная сумма файла",
+    "VTLANG_CHKSUM_MD5_CALC": "Вычислить md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC": "Вычислить sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC": "Вычислить sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC": "Вычислить sha512sum",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "Вычислить и проверить md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "Вычислить и проверить sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "Вычислить и проверить sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "Вычислить и проверить sha512sum",
+    
+    "VTLANG_POWER": "Питание",
+    "VTLANG_POWER_REBOOT": "Перезагрузить",
+    "VTLANG_POWER_HALT": "Завершить работу",
+    "VTLANG_POWER_BOOT_EFIFW": "Перезагрузиться в настройку EFI",
+    
+    "VTLANG_KEYBRD_LAYOUT": "Раскладки клавиатуры",
+    "VTLANG_HWINFO": "Сведения об оборудовании",
+    
+    "VTLANG_RESOLUTION_CFG": "Конфигурация разрешения",
+    "VTLANG_SCREEN_MODE": "Режим отображения экрана",
+    "VTLANG_SCREEN_TEXT_MODE": "Выбрать текстовый режим",
+    "VTLANG_SCREEN_GUI_MODE": "Выбрать графический режим",
+    
+    "VTLANG_THEME_SELECT": "Выбор темы",
+    
+    "VTLANG_UEFI_UTIL": "Утилиты UEFI Ventoy",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "Показать драйверы EFI",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Исправить ошибку Windows «BlinitializeLibrary»",
+    
+    "VTLANG_JSON_CHK_JSON": "Проверить настройки расширения «json» (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "Проверить настройки расширения «global control»",
+    "VTLANG_JSON_CHK_THEME": "Проверить настройки расширения «theme»",
+    "VTLANG_JSON_CHK_AUTOINS": "Проверить настройки расширения «auto install»",
+    "VTLANG_JSON_CHK_PERSIST": "Проверить настройки расширения «persistence»",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "Проверить настройки расширения «menu alias»",
+    "VTLANG_JSON_CHK_MENU_TIP": "Проверить настройки расширения «menu tip»",
+    "VTLANG_JSON_CHK_MENU_CLASS": "Проверить настройки расширения «menu class»",
+    "VTLANG_JSON_CHK_INJECTION": "Проверить настройки расширения «injection»",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "Проверить настройки расширения «auto memdisk»",
+    "VTLANG_JSON_CHK_IMG_LIST": "Проверить настройки расширения «image list»",
+    "VTLANG_JSON_CHK_IMG_BLIST": "Проверить настройки расширения «image blacklist»",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "Проверить настройки расширения «boot conf replace»",
+    "VTLANG_JSON_CHK_DUD": "Проверить настройки расширения «dud»",
+    "VTLANG_JSON_CHK_PASSWORD": "Проверить настройки расширения «password»",
+    
+    "VTLANG_NORMAL_MODE": "Загрузиться в обычном режиме",
+    "VTLANG_WIMBOOT_MODE": "Загрузиться в режиме wimboot",
+    "VTLANG_GRUB2_MODE": "Загрузиться в режиме grub2",
+    "VTLANG_MEMDISK_MODE": "Загрузиться в режиме memdisk",
+    
+    "VTLANG_RET_TO_LISTVIEW": "Вернуться к Виду списком",
+    "VTLANG_RET_TO_TREEVIEW": "Вернуться к Виду древом",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "Загрузка без шаблона автоматической установки",
+    "VTLANG_AUTOINS_USE": "Загрузиться с",
+    
+    "VTLANG_NO_PERSIST": "Загрузка без сохраняемости",
+    "VTLANG_PERSIST_USE": "Загрузиться с",
+    
+    "VTLANG_BROWER_RETURN": "Вернуться",
+    
+    "VTLANG_ENTER_EXIT": "нажмите клавишу ввода, чтобы выйти",
+    "VTLANG_ENTER_REBOOT": "нажмите клавишу ввода для перезагрузки",
+    "VTLANG_ENTER_CONTINUE": "нажмите клавишу ввода, чтобы продолжить",
+    
+    "VTLANG_CTRL_TEMP_SET": "Настройки временного управления",
+    "VTLANG_WIN11_BYPASS_CHECK": "Обойти проверку CPU/TPM/SecureBoot при установке Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Обойти требование сетевой учётной записи при установке Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Смонтировать раздел Ventoy после загрузки Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Показать вторичное загрузочное меню",
+    
+    "MENU_STR_XXX": ""
+}

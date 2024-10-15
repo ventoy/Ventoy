@@ -75,6 +75,9 @@
     <ClCompile Include="..\..\..\src\main_windows.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\Core\ventoy_utf.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\Core\ventoy_define.h">
@@ -167,7 +170,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Res\refresh.ico">
+    <Image Include="Res\plugson.ico">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

@@ -28,6 +28,7 @@ DWORD g_PhyDriveCount = 0;
 static int g_FilterRemovable = 0;
 int g_FilterUSB = 1;
 int g_ForceOperation = 1;
+int g_NoNeedInputYes = 0;
 int g_WriteImage = 0;
 
 int ParseCmdLineOption(LPSTR lpCmdLine)
@@ -51,6 +52,10 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
         {
             g_ForceOperation = 1;
         }
+        else if (strncmp(__argv[i], "-Y", 2) == 0 || strncmp(__argv[i], "-y", 2) == 0)
+        {
+            g_NoNeedInputYes = 1;
+        }
     }
 
     GetCurrentDirectoryA(sizeof(cfgfile), cfgfile);
@@ -71,7 +76,7 @@ int ParseCmdLineOption(LPSTR lpCmdLine)
     return 0;
 }
 
-static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UINT64 *Part2StartSector, UINT64 *GptPart2Attr)
+BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UINT64 *Part2StartSector, UINT64 *GptPart2Attr)
 {
     int i;
     BOOL bRet;
@@ -246,6 +251,90 @@ static BOOL IsVentoyPhyDrive(int PhyDrive, UINT64 SizeBytes, MBR_HEAD *pMBR, UIN
     return TRUE;
 }
 
+int GetVolumeClusterSize(char Drive)
+{
+    CHAR Volume[32] = { 0 };
+    DWORD SectorsPerCluster = 0;
+    DWORD BytesPerSector = 0;
+    DWORD NumberOfFreeClusters = 0;
+    DWORD TotalNumberOfClusters = 0;
+
+    sprintf_s(Volume, sizeof(Volume), "%C:\\", Drive);
+
+    if (GetDiskFreeSpaceA(Volume, &SectorsPerCluster, &BytesPerSector, &NumberOfFreeClusters, &TotalNumberOfClusters))
+    {
+        Log("GetVolumeClusterSize %s SUCCESS %u %u %u", Volume, SectorsPerCluster, BytesPerSector, SectorsPerCluster * BytesPerSector);
+        return (int)(SectorsPerCluster * BytesPerSector);        
+    }
+    else
+    {
+        Log("GetVolumeClusterSize %s failed err:%u", Volume, LASTERR);
+    }
+
+    return 0;
+}
+
+int GetVentoyFsNameInPhyDrive(PHY_DRIVE_INFO* CurDrive)
+{
+    int i = 0;
+    UINT64 Offset;
+
+    CHAR Volume[128] = { 0 };
+    CHAR FsName[MAX_PATH] = { 0 };
+
+    while (CurDrive->DriveLetters[i])
+    {
+        if (GetPhyDriveByLogicalDrive(CurDrive->DriveLetters[i], &Offset) >= 0)
+        {
+            if (Offset == SIZE_1MB)
+            {
+                sprintf_s(Volume, sizeof(Volume), "%C:\\", CurDrive->DriveLetters[i]);
+                Log("Find the partition 1 logical drive is %s", Volume);
+                break;
+            }
+        }
+        i++;
+    }
+
+    sprintf_s(CurDrive->VentoyFsType, sizeof(CurDrive->VentoyFsType), "??");
+
+    if (Volume[0])
+    {
+        CurDrive->VentoyFsClusterSize = GetVolumeClusterSize(Volume[0]);
+
+        if (GetVolumeInformationA(Volume, NULL, 0, NULL, NULL, NULL, FsName, MAX_PATH))
+        {
+            if (_stricmp(FsName, "exFAT") == 0)
+            {
+                sprintf_s(CurDrive->VentoyFsType, sizeof(CurDrive->VentoyFsType), "exFAT");
+            }
+            else if (_stricmp(FsName, "NTFS") == 0)
+            {
+                sprintf_s(CurDrive->VentoyFsType, sizeof(CurDrive->VentoyFsType), "NTFS");
+            }
+            else if (_stricmp(FsName, "FAT") == 0 || _stricmp(FsName, "FAT32") == 0)
+            {
+                sprintf_s(CurDrive->VentoyFsType, sizeof(CurDrive->VentoyFsType), "FAT32");
+            }
+            else
+            {
+                sprintf_s(CurDrive->VentoyFsType, sizeof(CurDrive->VentoyFsType), "%s", FsName);
+            }
+
+            Log("GetVentoyFsNameInPhyDrive %d %s <%s> <%s>", CurDrive->PhyDrive, Volume, FsName, CurDrive->VentoyFsType);
+        }
+        else
+        {
+            Log("GetVolumeInformationA %s failed %u", Volume, LASTERR);
+        }
+    }
+    else
+    {
+        Log("GetVentoyFsNameInPhyDrive %s not found", Volume);
+    }
+
+    return 0;
+}
 
 static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
 {
@@ -317,6 +406,8 @@ static int FilterPhysicalDrive(PHY_DRIVE_INFO *pDriveList, DWORD DriveCount)
             CurDrive->Part2GPTAttr = Part2GPTAttr;
             GetVentoyVerInPhyDrive(CurDrive, Part2StartSector, CurDrive->VentoyVersion, sizeof(CurDrive->VentoyVersion), &(CurDrive->SecureBootSupport));
             Log("PhyDrive %d is Ventoy Disk ver:%s SecureBoot:%u", CurDrive->PhyDrive, CurDrive->VentoyVersion, CurDrive->SecureBootSupport);
+
+            GetVentoyFsNameInPhyDrive(CurDrive);
 
             if (CurDrive->VentoyVersion[0] == 0)
             {

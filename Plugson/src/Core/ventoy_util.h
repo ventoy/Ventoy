@@ -87,6 +87,8 @@ typedef struct SYSINFO
 {
     char buildtime[128];
     int syntax_error;
+    int invalid_config;
+    int config_save_error;
         
     int language;
     int pathcase;
@@ -197,6 +199,8 @@ extern unsigned char *g_unxz_buffer;
 extern int g_unxz_len;
 void unxz_error(char *x);
 int unxz_flush(void *src, unsigned int size);
+char * ventoy_base64_encode(const char *data, int input_length, int *output_length);
+size_t utf8_to_utf16(const unsigned char * utf8, size_t utf8_len, unsigned short* utf16, size_t utf16_len);
 
 #endif /* __VENTOY_UTIL_H__ */
 

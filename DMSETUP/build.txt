@@ -5,7 +5,7 @@ use an old version of dmsetup
 http://vault.centos.org/5.3/os/SRPMS/device-mapper-1.02.28-2.el5.src.rpm
 https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz
 
-======== Build Envrioment ======== 
+======== Build Environment ======== 
 build for 32bit, static linked with dietlibc
 1. install centos 6.10 i386 with CentOS-6.10-i386-bin-DVD1.iso
 2. yum install gcc kernel-devel package

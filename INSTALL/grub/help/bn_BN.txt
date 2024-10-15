@@ -1,0 +1,19 @@
+ L - ভাষা নির্বাচন করুন
+F1 - এই সাহায্য তথ্য প্রদর্শন করুন
+F2 - স্থানীয় ডিস্কে ফাইলটি browse করুন এবং boot করুন
+F3 - Treeview <-> ListView এর মধ্যে মেনু মোড পরিবর্তন করুন
+F4 - স্থানীয় ডিস্কে Windows/Linux boot করুন
+F5 - ইউটিলিটিস
+F6 - কাস্টম Grub2 মেনু লোড করুন
+F7 - GUI মোড <-> TEXT মোডের মধ্যে স্যুইচ করুন
+
+m/Ctrl+m - চেকসাম ইমেজ ফাইল (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk মোড (শুধুমাত্র ছোট WinPE/LiveCD ISO/IMG জন্য)
+w/Ctrl+w - WIMBOOT মোড (শুধুমাত্র Windows/WinPE ISO জন্য)
+r/Ctrl+r - Grub2 মোড (শুধুমাত্র কিছু Linux distro জন্য)
+i/Ctrl+i - Compatible মোড (শুধুমাত্র debug জন্য)
+u/Ctrl+u - ISO efi ড্রাইভার লোড করুন (শুধুমাত্র debug জন্য, সরকারীভাবে ব্যবহার করা যাবে না)
+
+
+
+ফিরে আসতে ESC টিপুন ......

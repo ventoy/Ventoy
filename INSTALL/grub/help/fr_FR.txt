@@ -1,16 +1,19 @@
- h - Afficher cette aide
-F1 - Mode Memdisk (Seulement pour WinPE/LiveCD ISO/IMG)
-F2 - Redémarrer/arrêter
-F3 - Basculer l'affichage 'Vue en arbre' <-> 'Vue en liste'
-F4 - Démarrer le système Windows/Linux local
+ L - Sélection de la langue
+F1 - Afficher l’aide
+F2 - Démarrer à partir d’un disque local
+F3 - Basculer l’affichage Vue en arbre <-> Vue en liste
+F4 - Démarrer un système Windows ou Linux local
 F5 - Utilitaires
-F6 - Charger le menu Grub2 personnalisé
+F6 - Charger le menu GRUB 2 personnalisé
 F7 - Basculer entre le mode graphique <-> mode texte
 
-m - Somme de contrôle des images (md5/sha1/sha256/sha512)
-Ctrl+w - Mode WIMBOOT (seulement pour les images standards Windows)
-Ctrl+r - Mode Grub2 (seulement pour quelques Linux)
-Ctrl+i - Mode Compatible (seulement à fins de tests)
-Ctrl+u - Load ISO efi driver (Just only for debug, can not be used officially)
+m/Ctrl+m - Somme de contrôle des images (md5/sha1/sha256/sha512)
+d/Ctrl+d - Mode Memdisk (pour WinPE/LiveCD ISO/IMG uniquement)
+w/Ctrl+w - Mode WIMBOOT (pour images Windows/WinPE uniquement)
+r/Ctrl+r - Mode GRUB 2 (pour quelques distributions Linux uniquement)
+i/Ctrl+i - Mode Compatible (pour débug uniquement)
+u/Ctrl+u - Charger l’ISO d’un pilote EFI (pour débug uniquement)
 
-Appuyer sur Echap pour sortir ......
+
+
+Appuyer sur Echap pour sortir…

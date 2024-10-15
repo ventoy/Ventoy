@@ -26,7 +26,7 @@ sfs: fshelp
 reiserfs: fshelp
 part_sunpc:
 zstd:
-gfxmenu: trig video_colors gfxterm bitmap_scale font normal video bitmap
+gfxmenu: video_colors trig bitmap_scale gfxterm font normal video bitmap
 backtrace:
 jfs:
 help: extcmd normal
@@ -49,6 +49,7 @@ test_blockarg: extcmd normal
 true:
 affs: fshelp
 iso9660: fshelp
+smbios: extcmd
 exfat: fshelp
 setjmp_test: setjmp functional_test
 gfxterm: font video
@@ -120,7 +121,7 @@ ehci: cs5536 usb boot
 crypto:
 part_bsd: part_msdos
 cs5536:
-ventoy: elf fshelp ext2 btrfs font crypto gcry_md5 exfat udf extcmd datetime div normal video gcry_sha1 iso9660
+ventoy: ext2 fshelp elf btrfs crypto font gcry_md5 exfat udf datetime div extcmd normal video gcry_sha1 mmap iso9660
 gcry_sha512: crypto
 password: crypto normal
 fshelp:
@@ -181,6 +182,7 @@ usbtest: usb
 relocator: mmap
 acpi: extcmd mmap
 tga: bufio bitmap
+fwload: extcmd
 reboot:
 serial: extcmd terminfo
 zfscrypt: crypto pbkdf2 extcmd zfs gcry_sha1 gcry_rijndael
@@ -199,7 +201,7 @@ cbmemc: cbtable normal terminfo
 hfsplus: fshelp
 gcry_cast5: crypto
 extcmd:
-squash4: fshelp lzopio xzio gzio
+squash4: fshelp zstd lzopio zfs xzio gzio
 part_plan:
 minix_be:
 gcry_whirlpool: crypto
@@ -226,6 +228,7 @@ gcry_sha256: crypto
 ls: extcmd normal
 usbserial_common: serial usb
 ntfscomp: ntfs
+mouse:
 lzopio: crypto
 video_cirrus: video video_fb
 hello: extcmd

@@ -86,8 +86,9 @@ build_func() {
 }
 
 
-build_func "gcc" '64' 'x86_64' 'gtk2'
 build_func "gcc" '64' 'x86_64' 'gtk3'
+
+build_func "gcc" '64' 'x86_64' 'gtk2'
 
 build_func "gcc -m32" '32' 'i386' 'gtk2'
 build_func "gcc -m32" '32' 'i386' 'gtk3'

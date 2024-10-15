@@ -83,6 +83,19 @@ typedef enum STR_ID
 	STR_PART_RESIZE_FAILED,//46
 	STR_PART_RESIZE_UNSUPPORTED,//47
 
+	STR_INSTALL_YES_TIP1,//48
+	STR_INSTALL_YES_TIP2,//49
+
+	STR_PART_VENTOY_FS, //50
+
+	STR_PART_FS, //51
+	STR_PART_CLUSTER, //52
+	STR_PART_CLUSTER_DEFAULT, //53
+
+	STR_DONATE, //54
+
+	STR_4KN_UNSUPPORTED, //55
+
 	STR_ID_MAX
 }STR_ID;
 
@@ -145,14 +158,5 @@ extern VENTOY_LANGUAGE *g_cur_lang_data;
 const TCHAR * GetString(enum STR_ID ID);
 
 #define _G(a) GetString(a)
-
-typedef enum UNICODE_ICON
-{
-    UNICODE_LOCK = 0,
-    UNICODE_BUTT
-}UNICODE_ICON;
-
-const UINT16 * GetUnicodeIcon(icon);
-#define _UICON(i) GetUnicodeIcon(i)
 
 #endif

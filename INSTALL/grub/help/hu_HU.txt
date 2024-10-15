@@ -1,0 +1,19 @@
+ L - Nyelv kiválasztása
+F1 - Súgóinformációk megjelenítése
+F2 - Helyi lemezen lévő fájlok tallózása és indítása
+F3 - Menü mód váltása fanézet <-> listanézet között
+F4 - Windows/Linux indítása a helyi lemezről
+F5 - Segédprogramok
+F6 - Egyéni Grub2 menü betöltése
+F7 - Váltás grafikus mód <-> szöveges mód között
+
+m/Ctrl+m - Lemezképfájlok ellenőrzőösszege (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memórialemez mód (csak kis WinPE/LiveCD ISO/IMG esetén)
+w/Ctrl+w - WIMBOOT mód (csak Windows/WinPE ISO esetén)
+r/Ctrl+r - Grub2 mód (csak néhány Linux disztribúció esetén)
+i/Ctrl+i - Kompatibilis mód (csak hibakereséshez)
+u/Ctrl+u - ISO EFI illesztőprogram betöltés (csak hibakereséshez, hivatalosan nem használható)
+
+
+
+Nyomja meg az ESC billentyűt a visszalépéshez ......

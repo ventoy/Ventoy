@@ -1,7 +1,7 @@
 
 ========== Ventoy2Disk.sh ===============
 
-sudo sh Ventoy2Disk.sh { -i | -I | -u } /dev/sdX   sdX is the USB device, for example /dev/sdb.
+sudo bash Ventoy2Disk.sh { -i | -I | -u } /dev/sdX   sdX is the USB device, for example /dev/sdb.
 
 Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX
   CMD:
@@ -18,13 +18,21 @@ Please refer https://www.ventoy.net/en/doc_start.html for details.
 
 
 ========== VentoyWeb.sh ===============
-1. sudo sh VentoyWeb.sh 
+1. sudo bash VentoyWeb.sh 
 2. open your browser and visit http://127.0.0.1:24680
 
 
 ========== VentoyPlugson.sh ===============
-1. sudo sh VentoyPlugson.sh 
+1. sudo bash VentoyPlugson.sh /dev/sdX
 2. open your browser and visit http://127.0.0.1:24681
+
+========== VentoyVlnk.sh ===============
+Usage:  sudo bash VentoyVlnk.sh CMD FILE
+  CMD:
+   -c FILE      create vlnk for FILE
+   -l VLNK      parse vlnk file
+   -v           print verbose info
+   -h           print this help
 
 
 ========= VentoyGUI ===================
@@ -35,21 +43,21 @@ VentoyGUI is native GUI program for Linux (GTK/QT)
 
 ========== CreatePersistentImg.sh ===============
 
-sudo sh CreatePersistentImg.sh  [ -s SIZE_IN_MB ] [ -t FSTYPE ] [ -l LABEL ]   for example:
+sudo bash CreatePersistentImg.sh  [ -s SIZE_IN_MB ] [ -t FSTYPE ] [ -l LABEL ]   for example:
 
-sh CreatePersistentImg.sh                 ---->  persistence.dat in 1GB size and ext4 filesystem and casper-rw label
-sh CreatePersistentImg.sh -l MX-Persist   ---->  persistence.dat in 1GB size and ext4 filesystem and MX-Persist label
-sh CreatePersistentImg.sh -s 2048         ---->  persistence.dat in 2GB size and ext4 filesystem and casper-rw label
-sh CreatePersistentImg.sh -s 4096 -t xfs  ---->  persistence.dat in 4GB size and xfs  filesystem  (ext2/3/4 xfs are supported)  and casper-rw label
+bash CreatePersistentImg.sh                 ---->  persistence.dat in 1GB size and ext4 filesystem and casper-rw label
+bash CreatePersistentImg.sh -l MX-Persist   ---->  persistence.dat in 1GB size and ext4 filesystem and MX-Persist label
+bash CreatePersistentImg.sh -s 2048         ---->  persistence.dat in 2GB size and ext4 filesystem and casper-rw label
+bash CreatePersistentImg.sh -s 4096 -t xfs  ---->  persistence.dat in 4GB size and xfs  filesystem  (ext2/3/4 xfs are supported)  and casper-rw label
 
 Please refer https://www.ventoy.net/en/plugin_persistence.html for details.
 
 
 
 ========== ExtendPersistentImg.sh ===============
-sudo sh ExtendPersistentImg.sh  file size   
+sudo bash ExtendPersistentImg.sh  file size   
 For example:
-sh ExtendPersistentImg.sh persistence.dat 2048  ---->  Extend persistence.dat by 2048MB
+bash ExtendPersistentImg.sh persistence.dat 2048  ---->  Extend persistence.dat by 2048MB
 That is to say, persistence.dat file will grow to 3GB size (assume that it is 1GB size before extend)
 
 Please refer https://www.ventoy.net/en/plugin_persistence.html for details.

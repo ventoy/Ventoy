@@ -28,6 +28,8 @@ typedef int (*grub_env_set_pf)(const char *name, const char *val);
 typedef const char * (*grub_env_get_pf)(const char *name);
 typedef int (*grub_env_printf_pf)(const char *fmt, ...);
 
+#define VTOY_MAX_CONF_REPLACE    2
+
 typedef struct ventoy_grub_param_file_replace
 {
     UINT32 magic;
@@ -41,7 +43,7 @@ typedef struct ventoy_grub_param
     grub_env_get_pf grub_env_get;
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
-    ventoy_grub_param_file_replace img_replace;
+    ventoy_grub_param_file_replace img_replace[VTOY_MAX_CONF_REPLACE];
     grub_env_printf_pf grub_env_printf;    
 }ventoy_grub_param;
 #pragma pack()

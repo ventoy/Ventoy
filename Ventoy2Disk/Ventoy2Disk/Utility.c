@@ -40,6 +40,56 @@ void TraceOut(const char *Fmt, ...)
     }
 }
 
+typedef struct LogBuf
+{
+    int Len; 
+    char szBuf[1024];    
+    struct LogBuf* next;
+}LogBuf;
+
+static BOOL g_LogCache = FALSE;
+static LogBuf* g_LogHead = NULL;
+static LogBuf* g_LogTail = NULL;
+
+void LogCache(BOOL cache)
+{
+    g_LogCache = cache;
+}
+
+void LogFlush(void)
+{
+    FILE* File = NULL;
+    LogBuf* Node = NULL;
+    LogBuf* Next = NULL;
+
+    if (g_CLI_Mode)
+    {
+        fopen_s(&File, VENTOY_CLI_LOG, "a+");
+    }
+    else
+    {
+        fopen_s(&File, VENTOY_FILE_LOG, "a+");
+    }
+
+    if (File)
+    {
+        for (Node = g_LogHead; Node; Node = Node->next)
+        {
+            fwrite(Node->szBuf, 1, Node->Len, File);
+            fwrite("\n", 1, 1, File);
+        }
+        fclose(File);
+    }
+
+    for (Node = g_LogHead; Node; Node = Next)
+    {
+        Next = Node->next;
+        free(Node);
+    }
+
+    g_LogHead = g_LogTail = NULL;
+}
+
 void Log(const char *Fmt, ...)
 {
     va_list Arg;
@@ -56,21 +106,47 @@ void Log(const char *Fmt, ...)
         Sys.wMilliseconds);
 
     va_start(Arg, Fmt);
-    Len += vsnprintf_s(szBuf + Len, sizeof(szBuf)-Len, sizeof(szBuf)-Len, Fmt, Arg);
+    Len += vsnprintf_s(szBuf + Len, sizeof(szBuf)-Len - 1, sizeof(szBuf)-Len-1, Fmt, Arg);
     va_end(Arg);
 
-    //printf("%s\n", szBuf);
+    if (g_LogCache)
+    {
+        LogBuf* Node = NULL;
+        Node = malloc(sizeof(LogBuf));
+        if (Node)
+        {
+            memcpy(Node->szBuf, szBuf, Len);
+            Node->next = NULL;
+            Node->Len = Len;
 
-#if 1
-    fopen_s(&File, VENTOY_FILE_LOG, "a+");
+            if (g_LogTail)
+            {
+                g_LogTail->next = Node;
+                g_LogTail = Node;
+            }
+            else
+            {
+                g_LogHead = g_LogTail = Node;
+            }
+        }
+
+        return;
+    }
+
+    if (g_CLI_Mode)
+    {
+        fopen_s(&File, VENTOY_CLI_LOG, "a+");
+    }
+    else
+    {
+        fopen_s(&File, VENTOY_FILE_LOG, "a+");
+    }
     if (File)
     {
         fwrite(szBuf, 1, Len, File);
         fwrite("\n", 1, 1, File);
         fclose(File);
     }
-#endif
-
 }
 
 const char* GUID2String(void *guid, char *buf, int len)
@@ -669,7 +745,7 @@ int VentoyFillMBRLocation(UINT64 DiskSizeInBytes, UINT32 StartSectorId, UINT32 S
     return 0;
 }
 
-int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
+int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle, UINT8 FsFlag)
 {
     GUID Guid;
 	int ReservedValue;
@@ -733,7 +809,7 @@ int VentoyFillMBR(UINT64 DiskSizeBytes, MBR_HEAD *pMBR, int PartStyle)
     VentoyFillMBRLocation(DiskSizeBytes, PartStartSector, PartSectorCount, pMBR->PartTbl);
 
     pMBR->PartTbl[0].Active = 0x80; // bootable
-    pMBR->PartTbl[0].FsFlag = 0x07; // exFAT/NTFS/HPFS
+    pMBR->PartTbl[0].FsFlag = FsFlag; // File system flag  07:exFAT/NTFS/HPFS  0C:FAT32
 
     //Part2
     PartStartSector += PartSectorCount;
@@ -1124,5 +1200,14 @@ int GetPhysicalDriveCount(void)
     return Count;
 }
 
-
-
+void VentoyStringToUpper(CHAR* str)
+{
+    while (str && *str)
+    {
+        if (*str >= 'a' && *str <= 'z')
+        {
+            *str = toupper(*str);
+        }        
+        str++;
+    }
+}

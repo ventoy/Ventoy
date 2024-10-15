@@ -58,6 +58,14 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <li class="dropdown user user-menu">
+                            <a href="javascript:void(0)" id="id_a_preview">
+                                <span class="fa fa-file-code-o"></span>&nbsp;&nbsp;
+                                <span id="id_span_preview" class="hidden-xs">Preview</span>
+                                <span class="hidden-xs">&nbsp;&nbsp;&nbsp;</span>
+                            </a>                        
+                        </li>
+                    
+                        <li class="dropdown user user-menu">
                             <a href="javascript:void(0)" id="id_a_language">
                                 <span class="fa fa-language"></span>&nbsp;&nbsp;
                                 <span id="id_span_language" class="hidden-xs">English</span>
@@ -710,6 +718,32 @@
                 </div>
             </div>
         </div>
+        
+        
+        <div class="modal" id="JsonPreviewModal">
+            <div class="modal-dialog" style="width: 80%;">
+                <div class="modal-content">
+                    <form id="JsonPeviewForm" class="form-horizontal">   
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4>
+                                <b id="JsonPreviewForm_lang_1">JSON</b>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <button type="button" id="id_btn_json_copy" class="btn btn-primary"><span class="fa fa-copy">&nbsp;&nbsp;</span><span id="id_span_copy">Copy</span></button>
+                            </h4>
+                            
+                        </div>
+                        <div class="modal-body">
+                            <textarea id="pre_json_preview" class="form-control" rows="30" style="font-family:Menlo,Monaco,Consolas,'Courier New',monospace" spellcheck="false"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="PrewForm_lang_2" type="button" class="btn btn-primary btn-flat" data-dismiss="modal">确定</button>
+                        </div>
+                    </form>
+                </div>
+            </div>        
+        </div>
 
 
         <!-- Content Wrapper. Contains page content -->
@@ -723,7 +757,7 @@
 
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b id="plugson_build_date">20211203 17:44:10</b>
+                <b id="plugson_build_date">20231014 18:52:12</b>
             </div>
             <strong><a href="https://www.ventoy.net" target="_blank">https://www.ventoy.net</a></strong>
         </footer>
@@ -743,10 +777,10 @@
     <script src="/static/js/jQuery-2.1.4.min.js"></script>
     <!-- jquery validate -->
     <script src="/static/js/jquery.validate.min.js"></script>    
-    <script src="/static/js/jquery.validate.vtoymethods.js"></script>
+    <script src="/static/js/jquery.validate.vtoymethods.js?v=192"></script>
 
-    <script src="/static/js/vtoy.js"></script>
-    <script src="/static/js/jquery.vtoy.alert.js"></script>
+    <script src="/static/js/jquery.vtoy.alert.js?v=192"></script>
+    <script src="/static/js/vtoy.js?v=192"></script>
     <script src="/static/js/md5.min.js"></script>
 
     <!-- Bootstrap 3.3.5 -->
@@ -760,6 +794,36 @@
     
     <script type="text/javascript">
 
+    function VtoyJsonCopyClick() {
+        var copyText = document.getElementById("pre_json_preview");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // For mobile devices
+
+        try {
+            var successful = document.execCommand('copy');
+            copyText.setSelectionRange(0, 0);
+            if (successful) {
+                Message.success(g_vtoy_cur_language.STR_JSON_COPY_SUCCESS);
+            } else {
+                Message.error(g_vtoy_cur_language.STR_JSON_COPY_FAILED);
+            }
+        } catch (err) {
+            Message.error(g_vtoy_cur_language.STR_JSON_COPY_FAILED);
+        }
+    }
+
+    function VtoyPreviewClick() {
+        callVtoySync({
+            method : 'preview_json'
+        }, function(data) {
+            $('#JsonPeviewForm #JsonPreviewForm_lang_1').text(g_vtoy_cur_language.STR_JSON_PREVIEW);
+            $('#JsonPeviewForm #PrewForm_lang_2').text(g_vtoy_cur_language.STR_BTN_OK);
+            
+            $('#pre_json_preview').text(VtoyUTF16HexToAscii(data.json));            
+            $("#JsonPreviewModal").modal();
+        });
+    }
+    
     function VtoyLanguageClick() {
         var defaultPage = window.location.hash;
         
@@ -777,6 +841,7 @@
 
     //Main process
     var m_syntax_error;
+    var m_invalid_config;
     callVtoySync({
         method : 'sysinfo'
     }, function(data) {
@@ -784,11 +849,14 @@
         g_current_dir = data.curdir;
         g_current_os = data.os;
         m_syntax_error = data.syntax_error;
+        m_invalid_config = data.invalid_config;
 
         
 
     });
  
+    $('#id_btn_json_copy').click(VtoyJsonCopyClick);
+    $('#id_a_preview').click(VtoyPreviewClick);
     $('#id_a_language').click(VtoyLanguageClick);
     
     $("#plugson-menu a").click(function() {
@@ -816,11 +884,6 @@
     
 
     (function ventoy_handshake() {
-
-        if (m_syntax_error === 1) {
-            
-        }
-
         callVtoyCatchErr({
             method : 'handshake'
         },         
@@ -833,10 +896,29 @@
                 });
                 m_syntax_error = 0;
             }
+            
+            if (m_invalid_config === 1 && typeof(Modal) === 'object') {
+                var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
+                var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INVALID_CONFIG_TIP : g_vtoy_cur_language_cn.STR_INVALID_CONFIG_TIP;
+                Modal.alert({title:title,msg:msg}).on(function(e) {
+                });
+                m_invalid_config = 0;
+            }
+
+            if (data.save_error === 1) {
+                var title = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_INFO : g_vtoy_cur_language_cn.STR_INFO;
+                var msg = g_current_language == 'en' ? g_vtoy_cur_language_en.STR_CONFIG_SAVE_ERROR_TIP : g_vtoy_cur_language_cn.STR_CONFIG_SAVE_ERROR_TIP;
+                Modal.alert({title:title,msg:msg}).on(function(e) {
+                });
+            }
+
+            if (typeof(UpdateTabTitleIcon)==='function') {
+                UpdateTabTitleIcon(data);
+            }
 
             setTimeout(function() {
                 ventoy_handshake();
-            }, 1000);
+            }, 200);
         },
 
         function(xmlHttpRequest, textStatus, errorThrown) {

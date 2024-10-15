@@ -1,11 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
 print_usage() {
     echo 'Usage:  ExtendPersistentImg.sh file size'
     echo '   file   persistent dat file'
     echo '   size   extend size in MB'
-    echo 'Example:'
-    echo '   sh ExtendPersistentImg.sh ubuntu.dat 2048'
+    echo 'Examples:'
+    echo '   sh ExtendPersistentImg.sh ubuntu.dat 2048 - This command would extend ubuntu.dat by 2048MB (2GB)'
+    echo '   sh ExtendPersistentImg.sh ubuntu.dat -2048 - This command reduces ubuntu.dat by 2048MB (-2GB)'
     echo ''
 }
 
@@ -18,6 +19,23 @@ if [ -z "$2" ]; then
     print_usage
     exit 1
 fi
+
+uid=$(id -u)
+if [ $uid -ne 0 ]; then
+    print_err "Please use sudo or run the script as root."
+    exit 1
+fi
+
+if [ "$1" = "__vbash__" ]; then
+    shift
+else
+    if readlink /bin/sh | grep -q bash; then
+        :
+    else
+        exec /bin/bash $0 "__vbash__" "$@"
+    fi
+fi
+
 
 file=$1
 size=$2

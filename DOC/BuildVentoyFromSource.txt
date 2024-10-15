@@ -1,9 +1,9 @@
 
 ==========================================
-1. Compile Enviroment
+1. Compile Environment
 ==========================================
-    My build envrioment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
-    Because Ventoy is based on many open source projects, so the environment is important. I suggest you test it on a virtual machine firstly.
+    My build environment is CentOS 7.8 x86_64. So here I first explain how to create the build environment from scratch.
+    Ventoy is based on many open source projects, so the build environment is important. I suggest you first test it on a virtual machine.
 
 1.1 Install CentOS 7.8
     I use CentOS-7-x86_64-Everything-2003.iso and select Minimal install
@@ -21,10 +21,10 @@
 ==========================================
 2. Download Source Code
 ==========================================
-2.1 Download Ventoy source code from github and decompress it. 
+2.1 Download Ventoy source code from GitHub and decompress it. 
     Next I assume that you have unzipped the code into the /home directory (check /home/Ventoy-master/README.md file for the directory layout).
     
-2.2 Download third-part source code and tool
+2.2 Download third-party source code and tool
     
     https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz                    ===>  /home/Ventoy-master/DOC/dietlibc-0.34.tar.xz
     https://musl.libc.org/releases/musl-1.2.1.tar.gz                     ===>  /home/Ventoy-master/DOC/musl-1.2.1.tar.gz
@@ -34,7 +34,7 @@
     https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9           ===>  /home/Ventoy-master/ExFAT/libfuse-fuse-2.9.9.zip
     https://releases.linaro.org/components/toolchain/binaries/7.4-2019.02/aarch64-linux-gnu/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz           ===>  /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz
     https://toolchains.bootlin.com/downloads/releases/toolchains/aarch64/tarballs/aarch64--uclibc--stable-2020.08-1.tar.bz2 ===> /opt/aarch64--uclibc--stable-2020.08-1.tar.bz2
-    http://ftp.loongnix.org/toolchain/gcc/release/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz ===> /opt/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
+    https://github.com/ventoy/vtoytoolchain/releases/download/1.0/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz ===> /opt/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
     https://github.com/ventoy/musl-cross-make/releases/download/latest/output.tar.bz2 ===> /opt/output.tar.bz2
 
 
@@ -42,7 +42,7 @@
     http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/corepure64.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/corepure64.gz
     http://www.tinycorelinux.net/11.x/x86_64/release/distribution_files/modules64.gz ===> /home/Ventoy-master/LiveCD/ISO/EFI/boot/modules64.gz    
 
-2.3 Prepare third-part tools
+2.3 Prepare third-party tools
     cd /home/Ventoy-master/DOC/
     tar xf musl-1.2.1.tar.gz
     cd musl-1.2.1
@@ -54,7 +54,7 @@
     mv /opt/output /opt/mips64el-linux-musl-gcc730
     
 
-2.4 Set PATH envrioment
+2.4 Set PATH environment
     export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin:/opt/mips64el-linux-musl-gcc730/bin
     better to add this line to /root/.bashrc and relogin as root
 
@@ -62,21 +62,21 @@
 ==========================================
 3. All in one script
 ==========================================
-    I have made a all_in_one.sh, you can run this script to build and pack ventoy.
+    I have made an all-in-one script `all_in_one.sh`. You can run this script to build and pack ventoy.
     If you want to compile a certain part separately, you can continue to refer to the later chapters of this text.
     
     cd /home/Ventoy-master/INSTALL
     sh all_in_one.sh
 
     It should be noted that:
-    1. Only grub2/EDK2/IPXE will be recompiled in all_in_one.sh. Other part contains the binaries and are few modified, so will no be recompiled everytime.
+    1. Only grub2/EDK2/IPXE will be recompiled in all_in_one.sh. Other parts contain binaries and are rarely modified, so will not be recompiled everytime.
        You can rebuild these parts separately if you want.
        
-    2. some part of Ventoy has 32bit&64bit version (like 4.9 4.10 4.11 follows)
-       all_in_one.sh only build 64bit version of them, if you want to rebuild the 32bit verison. You should create a 32bit CentOS environment and build them.
-       Fortunately these parts are few modified, you only need to build once or you can directly use the binary I have built.
+    2. Some parts of Ventoy have a 32-bit and 64-bit version (like 4.9, 4.10, 4.11 follows)
+       all_in_one.sh only builds the 64bit version of them. If you want to rebuild the 32bit verison, you should create a 32-bit CentOS environment and build them.
+       Fortunately these parts are rarely modified, so you only need to build once or you can directly use the binaries I have built.
 
-    Besides, after a fully compile and pack, you can only build the part you modified (for example grub2) and run ventoy_pack.sh to generate the package.
+    Besides, after a full compile and packaging, you can only build the part you modified (for example grub2) and run ventoy_pack.sh to generate the package.
 
 ==========================================
 4. Build every part of Ventoy
@@ -108,10 +108,10 @@
     cd /home/Ventoy-master/VtoyTool
     sh build.sh
 
-4.8 == Build vtoyfat ==    
-    cd /home/Ventoy-master/vtoyfat/fat_io_lib
+4.8 == Build vtoycli ==    
+    cd /home/Ventoy-master/vtoycli/fat_io_lib
     sh buildlib.sh
-    cd /home/Ventoy-master/vtoyfat
+    cd /home/Ventoy-master/vtoycli
     sh build.sh
 
 4.9 == Build exfat-util ==
@@ -122,14 +122,14 @@
     After that, copy EXFAT/shared/mkexfatfs         ===> /home/Ventoy-master/INSTALL/tool/mkexfatfs_64
     After that, copy EXFAT/shared/mount.exfat-fuse  ===> /home/Ventoy-master/INSTALL/tool/mount.exfat-fuse_64
 
-    Use the same build step to build exfat-util 32bit in a 32bit CentOS system and get mkexfatfs_32 and mount.exfat-fuse_32
+    Use the same build step to build exfat-util 32-bit in a 32-bit CentOS system and get mkexfatfs_32 and mount.exfat-fuse_32
 
 4.10 == Build vtoy_fuse_iso_64/vtoy_fuse_iso_32 ==
     cd /home/Ventoy-master/FUSEISO
     sh build_libfuse.sh
     sh build.sh
     
-    Use the same build step to build in a 32bit CentOS system and get vtoy_fuse_iso_32
+    Use the same build step to build in a 32-bit CentOS system and get vtoy_fuse_iso_32
    
 4.11 == Build unsquashfs_64/unsquashfs_32 ==
     cd /home/Ventoy-master/SQUASHFS/SRC
@@ -141,7 +141,7 @@
     cd /home/Ventoy-master/SQUASHFS/squashfs-tools-4.4/squashfs-tools
     sh build.sh
     
-    Use the same build step to build in a 32bit CentOS system and get unsquashfs_32
+    Use the same build step to build in a 32-bit CentOS system and get unsquashfs_32
    
 4.12 == Build vblade_64/vblade_32 ==
     cd /home/Ventoy-master/VBLADE/vblade-master

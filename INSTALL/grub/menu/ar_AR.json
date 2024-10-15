@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Arabic (العربية)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L: لغة F1: مساعدة F2: تصفح F3: عرض لائحي F4: إقلاع محلي F5: أدوات F6: عوده",
+    "VTLANG_STR_HOTKEY_TREE": "L: لغة F1: مساعدة F2: تصفح F3: عرض شجري F4: إقلاع محلي F5: أدوات F6: عوده",
+    "VTLANG_RETURN_PREVIOUS": "عودة إلى القائمة السابقة [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "عودة إلى القائمة السابقة",
+    
+    "VTLANG_MENU_LANG": "اختيار اللغة في القائمة",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "البحث والإقلاع على Windows",
+    "VTLANG_LB_SBOOT_G4D": "البحث والإقلاع على Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "الإقلاع على القرص المحلي الأول",
+    "VTLANG_LB_SBOOT_HDD2": "الإقلاع على القرص المحلي الثاني",
+    "VTLANG_LB_SBOOT_HDD3": "الإقلاع على القرص المحلي الثالث",
+    "VTLANG_LB_SBOOT_X64EFI": "البحث والإقلاع على BOOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "البحث والإقلاع على BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": "البحث والإقلاع على BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "البحث والإقلاع على xorboot",
+    
+    "VTLANG_FILE_CHKSUM": "تدقيق المجموع للملف",
+    "VTLANG_CHKSUM_MD5_CALC": "احسب md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC": "احسب sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC": "احسب sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC": "احسب sha512sum",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "احسب وتحقق md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "احسب وتحقق sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "احسب وتحقق sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "احسب وتحقق sha512sum",
+    
+    "VTLANG_POWER": "الطاقة",
+    "VTLANG_POWER_REBOOT": "إعادة التشغيل",
+    "VTLANG_POWER_HALT": "إيقاف",
+    "VTLANG_POWER_BOOT_EFIFW": "إعادة التشغيل إلى إعداد EFI",
+    
+    "VTLANG_KEYBRD_LAYOUT": "تخطيطات لوحة المفاتيح",
+    "VTLANG_HWINFO": "معلومات حول العتاد",
+    
+    "VTLANG_RESOLUTION_CFG": "تكوين الدقة",
+    "VTLANG_SCREEN_MODE": "وضع عرض الشاشة",
+    "VTLANG_SCREEN_TEXT_MODE": "فرض تحديد وضع النص",
+    "VTLANG_SCREEN_GUI_MODE": "فرض تحديد وضع الرسومات",
+    
+    "VTLANG_THEME_SELECT": "اختر السمة",
+    
+    "VTLANG_UEFI_UTIL": "أدوات Ventoy UEFI المساعدة",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "عرض برامج تشغيل EFI",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "إصلاح فشل تهيئة Windows BlinitializeLibrary",
+    
+    "VTLANG_JSON_CHK_JSON": "التحقق من تكوين json للبرنامج الإضافي (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "التحقق من تكوين برنامج الإضافي العام للتحكم",
+    "VTLANG_JSON_CHK_THEME": "التحقق من تكوين برنامج الإضافي الخاص بالسمة",
+    "VTLANG_JSON_CHK_AUTOINS": "التحقق من تكوين برنامج الإضافي للتثبيت التلقائي",
+    "VTLANG_JSON_CHK_PERSIST": "التحقق من تكوين برنامج الإضافي المستمر",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "التحقق من تكوين برنامج الإضافي الخاص بالقائمة المستعارة",
+    "VTLANG_JSON_CHK_MENU_TIP": "التحقق من تكوين برنامج الإضافي الخاص بتلميح القائمة",
+    "VTLANG_JSON_CHK_MENU_CLASS": "التحقق من تكوين برنامج الإضافي الخاص بفئة القائمة",
+    "VTLANG_JSON_CHK_INJECTION": "التحقق من تكوين برنامج الإضافي الخاص بالتدخل",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "التحقق من تكوين برنامج الإضافي الخاص بالتثبيت التلقائي لـ memdisk",
+    "VTLANG_JSON_CHK_IMG_LIST": "التحقق من تكوين برنامج الإضافي الخاص بقائمة الصور",
+    "VTLANG_JSON_CHK_IMG_BLIST": "التحقق من تكوين برنامج الإضافي الخاص بقائمة سوداء للصور",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "التحقق من تكوين برنامج الإضافي الخاص باستبدال ملف التكوين للإقلاع",
+    "VTLANG_JSON_CHK_DUD": "التحقق من تكوين برنامج الإضافي الخاص بـ dud",
+    "VTLANG_JSON_CHK_PASSWORD": "التحقق من تكوين برنامج الإضافي الخاص بكلمة المرور",
+    
+    "VTLANG_NORMAL_MODE": "الإقلاع في الوضع العادي",
+    "VTLANG_WIMBOOT_MODE": "الإقلاع في وضع wimboot",
+    "VTLANG_GRUB2_MODE": "الإقلاع في وضع grub2",
+    "VTLANG_MEMDISK_MODE": "الإقلاع في وضع memdisk",
+    
+    "VTLANG_RET_TO_LISTVIEW": "العودة إلى ListView",
+    "VTLANG_RET_TO_TREEVIEW": "العودة إلى TreeView",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "الإقلاع بدون قالب التثبيت التلقائي",
+    "VTLANG_AUTOINS_USE": "الإقلاع مع",
+    
+    "VTLANG_NO_PERSIST": "الإقلاع بدون الاستمرارية",
+    "VTLANG_PERSIST_USE": "الإقلاع مع",
+    
+    "VTLANG_BROWER_RETURN": "العودة",
+    
+    "VTLANG_ENTER_EXIT": "اضغط على مفتاح Enter للخروج",
+    "VTLANG_ENTER_REBOOT": "اضغط على مفتاح Enter لإعادة التشغيل",
+    "VTLANG_ENTER_CONTINUE": "اضغط على مفتاح Enter للمتابعة",
+    
+    "VTLANG_CTRL_TEMP_SET": "إعدادات التحكم المؤقتة",
+    "VTLANG_WIN11_BYPASS_CHECK": "تجاوز فحص CPU/TPM/SecureBoot عند تثبيت Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "تجاوز متطلبات الحساب عبر الإنترنت عند تثبيت Windows 11",
+    "VTLANG_LINUX_REMOUNT": "ضم قسم Ventoy بعد إقلاع Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "اظهر قائمة الإقلاع الثانوية",
+    
+    "MENU_STR_XXX": ""
+}

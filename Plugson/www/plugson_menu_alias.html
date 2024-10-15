@@ -1,10 +1,12 @@
 <div class="box box-primary" id="control">
     <div class="box-header">
-        <div class="col-sm-10" style="padding-top:8px;">
+        <div class="col-sm-9" style="padding-top:8px;">
             <i class="fa fa-clone">&nbsp;&nbsp;</i>
             <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">菜单别名插件</h1>
         </div>
-        
+        <div class="col-sm-1" style="padding-top:2px;">
+          <button id="id_btn_reset" class="btn btn-sm btn-danger btn-del"><i class="fa fa-trash"></i><span id="id_btn_span_reset">Reset</span></button>
+        </div>
         <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
             <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/en/plugin_menualias.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
         </div>
@@ -150,9 +152,13 @@
       alias: data.alias,
       type: type
     }, function(e) {
-      list.push(data);
-      FillAliasTable(list);
-      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      if (e.result === 'success') {
+        list.push(data);
+        FillAliasTable(list);
+        Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+      } else if (e.result === 'duplicate') {
+        Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+      }      
     });
   }
 
@@ -231,6 +237,27 @@
   $('#id_tab_menu_alias a[href="#tab_3"]').click(OnClickMultiModeTab);
   $('#id_tab_menu_alias a[href="#tab_4"]').click(OnClickMultiModeTab);
   $('#id_tab_menu_alias a[href="#tab_5"]').click(OnClickMultiModeTab);
+
+  function UpdateTabTitleIcon(data) {
+    CommonUpdateTabTitleIcon(data.exist_menu_alias, '#id_tab_menu_alias a[href="#tab_', 'menu_alias');
+  }
+  $('#id_btn_reset').click(function() { 
+    Modal.confirm({msg:GetResetTabConfigTipMsg(current_tab_index, 'menu_alias')}).on(function(e) {
+        if (e) {            
+            callVtoySync({
+                method : 'alias_del',
+                index: current_tab_index,
+                path: g_del_all_path
+            }, function(data) {
+                
+            });
+            
+            m_data_alias[current_tab_index].length = 0;
+            VtoyFillCurrentPageItem(m_data_alias[g_vtoy_data_default_index]);
+            Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+        }
+    });
+  });
 
   $('#id_tab_menu_alias a[href="#tab_0"]').tab('show');
   VtoyFillCurrentPageItem(m_data_alias[0]);

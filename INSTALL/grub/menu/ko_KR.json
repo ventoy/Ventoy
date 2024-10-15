@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Korean (한국어)",
+    
+    "VTLANG_STR_HOTKEY_LIST": " L:언어  F1:도움말  F2:찾아보기  F3:목록 보기  F4:로컬 부팅  F5:도구  F6:확장 메뉴",
+    "VTLANG_STR_HOTKEY_TREE": " L:언어  F1:도움말  F2:찾아보기  F3:트리 보기  F4:로컬 부팅  F5:도구  F6:확장 메뉴",
+    "VTLANG_RETURN_PREVIOUS": "이전 메뉴로 돌아가기 [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "이전 메뉴로 돌아가기",
+    
+    "VTLANG_MENU_LANG": "메뉴 언어 선택",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Windows 검색 및 부팅",
+    "VTLANG_LB_SBOOT_G4D": "Grub4dos 검색 및 부팅",
+    "VTLANG_LB_SBOOT_HDD1": "첫 번째 로컬 디스크 부팅",
+    "VTLANG_LB_SBOOT_HDD2": "두 번째 로컬 디스크 부팅",
+    "VTLANG_LB_SBOOT_HDD3": "세 번째 로컬 디스크 부팅",
+    "VTLANG_LB_SBOOT_X64EFI": "BOOTX64.EFI 검색 및 부팅",
+    "VTLANG_LB_SBOOT_IA32EFI": "BOOTIA32.EFI 검색 및 부팅",
+    "VTLANG_LB_SBOOT_AA64EFI": "BOOTAA64.EFI 검색 및 부팅",
+    "VTLANG_LB_SBOOT_XORBOOT": "xorboot 검색 및 부팅",
+    
+    "VTLANG_FILE_CHKSUM": "파일 체크섬",
+    "VTLANG_CHKSUM_MD5_CALC": "md5 검사값 계산",
+    "VTLANG_CHKSUM_SHA1_CALC": "sha1 검사값 계산",
+    "VTLANG_CHKSUM_SHA256_CALC": "sha256 검사값 계산",
+    "VTLANG_CHKSUM_SHA512_CALC": "sha512 검사값 계산",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "md5 검사값 계산 및 확인",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "sha1 검사값 계산 및 확인",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "sha256 검사값 계산 및 확인",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "sha512 검사값 계산 및 확인",
+    
+    "VTLANG_POWER": "전원",
+    "VTLANG_POWER_REBOOT": "다시 시작",
+    "VTLANG_POWER_HALT": "전원 끄기",
+    "VTLANG_POWER_BOOT_EFIFW": "UEFI 설정으로 다시 시작",
+    
+    "VTLANG_KEYBRD_LAYOUT": "키보드 레이아웃",
+    "VTLANG_HWINFO": "하드웨어 정보",
+    
+    "VTLANG_RESOLUTION_CFG": "해상도 구성",
+    "VTLANG_SCREEN_MODE": "화면 표시 모드",
+    "VTLANG_SCREEN_TEXT_MODE": "강제 텍스트 모드",
+    "VTLANG_SCREEN_GUI_MODE": "강제 그래픽 모드",
+    
+    "VTLANG_THEME_SELECT": "테마 선택",
+    
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI 유틸리티",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "UEFI 드라이버 표시",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows 초기화 라이브러리 오류 복구",
+    
+    "VTLANG_JSON_CHK_JSON": "플러그인 파일 구성 확인 (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "전역 제어 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_THEME": "테마 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_AUTOINS": "자동 설치 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_PERSIST": "영구화 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "메뉴 별칭 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_MENU_TIP": "메뉴 팁 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_MENU_CLASS": "메뉴 클래스 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_INJECTION": "주입 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "자동 메모리 디스크 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_IMG_LIST": "이미지 목록 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_IMG_BLIST": "이미지 블랙리스트 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "부팅 구성 대체 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_DUD": "드라이버 업데이트 디스크 플러그인 구성 확인",
+    "VTLANG_JSON_CHK_PASSWORD": "암호 플러그인 구성 확인",
+    
+    "VTLANG_NORMAL_MODE": "일반 모드로 부팅",
+    "VTLANG_WIMBOOT_MODE": "wimboot 모드로 부팅",
+    "VTLANG_GRUB2_MODE": "grub2 모드로 부팅",
+    "VTLANG_MEMDISK_MODE": "메모리 디스크 모드로 부팅",
+    
+    "VTLANG_RET_TO_LISTVIEW": "목록보기로 돌아가기",
+    "VTLANG_RET_TO_TREEVIEW": "트리보기로 돌아가기",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "자동 설치 스크립트 사용 안 함",
+    "VTLANG_AUTOINS_USE": "부팅 대상",
+    
+    "VTLANG_NO_PERSIST": "영구화된 데이터 파일 사용 안 함",
+    "VTLANG_PERSIST_USE": "부팅 대상",
+    
+    "VTLANG_BROWER_RETURN": "돌아가기",
+    
+    "VTLANG_ENTER_EXIT": "종료하려면 Enter 키를 누르십시오",
+    "VTLANG_ENTER_REBOOT": "다시 시작하려면 Enter 키를 누르십시오",
+    "VTLANG_ENTER_CONTINUE": "계속하려면 Enter 키를 누르십시오",
+    
+    "VTLANG_CTRL_TEMP_SET": "임시 제어 설정",
+    "VTLANG_WIN11_BYPASS_CHECK": "Windows 11 설치 시 CPU/TPM/SecureBoot 검사 회피",
+    "VTLANG_WIN11_BYPASS_NRO": "Windows 11 설치 시 온라인 계정 요구 사항 무시",
+    "VTLANG_LINUX_REMOUNT": "Linux 부팅 후 Ventoy 파티션 마운트",
+    "VTLANG_SECONDARY_BOOT_MENU": "보조 부팅 메뉴 표시",
+    
+    "MENU_STR_XXX": ""
+}

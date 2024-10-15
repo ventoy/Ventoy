@@ -30,11 +30,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <linux/fs.h>
+#include <dirent.h>
 #include "biso.h"
 #include "biso_list.h"
 #include "biso_util.h"
 #include "biso_plat.h"
 #include "biso_9660.h"
+#include "vtoytool.h"
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -484,7 +486,7 @@ static int vtoydm_print_extract_iso
 
 
 
-static int vtoydm_print_linear_table(const char *img_map_file, const char *diskname)
+static int vtoydm_print_linear_table(const char *img_map_file, const char *diskname, int part, uint64_t offset)
 {
     int i;
     int len;
@@ -511,15 +513,15 @@ static int vtoydm_print_linear_table(const char *img_map_file, const char *diskn
         #else
         if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
         {
-            printf("%u %u linear %sp1 %llu\n", 
+            printf("%u %u linear %sp%d %llu\n", 
                (sector_start << 2), disk_sector_num, 
-               diskname, (unsigned long long)chunk[i].disk_start_sector - 2048);
+               diskname, part, (unsigned long long)chunk[i].disk_start_sector - offset);
         }
         else
         {
-            printf("%u %u linear %s1 %llu\n", 
+            printf("%u %u linear %s%d %llu\n", 
                (sector_start << 2), disk_sector_num, 
-               diskname, (unsigned long long)chunk[i].disk_start_sector - 2048);
+               diskname, part, (unsigned long long)chunk[i].disk_start_sector - offset);
         }
         #endif
     }
@@ -539,10 +541,98 @@ static int vtoydm_print_help(FILE *fp)
     return 0;        
 }
 
+static uint64_t vtoydm_get_part_start(const char *diskname, int part)
+{
+    int fd;
+    unsigned long long size = 0;
+    char diskpath[256] = {0};
+    char sizebuf[64] = {0};
+
+    if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
+    {
+        snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%sp%d/start", diskname, part);
+    }
+    else
+    {
+        snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%s%d/start", diskname, part);
+    }
+
+    if (access(diskpath, F_OK) >= 0)
+    {
+        debug("get part start from sysfs for %s %d\n", diskname, part);
+        
+        fd = open(diskpath, O_RDONLY | O_BINARY);
+        if (fd >= 0)
+        {
+            read(fd, sizebuf, sizeof(sizebuf));
+            size = strtoull(sizebuf, NULL, 10);
+            close(fd);
+            return size;
+        }
+    }
+    else
+    {
+        debug("%s not exist \n", diskpath);
+    }
+
+    return size;
+}
+
+static int vtoydm_vlnk_convert(char *disk, int len, int *part, uint64_t *offset)
+{
+    int rc = 1;
+    int cnt = 0;
+    int rdlen;
+    FILE *fp = NULL;
+    ventoy_os_param param;
+    char diskname[128] = {0};
+
+    fp = fopen("/ventoy/ventoy_os_param", "rb");
+    if (!fp)
+    {
+        debug("dm vlnk convert not exist %d\n", errno);
+        goto end;
+    }
+
+    memset(&param, 0, sizeof(param));
+    rdlen = (int)fread(&param, 1, sizeof(param), fp);
+    if (rdlen != (int)sizeof(param))
+    {
+        debug("fread failed %d %d\n", rdlen, errno);
+        goto end;
+    }
+
+    debug("dm vlnk convert vtoy_reserved=%d\n", param.vtoy_reserved[6]);
+
+    if (param.vtoy_reserved[6])
+    {
+        cnt = vtoy_find_disk_by_guid(&param, diskname);
+        debug("vtoy_find_disk_by_guid cnt=%d\n", cnt);        
+        if (cnt == 1)
+        {
+            *part = param.vtoy_disk_part_id;
+            *offset = vtoydm_get_part_start(diskname, *part);
+            
+            debug("VLNK <%s> <%s> <P%d> <%llu>\n", disk, diskname, *part, (unsigned long long)(*offset));
+
+            snprintf(disk, len, "/dev/%s", diskname);
+
+            rc = 0;
+        }
+    }
+
+end:
+    if (fp)
+        fclose(fp);
+    return rc;
+}
+
 int vtoydm_main(int argc, char **argv)
 {
     int ch;
     int cmd = 0;
+    int part = 1;
+    uint64_t offset = 2048;
     unsigned long first_sector = 0;
     unsigned long long file_size = 0;
     char diskname[128] = {0};
@@ -615,11 +705,13 @@ int vtoydm_main(int argc, char **argv)
     debug("cmd=%d file=<%s> disk=<%s> first_sector=%lu file_size=%llu\n", 
           cmd, filepath, diskname, first_sector, file_size);
 
+    vtoydm_vlnk_convert(diskname, sizeof(diskname), &part, &offset);
+    
     switch (cmd)
     {
         case CMD_PRINT_TABLE:
         {
-            return vtoydm_print_linear_table(filepath, diskname);
+            return vtoydm_print_linear_table(filepath, diskname, part, offset);
         }
         case CMD_CREATE_DM:
         {

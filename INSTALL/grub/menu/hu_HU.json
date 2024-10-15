@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Magyar (Hungarian)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:Nyelv  F1:Súgó  F2:Tallózás  F3:Listanézet  F4:Helyi indítás  F5:Eszközök  F6:Bővített menü",
+    "VTLANG_STR_HOTKEY_TREE": "L:Nyelv  F1:Súgó  F2:Tallózás  F3:Fanézet  F4:Helyi indítás  F5:Eszközök  F6:Bővített menü",
+    "VTLANG_RETURN_PREVIOUS": "Vissza az előző menübe [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Vissza az előző menübe",
+    
+    "VTLANG_MENU_LANG": "Menü nyelvének kiválasztása",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Windows keresése és indítása",
+    "VTLANG_LB_SBOOT_G4D": "Grub4dos keresése és indítása",
+    "VTLANG_LB_SBOOT_HDD1": "Indítás az 1. helyi lemezről",
+    "VTLANG_LB_SBOOT_HDD2": "Indítás a 2. helyi lemezről",
+    "VTLANG_LB_SBOOT_HDD3": "Indítás a 3. helyi lemezről",
+    "VTLANG_LB_SBOOT_X64EFI": "BOOTX64.EFI keresése és indítása",
+    "VTLANG_LB_SBOOT_IA32EFI": "BOOTIA32.EFI keresése és indítása",
+    "VTLANG_LB_SBOOT_AA64EFI": "BOOTAA64.EFI keresése és indítása",
+    "VTLANG_LB_SBOOT_XORBOOT": "xorboot keresése és indítása",
+    
+    "VTLANG_FILE_CHKSUM": "Fájl ellenőrzőösszege",
+    "VTLANG_CHKSUM_MD5_CALC": "md5sum kiszámítása",
+    "VTLANG_CHKSUM_SHA1_CALC": "sha1sum kiszámítása",
+    "VTLANG_CHKSUM_SHA256_CALC": "sha256sum kiszámítása",
+    "VTLANG_CHKSUM_SHA512_CALC": "sha512sum kiszámítása",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "md5sum kiszámítása és ellenőrzése",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "sha1sum kiszámítása és ellenőrzése",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "sha256sum kiszámítása és ellenőrzése",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "sha512sum kiszámítása és ellenőrzése",
+    
+    "VTLANG_POWER": "Főkapcsoló",
+    "VTLANG_POWER_REBOOT": "Újraindítás",
+    "VTLANG_POWER_HALT": "Leállítás",
+    "VTLANG_POWER_BOOT_EFIFW": "Újraindítás EFI beállításba",
+    
+    "VTLANG_KEYBRD_LAYOUT": "Billentyűzetkiosztások",
+    "VTLANG_HWINFO": "Hardverinformációk",
+    
+    "VTLANG_RESOLUTION_CFG": "Felbontás beállítása",
+    "VTLANG_SCREEN_MODE": "Képernyő megjelenítési módja",
+    "VTLANG_SCREEN_TEXT_MODE": "Szöveges mód kényszerítése",
+    "VTLANG_SCREEN_GUI_MODE": "Grafikus mód kényszerítése",
+    
+    "VTLANG_THEME_SELECT": "Téma kiválasztása",
+    
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI-segédprogramok",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "EFI-illesztőprogramok megjelenítése",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "A Windows BlinitializeLibrary hibájának javítása",
+    
+    "VTLANG_JSON_CHK_JSON": "A bővítmény JSON-beállításának (ventoy.json) ellenőrzése",
+    "VTLANG_JSON_CHK_CONTROL": "A globális vezérlőbővítmény beállításának ellenőrzése",
+    "VTLANG_JSON_CHK_THEME": "A téma bővítmény beállításnak ellenőrzése",
+    "VTLANG_JSON_CHK_AUTOINS": "Az automatikus telepítés bővítmény beállításának ellenőrzése",
+    "VTLANG_JSON_CHK_PERSIST": "Az állandóság bővítmény beállításának ellenőrzése",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "A menüálnév bővítmény beállításának ellenőrzése",
+    "VTLANG_JSON_CHK_MENU_TIP": "A menütipp bővítmény beállításának ellenőrzése",
+    "VTLANG_JSON_CHK_MENU_CLASS": "A menüosztály bővítmény beállításának ellenőrzése",
+    "VTLANG_JSON_CHK_INJECTION": "A befecskendezés bővítmény beállításnak ellenőrzése",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "Az automatikus memórialemez bővítmény beállításának ellenőrzése",
+    "VTLANG_JSON_CHK_IMG_LIST": "A lemezképlista bővítmény beállításnak ellenőrzése",
+    "VTLANG_JSON_CHK_IMG_BLIST": "A lemezkép-tiltólista bővítmény beállításnak ellenőrzése",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "Az indítási beállítás csere bővítmény beállításnak ellenőrzése",
+    "VTLANG_JSON_CHK_DUD": "A dud bővítmény beállításnak ellenőrzése",
+    "VTLANG_JSON_CHK_PASSWORD": "A jelszó bővítmény beállításnak ellenőrzése",
+    
+    "VTLANG_NORMAL_MODE": "Indítás normál módban",
+    "VTLANG_WIMBOOT_MODE": "Indítás wimboot módban",
+    "VTLANG_GRUB2_MODE": "Indítás grub2 módban",
+    "VTLANG_MEMDISK_MODE": "Indítás memórialemez módban",
+    
+    "VTLANG_RET_TO_LISTVIEW": "Vissza a listanézethez",
+    "VTLANG_RET_TO_TREEVIEW": "Vissza a fanézethez",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "Indítás automatikus telepítési sablon nélkül",
+    "VTLANG_AUTOINS_USE": "Indítás ezzel:",
+    
+    "VTLANG_NO_PERSIST": "Indítás állandóság nélkül",
+    "VTLANG_PERSIST_USE": "Indítás ezzel:",
+    
+    "VTLANG_BROWER_RETURN": "Vissza",
+    
+    "VTLANG_ENTER_EXIT": "nyomja meg az Enter billentyűt a kilépéshez",
+    "VTLANG_ENTER_REBOOT": "nyomja meg az Enter billentyűt az újraindításhoz",
+    "VTLANG_ENTER_CONTINUE": "nyomja meg az Enter billentyűt a folytatáshoz",
+    
+    "VTLANG_CTRL_TEMP_SET": "Ideiglenes vezérlési beállítások",
+    "VTLANG_WIN11_BYPASS_CHECK": "CPU/TPM/SecureBoot ellenőrzés megkerülése Windows 11 telepítésekor",
+    "VTLANG_WIN11_BYPASS_NRO": "Internetes fiók követelményének megkerülése Windows 11 telepítésekor",
+    "VTLANG_LINUX_REMOUNT": "Ventoy partíció csatolása a Linux indítása után",
+    "VTLANG_SECONDARY_BOOT_MENU": "Másodlagos indítási menü megjelenítése",
+    
+    "MENU_STR_XXX": ""
+}

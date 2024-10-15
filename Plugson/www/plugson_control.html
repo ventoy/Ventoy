@@ -1,6 +1,6 @@
 <div class="box box-primary" id="control">
     <div class="box-header">
-        <div class="col-sm-8" style="padding-top:8px;">
+        <div class="col-sm-7" style="padding-top:8px;">
             <i class="fa fa-wrench">&nbsp;&nbsp;</i>
             <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">全局控制插件</h1>
         </div>
@@ -8,6 +8,10 @@
         <div class="col-sm-2" style="padding-top:2px;">
           <button id="id_btn_collapse" class="btn btn-sm btn-primary"><i style="font-size: 14px;" class="fa fa-minus"></i></button>
           <button id="id_btn_expand" class="btn btn-sm btn-primary"><i style="font-size: 14px;" class="fa fa-plus"></i></button>
+        </div>
+
+        <div class="col-sm-1" style="padding-top:2px;">
+          <button id="id_btn_reset" class="btn btn-sm btn-danger btn-del"><i class="fa fa-trash"></i><span id="id_btn_span_reset">Reset</span></button>
         </div>
 
         <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
@@ -27,6 +31,42 @@
             <li class=""><a href="#tab_5" data-toggle="tab" aria-expanded="false"  style="font-weight:bold">control_mips</a></li>
         </ul>
       </div>
+
+
+      <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_MENU_LANGUAGE
+                <span id="id_span_desc_cn"> —— 菜单语言</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <select id="id_ctrl_sel_menu_lang" name="name_ctrl_sel_menu_lang" class="form-control">
+                            
+                        </select>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        Ventoy 菜单的语言版本。默认是 "en_US"。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Ventoy menu language. Default is "en_US", 
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
 
       
       <div class="box box-primary box-solid">
@@ -61,15 +101,17 @@
                       <td class="td_ctrl_col">选项说明</td>
                       <td>
                         指定搜索ISO文件的根目录。默认Ventoy会搜索U盘上的所有目录和子目录，当你U盘上有海量的文件时，这个过程会很慢。<br/>
-                        这种情况下你可以把ISO文件单独放在某个目录下，然后通过这个变量来指定搜索路径，此时Ventoy就只会搜索该目录及其子目录。
+                        这种情况下你可以把ISO文件单独放在某个子目录下，然后通过这个变量来指定搜索路径，此时Ventoy就只会搜索该目录及其子目录。<br/>
+                        注意这里不能设置为U盘根目录，必须为一个子目录。
                       </td>
                     </tr>
                     <tr id="tr_title_desc_en">
                       <td class="td_ctrl_col">Option Description</td>
                       <td>
                         The root path where to search the image files. By default, Ventoy will search all the directories and subdirectories in the USB. This will be very slow when you have huge number of files in the USB. 
-                        In this case, you can put all the image files in one directory and use this to specify the search path. 
-                        After that Ventoy will only search this directory and its subdirectories for image files.
+                        In this case, you can put all the image files in one subdirectory and use this to specify the search path. 
+                        After that Ventoy will only search this directory and its subdirectories for image files.<br/>
+                        Note: the path must not be the mountpoint of the first partition, but a subdirectory.
                       </td>
                     </tr>
                 </table>
@@ -109,13 +151,12 @@
                       <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassTPMCheck</code><br/>
                       <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassSecureBootCheck</code><br/>
                       <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassCPUCheck</code><br/>
-                      <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassStorageCheck</code><br/>
                     </td>
                   </tr>
                   <tr id="tr_title_desc_en">
                     <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
                     <td>
-                      <code style="font-weight: bold;">0</code> Don not bypass Windows 11 hardware check.<br/>
+                      <code style="font-weight: bold;">0</code> Do not bypass Windows 11 hardware check.<br/>
                       <code style="font-weight: bold;">1</code> Bypass Windows 11 hardware check. <br/><br/>
                       This option only avaliable for standard Windows 11 ISO files.
                       When set to 1, Ventoy will create the following registries to bypass Windows 11 hardware check when install. <br/>
@@ -124,6 +165,53 @@
                       <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassSecureBootCheck</code><br/>
                       <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassCPUCheck</code><br/>
                       <code>HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig\BypassStorageCheck</code><br/>
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+        
+        
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_WIN11_BYPASS_NRO
+              <span id="id_span_desc_cn"> —— 绕过Windows 11 在线账户需求</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_bypass_nro_radio0" name="id_ctrl_bypass_nro_radio" data-type="0" value="0"/> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_bypass_nro_radio1" name="id_ctrl_bypass_nro_radio" data-type="1" value="1"/> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> 不绕过Windows 11安装时的在线账户需求。<br/>
+                      <code style="font-weight: bold;">1</code> 绕过Windows 11安装时的在线账户需求。<br/><br/>
+                      该选项只对标准Windows 11 ISO文件有效，对于其他镜像文件无效。
+                      当设置为1时，Ventoy 会在安装时创建以下注册表项用来绕过 Windows 11 安装时对在线账户的需求。<br/>
+                      <code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE\BypassNRO</code><br/>                      
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> Do not bypass Windows 11 online account requirement.<br/>
+                      <code style="font-weight: bold;">1</code> Bypass Windows 11 online account requirement. <br/><br/>
+                      This option only avaliable for standard Windows 11 ISO files.
+                      When set to 1, Ventoy will create the following registry to bypass Windows 11 online account requirement when install. <br/>
+                      <code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE\BypassNRO</code>
                     </td>
                   </tr>
               </table>
@@ -336,6 +424,179 @@
             </div><!-- /.box-body -->
         </div><!-- /.box -->
     
+    
+
+        <div class="box box-primary box-solid">
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_LINUX_REMOUNT
+              <span id="id_span_desc_cn"> —— Linux 启动后继续访问ISO文件所在分区</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_linux_remount_radio0" name="id_ctrl_linux_remount_radio" data-type="0" value="0"/> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_linux_remount_radio1" name="id_ctrl_linux_remount_radio" data-type="1" value="1"/> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> Linux启动后不需要继续访问ISO文件所在的分区。<br/>
+                      <code style="font-weight: bold;">1</code> Linux启动后需要继续访问ISO文件所在的分区。<br/><br/>
+                      该选项只对 Linux 系统镜像有效。<br/>
+                      默认情况下，受Linux内核相关功能的限制，对于Linux系统，在启动后无法继续访问ISO文件所在的分区。在mount的时候会提示 device busy。<br/>
+                      如果这里选择 1，则 Ventoy 会尝试通过一些特殊的手段绕过内核的这个限制，但是这个功能是实验性质的，没有经过大规模和长时间的验证。                      
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                    <td>
+                      <code style="font-weight: bold;">0</code> I don't need to access the image partition after boot.<br/>
+                      <code style="font-weight: bold;">1</code> I need to access the image partition after boot. <br/><br/>
+                      This option is only avaliable for Linux distro image files. <br/>
+
+                      By default, the image partition where the ISO files locate can not be accessed after boot. When you try to mount it you will get device busy error.
+                      This is due to linux kernel restriction (device-mapper module).<br/>
+                      If you select 1 here, Ventoy will try to bypass the restriction with some special mechanism.<br/>
+                      But it should be noted that, this is an experimental feature and is not fully tested.
+                      
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+        </div><!-- /.box -->
+
+
+
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SECONDARY_BOOT_MENU
+                <span id="id_span_desc_cn"> —— 二级启动菜单显示开关</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_secondary_radio0" name="id_ctrl_secondary_radio" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_secondary_radio1" name="id_ctrl_secondary_radio" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>二级启动菜单控制开关
+                        <code style="font-weight: bold;">0</code> 不显示 &nbsp;&nbsp; 
+                        <code style="font-weight: bold;">1</code> 显示
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                      Secondary boot menu display option
+                      <code style="font-weight: bold;">0</code> Don't display &nbsp;&nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> Display
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SHOW_PASSWORD_ASTERISK
+                <span id="id_span_desc_cn"> —— 输入密码时显示星号</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">                    
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_asterisk_radio0" name="id_ctrl_asterisk_radio" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                        </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                        <label class="radio-inline">
+                            <input type="radio" id="id_ctrl_asterisk_radio1" name="id_ctrl_asterisk_radio" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                        </label>
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                      <td>输入密码时是否显示星号
+                        <code style="font-weight: bold;">0</code> 不显示 &nbsp;&nbsp; 
+                        <code style="font-weight: bold;">1</code> 显示
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col" id="td_title_desc">Option Description</td>
+                      <td>
+                      Display asterisk when typing password
+                      <code style="font-weight: bold;">0</code> Don't display &nbsp;&nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> Display
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
+        
+        
+        <div class="box box-primary box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_SECONDARY_TIMEOUT
+                <span id="id_span_desc_cn"> —— 二级启动菜单倒计时</span></h3>
+              <div class="box-tools pull-right">
+                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+              </div><!-- /.box-tools -->
+            </div><!-- /.box-header -->
+            <div class="box-body no-padding">
+                <table class="table table-bordered  no-padding">
+                    <tr style="font-weight:bold;">
+                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                      <td>
+                        <div class="col-sm-9" style="padding-left:0px;">
+                            <input type="text" class="form-control" id="id_ctrl_text_secondary_timeout" name="name_ctrl_text_secondary_timeout"/>
+                        </div>                       
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_cn">
+                      <td class="td_ctrl_col">选项说明</td>
+                      <td>
+                        二级菜单倒计时（秒）。只有当 <code>VTOY_SECONDARY_BOOT_MENU</code> 设置为1时才有效。<br/>
+                        默认不设置，设置之后，比如设置为10，则在倒计时10秒之后，会自动选择第一项，即：<code>Boot in normal mode</code> <br/>
+                        在倒计时的过程中按任意键会停止倒计时，等待用户操作。
+                      </td>
+                    </tr>
+                    <tr id="tr_title_desc_en">
+                      <td class="td_ctrl_col">Option Description</td>
+                      <td>
+                        Timeout seconds for the secondary boot menu. Only take effect when <code>VTOY_SECONDARY_BOOT_MENU</code> is 1.<br/>
+                        By default no timeout is set. When you set it to 10 for example, the first entry (<code>Boot in normal mode</code>) will be selected an run after 10 seconds.
+                      </td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+        
     
     
     
@@ -816,49 +1077,13 @@
         </div><!-- /.box-body -->
       </div><!-- /.box -->
 
-
-        <div class="box box-primary box-solid">
-            <div class="box-header with-border">
-              <h3 class="box-title" style="font-size: 14px;font-weight: bold;">VTOY_HELP_TXT_LANGUAGE
-                <span id="id_span_desc_cn"> —— 帮助信息语言</span></h3>
-              <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-              </div><!-- /.box-tools -->
-            </div><!-- /.box-header -->
-            <div class="box-body no-padding">
-                <table class="table table-bordered  no-padding">
-                    <tr style="font-weight:bold;">
-                      <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
-                      <td>
-                        <select id="id_ctrl_sel_help_lang" name="name_ctrl_sel_help_lang" class="form-control">
-                            
-                        </select>
-                      </td>
-                    </tr>
-                    <tr id="tr_title_desc_cn">
-                      <td class="td_ctrl_col">选项说明</td>
-                      <td>
-                        快捷键 <code>h</code> 显示的帮助信息的语言版本。默认是 "en_US"。 
-                        具体请参考 <a target="_blank" href='https://www.ventoy.net/cn/plugin_control.html#vtoy_help_language'>Ventoy 帮助信息</a>
-                      </td>
-                    </tr>
-                    <tr id="tr_title_desc_en">
-                      <td class="td_ctrl_col">Option Description</td>
-                      <td>
-                        The language of the help text when press <code>h</code>. Default is "en_US", 
-                        refer <a target="_blank" href='https://www.ventoy.net/en/plugin_control.html#vtoy_help_language'>Ventoy Help Text</a> for details.
-                      </td>
-                    </tr>
-                </table>
-            </div><!-- /.box-body -->
-        </div><!-- /.box -->
-
-
+        
 
     </div>
    
 </div>
 <script type="text/javascript">
+  
   function VtoyPageLanguageChange(newlang) {
     VtoyCommonChangeLanguage(newlang);
 
@@ -881,8 +1106,13 @@
     var level;
 
     data.win11_bypass_check = parseInt($('input:radio[name=id_ctrl_bypass_win11_radio]:checked').val());
+    data.win11_bypass_nro = parseInt($('input:radio[name=id_ctrl_bypass_nro_radio]:checked').val());
+    data.linux_remount = parseInt($('input:radio[name=id_ctrl_linux_remount_radio]:checked').val());
+    data.secondary_menu = parseInt($('input:radio[name=id_ctrl_secondary_radio]:checked').val());
+    data.password_asterisk = parseInt($('input:radio[name=id_ctrl_asterisk_radio]:checked').val());
     data.default_search_root = $('input:text[id=id_ctrl_text_search_root]').val();
     data.menu_timeout = parseInt($('input:text[id=id_ctrl_text_timeout]').val());
+    data.secondary_menu_timeout = parseInt($('input:text[id=id_ctrl_text_secondary_timeout]').val());
     data.default_image = $('input:text[id=id_ctrl_text_default_img]').val();
     
     level = $('select[id=id_ctrl_sel_max_depth').val();
@@ -907,12 +1137,17 @@
     data.filter_vhd = parseInt($('input:radio[name=id_ctrl_radio_filt_vhd]:checked').val());
     data.filter_vtoy = parseInt($('input:radio[name=id_ctrl_radio_filt_vtoy]:checked').val());
 
-    data.help_text_language = $('select[id=id_ctrl_sel_help_lang').val();
+    data.menu_language = $('select[id=id_ctrl_sel_menu_lang').val();
   }
 
   function VtoyFillCurrentPageItem(data) {
     //VTOY_WIN11_BYPASS_CHECK
     $('input:radio[name=id_ctrl_bypass_win11_radio]')[data.win11_bypass_check].checked = true;
+    //VTOY_WIN11_BYPASS_NRO
+    $('input:radio[name=id_ctrl_bypass_nro_radio]')[data.win11_bypass_nro].checked = true;
+    $('input:radio[name=id_ctrl_linux_remount_radio]')[data.linux_remount].checked = true;
+    $('input:radio[name=id_ctrl_secondary_radio]')[data.secondary_menu].checked = true;
+    $('input:radio[name=id_ctrl_asterisk_radio]')[data.password_asterisk].checked = true;
 
     //VTOY_DEFAULT_SEARCH_ROOT
     $('input:text[id=id_ctrl_text_search_root]').val(data.default_search_root);
@@ -931,6 +1166,9 @@
 
     //VTOY_MENU_TIMEOUT
     $('input:text[id=id_ctrl_text_timeout]').val(data.menu_timeout);
+    
+    //VTOY_SECONDARY_TIMEOUT
+    $('input:text[id=id_ctrl_text_secondary_timeout]').val(data.secondary_menu_timeout);
 
 
     //VTOY_DEFAULT_IMAGE
@@ -993,17 +1231,16 @@
     //VTOY_FILE_FLT_VTOY
     $('input:radio[name=id_ctrl_radio_filt_vtoy]')[data.filter_vtoy].checked = true;
 
-    //VTOY_HELP_TXT_LANGUAGE
-    if ($("select[id=id_ctrl_sel_help_lang")[0].options.length === 0)
+    //VTOY_MENU_LANGUAGE
+    if ($("select[id=id_ctrl_sel_menu_lang")[0].options.length === 0)
     {
-      for (var i = 0; i < data.help_list.length; i++) {
-        var hlang = data.help_list[i];
+      for (var i = 0; i < data.menu_list.length; i++) {
+        var hlang = data.menu_list[i];
         var opt = '<option title="'+hlang+'">'+hlang+'</option>';
-        $('select[id=id_ctrl_sel_help_lang').append(opt);
+        $('select[id=id_ctrl_sel_menu_lang').append(opt);
       }
     }
-    
-    $('select[id=id_ctrl_sel_help_lang').val(data.help_text_language);
+    $('select[id=id_ctrl_sel_menu_lang').val(data.menu_language);
   }
 
   function VtoySaveCurrentPage() {
@@ -1014,8 +1251,13 @@
       method : 'save_control',
       index: current_tab_index,
       win11_bypass_check: data.win11_bypass_check,
+      win11_bypass_nro: data.win11_bypass_nro,
+      linux_remount:data.linux_remount,
+      secondary_menu:data.secondary_menu,
+      password_asterisk:data.password_asterisk,
       default_search_root: data.default_search_root,
       menu_timeout: data.menu_timeout,
+      secondary_menu_timeout: data.secondary_menu_timeout,
       default_image: data.default_image,
       max_search_level: data.max_search_level,
       default_kbd_layout: data.default_kbd_layout,
@@ -1030,7 +1272,7 @@
       filter_img: data.filter_img,
       filter_vhd: data.filter_vhd,
       filter_vtoy: data.filter_vtoy,
-      help_text_language: data.help_text_language
+      menu_language: data.menu_language
     }, function(e) {
       Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
     });
@@ -1128,13 +1370,13 @@
 
   $('input[type=radio]').each(function(){
     var id = $(this).attr('id');
-    if (id.startsWith('id_ctrl')) {
+    if (typeof(id) != 'undefined' && id.startsWith('id_ctrl')) {
       $(this).change(VtoySaveCurrentPage);
     }
   });
   $('select[id=id_ctrl_sel_max_depth]').change(VtoySaveCurrentPage);
   $('select[id=id_ctrl_sel_kbd]').change(VtoySaveCurrentPage);
-  $('select[id=id_ctrl_sel_help_lang]').change(VtoySaveCurrentPage);
+  $('select[id=id_ctrl_sel_menu_lang]').change(VtoySaveCurrentPage);
   $('input[id=id_ctrl_text_timeout]').change(function() {
     var value = $('input:text[id=id_ctrl_text_timeout]').val();
     if (/^[0-9][0-9]*$/.test(value)) {
@@ -1144,6 +1386,15 @@
       $('input:text[id=id_ctrl_text_timeout]').val(m_data_control[current_tab_index].menu_timeout);
     }
   });
+  $('input[id=id_ctrl_text_secondary_timeout]').change(function() {
+    var value = $('input:text[id=id_ctrl_text_secondary_timeout]').val();
+    if (/^[0-9][0-9]*$/.test(value)) {
+      VtoySaveCurrentPage();
+    } else {
+      Message.error(g_vtoy_cur_language.STR_INVALID_TIMEOUT);
+      $('input:text[id=id_ctrl_text_secondary_timeout]').val(m_data_control[current_tab_index].secondary_menu_timeout);
+    }
+  });
 
   $('#id_tab_control a[href="#tab_0"]').click(OnClickMultiModeTab);
   $('#id_tab_control a[href="#tab_1"]').click(OnClickMultiModeTab);
@@ -1151,6 +1402,18 @@
   $('#id_tab_control a[href="#tab_3"]').click(OnClickMultiModeTab);
   $('#id_tab_control a[href="#tab_4"]').click(OnClickMultiModeTab);
   $('#id_tab_control a[href="#tab_5"]').click(OnClickMultiModeTab);
+  
+  function UpdateTabTitleIcon(data) {
+    CommonUpdateTabTitleIcon(data.exist_control, '#id_tab_control a[href="#tab_', 'control');
+  }
+  $('#id_btn_reset').click(function() { 
+    Modal.confirm({msg:GetResetTabConfigTipMsg(current_tab_index, 'control')}).on(function(e) {
+        if (e) {            
+            VtoyFillCurrentPageItem(m_data_control[g_vtoy_data_default_index]);
+            VtoySaveCurrentPage();
+        }
+    });
+  });
 
   $('#id_tab_control a[href="#tab_0"]').tab('show');
   VtoyFillCurrentPageItem(m_data_control[0]);

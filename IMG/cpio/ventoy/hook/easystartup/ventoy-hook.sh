@@ -19,5 +19,5 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$SED "s#^CDROM=.*#CDROM=/dev/dm-0#" -i /init
+$SED "s#^CDROM=.*#CDROM=/dev/ventoy#" -i /init
 $BUSYBOX_PATH/cp -a $VTOY_PATH/hook/easystartup/ventoy-initqueue.sh  /initqueue/ventoy.sh

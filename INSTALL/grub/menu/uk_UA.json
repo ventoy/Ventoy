@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Ukrainian (Українська)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:Мова  F1:Довідка  F2:Перегляд  F3:Вид списком  F4:Локальне завантаження  F5:Інструменти  F6:Вийти з меню",
+    "VTLANG_STR_HOTKEY_TREE": "L:Мова  F1:Довідка  F2:Перегляд  F3:Вид деревом  F4:Локальне завантаження  F5:Інструменти  F6:Вийти з меню",
+    "VTLANG_RETURN_PREVIOUS": "Повернутись до попереднього меню [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Повернутись до попереднього меню",
+    
+    "VTLANG_MENU_LANG": "Мова меню",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Знайти та завантажити Windows",
+    "VTLANG_LB_SBOOT_G4D": "Знайти та завантажити Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "Завантажити 1-й локальний диск",
+    "VTLANG_LB_SBOOT_HDD2": "Завантажити 2-й локальний диск",
+    "VTLANG_LB_SBOOT_HDD3": "Завантажити 3-й локальний диск",
+    "VTLANG_LB_SBOOT_X64EFI": "Знайти та завантажити BOOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "Знайти та завантажити BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": "Знайти та завантажити BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "Знайти та завантажити xorboot",
+    
+    "VTLANG_FILE_CHKSUM": "Контрольна сума файлу",
+    "VTLANG_CHKSUM_MD5_CALC": "Розрахувати md5",
+    "VTLANG_CHKSUM_SHA1_CALC": "Розрахувати sha1",
+    "VTLANG_CHKSUM_SHA256_CALC": "Розрахувати sha256",
+    "VTLANG_CHKSUM_SHA512_CALC": "Розрахувати sha512",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "Розрахувати та перевірити md5",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "Розрахувати та перевірити sha1",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "Розрахувати та перевірити sha256",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "Розрахувати та перевірити sha512",
+    
+    "VTLANG_POWER": "Живлення",
+    "VTLANG_POWER_REBOOT": "Перезавантажити",
+    "VTLANG_POWER_HALT": "Завершити роботу",
+    "VTLANG_POWER_BOOT_EFIFW": "Перезавантажитись до налаштувань UEFI/BIOS",
+    
+    "VTLANG_KEYBRD_LAYOUT": "Розкладка клавіатури",
+    "VTLANG_HWINFO": "Відомості про пристрій",
+    
+    "VTLANG_RESOLUTION_CFG": "Налаштування роздільної здатності",
+    "VTLANG_SCREEN_MODE": "Інтерфейс користувача",
+    "VTLANG_SCREEN_TEXT_MODE": "Перейти до текстового інтерфейсу",
+    "VTLANG_SCREEN_GUI_MODE": "Перейти до графічного інтерфейсу",
+    
+    "VTLANG_THEME_SELECT": "Теми",
+    
+    "VTLANG_UEFI_UTIL": "Утиліти Ventoy UEFI",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "Показати драйвери EFI",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Виправити помилку Windows 'BlinitializeLibrary Failure'",
+    
+    "VTLANG_JSON_CHK_JSON": "Перевірити налаштування плагіну 'json' (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "Перевірити налаштування плагіну 'global control'",
+    "VTLANG_JSON_CHK_THEME": "Перевірити налаштування плагіну 'theme'",
+    "VTLANG_JSON_CHK_AUTOINS": "Перевірити налаштування плагіну 'auto install'",
+    "VTLANG_JSON_CHK_PERSIST": "Перевірити налаштування плагіну 'persistence'",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "Перевірити налаштування плагіну 'menu alias'",
+    "VTLANG_JSON_CHK_MENU_TIP": "Перевірити налаштування плагіну 'menu tip'",
+    "VTLANG_JSON_CHK_MENU_CLASS": "Перевірити налаштування плагіну 'menu class'",
+    "VTLANG_JSON_CHK_INJECTION": "Перевірити налаштування плагіну 'injection'",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "Перевірити налаштування плагіну 'auto memdisk'",
+    "VTLANG_JSON_CHK_IMG_LIST": "Перевірити налаштування плагіну 'image list'",
+    "VTLANG_JSON_CHK_IMG_BLIST": "Перевірити налаштування плагіну 'image blacklist plugin'",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "Перевірити налаштування плагіну 'boot conf replace'",
+    "VTLANG_JSON_CHK_DUD": "Перевірити налаштування плагіну 'dud'",
+    "VTLANG_JSON_CHK_PASSWORD": "Перевірити налаштування плагіну 'password'",
+    
+    "VTLANG_NORMAL_MODE": "Завантажити в нормальному режимі",
+    "VTLANG_WIMBOOT_MODE": "Завантажити в режимі wimboot",
+    "VTLANG_GRUB2_MODE": "Завантажити в режимі GRUB2",
+    "VTLANG_MEMDISK_MODE": "Завантажити в режимі MEMDISK",
+    
+    "VTLANG_RET_TO_LISTVIEW": "Повернутись до перегляду списком",
+    "VTLANG_RET_TO_TREEVIEW": "Повернутись до деревовидного перегляду",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "Завантажити без шаблону авто-інсталяції",
+    "VTLANG_AUTOINS_USE": "Завантажити з",
+    
+    "VTLANG_NO_PERSIST": "Завантажити без збереження",
+    "VTLANG_PERSIST_USE": "Завантажити з ",
+    
+    "VTLANG_BROWER_RETURN": "Повернутись",
+    
+    "VTLANG_ENTER_EXIT": "натисніть Enter для виходу",
+    "VTLANG_ENTER_REBOOT": "натисніть Enter для перезавантаження",
+    "VTLANG_ENTER_CONTINUE": "натисніть Enter для продовження",
+    
+    "VTLANG_CTRL_TEMP_SET": "Різні налаштування",
+    "VTLANG_WIN11_BYPASS_CHECK": "Обійти перевірку CPU/TPM/SecureBoot під час інсталяції Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Обійти вимогу онлайн-аккаунту під час інсталяції Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Монтувати розділ Ventoy після завантаження Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Показувати вторинне меню завантаження",
+    
+    "MENU_STR_XXX": ""
+}

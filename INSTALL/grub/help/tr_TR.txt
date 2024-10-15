@@ -1,17 +1,19 @@
- h - Yardım bilgilerini göster
-F1 - Memdisk Modu başlatır(Yalnızca küçük WinPE/LiveCD ISO/IMG ler için bu modu kullanabilirsiniz)
-F2 - Bilgisayarı Yeniden Başlat/Kapat
-F3 - Ventoy Menü modu olarak,Klasör görünümü(Treeview) ile Liste görünümü(ListView) arasında geçiş yapmayı sağlar.
-F4 - Bilgisayarınızda yüklü olan Windows yada Linux işletim sistemini, sabit diskten başlatır.
-F5 - Ventoy Araçlar menüsü
-F6 - Özelleştirilmiş Grub2 menüsünü yükler
-F7 - Grafik Modu(GUI Mode) ile Metin Modu(Text Mode) arasında geçiş yapmayı sağlar
+ L - Dil Seçimi
+F1 - Yardım bilgilerini göster
+F2 - Yerel diskteki önyükleme dosyalarına göz at ve önyükleme yap
+F3 - Menü modunu Ağaç Görünümü <-> Liste Görünümü arasında değiştir
+F4 - Windows & Linux'u yerel diskten önyükle
+F5 - Ventoy araçlar menüsü
+F6 - Özelleştirilmiş Grub2 menüsünü yükle
+F7 - Grafik(GUI) <--> Metin(Text) modları arasında geçiş yap
 
-m - İndirilen imaj dosyalarının hatasız indirildiğini teyit etmek için "md5/sha1/sha256/sha512" değerlerini kontrol etmeyi sağlar
-Ctrl+w - WIMBOOT Modu çalıştırmayı sağlar(Sadece normal Windows ISO ları için)
-Ctrl+r - Grub2 Modu çalıştırmayı sağlar (Sadece bazı Linux dağıtımları için)
-Ctrl+i - Uyumluluk Modu'nu (Compatible Mode) çalıştırmayı sağlar (Sadece hata ayıklama için bu modu kullanabilirsiniz)
-Ctrl+u - ISO efi sürücüsünü yükler(Sadece hata ayıklama için bu mod kullanılabilir, resmi olarak kullanılamaz)
+m/Ctrl+m - Görüntü dosyalarının sağlama toplamını al (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk Modunu başlat(Yalnızca küçük WinPE/LiveCD ISO/IMG'ler için)
+w/Ctrl+w - WIMBOOT Modunu başlat(Yalnızca normal Windows/WinPE ISO'ları için)
+r/Ctrl+r - Grub2 Modunu başlat (Yalnızca bazı Linux dağıtımları için)
+i/Ctrl+i - Uyumluluk Modu (Yalnızca hata ayıklama için)
+u/Ctrl+u - ISO EFI sürücüsünü yükle (Sadece hata ayıklama için, resmi olarak kullanılamaz)
 
 
-Geriye dönmek için ESC tuşuna basınız......
+
+Geri dönmek için ESC tuşuna basınız ......

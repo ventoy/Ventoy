@@ -54,6 +54,7 @@
 *sha256sum: hashsum
 *sha512sum: hashsum
 *sleep: sleep
+*smbios: smbios
 *submenu: normal
 *syslinux_configfile: syslinuxcfg
 *syslinux_source: syslinuxcfg

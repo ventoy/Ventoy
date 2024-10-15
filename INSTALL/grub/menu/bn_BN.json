@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Bengali (বাংলা)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:ভাষা  F1:সাহায্য  F2:Browser  F3:ListView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTLANG_STR_HOTKEY_TREE": "L:ভাষা  F1:সাহায্য  F2:Browser  F3:TreeView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTLANG_RETURN_PREVIOUS": "পূর্ববর্তী মেনুতে ফিরে যান [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "পূর্ববর্তী মেনুতে ফিরে যান",
+    
+    "VTLANG_MENU_LANG": "মেনু ভাষা নির্বাচন করুন",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Windows অনুসন্ধান করুন এবং বুট করুন",
+    "VTLANG_LB_SBOOT_G4D": "Grub4dos অনুসন্ধান করুন এবং বুট করুন",
+    "VTLANG_LB_SBOOT_HDD1": "১ম(1st) স্থানীয় ডিস্ক বুট করুন",
+    "VTLANG_LB_SBOOT_HDD2": "২য়(2nd) স্থানীয় ডিস্ক বুট করুন",
+    "VTLANG_LB_SBOOT_HDD3": "3য়(3rd) স্থানীয় ডিস্ক বুট করুন",
+    "VTLANG_LB_SBOOT_X64EFI": "BOOTX64.EFI অনুসন্ধান করুন এবং বুট করুন",
+    "VTLANG_LB_SBOOT_IA32EFI": "BOOTIA32.EFI অনুসন্ধান করুন এবং বুট করুন",
+    "VTLANG_LB_SBOOT_AA64EFI": "BOOTAA64.EFI অনুসন্ধান করুন এবং বুট করুন",
+    "VTLANG_LB_SBOOT_XORBOOT": "xorboot অনুসন্ধান করুন এবং বুট করুন",
+    
+    "VTLANG_FILE_CHKSUM": "ফাইল চেকসাম",
+    "VTLANG_CHKSUM_MD5_CALC": "md5sum গণনা করুন",
+    "VTLANG_CHKSUM_SHA1_CALC": "sha1sum গণনা করুন",
+    "VTLANG_CHKSUM_SHA256_CALC": "sha256sum গণনা করুন",
+    "VTLANG_CHKSUM_SHA512_CALC": "sha512sum গণনা করুন",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "গণনা করুন এবং md5sum চেক করুন",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "গণনা করুন এবং sha1sum চেক করুন",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "গণনা করুন এবং sha256sum চেক করুন",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "গণনা করুন এবং sha512sum চেক করুন",
+    
+    "VTLANG_POWER": "পাওয়ার",
+    "VTLANG_POWER_REBOOT": "রিবুট",
+    "VTLANG_POWER_HALT": "হল্ট",
+    "VTLANG_POWER_BOOT_EFIFW": "EFI সেটআপে রিবুট করুন",
+    
+    "VTLANG_KEYBRD_LAYOUT": "কীবোর্ড লেআউট",
+    "VTLANG_HWINFO": "হার্ডওয়্যার তথ্য",
+    
+    "VTLANG_RESOLUTION_CFG": "রেজোলিউশন কনফিগারেশন",
+    "VTLANG_SCREEN_MODE": "Screen Display মোড",
+    "VTLANG_SCREEN_TEXT_MODE": "Force Text মোড",
+    "VTLANG_SCREEN_GUI_MODE": "Force Graphics মোড",
+    
+    "VTLANG_THEME_SELECT": "থিম নির্বাচন করুন",
+    
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI ইউটিলিটিস",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "EFI ড্রাইভার দেখান",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows BlinitializeLibrary ব্যর্থতার সমাধান করুন",
+    
+    "VTLANG_JSON_CHK_JSON": "প্লাগইন json কনফিগারেশন পরীক্ষা করুন (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "গ্লোবাল কন্ট্রোল প্লাগইন কনফিগারেশন চেক করুন",
+    "VTLANG_JSON_CHK_THEME": "থিম প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_AUTOINS": "অটো ইন্সটল প্লাগইন কনফিগারেশন চেক করুন",
+    "VTLANG_JSON_CHK_PERSIST": "persistence প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "menu alias প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_MENU_TIP": "menu tip প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_MENU_CLASS": "menu class প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_INJECTION": "injection প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "auto memdisk প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_IMG_LIST": "image list প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_IMG_BLIST": "image blacklist প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "boot conf replace প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_DUD": "dud প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    "VTLANG_JSON_CHK_PASSWORD": "password প্লাগইন কনফিগারেশন পরীক্ষা করুন",
+    
+    "VTLANG_NORMAL_MODE": "সাধারণ মোডে বুট করুন",
+    "VTLANG_WIMBOOT_MODE": "wimboot মোডে বুট করুন",
+    "VTLANG_GRUB2_MODE": "grub2 মোডে বুট করুন",
+    "VTLANG_MEMDISK_MODE": "memdisk মোডে বুট করুন",
+    
+    "VTLANG_RET_TO_LISTVIEW": "ListView-এ ফিরে যান",
+    "VTLANG_RET_TO_TREEVIEW": "TreeView-এ ফিরে যান",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "auto install মোড বিনা বুট করুন",
+    "VTLANG_AUTOINS_USE": "দিয়ে বুট করুন",
+    
+    "VTLANG_NO_PERSIST": "persistence বিনা বুট করুন",
+    "VTLANG_PERSIST_USE": "দিয়ে বুট করুন",
+    
+    "VTLANG_BROWER_RETURN": "ফিরে",
+    
+    "VTLANG_ENTER_EXIT": "প্রস্থান করার জন্য এন্টার কী টিপুন",
+    "VTLANG_ENTER_REBOOT": "রিবুট করতে এন্টার কী টিপুন",
+    "VTLANG_ENTER_CONTINUE": "চালিয়ে যেতে এন্টার কী টিপুন",
+    
+    "VTLANG_CTRL_TEMP_SET": "অস্থায়ী নিয়ন্ত্রণ সেটিংস",
+    "VTLANG_WIN11_BYPASS_CHECK": "Windows 11 ইনস্টল করার সময় CPU/TPM/SecureBoot চেক বাইপাস করুন",
+    "VTLANG_WIN11_BYPASS_NRO": "Windows 11 ইনস্টল করার সময় অনলাইন অ্যাকাউন্টের প্রয়োজন বাইপাস করুন",
+    "VTLANG_LINUX_REMOUNT": "লিনাক্স বুটের পরে ভেন্টয় পার্টিশনটি মাউন্ট করুন",
+    "VTLANG_SECONDARY_BOOT_MENU": "গৌণ বুট মেনু দেখান",
+    
+    "MENU_STR_XXX": ""
+}

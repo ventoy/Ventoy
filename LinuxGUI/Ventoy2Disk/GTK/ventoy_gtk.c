@@ -262,7 +262,7 @@ void on_devlist_changed(GtkWidget *widget, gpointer data)
     }
     else
     {
-        if (g_secure_boot_support)
+        if (!g_secure_boot_support)
         {
             gtk_check_menu_item_set_active(g_menu_item_secure_boot, 1 - g_secure_boot_support);
         }
@@ -661,6 +661,12 @@ void on_button_install_clicked(GtkWidget *widget, gpointer data)
 
     cur = g_disk_list + active;
 
+    if (cur->is4kn)
+    {
+        msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_4KN_UNSUPPORTED");
+        return;
+    }
+
     if (ventoy_code_get_cur_part_style() == 0 && cur->size_in_byte > 2199023255552ULL)
     {
         msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_DISK_2TB_MBR_ERROR");
@@ -936,7 +942,7 @@ void on_part_cfg_ok(GtkWidget *widget, gpointer data)
 
         for (pos = input; *pos; pos++)
         {
-            if (*pos < '0' || *pos >= '9')
+            if (*pos < '0' || *pos > '9')
             {
                 msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, "STR_SPACE_VAL_INVALID");
                 return;
@@ -1110,6 +1116,8 @@ void on_init_window(GtkBuilder *pBuilder)
     add_accelerator(agMain, g_install_button, "clicked", GDK_KEY_i);
     add_accelerator(agMain, g_update_button,  "clicked", GDK_KEY_u);
     add_accelerator(agMain, g_refresh_button, "clicked", GDK_KEY_r);
+
+    gtk_check_menu_item_set_active(g_menu_item_secure_boot, 1 - g_secure_boot_support);
 
     fill_dev_list(NULL);
 

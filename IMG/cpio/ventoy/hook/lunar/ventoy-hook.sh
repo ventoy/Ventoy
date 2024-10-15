@@ -19,7 +19,7 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
-$SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=/dev/dm-0#" -i /lib/dracut-lib.sh
+$SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=/dev/ventoy#" -i /lib/dracut-lib.sh
 
 $BUSYBOX_PATH/rm -f /usr/lib/systemd/system-generators/systemd-fstab-generator /lib/systemd/system-generators/systemd-fstab-generator
 

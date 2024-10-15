@@ -32,6 +32,7 @@
 #include "wimboot.h"
 #include "vdisk.h"
 #include "lzx.h"
+#include "xca.h"
 #include "wim.h"
 
 /** WIM chunk buffer */
@@ -180,6 +181,8 @@ static int wim_chunk ( struct vdisk_file *file, struct wim_header *header,
 		/* Identify decompressor */
 		if ( header->flags & WIM_HDR_LZX ) {
 			decompress = lzx_decompress;
+        } else if (header->flags & WIM_HDR_XPRESS) {
+            decompress = xca_decompress;
 		} else {
 			DBG ( "Can't handle unknown compression scheme %#08x "
 			      "for %#llx chunk %d at [%#llx+%#llx)\n",
@@ -447,8 +450,10 @@ int wim_path ( struct vdisk_file *file, struct wim_header *header,
 		return rc;
 
 	/* Get root directory offset */
-	direntry->subdir = ( ( security.len + sizeof ( uint64_t ) - 1 ) &
-			     ~( sizeof ( uint64_t ) - 1 ) );
+    if (security.len > 0)
+    	direntry->subdir = ( ( security.len + sizeof ( uint64_t ) - 1 ) & ~( sizeof ( uint64_t ) - 1 ) );
+    else
+        direntry->subdir = security.len + 8;
 
 	/* Find directory entry */
 	name = memcpy ( path_copy, path, sizeof ( path_copy ) );

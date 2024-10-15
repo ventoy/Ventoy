@@ -31,16 +31,6 @@ if is_inotify_ventoy_part $3; then
     vtlog "find ventoy partition $3 ..."
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 noreplace
     
-    # blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    # vtDM=$(ventoy_find_dm_id ${blkdev_num})
-    # 
-    # if [ "$vtDM" = "dm-0" ]; then
-    #     vtlog "This is dm-0, OK ..."
-    # else
-    #     vtlog "####### This is $vtDM ####### this is abnormal ..."
-    #     ventoy_swap_device /dev/dm-0 /dev/$vtDM
-    # fi
-    
     set_ventoy_hook_finish
 else
     vtlog "##### INOTIFYD: $2/$3 is created (NO)..."

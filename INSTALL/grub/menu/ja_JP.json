@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Japanese (日本語)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:言語 F1:説明 F2:閲覧 F3:表示切替(階層) F4:手許から起動 F5:道具 F6:拡張",
+    "VTLANG_STR_HOTKEY_TREE": "L:言語 F1:説明 F2:閲覧 F3:表示切替(一覧) F4:手許から起動 F5:道具 F6:拡張",
+    "VTLANG_RETURN_PREVIOUS": "前に戻る [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "前に戻る",
+    
+    "VTLANG_MENU_LANG": "表示言語",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Windowsを検索して起動する",
+    "VTLANG_LB_SBOOT_G4D": "GRUB4DOSを検索して起動する",
+    "VTLANG_LB_SBOOT_HDD1": "最初の機器を起動します",
+    "VTLANG_LB_SBOOT_HDD2": "2番目の機器を起動する",
+    "VTLANG_LB_SBOOT_HDD3": "3番目の機器を起動する",
+    "VTLANG_LB_SBOOT_X64EFI": "BOOTX64.EFIを検索して起動する",
+    "VTLANG_LB_SBOOT_IA32EFI": "BOOTIA32.EFIを検索して起動する",
+    "VTLANG_LB_SBOOT_AA64EFI": "BOOTAA64.EFIを検索して起動する",
+    "VTLANG_LB_SBOOT_XORBOOT": "xorbootを検索して起動する",
+    
+    "VTLANG_FILE_CHKSUM": "検査合計",
+    "VTLANG_CHKSUM_MD5_CALC": "MD5を算出する",
+    "VTLANG_CHKSUM_SHA1_CALC": "SHA1を算出する",
+    "VTLANG_CHKSUM_SHA256_CALC": "SHA256を算出する",
+    "VTLANG_CHKSUM_SHA512_CALC": "SHA512を算出する",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "MD5を算出して検証する",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "SHA1を算出して検証する",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "SHA256を算出して検証する",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "SHA512を算出して検証する",
+    
+    "VTLANG_POWER": "電源",
+    "VTLANG_POWER_REBOOT": "再起動",
+    "VTLANG_POWER_HALT": "電源断",
+    "VTLANG_POWER_BOOT_EFIFW": "再起動してEFIを構成する",
+    
+    "VTLANG_KEYBRD_LAYOUT": "鍵盤配列",
+    "VTLANG_HWINFO": "機器情報",
+    
+    "VTLANG_RESOLUTION_CFG": "画面解像度",
+    "VTLANG_SCREEN_MODE": "表示の種類",
+    "VTLANG_SCREEN_TEXT_MODE": "CLI表示を強制する",
+    "VTLANG_SCREEN_GUI_MODE": "GUI表示を強制する",
+    
+    "VTLANG_THEME_SELECT": "外観",
+    
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "EFIドライバを表示する",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windowsが「BlinitializeLibrary Failure」で起動しないのを修正する",
+    
+    "VTLANG_JSON_CHK_JSON": "拡張機能のJSON構成ファイル (ventoy.json) を検査する",
+    "VTLANG_JSON_CHK_CONTROL": "拡張機能「global control」の構成を検査する",
+    "VTLANG_JSON_CHK_THEME": "拡張機能「theme」の構成を検査する",
+    "VTLANG_JSON_CHK_AUTOINS": "拡張機能「auto install」の構成を検査する",
+    "VTLANG_JSON_CHK_PERSIST": "拡張機能「persistence」の構成を検査する",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "拡張機能「menu alias」の構成を検査する",
+    "VTLANG_JSON_CHK_MENU_TIP": "拡張機能「menu tip」の構成を検査する",
+    "VTLANG_JSON_CHK_MENU_CLASS": "拡張機能「menu class」の構成を検査する",
+    "VTLANG_JSON_CHK_INJECTION": "拡張機能「injection」の構成を検査する",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "拡張機能「auto memdisk」の構成を検査する",
+    "VTLANG_JSON_CHK_IMG_LIST": "拡張機能「image list」の構成を検査する",
+    "VTLANG_JSON_CHK_IMG_BLIST": "拡張機能「image blacklist」の構成を検査する",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "拡張機能「boot conf replace」の構成を検査する",
+    "VTLANG_JSON_CHK_DUD": "拡張機能「dud」の構成を検査する",
+    "VTLANG_JSON_CHK_PASSWORD": "拡張機能「password」の構成を検査する",
+
+    "VTLANG_NORMAL_MODE": "通常どおり起動",
+    "VTLANG_WIMBOOT_MODE": "WimBootを介して起動",
+    "VTLANG_GRUB2_MODE": "GRUB2を介して起動",
+    "VTLANG_MEMDISK_MODE": "MEMDISKを介して起動",
+    
+    "VTLANG_RET_TO_LISTVIEW": "一覧表示に切り替える",
+    "VTLANG_RET_TO_TREEVIEW": "階層表示に切り替える",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "起動後に自動でインストールを行わない",
+    "VTLANG_AUTOINS_USE": "自動インストールを行う",
+    
+    "VTLANG_NO_PERSIST": "Live環境の永続保管領域を無効にする",
+    "VTLANG_PERSIST_USE": "有効にする",
+    
+    "VTLANG_BROWER_RETURN": "戻る",
+    
+    "VTLANG_ENTER_EXIT": "[Enter]を押して終了します",
+    "VTLANG_ENTER_REBOOT": "[Enter]を押して再起動します",
+    "VTLANG_ENTER_CONTINUE": "[Enter]を押して続行します",
+    
+    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
+    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    
+    "MENU_STR_XXX": ""
+}

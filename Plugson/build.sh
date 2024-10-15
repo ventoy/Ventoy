@@ -8,14 +8,14 @@ build_func() {
     libsuffix=$2
     toolDir=$3
     
-    XXFLAG='-std=gnu99 -D_FILE_OFFSET_BITS=64'
+    XXFLAG='-std=gnu99 -D_FILE_OFFSET_BITS=64 -O2'
     XXLIB=""
     
     echo "CC=$1 libsuffix=$libsuffix toolDir=$toolDir"    
     
     echo "CC civetweb.o"
     $1 $XXFLAG -c -Wall -Wextra -Wshadow -Wformat-security -Winit-self \
-        -Wmissing-prototypes -O2 -DLINUX \
+        -Wmissing-prototypes -DLINUX \
         -I./src/Lib/libhttp/include \
         -DNDEBUG -DNO_CGI -DNO_CACHING -DNO_SSL -DSQLITE_DISABLE_LFS -DSSL_ALREADY_INITIALIZED \
         -DUSE_STACK_SIZE=102400 -DNDEBUG -fPIC \
@@ -23,7 +23,7 @@ build_func() {
         -o ./civetweb.o
 
     echo "CC plugson.o"
-    $1 $XXFLAG -O2 $exopt -Wall -Wno-unused-function -DSTATIC=static -DINIT= \
+    $1 $XXFLAG $exopt -Wall -Wno-unused-function -DSTATIC=static -DINIT= \
         -I./src \
         -I./src/Core \
         -I./src/Web \
@@ -45,6 +45,7 @@ build_func() {
         src/Core/ventoy_json.c \
         src/Core/ventoy_log.c \
         src/Core/ventoy_md5.c \
+        src/Core/ventoy_utf.c \
         src/Core/ventoy_util.c \
         src/Core/ventoy_util_linux.c \
         src/Web/*.c \
@@ -71,7 +72,6 @@ build_func() {
 }
 
 build_func "gcc" '64' 'x86_64'
-
 build_func "gcc -m32" '32' 'i386'
 build_func "aarch64-linux-gnu-gcc" 'aa64' 'aarch64'
 build_func "mips-linux-gnu-gcc -mips64r2 -mabi=64" 'm64e' 'mips64el'

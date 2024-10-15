@@ -1,0 +1,19 @@
+﻿L - Wybierz język
+F1 — Wyświetl informacje pomocy
+F2 — przeglądanie i uruchamianie plików na dysku lokalnym
+F3 — Przełącz tryb menu pomiędzy Treeview <-> ListView
+F4 — Uruchom system Windows/Linux na dysku lokalnym
+F5 — Narzędzia
+F6 — Załaduj niestandardowe menu Grub2
+F7 - Przełączanie między trybem GUI <-> trybem TEKST
+
+m/Ctrl+m — Pliki obrazów z sumą kontrolną (md5/sha1/sha256/sha512)
+d/Ctrl+d — Tryb Memdisk (tylko dla małych WinPE/LiveCD ISO/IMG)
+w/Ctrl+w — tryb WIMBOOT (tylko dla standardowego systemu Windows/WinPE ISO)
+r/Ctrl+r — tryb Grub2 (tylko dla niektórych dystrybucji Linuksa)
+i/Ctrl+i — tryb zgodności (tylko do debugowania)
+u/Ctrl+u — Załaduj sterownik ISO EFI (tylko do debugowania, nie można go oficjalnie używać)
+
+
+
+Naciśnij ESC, aby wrócić...

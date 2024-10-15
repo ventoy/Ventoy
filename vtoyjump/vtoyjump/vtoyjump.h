@@ -62,7 +62,9 @@ typedef struct ventoy_os_param
 
 	UINT64  vtoy_reserved[4];     // Internal use by ventoy
 
-	UINT8   reserved[31];
+    UINT8   vtoy_disk_signature[4];
+
+	UINT8   reserved[27];
 }ventoy_os_param;
 
 typedef struct ventoy_windows_data
@@ -70,7 +72,17 @@ typedef struct ventoy_windows_data
     char auto_install_script[384];
     char injection_archive[384];
     UINT8 windows11_bypass_check;
-    UINT8 reserved[255];
+
+    UINT32 auto_install_len;
+    
+    UINT8 windows11_bypass_nro;
+
+    UINT8 reserved[255 - 5];
+
+    /* auto install script file data ... + auto_install_len */
+    /* ...... */
+
+    
 }ventoy_windows_data;
 
 
@@ -142,6 +154,26 @@ typedef struct VTOY_GPT_INFO
 #pragma pack()
 
 
+typedef struct VarDiskInfo
+{
+    UINT64 Capacity;
+    int BusType;
+    BOOL RemovableMedia;
+    BYTE DeviceType;
+    CHAR VendorId[128];
+    CHAR ProductId[128];
+    CHAR ProductRev[128];
+    CHAR SerialNumber[128];
+}VarDiskInfo;
+
+typedef struct IsoId
+{
+    CHAR SystemId[64];
+    CHAR VolumeId[64];
+    CHAR PulisherId[256];
+    CHAR PreparerId[256];
+}IsoId;
+
 #define SAFE_CLOSE_HANDLE(handle) \
 {\
 	if (handle != INVALID_HANDLE_VALUE) \
@@ -151,6 +183,10 @@ typedef struct VTOY_GPT_INFO
 	}\
 }
 
+#define safe_sprintf(dst, fmt, ...) sprintf_s(dst, sizeof(dst), fmt, __VA_ARGS__)
+#define safe_strcpy(dst, src)  strcpy_s(dst, sizeof(dst), src)
+
+
 #define LASTERR     GetLastError()
 
 int unxz(unsigned char *in, int in_size,
@@ -158,5 +194,10 @@ int unxz(unsigned char *in, int in_size,
     int(*flush)(void *src, unsigned int size),
     unsigned char *out, int *in_used,
     void(*error)(char *x));
+
+void Log(const char* Fmt, ...);
+int SetupMonNroStart(const char* isopath);
+BOOL IsFileExist(const char* Fmt, ...);
+BOOL IsDirExist(const char* Fmt, ...);
 
 #endif

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 print_usage() {    
     echo 'Usage:  VentoyWeb.sh [ OPTION ]'   
@@ -23,11 +23,11 @@ fi
 
 OLDDIR=$(pwd)
 
-if uname -m | egrep -q 'aarch64|arm64'; then
+if uname -m | grep -E -q 'aarch64|arm64'; then
     TOOLDIR=aarch64
-elif uname -m | egrep -q 'x86_64|amd64'; then
+elif uname -m | grep -E -q 'x86_64|amd64'; then
     TOOLDIR=x86_64
-elif uname -m | egrep -q 'mips64'; then
+elif uname -m | grep -E -q 'mips64'; then
     TOOLDIR=mips64el
 else
     TOOLDIR=i386

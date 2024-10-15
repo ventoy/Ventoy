@@ -1,17 +1,18 @@
- h - 显示本帮助信息
-F1 - 把文件加载到内存启动（只适用于文件很小的 WinPE/LiveCD等）
-F2 - 电源操作 （重启、关机）
+ L - 选择语言
+F1 - 显示本帮助信息
+F2 - 浏览并启动本地硬盘中的镜像文件
 F3 - 菜单显示模式切换。可在列表模式和目录模式之间自由切换。
 F4 - 启动本地硬盘上的 Windows/Linux 等系统。
 F5 - 各类工具
 F6 - 加载自定义 GRUB2 菜单。
 F7 - 界面在文本模式和图形模式之间切换。
 
-m - 计算文件校验值（md5/sha1/sha256/sha512）
-Ctrl+w - WIMBOOT 模式 （只适用于标准的 Windows ISO文件）
-Ctrl+r - Grub2 模式 （只适用于常见的一些 Linux 系统ISO文件）
-Ctrl+i - 兼容模式 （只用作调试目的，不能正式使用）
-Ctrl+u - 加载 ISO efi 驱动（只用作调试目的，不能正式使用）
+m/Ctrl+m - 计算文件校验值（md5/sha1/sha256/sha512）
+d/Ctrl+d - MEMDISK 模式，把文件加载到内存启动（只适用于文件很小的 WinPE/LiveCD等）
+w/Ctrl+w - WIMBOOT 模式 （只适用于 Windows/WinPE 的ISO文件）
+r/Ctrl+r - Grub2 模式 （只适用于常见的一些 Linux 系统ISO文件）
+i/Ctrl+i - 兼容模式 （只用作调试目的，不能正式使用）
+u/Ctrl+u - 加载 ISO efi 驱动（只用作调试目的，不能正式使用）
 
 
 按 ESC 键返回 ......

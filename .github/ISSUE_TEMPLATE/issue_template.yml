@@ -21,7 +21,7 @@ body:
     attributes:
       label: Ventoy Version
       description: What version of ventoy are you running?
-      placeholder: 1.0.62
+      placeholder: 1.0.96
     validations:
       required: true
   - type: dropdown
@@ -32,6 +32,16 @@ body:
       options:
         - Yes. I have tried the latest release, but the bug still exist.
         - No. I didn't try the latest release.
+    validations:
+      required: true
+  - type: dropdown
+    id: alternativemode
+    attributes:
+      label: Try alternative boot mode
+      description: Have you tried alternative boot mode? (wimboot mode for Windows/WinPE, grub2 mode for linux)
+      options:
+        - Yes. I have tried them, but the bug still exist.
+        - No. I didn't try these alternative boot modes.
     validations:
       required: true
   - type: dropdown

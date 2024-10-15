@@ -1,0 +1,19 @@
+ L - भाषा का चयन
+F1 - इस सहायता जानकारी को प्रदर्शित करें
+F2 - स्थानीय डिस्क में फ़ाइलें ब्राउज़ करें और बूट करें
+F3 - TreeView <-> ListView के बीच मेन्यू मोड स्विच करें
+F4 - स्थानीय डिस्क में Windows/Linux बूट करें
+F5 - यूटिलिटीज
+F6 - कस्टम Grub2 मेनू लोड करें
+F7 - GUI मोड <-> Text मोड के बीच स्विच करें
+
+m/Ctrl+m - चेकसम इमेज फाइल्स (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk मोड (केवल small WinPE/LiveCD ISO/IMG के लिए)
+w/Ctrl+w - WIMBOOT मोड (केवल Windows/WinPE ISO के लिए)
+r/Ctrl+r - Grub2 मोड (केवल कुछ Linux distros के लिए)
+i/Ctrl+i - Compatible मोड (केवल डिबग के लिए)
+u/Ctrl+u - ISO efi ड्राइवर लोड करें (केवल debug के लिए, आधिकारिक तौर पर इस्तेमाल नहीं किया जा सकता)
+
+
+
+वापस जाने के लिए ESC दबाएं ......

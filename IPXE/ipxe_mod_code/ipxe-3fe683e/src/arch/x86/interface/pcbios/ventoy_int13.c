@@ -1441,7 +1441,19 @@ unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
         natural_drive = 0xE0; /* just set a cdrom drive number 224 */
     }
 
-    if (chain->disk_drive >= 0x80 && chain->drive_map >= 0x80)
+    if (chain->os_param.vtoy_reserved[6])
+    {
+        if (g_hddmode)
+        {
+            /* drive map no need for linux vtoy/img boot */
+        }
+        else
+        {
+            g_drive_map1 = 0x80; 
+            g_drive_map2 = 0x81;
+        }
+    }
+    else if (chain->disk_drive >= 0x80 && chain->drive_map >= 0x80)
     {
         g_drive_map1 = chain->disk_drive;
         g_drive_map2 = chain->drive_map;

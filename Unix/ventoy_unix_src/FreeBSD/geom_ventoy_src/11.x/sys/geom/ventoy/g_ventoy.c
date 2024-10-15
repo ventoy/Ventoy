@@ -65,11 +65,22 @@ static g_taste_t g_ventoy_taste;
 static g_ctl_req_t g_ventoy_config;
 static g_dumpconf_t g_ventoy_dumpconf;
 
-static const char *g_ventoy_disk_uuid = NULL;
+static char g_ventoy_disk_uuid[64];
 static bool g_ventoy_tasted = false;
 static off_t g_ventoy_disk_size = 0;
 static off_t g_disk_map_start = 0;
 static off_t g_disk_map_end = 0;
+static int g_ventoy_remount = 0;
+
+struct g_ventoy_map g_ventoy_map_data __attribute__((aligned (4096))) = 
+{
+    { VENTOY_UNIX_SEG_MAGIC0, VENTOY_UNIX_SEG_MAGIC1, VENTOY_UNIX_SEG_MAGIC2, VENTOY_UNIX_SEG_MAGIC3 },
+    { 0, 0, 0, 0 },
+    0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { { 0, 0 } },
+    { VENTOY_UNIX_SEG_MAGIC0, VENTOY_UNIX_SEG_MAGIC1, VENTOY_UNIX_SEG_MAGIC2, VENTOY_UNIX_SEG_MAGIC3 }
+};
 
 struct g_class g_ventoy_class = {
 	.name = G_VENTOY_CLASS_NAME,
@@ -191,12 +202,19 @@ g_ventoy_access(struct g_provider *pp, int dr, int dw, int de)
 	g_topology_assert();
 	gp = pp->geom;
 
-	/* On first open, grab an extra "exclusive" bit */
-	if (pp->acr == 0 && pp->acw == 0 && pp->ace == 0)
-		de++;
-	/* ... and let go of it on last close */
-	if ((pp->acr + dr) == 0 && (pp->acw + dw) == 0 && (pp->ace + de) == 0)
-		de--;
+    if (g_ventoy_remount)
+    {
+        de = 0;
+    }
+    else
+    {
+        /* On first open, grab an extra "exclusive" bit */
+    	if (pp->acr == 0 && pp->acw == 0 && pp->ace == 0)
+    		de++;
+    	/* ... and let go of it on last close */
+    	if ((pp->acr + dr) == 0 && (pp->acw + dw) == 0 && (pp->ace + de) == 0)
+    		de--;
+    }
 
 	LIST_FOREACH_SAFE(cp1, &gp->consumer, consumer, tmp) {
 		error = g_access(cp1, dr, dw, de);
@@ -678,23 +696,51 @@ g_ventoy_destroy_geom(struct gctl_req *req __unused,
 static bool g_vtoy_check_disk(struct g_class *mp, struct g_provider *pp)
 {
     int i;
+    int vlnk = 0;    
+    bool ret = true;
     uint8_t *buf;
     char uuid[64];
     const char *value;
     struct g_consumer *cp;
 	struct g_geom *gp;
+    uint8_t mbrdata[] = {
+        0xEB, 0x63, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    
+        0x56, 0x54, 0x00, 0x47, 0x65, 0x00, 0x48, 0x44, 0x00, 0x52, 0x64, 0x00, 0x20, 0x45, 0x72, 0x0D,
+    };
     
     if (g_ventoy_disk_size == 0)
     {
-        if (resource_string_value("ventoy", 0, "disksize", &value) == 0)
+        if (VENTOY_MAP_VALID(g_ventoy_map_data.magic2))
         {
-            G_DEBUG("ventoy.disksize: %s\n", value);
-            g_ventoy_disk_size = strtouq(value, NULL, 0);
-        }
+            G_DEBUG("ventoy map data is valid. [OK]\n");
 
-        if (resource_string_value("ventoy", 0, "diskuuid", &g_ventoy_disk_uuid) == 0)
-        {
+            for (i = 0; i < 16; i++)
+            {
+                sprintf(uuid + i * 2, "%02x", g_ventoy_map_data.diskuuid[i]);
+            }
+            snprintf(g_ventoy_disk_uuid, sizeof(g_ventoy_disk_uuid), "%s", uuid);
+            g_ventoy_disk_size = g_ventoy_map_data.disksize;
+            
+            G_DEBUG("ventoy.disksize: %llu\n", (unsigned long long)g_ventoy_disk_size);
             G_DEBUG("ventoy.diskuuid: <%s>\n", g_ventoy_disk_uuid);
+        }
+        else
+        {
+            G_DEBUG("ventoy map data is invalid, get from resource\n");
+        
+            if (resource_string_value("ventoy", 0, "disksize", &value) == 0)
+            {
+                G_DEBUG("ventoy.disksize: %s\n", value);
+                g_ventoy_disk_size = strtouq(value, NULL, 0);
+            }
+
+            if (resource_string_value("ventoy", 0, "diskuuid", &value) == 0)
+            {
+                snprintf(g_ventoy_disk_uuid, sizeof(g_ventoy_disk_uuid), "%s", value);
+                G_DEBUG("ventoy.diskuuid: <%s>\n", value);
+            }
         }
     }
 
@@ -736,14 +782,93 @@ static bool g_vtoy_check_disk(struct g_class *mp, struct g_provider *pp)
     {
         sprintf(uuid + i * 2, "%02x", buf[0x180 + i]);
     }
-    g_free(buf);
-    
-    if (strncmp(g_ventoy_disk_uuid, uuid, 32) == 0)
+
+    if (strncmp(g_ventoy_disk_uuid, uuid, 32))
     {
-        return true;
+        ret = false;
     }
 
-    return false;
+    if (resource_int_value("ventoy", 0, "vlnk", &vlnk) || (vlnk != 1))
+    {
+        if (memcmp(mbrdata, buf, 0x30) || memcmp(mbrdata + 0x30, buf + 0x190, 16))
+        {
+            ret = false;
+        }
+    }
+
+    g_free(buf);
+
+    if (ret)
+    {
+        G_DEBUG("ventoy disk check OK\n");
+    }
+
+    return ret;
+}
+
+struct g_dev_softc {
+	struct mtx	 sc_mtx;
+	struct cdev	*sc_dev;
+	struct cdev	*sc_alias;
+	int		 sc_open;
+	int		 sc_active;
+};
+
+static int g_ventoy_devalias(struct g_provider *pp)
+{
+    static int firstflag = 0;
+    const static char *ventoy_alias = NULL;
+    static struct g_provider *ventoy_pp = NULL;
+	struct g_consumer *cp;
+    struct cdev *adev;
+    struct g_dev_softc *sc;
+    
+    if (firstflag == 0)
+    {
+        /* hint.ventoy.0.alias=xxx */
+        if (resource_string_value("ventoy", 0, "alias", &ventoy_alias) == 0)
+        {
+            G_DEBUG("###### ventoy alias <%s> ######\n", ventoy_alias);
+        }
+        else
+        {
+            ventoy_alias = NULL;
+        }
+        firstflag = 1;
+    }
+
+    if (!ventoy_alias)
+    {
+        return 0;
+    }
+
+    if (!ventoy_pp)
+    {
+        if (strcmp(pp->name, "ventoy/IMAGE") == 0)
+        {
+            ventoy_pp = pp;
+        }
+        return 0;
+    }
+    
+    LIST_FOREACH(cp, &ventoy_pp->consumers, consumers) {
+        if (cp->geom && cp->geom->class && cp->geom->class->name)
+        {
+            printf("111 cp->geom->class->name=<%s>\n", cp->geom->class->name);
+            
+            if (strcmp(cp->geom->class->name, "DEV") == 0)
+            {
+                sc = cp->private;
+
+                make_dev_alias_p(MAKEDEV_CHECKNAME | MAKEDEV_WAITOK, &adev, sc->sc_dev, "%s", ventoy_alias);
+                G_DEBUG("Create devalias for ventoy <%s>\n", ventoy_alias);
+                ventoy_alias = NULL;
+                break;
+            }
+        }
+    }
+
+    return 0;
 }
 
 static struct g_geom *
@@ -752,11 +877,14 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
     int i;
 	int error;
     int disknum;
+    int remount = 0;
     char *endpos;
     const char *value;
 	struct g_geom *gp;
 	struct g_ventoy_metadata md;
 	struct g_ventoy_softc *sc;
+
+    g_ventoy_devalias(pp);
 
     if (g_ventoy_tasted)
     {
@@ -777,9 +905,25 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
 
     g_ventoy_tasted = true;
 
-    G_DEBUG("######### ventoy disk <%s> #############\n", pp->name);
+    G_DEBUG("###### ventoy disk <%s> ######\n", pp->name);
 
-    resource_int_value("ventoy", 0, "segnum", &disknum);
+    /* hint.ventoy.0.remount=1 */
+    if (resource_int_value("ventoy", 0, "remount", &remount) == 0 && remount == 1)
+    {
+        g_ventoy_remount = 1;
+        G_DEBUG("###### ventoy remount enabled ######\n");
+    }
+    
+    if (VENTOY_MAP_VALID(g_ventoy_map_data.magic2))
+    {
+        disknum = (int)g_ventoy_map_data.segnum;
+        G_DEBUG("segnum from map data is:<%d>\n", disknum);
+    }
+    else
+    {
+        resource_int_value("ventoy", 0, "segnum", &disknum);
+        G_DEBUG("segnum from resource is:<%d>\n", disknum);
+    }
 
     strlcpy(md.md_magic, G_VENTOY_MAGIC, sizeof(md.md_magic));
 	md.md_version = G_VENTOY_VERSION;
@@ -801,18 +945,29 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
 
     for (i = 0; i < disknum; i ++)
     {
-        if (resource_string_value("ventoy", i, "seg", &value) == 0)
+        if (VENTOY_MAP_VALID(g_ventoy_map_data.magic2))
         {
-            g_disk_map_start = strtouq(value, &endpos, 0);
-            g_disk_map_end = strtouq(endpos + 1, NULL, 0);
+            G_DEBUG("[map] ventoy segment%d: 0x%llx@0x%llx\n", i, 
+                (long long)g_ventoy_map_data.seglist[i].seg_start_bytes,
+                (long long)g_ventoy_map_data.seglist[i].seg_end_bytes);
+            
+            g_disk_map_start = (off_t)g_ventoy_map_data.seglist[i].seg_start_bytes;
+            g_disk_map_end = (off_t)g_ventoy_map_data.seglist[i].seg_end_bytes;
         }
         else
         {
-            printf("Failed to parse ventoy seg %d\n", i);
-            continue;
+            if (resource_string_value("ventoy", i, "seg", &value) == 0)
+            {
+                g_disk_map_start = strtouq(value, &endpos, 0);
+                g_disk_map_end = strtouq(endpos + 1, NULL, 0);
+            }
+            else
+            {
+                printf("Failed to parse ventoy seg %d\n", i);
+                continue;
+            }
+            G_DEBUG("[resource] ventoy segment%d: %s\n", i, value);
         }
-
-        G_DEBUG("ventoy segment%d: %s\n", i, value);
         
         G_VENTOY_DEBUG(1, "Adding disk %s to %s.", pp->name, gp->name);
     	error = g_ventoy_add_disk(sc, pp, i);
@@ -828,7 +983,7 @@ g_ventoy_taste(struct g_class *mp, struct g_provider *pp, int flags __unused)
         g_disk_map_end = 0;
     }
 
-	return (gp);
+    return (gp);
 }
 
 static void
@@ -1066,3 +1221,4 @@ g_ventoy_dumpconf(struct sbuf *sb, const char *indent, struct g_geom *gp,
 }
 
 DECLARE_GEOM_CLASS(g_ventoy_class, g_ventoy);
+//MODULE_VERSION(geom_ventoy, 0);

@@ -21,5 +21,12 @@
 
 $BUSYBOX_PATH/mkdir /dev
 
-$SED '/Detecting *PrimeOS/a\ ROOT=$(cat /ventoy/rootdev)' -i /init
-$SED "/Detecting *PrimeOS/a\ $BUSYBOX_PATH/sh  $VTOY_PATH/hook/primeos/ventoy-disk.sh" -i /init
+if $GREP -q 'Detecting *PrimeOS' /init; then
+    $SED '/Detecting *PrimeOS/a\ ROOT=$(cat /ventoy/rootdev)' -i /init
+    $SED "/Detecting *PrimeOS/a\ $BUSYBOX_PATH/sh  $VTOY_PATH/hook/primeos/ventoy-disk.sh" -i /init
+elif $GREP -q 'Detecting *PRIMEOS' /init; then
+    $SED '/Detecting *PRIMEOS/a\ ROOT=$(cat /ventoy/rootdev)' -i /init
+    $SED "/Detecting *PRIMEOS/a\ $BUSYBOX_PATH/sh  $VTOY_PATH/hook/primeos/ventoy-disk.sh" -i /init
+else
+    echo "not detecting found" >> $VTLOG
+fi

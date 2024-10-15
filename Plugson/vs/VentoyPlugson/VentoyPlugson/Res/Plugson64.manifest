@@ -27,5 +27,11 @@
             <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/> 
         </application>
     </compatibility>
-    
+	<trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+		<security>
+		  <requestedPrivileges>
+			<requestedExecutionLevel level="requireAdministrator" uiAccess="false"></requestedExecutionLevel>
+		  </requestedPrivileges>
+		</security>
+	</trustInfo>	
 </assembly>

@@ -30,6 +30,7 @@ typedef struct VDS_PARA
 	ULONG NameLen;
     ULONGLONG Offset;
 	CHAR DriveLetter;
+    DWORD ClusterSize;
 }VDS_PARA;
 
 //DISK API
@@ -39,7 +40,7 @@ BOOL DISK_ChangeVtoyEFIAttr(int DriveIndex, UINT64 Offset, UINT64 Attr);
 BOOL DISK_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL DISK_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL DISK_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
-
+BOOL DISK_FormatVolume(char DriveLetter, int fs, UINT64 VolumeSize);
 
 
 //VDS com
@@ -51,10 +52,13 @@ BOOL VDS_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL VDS_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL VDS_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
 BOOL VDS_IsLastAvaliable(void);
-
+BOOL VDS_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
 
 //diskpart.exe
 BOOL DSPT_CleanDisk(int DriveIndex);
+BOOL DSPT_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
+
+BOOL CMD_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
 
 //powershell.exe
 BOOL PSHELL_CleanDisk(int DriveIndex);
@@ -62,12 +66,24 @@ BOOL PSHELL_DeleteVtoyEFIPartition(int DriveIndex, UINT64 EfiPartOffset);
 BOOL PSHELL_ChangeVtoyEFI2ESP(int DriveIndex, UINT64 Offset);
 BOOL PSHELL_ChangeVtoyEFI2Basic(int DriveIndex, UINT64 Offset);
 BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLetter, UINT64 OldBytes, UINT64 ReduceBytes);
+BOOL PSHELL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
+
+const CHAR* DISK_GetWindowsDir(void);
 
 //
 // Internel define
 //
 
 
+typedef BOOL(*FormatVolume_PF)(char DriveLetter, int fs, DWORD ClusterSize);
+
+typedef struct FmtFunc
+{
+    const char* name;
+    FormatVolume_PF formatFunc;
+}FmtFunc;
+
+#define FMT_DEF(func) { #func, func }
 
 
 #endif

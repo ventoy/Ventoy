@@ -22,7 +22,6 @@
 #include <ventoy_define.h>
 #include <ventoy_util.h>
 
-
 static int g_tar_filenum = 0;
 static char *g_tar_buffer = NULL;
 static ventoy_file *g_tar_filelist = NULL;
@@ -257,4 +256,48 @@ if (backup)
 #endif    
 }
 
+static const char g_encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+                                'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+                                'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+                                'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+                                'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                                'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                                'w', 'x', 'y', 'z', '0', '1', '2', '3',
+                                '4', '5', '6', '7', '8', '9', '+', '/'};
+
+char * ventoy_base64_encode(const char *data, int input_length, int *output_length) 
+{
+    int i = 0;
+    int j = 0;
+    char *encoded_data = NULL;
+    int mod_table[] = {0, 2, 1};
+    
+    *output_length = 4 * ((input_length + 2) / 3);
+    encoded_data = malloc(*output_length + 4);
+    if (!encoded_data)
+    {
+        return NULL;
+    }
+
+    while (i < input_length) 
+    {
+        unsigned int octet_a = i < input_length ? (unsigned char)data[i++] : 0;
+        unsigned int octet_b = i < input_length ? (unsigned char)data[i++] : 0;
+        unsigned int octet_c = i < input_length ? (unsigned char)data[i++] : 0;
+
+        unsigned int triple = (octet_a << 0x10) + (octet_b << 0x08) + octet_c;
+
+        encoded_data[j++] = g_encoding_table[(triple >> 3 * 6) & 0x3F];
+        encoded_data[j++] = g_encoding_table[(triple >> 2 * 6) & 0x3F];
+        encoded_data[j++] = g_encoding_table[(triple >> 1 * 6) & 0x3F];
+        encoded_data[j++] = g_encoding_table[(triple >> 0 * 6) & 0x3F];
+    }
+
+    for (i = 0; i < mod_table[input_length % 3]; i++)
+    {
+        encoded_data[*output_length - 1 - i] = '=';        
+    }
+
+    return encoded_data;
+}
 

@@ -35,19 +35,26 @@ if is_inotify_ventoy_part $3; then
     
     $BUSYBOX_PATH/sh $VTOY_PATH/hook/default/udev_disk_hook.sh $3 
     
-    blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1:\2/')  
-    vtDM=$(ventoy_find_dm_id ${blkdev_num})
-
-    if [ "$vtDM" = "dm-0" ]; then
-        vtlog "This is dm-0, OK ..."
-    else
-        vtlog "####### This is $vtDM ####### this is abnormal ..."
-        ventoy_swap_device /dev/dm-0 /dev/$vtDM
+    blkdev_num_mknod=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | sed 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
+    $BUSYBOX_PATH/mknod -m 660 /dev/ventoy  b  $blkdev_num_mknod
+    $BUSYBOX_PATH/modprobe isofs >/dev/null 2>&1
+    vtlog "mknod /dev/ventoy $blkdev_num_mknod"
+    
+    if [ -f $VTOY_PATH/ventoy_ks_rootpath ]; then
+        vt_ks_rootpath=$(cat $VTOY_PATH/ventoy_ks_rootpath)
+        vtlog "ks rootpath <$vt_ks_rootpath>"
+        if [ -e /sbin/fetch-kickstart-disk ]; then
+            vtlog "fetch-kickstart-disk ..."        
+            /sbin/fetch-kickstart-disk /dev/ventoy "$vt_ks_rootpath"
+        fi
     fi
     
     if [ -e /sbin/anaconda-diskroot ]; then
-        vtlog "set anaconda-diskroot ..."
-        /sbin/anaconda-diskroot /dev/dm-0    
+        vtlog "set anaconda-diskroot ..."        
+
+        #busybox cp doesn't support -t option (issue 1900)
+        /bin/cp -a /bin/cp $BUSYBOX_PATH/cp
+        /sbin/anaconda-diskroot /dev/ventoy
     fi
     
     set_ventoy_hook_finish

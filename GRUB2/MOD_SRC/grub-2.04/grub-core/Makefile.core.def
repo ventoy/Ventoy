@@ -914,6 +914,12 @@ module = {
 };
 
 module = {
+  name = fwload;
+  efi = commands/efi/fwload.c;
+  enable = efi;
+};
+
+module = {
   name = gptsync;
   common = commands/gptsync.c;
 };
@@ -1121,6 +1127,21 @@ module = {
 module = {
   name = sleep;
   common = commands/sleep.c;
+};
+
+module = {
+  name = smbios;
+
+  common = commands/smbios.c;
+  efi = commands/efi/smbios.c;
+  i386_pc = commands/i386/pc/smbios.c;
+  i386_coreboot = commands/i386/pc/smbios.c;
+  i386_multiboot = commands/i386/pc/smbios.c;
+
+  enable = efi;
+  enable = i386_pc;
+  enable = i386_coreboot;
+  enable = i386_multiboot;
 };
 
 module = {
@@ -1512,7 +1533,7 @@ module = {
   name = squash4;
   common = fs/squash4.c;
   cflags = '$(CFLAGS_POSIX) -Wno-undef';
-  cppflags = '-I$(srcdir)/lib/posix_wrap -I$(srcdir)/lib/xzembed -I$(srcdir)/lib/minilzo -DMINILZO_HAVE_CONFIG_H';
+  cppflags = '-I$(srcdir)/lib/posix_wrap -I$(srcdir)/lib/xzembed -I$(srcdir)/lib/minilzo -I$(srcdir)/lib/zstd -DMINILZO_HAVE_CONFIG_H';
 };
 
 module = {
@@ -1610,6 +1631,7 @@ module = {
   common = ventoy/ventoy_vhd.c;
   common = ventoy/ventoy_plugin.c;
   common = ventoy/ventoy_json.c;
+  common = ventoy/ventoy_browser.c;
   common = ventoy/lzx.c;
   common = ventoy/xpress.c;
   common = ventoy/huffman.c;
@@ -1619,6 +1641,12 @@ module = {
 module = {
     name = setkey;
     common = term/setkey.c;
+};
+
+module = {
+  name = mouse;
+  efi = term/efi/mouse.c;
+  enable = efi;
 };
 
 module = {

@@ -1,10 +1,12 @@
 <div class="box box-primary" id="control">
     <div class="box-header">
-        <div class="col-sm-10" style="padding-top:8px;">
+        <div class="col-sm-9" style="padding-top:8px;">
             <i class="fa fa-file-image-o">&nbsp;&nbsp;</i>
             <h1 class="box-title" style="font-weight:bold;" id="id_h1_page_title">主题插件</h1>
         </div>
-        
+        <div class="col-sm-1" style="padding-top:2px;">
+          <button id="id_btn_reset" class="btn btn-sm btn-danger btn-del"><i class="fa fa-trash"></i><span id="id_btn_span_reset">Reset</span></button>
+        </div>
         <div class="col-sm-2" style="font-size:16px;padding-top:8px;">
             <a id="id_a_official_doc" target="_blank" href="https://www.ventoy.net/cn/plugin_theme.html"><span class="fa fa-link"></span><span id="id_span_official_doc">官网文档</span></a>
         </div>
@@ -69,6 +71,50 @@
             </div><!-- /.box-body -->
         </div><!-- /.box -->
     
+        
+        <div class="box box-primary box-solid" id='resolution_fit_div'>
+          <div class="box-header with-border">
+            <h3 class="box-title" style="font-size: 14px;font-weight: bold;">resolution_fit
+              <span id="id_span_desc_cn"> —— 按照分辨率过滤</span></h3>
+            <div class="box-tools pull-right">
+              <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body no-padding">
+              <table class="table table-bordered  no-padding">
+                  <tr style="font-weight:bold;">
+                    <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
+                    <td>
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_radio_res_fit0" name="id_ctrl_radio_res_fit" data-type="0" value="0"> <span style="font-weight:bold;">0</span>
+                      </label>&nbsp;&nbsp;&nbsp;&nbsp;
+                      <label class="radio-inline">
+                          <input type="radio" id="id_ctrl_radio_res_fit1" name="id_ctrl_radio_res_fit" data-type="1" value="1"> <span style="font-weight:bold;">1</span>
+                      </label>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_cn">
+                    <td class="td_ctrl_col" id="td_title_desc">选项说明</td>
+                    <td>当设置多个主题时，在随机选择时是否按照当前分辨率过滤。&nbsp;&nbsp;
+                      <code style="font-weight: bold;">0</code> 不过滤 &nbsp;&nbsp;
+                      <code style="font-weight: bold;">1</code> 过滤 <br/>
+                      注意，这个选项必须在上面设置了多个主题配置文件，同时 "默认" 设置为 “随机选择” 时才有效，其他情况下均无效。<br/>
+                      关于这个选项的详细解释，请参考 <a href="https://www.ventoy.net/cn/plugin_theme.html#vtoy_theme_res_fit">resolution_fit 选项说明</a>
+                    </td>
+                  </tr>
+                  <tr id="tr_title_desc_en">
+                    <td class="td_ctrl_col">Option Description</td>
+                    <td>
+                      Filter by current resolution when you set more than one themes. &nbsp;&nbsp;
+                      <code style="font-weight: bold;">0</code> No filter &nbsp;&nbsp
+                      <code style="font-weight: bold;">1</code> Filter <br/>
+                      You can refer <a href="https://www.ventoy.net/en/plugin_theme.html#vtoy_theme_res_fit">About resolution_fit</a> for details about this option.
+                    </td>
+                  </tr>
+              </table>
+          </div><!-- /.box-body -->
+      </div><!-- /.box -->
+        
     
         <div class="box box-primary box-solid">
             <div class="box-header with-border">
@@ -129,6 +175,7 @@
                       <td class="td_ctrl_col" id="td_title_setting">选项设置</td>
                       <td>
                         <select id="id_theme_sel_gfxmode" name="name_theme_sel_gfxmode" class="form-control">
+                            <option title="max">max</option>
                             <option title="1920x1080">1920x1080</option>
                             <option title="1680x1050">1680x1050</option>
                             <option title="1600x900">1600x900</option>
@@ -237,6 +284,8 @@
     } else {
       data.display_mode = 0;
     }
+    
+    data.resolution_fit = parseInt($('input:radio[name=id_ctrl_radio_res_fit]:checked').val());
   }
 
   function VtoySaveCurrentPage() {
@@ -247,6 +296,7 @@
       method : 'save_theme',
       index: current_tab_index,
       display_mode: data.display_mode,
+      resolution_fit: data.resolution_fit,
       gfxmode: data.gfxmode,
       default_file: data.default_file
     }, function(e) {
@@ -266,6 +316,12 @@
     var td1, td2, td3, td4, td5;
     var $tbl = $("#id_theme_tbl_file tbody");
     $tbl.empty();
+
+    if (list.length > 1) {
+        $('#resolution_fit_div').show();
+    } else {
+        $('#resolution_fit_div').hide();
+    }
 
     for (var i = 0; i < list.length; i++) {
       var $tr;
@@ -299,9 +355,14 @@
 
     $('input[type=radio]').each(function(){
       var id = $(this).attr('id');
-      if (id.startsWith('id_theme_file')) {
+      if (typeof(id) != 'undefined' && id.startsWith('id_theme_file')) {
         $(this).change(function() {
-          m_data_theme[current_tab_index].default_file =parseInt(id.substr(id.length - 1));
+          var prelen = 'id_theme_file_radio'.length;
+          m_data_theme[current_tab_index].default_file = parseInt(id.substr(id.length - 1));
+          if (id.substr(0, prelen) === 'id_theme_file_radio') {
+              m_data_theme[current_tab_index].default_file = parseInt(id.substr(prelen));
+          }
+          
           VtoySaveCurrentPage();
         });
       }
@@ -363,6 +424,8 @@
       $('select[id=id_theme_sel_dismode').val('GUI');
     }
     
+    $('input:radio[name=id_ctrl_radio_res_fit]')[data.resolution_fit].checked = true;
+    
     FillThemeFileTable(data.filelist, data.default_file);
     FillThemeFontTable(data.fontslist);
   }
@@ -401,9 +464,13 @@
       index: current_tab_index,
       path: data.path
     }, function(e) {
-      list.push(data);
-      FillThemeFileTable(list, m_data_theme[current_tab_index].default_file);
-      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+        if (e.result === 'success') {
+            list.push(data);
+            FillThemeFileTable(list, m_data_theme[current_tab_index].default_file);
+            Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+        } else if (e.result === 'duplicate') {
+            Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        }
     });
   }
 
@@ -426,9 +493,13 @@
       index: current_tab_index,
       path: data.path
     }, function(e) {
-      list.push(data);
-      FillThemeFontTable(list);
-      Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+        if (e.result === 'success') {
+            list.push(data);
+            FillThemeFontTable(list);
+            Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
+        } else if (e.result === 'duplicate') {
+            Message.error(g_vtoy_cur_language.STR_DUPLICATE_PATH);
+        }
     });
   }
 
@@ -505,6 +576,8 @@
 
   $('select[id=id_theme_sel_gfxmode]').change(VtoySaveCurrentPage);
   $('select[id=id_theme_sel_dismode]').change(VtoySaveCurrentPage);
+  $('#id_ctrl_radio_res_fit0').change(VtoySaveCurrentPage);
+  $('#id_ctrl_radio_res_fit1').change(VtoySaveCurrentPage);
 
   $('#id_tab_theme a[href="#tab_0"]').click(OnClickMultiModeTab);
   $('#id_tab_theme a[href="#tab_1"]').click(OnClickMultiModeTab);
@@ -513,6 +586,36 @@
   $('#id_tab_theme a[href="#tab_4"]').click(OnClickMultiModeTab);
   $('#id_tab_theme a[href="#tab_5"]').click(OnClickMultiModeTab);
 
+  function UpdateTabTitleIcon(data) {
+    CommonUpdateTabTitleIcon(data.exist_theme, '#id_tab_theme a[href="#tab_', 'theme');
+  }
+  $('#id_btn_reset').click(function() { 
+    Modal.confirm({msg:GetResetTabConfigTipMsg(current_tab_index, 'theme')}).on(function(e) {
+        if (e) {            
+            callVtoySync({
+                method : 'theme_del_file',
+                index: current_tab_index,
+                path: g_del_all_path
+            }, function(data) {
+                
+            });
+            
+            callVtoySync({
+                method : 'theme_del_font',
+                index: current_tab_index,
+                path: g_del_all_path
+            }, function(data) {
+                
+            });
+            
+            m_data_theme[current_tab_index].filelist.length = 0;
+            m_data_theme[current_tab_index].fontslist.length = 0;
+            VtoyFillCurrentPageItem(m_data_theme[g_vtoy_data_default_index]);
+            VtoySaveCurrentPage();
+        }
+    });
+  });
+  
   $('#id_tab_theme a[href="#tab_0"]').tab('show');
   VtoyFillCurrentPageItem(m_data_theme[0]);
   VtoyPageLanguageChange(g_current_language);

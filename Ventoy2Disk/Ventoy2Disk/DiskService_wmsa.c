@@ -29,15 +29,9 @@
 
 STATIC BOOL IsPowershellExist(void)
 {
-	BOOL ret;
+	BOOL ret; 
 
-	if (!IsWindows8OrGreater())
-	{
-		Log("This is before Windows8 powershell disk not supported.");
-		return FALSE;
-	}
-
-	ret = IsFileExist("C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe");
+	ret = IsFileExist("%s\\system32\\WindowsPowerShell\\v1.0\\powershell.exe", DISK_GetWindowsDir());
 	if (!ret)
 	{
 		Log("powershell.exe not exist");
@@ -254,4 +248,52 @@ BOOL PSHELL_ShrinkVolume(int DriveIndex, const char* VolumeGuid, CHAR DriveLette
 
 	Log("PSHELL_ShrinkVolume<%d> %C: ret:%d (%s)", DriveIndex, DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
 	return ret;
+}
+
+BOOL PSHELL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
+{
+	BOOL ret;
+	const char* fsname = NULL;
+	CHAR CmdBuf[512];
+	CHAR FsName[128];
+
+	fsname = GetVentoyFsFmtNameByTypeA(fs);
+
+	if (ClusterSize > 0)
+	{
+		sprintf_s(CmdBuf, sizeof(CmdBuf),
+			"format-volume -DriveLetter %C -FileSystem %s -AllocationUnitSize %u -Force -NewFileSystemLabel Ventoy",
+			DriveLetter, fsname, ClusterSize);
+	}
+	else
+	{
+		sprintf_s(CmdBuf, sizeof(CmdBuf),
+			"format-volume -DriveLetter %C -FileSystem %s -Force -NewFileSystemLabel Ventoy",
+			DriveLetter, fsname);
+	}
+
+	ret = PSHELL_CommProc(CmdBuf);
+	Log("PSHELL_FormatVolume %C: ret:%d (%s)", DriveLetter, ret, ret ? "SUCCESS" : "FAIL");
+	if (!ret)
+	{
+		return FALSE;
+	}
+
+
+	sprintf_s(CmdBuf, sizeof(CmdBuf), "%C:\\", DriveLetter);
+	GetVolumeInformationA(CmdBuf, NULL, 0, NULL, NULL, NULL, FsName, sizeof(FsName));
+	VentoyStringToUpper(FsName);
+
+	Log("New fs name after run PSHELL:<%s>", FsName);
+
+	if (strcmp(FsName, fsname) == 0)
+	{
+		Log("PSHELL_FormatVolume <%C:> SUCCESS", DriveLetter);
+		return TRUE;
+	}
+	else
+	{
+		Log("PSHELL_FormatVolume <%C:> FAILED", DriveLetter);
+		return FALSE;
+	}
 }

@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "German (Deutsch)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Erweitert",
+    "VTLANG_STR_HOTKEY_TREE": "L:Sprache  F1:Hilfe  F2:Browser  F3:Listenansicht  F4:Lokaler Start  F5:Werkzeuge  F6:Erweitert",
+    "VTLANG_RETURN_PREVIOUS": "Zu vorherigem Menü [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Zu vorherigem Menü",
+    
+    "VTLANG_MENU_LANG": "Menüsprache auswählen",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Windows suchen und starten",
+    "VTLANG_LB_SBOOT_G4D": "Grub4dos suchen und starten",
+    "VTLANG_LB_SBOOT_HDD1": "Vom ersten lokalen Datenträger starten",
+    "VTLANG_LB_SBOOT_HDD2": "Vom zweiten lokalen Datenträger starten",
+    "VTLANG_LB_SBOOT_HDD3": "Vom dritten lokalen Datenträger starten",
+    "VTLANG_LB_SBOOT_X64EFI": "BOOTX64.EFI suchen und starten",
+    "VTLANG_LB_SBOOT_IA32EFI": "BOOTIA32.EFI suchen und starten",
+    "VTLANG_LB_SBOOT_AA64EFI": "BOOTAA64.EFI suchen und starten",
+    "VTLANG_LB_SBOOT_XORBOOT": "xorboot suchen und starten",
+    
+    "VTLANG_FILE_CHKSUM": "Dateiprüfsumme",
+    "VTLANG_CHKSUM_MD5_CALC": "md5sum berechnen",
+    "VTLANG_CHKSUM_SHA1_CALC": "sha1sum berechnen",
+    "VTLANG_CHKSUM_SHA256_CALC": "sha256sum berechnen",
+    "VTLANG_CHKSUM_SHA512_CALC": "sha512sum berechnen",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "md5sum berechnen und prüfen",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "sha1sum berechnen und prüfen",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "sha256sum berechnen und prüfen",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "sha512sum berechnen und prüfen",
+    
+    "VTLANG_POWER": "Power",
+    "VTLANG_POWER_REBOOT": "Neustart",
+    "VTLANG_POWER_HALT": "Herunterfahren",
+    "VTLANG_POWER_BOOT_EFIFW": "Neustart in EFI-Konfiguration",
+    
+    "VTLANG_KEYBRD_LAYOUT": "Tastaturlayout",
+    "VTLANG_HWINFO": "Hardwareinformationen",
+    
+    "VTLANG_RESOLUTION_CFG": "Auflösungseinstellungen",
+    "VTLANG_SCREEN_MODE": "Bildschirmanzeigemodus",
+    "VTLANG_SCREEN_TEXT_MODE": "Textmodus erzwingen",
+    "VTLANG_SCREEN_GUI_MODE": "Grafikmodus erzwingen",
+    
+    "VTLANG_THEME_SELECT": "Design auswählen",
+    
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI-Dienstprogramme",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "EFI-Treiber anzeigen",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Windows BlinitializeLibrary Fehler beheben",
+    
+    "VTLANG_JSON_CHK_JSON": "Konfiguration des JSON-Plugins prüfen (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "Konfiguration des Plugins für die allgemeine Kontrolle prüfen",
+    "VTLANG_JSON_CHK_THEME": "Konfiguration des Design-Plugins prüfen",
+    "VTLANG_JSON_CHK_AUTOINS": "Konfiguration des Plugins für die automatische Installation prüfen",
+    "VTLANG_JSON_CHK_PERSIST": "Konfiguration des Persistenz-Plugins prüfen",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "Konfiguration des Menü-Alias-Plugin prüfen",
+    "VTLANG_JSON_CHK_MENU_TIP": "Konfiguration des Menütipp-Plugins prüfen",
+    "VTLANG_JSON_CHK_MENU_CLASS": "Konfiguration des Menüklassen-Plugins prüfen",
+    "VTLANG_JSON_CHK_INJECTION": "Konfiguration des Injektions-Plugins prüfen",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "Konfiguration des auto-memdisk-Plugins prüfen",
+    "VTLANG_JSON_CHK_IMG_LIST": "Konfiguration des Abbild-Listen-Plugins prüfen",
+    "VTLANG_JSON_CHK_IMG_BLIST": "Konfiguration des Abbild-Sperrlisten-Plugins prüfen",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "Konfiguration des Boot-Conf-Replace-Plugins prüfen",
+    "VTLANG_JSON_CHK_DUD": "Konfiguration des dud-Plugins prüfen",
+    "VTLANG_JSON_CHK_PASSWORD": "Konfiguration des Passwort-Plugins prüfen",
+    
+    "VTLANG_NORMAL_MODE": "In Normal-Modus starten",
+    "VTLANG_WIMBOOT_MODE": "In wimboot-Modus starten",
+    "VTLANG_GRUB2_MODE": "In grub2-Modus starten",
+    "VTLANG_MEMDISK_MODE": "In memdisk-Modus starten",
+    
+    "VTLANG_RET_TO_LISTVIEW": "Zurück zur Listenansicht",
+    "VTLANG_RET_TO_TREEVIEW": "Zurück zur Baumansicht",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "Ohne Vorlage für die automatische Installation starten",
+    "VTLANG_AUTOINS_USE": "Start mit",
+    
+    "VTLANG_NO_PERSIST": "Ohne Persistenz starten",
+    "VTLANG_PERSIST_USE": "Start mit",
+    
+    "VTLANG_BROWER_RETURN": "Zurück",
+    
+    "VTLANG_ENTER_EXIT": "Drücken Sie zum Beenden die Eingabetaste",
+    "VTLANG_ENTER_REBOOT": "Drücken Sie die Eingabetaste, um neu zu starten",
+    "VTLANG_ENTER_CONTINUE": "Drücken Sie die Eingabetaste, um fortzufahren",
+    
+    "VTLANG_CTRL_TEMP_SET": "Temporäre Steuerungseinstellungen",
+    "VTLANG_WIN11_BYPASS_CHECK": "Umgehen Sie die CPU/TPM/SecureBoot-Prüfung bei der Installation von Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Umgehen Sie die Online-Kontoanforderung bei der Installation von Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Mounten Sie die Ventoy-Partition nach dem Booten von Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Sekundäres Bootmenü anzeigen",
+    
+    "MENU_STR_XXX": ""
+}

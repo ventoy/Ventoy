@@ -303,6 +303,58 @@ static int read_pid_cmdline(long pid, char *Buffer, int BufLen)
     return read_file_1st_line(path, Buffer, BufLen);
 }
 
+static int is_dir_exist(const char *fmt, ...)
+{
+    va_list arg;
+    struct stat st;
+    char path[4096];
+
+    va_start(arg, fmt);
+    vsnprintf(path, sizeof(path), fmt, arg);
+    va_end(arg);
+
+    memset(&st, 0, sizeof(st));
+    if (stat(path, &st) < 0)
+    {
+        return 0;
+    }
+
+    if (st.st_mode & S_IFDIR)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+static void touch_new_file(char *filename)
+{
+    char *pos = NULL;
+    FILE *fp = NULL;
+
+    if (access(filename, F_OK) == -1)
+    {
+        for (pos = filename; *pos; pos++)
+        {
+            if (*pos == '/')
+            {
+                *pos = 0;
+                if (!is_dir_exist("%s", filename))
+                {
+                    mkdir(filename, 0755);
+                }
+                *pos = '/';
+            }
+        }
+    
+        fp = fopen(filename, "w+");
+        if (fp)
+        {
+            fclose(fp);
+        }        
+    }    
+}
+
 static int find_exe_path(const char *exe, char *pathbuf, int buflen)
 {
     int i;
@@ -1250,8 +1302,12 @@ int main(int argc, char **argv)
     {
         if (argv[i] && argv[i + 1] && strcmp(argv[i], "-l") == 0)
         {
+            touch_new_file(argv[i + 1]);
             snprintf(g_log_file, sizeof(g_log_file), "%s", argv[i + 1]);
-            break;
+        }
+        else if (argv[i] && argv[i + 1] && strcmp(argv[i], "-i") == 0)
+        {
+            touch_new_file(argv[i + 1]);
         }
         else if (argv[i] && strcmp(argv[i], "--xdg") == 0)
         {
@@ -1259,14 +1315,36 @@ int main(int argc, char **argv)
             if (env)
             {
                 g_xdg_log = 1;
-                snprintf(g_log_file, sizeof(g_log_file), "%s/ventoy.log", env);
+                snprintf(g_log_file, sizeof(g_log_file), "%s/ventoy/ventoy.log", env);
+                touch_new_file(g_log_file);
+            }
+            else
+            {
+                env = getenv("HOME");
+                if (env && is_dir_exist("%s/.cache", env))
+                {
+                    g_xdg_log = 1;
+                    snprintf(g_log_file, sizeof(g_log_file), "%s/.cache/ventoy/ventoy.log", env);
+                    touch_new_file(g_log_file);
+                }
             }
             
             env = getenv("XDG_CONFIG_HOME");
             if (env)
             {
                 g_xdg_ini = 1;
-                snprintf(g_ini_file, sizeof(g_ini_file), "%s/Ventoy2Disk.ini", env);
+                snprintf(g_ini_file, sizeof(g_ini_file), "%s/ventoy/Ventoy2Disk.ini", env);
+                touch_new_file(g_ini_file);
+            }
+            else
+            {
+                env = getenv("HOME");
+                if (env && is_dir_exist("%s/.config", env))
+                {
+                    g_xdg_ini = 1;
+                    snprintf(g_ini_file, sizeof(g_ini_file), "%s/.config/ventoy/Ventoy2Disk.ini", env);
+                    touch_new_file(g_ini_file);
+                }
             }
         }
     }
