@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Run docker-compose up
-      run: docker-compose up
+    - name: Run docker compose up
+      run: docker compose up
     - uses: actions/upload-artifact@v3
       with:
         name: ventoy-windows
