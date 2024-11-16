@@ -250,7 +250,7 @@ extern int ventoy_need_prompt_load_file(void);
 extern grub_ssize_t ventoy_load_file_with_prompt(grub_file_t file, void *buf, grub_ssize_t size);
 grub_err_t
 grub_initrd_load (struct grub_linux_initrd_context *initrd_ctx,
-		  char *argv[], void *target)
+		  void *target)
 {
   grub_uint8_t *ptr = target;
   int i;
@@ -298,7 +298,7 @@ grub_initrd_load (struct grub_linux_initrd_context *initrd_ctx,
 	{
 	  if (!grub_errno)
 	    grub_error (GRUB_ERR_FILE_READ_ERROR, N_("premature end of file %s"),
-			argv[i]);
+			initrd_ctx->components[i].file->name);
 	  grub_initrd_close (initrd_ctx);
 	  return grub_errno;
 	}
