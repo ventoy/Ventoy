@@ -384,6 +384,12 @@ ventoy_get_os_type() {
         fi
     fi
     
+    if [ -f /etc/tinyramfs/config ]; then
+        if $GREP -q 'EWE_ISO' /etc/tinyramfs/config; then
+            echo "ewe"; return
+        fi
+    fi
+    
     
     echo "default"
 }
