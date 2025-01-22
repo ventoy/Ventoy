@@ -19,6 +19,8 @@
 #include "./arm/setjmp.S"
 #elif defined(__aarch64__)
 #include "./arm64/setjmp.S"
+#elif defined(__loongarch_lp64)
+#include "./loongarch64/setjmp.S"
 #elif defined(__riscv)
 #include "./riscv/setjmp.S"
 #else

@@ -16,6 +16,8 @@ sh ./build.sh ia32 || exit 1
 echo '======== build EDK2 for arm64-efi ==============='
 sh ./build.sh aa64 || exit 1
 
+echo '======== build EDK2 for loongarch64-efi ========='
+sh ./build.sh la64 || exit 1
+
 echo '======== build EDK2 for x86_64-efi ==============='
 sh ./build.sh      || exit 1
-
