@@ -1519,7 +1519,7 @@
         "STR_UPDATE_FAILED":"更新中にエラーが発生しました。USBデバイスを再接続しやり直してください。詳細な記録は log.txt にあります。何度も失敗する場合は、公式サイト内のFAQをご覧ください。",
         "STR_WAIT_PROCESS":"スレッド実行中。お待ちください...",
         "STR_MENU_OPTION":"設定",
-        "STR_MENU_SECURE_BOOT":"セキュアブートに対応,
+        "STR_MENU_SECURE_BOOT":"セキュアブートに対応",
         "STR_MENU_PART_CFG":"パーティションの設定",
         "STR_BTN_OK":"OK",
         "STR_BTN_CANCEL":"キャンセル",
