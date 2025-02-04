@@ -22,7 +22,7 @@ body:
     attributes:
       label: Ventoy Version
       description: What version of ventoy did you test with the image file.
-      placeholder: 1.0.57
+      placeholder: 1.1.00
     validations:
       required: true
   - type: dropdown
