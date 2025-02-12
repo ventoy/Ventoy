@@ -861,7 +861,8 @@ typedef struct vhd_footer_t
     grub_uint8_t     savedst;      // Saved state
 }vhd_footer_t;
 
-#define VDI_IMAGE_FILE_INFO   "<<< Oracle VM VirtualBox Disk Image >>>\n"
+#define VDI_IMAGE_FILE_INFO    "<<< Oracle VM VirtualBox Disk Image >>>\n"
+#define VDI_IMAGE_FILE_INFO2   "<<< Oracle VirtualBox Disk Image >>>\n"
 
 /** Image signature. */
 #define VDI_IMAGE_SIGNATURE   (0xbeda107f)
