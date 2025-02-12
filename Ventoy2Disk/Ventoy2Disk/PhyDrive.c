@@ -2520,7 +2520,7 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 
 		pGPT->PartTbl[1].StartLBA = pGPT->PartTbl[0].LastLBA + 1;
 		pGPT->PartTbl[1].LastLBA = pGPT->PartTbl[1].StartLBA + VENTOY_EFI_PART_SIZE / 512 - 1;
-		pGPT->PartTbl[1].Attr = 0xC000000000000001ULL;
+		pGPT->PartTbl[1].Attr = 0x9000000000000000ULL;
 		memcpy(pGPT->PartTbl[1].Name, L"VTOYEFI", 7 * 2);
 
 		//Update CRC
