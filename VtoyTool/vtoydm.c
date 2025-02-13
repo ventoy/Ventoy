@@ -42,11 +42,14 @@
 #define O_BINARY 0
 #endif
 
+#ifndef USE_MUSL_C
 #ifndef USE_DIET_C
 #ifndef __mips__
 typedef unsigned long long uint64_t;
 #endif
 typedef unsigned int    uint32_t;
+#endif
+#else
 #endif
 
 #pragma pack(4)
