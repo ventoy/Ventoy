@@ -440,7 +440,7 @@ format_ventoy_disk_gpt() {
     vtdebug "format disk by parted ..."
     
     if [ "$TOOLDIR" != "aarch64" ]; then
-        vt_set_efi_type="set 2 msftdata on"
+        vt_set_efi_type="set 2 diag on"
     fi    
     
     parted -a none --script $DISK \
