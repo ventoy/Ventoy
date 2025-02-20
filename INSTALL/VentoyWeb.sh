@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-print_usage() {    
-    echo 'Usage:  VentoyWeb.sh [ OPTION ]'   
+print_usage() {
+    echo 'Usage:  VentoyWeb.sh [ OPTION ]'
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
     echo '   -p PORT     http server PORT (default is 24680)'
@@ -21,8 +21,6 @@ if [ $uid -ne 0 ]; then
     exit 1
 fi
 
-OLDDIR=$(pwd)
-
 if uname -m | grep -E -q 'aarch64|arm64'; then
     TOOLDIR=aarch64
 elif uname -m | grep -E -q 'x86_64|amd64'; then
@@ -33,20 +31,17 @@ else
     TOOLDIR=i386
 fi
 
-if [ ! -f ./tool/$TOOLDIR/V2DServer ]; then
-    if [ -f ${0%VentoyWeb.sh}/tool/$TOOLDIR/V2DServer ]; then
-        cd ${0%VentoyWeb.sh}
-    fi
-fi
+WORKDIR="$(dirname "$(readlink -f $0)")"
+PATH=$WORKDIR/tool/$TOOLDIR:$PATH
 
-PATH=./tool/$TOOLDIR:$PATH
+pushd $WORKDIR > /dev/null 2>&1
 
-if [ ! -f ./boot/boot.img ]; then
-    if [ -d ./grub ]; then
+if [ ! -f $WORKDIR/boot/boot.img ]; then
+    if [ -d $WORKDIR/grub ]; then
         echo "Don't run VentoyWeb.sh here, please download the released install package, and run the script in it."
     else
         echo "Current directory is $PWD"
-        echo "Please run under the correct directory!" 
+        echo "Please run under the correct directory!"
     fi
     exit 1
 fi
@@ -65,17 +60,23 @@ while [ -n "$1" ]; do
         else
             print_err "Invalid host $1"
             exit 1
-        fi        
+        fi
     elif [ "$1" = "-p" ]; then
         shift
         if [ $1 -gt 0 -a $1 -le 65535 ]; then
             PORT="$1"
+            PORT_USED_PID=$(lsof -t -i:$PORT -P -n)
+
+            if [ -n "$PORT_USED_PID" ]; then
+                print_err "The port $PORT is currently in use by the process with PID $PORT_USED_PID"
+                exit 1
+            fi
         else
             print_err "Invalid port $1"
             exit 1
         fi
     fi
-    
+
     shift
 done
 
@@ -85,7 +86,7 @@ if ps -ef | grep "V2DServer.*$HOST.*$PORT" | grep -q -v grep; then
     exit 1
 fi
 
-LOGFILE=log.txt
+LOGFILE=$WORKDIR/log.txt
 #delete the log.txt if it's more than 8MB
 if [ -f $LOGFILE ]; then
     logsize=$(stat -c '%s' $LOGFILE)
@@ -95,9 +96,9 @@ if [ -f $LOGFILE ]; then
 fi
 
 
-if [ -f ./tool/$TOOLDIR/V2DServer.xz ]; then
-    xz -d ./tool/$TOOLDIR/V2DServer.xz
-    chmod +x ./tool/$TOOLDIR/V2DServer
+if [ -f $WORKDIR/tool/$TOOLDIR/V2DServer.xz ]; then
+    xz -d $WORKDIR/tool/$TOOLDIR/V2DServer.xz
+    chmod +x $WORKDIR/tool/$TOOLDIR/V2DServer
 fi
 
 
@@ -105,7 +106,7 @@ V2DServer "$HOST" "$PORT" &
 wID=$!
 sleep 1
 
-vtVer=$(cat ventoy/version)
+vtVer=$(cat $WORKDIR/ventoy/version)
 echo ""
 echo "==============================================================="
 if [ "$LANG" = "zh_CN.UTF-8" ]; then
@@ -122,9 +123,4 @@ echo ""
 
 wait $wID
 
-if [ -n "$OLDDIR" ]; then 
-    CURDIR=$(pwd)
-    if [ "$CURDIR" != "$OLDDIR" ]; then
-        cd "$OLDDIR"
-    fi
-fi
+popd $WORKDIR > /dev/null 2>&1
