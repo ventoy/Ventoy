@@ -48,6 +48,17 @@
 
 #define GRUB_PE32_MAGIC			0x5a4d
 
+struct grub_msdos_image_header
+{
+  /* This is always 'MZ'. (GRUB_PE32_MAGIC)  */
+  grub_uint16_t msdos_magic;
+
+  grub_uint16_t reserved[29];
+
+  /* The file offset of the PE image header. */
+  grub_uint32_t pe_image_header_offset;
+};
+
 /* According to the spec, the minimal alignment is 512 bytes...
    But some examples (such as EFI drivers in the Intel
    Sample Implementation) use 32 bytes (0x20) instead, and it seems
@@ -78,6 +89,8 @@ struct grub_pe32_coff_header
 #define GRUB_PE32_MACHINE_X86_64		0x8664
 #define GRUB_PE32_MACHINE_ARMTHUMB_MIXED	0x01c2
 #define GRUB_PE32_MACHINE_ARM64			0xAA64
+#define GRUB_PE32_MACHINE_LOONGARCH32		0x6232
+#define GRUB_PE32_MACHINE_LOONGARCH64		0x6264
 #define GRUB_PE32_MACHINE_RISCV32		0x5032
 #define GRUB_PE32_MACHINE_RISCV64		0x5064
 
@@ -255,11 +268,8 @@ struct grub_pe32_section_table
 
 #define GRUB_PE32_SIGNATURE_SIZE 4
 
-struct grub_pe32_header
+struct grub_pe_image_header
 {
-  /* This should be filled in with GRUB_PE32_MSDOS_STUB.  */
-  grub_uint8_t msdos_stub[GRUB_PE32_MSDOS_STUB_SIZE];
-
   /* This is always PE\0\0.  */
   char signature[GRUB_PE32_SIGNATURE_SIZE];
 
@@ -301,6 +311,8 @@ struct grub_pe32_fixup_block
 #define GRUB_PE32_REL_BASED_ARM_MOV32T  7
 #define GRUB_PE32_REL_BASED_RISCV_LOW12I 7
 #define GRUB_PE32_REL_BASED_RISCV_LOW12S 8
+#define GRUB_PE32_REL_BASED_LOONGARCH32_MARK_LA	8
+#define GRUB_PE32_REL_BASED_LOONGARCH64_MARK_LA	8
 #define GRUB_PE32_REL_BASED_IA64_IMM64	9
 #define GRUB_PE32_REL_BASED_DIR64	10
 #define GRUB_PE32_REL_BASED_HIGH3ADJ	11
