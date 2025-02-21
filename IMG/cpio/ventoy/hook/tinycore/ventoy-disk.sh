@@ -45,8 +45,15 @@ fi
 # TinyCore linux distro doesn't contain dmsetup, we use aoe here
 sudo modprobe aoe aoe_iflist=lo
 if [ -e /sys/module/aoe ]; then
-    VBLADE_BIN=$(ventoy_get_vblade_bin)
     
+    if ! [ -d /lib64 ]; then
+        vtlog "link lib64"
+        NEED_UNLIB64=1
+        ln -s /lib /lib64
+    fi
+    
+    VBLADE_BIN=$(ventoy_get_vblade_bin)
+
     sudo nohup $VBLADE_BIN -r -f $VTOY_PATH/ventoy_image_map 9 0 lo "$vtdiskname" > /dev/null & 
     sleep 2
 
@@ -54,8 +61,13 @@ if [ -e /sys/module/aoe ]; then
         vtlog 'Wait for /dev/etherd/e9.0 ....'
         sleep 2
     done
-
+    
     sudo cp -a /dev/etherd/e9.0  "$vPart"
+
+    if [ -n "$NEED_UNLIB64" ]; then
+        vtlog "unlink lib64"
+        unlink /lib64
+    fi
 
     ventoy_find_bin_run rebuildfstab
 else
