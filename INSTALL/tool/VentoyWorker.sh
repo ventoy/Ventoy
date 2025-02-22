@@ -625,10 +625,14 @@ else
         check_umount_disk "$DISK"
         vtoycli partresize -s $DISK $part2_start
     fi
+
     
-    vtinfo "update esp partition attribute"
-    vtoycli gpt -f $DISK
-    sync
+    if [ "$PART1_TYPE" = "EE" ]; then    
+        vtinfo "update esp partition attribute"
+        vtoycli gpt -f $DISK
+        sync
+    fi
+
 
     echo ""
     vtinfo "Update Ventoy on $DISK successfully finished."

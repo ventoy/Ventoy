@@ -807,6 +807,8 @@ static void * ventoy_update_thread(void *data)
                  pstGPT->PartTbl[1].Attr, 0x8000000000000000ULL);
 
             pstGPT->PartTbl[1].Attr = 0x8000000000000000ULL;
+
+            pstGPT->Head.PartTblCrc = ventoy_crc32(pstGPT->PartTbl, sizeof(pstGPT->PartTbl));
             pstGPT->Head.Crc = 0;
             pstGPT->Head.Crc = ventoy_crc32(&(pstGPT->Head), pstGPT->Head.Length);            
             ventoy_write_gpt_part_table(fd, disk->size_in_byte, pstGPT);
