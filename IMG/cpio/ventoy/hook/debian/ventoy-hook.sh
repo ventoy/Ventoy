@@ -110,6 +110,10 @@ ventoy_get_debian_distro() {
         echo 'pyabr'; return
     fi
     
+    if [ -e /devuan-logo.txt ]; then
+        echo 'devuan'; return
+    fi
+    
     echo 'default'
 }
 
