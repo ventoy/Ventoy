@@ -114,6 +114,10 @@ ventoy_get_debian_distro() {
         echo 'devuan'; return
     fi
     
+    if $GREP -q 'truenas' /proc/version; then
+        echo 'truenas'; return
+    fi
+    
     echo 'default'
 }
 
