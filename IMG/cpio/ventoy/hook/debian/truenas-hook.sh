@@ -23,4 +23,5 @@ if [ -e /init ] && $GREP -q '^mountroot$' /init; then
     $SED  "/^mountroot$/i\\export LIVEMEDIA=/dev/mapper/ventoy"  -i /init
     $SED  "/^mountroot$/i\\export LIVE_MEDIA=/dev/mapper/ventoy"  -i /init    
     $SED  "/^mountroot$/i\\export FROMISO=$VTOY_PATH/mnt/fuse/ventoy.iso"  -i /init    
+    $SED  "/exec  *run-init/i\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/truenas-bottom.sh"  -i /init
 fi
