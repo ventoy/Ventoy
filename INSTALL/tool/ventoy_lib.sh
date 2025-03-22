@@ -210,45 +210,73 @@ get_disk_ventoy_version() {
     ventoy_false
 }
 
-wait_and_create_part() {
-    vPART1=$1
-    vPART2=$2
-    echo 'Wait for partitions $vPART1 and $vPART2 ...'
-    for i in 0 1 2 3 4 5 6 7 8 9; do
-        if ls -l $vPART1 2>/dev/null | grep -q '^b'; then
-            if ls -l $vPART2 2>/dev/null | grep -q '^b'; then
-                break
-            fi
-        else
-            echo "Wait for $vPART1 and $vPART2 ..."
-            sleep 1
-        fi
+wait_for_blockdevs() {
+    attempts=3
+    delay=2
+
+    vtdebug "wait_for_blockdevs called with the following arguments:"
+    for dev in "$@"; do
+        vtdebug '  - '"$dev"
     done
 
-    if ls -l $vPART1 2>/dev/null | grep -q '^b'; then
-        echo "$vPART1 exist OK"
-    else
-        MajorMinor=$(sed "s/:/ /" /sys/class/block/${vPART1#/dev/}/dev)        
-        echo "mknod -m 0660 $vPART1 b $MajorMinor ..."
-        mknod -m 0660 $vPART1 b $MajorMinor
-    fi
-    
-    if ls -l $vPART2 2>/dev/null | grep -q '^b'; then
-        echo "$vPART2 exist OK"
-    else
-        MajorMinor=$(sed "s/:/ /" /sys/class/block/${vPART2#/dev/}/dev)        
-        echo "mknod -m 0660 $vPART2 b $MajorMinor ..."
-        mknod -m 0660 $vPART2 b $MajorMinor        
-    fi
+    i=
+    while [ $((i+=1)) -le $attempts ]; do
+        all_ready=0
 
-    if ls -l $vPART1 2>/dev/null | grep -q '^b'; then
-        if ls -l $vPART2 2>/dev/null | grep -q '^b'; then
-            echo "partition exist OK"
+        echo "Waiting for block devices..."
+        for dev in "$@"; do
+            if ! [ -b "$dev" ]; then
+                vtwarn "$dev not found."
+                all_ready=1
+                break
+            fi
+        done
+
+        if [ "$all_ready" -eq 0 ]; then
+            vtinfo "Block devices ready!"
+            return
         fi
-    else
-        echo "[FAIL] $vPART1/$vPART2 does not exist"
-        exit 1
-    fi
+
+        echo 'Refreshing kernel partition table'
+        partprobe
+
+        sleep "$delay"
+    done
+
+    vterr "Required block devices not ready."
+    return 1
+}
+
+wait_and_create_part() {
+    # Return immediately if devices found
+    wait_for_blockdevs "$@" && return
+
+    # Fallback: manually create fs nodes
+    echo "Attempting to create device nodes in /dev/"
+
+    for part in "$@"; do
+        # Skip if device found
+        [ -b $part ] && continue
+    
+        MajorMinor=$(sed "s/:/ /" /sys/class/block/${part#/dev/}/dev)        
+        echo ">> mknod -m 0660 $part b $MajorMinor..."
+        mknod -m 0660 $part b $MajorMinor
+
+        if [ "$?" -ne 0 ]; then
+            vterr 'Creating device node failed'
+            exit 1
+        fi
+    done
+    
+    partprobe
+    echo "Confirming partitions are now available..."
+    
+    # Return if success
+    wait_for_blockdevs "$@" && return
+
+    # RIP
+    vterr 'Cannot proceed -- please check your device. Try re-plugging or using a different USB port or device.'
+    exit 1
 }
 
 
