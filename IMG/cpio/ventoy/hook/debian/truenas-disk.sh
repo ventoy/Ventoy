@@ -19,13 +19,22 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if is_ventoy_hook_finished; then
-    exit 0
-fi
-
 vtlog "####### $0 $* ########"
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
+
+
+ventoy_run_fuse() {
+    vtlog "ventoy_run_fuse $*"
+
+    mkdir -p $VTOY_PATH/mnt/fuse  $VTOY_PATH/mnt/iso
+
+    vtoydm -p -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/ventoy_dm_table
+    vtoy_fuse_iso -f $VTOY_PATH/ventoy_dm_table -m $VTOY_PATH/mnt/fuse
+    
+    mount -t iso9660 $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
+}
+
 
 wait_for_usb_disk_ready
 
@@ -36,10 +45,8 @@ if [ "$vtdiskname" = "unknown" ]; then
     exit 0
 fi
 
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
-ventoy_create_dev_ventoy_part
+ventoy_run_fuse $vtdiskname
 
-
-PATH=$VTPATH_OLD
-
-set_ventoy_hook_finish
+if [ -f /ventoy/autoinstall ]; then
+    sh /ventoy/hook/default/auto_install_varexp.sh  /ventoy/autoinstall
+fi

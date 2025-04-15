@@ -2520,7 +2520,7 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 
 		pGPT->PartTbl[1].StartLBA = pGPT->PartTbl[0].LastLBA + 1;
 		pGPT->PartTbl[1].LastLBA = pGPT->PartTbl[1].StartLBA + VENTOY_EFI_PART_SIZE / 512 - 1;
-		pGPT->PartTbl[1].Attr = 0xC000000000000001ULL;
+		pGPT->PartTbl[1].Attr = VENTOY_EFI_PART_ATTR;
 		memcpy(pGPT->PartTbl[1].Name, L"VTOYEFI", 7 * 2);
 
 		//Update CRC
@@ -2797,6 +2797,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	BOOL CleanDisk = FALSE;
 	BOOL DelEFI = FALSE;
 	BOOL bWriteBack = TRUE;
+	BOOL bUpdateEFIAttr = FALSE;
 	HANDLE hVolume;
 	HANDLE hDrive;
 	DWORD Status;
@@ -2904,7 +2905,13 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	if (pPhyDrive->PartStyle == 1)
 	{
 		Log("TryId=%d EFI GPT partition type is 0x%llx", TryId, pPhyDrive->Part2GPTAttr);
-		PROGRESS_BAR_SET_POS(PT_DEL_ALL_PART);
+		PROGRESS_BAR_SET_POS(PT_DEL_ALL_PART);        
+
+        if (pGptInfo->PartTbl[1].Attr != VENTOY_EFI_PART_ATTR)
+        {
+            bUpdateEFIAttr = TRUE;            
+        }        
+
 
 		if (TryId == 1)
 		{
@@ -2917,8 +2924,8 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 		}
 		else if (TryId == 2)
 		{
-			Log("Change GPT partition attribute");
-			if (DISK_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, StartSector * 512ULL, 0x8000000000000001))
+			Log("Try2 Change GPT partition attribute to 0x%016llx", VENTOY_EFI_PART_ATTR & 0xFFFFFFFFFFFFFFFEULL);
+			if (DISK_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, StartSector * 512ULL, VENTOY_EFI_PART_ATTR & 0xFFFFFFFFFFFFFFFEULL))
 			{
 				ChangeAttr = TRUE;
 				Sleep(2000);
@@ -3253,15 +3260,16 @@ End:
 		DISK_ChangeVtoyEFI2Basic(pPhyDrive->PhyDrive, StartSector * 512);
     }
 
+
 	if (pPhyDrive->PartStyle == 1)
 	{
-		if (ChangeAttr || ((pPhyDrive->Part2GPTAttr >> 56) != 0xC0))
+		if (ChangeAttr || bUpdateEFIAttr)
 		{
-			Log("Change EFI partition attr %u <0x%llx> to <0x%llx>", ChangeAttr, pPhyDrive->Part2GPTAttr, 0xC000000000000001ULL);
-			if (DISK_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, StartSector * 512ULL, 0xC000000000000001ULL))
+			Log("Change EFI partition attr %u <0x%llx> to <0x%llx>", ChangeAttr, pGptInfo->PartTbl[1].Attr, VENTOY_EFI_PART_ATTR);
+			if (DISK_ChangeVtoyEFIAttr(pPhyDrive->PhyDrive, StartSector * 512ULL, VENTOY_EFI_PART_ATTR))
 			{
 				Log("Change EFI partition attr success");
-				pPhyDrive->Part2GPTAttr = 0xC000000000000001ULL;
+				pPhyDrive->Part2GPTAttr = VENTOY_EFI_PART_ATTR;
 			}
 			else
 			{

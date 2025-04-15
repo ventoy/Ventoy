@@ -19,5 +19,34 @@
         "condition": "equal",
         "expression": "ukui",
         "gui": "gtk3"
+    },
+    {
+        "type": "env",
+        "name": "DESKTOP_SESSION",
+        "condition": "equal",
+        "expression": "cinnamon",
+        "gui": "gtk3"
+    },
+    {
+        "type": "env",
+        "name": "DESKTOP_SESSION",
+        "condition": "equal",
+        "expression": "gnome",
+        "gui": "gtk3"
+    },
+    {
+        "type": "env",
+        "name": "DESKTOP_SESSION",
+        "condition": "equal",
+        "expression": "plasma",
+        "gui": "qt5"
+    },
+    {
+        "type": "env",
+        "name": "DESKTOP_SESSION",
+        "condition": "equal",
+        "expression": "xfce",
+        "gui": "gtk3"
     }
+    
 ]

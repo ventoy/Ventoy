@@ -599,7 +599,7 @@ static int update_part_table(char *disk, UINT64 part2start)
 
         PartTbl[1].StartLBA = PartTbl[0].LastLBA + 1;
 		PartTbl[1].LastLBA = PartTbl[1].StartLBA + VENTOY_EFI_PART_SIZE / 512 - 1;
-		PartTbl[1].Attr = 0xC000000000000001ULL;
+		PartTbl[1].Attr = VENTOY_EFI_PART_ATTR;
         PartTbl[1].Name[0] = 'V';
         PartTbl[1].Name[1] = 'T';
         PartTbl[1].Name[2] = 'O';

@@ -19,27 +19,7 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if is_ventoy_hook_finished; then
-    exit 0
-fi
+vtlog "mount ventoy.iso"
+mkdir -p /root/cdrom  >>$VTLOG 2>&1
+mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    /root/cdrom    >>$VTLOG 2>&1
 
-vtlog "####### $0 $* ########"
-
-VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
-
-wait_for_usb_disk_ready
-
-vtdiskname=$(get_ventoy_disk_name)
-if [ "$vtdiskname" = "unknown" ]; then
-    vtlog "ventoy disk not found"
-    PATH=$VTPATH_OLD
-    exit 0
-fi
-
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
-ventoy_create_dev_ventoy_part
-
-
-PATH=$VTPATH_OLD
-
-set_ventoy_hook_finish

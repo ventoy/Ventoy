@@ -110,6 +110,14 @@ ventoy_get_debian_distro() {
         echo 'pyabr'; return
     fi
     
+    if [ -e /devuan-logo.txt ]; then
+        echo 'devuan'; return
+    fi
+    
+    if $GREP -q 'truenas' /proc/version; then
+        echo 'truenas'; return
+    fi
+    
     echo 'default'
 }
 

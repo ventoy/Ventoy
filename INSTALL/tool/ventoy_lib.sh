@@ -449,7 +449,6 @@ format_ventoy_disk_gpt() {
         mkpart Ventoy ntfs $part1_start_sector $part1_end_sector \
         mkpart VTOYEFI fat16 $part2_start_sector $part2_end_sector \
         $vt_set_efi_type \
-        set 2 hidden on \
         quit
 
     sync

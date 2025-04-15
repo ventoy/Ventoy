@@ -36,9 +36,7 @@ if [ "$vtdiskname" = "unknown" ]; then
     exit 0
 fi
 
-ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
-ventoy_create_dev_ventoy_part
-
+ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"
 
 PATH=$VTPATH_OLD
 
