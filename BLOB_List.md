@@ -45,13 +45,13 @@
         <tr> <td>./IMG/cpio_x86/ventoy/tool/lz4cat64</td> <td>build</td>  <td>Build Instructions:<br/>./LZIP/buildlz4.txt</td>    </tr>
         <tr> <td>./IMG/cpio_x86/ventoy/tool/zstdcat</td> <td>build</td>  <td>Same with ./ZSTD/zstdcat<br/>Check the file hash to confirm</td>    </tr>
         <tr> <td>./IMG/cpio_x86/ventoy/tool/zstdcat64</td> <td>build</td>  <td>Same with ./ZSTD/zstdcat64<br/>Check the file hash to confirm</td>    </tr>
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTAA64.EFI</td> <td rowspan=6>build</td>  <td rowspan=6>Build Instructions:<br/> ./DOC/BuildVentoyFromSource.txt 4.1-Build grub2</td>                                     </tr>
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTIA32.EFI</td> 
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTMIPS.EFI</td> 
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTX64.EFI</td> 
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTAA64.EFI</td> <td rowspan=4>build</td>  <td rowspan=4>Build Instructions:<br/> ./DOC/BuildVentoyFromSource.txt 4.1-Build grub2</td>                                     </tr>        
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTMIPS.EFI</td>     
         <tr> <td>./INSTALL/EFI/BOOT/grubia32_real.efi</td>
         <tr> <td>./INSTALL/EFI/BOOT/grubx64_real.efi</td>
-        <tr> <td>./INSTALL/EFI/BOOT/grub.efi</td> <td rowspan=4>upstream</td>    <td rowspan=4>https://github.com/ValdikSS/Super-UEFIinSecureBoot-Disk </td>      </tr>        
+        <tr> <td>./INSTALL/EFI/BOOT/grub.efi</td> <td rowspan=6>upstream</td>    <td rowspan=6>https://github.com/ValdikSS/Super-UEFIinSecureBoot-Disk </td>      </tr>        
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTIA32.EFI</td> 
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTX64.EFI</td> 
         <tr> <td>./INSTALL/EFI/BOOT/grubia32.efi</td>
         <tr> <td>./INSTALL/EFI/BOOT/mmia32.efi</td>
         <tr> <td>./INSTALL/EFI/BOOT/MokManager.efi</td>
