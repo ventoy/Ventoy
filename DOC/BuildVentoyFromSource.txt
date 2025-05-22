@@ -159,12 +159,12 @@
    make -f ventoy_makefile
    strip --strip-all xzminidec
 
-4.16 == Build xzminidec64 ==
+4.16 == Build xzminidec64/xzminidec64_musl ==
    cd /home/Ventoy-master/Ventoy2Disk/Ventoy2Disk/xz-embedded-20130513/userspace
-   make -f ventoy_makefile64
+   make -f ventoy_makefile64 or make -f ventoy_makefile64_musl
    strip --strip-all xzminidec
 
-4.17 == Build iso9660_x64.efi ==
+4.17 == Build iso9660_x64.efi/udf_x64.efi/iso9660_ia32.efi/udf_ia32.efi/iso9660_aa64.efi/udf_aa64.efi/ ==
    This efi driver is from https://github.com/pbatard/efifs
    Follow all the build instructions in this project. I modified 3 files (the original and modified source are at /home/Ventoy-master/EDK2/efiffs)
 
@@ -184,6 +184,16 @@
   ./configure --disable-nls CC='aarch64-buildroot-linux-uclibc-gcc -static'
   make
   aarch64-buildroot-linux-uclibc-strip --strip-all lunzip
+
+4.17 == Build xzminidecaa64 ==
+   cd /home/Ventoy-master/Ventoy2Disk/Ventoy2Disk/xz-embedded-20130513/userspace
+   make -f ventoy_makefileaa64
+   strip --strip-all xzminidec
+
+4.18 == Build xzminidecm64e ==
+   cd /home/Ventoy-master/Ventoy2Disk/Ventoy2Disk/xz-embedded-20130513/userspace
+   make -f ventoy_makefilem64e
+   strip --strip-all xzminidec
 
 
 
@@ -256,5 +266,11 @@
  ISNTALL/ventoy/7z/64/7za.exe  SHA-256: 8117e40ee7f824f63373a4f5625bb62749f69159d0c449b3ce2f35aad3b83549
  ISNTALL/ventoy/7z/32/7za.exe  SHA-256: ea308c76a2f927b160a143d94072b0dce232e04b751f0c6432a94e05164e716d
  
+5.13 ./Ventoy/Unix/ventoy_unix/DragonFly/sbin/dmsetup
+ download from https://cdimage.debian.org/mirror/dragonflybsd.org/iso-images/dfly-x86_64-5.8.3_REL.iso.bz2
+ extract from the ISO file  sbin/dmsetup
+ dmsetup  SHA-256: bedcf26650e87edfe961e33bae20d832bce73efd4b6239f9a6a5785661e4e698
 
-
+5.14 ./LiveCD/ISO/EFI/boot/vmlinuz64
+ download from http://www.tinycorelinux.net/11.x/x86_64/archive/11.0/distribution_files/vmlinuz64    
+ vmlinuz64  SHA-256: 641077fc1f9914af244c248453005f56536ba9e7f54ba3e52402f26709ddb8a5
