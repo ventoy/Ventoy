@@ -43,7 +43,7 @@
     
     "VTLANG_THEME_SELECT": "Pilih Tema",
     
-    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UEFI_UTIL": "Utilitas UEFI Ventoy",
     "VTLANG_UTIL_SHOW_EFI_DRV": "Tampilkan Driver EFI",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Memperbaiki Kegagalan Windows BlinitializeLibrary",
     
@@ -80,14 +80,14 @@
     "VTLANG_BROWER_RETURN": "Kembali",
     
     "VTLANG_ENTER_EXIT": "tekan tombol Enter untuk keluar",
-    "VTLANG_ENTER_REBOOT": "tekan tombol Enter untuk reboot",
+    "VTLANG_ENTER_REBOOT": "tekan tombol Enter untuk memulai ulang",
     "VTLANG_ENTER_CONTINUE": "tekan tombol Enter untuk melanjutkan",
     
-    "VTLANG_CTRL_TEMP_SET": "Temporary Control Settings",
-    "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
-    "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
-    "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_CTRL_TEMP_SET": "Pengaturan Kontrol Sementara",
+    "VTLANG_WIN11_BYPASS_CHECK": "Melewati pemeriksaaan CPU/TPM/SecureBoot ketika memasang Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "Melewati persyaratan akun online ketika memasang Windows 11",
+    "VTLANG_LINUX_REMOUNT": "Memuat partisi Ventoy setelah boot ke Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Tampilkan menu boot sekunder",
     
     "MENU_STR_XXX": ""
 }
