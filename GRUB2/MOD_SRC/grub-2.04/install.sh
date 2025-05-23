@@ -21,6 +21,8 @@ all_modules_arm64_uefi="file setkey blocklist ventoy test true regexp newc searc
 
 all_modules_mips64el_uefi="file setkey blocklist ventoy test true regexp newc search  gcry_md5 hashsum gzio xzio lzopio ext2 xfs read halt sleep serial terminfo png password_pbkdf2 gcry_sha512 pbkdf2 part_gpt part_msdos ls tar squash4 loopback part_apple minicmd diskfilter linux jpeg iso9660 udf hfsplus halt acpi mmap gfxmenu video_colors trig bitmap_scale gfxterm bitmap font fat exfat ntfs fshelp efifwsetup reboot echo configfile normal terminal gettext chain  priority_queue bufio datetime cat extcmd crypto gzio boot all_video efi_gop video video_fb gfxterm_background gfxterm_menu zfs"
 
+all_modules_loongarch64_uefi="file setkey blocklist ventoy test true regexp newc search  gcry_md5 hashsum gzio xzio lzopio ext2 xfs read halt sleep serial terminfo png password_pbkdf2 gcry_sha512 pbkdf2 part_gpt part_msdos ls tar squash4 loopback part_apple minicmd diskfilter linux jpeg iso9660 udf hfsplus halt acpi mmap gfxmenu video_colors trig bitmap_scale gfxterm bitmap font fat exfat ntfs fshelp efifwsetup reboot echo configfile normal terminal gettext chain  priority_queue bufio datetime cat extcmd crypto gzio boot all_video efi_gop video video_fb gfxterm_background gfxterm_menu zfs"
+
 
 if [ "$1" = "uefi" ]; then
     all_modules="$net_modules_uefi $all_modules_uefi "
@@ -40,6 +42,10 @@ elif [ "$1" = "mips64el" ]; then
     all_modules="$net_modules_uefi $all_modules_mips64el_uefi "
 
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/mips64el-efi" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/EFI/BOOT/BOOTMIPS.EFI"  --format 'mips64el-efi' --compression 'auto'  $all_modules_mips64el_uefi
+elif [ "$1" = "loongarch64" ]; then
+    all_modules="$net_modules_uefi $all_modules_loongarch64_uefi "
+
+    grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/loongarch64-efi" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/EFI/BOOT/BOOTLOONGARCH64.EFI"  --format 'loongarch64-efi' --compression 'auto'  $all_modules_loongarch64_uefi
 else
     all_modules="$net_modules_legacy $all_modules_legacy "
     grub-mkimage -v --directory "$VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc" --prefix '(,2)/grub' --output "$VT_DIR/INSTALL/grub/i386-pc/core.img"  --format 'i386-pc' --compression 'auto'  $all_modules_legacy  'fat' 'part_msdos' 'biosdisk' 
@@ -117,6 +123,24 @@ elif [ "$1" = "mips64el" ]; then
             cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/mips64el-efi/$line    $VT_DIR/INSTALL/grub/mips64el-efi/
             xz $VT_DIR/INSTALL/grub/mips64el-efi/$line
             mv $VT_DIR/INSTALL/grub/mips64el-efi/${line}.xz $VT_DIR/INSTALL/grub/mips64el-efi/${line}
+        fi
+    done
+elif [ "$1" = "loongarch64" ]; then
+    rm -f $VT_DIR/GRUB2/NBP/core.efi
+    cp -a $VT_DIR/GRUB2/PXE/grub2/loongarch64-efi/core.efi  $VT_DIR/GRUB2/NBP/core.efi || exit 1
+    
+    rm -rf $VT_DIR/INSTALL/grub/loongarch64-efi
+    mkdir -p $VT_DIR/INSTALL/grub/loongarch64-efi
+
+    cp -a $VT_DIR/GRUB2/PXE/grub2/loongarch64-efi/normal.mod    $VT_DIR/INSTALL/grub/loongarch64-efi/normal.mod  || exit 1      
+
+    #copy other modules
+    ls -1 $VT_DIR/GRUB2/INSTALL/lib/grub/loongarch64-efi/ | egrep '\.(lst|mod)$' | while read line; do
+        if ! echo $all_modules | grep -q " ${line%.mod} "; then
+            echo "Copy $line ..."
+            cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/loongarch64-efi/$line    $VT_DIR/INSTALL/grub/loongarch64-efi/
+            xz $VT_DIR/INSTALL/grub/loongarch64-efi/$line
+            mv $VT_DIR/INSTALL/grub/loongarch64-efi/${line}.xz $VT_DIR/INSTALL/grub/loongarch64-efi/${line}
         fi
     done
 else
