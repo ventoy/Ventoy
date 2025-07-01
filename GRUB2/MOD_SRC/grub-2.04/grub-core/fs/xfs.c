@@ -23,10 +23,24 @@
 #include <grub/misc.h>
 #include <grub/disk.h>
 #include <grub/dl.h>
+#include <grub/time.h>
 #include <grub/types.h>
 #include <grub/fshelp.h>
 
 GRUB_MOD_LICENSE ("GPLv3+");
+
+#define NSEC_PER_SEC ((grub_int64_t) 1000000000)
+
+// GRUB 2.04 doesn't have safemath.h
+// #include <grub/safemath.h>
+
+// gcc < 5.1 doesn't support __builtin_add_overflow and __builtin_mul_overflow
+// #define grub_add(a, b, res) __builtin_add_overflow(a, b, res)
+// #define grub_mul(a, b, res) __builtin_mul_overflow(a, b, res)
+// Warning: This is unsafe!
+#define grub_add(a, b, res) ({ *(res) = (a) + (b); 0; })
+
+#define grub_mul(a, b, res) ({ *(res) = (a) * (b); 0; })
 
 #define	XFS_INODE_EXTENTS	9
 
@@ -74,10 +88,22 @@ GRUB_MOD_LICENSE ("GPLv3+");
 	 XFS_SB_VERSION2_PROJID32BIT | \
 	 XFS_SB_VERSION2_FTYPE)
 
+/* Inode flags2 flags */
+#define XFS_DIFLAG2_BIGTIME_BIT	3
+#define XFS_DIFLAG2_BIGTIME		(1 << XFS_DIFLAG2_BIGTIME_BIT)
+#define XFS_DIFLAG2_NREXT64_BIT	4
+#define XFS_DIFLAG2_NREXT64		(1 << XFS_DIFLAG2_NREXT64_BIT)
+
 /* incompat feature flags */
 #define XFS_SB_FEAT_INCOMPAT_FTYPE      (1 << 0)        /* filetype in dirent */
 #define XFS_SB_FEAT_INCOMPAT_SPINODES   (1 << 1)        /* sparse inode chunks */
 #define XFS_SB_FEAT_INCOMPAT_META_UUID  (1 << 2)        /* metadata UUID */
+#define XFS_SB_FEAT_INCOMPAT_BIGTIME    (1 << 3)        /* large timestamps */
+#define XFS_SB_FEAT_INCOMPAT_NEEDSREPAIR (1 << 4)       /* needs xfs_repair */
+#define XFS_SB_FEAT_INCOMPAT_NREXT64    (1 << 5)        /* large extent counters */
+#define XFS_SB_FEAT_INCOMPAT_EXCHRANGE  (1 << 6)        /* exchangerange supported */
+#define XFS_SB_FEAT_INCOMPAT_PARENT     (1 << 7)        /* parent pointers */
+#define XFS_SB_FEAT_INCOMPAT_METADIR    (1 << 8)        /* metadata dir tree */
 
 /*
  * Directory entries with ftype are explicitly handled by GRUB code.
@@ -87,11 +113,26 @@ GRUB_MOD_LICENSE ("GPLv3+");
  *
  * We do not currently verify metadata UUID, so it is safe to read filesystems
  * with the XFS_SB_FEAT_INCOMPAT_META_UUID feature.
+ *
+ * We do not currently replay the log, so it is safe to read filesystems
+ * with the XFS_SB_FEAT_INCOMPAT_EXCHRANGE feature.
+ *
+ * We do not currently read directory parent pointers, so it is safe to read
+ * filesystems with the XFS_SB_FEAT_INCOMPAT_PARENT feature.
+ *
+ * We do not currently look at realtime or quota metadata, so it is safe to
+ * read filesystems with the XFS_SB_FEAT_INCOMPAT_METADIR feature.
  */
 #define XFS_SB_FEAT_INCOMPAT_SUPPORTED \
 	(XFS_SB_FEAT_INCOMPAT_FTYPE | \
 	 XFS_SB_FEAT_INCOMPAT_SPINODES | \
-	 XFS_SB_FEAT_INCOMPAT_META_UUID)
+	 XFS_SB_FEAT_INCOMPAT_META_UUID | \
+	 XFS_SB_FEAT_INCOMPAT_BIGTIME | \
+	 XFS_SB_FEAT_INCOMPAT_NEEDSREPAIR | \
+	 XFS_SB_FEAT_INCOMPAT_NREXT64 | \
+	 XFS_SB_FEAT_INCOMPAT_EXCHRANGE | \
+	 XFS_SB_FEAT_INCOMPAT_PARENT | \
+	 XFS_SB_FEAT_INCOMPAT_METADIR)
 
 struct grub_xfs_sblock
 {
@@ -176,33 +217,49 @@ struct grub_xfs_btree_root
   grub_uint64_t keys[1];
 } GRUB_PACKED;
 
-struct grub_xfs_time
+struct grub_xfs_time_legacy
 {
   grub_uint32_t sec;
   grub_uint32_t nanosec;
 } GRUB_PACKED;
 
+/*
+ * The struct grub_xfs_inode layout was taken from the
+ * struct xfs_dinode_core which is described here:
+ * https://mirrors.edge.kernel.org/pub/linux/utils/fs/xfs/docs/xfs_filesystem_structure.pdf
+ */
 struct grub_xfs_inode
 {
   grub_uint8_t magic[2];
   grub_uint16_t mode;
   grub_uint8_t version;
   grub_uint8_t format;
-  grub_uint8_t unused2[26];
-  struct grub_xfs_time atime;
-  struct grub_xfs_time mtime;
-  struct grub_xfs_time ctime;
+  grub_uint8_t unused2[18];
+  grub_uint64_t nextents_big;
+  grub_uint64_t atime;
+  grub_uint64_t mtime;
+  grub_uint64_t ctime;
   grub_uint64_t size;
   grub_uint64_t nblocks;
   grub_uint32_t extsize;
   grub_uint32_t nextents;
   grub_uint16_t unused3;
   grub_uint8_t fork_offset;
-  grub_uint8_t unused4[17];
+  grub_uint8_t unused4[17]; /* Last member of inode v2. */
+  grub_uint8_t unused5[20]; /* First member of inode v3. */
+  grub_uint64_t flags2;
+  grub_uint8_t unused6[48]; /* Last member of inode v3. */
 } GRUB_PACKED;
 
-#define XFS_V2_INODE_SIZE sizeof(struct grub_xfs_inode)
-#define XFS_V3_INODE_SIZE (XFS_V2_INODE_SIZE + 76)
+#define XFS_V3_INODE_SIZE	sizeof(struct grub_xfs_inode)
+/* Size of struct grub_xfs_inode v2, up to unused4 member included. */
+#define XFS_V2_INODE_SIZE	(XFS_V3_INODE_SIZE - 76)
+
+struct grub_xfs_dir_leaf_entry
+{
+  grub_uint32_t hashval;
+  grub_uint32_t address;
+} GRUB_PACKED;
 
 struct grub_xfs_dirblock_tail
 {
@@ -220,6 +277,7 @@ struct grub_fshelp_node
 
 struct grub_xfs_data
 {
+  grub_size_t data_size;
   struct grub_xfs_sblock sblock;
   grub_disk_t disk;
   int pos;
@@ -231,8 +289,6 @@ struct grub_xfs_data
 };
 
 static grub_dl_t my_mod;
-
-
 
 static int grub_xfs_sb_hascrc(struct grub_xfs_data *data)
 {
@@ -296,7 +352,19 @@ static int grub_xfs_sb_valid(struct grub_xfs_data *data)
 	}
       return 1;
     }
+
+  grub_error (GRUB_ERR_BAD_FS, "unsupported XFS filesystem version");
   return 0;
+}
+
+static int
+grub_xfs_sb_needs_repair (struct grub_xfs_data *data)
+{
+  return ((data->sblock.version &
+           grub_cpu_to_be16_compile_time (XFS_SB_VERSION_NUMBITS)) ==
+          grub_cpu_to_be16_compile_time (XFS_SB_VERSION_5) &&
+          (data->sblock.sb_features_incompat &
+           grub_cpu_to_be32_compile_time (XFS_SB_FEAT_INCOMPAT_NEEDSREPAIR)));
 }
 
 /* Filetype information as used in inodes.  */
@@ -354,7 +422,6 @@ GRUB_XFS_EXTENT_SIZE (struct grub_xfs_extent *exts, int ex)
   return (grub_be_to_cpu32 (exts[ex].raw[3]) & ((1 << 21) - 1));
 }
 
-
 static inline grub_uint64_t
 grub_xfs_inode_block (struct grub_xfs_data *data,
 		      grub_uint64_t ino)
@@ -489,7 +556,7 @@ grub_xfs_read_inode (struct grub_xfs_data *data, grub_uint64_t ino,
   grub_uint64_t block = grub_xfs_inode_block (data, ino);
   int offset = grub_xfs_inode_offset (data, ino);
 
-  grub_dprintf("xfs", "Reading inode (%"PRIuGRUB_UINT64_T") - %"PRIuGRUB_UINT64_T", %d\n",
+  grub_dprintf("xfs", "Reading inode (%" PRIuGRUB_UINT64_T ") - %" PRIuGRUB_UINT64_T ", %d\n",
 	       ino, block, offset);
   /* Read the inode.  */
   if (grub_disk_read (data->disk, block, offset, grub_xfs_inode_size(data),
@@ -509,11 +576,26 @@ get_fsb (const void *keys, int idx)
   return grub_be_to_cpu64 (grub_get_unaligned64 (p));
 }
 
+static int
+grub_xfs_inode_has_large_extent_counts (const struct grub_xfs_inode *inode)
+{
+  return inode->version >= 3 &&
+	 (inode->flags2 & grub_cpu_to_be64_compile_time (XFS_DIFLAG2_NREXT64));
+}
+
+static grub_uint64_t
+grub_xfs_get_inode_nextents (struct grub_xfs_inode *inode)
+{
+  return (grub_xfs_inode_has_large_extent_counts (inode)) ?
+	  grub_be_to_cpu64 (inode->nextents_big) :
+	  grub_be_to_cpu32 (inode->nextents);
+}
+
 static grub_disk_addr_t
 grub_xfs_read_block (grub_fshelp_node_t node, grub_disk_addr_t fileblock)
 {
   struct grub_xfs_btree_node *leaf = 0;
-  int ex, nrec;
+  grub_uint64_t ex, nrec;
   struct grub_xfs_extent *exts;
   grub_uint64_t ret = 0;
 
@@ -538,7 +620,18 @@ grub_xfs_read_block (grub_fshelp_node_t node, grub_disk_addr_t fileblock)
 				/ (2 * sizeof (grub_uint64_t));
       do
         {
-          int i;
+          grub_uint64_t i;
+	  grub_addr_t keys_end, data_end;
+
+	  if (grub_mul (sizeof (grub_uint64_t), nrec, &keys_end) ||
+	      grub_add ((grub_addr_t) keys, keys_end, &keys_end) ||
+	      grub_add ((grub_addr_t) node->data, node->data->data_size, &data_end) ||
+	      keys_end > data_end)
+	    {
+	      grub_error (GRUB_ERR_BAD_FS, "invalid number of XFS root keys");
+	      grub_free (leaf);
+	      return 0;
+	    }
 
           for (i = 0; i < nrec; i++)
             {
@@ -556,7 +649,10 @@ grub_xfs_read_block (grub_fshelp_node_t node, grub_disk_addr_t fileblock)
           if (grub_disk_read (node->data->disk,
                               GRUB_XFS_FSB_TO_BLOCK (node->data, get_fsb (keys, i - 1 + recoffset)) << (node->data->sblock.log2_bsize - GRUB_DISK_SECTOR_BITS),
                               0, node->data->bsize, leaf))
-            return 0;
+            {
+              grub_free (leaf);
+              return 0;
+            }
 
 	  if ((!node->data->hascrc &&
 	       grub_strncmp ((char *) leaf->magic, "BMAP", 4)) ||
@@ -579,8 +675,20 @@ grub_xfs_read_block (grub_fshelp_node_t node, grub_disk_addr_t fileblock)
     }
   else if (node->inode.format == XFS_INODE_FORMAT_EXT)
     {
-      nrec = grub_be_to_cpu32 (node->inode.nextents);
+      grub_addr_t exts_end = 0;
+      grub_addr_t data_end = 0;
+
+      nrec = grub_xfs_get_inode_nextents (&node->inode);
       exts = (struct grub_xfs_extent *) grub_xfs_inode_data(&node->inode);
+
+      if (grub_mul (sizeof (struct grub_xfs_extent), nrec, &exts_end) ||
+	  grub_add ((grub_addr_t) node->data, exts_end, &exts_end) ||
+	  grub_add ((grub_addr_t) node->data, node->data->data_size, &data_end) ||
+	  exts_end > data_end)
+	{
+	  grub_error (GRUB_ERR_BAD_FS, "invalid number of XFS extents");
+	  return 0;
+	}
     }
   else
     {
@@ -634,6 +742,7 @@ static char *
 grub_xfs_read_symlink (grub_fshelp_node_t node)
 {
   grub_ssize_t size = grub_be_to_cpu64 (node->inode.size);
+  grub_size_t sz;
 
   if (size < 0)
     {
@@ -655,7 +764,12 @@ grub_xfs_read_symlink (grub_fshelp_node_t node)
 	if (node->data->hascrc)
 	  off = 56;
 
-	symlink = grub_malloc (size + 1);
+	if (grub_add (size, 1, &sz))
+	  {
+	    grub_error (GRUB_ERR_OUT_OF_RANGE, N_("symlink size overflow"));
+	    return 0;
+	  }
+	symlink = grub_malloc (sz);
 	if (!symlink)
 	  return 0;
 
@@ -705,8 +819,15 @@ static int iterate_dir_call_hook (grub_uint64_t ino, const char *filename,
 {
   struct grub_fshelp_node *fdiro;
   grub_err_t err;
+  grub_size_t sz;
 
-  fdiro = grub_malloc (grub_xfs_fshelp_size(ctx->diro->data) + 1);
+  if (grub_add (grub_xfs_fshelp_size(ctx->diro->data), 1, &sz))
+    {
+      grub_error (GRUB_ERR_OUT_OF_RANGE, N_("directory data size overflow"));
+      grub_print_error ();
+      return 0;
+    }
+  fdiro = grub_malloc (sz);
   if (!fdiro)
     {
       grub_print_error ();
@@ -722,6 +843,7 @@ static int iterate_dir_call_hook (grub_uint64_t ino, const char *filename,
   if (err)
     {
       grub_print_error ();
+      grub_free (fdiro);
       return 0;
     }
 
@@ -764,11 +886,19 @@ grub_xfs_iterate_dir (grub_fshelp_node_t dir,
 	if (iterate_dir_call_hook (parent, "..", &ctx))
 	  return 1;
 
-	for (i = 0; i < head->count; i++)
+	for (i = 0; i < head->count &&
+	     (grub_uint8_t *) de < ((grub_uint8_t *) dir + grub_xfs_fshelp_size (dir->data)); i++)
 	  {
 	    grub_uint64_t ino;
 	    grub_uint8_t *inopos = grub_xfs_inline_de_inopos(dir->data, de);
 	    grub_uint8_t c;
+
+	    if ((inopos + (smallino ? 4 : 8)) > (grub_uint8_t *) dir + grub_xfs_fshelp_size (dir->data))
+	      {
+		grub_error (GRUB_ERR_BAD_FS, "invalid XFS inode");
+		return 0;
+	      }
+
 
 	    /* inopos might be unaligned.  */
 	    if (smallino)
@@ -824,24 +954,49 @@ grub_xfs_iterate_dir (grub_fshelp_node_t dir,
 	  {
 	    struct grub_xfs_dir2_entry *direntry =
 					grub_xfs_first_de(dir->data, dirblock);
-	    int entries;
-	    struct grub_xfs_dirblock_tail *tail =
-					grub_xfs_dir_tail(dir->data, dirblock);
+	    int entries = -1;
+	    char *end = dirblock + dirblk_size;
+	    grub_uint32_t magic;
 
 	    numread = grub_xfs_read_file (dir, 0, 0,
 					  blk << dirblk_log2,
 					  dirblk_size, dirblock, 0);
 	    if (numread != dirblk_size)
-	      return 0;
+	      {
+	        grub_free (dirblock);
+	        return 0;
+	      }
 
-	    entries = (grub_be_to_cpu32 (tail->leaf_count)
-		       - grub_be_to_cpu32 (tail->leaf_stale));
-
-	    if (!entries)
+	    /*
+	     * If this data block isn't actually part of the extent list then
+	     * grub_xfs_read_file() returns a block of zeros. So, if the magic
+	     * number field is all zeros then this block should be skipped.
+	     */
+	    magic = *(grub_uint32_t *)(void *) dirblock;
+	    if (!magic)
 	      continue;
 
+	    /*
+	     * Leaf and tail information are only in the data block if the number
+	     * of extents is 1.
+	     */
+	    if (grub_xfs_get_inode_nextents (&dir->inode) == 1)
+	      {
+		struct grub_xfs_dirblock_tail *tail = grub_xfs_dir_tail (dir->data, dirblock);
+
+		end = (char *) tail;
+
+		/* Subtract the space used by leaf nodes. */
+		end -= grub_be_to_cpu32 (tail->leaf_count) * sizeof (struct grub_xfs_dir_leaf_entry);
+
+		entries = grub_be_to_cpu32 (tail->leaf_count) - grub_be_to_cpu32 (tail->leaf_stale);
+
+		if (!entries)
+		  continue;
+	      }
+
 	    /* Iterate over all entries within this block.  */
-	    while ((char *)direntry < (char *)tail)
+	    while ((char *) direntry < (char *) end)
 	      {
 		grub_uint8_t *freetag;
 		char *filename;
@@ -861,22 +1016,34 @@ grub_xfs_iterate_dir (grub_fshelp_node_t dir,
 		  }
 
 		filename = (char *)(direntry + 1);
+		if (filename + direntry->len + 1 > (char *) end)
+		  {
+		    grub_error (GRUB_ERR_BAD_FS, "invalid XFS directory entry");
+		    return 0;
+		  }
+
 		/* The byte after the filename is for the filetype, padding, or
 		   tag, which is not used by GRUB.  So it can be overwritten. */
 		filename[direntry->len] = '\0';
 
-		if (iterate_dir_call_hook (grub_be_to_cpu64(direntry->inode), 
+		if (iterate_dir_call_hook (grub_be_to_cpu64(direntry->inode),
 					   filename, &ctx))
 		  {
 		    grub_free (dirblock);
 		    return 1;
 		  }
 
-		/* Check if last direntry in this block is
-		   reached.  */
-		entries--;
-		if (!entries)
-		  break;
+		/*
+		 * The expected number of directory entries is only tracked for the
+		 * single extent case.
+		 */
+		if (grub_xfs_get_inode_nextents (&dir->inode) == 1)
+		  {
+		    /* Check if last direntry in this block is reached. */
+		    entries--;
+		    if (!entries)
+		      break;
+		  }
 
 		/* Select the next directory entry.  */
 		direntry = grub_xfs_next_de(dir->data, direntry);
@@ -899,10 +1066,13 @@ static struct grub_xfs_data *
 grub_xfs_mount (grub_disk_t disk)
 {
   struct grub_xfs_data *data = 0;
+  grub_size_t sz;
 
   data = grub_zalloc (sizeof (struct grub_xfs_data));
   if (!data)
     return 0;
+
+  data->data_size = sizeof (struct grub_xfs_data);
 
   grub_dprintf("xfs", "Reading sb\n");
   /* Read the superblock.  */
@@ -913,14 +1083,19 @@ grub_xfs_mount (grub_disk_t disk)
   if (!grub_xfs_sb_valid(data))
     goto fail;
 
-  data = grub_realloc (data,
-		       sizeof (struct grub_xfs_data)
-		       - sizeof (struct grub_xfs_inode)
-		       + grub_xfs_inode_size(data) + 1);
+  if (grub_xfs_sb_needs_repair (data))
+    grub_dprintf ("xfs", "XFS filesystem needs repair, boot may fail\n");
+
+  if (grub_add (grub_xfs_inode_size (data),
+      sizeof (struct grub_xfs_data) - sizeof (struct grub_xfs_inode) + 1, &sz))
+    goto fail;
+
+  data = grub_realloc (data, sz);
 
   if (! data)
     goto fail;
 
+  data->data_size = sz;
   data->diropen.data = data;
   data->diropen.ino = grub_be_to_cpu64(data->sblock.rootino);
   data->diropen.inode_read = 1;
@@ -931,7 +1106,7 @@ grub_xfs_mount (grub_disk_t disk)
 
   data->disk = disk;
   data->pos = 0;
-  grub_dprintf("xfs", "Reading root ino %"PRIuGRUB_UINT64_T"\n",
+  grub_dprintf("xfs", "Reading root ino %" PRIuGRUB_UINT64_T "\n",
 	       grub_cpu_to_be64(data->sblock.rootino));
 
   grub_xfs_read_inode (data, data->diropen.ino, &data->diropen.inode);
@@ -939,7 +1114,7 @@ grub_xfs_mount (grub_disk_t disk)
   return data;
  fail:
 
-  if (grub_errno == GRUB_ERR_OUT_OF_RANGE)
+  if (grub_errno == GRUB_ERR_OUT_OF_RANGE || grub_errno == GRUB_ERR_NONE)
     grub_error (GRUB_ERR_BAD_FS, "not an XFS filesystem");
 
   grub_free (data);
@@ -947,13 +1122,33 @@ grub_xfs_mount (grub_disk_t disk)
   return 0;
 }
 
-
 /* Context for grub_xfs_dir.  */
 struct grub_xfs_dir_ctx
 {
   grub_fs_dir_hook_t hook;
   void *hook_data;
 };
+
+/* Bigtime inodes helpers. */
+#define XFS_BIGTIME_EPOCH_OFFSET	(-(grub_int64_t) GRUB_INT32_MIN)
+
+static int grub_xfs_inode_has_bigtime (const struct grub_xfs_inode *inode)
+{
+  return inode->version >= 3 &&
+	 (inode->flags2 & grub_cpu_to_be64_compile_time (XFS_DIFLAG2_BIGTIME));
+}
+
+static grub_int64_t
+grub_xfs_get_inode_time (struct grub_xfs_inode *inode)
+{
+  struct grub_xfs_time_legacy *lts;
+
+  if (grub_xfs_inode_has_bigtime (inode))
+    return grub_divmod64 (grub_be_to_cpu64 (inode->mtime), NSEC_PER_SEC, NULL) - XFS_BIGTIME_EPOCH_OFFSET;
+
+  lts = (struct grub_xfs_time_legacy *) &inode->mtime;
+  return grub_be_to_cpu32 (lts->sec);
+}
 
 /* Helper for grub_xfs_dir.  */
 static int
@@ -967,7 +1162,7 @@ grub_xfs_dir_iter (const char *filename, enum grub_fshelp_filetype filetype,
   if (node->inode_read)
     {
       info.mtimeset = 1;
-      info.mtime = grub_be_to_cpu32 (node->inode.mtime.sec);
+      info.mtime = grub_xfs_get_inode_time (&node->inode);
     }
   info.dir = ((filetype & GRUB_FSHELP_TYPE_MASK) == GRUB_FSHELP_DIR);
   grub_free (node);
@@ -1132,8 +1327,6 @@ grub_xfs_uuid (grub_device_t device, char **uuid)
   return grub_errno;
 }
 
-
-
 static struct grub_fs grub_xfs_fs =
   {
     .name = "xfs",
@@ -1152,6 +1345,7 @@ static struct grub_fs grub_xfs_fs =
 
 GRUB_MOD_INIT(xfs)
 {
+  //grub_xfs_fs.mod = mod;
   grub_fs_register (&grub_xfs_fs);
   my_mod = mod;
 }
