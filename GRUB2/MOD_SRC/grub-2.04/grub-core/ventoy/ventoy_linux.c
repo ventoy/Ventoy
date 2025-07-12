@@ -1547,6 +1547,11 @@ grub_err_t ventoy_cmd_load_cpio(grub_extcmd_context_t ctxt, int argc, char **arg
         debug("cpio busybox proc %s\n", args[3]);
         ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf, "m64");
     }
+    else if (grub_strcmp(args[3], "busybox=l64") == 0)
+    {
+        debug("cpio busybox proc %s\n", args[3]);
+        ventoy_cpio_busybox64((cpio_newc_header *)g_ventoy_cpio_buf, "l64");
+    }
 
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
