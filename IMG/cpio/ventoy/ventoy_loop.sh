@@ -101,6 +101,11 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # Parted Magic
+    if [ -d /pmagic ]; then
+        echo 'pmagic'; return
+    fi
+
     # rhel5/CentOS5 and all other distributions based on them
     if $GREP -q 'el5' /proc/version; then
         echo 'rhel5'; return
@@ -267,10 +272,6 @@ ventoy_get_os_type() {
     
     if $GREP -q 'adelielinux' /proc/version; then
         echo 'adelie'; return
-    fi
-    
-    if $GREP -q 'pmagic' /proc/version; then
-        echo 'pmagic'; return
     fi
     
     if $GREP -q 'CDlinux' /proc/cmdline; then
