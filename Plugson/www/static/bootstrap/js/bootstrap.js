@@ -783,7 +783,7 @@ if (typeof jQuery === 'undefined') {
 
     // Only allow selector if it is a safe CSS selector (starts with # or . and does not contain '<')
     var isSafeSelector = selector && (/^#[\w-]+$/.test(selector) || (/^\.[\w-]+$/.test(selector))) && selector.indexOf('<') === -1;
-    var $parent = isSafeSelector ? $(selector) : $this.parent();
+    var $parent = isSafeSelector ? $(document).find(selector) : $this.parent();
 
     return $parent && $parent.length ? $parent : $this.parent()
   }
