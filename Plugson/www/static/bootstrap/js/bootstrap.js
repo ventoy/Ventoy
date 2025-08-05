@@ -781,7 +781,9 @@ if (typeof jQuery === 'undefined') {
       selector = selector && /#[A-Za-z]/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
     }
 
-    var $parent = selector && $(selector)
+    // Only allow selector if it is a safe CSS selector (starts with # or . and does not contain '<')
+    var isSafeSelector = selector && (/^#[\w-]+$/.test(selector) || (/^\.[\w-]+$/.test(selector))) && selector.indexOf('<') === -1;
+    var $parent = isSafeSelector ? $(selector) : $this.parent();
 
     return $parent && $parent.length ? $parent : $this.parent()
   }
