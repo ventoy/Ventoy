@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -1201,11 +1203,16 @@ static int detect_gui_exe_path(int argc, char **argv, const char *curpath, char 
     if (access(pathbuf, X_OK) == -1)
     {
         vlog("execute permission check fail, try chmod.\n", pathbuf);
-        if (stat(pathbuf, &filestat) == 0)
+        int fd = open(pathbuf, O_RDONLY);
+        if (fd != -1)
         {
-            mode = filestat.st_mode | S_IXUSR | S_IXGRP | S_IXOTH;
-            ret = chmod(pathbuf, mode);
-            vlog("old mode=%o new mode=%o ret=%d\n", filestat.st_mode, mode, ret);
+            if (fstat(fd, &filestat) == 0)
+            {
+                mode = filestat.st_mode | S_IXUSR | S_IXGRP | S_IXOTH;
+                ret = fchmod(fd, mode);
+                vlog("old mode=%o new mode=%o ret=%d\n", filestat.st_mode, mode, ret);
+            }
+            close(fd);
         }
     }
     else
