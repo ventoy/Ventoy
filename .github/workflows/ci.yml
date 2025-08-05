@@ -1,4 +1,6 @@
 name: Ventoy CI
+permissions:
+  contents: read
 
 on:
   push:
