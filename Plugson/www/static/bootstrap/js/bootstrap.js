@@ -109,11 +109,12 @@ if (typeof jQuery === 'undefined') {
       selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') // strip for ie7
     }
 
-    var $parent = $(selector)
-
-    if (e) e.preventDefault()
-
-    if (!$parent.length) {
+    var $parent;
+    if (selector && selector.charAt(0) === '#' && /^[#A-Za-z0-9\-_:.]+$/.test(selector)) {
+      // Only allow ID selectors
+      var el = document.getElementById(selector.slice(1));
+      $parent = $(el);
+    } else {
       $parent = $this.closest('.alert')
     }
 
