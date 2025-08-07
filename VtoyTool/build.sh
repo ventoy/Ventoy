@@ -14,7 +14,7 @@ mips64el-linux-musl-gcc -mips64r2 -mabi=64 -Os -static -DVTOY_MIPS64 -D_FILE_OFF
 
 if [ -e vtoytool_64 ] && [ -e vtoytool_32 ] && [ -e vtoytool_aa64 ] && [ -e vtoytool_m64e ]; then
     echo -e '\n############### SUCCESS ###############\n'
-    
+
     aarch64-buildroot-linux-uclibc-strip --strip-all vtoytool_aa64
     mips64el-linux-musl-strip --strip-all vtoytool_m64e
     mv vtoytool_m64e vtoytool/00/

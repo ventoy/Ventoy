@@ -363,8 +363,8 @@ grub_term_gotoxy (struct grub_term_output *term, struct grub_term_coordinate pos
   term->gotoxy (term, pos);
 }
 
-static inline void 
-grub_term_setcolorstate (struct grub_term_output *term, 
+static inline void
+grub_term_setcolorstate (struct grub_term_output *term,
 			 grub_term_color_state state)
 {
   if (term->setcolorstate)
@@ -375,20 +375,20 @@ static inline void
 grub_setcolorstate (grub_term_color_state state)
 {
   struct grub_term_output *term;
-  
+
   FOR_ACTIVE_TERM_OUTPUTS(term)
     grub_term_setcolorstate (term, state);
 }
 
 /* Turn on/off the cursor.  */
-static inline void 
+static inline void
 grub_term_setcursor (struct grub_term_output *term, int on)
 {
   if (term->setcursor)
     term->setcursor (term, on);
 }
 
-static inline void 
+static inline void
 grub_term_cls (struct grub_term_output *term)
 {
   if (term->cls)

@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 . /ventoy/hook/ventoy-hook-lib.sh
@@ -49,11 +49,11 @@ check_insmod() {
 wrt_insmod() {
     kbit=$1
     kv=$(uname -r)
-    
+
     vtlog "insmod $kv $kbit"
-    
+
     check_insmod /ventoy_openwrt/$kv/$kbit/dax.ko
-    check_insmod /ventoy_openwrt/$kv/$kbit/dm-mod.ko    
+    check_insmod /ventoy_openwrt/$kv/$kbit/dm-mod.ko
 }
 
 insmod_dm_mod() {
@@ -61,7 +61,7 @@ insmod_dm_mod() {
         vtlog "device-mapper enabled by system 0"
         return
     fi
-    
+
     check_insmod /ventoy/modules/dax.ko
     check_insmod /ventoy/modules/dm-mod.ko
 
@@ -69,7 +69,7 @@ insmod_dm_mod() {
         vtlog "device-mapper enabled by system 1"
         return
     fi
-    
+
     if [ -f /ventoy_openwrt.xz ]; then
         tar xf /ventoy_openwrt.xz -C /
         rm -f  /ventoy_openwrt.xz
@@ -78,7 +78,7 @@ insmod_dm_mod() {
     if uname -m | egrep -q "amd64|x86_64"; then
         wrt_insmod 64
     else
-        wrt_insmod generic    
+        wrt_insmod generic
         if lsmod | grep -q 'dm-mod'; then
             vterr "insmod generic failed"
         else
@@ -101,7 +101,7 @@ while [ -n "Y" ]; do
         vtlog "get_ventoy_disk_name $vtusb_disk not ready"
         sleep 2
         check_mkdev_node
-    fi    
+    fi
 done
 
 

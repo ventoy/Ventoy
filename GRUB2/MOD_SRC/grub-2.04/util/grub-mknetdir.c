@@ -52,7 +52,7 @@ static struct argp_option options[] = {
   {0, 0, 0, 0, 0, 0}
 };
 
-static error_t 
+static error_t
 argp_parser (int key, char *arg, struct argp_state *state)
 {
   if (grub_install_parse (key, arg))
@@ -86,7 +86,7 @@ argp_parser (int key, char *arg, struct argp_state *state)
 struct argp argp = {
   options, argp_parser, NULL,
   "\v"N_("Prepares GRUB network boot images at net_directory/subdir "
-	 "assuming net_directory being TFTP root."), 
+	 "assuming net_directory being TFTP root."),
   NULL, grub_install_help_filter, NULL
 };
 

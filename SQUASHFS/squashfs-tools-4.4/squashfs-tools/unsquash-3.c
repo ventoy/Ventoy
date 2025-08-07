@@ -103,7 +103,7 @@ static int read_fragment_table(long long *table_start)
 			length, sfragment_table_index);
 		if(res == FALSE) {
 			ERROR("read_fragment_table: failed to read fragment "
-				"table index\n");       
+				"table index\n");
 			return FALSE;
 		}
 		SQUASHFS_SWAP_FRAGMENT_INDEXES_3(fragment_table_index,
@@ -113,7 +113,7 @@ static int read_fragment_table(long long *table_start)
 			length, fragment_table_index);
 		if(res == FALSE) {
 			ERROR("read_fragment_table: failed to read fragment "
-				"table index\n");       
+				"table index\n");
 			return FALSE;
 		}
 	}
@@ -128,7 +128,7 @@ static int read_fragment_table(long long *table_start)
 			i, fragment_table_index[i], length);
 		if(length == FALSE) {
 			ERROR("read_fragment_table: failed to read fragment "
-				"table block\n");       
+				"table block\n");
 			return FALSE;
 		}
 	}
@@ -170,7 +170,7 @@ static struct inode *read_inode(unsigned int start_block, unsigned int offset)
 
 	if(bytes == -1)
 		EXIT_UNSQUASH("read_inode: inode table block %lld not found\n",
-			start); 
+			start);
 
 	if(swap) {
 		squashfs_base_inode_header_3 sinode;
@@ -248,7 +248,7 @@ static struct inode *read_inode(unsigned int start_block, unsigned int offset)
 			i.sparse = 1;
 			i.block_ptr = block_ptr + sizeof(*inode);
 			break;
-		}	
+		}
 		case SQUASHFS_LREG_TYPE: {
 			squashfs_lreg_inode_header_3 *inode = &header.lreg;
 
@@ -273,7 +273,7 @@ static struct inode *read_inode(unsigned int start_block, unsigned int offset)
 			i.sparse = 1;
 			i.block_ptr = block_ptr + sizeof(*inode);
 			break;
-		}	
+		}
 		case SQUASHFS_SYMLINK_TYPE: {
 			squashfs_symlink_inode_header_3 *inodep =
 				&header.symlink;
@@ -374,14 +374,14 @@ static struct dir *squashfs_opendir(unsigned int block_start, unsigned int offse
 	bytes += (*i)->offset;
 	size = (*i)->data + bytes - 3;
 
-	while(bytes < size) {			
+	while(bytes < size) {
 		if(swap) {
 			squashfs_dir_header_3 sdirh;
 			memcpy(&sdirh, directory_table + bytes, sizeof(sdirh));
 			SQUASHFS_SWAP_DIR_HEADER_3(&dirh, &sdirh);
 		} else
 			memcpy(&dirh, directory_table + bytes, sizeof(dirh));
-	
+
 		dir_count = dirh.count + 1;
 		TRACE("squashfs_opendir: Read directory header @ byte position "
 			"%d, %d directory entries\n", bytes, dir_count);

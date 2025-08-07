@@ -438,11 +438,11 @@ static void menu_set_chosen_tip(grub_menu_t menu, int entry)
 
     if (g_ventoy_theme_path[0])
     {
-        grub_env_set("theme", g_ventoy_theme_path);        
+        grub_env_set("theme", g_ventoy_theme_path);
     }
 
     g_ventoy_tip_msg1 = g_ventoy_tip_msg2 = NULL;
-    if (e && e->id && grub_strncmp(e->id, "VID_", 4) == 0) 
+    if (e && e->id && grub_strncmp(e->id, "VID_", 4) == 0)
     {
         g_ventoy_theme_path[0] = 0;
         img = (img_info *)(void *)grub_strtoul(e->id + 4, NULL, 16);
@@ -480,7 +480,7 @@ static void
 menu_set_chosen_entry (grub_menu_t menu, int entry)
 {
   struct grub_menu_viewer *cur;
-  
+
   menu_set_chosen_tip(menu, entry);
   for (cur = viewers; cur; cur = cur->next)
     cur->set_chosen_entry (entry, cur->data);
@@ -972,7 +972,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
                         ;
                     menu_fini ();
                     goto refresh;
-                }                
+                }
             }
             break;
         case (GRUB_TERM_CTRL | 'd'):
@@ -981,7 +981,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             {
                 menu_fini ();
                 g_ventoy_memdisk_mode = 1 - g_ventoy_memdisk_mode;
-                g_ventoy_menu_refresh = 1;                
+                g_ventoy_menu_refresh = 1;
                 goto refresh;
             }
             break;
@@ -992,7 +992,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
                 menu_fini ();
                 g_ventoy_iso_raw = 1 - g_ventoy_iso_raw;
                 g_ventoy_menu_refresh = 1;
-                goto refresh;                
+                goto refresh;
             }
             break;
         case (GRUB_TERM_CTRL | 'r'):
@@ -1001,10 +1001,10 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
             {
                 menu_fini ();
                 g_ventoy_grub2_mode = 1 - g_ventoy_grub2_mode;
-                g_ventoy_menu_refresh = 1;                
+                g_ventoy_menu_refresh = 1;
                 goto refresh;
             }
-            break;            
+            break;
         case (GRUB_TERM_CTRL | 'w'):
         case 'w':
             if (0 == g_ventoy_secondary_menu_on)
@@ -1039,7 +1039,7 @@ run_menu (grub_menu_t menu, int nested, int *auto_boot)
         case 'm':
         {
             if (0 == g_ventoy_secondary_menu_on)
-            {                
+            {
                 if (g_ventoy_cur_img_path)
                 {
                     grub_env_set("VTOY_CHKSUM_FILE_PATH", g_ventoy_cur_img_path);
@@ -1128,16 +1128,16 @@ static struct grub_menu_execute_callback execution_callback =
 static grub_err_t
 show_menu (grub_menu_t menu, int nested, int autobooted)
 {
-    const char *def;    
+    const char *def;
     def = grub_env_get("VTOY_DEFAULT_IMAGE");
-    
+
   while (1)
     {
       int ndown;
       int boot_entry;
       grub_menu_entry_t e;
       int auto_boot;
-      
+
       boot_entry = run_menu (menu, nested, &auto_boot);
       if (boot_entry < 0)
 	break;
@@ -1149,7 +1149,7 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
       if (autobooted == 0 && auto_boot == 0) {
           g_ventoy_last_entry = boot_entry;
           if (g_ventoy_menu_esc)
-              break;          
+              break;
       }
 
       if (autobooted == 0 && g_ventoy_menu_esc && auto_boot) {
@@ -1162,7 +1162,7 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
 	continue; /* Menu is empty.  */
 
       if (2 == e->argc && e->args && e->args[1] && grub_strncmp(e->args[1], "VTOY_RET", 8) == 0)
-        break;  
+        break;
 
       grub_cls ();
 
@@ -1175,8 +1175,8 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
 	break;
 
       if (2 == e->argc && e->args && e->args[1] && grub_strncmp(e->args[1], "VTOY_RUN_RET", 12) == 0)
-        break; 
-      else if (2 == e->argc && e->args && e->args[1] && grub_strncmp(e->args[1], "VTOY_RUN_SET", 12) == 0) {        
+        break;
+      else if (2 == e->argc && e->args && e->args[1] && grub_strncmp(e->args[1], "VTOY_RUN_SET", 12) == 0) {
         ndown = (int)grub_strtol(e->args[1] + 12, NULL, 10);
         while (ndown > 0)
         {
@@ -1184,7 +1184,7 @@ show_menu (grub_menu_t menu, int nested, int autobooted)
             ndown--;
         }
         ventoy_menu_push_key('\n');
-        break;         
+        break;
       }
     }
 

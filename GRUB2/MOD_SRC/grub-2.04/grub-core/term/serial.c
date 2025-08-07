@@ -79,7 +79,7 @@ struct grub_serial_input_state
   struct grub_serial_port *port;
 };
 
-static void 
+static void
 serial_put (grub_term_output_t term, const int c)
 {
   struct grub_serial_output_state *data = term->data;
@@ -214,7 +214,7 @@ grub_cmd_serial (grub_extcmd_context_t ctxt, int argc, char **args)
 
   port = grub_serial_find (name);
   if (!port)
-    return grub_error (GRUB_ERR_BAD_ARGUMENT, 
+    return grub_error (GRUB_ERR_BAD_ARGUMENT,
 		       N_("serial port `%s' isn't found"),
 		       name);
 
@@ -400,7 +400,7 @@ grub_serial_unregister (struct grub_serial_port *port)
 {
   if (port->driver->fini)
     port->driver->fini (port);
-  
+
   if (port->term_in)
     grub_term_unregister_input (port->term_in);
   if (port->term_out)

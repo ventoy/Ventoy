@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -34,7 +34,7 @@ typedef enum PROGRESS_POINT
     PT_UNXZ_DISK_IMG_FINISH = PT_LOAD_DISK_IMG + 32,
 
     PT_FORMAT_PART1, //10
-    
+
     PT_FORMAT_PART2,
 
     PT_WRITE_VENTOY_START,
@@ -42,13 +42,13 @@ typedef enum PROGRESS_POINT
 
     PT_WRITE_STG1_IMG,//45
     PT_SYNC_DATA1,
-    
+
     PT_CHECK_PART2,
     PT_CHECK_PART2_FINISH = PT_CHECK_PART2 + 8,
 
     PT_WRITE_PART_TABLE,//52
     PT_SYNC_DATA2,
-    
+
     PT_FINISH
 }PROGRESS_POINT;
 

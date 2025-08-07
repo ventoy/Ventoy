@@ -238,12 +238,12 @@ grub_env_export (const char *name)
   if (! var)
     {
       grub_err_t err;
-      
+
       err = grub_env_set (name, "");
       if (err)
 	return err;
       var = grub_env_find (name);
-    }    
+    }
   var->global = 1;
 
   return GRUB_ERR_NONE;

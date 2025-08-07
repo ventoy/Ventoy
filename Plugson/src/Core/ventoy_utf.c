@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -115,7 +115,7 @@ static codepoint_t decode_utf16(utf16_t const* utf16, size_t len, size_t* index)
 
     // BMP character
     if ((high & GENERIC_SURROGATE_MASK) != GENERIC_SURROGATE_VALUE)
-        return high; 
+        return high;
 
     // Unmatched low surrogate, invalid
     if ((high & SURROGATE_MASK) != HIGH_SURROGATE_VALUE)
@@ -124,7 +124,7 @@ static codepoint_t decode_utf16(utf16_t const* utf16, size_t len, size_t* index)
     // String ended with an unmatched high surrogate, invalid
     if (*index == len - 1)
         return INVALID_CODEPOINT;
-    
+
     utf16_t low = utf16[*index + 1];
 
     // Unmatched high surrogate, invalid
@@ -141,7 +141,7 @@ static codepoint_t decode_utf16(utf16_t const* utf16, size_t len, size_t* index)
     result <<= SURROGATE_CODEPOINT_BITS;
     result |= low & SURROGATE_CODEPOINT_MASK;
     result += SURROGATE_CODEPOINT_OFFSET;
-    
+
     // And if all else fails, it's valid
     return result;
 }
@@ -240,7 +240,7 @@ static codepoint_t decode_utf8(utf8_t const* utf8, size_t len, size_t* index)
     utf8_pattern leading_pattern;
     // If the leading byte matches the current leading pattern
     int matches = 0;
-    
+
     do
     {
         encoding_len++;

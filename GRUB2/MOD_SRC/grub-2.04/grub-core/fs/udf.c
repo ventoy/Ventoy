@@ -581,7 +581,7 @@ grub_udf_read_block (grub_fshelp_node_t node, grub_disk_addr_t fileblock)
 		    (buf + sizeof (struct grub_udf_aed));
 	      continue;
 	    }
-	      
+
 	  if (filebytes < adlen)
 	    {
 	      grub_uint32_t ad_block_num = ad->block.block_num;
@@ -1371,9 +1371,9 @@ grub_uint64_t grub_udf_get_file_offset(grub_file_t file)
 {
     grub_disk_addr_t sector;
     struct grub_fshelp_node *node = (struct grub_fshelp_node *)file->data;
-    
+
     sector = grub_udf_read_block(node, 0);
-    
+
     return 512 * (sector << node->data->lbshift);
 }
 
@@ -1384,7 +1384,7 @@ grub_uint64_t grub_udf_get_last_pd_size_offset(void)
 
 grub_uint64_t grub_udf_get_last_file_attr_offset
 (
-    grub_file_t file, 
+    grub_file_t file,
     grub_uint32_t *startBlock,
     grub_uint64_t *fe_entry_size_offset
 )
@@ -1399,7 +1399,7 @@ grub_uint64_t grub_udf_get_last_file_attr_offset
     *startBlock = data->pds[data->pms[0]->type1.part_num].start;
 
     attr_offset = g_last_fileattr_read_sector * 2048 + g_last_fileattr_offset;
-    
+
     if (GRUB_UDF_TAG_IDENT_FE == g_last_fileattr_read_sector_tag_ident)
     {
         *fe_entry_size_offset = g_last_fileattr_read_sector * 2048 + OFFSET_OF(struct grub_udf_file_entry, file_size);

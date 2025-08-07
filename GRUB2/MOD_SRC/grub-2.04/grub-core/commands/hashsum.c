@@ -39,7 +39,7 @@ static const struct grub_arg_option options[] = {
   {0, 0, 0, 0, 0, 0}
 };
 
-static struct { const char *name; const char *hashname; } aliases[] = 
+static struct { const char *name; const char *hashname; } aliases[] =
   {
     {"sha256sum", "sha256"},
     {"sha512sum", "sha512"},
@@ -106,7 +106,7 @@ hash_file (grub_file_t file, const gcry_md_spec_t *hash, void *result)
   if (progress)
   {
     grub_printf("\rCalculating    %s   100%%    \n\r\n", hash->name);
-    grub_refresh();      
+    grub_refresh();
   }
   return GRUB_ERR_NONE;
 
@@ -134,7 +134,7 @@ check_list (const gcry_md_spec_t *hash, const char *hashfilename,
   hashlist = grub_file_open (hashfilename, GRUB_FILE_TYPE_HASHLIST);
   if (!hashlist)
     return grub_errno;
-  
+
   while (grub_free (buf), (buf = grub_file_getline (hashlist)))
     {
       const char *p = buf;
@@ -155,7 +155,7 @@ check_list (const gcry_md_spec_t *hash, const char *hashfilename,
       if (prefix)
 	{
 	  char *filename;
-	  
+
 	  filename = grub_xasprintf ("%s/%s", prefix, p);
 	  if (!filename)
 	    return grub_errno;
@@ -201,7 +201,7 @@ check_list (const gcry_md_spec_t *hash, const char *hashfilename,
 				 "hash of '%s' mismatches", p);
 	    }
 	  mismatch++;
-	  continue;	  
+	  continue;
 	}
       grub_printf_ (N_("%s: OK\n"), p);
     }

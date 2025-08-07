@@ -185,15 +185,15 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
         fi
     else
         if parted -v > /dev/null 2>&1; then
-            PARTTOOL='parted'            
+            PARTTOOL='parted'
         elif fdisk -v >/dev/null 2>&1; then
-            PARTTOOL='fdisk'            
+            PARTTOOL='fdisk'
         else
             vterr "Both parted and fdisk are not found in the system, Ventoy can't create new partitions."
             exit 1
         fi
     fi
-    
+
     if [ "$PARTTOOL" = "parted" ]; then
         if parted -s $DISK p 2>&1 | grep -i -q 'sector size.*4096.*4096'; then
             vterr "Currently Ventoy does not support 4K native device."
@@ -205,7 +205,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
             exit 1
         fi
     fi
-    
+
 
     version=$(get_disk_ventoy_version $DISK)
     if [ $? -eq 0 ]; then
@@ -311,7 +311,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     dd status=none conv=fsync if=/dev/zero of=$DISK bs=512 count=32 seek=$part2_start_sector
 
     #format part1
-    wait_and_create_part ${PART1} ${PART2}    
+    wait_and_create_part ${PART1} ${PART2}
     if [ -b ${PART1} ]; then
         vtinfo "Format partition 1 ${PART1} ..."
         mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
@@ -324,7 +324,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
             fi
         else
             echo "mkexfatfs success"
-        fi        
+        fi
     else
         vterr "${PART1} NOT exist"
     fi
@@ -339,7 +339,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     else
         xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
-    
+
     # check and umount
     check_umount_disk "$DISK"
 
@@ -360,9 +360,9 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
 
     vtinfo "esp partition processing ..."
 
-    if [ "$SECUREBOOT" != "YES" ]; then 
+    if [ "$SECUREBOOT" != "YES" ]; then
         sleep 2
-        check_umount_disk "$DISK"  
+        check_umount_disk "$DISK"
         vtoycli partresize -s $DISK $part2_start_sector
     fi
 
@@ -382,7 +382,7 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
             exit 1
         fi
     fi
-    
+
     disk_sector_num=$(cat /sys/block/${DISK#/dev/}/size)
     disk_size_gb=$(expr $disk_sector_num / 2097152)
 
@@ -395,8 +395,8 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
     #Print disk info
     echo "Disk : $DISK"
     parted -s $DISK p 2>&1 | grep Model
-    echo "Size : $disk_size_gb GB" 
-    echo "Style: $OldStyle"    
+    echo "Size : $disk_size_gb GB"
+    echo "Style: $OldStyle"
     echo ''
 
     vtwarn "Attention:"
@@ -410,13 +410,13 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
         fi
     fi
 
-    if [ $disk_sector_num -le $VENTOY_SECTOR_NUM ]; then  
+    if [ $disk_sector_num -le $VENTOY_SECTOR_NUM ]; then
         vterr "No enough space in disk $DISK"
         exit 1
     fi
 
-    PART1=$(get_disk_part_name $DISK 1)  
-    PART2=$(get_disk_part_name $DISK 2)  
+    PART1=$(get_disk_part_name $DISK 1)
+    PART2=$(get_disk_part_name $DISK 2)
 
     #Part1 size in MB aligned with 4KB
     PART1_SECTORS=$(cat /sys/class/block/${PART1#/dev/}/size)
@@ -437,57 +437,57 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
         check_umount_disk "$DISK"
         sleep 1
         check_umount_disk "$DISK"
-    
+
         if [ $vtRet -eq 1 ]; then
             echo "Free space enough, start install..."
             part2_start_sector=$(expr $PART1_SECTORS + 2048)
         elif [ $vtRet -eq 2 ]; then
             echo "We need to shrink partition 1 firstly ..."
-            
+
             PART1_BLKID=$(blkid $PART1)
             blkid $PART1
-            
+
             if echo $PART1_BLKID | grep -E -q -i 'TYPE=ntfs|TYPE=.ntfs'; then
                 echo "Partition 1 contains NTFS filesystem"
-                
+
                 which ntfsresize
                 if [ $? -ne 0 ]; then
                     echo "###[FAIL] ntfsresize not found. Please install ntfs-3g package."
                     exit 1
                 fi
-                
+
                 echo "ntfsfix -b -d $PART1 ..."
                 ntfsfix -b -d $PART1
-                
+
                 echo "ntfsresize --size ${PART1_NEW_MB}Mi $PART1 ..."
                 ntfsresize -f --size ${PART1_NEW_MB}Mi $PART1
                 if [ $? -ne 0 ]; then
-                    echo "###[FAIL] ntfsresize failed." 
+                    echo "###[FAIL] ntfsresize failed."
                     exit 1
                 fi
             elif echo $PART1_BLKID | grep -E -q -i 'TYPE=ext[2-4]|TYPE=.ext[2-4]'; then
                 echo "Partition 1 contains EXT filesystem"
-                
+
                 which resize2fs
                 if [ $? -ne 0 ]; then
                     echo "###[FAIL] resize2fs not found. Please install e2fsprogs package."
                     exit 1
                 fi
-                
+
                 echo "e2fsck -f $PART1 ..."
                 e2fsck -f $PART1
-                
+
                 echo "resize2fs $PART1 ${PART1_NEW_MB}M ..."
                 resize2fs $PART1 ${PART1_NEW_MB}M
                 if [ $? -ne 0 ]; then
-                    echo "###[FAIL] resize2fs failed." 
+                    echo "###[FAIL] resize2fs failed."
                     exit 1
                 fi
             else
                 echo "###[FAIL] Unsupported filesystem in partition 1."
                 exit 1
             fi
-            
+
             sync
             PART1_NEW_END_MB=$(expr $PART1_NEW_MB + 1)
             part2_start_sector=$(expr $PART1_NEW_END_MB \* 2048)
@@ -495,29 +495,29 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
     fi
 
     vtinfo "writing data to disk part2_start=$part2_start_sector ..."
-    
+
     dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=440
-    
+
     if [ "$OldStyle" = "GPT" ]; then
-        echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92        
+        echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92
         xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
         echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
     else
         xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
-    
+
     xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
-    
+
     #test UUID
     testUUIDStr=$(vtoy_gen_uuid | hexdump -C)
     vtdebug "test uuid: $testUUIDStr"
-    
+
     #disk uuid
     vtoy_gen_uuid | dd status=none conv=fsync of=${DISK} seek=384 bs=1 count=16
-    
+
     vtinfo "sync data ..."
     sync
-    
+
     vtinfo "esp partition processing ..."
     if [ "$SECUREBOOT" != "YES" ]; then
         vtoycli partresize -s $DISK $part2_start_sector
@@ -535,10 +535,10 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
         vterr "Ventoy non-destructive installation on $DISK failed."
         echo ""
     fi
-    
+
 else
     vtdebug "update Ventoy ..."
-    
+
     oldver=$(get_disk_ventoy_version $DISK)
     if [ $? -ne 0 ]; then
         if is_disk_contains_ventoy $DISK; then
@@ -615,7 +615,7 @@ else
     rm -f ./rsvdata.bin
 
     check_umount_disk "$DISK"
-    
+
     xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
     sync
 
@@ -626,8 +626,8 @@ else
         vtoycli partresize -s $DISK $part2_start
     fi
 
-    
-    if [ "$PART1_TYPE" = "EE" ]; then    
+
+    if [ "$PART1_TYPE" = "EE" ]; then
         vtinfo "update esp partition attribute"
         vtoycli gpt -f $DISK
         sync

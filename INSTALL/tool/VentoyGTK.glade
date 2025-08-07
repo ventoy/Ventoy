@@ -5,7 +5,7 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
   </object>
-  
+
   <object class="GtkWindow" id="part_cfg_dlg">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
@@ -36,8 +36,8 @@
                     <property name="can_focus">True</property>
                   </object>
                   <packing>
-                    <property name="x">10</property>                    
-                    <property name="y">10</property>                    
+                    <property name="x">10</property>
+                    <property name="y">10</property>
                   </packing>
                 </child>
               </object>
@@ -48,7 +48,7 @@
             <property name="y">10</property>
           </packing>
         </child>
-        
+
         <child>
           <object class="GtkFrame" id="frame_space_value">
             <property name="width_request">220</property>
@@ -85,7 +85,7 @@
             <property name="y">60</property>
           </packing>
         </child>
-        
+
         <child>
           <object class="GtkFrame" id="frame_space_unit">
             <property name="width_request">220</property>
@@ -121,7 +121,7 @@
             <property name="y">60</property>
           </packing>
         </child>
-        
+
         <child>
           <object class="GtkFrame" id="frame_space_align">
             <property name="width_request">440</property>
@@ -141,8 +141,8 @@
                     <property name="active">True</property>
                   </object>
                   <packing>
-                    <property name="x">10</property>                    
-                    <property name="y">10</property>                    
+                    <property name="x">10</property>
+                    <property name="y">10</property>
                   </packing>
                 </child>
               </object>
@@ -153,7 +153,7 @@
             <property name="y">140</property>
           </packing>
         </child>
-        
+
         <child>
           <object class="GtkButton" id="button_partcfg_ok">
             <property name="label" translatable="yes">OK</property>
@@ -183,25 +183,25 @@
             <property name="y">210</property>
           </packing>
         </child>
-        
+
         <child>
           <object class="GtkFrame" id="frame_dummy1">
             <property name="width_request">460</property>
             <property name="height_request">25</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label_xalign">0</property>           
+            <property name="label_xalign">0</property>
           </object>
           <packing>
             <property name="x">10</property>
             <property name="y">250</property>
           </packing>
         </child>
-        
+
       </object>
     </child>
   </object>
-  
+
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
@@ -235,7 +235,7 @@
                         <property name="label">Secure Boot Support</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>                        
+                        <property name="use_underline">True</property>
                         <property name="active">False</property>
                       </object>
                     </child>
@@ -254,7 +254,7 @@
                                 <property name="label">MBR</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="use_underline">True</property>                        
+                                <property name="use_underline">True</property>
                                 <property name="active">True</property>
                               </object>
                             </child>
@@ -263,7 +263,7 @@
                                 <property name="label">GPT</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="use_underline">True</property>                        
+                                <property name="use_underline">True</property>
                                 <property name="active">False</property>
                               </object>
                             </child>
@@ -276,7 +276,7 @@
                         <property name="label">Partition Configuration</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>                        
+                        <property name="use_underline">True</property>
                       </object>
                     </child>
                     <child>
@@ -284,7 +284,7 @@
                         <property name="label">Clear Ventoy</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>                        
+                        <property name="use_underline">True</property>
                       </object>
                     </child>
                     <child>
@@ -292,7 +292,7 @@
                         <property name="label">Show All Devices</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>                        
+                        <property name="use_underline">True</property>
                         <property name="active">False</property>
                       </object>
                     </child>
@@ -300,7 +300,7 @@
                 </child>
               </object>
             </child>
-            
+
             <child>
               <object class="GtkMenuItem" id="menu_language">
                 <property name="visible">True</property>
@@ -335,8 +335,8 @@
                     <property name="can_focus">False</property>
                   </object>
                   <packing>
-                    <property name="x">10</property>                    
-                    <property name="y">5</property>                    
+                    <property name="x">10</property>
+                    <property name="y">5</property>
                   </packing>
                 </child>
                 <child>
@@ -542,7 +542,7 @@
             <property name="width_request">100</property>
             <property name="height_request">40</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>            
+            <property name="can_focus">True</property>
             <property name="receives_default">True</property>
           </object>
           <packing>
@@ -564,21 +564,21 @@
             <property name="y">300</property>
           </packing>
         </child>
-        
+
         <child>
           <object class="GtkFrame" id="frame_dummy2">
             <property name="width_request">460</property>
             <property name="height_request">25</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label_xalign">0</property>           
+            <property name="label_xalign">0</property>
           </object>
           <packing>
             <property name="x">10</property>
             <property name="y">345</property>
           </packing>
         </child>
-        
+
       </object>
     </child>
   </object>

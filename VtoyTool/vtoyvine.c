@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -53,7 +53,7 @@ static int vine_patch_loader(unsigned char *buf, int len, int major)
      */
 
     ptrlen = (buf[4] == 1) ? 4 : 8;
-    debug("ELF %d bit major:%d ptrlen:%d\n", (buf[4] == 1) ? 32 : 64, major, ptrlen);    
+    debug("ELF %d bit major:%d ptrlen:%d\n", (buf[4] == 1) ? 32 : 64, major, ptrlen);
 
     for (i = 0; i < len - 8 - 8 - ptrlen; i++)
     {
@@ -145,7 +145,7 @@ int vtoyvine_main(int argc, char **argv)
     fclose(fp);
 
     free(buf);
-    
+
     return 0;
 }
 

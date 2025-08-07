@@ -284,7 +284,7 @@ SUFFIX (grub_mkimage_generate_elf) (const struct grub_install_image_target_desc 
   phdr->p_align = grub_host_to_target32 (layout->align > image_target->link_align ?
 					 layout->align : image_target->link_align);
   if (image_target->id == IMAGE_LOONGSON_ELF)
-    ehdr->e_flags = grub_host_to_target32 (0x1000 | EF_MIPS_NOREORDER 
+    ehdr->e_flags = grub_host_to_target32 (0x1000 | EF_MIPS_NOREORDER
 					   | EF_MIPS_PIC | EF_MIPS_CPIC);
   else
     ehdr->e_flags = 0;
@@ -457,7 +457,7 @@ SUFFIX (grub_mkimage_generate_elf) (const struct grub_install_image_target_desc 
   if (note)
     {
       int note_size = sizeof (struct grub_ieee1275_note);
-      struct grub_ieee1275_note *note_ptr = (struct grub_ieee1275_note *) 
+      struct grub_ieee1275_note *note_ptr = (struct grub_ieee1275_note *)
 	(elf_img + program_size + header_size);
 
       grub_util_info ("adding CHRP NOTE segment");
@@ -2280,7 +2280,7 @@ SUFFIX (is_text_section) (Elf_Shdr *s, const struct grub_install_image_target_de
 static int
 SUFFIX (is_data_section) (Elf_Shdr *s, const struct grub_install_image_target_desc *image_target)
 {
-  if (!is_relocatable (image_target) 
+  if (!is_relocatable (image_target)
       && grub_target_to_host32 (s->sh_type) != SHT_PROGBITS)
     return 0;
   return ((grub_target_to_host (s->sh_flags) & (SHF_EXECINSTR | SHF_ALLOC))
@@ -2466,7 +2466,7 @@ SUFFIX (locate_sections) (Elf_Ehdr *e, const char *kernel_path,
 
   layout->bss_start = layout->kernel_size;
   layout->end = layout->kernel_size;
-  
+
   /* .bss */
   for (i = 0, s = smd->sections;
        i < smd->num_sections;

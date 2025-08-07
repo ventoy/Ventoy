@@ -98,7 +98,7 @@ static int read_fragment_table(long long *table_start)
 		}
 	}
 
-	for(i = 0; i < sBlk.s.fragments; i++) 
+	for(i = 0; i < sBlk.s.fragments; i++)
 		SQUASHFS_INSWAP_FRAGMENT_ENTRY(&fragment_table[i]);
 
 	*table_start = fragment_table_index[0];
@@ -130,7 +130,7 @@ static struct inode *read_inode(unsigned int start_block, unsigned int offset)
 
 	if(bytes == -1)
 		EXIT_UNSQUASH("read_inode: inode table block %lld not found\n",
-			start); 		
+			start);
 
 	SQUASHFS_SWAP_BASE_INODE_HEADER(block_ptr, &header.base);
 
@@ -183,7 +183,7 @@ static struct inode *read_inode(unsigned int start_block, unsigned int offset)
 			i.block_ptr = block_ptr + sizeof(*inode);
 			i.xattr = SQUASHFS_INVALID_XATTR;
 			break;
-		}	
+		}
 		case SQUASHFS_LREG_TYPE: {
 			struct squashfs_lreg_inode_header *inode = &header.lreg;
 
@@ -203,7 +203,7 @@ static struct inode *read_inode(unsigned int start_block, unsigned int offset)
 			i.block_ptr = block_ptr + sizeof(*inode);
 			i.xattr = inode->xattr;
 			break;
-		}	
+		}
 		case SQUASHFS_SYMLINK_TYPE:
 		case SQUASHFS_LSYMLINK_TYPE: {
 			struct squashfs_symlink_inode_header *inode = &header.symlink;
@@ -321,9 +321,9 @@ static struct dir *squashfs_opendir(unsigned int block_start, unsigned int offse
 	bytes += (*i)->offset;
 	size = (*i)->data + bytes - 3;
 
-	while(bytes < size) {			
+	while(bytes < size) {
 		SQUASHFS_SWAP_DIR_HEADER(directory_table + bytes, &dirh);
-	
+
 		dir_count = dirh.count + 1;
 		TRACE("squashfs_opendir: Read directory header @ byte position "
 			"%d, %d directory entries\n", bytes, dir_count);

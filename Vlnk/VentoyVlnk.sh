@@ -1,6 +1,6 @@
 #!/bin/sh
 
-print_usage() {    
+print_usage() {
     echo 'Usage:  sudo sh VentoyVlnk.sh CMD FILE'
     echo '  CMD:'
     echo '   -c FILE      create vlnk for FILE'
@@ -47,7 +47,7 @@ elif echo $machine | grep -E -q 'mips64'; then
 elif echo $machine | grep -E -q 'i[3-6]86'; then
     TOOLDIR=i386
 else
-    echo "Unsupported machine type $machine"    
+    echo "Unsupported machine type $machine"
     exit 1
 fi
 
@@ -91,72 +91,72 @@ while [ -n "$1" ]; do
         echo "invalid option $1"
         exit 1
     fi
-    
+
     shift
 done
 
-if [ "$CMD" = "c" ]; then    
+if [ "$CMD" = "c" ]; then
     vlog "Create vlnk for $IMG"
-    
+
     if [ ! -f "$IMG" ]; then
         echo "$IMG does not exist!"
         exit 1
     fi
-    
+
     if echo $IMG | grep -E -q -i '.*(.iso|.img|.wim|.vhd|.vhdx|.efi|.vtoy|.dat)$'; then
         :
     else
         echo "This file is not supported for vlnk!"
         exit 1
     fi
-    
+
     if vlnk_suffix "$IMG"; then
         echo "This is already a vlnk file!"
         exit 1
     fi
-    
+
     if $VLNKCMD -t "$IMG"; then
         echo "This is already a vlnk file!"
         exit 1
     fi
-    
+
     FULLIMG=$(readlink -f "$IMG")
     if [ ! -f "$FULLIMG" ]; then
         echo "$FULLIMG does not exist!"
         exit 1
     fi
     vlog "Full file path is $FULLIMG"
-    
-    
+
+
     #check img file position is a valid mountpoint
     FULLDIR=${FULLIMG%/*}
     while [ -n "${FULLDIR}" ]; do
         if mountpoint -q "${FULLDIR}"; then
             break
-        fi        
+        fi
         FULLDIR="${FULLDIR%/*}"
     done
-    
+
     if [ -z "${FULLDIR}" ]; then
         FULLDIR=/
         IMGPATH="${FULLIMG}"
     else
         IMGPATH="${FULLIMG#$FULLDIR}"
     fi
-    
+
     IMGFILE=$(basename "$IMGPATH")
     vlog "IMGPATH=$IMGPATH IMGFILE=$IMGFILE"
-    
-    
+
+
     mntdev=$(mountpoint -d "${FULLDIR}")
     vlog "mountpoint is ${FULLDIR}  dev $mntdev"
-    
+
     #check fs
     if grep -q " ${FULLDIR} " /proc/mounts; then
         DEV=$(grep " ${FULLDIR} " /proc/mounts | awk '{print $1}')
         FS=$(grep " ${FULLDIR} " /proc/mounts | awk '{print $3}')
         vlog "File system of $DEV is $FS"
-        
+
         if echo $FS | grep -E -q "ext2|ext3|ext4|exfat|vfat|fat32|fat16|fat12|ntfs|xfs|udf"; then
             vlog "FS OK"
         elif [ "$FS" = "fuseblk" ]; then
@@ -178,29 +178,29 @@ if [ "$CMD" = "c" ]; then
         echo "${FULLDIR} not found in /proc/mounts"
         exit 1
     fi
-    
-    
+
+
     Major=$(echo $mntdev | awk -F: '{print $1}')
     Minor=$(echo $mntdev | awk -F: '{print $2}')
     vlog "Major=$Major Minor=$Minor"
-    
+
     IMGPARTITION=""
     while read line; do
         M1=$(echo $line | awk '{print $1}')
-        M2=$(echo $line | awk '{print $2}')        
+        M2=$(echo $line | awk '{print $2}')
         if [ "$Major" = "$M1" -a "$Minor" = "$M2" ]; then
             IMGPARTITION=$(echo $line | awk '{print $4}')
             vlog "disk partition is $IMGPARTITION"
             break
         fi
     done < /proc/partitions
-    
+
     if [ -z "$IMGPARTITION" ]; then
         echo "Disk partition not found for $FULLDIR"
         grep " $FULLDIR " /proc/mounts
         exit 1
     fi
-    
+
     if [ -f "/sys/class/block/$IMGPARTITION/start" ]; then
         PARTSTART=$(cat "/sys/class/block/$IMGPARTITION/start")
         if echo $IMGPARTITION | grep -E -q 'mmc|nbd|nvme'; then
@@ -208,12 +208,12 @@ if [ "$CMD" = "c" ]; then
         else
             DISK=$(echo /dev/$IMGPARTITION | sed "s/^\(.*[^0-9]\)[0-9][0-9]*$/\1/")
         fi
-        
+
         if [ ! -b $DISK ]; then
             echo "Device $DISK not exist!"
             exit 1
         fi
-        
+
         vlog "PARTSTART=$PARTSTART DISK=$DISK"
     else
         if echo $IMGPARTITION | grep -q '^dm-[0-9][0-9]*'; then
@@ -222,10 +222,10 @@ if [ "$CMD" = "c" ]; then
         echo "/sys/class/block/$IMGPARTITION/start not exist!"
         exit 1
     fi
-    
-    
+
+
     if [ -n "$OUT" ]; then
-        lowersuffix=$(echo ${IMG##*.} | tr 'A-Z' 'a-z')        
+        lowersuffix=$(echo ${IMG##*.} | tr 'A-Z' 'a-z')
         OUT="${OUT}.vlnk.${lowersuffix}"
     else
         name=${IMGFILE%.*}
@@ -235,7 +235,7 @@ if [ "$CMD" = "c" ]; then
 
     echo "Output VLNK file is $OUT"
     [ -f "${OUT}" ] && rm -f "${OUT}"
-    
+
     touch "${OUT}"
     if [ -f "${OUT}" ]; then
         rm -f "${OUT}"
@@ -243,7 +243,7 @@ if [ "$CMD" = "c" ]; then
         echo "Failed to create ${OUT}"
         exit 1
     fi
-    
+
     if $VLNKCMD -c "$IMGPATH" -d $DISK -p $PARTSTART -o "${OUT}"; then
         echo "====== Vlnk file create success ========="
         echo ""
@@ -254,7 +254,7 @@ if [ "$CMD" = "c" ]; then
     fi
 elif [ "$CMD" = "l" ]; then
     vlog "Parse vlnk for $VLNK"
-    
+
     if [ ! -f "$VLNK" ]; then
         echo "$VLNK does not exist!"
         exit 1

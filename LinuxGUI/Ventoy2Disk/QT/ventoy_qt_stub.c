@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -43,7 +43,7 @@ mg_start(const struct mg_callbacks *callbacks,
     (void)callbacks;
     (void)user_data;
     (void)options;
-    
+
     return NULL;
 }
 
@@ -589,7 +589,7 @@ static unsigned char window_icon_hexData[] = {
     0x6E, 0x2D, 0x69, 0x6D, 0x67, 0x2E, 0x65, 0x61, 0x73, 0x79, 0x69, 0x63, 0x6F, 0x6E, 0x2E, 0x63,
     0x6E, 0x2F, 0x66, 0x69, 0x6C, 0x65, 0x73, 0x2F, 0x32, 0x2F, 0x32, 0x39, 0x31, 0x36, 0x35, 0x2E,
     0x70, 0x6E, 0x67, 0xBF, 0x98, 0x5F, 0xE5, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
-    0x42, 0x60, 0x82 
+    0x42, 0x60, 0x82
 };
 
 void *get_window_icon_raw_data(int *len)

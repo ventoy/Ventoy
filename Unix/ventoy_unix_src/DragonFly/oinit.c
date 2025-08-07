@@ -171,7 +171,7 @@ int main(int argc __unused, char **argv)
 	signal(SIGTERM, SIG_IGN);
 
     if ((pid = fork()) == 0) {
-    
+
         setctty(_PATH_CONSOLE);
         sysctlbyname("debug.bootverbose", &boot_verbose, &varsize, NULL, 0);
 

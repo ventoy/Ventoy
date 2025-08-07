@@ -40,7 +40,7 @@ struct grub_menu_viewer
 void grub_menu_register_viewer (struct grub_menu_viewer *viewer);
 
 grub_err_t
-grub_menu_try_text (struct grub_term_output *term, 
+grub_menu_try_text (struct grub_term_output *term,
 		    int entry, grub_menu_t menu, int nested);
 
 extern grub_err_t (*grub_gfxmenu_try_hook) (int entry, grub_menu_t menu,

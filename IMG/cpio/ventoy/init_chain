@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 
@@ -49,30 +49,30 @@ ventoy_is_initrd_ramdisk() {
 
 ventoy_mount_squashfs() {
     mkdir /dev
-    mount -t devtmpfs devtmpfs /dev    
+    mount -t devtmpfs devtmpfs /dev
     dd if=$1 of=/dev/ram0 status=none
     umount /dev && rm -rf /dev
 }
 
 # param: file skip magic tmp
-ventoy_unpack_initramfs() {        
-    vtfile=$1; vtskip=$2; vtmagic=$3; vttmp=$4    
+ventoy_unpack_initramfs() {
+    vtfile=$1; vtskip=$2; vtmagic=$3; vttmp=$4
     echo "=====ventoy_unpack_initramfs: #$*#" >> $VTLOG
-    
+
     #special process
     #if [ "${vtmagic:0:4}" = '5678' ]; then
     #    echo -en '\x1F\x8B' | dd status=none of=$vtfile bs=1 count=2 conv=notrunc
     #    vtmagic='1F8B'
     #fi
-    
+
     if [ "${vtmagic:0:4}" = '6873' ]; then
         ventoy_mount_squashfs $vtfile
         return
     fi
-    
+
     for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat' '4C5A lunzip -c'; do
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
-            echo "vtx=$vtx" >> $VTLOG  
+            echo "vtx=$vtx" >> $VTLOG
             if [ $vtskip -ne 0 ]; then
                 dd if=$vtfile skip=$vtskip iflag=skip_bytes status=none > ${vtfile}.skip
                 rm -f $vtfile
@@ -83,35 +83,35 @@ ventoy_unpack_initramfs() {
                 rm -f $VTOY_PATH/xzlog
                 ${vtx:5} $vtfile 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
                 if grep -q 'corrupted data' $VTOY_PATH/xzlog; then
-                    echo 'xzcat failed, now try xzminidec...' >> $VTLOG                        
+                    echo 'xzcat failed, now try xzminidec...' >> $VTLOG
                     rm -f $VTOY_PATH/xzlog
                     cat $vtfile | xzminidec 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
 
-                    if grep -q 'limit' $VTOY_PATH/xzlog; then                    
-                        echo 'xzminidec failed, now try xzcat_musl ...' >> $VTLOG  
+                    if grep -q 'limit' $VTOY_PATH/xzlog; then
+                        echo 'xzminidec failed, now try xzcat_musl ...' >> $VTLOG
                         xzcat_musl $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
                     fi
                 fi
             else
                 ${vtx:5} $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
-            fi            
+            fi
             break
         fi
     done
 }
 
 # param: file magic tmp
-ventoy_unpack_initrd() {        
-    vtfile=$1; vtmagic=$2; vttmp=$3    
+ventoy_unpack_initrd() {
+    vtfile=$1; vtmagic=$2; vttmp=$3
     echo "=====ventoy_unpack_initrd: #$*#" >> $VTLOG
-    
+
     for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat'; do
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
-            echo "vtx=$vtx" >> $VTLOG            
+            echo "vtx=$vtx" >> $VTLOG
             ${vtx:5} $vtfile > $vttmp
             break
         fi
-    done    
+    done
 }
 
 vtfile_head_zero() {
@@ -120,12 +120,12 @@ vtfile_head_zero() {
     local vfile
     local vzero
     local vdump
-    
+
     voffset=0
     vfile=$1
     vsize=$(stat -c '%s' ${vfile})
     vzero=$(hexdump -n 512 -e '512/1 "%02X"' $vfile)
-    
+
     while [ $voffset -lt $vsize ]; do
         vdump=$(hexdump -s $voffset -n 512 -e '512/1 "%02X"' $vfile)
         if [ "$vdump" != "$vzero" ]; then
@@ -133,14 +133,14 @@ vtfile_head_zero() {
             return
         fi
         voffset=$($BUSYBOX_PATH/expr $voffset + 512)
-    done    
+    done
     echo 0
 }
 
 # This export is for busybox cpio command
 export EXTRACT_UNSAFE_SYMLINKS=1
 
-for vtfile in $(ls /initrd*); do    
+for vtfile in $(ls /initrd*); do
     #decompress first initrd
     vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $vtfile)
 
@@ -155,40 +155,40 @@ for vtfile in $(ls /initrd*); do
     #only for cpio,cpio,...,initrd sequence, initrd,cpio or initrd,initrd sequence is not supported
     while [ -e ${vtfile}_tmp ] && [ $(stat -c '%s' ${vtfile}_tmp) -gt 512 ]; do
         mv ${vtfile}_tmp $vtfile
-        
+
         vtdump=$(hexdump -n 512 -e '512/1 "%02X"' $vtfile)
         vtmagic=$(echo $vtdump | sed 's/^\(00\)*//')
         let vtoffset="(${#vtdump}-${#vtmagic})/2"
-        
+
         if [ -z "$vtmagic" ]; then
             vtHeadZero=$(vtfile_head_zero $vtfile)
             if [ $vtHeadZero -gt 0 ]; then
                 vtdump=$(hexdump -s $vtHeadZero -n 512 -e '512/1 "%02X"' $vtfile)
                 vtmagic=$(echo $vtdump | sed 's/^\(00\)*//')
-                let vtoffset="(${#vtdump}-${#vtmagic})/2+$vtHeadZero"                
+                let vtoffset="(${#vtdump}-${#vtmagic})/2+$vtHeadZero"
                 echo "skip head $vtHeadZero zeros with magic ${vtmagic:0:4}" >> $VTLOG
             else
-                echo "terminate with all zero data file" >> $VTLOG            
+                echo "terminate with all zero data file" >> $VTLOG
                 break
-            fi            
+            fi
         fi
-        
+
         ventoy_unpack_initramfs $vtfile $vtoffset ${vtmagic:0:4} ${vtfile}_tmp
     done
-    
+
     rm -f $vtfile ${vtfile}_tmp
 done
 
 
 #break here for debug
 if [ "$VTOY_BREAK_LEVEL" = "02" ] || [ "$VTOY_BREAK_LEVEL" = "12" ]; then
-    sleep 5    
+    sleep 5
     echo -e "\n\n\033[32m ################################################# \033[0m"
     echo -e "\033[32m ################ VENTOY DEBUG ################### \033[0m"
-    echo -e "\033[32m ################################################# \033[0m \n"   
-    if [ "$VTOY_BREAK_LEVEL" = "12" ]; then 
+    echo -e "\033[32m ################################################# \033[0m \n"
+    if [ "$VTOY_BREAK_LEVEL" = "12" ]; then
         cat $VTOY_PATH/log
-    fi    
+    fi
     exec $BUSYBOX_PATH/sh
 fi
 
@@ -201,13 +201,13 @@ fi
 ventoy_unpack_injection() {
     vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $VTOY_PATH/ventoy_injection)
     echo "ventoy_unpack_injection  vtmagic=$vtmagic ..."
-    
+
     if [ "1F8B" = "$vtmagic" ] || [ "1F9E" = "$vtmagic" ]; then
         echo "tar.gz  tar -xzvf"
         tar -xzvf $VTOY_PATH/ventoy_injection -C /
     elif [ "425A" = "$vtmagic" ]; then
         echo "tar.bz2  tar -xjvf"
-        tar -xjvf $VTOY_PATH/ventoy_injection -C / 
+        tar -xjvf $VTOY_PATH/ventoy_injection -C /
     elif [ "FD37" = "$vtmagic" ]; then
         echo "tar.xz  tar -xJvf"
         tar -xJvf $VTOY_PATH/ventoy_injection -C /
@@ -222,7 +222,7 @@ ventoy_unpack_injection() {
 
 if [ -e $VTOY_PATH/ventoy_injection ]; then
     echo "### decompress injection ... ###" >>$VTLOG
-    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1    
+    ventoy_unpack_injection > $VTOY_PATH/injection.log 2>&1
 fi
 
 

@@ -26,7 +26,7 @@ static uint8_t g_vlnk_buf[VLNK_FILE_LEN];
 static int64_t get_file_size(char *file)
 {
     struct stat stStat;
-    
+
     if (stat(file, &stStat) < 0)
     {
         return -1;
@@ -39,7 +39,7 @@ static int get_disk_sig(char *diskname, uint32_t *sig)
 {
     int fd;
     uint8_t buf[512] = {0};
-    
+
     fd = open(diskname, O_RDONLY);
     if (fd < 0)
     {
@@ -50,7 +50,7 @@ static int get_disk_sig(char *diskname, uint32_t *sig)
     read(fd, buf, 512);
     close(fd);
 
-    memcpy(sig, buf + 0x1b8, 4);    
+    memcpy(sig, buf + 0x1b8, 4);
     return 0;
 }
 
@@ -61,13 +61,13 @@ static int vtoy_get_disk_guid(const char *diskname, uint8_t *vtguid, uint8_t *vt
     char devdisk[128] = {0};
 
     snprintf(devdisk, sizeof(devdisk) - 1, "/dev/%s", diskname);
-    
+
     fd = open(devdisk, O_RDONLY);
     if (fd >= 0)
     {
         lseek(fd, 0x180, SEEK_SET);
         read(fd, vtguid, 16);
-        
+
         lseek(fd, 0x1b8, SEEK_SET);
         read(fd, vtsig, 4);
         close(fd);
@@ -110,7 +110,7 @@ static int vtoy_is_possible_blkdev(const char *name)
     {
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -129,14 +129,14 @@ static int find_disk_by_sig(uint8_t *sig, char *diskname)
     {
         return 0;
     }
-    
+
     while ((p = readdir(dir)) != NULL)
     {
         if (!vtoy_is_possible_blkdev(p->d_name))
         {
             continue;
         }
-    
+
         rc = vtoy_get_disk_guid(p->d_name, vtguid, vtsig);
         if (rc == 0 && memcmp(vtsig, sig, 4) == 0)
         {
@@ -145,8 +145,8 @@ static int find_disk_by_sig(uint8_t *sig, char *diskname)
         }
     }
     closedir(dir);
-    
-    return count;    
+
+    return count;
 }
 
 static uint64_t get_part_offset(char *partname)
@@ -180,7 +180,7 @@ static int create_vlnk(char *infile, char *diskname, uint64_t partoff, char *out
     uint32_t sig = 0;
 
     debug("create vlnk\n");
-    
+
     if (infile[0] == 0 || outfile[0] == 0 || diskname[0] == 0 || partoff == 0)
     {
         debug("Invalid parameters: %d %d %d %llu\n", infile[0], outfile[0], diskname[0], (unsigned long long)partoff);
@@ -240,7 +240,7 @@ static int get_mount_point(char *partname, char *mntpoint)
                 {
                     line[i] = 0;
                     rc = 0;
-                    strncpy(mntpoint, line + len, PATH_MAX - 1);                    
+                    strncpy(mntpoint, line + len, PATH_MAX - 1);
                     break;
                 }
             }
@@ -265,7 +265,7 @@ static int parse_vlnk(char *infile)
     ventoy_vlnk vlnk;
 
     debug("parse vlnk\n");
-    
+
     if (infile[0] == 0)
     {
         debug("input file null\n");
@@ -286,7 +286,7 @@ static int parse_vlnk(char *infile)
     debug("disk_signature:%08X\n", vlnk.disk_signature);
     debug("file path:<%s>\n", vlnk.filepath);
     debug("part offset: %llu\n", (unsigned long long)vlnk.part_offset);
-    
+
     cnt = find_disk_by_sig((uint8_t *)&(vlnk.disk_signature), diskname);
     if (cnt != 1)
     {
@@ -305,11 +305,11 @@ static int parse_vlnk(char *infile)
     {
         if (pflag)
         {
-            snprintf(partname, sizeof(partname) - 1, "%sp%d", diskname, i);            
+            snprintf(partname, sizeof(partname) - 1, "%sp%d", diskname, i);
         }
         else
         {
-            snprintf(partname, sizeof(partname) - 1, "%s%d", diskname, i);            
+            snprintf(partname, sizeof(partname) - 1, "%s%d", diskname, i);
         }
 
         if (get_part_offset(partname) == vlnk.part_offset)
@@ -337,11 +337,11 @@ static int parse_vlnk(char *infile)
     printf("Vlnk Point: %s\n", mntpoint);
     if (access(mntpoint, F_OK) >= 0)
     {
-        printf("File Exist: YES\n");    
+        printf("File Exist: YES\n");
     }
     else
     {
-        printf("File Exist: NO\n");    
+        printf("File Exist: NO\n");
     }
 
     return 0;
@@ -354,7 +354,7 @@ static int check_vlnk(char *infile)
     ventoy_vlnk vlnk;
 
     debug("check vlnk\n");
-    
+
     if (infile[0] == 0)
     {
         debug("input file null\n");
@@ -416,7 +416,7 @@ int main(int argc, char **argv)
         {
             cmd = 3;
             strncpy(infile, optarg, sizeof(infile) - 1);
-        }        
+        }
         else if (ch == 'd')
         {
             strncpy(diskname, optarg, sizeof(diskname) - 1);

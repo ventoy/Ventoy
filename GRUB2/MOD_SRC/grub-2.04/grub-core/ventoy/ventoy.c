@@ -1,5 +1,5 @@
 /******************************************************************************
- * ventoy.c 
+ * ventoy.c
  *
  * Copyright (c) 2020, longpanda <admin@ventoy.net>
  *
@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -137,7 +137,7 @@ int ventoy_str_len_alnum(const char *str, int len)
 {
     int i;
     int slen;
-    
+
     if (NULL == str || 0 == *str)
     {
         return 0;
@@ -168,7 +168,7 @@ int ventoy_str_len_alnum(const char *str, int len)
 char * ventoy_str_basename(char *path)
 {
     char *pos = NULL;
-    
+
     pos = grub_strrchr(path, '/');
     if (pos)
     {
@@ -185,17 +185,17 @@ char * ventoy_str_basename(char *path)
 int ventoy_str_chrcnt(const char *str, char c)
 {
     int n = 0;
-    
+
     if (str)
     {
         while (*str)
         {
             if (*str == c)
             {
-                n++;                
+                n++;
             }
             str++;
-        }        
+        }
     }
 
     return n;
@@ -235,7 +235,7 @@ int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n)
 grub_err_t ventoy_env_int_set(const char *name, int value)
 {
     char buf[16];
-    
+
     grub_snprintf(buf, sizeof(buf), "%d", value);
     return grub_env_set(name, buf);
 }
@@ -248,13 +248,13 @@ void ventoy_debug_dump_guid(const char *prefix, grub_uint8_t *guid)
     {
         return;
     }
-    
+
     debug("%s", prefix);
     for (i = 0; i < 16; i++)
     {
         grub_printf("%02x ", guid[i]);
     }
-    grub_printf("\n");       
+    grub_printf("\n");
 }
 
 int ventoy_is_efi_os(void)
@@ -290,7 +290,7 @@ void ventoy_memfile_env_set(const char *prefix, const void *buf, unsigned long l
     grub_snprintf(name, sizeof(name), "%s_addr", prefix);
     grub_snprintf(val, sizeof(val), "0x%llx", (ulonglong)(ulong)buf);
     grub_env_set(name, val);
-    
+
     grub_snprintf(name, sizeof(name), "%s_size", prefix);
     grub_snprintf(val, sizeof(val), "%llu", len);
     grub_env_set(name, val);
@@ -374,7 +374,7 @@ static int ventoy_hwinfo_init(void)
     return 0;
 }
 
-static global_var_cfg g_global_vars[] = 
+static global_var_cfg g_global_vars[] =
 {
     { "gfxmode",            "1024x768",   NULL },
     { ventoy_left_key,      "5%",         NULL },
@@ -422,14 +422,14 @@ int ventoy_global_var_init(void)
     for (i = 0; g_global_vars[i].name; i++)
     {
         g_global_vars[i].value = grub_strdup(g_global_vars[i].defval);
-        ventoy_env_export(g_global_vars[i].name, g_global_vars[i].defval);        
+        ventoy_env_export(g_global_vars[i].name, g_global_vars[i].defval);
         grub_register_variable_hook(g_global_vars[i].name, ventoy_global_var_read_hook, ventoy_global_var_write_hook);
     }
 
     return 0;
 }
 
-static ctrl_var_cfg g_ctrl_vars[] = 
+static ctrl_var_cfg g_ctrl_vars[] =
 {
     { "VTOY_WIN11_BYPASS_CHECK",  1 },
     { "VTOY_WIN11_BYPASS_NRO",    1 },

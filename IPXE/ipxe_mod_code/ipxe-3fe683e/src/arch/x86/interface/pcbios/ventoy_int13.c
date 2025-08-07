@@ -58,7 +58,7 @@ static unsigned int g_drive_map2 = 0;
  * INT 13 emulation
  *
  * This module provides a mechanism for exporting block devices via
- * the BIOS INT 13 disk interrupt interface.  
+ * the BIOS INT 13 disk interrupt interface.
  *
  */
 
@@ -1067,7 +1067,7 @@ static __asmcall void int13 ( struct i386_all_regs *ix86 ) {
         if (ix86->regs.dh == 0 && (ix86->regs.cl & 0x3f) == 1 && ix86->regs.al == 1)
         {
             userptr_t buffer;
-            
+
             buffer = real_to_user(ix86->segs.es, ix86->regs.bx);
             if (buffer)
             {
@@ -1112,7 +1112,7 @@ static __asmcall void int13 ( struct i386_all_regs *ix86 ) {
 			} else if ( ( ( bios_drive & 0x7f ) == 0x7f ) &&
 				    ( command == INT13_CDROM_STATUS_TERMINATE )
 				    && sandev->is_cdrom ) {
-                    
+
 				/* Catch non-drive-specific CD-ROM calls */
 			} else {
 				return;
@@ -1120,7 +1120,7 @@ static __asmcall void int13 ( struct i386_all_regs *ix86 ) {
 		}
 
         sandev->int13_command = command;
-        sandev->x86_regptr = ix86;        
+        sandev->x86_regptr = ix86;
 
 		DBGC2 ( sandev, "INT13,%02x (%02x): ",
 		  	ix86->regs.ah, bios_drive );
@@ -1207,11 +1207,11 @@ static void int13_hook_vector ( void ) {
 	       TEXT16_CODE ( "\nint13_wrapper:\n\t"
 			     /* Preserve %ax and %dx for future reference */
 			     "pushw %%bp\n\t"
-			     "movw %%sp, %%bp\n\t"			     
+			     "movw %%sp, %%bp\n\t"
 			     "pushw %%ax\n\t"
 			     "pushw %%dx\n\t"
 			     /* Clear OF, set CF, call int13() */
-			     "orb $0, %%al\n\t" 
+			     "orb $0, %%al\n\t"
 			     "stc\n\t"
 			     VIRT_CALL ( int13 )
 			     /* Chain if OF not set */
@@ -1267,7 +1267,7 @@ static int int13_load_mbr ( unsigned int drive, struct segoff *address ) {
 
 	/* Check magic signature */
 	get_real ( magic, address->segment, (address->offset + offsetof ( struct master_boot_record, magic ) ) );
-    
+
 	if ( magic != INT13_MBR_MAGIC ) {
 		DBG ( "INT13 drive %02x does not contain a valid MBR\n",
 		      drive );
@@ -1303,7 +1303,7 @@ static int int13_load_eltorito ( unsigned int drive, struct segoff *address ) {
 		struct eltorito_boot_entry boot;
 	} __attribute__ (( packed )) catalog;
 	uint16_t status;
-    
+
     if (g_sandev && g_sandev->drive == drive)
     {
         copy_to_user(phys_to_user ( eltorito_cmd.buffer ), 0, g_sandev->boot_catalog_sector, sizeof(g_sandev->boot_catalog_sector));
@@ -1327,7 +1327,7 @@ static int int13_load_eltorito ( unsigned int drive, struct segoff *address ) {
     		return -EIO;
     	}
     }
-    
+
 	copy_from_user ( &catalog, phys_to_user ( eltorito_cmd.buffer ), 0,
 			 sizeof ( catalog ) );
 
@@ -1391,7 +1391,7 @@ static int int13_load_eltorito ( unsigned int drive, struct segoff *address ) {
         bootinfo = (isolinux_boot_info *)(real_to_user(address->segment, address->offset));
         if (0x7C6CEAFA == bootinfo->isolinux0 && 0x90900000 == bootinfo->isolinux1)
         {
-            if (bootinfo->BootFileLocation == 0 && bootinfo->PvdLocation == 16 && 
+            if (bootinfo->BootFileLocation == 0 && bootinfo->PvdLocation == 16 &&
                 (bootinfo->BootFileLen / 2048) < catalog.boot.length && bootinfo->BootFileChecksum > 0)
             {
                 if (g_debug)
@@ -1419,7 +1419,7 @@ static int int13_load_eltorito ( unsigned int drive, struct segoff *address ) {
  * Registers the drive with the INT 13 emulation subsystem, and hooks
  * the INT 13 interrupt vector (if not already hooked).
  */
-unsigned int ventoy_int13_hook (ventoy_chain_head *chain) 
+unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
 {
 	unsigned int blocks;
 	unsigned int blocks_per_cyl;
@@ -1431,7 +1431,7 @@ unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
 
     /* hook will copy num_drives to dl when int13 08 was called, so must initialize it's value */
 	get_real(num_drives, BDA_SEG, BDA_NUM_DRIVES);
-    
+
 	if (g_hddmode)
     {
         natural_drive = g_bios_disk80 ? 0x80 : (num_drives | 0x80);
@@ -1449,7 +1449,7 @@ unsigned int ventoy_int13_hook (ventoy_chain_head *chain)
         }
         else
         {
-            g_drive_map1 = 0x80; 
+            g_drive_map1 = 0x80;
             g_drive_map2 = 0x81;
         }
     }
@@ -1524,9 +1524,9 @@ int ventoy_int13_boot ( unsigned int drive, void *imginfo, const char *cmdline) 
 	int rc;
     int headlen;
 	struct segoff address;
-    struct acpi_header *acpi = NULL; 
+    struct acpi_header *acpi = NULL;
     struct ibft_table *ibft = NULL;
-        
+
 	/* Look for a usable boot sector */
     if (g_hddmode)
     {

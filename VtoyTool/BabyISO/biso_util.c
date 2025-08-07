@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 
 #include "biso.h"
 #include "biso_list.h"
@@ -47,7 +47,7 @@ VOID *g_apstBISOFree[7000];
 VOID * BISO_UTIL_Malloc(IN size_t ulSize)
 {
     VOID *pData = malloc(ulSize + 4);
-    
+
     #if (1 == MEMORY_DEBUG_DUMP)
     printf("ID %u Malloc %p %lu\n", g_uiBISOMallocTime, (UCHAR *)pData + 4, ulSize);
     g_apstBISOMalloc[g_uiBISOMallocTime] = (UCHAR *)pData + 4;
@@ -60,7 +60,7 @@ VOID * BISO_UTIL_Malloc(IN size_t ulSize)
     {
         g_uiBISOPeekMalloc = g_uiBISOTotMalloc;
     }
-   
+
     return (UCHAR *)pData + 4;
 }
 
@@ -80,12 +80,12 @@ VOID *BISO_UTIL_Zalloc(IN size_t ulSize)
     {
         g_uiBISOPeekMalloc = g_uiBISOTotMalloc;
     }
-   
+
     return (UCHAR *)pData + 4;
 }
 
 VOID BISO_UTIL_Free(IN VOID *pData)
-{    
+{
     #if (1 == MEMORY_DEBUG_DUMP)
     printf("ID %u Free %p %u\n", g_uiBISOFreeTime, pData, *(UINT32 *)((UCHAR *)pData - 4));
     g_apstBISOFree[g_uiBISOFreeTime] = pData;
@@ -97,13 +97,13 @@ VOID BISO_UTIL_Free(IN VOID *pData)
     {
         g_uiBISOPeekMalloc = g_uiBISOTotMalloc;
     }
-    
+
     free((UCHAR *)pData - 4);
 }
 
 VOID BISO_UTIL_DumpMemOp(VOID)
 {
-    BISO_DUMP("\n Memory Operation: Malloc(%u) Free(%u) \nTotal current use %u, Peek memory use %u.\n", 
+    BISO_DUMP("\n Memory Operation: Malloc(%u) Free(%u) \nTotal current use %u, Peek memory use %u.\n",
               g_uiBISOMallocTime, g_uiBISOFreeTime, g_uiBISOTotMalloc, g_uiBISOPeekMalloc);
 
 #if (1 == MEMORY_DEBUG_DUMP)
@@ -138,20 +138,20 @@ INT BISO_UTIL_GetTimeZone(VOID)
     time_t ulTime;
     struct tm *pstLocalTM = NULL;
     struct tm *pstGMTM = NULL;
-    
+
     time(&ulTime);
-    pstGMTM = gmtime(&ulTime); 
+    pstGMTM = gmtime(&ulTime);
     iGMTHour = pstGMTM->tm_hour;
 
     pstLocalTM = localtime(&ulTime);
     iLocalHour = pstLocalTM->tm_hour;
 
-    iTimeZone = iLocalHour - iGMTHour;     
-    if (iTimeZone < -12) 
-    {  
+    iTimeZone = iLocalHour - iGMTHour;
+    if (iTimeZone < -12)
+    {
         iTimeZone += 24;
-    } 
-    else if (iTimeZone > 12) 
+    }
+    else if (iTimeZone > 12)
     {
         iTimeZone -= 24;
     }
@@ -161,15 +161,15 @@ INT BISO_UTIL_GetTimeZone(VOID)
 
 ULONG BISO_UTIL_ReadFile
 (
-    IN  CONST CHAR *pcFileName, 
-    IN  UINT64 ui64Seek, 
+    IN  CONST CHAR *pcFileName,
+    IN  UINT64 ui64Seek,
     IN  UINT   uiDataLen,
     OUT VOID  *pDataBuf
 )
 {
     UINT uiReadLen = 0;
     BISO_FILE_S *pstFile = NULL;
-    
+
     if ((NULL == pcFileName) || (NULL == pDataBuf))
     {
         return BISO_ERR_NULL_PTR;
@@ -197,8 +197,8 @@ ULONG BISO_UTIL_ReadFile
 
 CHAR * BISO_UTIL_CopyStr
 (
-    IN  CONST CHAR *szSrc, 
-    IN  UINT        uiSrcSize, 
+    IN  CONST CHAR *szSrc,
+    IN  UINT        uiSrcSize,
     OUT CHAR       *szDest
 )
 {
@@ -235,18 +235,18 @@ CHAR * BISO_UTIL_CopyStr
         scnprintf(szDest, uiSrcSize, "*Empty*"); /* no safe */
     }
 
-    return szDest;    
+    return szDest;
 }
 
 CHAR * BISO_UTIL_CopyUCS2Str
 (
-    IN  CONST CHAR *szSrc, 
-    IN  UINT        uiSrcSize, 
+    IN  CONST CHAR *szSrc,
+    IN  UINT        uiSrcSize,
     OUT CHAR       *szDest
 )
 {
     UINT i;
-    
+
     memcpy(szDest, szSrc, uiSrcSize);
 
     for (i = 0; (i * 2 + 1) < uiSrcSize; i++)
@@ -255,13 +255,13 @@ CHAR * BISO_UTIL_CopyUCS2Str
     }
     szDest[i] = 0;
 
-    return szDest;    
+    return szDest;
 }
 
 VOID BISO_UTIL_PathProc(INOUT CHAR *pcPath, INOUT UINT *puiLen)
 {
     UINT i;
-    
+
     if ((NULL == pcPath) || (NULL == puiLen) || (0 == *puiLen))
     {
         return;
@@ -286,8 +286,8 @@ VOID BISO_UTIL_PathProc(INOUT CHAR *pcPath, INOUT UINT *puiLen)
 
 ULONG BISO_UTIL_PathSplit
 (
-    IN CONST CHAR *pcFullPath, 
-    OUT UINT *puiDirNum, 
+    IN CONST CHAR *pcFullPath,
+    OUT UINT *puiDirNum,
     OUT UINT *puiDirPos
 )
 {
@@ -296,7 +296,7 @@ ULONG BISO_UTIL_PathSplit
     UINT uiDirNum = 0;
     CONST CHAR *pcLastPos = pcFullPath;
     CONST CHAR *pcCurPos = pcFullPath;
-    
+
     DBGASSERT(NULL != pcFullPath);
     DBGASSERT(NULL != puiDirNum);
     DBGASSERT(NULL != puiDirPos);
@@ -311,13 +311,13 @@ ULONG BISO_UTIL_PathSplit
             {
                 return BISO_ERR_FAILED;
             }
-            
+
             puiDirPos[uiDirNum] = (UINT)((UINT)usPos << 16) | usLen;
 
             uiDirNum++;
             pcLastPos = pcCurPos + 1;
         }
-        
+
         pcCurPos++;
     }
 
@@ -326,9 +326,9 @@ ULONG BISO_UTIL_PathSplit
     if (usLen <= 0)
     {
         return BISO_ERR_FAILED;
-    }    
+    }
     puiDirPos[uiDirNum++] = (UINT)((UINT)usPos << 16) | usLen;
-    
+
     *puiDirNum = uiDirNum;
     return BISO_SUCCESS;
 }
@@ -338,13 +338,13 @@ BISO_DIR_TREE_S * BISO_UTIL_FindLinkTgt(IN BISO_DIR_TREE_S *pstCurNode)
     UINT i = 0;
     UINT uiDirNum = 0;
     UINT auiDirPos[32];
-    CHAR szDirName[1024];        
+    CHAR szDirName[1024];
     USHORT usPos = 0;
     USHORT usLen = 0;
     CHAR *pcLink = NULL;
     BISO_DIR_TREE_S *pstFileList = NULL;
     BISO_DIR_TREE_S *pstRootDir = NULL;
-    
+
     DBGASSERT(NULL != pstCurNode);
 
     /* 如果不是符号链接则返回自己 */
@@ -354,7 +354,7 @@ BISO_DIR_TREE_S * BISO_UTIL_FindLinkTgt(IN BISO_DIR_TREE_S *pstCurNode)
     }
 
     pcLink = pstCurNode->pstPosixInfo->pcLinkSrc;
-    
+
     if ('/' == pcLink[0])
     {
         return NULL;
@@ -428,8 +428,8 @@ BISO_DIR_TREE_S * BISO_UTIL_FindLinkTgt(IN BISO_DIR_TREE_S *pstCurNode)
 
 ULONG BISO_MBUF_Append
 (
-    IN BISO_MBUF_S *pstMBuf, 
-    IN UINT uiDataSize, 
+    IN BISO_MBUF_S *pstMBuf,
+    IN UINT uiDataSize,
     IN VOID *pData
 )
 {
@@ -446,17 +446,17 @@ ULONG BISO_MBUF_Append
 
     if (NULL == pData)
     {
-        memset(pstMBuf->apucDataBuf[pstMBuf->uiCurBufNum], 0, uiDataSize);        
+        memset(pstMBuf->apucDataBuf[pstMBuf->uiCurBufNum], 0, uiDataSize);
     }
     else
     {
-        memcpy(pstMBuf->apucDataBuf[pstMBuf->uiCurBufNum], pData, uiDataSize);        
+        memcpy(pstMBuf->apucDataBuf[pstMBuf->uiCurBufNum], pData, uiDataSize);
     }
-    
+
     pstMBuf->auiBufSize[pstMBuf->uiCurBufNum] = uiDataSize;
     pstMBuf->uiTotDataSize += uiDataSize;
     pstMBuf->uiCurBufNum++;
-    
+
     return BISO_SUCCESS;
 }
 
@@ -477,7 +477,7 @@ VOID BISO_MBUF_CopyToBuf(IN CONST BISO_MBUF_S *pstMBuf, OUT VOID *pDataBuf)
 {
     UINT i;
     UCHAR *pucDataBuf = (UCHAR *)pDataBuf;
-    
+
     if ((NULL != pstMBuf) && (NULL != pucDataBuf))
     {
         for (i = 0; i < pstMBuf->uiCurBufNum; i++)
@@ -495,7 +495,7 @@ VOID BISO_MBUF_PULLUP(INOUT BISO_MBUF_S *pstMBuf)
 {
     UINT uiSize = 0;
     VOID *pData = NULL;
-    
+
     DBGASSERT(NULL != pstMBuf);
 
     if (pstMBuf->uiCurBufNum <= 1)
@@ -535,13 +535,13 @@ BISO_QUEUE_S * BISO_QUEUE_Create(VOID)
 VOID BISO_QUEUE_Destroy(IN BISO_QUEUE_S *pstQueue)
 {
     BISO_DLL_Free(pstQueue);
-    BISO_FREE(pstQueue);    
+    BISO_FREE(pstQueue);
 }
 
 VOID BISO_QUEUE_Push(IN BISO_QUEUE_S *pstQueue, IN VOID *pData)
 {
     BISO_QUEUE_NODE_S *pstNode = NULL;
-    
+
     pstNode = (BISO_QUEUE_NODE_S *)BISO_DLL_Last(pstQueue);
 
     /* 当前节点已满需要扩展新内存节点 */
@@ -564,7 +564,7 @@ VOID * BISO_QUEUE_PopHead(IN BISO_QUEUE_S *pstQueue)
 {
     VOID *pData = NULL;
     BISO_QUEUE_NODE_S *pstNode = NULL;
-    
+
     pstNode = (BISO_QUEUE_NODE_S *)BISO_DLL_First(pstQueue);
     if (NULL == pstNode)
     {
@@ -588,7 +588,7 @@ VOID * BISO_QUEUE_PopTail(IN BISO_QUEUE_S *pstQueue)
 {
     VOID *pData = NULL;
     BISO_QUEUE_NODE_S *pstNode = NULL;
-    
+
     pstNode = (BISO_QUEUE_NODE_S *)BISO_DLL_Last(pstQueue);
     if ((NULL == pstNode) || (0 == pstNode->usLast))
     {

@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -99,7 +99,7 @@ typedef struct tagVTOY_JSON
     struct tagVTOY_JSON *pstChild;
 
     JSON_TYPE enDataType;
-    union 
+    union
     {
         char  *pcStrVal;
         int    iNumVal;
@@ -114,16 +114,16 @@ typedef struct tagVTOY_JSON
     uint32_t __uiCurPos = (uiCurPos);\
     uint32_t __uiBufLen = (uiBufLen);\
     char *__pcBuf = (pcBuf);
-    
+
 #define VTOY_JSON_FMT_END(uiCurPos) \
     (uiCurPos) = __uiCurPos;\
 }
-    
+
 #define VTOY_JSON_FMT_OBJ_BEGIN()  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "{")
 #define VTOY_JSON_FMT_OBJ_BEGIN_L(P)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s{", P)
 #define VTOY_JSON_FMT_OBJ_BEGIN_N()  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "{\n")
 #define VTOY_JSON_FMT_OBJ_BEGIN_LN(P)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s{\n", P)
-    
+
 #define VTOY_JSON_FMT_OBJ_END()  \
 {\
     if (',' == *(__pcBuf + (__uiCurPos - 1)))\
@@ -143,7 +143,7 @@ typedef struct tagVTOY_JSON
 }
 
 
-    
+
 #define VTOY_JSON_FMT_KEY(Key)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\":", (Key))
 #define VTOY_JSON_FMT_KEY_L(P, Key)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\":", P, (Key))
 
@@ -177,7 +177,7 @@ typedef struct tagVTOY_JSON
 
 #define VTOY_JSON_FMT_ARY_BEGIN()  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "[")
 #define VTOY_JSON_FMT_ARY_BEGIN_N()  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "[\n")
-    
+
 #define VTOY_JSON_FMT_ARY_END()    \
 {\
     if (',' == *(__pcBuf + (__uiCurPos - 1)))\
@@ -267,7 +267,7 @@ typedef struct tagVTOY_JSON
     }\
     ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s],", P);\
 }
-    
+
 
 #define VTOY_JSON_FMT_ARY_ENDEX_LN(P)    \
 {\
@@ -281,7 +281,7 @@ typedef struct tagVTOY_JSON
 
 
 
-    
+
 #define VTOY_JSON_FMT_UINT64(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": %llu,", Key, (_ull)Val)
 
 #define VTOY_JSON_FMT_ULONG(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": %lu,", Key, Val)
@@ -297,7 +297,7 @@ typedef struct tagVTOY_JSON
 #define VTOY_JSON_FMT_STRUINT_N(Key, Val) ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": \"%u\",\n", Key, Val)
 #define VTOY_JSON_FMT_STRUINT_L(P, Key, Val) ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%u\",", P, Key, Val)
 #define VTOY_JSON_FMT_STRUINT_LN(P, Key, Val) ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%u\",\n", P, Key, Val)
-    
+
 #define VTOY_JSON_FMT_STRSINT(Key, Val) ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": \"%d\",", Key, Val)
 #define VTOY_JSON_FMT_STRSINT_N(Key, Val) ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": \"%d\",\n", Key, Val)
 #define VTOY_JSON_FMT_STRSINT_L(P, Key, Val) ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%d\",", P, Key, Val)
@@ -309,19 +309,19 @@ typedef struct tagVTOY_JSON
 
 #define VTOY_JSON_FMT_CTRL_STRN(P, Key, Field) \
     if (strcmp(def->Field, data->Field)) \
-        ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s{ \"%s\": \"%s\" },\n", P, Key, data->Field) 
-        
+        ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s{ \"%s\": \"%s\" },\n", P, Key, data->Field)
+
 #define VTOY_JSON_FMT_CTRL_STRN_STR(P, Key, ptr) \
         ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s{ \"%s\": \"%s\" },\n", P, Key, ptr)
-        
+
 #define VTOY_JSON_FMT_CTRL_PUB_STRN(P, Key, Field) \
     if (strcmp(def->Field, g_pub_path)) \
-        ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s{ \"%s\": \"%s\" },\n", P, Key, g_pub_path) 
+        ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s{ \"%s\": \"%s\" },\n", P, Key, g_pub_path)
 
 
 #define VTOY_JSON_FMT_DIFF_STRN(P, Key, Field) \
     if (strcmp(def->Field, data->Field)) \
-        ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%s\",\n", P, Key, data->Field) 
+        ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%s\",\n", P, Key, data->Field)
 
 
 #define VTOY_JSON_FMT_STRINT64(Key, Val)  \
@@ -331,14 +331,14 @@ typedef struct tagVTOY_JSON
 #define VTOY_JSON_FMT_SINT_N(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": %d,\n", Key, Val)
 #define VTOY_JSON_FMT_SINT_L(P, Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": %d,", P, Key, Val)
 #define VTOY_JSON_FMT_SINT_LN(P, Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": %d,\n", P, Key, Val)
-    
+
 #define VTOY_JSON_FMT_DUBL(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": %.1lf,", Key, Val)
 #define VTOY_JSON_FMT_DUBL2(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": %10.02lf,", Key, Val)
 
-#define VTOY_JSON_FMT_STRN(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": \"%s\",", Key, Val) 
-#define VTOY_JSON_FMT_STRN_N(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": \"%s\",\n", Key, Val) 
-#define VTOY_JSON_FMT_STRN_L(P, Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%s\",", P, Key, Val) 
-#define VTOY_JSON_FMT_STRN_LN(P, Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%s\",\n", P, Key, Val) 
+#define VTOY_JSON_FMT_STRN(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": \"%s\",", Key, Val)
+#define VTOY_JSON_FMT_STRN_N(Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": \"%s\",\n", Key, Val)
+#define VTOY_JSON_FMT_STRN_L(P, Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%s\",", P, Key, Val)
+#define VTOY_JSON_FMT_STRN_LN(P, Key, Val)  ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%s\",\n", P, Key, Val)
 #define VTOY_JSON_FMT_STRN_PATH_LN(P, Key, Val)  \
     ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": \"%s\",\n", P, Key, ventoy_real_path(Val))
 
@@ -350,7 +350,7 @@ int vtoy_json_escape_string(char *buf, int buflen, const char *str, int newline)
     __uiCurPos += vtoy_json_escape_string(__pcBuf + __uiCurPos, __uiBufLen - __uiCurPos, Val, 1);\
 }
 
-    
+
 #define VTOY_JSON_FMT_NULL(Key)       ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": null,", Key)
 
 #define VTOY_JSON_FMT_TRUE(Key) ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": true,", (Key))
@@ -383,7 +383,7 @@ int vtoy_json_parse_value
 (
     char *pcNewStart,
     char *pcRawStart,
-    VTOY_JSON *pstJson, 
+    VTOY_JSON *pstJson,
     const char *pcData,
     const char **ppcEnd
 );
@@ -405,32 +405,32 @@ int vtoy_json_scan_parse
 );
 int vtoy_json_get_int
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     int *piValue
 );
 int vtoy_json_get_uint
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     uint32_t *puiValue
 );
 int vtoy_json_get_uint64
 (
-    VTOY_JSON *pstJson, 
-    const char *szKey, 
+    VTOY_JSON *pstJson,
+    const char *szKey,
     uint64_t *pui64Value
 );
 int vtoy_json_get_bool
 (
     VTOY_JSON *pstJson,
-    const char *szKey, 
+    const char *szKey,
     uint8_t *pbValue
 );
 int vtoy_json_get_string
 (
-     VTOY_JSON *pstJson, 
-     const char *szKey, 
+     VTOY_JSON *pstJson,
+     const char *szKey,
      uint32_t  uiBufLen,
      char *pcBuf
 );

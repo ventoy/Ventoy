@@ -55,9 +55,9 @@ void
 grub_gfxmenu_view_redraw (grub_gfxmenu_view_t view,
 			  const grub_video_rect_t *region);
 
-void 
+void
 grub_gfxmenu_clear_timeout (void *data);
-void 
+void
 grub_gfxmenu_print_timeout (int timeout, void *data);
 void
 grub_gfxmenu_set_chosen_entry (int entry, void *data);

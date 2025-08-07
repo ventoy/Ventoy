@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 . /ventoy/hook/ventoy-hook-lib.sh
@@ -37,10 +37,10 @@ ventoy_os_install_dmsetup_by_fuse() {
     vtoy_fuse_iso -f $VTOY_PATH/ventoy_dm_table -m $VTOY_PATH/mnt/fuse
 
     mount -t iso9660  $VTOY_PATH/mnt/fuse/ventoy.iso    $VTOY_PATH/mnt/iso
-    
-    
+
+
     for sfsfile in $(ls $VTOY_PATH/mnt/iso/*drv_veket*.sfs); do
-        mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs        
+        mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs
         if [ -d $VTOY_PATH/mnt/squashfs/lib/modules ]; then
             KoName=$(ls $VTOY_PATH/mnt/squashfs/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
             if [ -n "$KoName" -a -f $KoName ]; then
@@ -48,7 +48,7 @@ ventoy_os_install_dmsetup_by_fuse() {
                 break
             fi
         fi
-        
+
         umount $VTOY_PATH/mnt/squashfs
     done
 
@@ -56,7 +56,7 @@ ventoy_os_install_dmsetup_by_fuse() {
     if [ -z "$drvdir" ]; then
         vtlog "retry for usr/lib dir"
         for sfsfile in $(ls $VTOY_PATH/mnt/iso/*drv_veket*.sfs); do
-            mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs        
+            mount -t squashfs $sfsfile  $VTOY_PATH/mnt/squashfs
             if [ -d $VTOY_PATH/mnt/squashfs/usr/lib/modules ]; then
                 KoName=$(ls $VTOY_PATH/mnt/squashfs/usr/lib/modules/$2/kernel/drivers/md/dm-mod.ko*)
                 if [ -n "$KoName" -a -f $KoName ]; then
@@ -64,19 +64,19 @@ ventoy_os_install_dmsetup_by_fuse() {
                     break
                 fi
             fi
-            
+
             umount $VTOY_PATH/mnt/squashfs
         done
     fi
-    
+
 
     KoName=$(ls $drvdir/kernel/drivers/dax/dax.ko*)
     vtlog "insmod $KoName"
-    insmod $KoName 
-    
+    insmod $KoName
+
     KoName=$(ls $drvdir/kernel/drivers/md/dm-mod.ko*)
     vtlog "insmod $KoName"
-    insmod $KoName 
+    insmod $KoName
 
     umount $VTOY_PATH/mnt/squashfs
     umount $VTOY_PATH/mnt/iso
@@ -85,14 +85,14 @@ ventoy_os_install_dmsetup_by_fuse() {
 
 ventoy_os_install_dmsetup() {
     vtlog "ventoy_os_install_dmsetup"
-    
+
     if grep -q 'device-mapper' /proc/devices; then
         vtlog "device-mapper module already loaded"
         return;
     fi
-    
+
     vtKerVer=$(uname -r)
-    
+
     ventoy_os_install_dmsetup_by_fuse $1 $vtKerVer
 }
 

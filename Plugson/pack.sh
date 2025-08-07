@@ -25,17 +25,17 @@ fi
 VV=$(grep -m1 '\?v=' ./www/index.html |   sed  's/.*v=\([0-9][0-9]*\).*/\1/g')
 let VV++
 echo V=$VV
-sed "s/\?v=[0-9][0-9]*/?v=$VV/g" -i ./www/index.html 
+sed "s/\?v=[0-9][0-9]*/?v=$VV/g" -i ./www/index.html
 
 
 [ -f ./www/helplist ] && rm -f ./www/helplist
-ls -1 ../INSTALL/grub/help/ | while read line; do 
+ls -1 ../INSTALL/grub/help/ | while read line; do
     echo -n ${line:0:5} >> ./www/helplist
-done 
+done
 [ -f ./www/menulist ] && rm -f ./www/menulist
-ls -1 ../INSTALL/grub/menu/ | while read line; do 
+ls -1 ../INSTALL/grub/menu/ | while read line; do
     echo -n ${line:0:5} >> ./www/menulist
-done 
+done
 echo -n "$plugson_verion" > ./www/buildtime
 
 tar cf www.tar www

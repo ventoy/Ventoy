@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -125,7 +125,7 @@ int ventoy_get_sys_file_line(char *buffer, int buflen, const char *fmt, ...)
                 break;
             }
         }
-        
+
         return 0;
     }
     else
@@ -168,7 +168,7 @@ static int ventoy_mount_path_escape(char *src, char *dst, int len)
 {
     int i = 0;
     int n = 0;
-    
+
     dst[len - 1] = 0;
 
     for (i = 0; i < len - 1; i++)
@@ -182,7 +182,7 @@ static int ventoy_mount_path_escape(char *src, char *dst, int len)
         {
             dst[n++] = src[i];
         }
-    
+
         if (src[i] == 0)
         {
             break;
@@ -222,11 +222,11 @@ int ventoy_try_umount_disk(const char *devpath)
                     *pos2 = 0;
                 }
 
-                ventoy_mount_path_escape(pos1 + 1, mntpt, sizeof(mntpt));                
+                ventoy_mount_path_escape(pos1 + 1, mntpt, sizeof(mntpt));
                 rc = umount(mntpt);
                 if (rc)
                 {
-                    vdebug("umount <%s> <%s> [ failed ] error:%d\n", devpath, mntpt, errno);                                        
+                    vdebug("umount <%s> <%s> [ failed ] error:%d\n", devpath, mntpt, errno);
                 }
                 else
                 {
@@ -303,14 +303,14 @@ const char * ventoy_get_local_version(void)
         scnprintf(LocalVersion, "%s", Buf);
         free(Buf);
     }
-    
+
     return LocalVersion;
 }
 
 int VentoyGetLocalBootImg(MBR_HEAD *pMBR)
 {
     memcpy(pMBR, g_mbr_template, 512);
-    return 0;    
+    return 0;
 }
 
 static int VentoyFillProtectMBR(uint64_t DiskSizeBytes, MBR_HEAD *pMBR)
@@ -370,7 +370,7 @@ static int ventoy_fill_gpt_partname(uint16_t Name[36], const char *asciiName)
     {
         Name[i] = asciiName[i];
     }
-    
+
     return 0;
 }
 
@@ -465,7 +465,7 @@ int VentoyFillMBRLocation(uint64_t DiskSizeInBytes, uint32_t StartSectorId, uint
     uint8_t Head;
     uint8_t Sector;
     uint8_t nSector = 63;
-    uint8_t nHead = 8;    
+    uint8_t nHead = 8;
     uint32_t Cylinder;
     uint32_t EndSectorId;
 
@@ -570,7 +570,7 @@ int ventoy_fill_mbr(uint64_t size, uint64_t reserve, int align4k, MBR_HEAD *pMBR
     PartSectorCount = VTOYEFI_PART_BYTES / 512;
     VentoyFillMBRLocation(size, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
 
-    pMBR->PartTbl[1].Active = 0x00; 
+    pMBR->PartTbl[1].Active = 0x00;
     pMBR->PartTbl[1].FsFlag = 0xEF; // EFI System Partition
 
     pMBR->Byte55 = 0x55;
@@ -635,7 +635,7 @@ int ventoy_fill_mbr_4k(uint64_t size, uint64_t reserve, int align4k, MBR_HEAD *p
     PartSectorCount = VTOYEFI_PART_BYTES / 4096;
     VentoyFillMBRLocation(size, PartStartSector, PartSectorCount, pMBR->PartTbl + 1);
 
-    pMBR->PartTbl[1].Active = 0x00; 
+    pMBR->PartTbl[1].Active = 0x00;
     pMBR->PartTbl[1].FsFlag = 0xEF; // EFI System Partition
 
     pMBR->Byte55 = 0x55;

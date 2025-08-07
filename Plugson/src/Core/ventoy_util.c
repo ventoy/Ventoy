@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -86,7 +86,7 @@ ventoy_file * ventoy_tar_find_file(const char *path)
     ventoy_file *node = g_tar_filelist;
 
     len = (int)strlen(path);
-    
+
     for (i = 0; i < g_tar_filenum; i++, node++)
     {
         if (node->pathlen == len && memcmp(node->path, path, len) == 0)
@@ -138,7 +138,7 @@ int ventoy_decompress_tar(char *tarbuf, int buflen, int *tarsize)
     else
     {
         *tarsize = g_unxz_len;
-        rc = 0;        
+        rc = 0;
     }
 
 	free(buffer);
@@ -224,7 +224,7 @@ int ventoy_www_init(void)
     }
 
     vlog("Total extract %d files from tar file.\n", g_tar_filenum);
-    
+
     return 0;
 }
 
@@ -253,7 +253,7 @@ if (backup)
     scnprintf(backup, 64, "%s/ventoy/ventoy_backup.json", g_cur_dir);
 }
 
-#endif    
+#endif
 }
 
 static const char g_encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -265,13 +265,13 @@ static const char g_encoding_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                 'w', 'x', 'y', 'z', '0', '1', '2', '3',
                                 '4', '5', '6', '7', '8', '9', '+', '/'};
 
-char * ventoy_base64_encode(const char *data, int input_length, int *output_length) 
+char * ventoy_base64_encode(const char *data, int input_length, int *output_length)
 {
     int i = 0;
     int j = 0;
     char *encoded_data = NULL;
     int mod_table[] = {0, 2, 1};
-    
+
     *output_length = 4 * ((input_length + 2) / 3);
     encoded_data = malloc(*output_length + 4);
     if (!encoded_data)
@@ -279,7 +279,7 @@ char * ventoy_base64_encode(const char *data, int input_length, int *output_leng
         return NULL;
     }
 
-    while (i < input_length) 
+    while (i < input_length)
     {
         unsigned int octet_a = i < input_length ? (unsigned char)data[i++] : 0;
         unsigned int octet_b = i < input_length ? (unsigned char)data[i++] : 0;
@@ -295,7 +295,7 @@ char * ventoy_base64_encode(const char *data, int input_length, int *output_leng
 
     for (i = 0; i < mod_table[input_length % 3]; i++)
     {
-        encoded_data[*output_length - 1 - i] = '=';        
+        encoded_data[*output_length - 1 - i] = '=';
     }
 
     return encoded_data;

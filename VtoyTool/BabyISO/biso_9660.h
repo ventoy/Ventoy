@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -29,7 +29,7 @@
 
 /* Volume Descriptor */
 #define  BISO_VD_TYPE_BOOT   0
-#define  BISO_VD_TYPE_PVD    1  
+#define  BISO_VD_TYPE_PVD    1
 #define  BISO_VD_TYPE_SVD    2
 #define  BISO_VD_TYPE_PART   3
 #define  BISO_VD_TYPE_END    255
@@ -105,12 +105,12 @@
 typedef struct tagBISO_DATE_915
 {
     UCHAR ucYear;      /* 1900+ */
-    UCHAR ucMonth;    
-    UCHAR ucDay;      
-    UCHAR ucHour;     
-    UCHAR ucMin;      
-    UCHAR ucSec;      
-    CHAR  cTimeZone;   
+    UCHAR ucMonth;
+    UCHAR ucDay;
+    UCHAR ucHour;
+    UCHAR ucMin;
+    UCHAR ucSec;
+    CHAR  cTimeZone;
 }BISO_DATE_915_S;
 
 typedef struct tagBISO_PATH_TABLE
@@ -124,7 +124,7 @@ typedef struct tagBISO_PATH_TABLE
     UINT16 usParentDirNum;
 
     CHAR  szDirName[1];
-       
+
     /* UCHAR ucPadding; */
 }BISO_PATH_TABLE_S;
 
@@ -140,7 +140,7 @@ typedef struct tagBISO_DIR_RECORD
 
     BISO_DEF_733(uiSize)
 
-    BISO_DATE_915_S stDate;    
+    BISO_DATE_915_S stDate;
 
     UCHAR ucFlags;
 
@@ -160,7 +160,7 @@ typedef struct tagBISO_DIR_RECORD
 #define BISO_DIR_RECORD_IS_PATH(pstDirRecord) \
     ((1 == ((pstDirRecord->ucFlags >> 1) & 0x01)) ? BOOL_TRUE : BOOL_FALSE)
 
-typedef struct tagBISO_VOLUME_DESC 
+typedef struct tagBISO_VOLUME_DESC
 {
     UCHAR ucType;
 
@@ -183,8 +183,8 @@ typedef struct tagBISO_PRIMARY_VOLUME_DESC
     /* ucResv1: unused1 [ISODCL (  8,   8)] */
     UCHAR ucResv1;
 
-    /* 
-     * szSystemId[32]: system_id [ISODCL (  9,  40)] 
+    /*
+     * szSystemId[32]: system_id [ISODCL (  9,  40)]
      */
     CHAR  szSystemId[32];
 
@@ -201,18 +201,18 @@ typedef struct tagBISO_PRIMARY_VOLUME_DESC
 
     BISO_DEF_723(usVolumeSet)
 
-    /* 
-     * usVolumeSeq: volume_sequence_number [ISODCL (125, 128)] 
+    /*
+     * usVolumeSeq: volume_sequence_number [ISODCL (125, 128)]
      */
     BISO_DEF_723(usVolumeSeq)
-    
-    /* 
+
+    /*
      * usBlockSize: logical_block_size [ISODCL (129, 132)]
      */
     BISO_DEF_723(usBlockSize)
 
     /*
-     * uiPathTblSize: path_table_size [ISODCL (133, 140)] 
+     * uiPathTblSize: path_table_size [ISODCL (133, 140)]
      */
     BISO_DEF_733(uiPathTblSize)
 
@@ -221,50 +221,50 @@ typedef struct tagBISO_PRIMARY_VOLUME_DESC
     UINT32 uiOptTypeLPathTblLoc;
 
     UINT32 uiTypeMPathTblLoc;
-    
+
     UINT32 uiOptTypeMPathTblLoc;
 
     BISO_DIR_RECORD_S stRootDirRecord;
 
     /* szVolumeSetId: volume_set_id [ISODCL (191, 318)]  */
     CHAR szVolumeSetId[128];
-    
+
     /* szPublisherId: publisher_id [ISODCL (319, 446)]  */
     CHAR szPublisherId[128];
-    
+
     /* szPreparerId: preparer_id [ISODCL (447, 574)]  */
     CHAR szPreparerId[128];
-    
+
     /* szApplicationId: application_id [ISODCL (575, 702)]  */
     CHAR szApplicationId[128];
-    
+
     /* szCopyrightFileId: copyright_file_id [ISODCL (703, 739)] [1] */
     CHAR szCopyrightFileId[37];
-    
+
     /* szAbstractFileId: abstract_file_id [ISODCL (740, 776)] */
     CHAR szAbstractFileId[37];
-    
+
     /* szBibliographicFileId: bibliographic_file_id [ISODCL (777, 813)]  */
     CHAR szBibliographicFileId[37];
 
     /* szCreationDate: creation_date [ISODCL (814, 830)]  */
     CHAR szCreationDate[17];
-    
+
     /* szModifyDate: modification_date [ISODCL (831, 847)] */
     CHAR szModifyDate[17];
-    
+
     /* szExpirationDate: expiration_date [ISODCL (848, 864)]  */
     CHAR szExpirationDate[17];
-    
+
     /* szEffectiveDate: effective_date [ISODCL (865, 881)]  */
     CHAR szEffectiveDate[17];
-    
+
     /* ucFileStructVer: file_structure_version [ISODCL (882, 882)]  */
     UCHAR ucFileStructVer;
-    
+
     /* ucResv4: unused4 [ISODCL (883, 883)] */
     UCHAR ucResv4;
-    
+
     /* aucApplicationData: application_data [ISODCL (884, 1395)] */
     UCHAR aucApplicationData[512];
 
@@ -276,21 +276,21 @@ typedef struct tagBISO_SUPPLEMENTARY_VOLUME_DESC
 {
     UCHAR ucType;
 
-    /* 
-     * szId[5]: id [ISODCL (  2,   6)] 
+    /*
+     * szId[5]: id [ISODCL (  2,   6)]
      */
     CHAR  szId[5];
 
     /* ucVersion:　version [ISODCL (  7,   7)] */
     UCHAR ucVersion;
 
-    /* 
-     * ucFlags: flags [ISODCL (  8,   8)] 
+    /*
+     * ucFlags: flags [ISODCL (  8,   8)]
      */
     UCHAR ucFlags;
 
-    /* 
-     * szSystemId[32]: system_id [ISODCL (  9,  40)] 
+    /*
+     * szSystemId[32]: system_id [ISODCL (  9,  40)]
      */
     CHAR  szSystemId[32];
 
@@ -300,8 +300,8 @@ typedef struct tagBISO_SUPPLEMENTARY_VOLUME_DESC
     /* aucResv2[8]: unused2 [ISODCL ( 73,  80)] */
     UCHAR aucResv2[8];
 
-    /* 
-     * uiVolumeSpace: volume_space_size [ISODCL ( 81,  88)] 
+    /*
+     * uiVolumeSpace: volume_space_size [ISODCL ( 81,  88)]
      */
     BISO_DEF_733(uiVolumeSpace)
 
@@ -309,16 +309,16 @@ typedef struct tagBISO_SUPPLEMENTARY_VOLUME_DESC
     UCHAR aucEscape[32];
 
     /*
-     * usVolumeSet: volume_set_size [ISODCL (121, 124)] 
+     * usVolumeSet: volume_set_size [ISODCL (121, 124)]
      */
     BISO_DEF_723(usVolumeSet)
 
-    /* 
-     * usVolumeSeq: volume_sequence_number [ISODCL (125, 128)] 
+    /*
+     * usVolumeSeq: volume_sequence_number [ISODCL (125, 128)]
      */
     BISO_DEF_723(usVolumeSeq)
-    
-    /* 
+
+    /*
      * usBlockSize: logical_block_size [ISODCL (129, 132)]
      */
     BISO_DEF_723(usBlockSize)
@@ -330,50 +330,50 @@ typedef struct tagBISO_SUPPLEMENTARY_VOLUME_DESC
     UINT32 uiOptTypeLPathTblLoc;
 
     UINT32 uiTypeMPathTblLoc;
-    
+
     UINT32 uiOptTypeMPathTblLoc;
 
     BISO_DIR_RECORD_S stRootDirRecord;
 
     /* szVolumeSetId: volume_set_id [ISODCL (191, 318)]  */
     CHAR szVolumeSetId[128];
-    
+
     /* szPublisherId: publisher_id [ISODCL (319, 446)]  */
     CHAR szPublisherId[128];
-    
+
     /* szPreparerId: preparer_id [ISODCL (447, 574)] */
     CHAR szPreparerId[128];
-    
+
     /* szApplicationId: application_id [ISODCL (575, 702)] */
     CHAR szApplicationId[128];
-    
+
     /* szCopyrightFileId: copyright_file_id [ISODCL (703, 739)] */
     CHAR szCopyrightFileId[37];
-    
+
     /* szAbstractFileId: abstract_file_id [ISODCL (740, 776)]*/
     CHAR szAbstractFileId[37];
-    
+
     /* szBibliographicFileId: bibliographic_file_id [ISODCL (777, 813)] */
     CHAR szBibliographicFileId[37];
 
     /* szCreationDate: creation_date [ISODCL (814, 830)]*/
     CHAR szCreationDate[17];
-    
+
     /* szModifyDate: modification_date [ISODCL (831, 847)] */
     CHAR szModifyDate[17];
-    
+
     /* szExpirationDate: expiration_date [ISODCL (848, 864)]  */
     CHAR szExpirationDate[17];
-    
+
     /* szEffectiveDate: effective_date [ISODCL (865, 881)]  */
     CHAR szEffectiveDate[17];
-    
+
     /* ucFileStructVer: file_structure_version [ISODCL (882, 882)]  */
     UCHAR ucFileStructVer;
-    
+
     /* ucResv4: unused4 [ISODCL (883, 883)] */
     UCHAR ucResv4;
-    
+
     /* aucApplicationData: application_data [ISODCL (884, 1395)] */
     UCHAR aucApplicationData[512];
 
@@ -384,8 +384,8 @@ typedef struct tagBISO_SUPPLEMENTARY_VOLUME_DESC
 typedef struct tagBISO_BOOT_DESC
 {
     UCHAR ucType;
-    /* 
-     * szId[5]: id [ISODCL (  2,   6)] 
+    /*
+     * szId[5]: id [ISODCL (  2,   6)]
      */
     CHAR szId[5];
 
@@ -430,7 +430,7 @@ typedef struct tagBISO_EXTATTR_RECORD
     UCHAR aucResv[64];
 
     BISO_DEF_723(usAppDataLen)
-    
+
     /* UCHAR aucAppData[xxx]; */
     /* UCHAR aucEscape[xxx]; */
 }BISO_EXTATTR_RECORD_S;
@@ -520,14 +520,14 @@ typedef struct tagBISO_PARSER
     UCHAR ucRRIPSkipLen;
 
     BISO_DIR_TREE_S stDirTree;
-    
+
     BISO_SVD_DIR_TREE_S stSVDDirTree;
 }BISO_PARSER_S;
 
 ULONG BISO_9660_OpenImage
 (
     IN BOOL_T bParseSVDDirTree,
-    IN CONST CHAR *pcFileName, 
+    IN CONST CHAR *pcFileName,
     OUT BISO_PARSER_S *pstParser
 );
 BISO_PARSER_S * BISO_9660_CreateParser(VOID);
@@ -540,12 +540,12 @@ ULONG BISO_9660_ParseDate84261
 VOID BISO_9660_FmtDate84261(IN time_t ulTime, IN UINT uiBufSize, OUT CHAR *pcDate);
 VOID BISO_9660_FillDfsStack
 (
-    IN BISO_DIR_TREE_S *pstTop, 
+    IN BISO_DIR_TREE_S *pstTop,
     INOUT BISO_QUEUE_S *pstQueue
 );
 ULONG BISO_9660_ExtractFile
 (
-    IN BISO_FILE_S *pstFile, 
+    IN BISO_FILE_S *pstFile,
     IN CONST CHAR  *pcDstFullPath,
     IN CONST BISO_DIR_TREE_S *pstFileNode,
     IN CONST BISO_EXTRACT_CTRL_S *pstCtrl

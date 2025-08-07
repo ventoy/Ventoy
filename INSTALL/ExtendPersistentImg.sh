@@ -113,7 +113,7 @@ fi
 freeloop=$(losetup -f)
 losetup $freeloop "$file"
 
-if [ "$cmd" = "resize2fs" ]; then    
+if [ "$cmd" = "resize2fs" ]; then
     echo "$mode ext filesystem by resize2fs ..."
     echo "resize2fs $freeloop ${total}M"
     e2fsck -f $freeloop

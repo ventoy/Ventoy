@@ -52,15 +52,15 @@ use any seekable file instead of /dev/loop7.)
   cc -Wall   -c -o ata.o ata.c
   cc -o vblade aoe.o linux.o ata.o
   ecashin@kokone vblade$ su
-  Password: 
+  Password:
   root@kokone vblade# modprobe loop
   root@kokone vblade# dd if=/dev/zero bs=1k count=1 seek=`expr 1024 \* 4096` of=bd
   -file
   1+0 records in
   1+0 records out
   1024 bytes transferred in 0.009901 seconds (103423 bytes/sec)
-  root@kokone vblade# losetup /dev/loop7 bd-file  
-  root@kokone vblade# ./vblade 9 0 eth0 /dev/loop7 
+  root@kokone vblade# losetup /dev/loop7 bd-file
+  root@kokone vblade# ./vblade 9 0 eth0 /dev/loop7
   ioctl returned 0
   4294968320 bytes
   pid 16967: e9.0, 8388610 sectors
@@ -71,7 +71,7 @@ another host on the LAN.
   ecashin@kokone ecashin$ ssh makki
   Last login: Mon Feb  7 10:25:04 2005
   ecashin@makki ~$ su
-  Password: 
+  Password:
   root@makki ecashin# modprobe aoe
   root@makki ecashin# aoe-stat
       e9.0            eth1              up
@@ -80,7 +80,7 @@ another host on the LAN.
 ...
   Creating journal (8192 blocks): done
   Writing superblocks and filesystem accounting information: done
-  
+
   This filesystem will be automatically checked every 24 mounts or
   180 days, whichever comes first.  Use tune2fs -c or -i to override.
   root@makki ecashin# mkdir /mnt/e9.0
@@ -95,7 +95,7 @@ Jumbo Frame Compatibility
 -------------------------
 
 Vblade can use jumbo frames provided your initiator is jumbo frame
-capable.  There is one small configuration gotcha to consider 
+capable.  There is one small configuration gotcha to consider
 to avoid having the vblade kernel frequently drop frames.
 
 Vblade uses a raw socket to perform AoE.  The linux kernel will

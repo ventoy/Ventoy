@@ -411,7 +411,7 @@ struct grub_efi_sal_system_table_translation_register_descriptor
 struct grub_efi_sal_system_table_purge_translation_coherence
 {
   grub_uint8_t type;
-  grub_uint8_t reserved[3];  
+  grub_uint8_t reserved[3];
   grub_uint32_t ndomains;
   grub_uint64_t coherence;
 };

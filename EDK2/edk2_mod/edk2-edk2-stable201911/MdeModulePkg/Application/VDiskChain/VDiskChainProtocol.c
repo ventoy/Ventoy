@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -39,11 +39,11 @@
 /* EFI block device vendor device path GUID */
 EFI_GUID gVDiskBlockDevicePathGuid = VDISK_BLOCK_DEVICE_PATH_GUID;
 
-EFI_STATUS EFIAPI vdisk_block_io_reset 
+EFI_STATUS EFIAPI vdisk_block_io_reset
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
     IN BOOLEAN                        ExtendedVerification
-) 
+)
 {
     (VOID)This;
     (VOID)ExtendedVerification;
@@ -105,7 +105,7 @@ EFI_STATUS EFIAPI vdisk_fill_device_path(VOID)
     venPath->Header.Length[1] = 0;
     CopyMem(&venPath->Guid, &gVDiskBlockDevicePathGuid, sizeof(EFI_GUID));
     CopyMem(venPath + 1, VDISK_BLOCK_DEVICE_PATH_NAME, NameLen);
-    
+
     gVDiskBlockData.Path = AppendDevicePathNode(NULL, (EFI_DEVICE_PATH_PROTOCOL *)TmpBuf);
     gVDiskBlockData.DevicePathCompareLen = sizeof(VENDOR_DEVICE_PATH) + NameLen;
 
@@ -127,7 +127,7 @@ EFI_STATUS EFIAPI vdisk_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST 
 
     debug("vdisk_connect_driver <%s>...", DrvName);
 
-    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentName2ProtocolGuid, 
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentName2ProtocolGuid,
                                      NULL, &Count, &Handles);
     if (EFI_ERROR(Status))
     {
@@ -169,7 +169,7 @@ EFI_STATUS EFIAPI vdisk_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST 
     FreePool(Handles);
     Handles = NULL;
 
-    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentNameProtocolGuid, 
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentNameProtocolGuid,
                                      NULL, &Count, &Handles);
     if (EFI_ERROR(Status))
     {
@@ -206,18 +206,18 @@ EFI_STATUS EFIAPI vdisk_connect_driver(IN EFI_HANDLE ControllerHandle, IN CONST 
     }
 
     Status = EFI_NOT_FOUND;
-    
+
 end:
     FreePool(Handles);
-    
+
     return Status;
 }
 
 EFI_STATUS EFIAPI vdisk_install_blockio(IN EFI_HANDLE ImageHandle, IN UINT64 ImgSize)
-{   
+{
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_BLOCK_IO_PROTOCOL *pBlockIo = &(gVDiskBlockData.BlockIo);
-    
+
     vdisk_fill_device_path();
 
     debug("install block io protocol %p", ImageHandle);

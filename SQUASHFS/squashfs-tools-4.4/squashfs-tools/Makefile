@@ -186,7 +186,7 @@ ifeq ($(LZMA_XZ_SUPPORT),1)
 CFLAGS += -DLZMA_SUPPORT
 MKSQUASHFS_OBJS += lzma_xz_wrapper.o
 UNSQUASHFS_OBJS += lzma_xz_wrapper.o
-LIBS += 
+LIBS +=
 COMPRESSORS += lzma
 endif
 
@@ -285,7 +285,7 @@ mksquashfs: $(MKSQUASHFS_OBJS)
 
 mksquashfs.o: Makefile mksquashfs.c squashfs_fs.h squashfs_swap.h mksquashfs.h \
 	sort.h pseudo.h compressor.h xattr.h action.h error.h progressbar.h \
-	info.h caches-queues-lists.h read_fs.h restore.h process_fragments.h 
+	info.h caches-queues-lists.h read_fs.h restore.h process_fragments.h
 
 read_fs.o: read_fs.c squashfs_fs.h squashfs_swap.h compressor.h xattr.h \
 	error.h mksquashfs.h

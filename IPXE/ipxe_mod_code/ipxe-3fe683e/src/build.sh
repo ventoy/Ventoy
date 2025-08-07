@@ -14,12 +14,12 @@ build_bios() {
     mount bin/ipxe.iso ./mnt
 
     rm -f ../../../INSTALL/ventoy/ipxe.krn
-    cp -a ./mnt/ipxe.krn ../../../INSTALL/ventoy/ipxe.krn        
-    
+    cp -a ./mnt/ipxe.krn ../../../INSTALL/ventoy/ipxe.krn
+
     umount ./mnt > /dev/null 2>&1
     umount ./mnt > /dev/null 2>&1
     umount ./mnt > /dev/null 2>&1
-    
+
     rm -rf ./mnt
 
     echo -e "\n===============SUCCESS===============\n"

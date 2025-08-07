@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -74,7 +74,7 @@ int vtoyloader_main(int argc, char **argv)
     }
 
     debug("ventoy loader ...\n");
-    
+
     rc = vtoy_read_file_to_buf(EXEC_PATH_FILE, g_exec_file, sizeof(g_exec_file) - 1);
     if (rc)
     {
@@ -124,7 +124,7 @@ int vtoyloader_main(int argc, char **argv)
     {
         cmdlist[i] = argv[i];
     }
-    
+
     cmdlist[0] = g_exec_file;
     debug("g_exec_file=<%s>\n", g_exec_file);
 
@@ -145,7 +145,7 @@ int vtoyloader_main(int argc, char **argv)
                 pos++;
                 break;
             }
-        
+
             pos++;
         }
     }
@@ -156,11 +156,11 @@ int vtoyloader_main(int argc, char **argv)
     if (g_hook_cmd[0])
     {
         rc = system(g_hook_cmd);
-        debug("system return code =<%d>  errno=<%d>\n", rc, errno);        
+        debug("system return code =<%d>  errno=<%d>\n", rc, errno);
     }
 
     execv(cmdlist[0], cmdlist);
-    
+
     return 0;
 }
 

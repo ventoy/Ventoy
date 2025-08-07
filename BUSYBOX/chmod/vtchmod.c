@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>  
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
 
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
             {
                 return 0;
             }
-            
+
             if (strstr(buf.machine, "x86_64"))
             {
                 return 0;

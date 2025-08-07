@@ -136,8 +136,8 @@ grub_efi_mouse_prot_init (void)
        mouse_input->mouse[i]->mode->y, mouse_input->mouse[i]->mode->z);
 #endif
   }
-  
-end:  
+
+end:
   efi_call_1(b->free_pool, buf);
 
   return mouse_input;
@@ -174,7 +174,7 @@ grub_mouse_getkey (struct grub_term_input *term)
   env = grub_env_get("mouse_delta");
   if (env)
     delta = (int)grub_strtol(env, NULL, 10);
-  
+
   for (i = 0; i < mouse->count; i++)
   {
     efi_call_2 (mouse->mouse[i]->get_state, mouse->mouse[i], &cur);

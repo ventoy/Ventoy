@@ -152,7 +152,7 @@
 	- mksquashfs: add a new -mem <mbytes> option
 	- mksquashfs: fix limit on the number of dynamic pseudo files
 	- mksquashfs: make -mem take a normal byte value, optionally with a
-	  K, M or G 
+	  K, M or G
 
 4.2	28 FEB 2011	XZ compression, and compression options support
 
@@ -181,7 +181,7 @@
 	    1.8 Add external CFLAGS and LDFLAGS support to Makefile, and allow
 		build options to be specified on command line.  Also don't
 		over-write passed in CFLAGS definition.
-	
+
 
 4.1	19 SEPT 2010	Major filesystem and tools improvements
 
@@ -201,7 +201,7 @@
 	    1.5 Fix floating point error in progress_bar when max == 0
 	    1.6 Removed use of get_nproc() call unavailable in ulibc
 	    1.7 Reorganised help text
-	  
+
 	3. Unsquashfs improvements:
 
 	    1.1 New options for controlling extended attributes
@@ -209,7 +209,7 @@
 	    1.3 Fix floating point error in progress_bar when max == 0
 	    1.4 Removed use of get_nproc() call unavailable in ulibc
 
-	  
+
 4.0	5 APR 2009	Major filesystems improvements
 
 	1. Kernel code improvements:
@@ -234,7 +234,7 @@
 		code to be optimised and only added at compile time for
 		big endian systems.
 	    3.2 Support for pseudo files added.
-	 
+
 3.4	26 AUG 2008	Performance improvements to Unsquashfs, Mksquashfs
 			and the kernel code.  Plus many small bug fixes.
 
@@ -363,7 +363,7 @@
 	5. Race condition occurring on S390 in readpage() fixed.
 	6. Odd behaviour of MIPS memcpy in read_data() routine worked-around.
 	7. Missing cache_flush in Squashfs symlink_readpage() added.
-	
+
 
 3.1-r2	30 AUG 2006	Mksquashfs -sort bug fix
 
@@ -375,7 +375,7 @@
 			fixes, lots of small improvements/bug fixes,
 			and new kernel patches.
 
-			
+
 	1. Mksquashfs has been rewritten to be multi-threaded.  It
 	   has the following improvements
 
@@ -397,7 +397,7 @@
 	   1.5	The use of swap memory was found to significantly impact
 		performance. The amount of memory used to cache files is now a
 		command line option, by default this is 512 Mbytes.
- 
+
 	2. Unsquashfs has the following improvements
 
 	   2.1  Unsquashfs now allows you to specify the filename or the
@@ -432,7 +432,7 @@
 	  4.5	Unsquashfs exit status fixed.
 	  4.6	New patches for linux-2.6.18 and linux-2.4.33.
 
-	
+
 3.0	15 MAR 2006	Major filesystem improvements
 
 	1. Filesystems are no longer limited to 4 GB.  In
@@ -453,7 +453,7 @@
 
 2.2-r2	8 SEPT 2005	Second release of 2.2, this release fixes a couple
 			of small bugs, a couple of small documentation
-			mistakes, and adds a patch for kernel 2.6.13. 
+			mistakes, and adds a patch for kernel 2.6.13.
 
 	1. Mksquashfs now deletes the output filesystem image file if an
 	   error occurs whilst generating the filesystem.  Previously on
@@ -492,7 +492,7 @@
 	   misaligned short read.  This was to fix reading on an ARM7 running
 	   uCLinux without a misaligned read interrupt handler.
 	7. Checkdata bug introduced in 2.1 fixed.
-	
+
 
 2.1-r2  15 DEC 2004	Code changed so it can be compiled with gcc 2.x
 
@@ -533,7 +533,7 @@
 
 	1. New patch for kernel 2.6.8.1.  This includes a workaround for a
 	   kernel bug introduced in 2.6.7bk14, which is present in all later
-	   versions of the kernel.  
+	   versions of the kernel.
 
 	   If you're using a 2.6.8 kernel or later then you must use this
 	   2.6.8.1 patch.  If you've experienced hangs or oopses using Squashfs
@@ -544,7 +544,7 @@
 	   other filesystems.  If you receive odd results with other
 	   filesystems you may be experiencing this bug with that filesystem.
 	   I submitted a patch but this has not yet gone into the
-	   kernel, hopefully the bug will be fixed in later kernels. 
+	   kernel, hopefully the bug will be fixed in later kernels.
 
 2.0	13 JULY 2004	A couple of new options, and some bug fixes
 
