@@ -1,10 +1,10 @@
 [
     {
-        "name":"Arabic (العربية)",        
+        "name":"Arabic (العربية)",
         "FontFamily":"Courier New",
         "FontSize":20,
         "Author":"Omar Namis Mostafa",
-        
+
         "STR_ERROR":"خطأ",
         "STR_WARNING":"تحذير",
         "STR_INFO":"معلومات",
@@ -61,7 +61,7 @@
         "STR_PART_CLUSTER_DEFAULT":"القيمة الافتراضية للنظام",
         "STR_DONATE":"يتبرع",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -69,7 +69,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Xəyyam Qocayev",
-        
+
         "STR_ERROR":"Xəta",
         "STR_WARNING":"Xəbərdarlıq",
         "STR_INFO":"Məlumat",
@@ -126,7 +126,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Ianə",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -134,7 +134,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"VenusGirl",
-        
+
         "STR_ERROR":"오류",
         "STR_WARNING":"경고",
         "STR_INFO":"정보",
@@ -191,7 +191,7 @@
         "STR_PART_CLUSTER_DEFAULT":"시스템 기본값",
         "STR_DONATE":"기부",
         "STR_4KN_UNSUPPORTED":"현재 Ventoy는 네이티브 4K 섹터의 디스크를 지원하지 않습니다.",
-        
+
         "STRXXX":""
     },
     {
@@ -199,7 +199,7 @@
         "FontFamily":"宋体",
         "FontSize":14,
         "Author":"longpanda",
-        
+
         "STR_ERROR":"错误",
         "STR_WARNING":"警告",
         "STR_INFO":"提醒",
@@ -256,7 +256,7 @@
         "STR_PART_CLUSTER_DEFAULT":"系统默认值",
         "STR_DONATE":"捐助",
         "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支持原生 4K 扇区的磁盘。",
-        
+
         "STRXXX":""
     },
     {
@@ -321,7 +321,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Standard Værdi",
         "STR_DONATE":"Donering",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -329,7 +329,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"longpanda",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Warning",
         "STR_INFO":"Info",
@@ -386,7 +386,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donate",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -394,7 +394,7 @@
         "FontFamily": "Courier New",
         "FontSize": 16,
         "Author": "44f33",
-        
+
         "STR_ERROR": "შეცდომა",
         "STR_WARNING": "გაფრთხილება",
         "STR_INFO": "ინფორმაცია",
@@ -451,7 +451,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"შემოწირულობა",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX": ""
     },
     {
@@ -459,7 +459,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"ivadham",
-        
+
         "STR_ERROR":"خطا",
         "STR_WARNING":"هشدار",
         "STR_INFO":"توضیحات",
@@ -516,7 +516,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"اهداء",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -524,7 +524,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"B.O.S.S, ChuckMichael",
-        
+
         "STR_ERROR":"Błąd",
         "STR_WARNING":"Ostrzeżenie",
         "STR_INFO":"Informacja",
@@ -581,7 +581,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Wartość domyślna systemu",
         "STR_DONATE":"Przekaż darowiznę",
         "STR_4KN_UNSUPPORTED":"Obecnie Ventoy nie obsługuje urządzeń o fizycznym rozmiarze sektora 4K.",
-        
+
         "STRXXX":""
     },
     {
@@ -589,7 +589,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"EstevaoCostaG3, David BrazSan, Hildo Guillardi Júnior, Chrystian Rubio, Felipe",
-        
+
         "STR_ERROR":"Erro",
         "STR_WARNING":"Aviso",
         "STR_INFO":"Informações",
@@ -646,7 +646,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Valor Padrão do Sistema",
         "STR_DONATE":"Doar",
         "STR_4KN_UNSUPPORTED":"Atualmente o Ventoy não suporta dispositivos 4K nativos.",
-        
+
         "STRXXX":""
     },
     {
@@ -654,7 +654,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Erhan Kültür,Tayfun Akkoyun, Oğuz Ersen",
-        
+
         "STR_ERROR":"Hata",
         "STR_WARNING":"Uyarı",
         "STR_INFO":"Bilgi",
@@ -711,7 +711,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Sistem varsayılan değeri",
         "STR_DONATE":"Ventoy'a Bağış yap",
         "STR_4KN_UNSUPPORTED":"Diskiniz 4K(4096byte) sektör yapısına sahip.Ventoy, 4K sektör yapısına sahip cihazlara şu anda destek vermemektedir.",
-        
+
         "STRXXX":""
     },
     {
@@ -719,7 +719,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"luzea & u!^DEV, wiz64",
-        
+
         "STR_ERROR":"Fehler",
         "STR_WARNING":"Warnung",
         "STR_INFO":"Info",
@@ -776,7 +776,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Systemstandardwert",
         "STR_DONATE":"Spenden",
         "STR_4KN_UNSUPPORTED":"Ventoy unterstützt derzeit keine nativen 4K-Geräte.",
-        
+
         "STRXXX":""
     },
     {
@@ -784,7 +784,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"quentin",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Avertiment",
         "STR_INFO":"Info",
@@ -841,7 +841,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donate",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -849,7 +849,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"vboucard, Silejonu, wiz64",
-        
+
         "STR_ERROR":"Erreur",
         "STR_WARNING":"Avertissement",
         "STR_INFO":"Info",
@@ -906,7 +906,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Valeur par défaut du système",
         "STR_DONATE":"Faire un don",
         "STR_4KN_UNSUPPORTED":"Actuellement, Ventoy ne prend pas en charge les appareils natifs 4K.",
-        
+
         "STRXXX":""
     },
     {
@@ -914,7 +914,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"vavanade, lev741",
-        
+
         "STR_ERROR":"Chyba",
         "STR_WARNING":"Varování",
         "STR_INFO":"Info",
@@ -955,7 +955,7 @@
         "STR_WEB_TOKEN_MISMATCH":"Daemon status byl aktualizován, prosím vyskoušejte to později.",
         "STR_WEB_SERVICE_BUSY":"Služba je zaneprázdnená, prosím vyskoušejte to později.",
         "STR_MENU_VTSI_CREATE":"Vygenerovat VTSI Soubor",
-        "STR_VTSI_CREATE_TIP":"Tentokrát se do zařízení nebude zapisovat, jenom se vygeneruje VTSI soubor#@Pokračovat?",     
+        "STR_VTSI_CREATE_TIP":"Tentokrát se do zařízení nebude zapisovat, jenom se vygeneruje VTSI soubor#@Pokračovat?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI soubor úspěšne vytvořen!#@Múžete použit Rufus(3.15+) na jeho zapsání do zařízení pro dokončení instalace Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Chyba při vytváření VTSI souboru.",
         "STR_MENU_PART_RESIZE":"Nedestruktivní Instalace",
@@ -971,7 +971,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Výchozí hodnota systému",
         "STR_DONATE":"Darovat",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -1035,7 +1035,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Darovať",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -1043,7 +1043,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"MELERIX",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Advertencia",
         "STR_INFO":"Información",
@@ -1100,7 +1100,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
         "STR_DONATE":"Donar",
         "STR_4KN_UNSUPPORTED":"Actualmente Ventoy no soporta dispositivos nativos 4K.",
-        
+
         "STRXXX":""
     },
     {
@@ -1108,7 +1108,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Carlos Sánchez, MELERIX, shulkalala",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Advertencia",
         "STR_INFO":"Información",
@@ -1165,7 +1165,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Valor predeterminado del sistema",
         "STR_DONATE":"Donar",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -1173,7 +1173,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Dmitry Yerokhin, BL4CKH47H4CK3R, Teraskull, thehugonote, wiz64, dmitrygribenchuk, Темак",
-        
+
         "STR_ERROR":"Ошибка",
         "STR_WARNING":"Внимание",
         "STR_INFO":"Информация",
@@ -1230,7 +1230,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Системное значение по умолчанию",
         "STR_DONATE":"Пожертвовать",
         "STR_4KN_UNSUPPORTED":"В настоящее время Ventoy не поддерживает родные устройства 4K.",
-        
+
         "STRXXX":""
     },
     {
@@ -1238,7 +1238,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"BL4CKH47H4CK3R, wiz64",
-        
+
         "STR_ERROR":"ত্রুটি",
         "STR_WARNING":"সতর্কতা",
         "STR_INFO":"তথ্য",
@@ -1295,7 +1295,7 @@
         "STR_PART_CLUSTER_DEFAULT":"সিস্টেমের ডিফল্ট মান",
         "STR_DONATE":"দান করুন",
         "STR_4KN_UNSUPPORTED":"বর্তমানে Ventoy 4K নেটিভ ডিভাইস সমর্থন করে না।",
-        
+
         "STRXXX":""
     },
     {
@@ -1303,7 +1303,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"BL4CKH47H4CK3R, wiz64",
-        
+
         "STR_ERROR":"त्रुटि",
         "STR_WARNING":"चेतावनी",
         "STR_INFO":"जानकारी",
@@ -1360,7 +1360,7 @@
         "STR_PART_CLUSTER_DEFAULT":"सिस्टम डिफ़ॉल्ट मान",
         "STR_DONATE":"दान करें",
         "STR_4KN_UNSUPPORTED":"वर्तमान में Ventoy 4K नेटिव डिवाइस को सपोर्ट नहीं करता है।",
-        
+
         "STRXXX":""
     },
     {
@@ -1368,7 +1368,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"UmitCanbolat, RockyTDR",
-        
+
         "STR_ERROR":"Fout",
         "STR_WARNING":"Waarschuwing",
         "STR_INFO":"Info",
@@ -1425,7 +1425,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Standaardwaarde systeem",
         "STR_DONATE":"Doneer",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -1433,7 +1433,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"DorinMol, cezarlacatus, wiz64",
-        
+
         "STR_ERROR":"Eroare",
         "STR_WARNING":"Avertisment",
         "STR_INFO":"Informare",
@@ -1490,7 +1490,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Valoarea implicită a sistemului",
         "STR_DONATE":"Donează",
         "STR_4KN_UNSUPPORTED":"Momentan, Ventoy nu suporta dispozitive native 4k.",
-        
+
         "STRXXX":""
     },
     {
@@ -1498,7 +1498,7 @@
         "FontFamily":"Yu Gothic UI",
         "FontSize":16,
         "Author":"taichi eto, Bentnand, cmplstofB, Re*Index.(ot_inc)",
-        
+
         "STR_ERROR":"エラー",
         "STR_WARNING":"警告",
         "STR_INFO":"情報",
@@ -1555,7 +1555,7 @@
         "STR_PART_CLUSTER_DEFAULT":"システムの既定値",
         "STR_DONATE":"寄付",
         "STR_4KN_UNSUPPORTED":"現在、Ventoyは4Kネイティブデバイスをサポートしていません。",
-        
+
         "STRXXX":""
     },
     {
@@ -1563,7 +1563,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"AverageUser2,Albano Battistella,bovirus,passero",
-        
+
         "STR_ERROR":"Errore",
         "STR_WARNING":"Attenzione",
         "STR_INFO":"Info",
@@ -1620,7 +1620,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Valore predefinito sistema",
         "STR_DONATE":"Dona",
         "STR_4KN_UNSUPPORTED":"Attualmente Ventoy non supporta dispositivi nativi 4K.",
-        
+
         "STRXXX":""
     },
     {
@@ -1628,7 +1628,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Valnjes",
-        
+
         "STR_ERROR":"Pogreška",
         "STR_WARNING":"Upozorenje",
         "STR_INFO":"Informacija",
@@ -1685,7 +1685,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donirajte",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -1693,7 +1693,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Bitfarago, gidano, meskobalazs",
-        
+
         "STR_ERROR":"Hiba",
         "STR_WARNING":"Figyelmeztetés",
         "STR_INFO":"Információ",
@@ -1750,7 +1750,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Rendszer alapérték",
         "STR_DONATE":"Adományoz",
         "STR_4KN_UNSUPPORTED":"Jelenleg a Ventoy nem támogat natív 4K eszközt.",
-        
+
         "STRXXX":""
     },
     {
@@ -1758,7 +1758,7 @@
         "FontFamily":"新細明體",
         "FontSize":14,
         "Author":"penut85420,tony8077616",
-        
+
         "STR_ERROR":"錯誤",
         "STR_WARNING":"警告",
         "STR_INFO":"提醒",
@@ -1815,7 +1815,7 @@
         "STR_PART_CLUSTER_DEFAULT":"系統預設值",
         "STR_DONATE":"贊助",
         "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支援單位磁區格式為4K的硬碟。",
-        
+
         "STRXXX":""
     },
     {
@@ -1823,7 +1823,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Bojan Maksimović, panickingkernel, Zoran Jankov, Stefan Šućur, Kosta Stojiljković",
-        
+
         "STR_ERROR":"Greška",
         "STR_WARNING":"Upozorenje",
         "STR_INFO":"Informacija",
@@ -1880,7 +1880,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Podrazumevana sistemska vrednost",
         "STR_DONATE":"Donirajte",
         "STR_4KN_UNSUPPORTED":"Ventoy trenutno ne podržava 4K izvorne uređaje.",
-        
+
         "STRXXX":""
     },
     {
@@ -1945,7 +1945,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Подразумевана системска вредност",
         "STR_DONATE":"Донирајте",
         "STR_4KN_UNSUPPORTED":"Ventoy тренутно не подржава 4К изворне уређаје.",
-        
+
         "STRXXX":""
     },
     {
@@ -1953,7 +1953,7 @@
         "FontFamily":"Courier New",
         "FontSize":17,
         "Author":"longpanda",
-        
+
         "STR_ERROR":"ผิดพลาด",
         "STR_WARNING":"คำเตือน",
         "STR_INFO":"ข้อมูล",
@@ -2010,7 +2010,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"บริจาค",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2075,7 +2075,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"donere",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2083,7 +2083,7 @@
         "FontFamily":"Tahoma",
         "FontSize":14,
         "Author":"Nguyen Quoc Hoang - cuumay.win, HoangNPV - @isoamyl50",
-        
+
         "STR_ERROR":"Lỗi",
         "STR_WARNING":"Cảnh báo",
         "STR_INFO":"Thông tin",
@@ -2140,7 +2140,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Theo giá trị mặc định của hệ thống",
         "STR_DONATE":"Ủng hộ tác giả",
         "STR_4KN_UNSUPPORTED":"Hiện tại Ventoy không hỗ trợ các thiết bị 4K native.",
-        
+
         "STRXXX":""
     },
     {
@@ -2148,7 +2148,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"r0manas",
-        
+
         "STR_ERROR ":"Klaida",
         "STR_WARNING ":"Įspėjimas",
         "STR_INFO ":"Informacija",
@@ -2205,7 +2205,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"paaukoti",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2213,7 +2213,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Влатко Стојанов",
-        
+
         "STR_ERROR":"Грешка",
         "STR_WARNING":"Предупредување",
         "STR_INFO":"Инфо",
@@ -2270,7 +2270,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"донира",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2278,7 +2278,7 @@
         "FontFamily":"tahoma",
         "FontSize":16,
         "Author":"chaim-chv",
-        
+
         "STR_ERROR":"תקלה",
         "STR_WARNING":"אזהרה",
         "STR_INFO":"מידע",
@@ -2335,7 +2335,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"לִתְרוֹם",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2343,7 +2343,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Eskiso, Hugo Carvalho",
-        
+
         "STR_ERROR":"Erro",
         "STR_WARNING":"Aviso",
         "STR_INFO":"Informação",
@@ -2400,7 +2400,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Valor predefinido do sistema",
         "STR_DONATE":"Doar",
         "STR_4KN_UNSUPPORTED":"Atualmente, o Ventoy não é compatível com dispositivos nativos 4K.",
-        
+
         "STRXXX":""
     },
     {
@@ -2408,7 +2408,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Ida Bagus Anom Sanjaya",
-        
+
         "STR_ERROR":"Kesalahan",
         "STR_WARNING":"Peringatan",
         "STR_INFO":"Informasi",
@@ -2465,7 +2465,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Nilai Standar Sistem",
         "STR_DONATE":"Donasi sukarela",
         "STR_4KN_UNSUPPORTED":"Saat ini Ventoy tidak mendukung perangkat 4K yang asli.",
-        
+
         "STRXXX":""
     },
     {
@@ -2473,7 +2473,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Allan Nordhøy",
-        
+
         "STR_ERROR":"Feil",
         "STR_WARNING":"Advarsel",
         "STR_INFO":"Info",
@@ -2530,7 +2530,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donere",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2595,7 +2595,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Системне значення за умовчанням",
         "STR_DONATE":"Пожертвуйте",
         "STR_4KN_UNSUPPORTED":"Наразі Ventoy не підтримує рідні пристрої 4K.",
-        
+
         "STRXXX":""
     },
     {
@@ -2603,7 +2603,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"grmasa, Vasilis Kosmidis",
-        
+
         "STR_ERROR":"Σφάλμα",
         "STR_WARNING":"Προειδοποίηση",
         "STR_INFO":"Πληροφορίες",
@@ -2660,16 +2660,16 @@
         "STR_PART_CLUSTER_DEFAULT":"Προεπιλεγμένη τιμή συστήματος",
         "STR_DONATE":"Δωρεά",
         "STR_4KN_UNSUPPORTED":"Επί του παρόντος, το Ventoy δεν υποστηρίζει εγγενείς συσκευές 4K.",
-        
+
         "STRXXX":""
     },
-    
+
     {
         "name":"Swedish (Svenska)",
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Sopor",
-        
+
         "STR_ERROR":"Fel",
         "STR_WARNING":"Varning",
         "STR_INFO":"Info",
@@ -2726,7 +2726,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Systemets standardvärde",
         "STR_DONATE":"Donera",
         "STR_4KN_UNSUPPORTED":"För närvarande stöder inte Ventoy 4K-enheter.",
-        
+
         "STRXXX":""
     },
     {
@@ -2734,7 +2734,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Urajmal",
-        
+
         "STR_ERROR":"Napaka",
         "STR_WARNING":"Opozorilo",
         "STR_INFO":"Info",
@@ -2791,7 +2791,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donirajte",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2856,7 +2856,7 @@
         "STR_PART_CLUSTER_DEFAULT":"По подразбиране от системата",
         "STR_DONATE":"Дарете",
         "STR_4KN_UNSUPPORTED":"За момента Ventoy не поддържа устройства с клъстери, чиито размери са 4КБ.",
-        
+
         "STRXXX":""
     },
     {
@@ -2921,7 +2921,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Նվիրաբերել",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2986,7 +2986,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Lahjoittaa",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -2994,7 +2994,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"gbrea",
-        
+
         "STR_ERROR":"Erro",
         "STR_WARNING":"Atención",
         "STR_INFO":"Info",
@@ -3051,7 +3051,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Doa",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -3059,7 +3059,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"guillemglez",
-        
+
         "STR_ERROR":"Error",
         "STR_WARNING":"Avís",
         "STR_INFO":"Info",
@@ -3116,16 +3116,16 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"Donar",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
-    
+
     {
         "name":"Georgian (ქართული)",
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"Levan Baindurashvili",
-        
+
         "STR_ERROR":"შეცდომა",
         "STR_WARNING":"გაფრთხილება",
         "STR_INFO":"ინფორმაცია",
@@ -3182,7 +3182,7 @@
         "STR_PART_CLUSTER_DEFAULT":"System Default Value",
         "STR_DONATE":"შემოწირულობა",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
-        
+
         "STRXXX":""
     },
     {
@@ -3190,7 +3190,7 @@
         "FontFamily":"Courier New",
         "FontSize":16,
         "Author":"K.B.Dharun Krishna",
-        
+
         "STR_ERROR":"பிழை",
         "STR_WARNING":"எச்சரிக்கை",
         "STR_INFO":"தகவல்",
@@ -3247,7 +3247,7 @@
         "STR_PART_CLUSTER_DEFAULT":"கணினி இயல்புநிலை மதிப்பு",
         "STR_DONATE":"தானம் செய்",
         "STR_4KN_UNSUPPORTED":"தற்போது, வெண்டோய் 4K சொந்த சாதனங்களை ஆதரிக்கவில்லை.",
-        
+
         "STRXXX":""
     },
     {
@@ -3312,7 +3312,7 @@
         "STR_PART_CLUSTER_DEFAULT":"Сістэмнае значэнне па змаўчанні",
         "STR_DONATE":"Ахвяраваць",
         "STR_4KN_UNSUPPORTED":"Зараз Ventoy не падтрымлівае ўласныя прылады 4K.",
-        
+
         "STRXXX":""
     }
 ]

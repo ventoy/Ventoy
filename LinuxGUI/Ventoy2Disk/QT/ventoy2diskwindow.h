@@ -83,7 +83,7 @@ private slots:
 
     void on_ButtonRefresh_clicked();
 
-    void on_comboBoxDevice_currentIndexChanged(int index);    
+    void on_comboBoxDevice_currentIndexChanged(int index);
 
     void on_actionPartition_Configuration_triggered();
 

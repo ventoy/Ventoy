@@ -210,7 +210,7 @@ grub_efi_set_variable(const char *var, const grub_efi_guid_t *guid,
 
   r = grub_efi_system_table->runtime_services;
 
-  status = efi_call_5 (r->set_variable, var16, guid, 
+  status = efi_call_5 (r->set_variable, var16, guid,
 		       (GRUB_EFI_VARIABLE_NON_VOLATILE
 			| GRUB_EFI_VARIABLE_BOOTSERVICE_ACCESS
 			| GRUB_EFI_VARIABLE_RUNTIME_ACCESS),
@@ -961,7 +961,7 @@ void * grub_efi_allocate_iso_buf(grub_uint64_t size)
     {
         return NULL;
     }
-    
+
     return (void *)(unsigned long)address;
 }
 
@@ -978,6 +978,6 @@ void * grub_efi_allocate_chain_buf(grub_uint64_t size)
     {
         return NULL;
     }
-    
+
     return (void *)(unsigned long)address;
 }

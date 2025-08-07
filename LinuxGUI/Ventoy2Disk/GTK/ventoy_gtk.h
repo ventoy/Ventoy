@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -49,13 +49,13 @@ int msgbox(GtkMessageType type, GtkButtonsType buttons, const char *strid);
 
 #define LANG_LABEL_TEXT(id, str) \
     gtk_label_set_text(BUILDER_ITEM(GtkLabel, id), vtoy_json_get_string_ex(node->pstChild, str))
-    
+
 #define LANG_BUTTON_TEXT(id, str) \
     gtk_button_set_label(BUILDER_ITEM(GtkButton, id), vtoy_json_get_string_ex(node->pstChild, str))
 
 #define LANG_MENU_ITEM_TEXT(id, str) \
     gtk_menu_item_set_label(BUILDER_ITEM(GtkMenuItem, id), vtoy_json_get_string_ex(node->pstChild, str))
-    
+
 #define LANG_CHKBTN_TEXT(id, str) \
     gtk_check_button_set_label(BUILDER_ITEM(GtkCheckButton, id), vtoy_json_get_string_ex(node->pstChild, str))
 

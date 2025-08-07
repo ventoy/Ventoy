@@ -154,15 +154,15 @@ int prepare_dmtable(void)
     char prefix[MAXPATHLEN];
     ventoy_image_desc desc;
     ventoy_img_chunk chunk;
-    
+
     fIn = fopen("/dmtable", "rb");
     if (!fIn)
     {
         printf("Failed to open dmtable\n");
         return 1;
     }
-    
-    fOut = fopen("/tmp/dmtable", "w+"); 
+
+    fOut = fopen("/tmp/dmtable", "w+");
     if (!fOut)
     {
         printf("Failed to create /tmp/dmtable %d\n", errno);
@@ -171,9 +171,9 @@ int prepare_dmtable(void)
     }
 
     fread(&desc, 1, sizeof(desc), fIn);
-    
+
     vdebug("[VTOY] disksize:%lu part1size:%lu chunkcount:%u\n", desc.disk_size, desc.part1_size, desc.img_chunk_count);
-    
+
     for (i = 0; count <= 0 && i < 10; i++)
     {
         sleep(2);
@@ -207,18 +207,18 @@ int prepare_dmtable(void)
         sector_start = chunk.img_start_sector;
         disk_sector_num = (uint32_t)(chunk.disk_end_sector + 1 - chunk.disk_start_sector);
 
-        fprintf(fOut, "%u %u linear /dev/%s %llu\n", 
-               (sector_start << 2), disk_sector_num, 
+        fprintf(fOut, "%u %u linear /dev/%s %llu\n",
+               (sector_start << 2), disk_sector_num,
                disk, (unsigned long long)chunk.disk_start_sector - 2048);
-        
-        vdebug("%u %u linear /dev/%s %llu\n", 
-               (sector_start << 2), disk_sector_num, 
+
+        vdebug("%u %u linear /dev/%s %llu\n",
+               (sector_start << 2), disk_sector_num,
                disk, (unsigned long long)chunk.disk_start_sector - 2048);
     }
 
-end:    
-    fclose(fIn);   
-    fclose(fOut);   
+end:
+    fclose(fIn);
+    fclose(fOut);
     return 0;
 }
 

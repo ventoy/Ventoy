@@ -11,7 +11,7 @@ make && make install
 ======== squashfs ========
 squashfs4.4.tar.gz
 do some modify:
-1. delete -lm and implement log10 
+1. delete -lm and implement log10
 2. static link zlib/liblzma
 3. make unsquashfs
 

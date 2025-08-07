@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -41,7 +41,7 @@ BOOLEAN gVDiskDebugPrint = FALSE;
 vdisk_block_data gVDiskBlockData;
 
 /* Boot filename */
-CONST CHAR16 *gEfiBootFileName[] = 
+CONST CHAR16 *gEfiBootFileName[] =
 {
     L"@",
     EFI_REMOVABLE_MEDIA_FILE_NAME,
@@ -66,7 +66,7 @@ CONST CHAR16 *gEfiBootFileName[] =
     L"\\EFI\\BOOT\\bootaa64.efi",
     L"\\efi\\boot\\bootaa64.efi",
 #endif
-    
+
 };
 
 UINT8 *g_disk_buf_addr = NULL;
@@ -83,14 +83,14 @@ VOID EFIAPI VDiskDebug(IN CONST CHAR8  *Format, ...)
     VA_START (Marker, Format);
     UnicodeVSPrintAsciiFormat(Buffer, sizeof(Buffer), Format, Marker);
     VA_END (Marker);
-    
+
     gST->ConOut->OutputString(gST->ConOut, Buffer);
 }
 
 VOID EFIAPI vdisk_clear_input(VOID)
 {
     EFI_INPUT_KEY Key;
-    
+
     gST->ConIn->Reset(gST->ConIn, FALSE);
     while (EFI_SUCCESS == gST->ConIn->ReadKeyStroke(gST->ConIn, &Key))
     {
@@ -119,19 +119,19 @@ STATIC EFI_STATUS EFIAPI vdisk_load_image
     pFilePath->Header.Length[0] = FileNameLen + sizeof(EFI_DEVICE_PATH_PROTOCOL);
     pFilePath->Header.Length[1] = 0;
     CopyMem(pFilePath->PathName, FileName, FileNameLen);
-    
+
     pImgPath = AppendDevicePathNode(pDevicePath, (EFI_DEVICE_PATH_PROTOCOL *)pFilePath);
     if (!pImgPath)
     {
         return EFI_NOT_FOUND;
     }
-    
+
     Status = gBS->LoadImage(FALSE, ImageHandle, pImgPath, NULL, 0, Image);
-    
+
     debug("Load Image File %r DP: <%s>", Status, ConvertDevicePathToText(pImgPath, FALSE, FALSE));
 
     FreePool(pImgPath);
-    
+
     return Status;
 }
 
@@ -153,12 +153,12 @@ STATIC EFI_STATUS EFIAPI vdisk_decompress_vdisk(IN EFI_LOADED_IMAGE_PROTOCOL *pI
     g_disk_buf_size = DestinationSize;
     g_disk_buf_addr = AllocatePool(DestinationSize);
     ScratchBuf = AllocatePool(ScratchSize);
-    
+
     Status = UefiDecompress(buf + VDISK_MAGIC_LEN, g_disk_buf_addr, ScratchBuf);
     FreePool(ScratchBuf);
 
     debug("Status:%r %p %u", Status, g_disk_buf_addr, (UINT32)g_disk_buf_size);
-    
+
     return EFI_SUCCESS;
 }
 
@@ -168,7 +168,7 @@ STATIC EFI_STATUS vdisk_patch_vdisk_path(CHAR16 *pos)
     UINTN j;
     CHAR16 *end;
     CHAR8 *buf = (char *)g_disk_buf_addr;
-    
+
     if (*pos == L'\"')
     {
         pos++;
@@ -176,7 +176,7 @@ STATIC EFI_STATUS vdisk_patch_vdisk_path(CHAR16 *pos)
 
     end = StrStr(pos, L".vtoy");
     end += 5;//string length
-    
+
     for (i = 0; i < g_disk_buf_size; i++)
     {
         if (*(UINT32 *)(buf + i) == 0x59595959)
@@ -191,7 +191,7 @@ STATIC EFI_STATUS vdisk_patch_vdisk_path(CHAR16 *pos)
 
             if (j >= 300)
             {
-                break; 
+                break;
             }
         }
     }
@@ -202,7 +202,7 @@ STATIC EFI_STATUS vdisk_patch_vdisk_path(CHAR16 *pos)
         return 0;
     }
 
-    debug("Fill vdisk path at %d", i);        
+    debug("Fill vdisk path at %d", i);
 
     while (pos != end)
     {
@@ -210,14 +210,14 @@ STATIC EFI_STATUS vdisk_patch_vdisk_path(CHAR16 *pos)
     }
 
     buf[i++] = '\"';
-    
+
     while (buf[i] == 'Y' || buf[i] == '\"')
     {
         buf[i] = ' ';
         i++;
-    }   
+    }
 
-    return 0;    
+    return 0;
 }
 
 EFI_STATUS EFIAPI vdisk_get_variable_wrapper
@@ -230,7 +230,7 @@ EFI_STATUS EFIAPI vdisk_get_variable_wrapper
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    
+
     Status = g_org_get_variable(VariableName, VendorGuid, Attributes, DataSize, Data);
     if (StrCmp(VariableName, L"SecureBoot") == 0)
     {
@@ -262,12 +262,12 @@ STATIC EFI_STATUS EFIAPI vdisk_disable_secure_boot(IN EFI_HANDLE ImageHandle)
 {
     /* step1: wrapper security protocol. */
     /* Do we still need it since we have been loaded ? */
-    
-    
+
+
     /* step2: fake SecureBoot variable */
     g_org_exit_boot_service = gBS->ExitBootServices;
     gBS->ExitBootServices = vdisk_exit_boot_service_wrapper;
-    
+
     g_org_get_variable = gRT->GetVariable;
     gRT->GetVariable = vdisk_get_variable_wrapper;
 
@@ -275,7 +275,7 @@ STATIC EFI_STATUS EFIAPI vdisk_disable_secure_boot(IN EFI_HANDLE ImageHandle)
 }
 
 STATIC EFI_STATUS EFIAPI vdisk_parse_cmdline(IN EFI_HANDLE ImageHandle)
-{   
+{
     CHAR16 *Pos = NULL;
     CHAR16 *pCmdLine = NULL;
     EFI_STATUS Status = EFI_SUCCESS;
@@ -296,7 +296,7 @@ STATIC EFI_STATUS EFIAPI vdisk_parse_cmdline(IN EFI_HANDLE ImageHandle)
     {
         gVDiskDebugPrint = TRUE;
     }
-    
+
     debug("cmdline:<%s>", pCmdLine);
     vdisk_debug_pause();
 
@@ -338,7 +338,7 @@ EFI_STATUS EFIAPI vdisk_boot(IN EFI_HANDLE ImageHandle)
         Count = 0;
         Handles = NULL;
 
-        Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiSimpleFileSystemProtocolGuid, 
+        Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiSimpleFileSystemProtocolGuid,
                                      NULL, &Count, &Handles);
         if (EFI_ERROR(Status))
         {
@@ -357,7 +357,7 @@ EFI_STATUS EFIAPI vdisk_boot(IN EFI_HANDLE ImageHandle)
 
             debug("FS:%u Protocol:%p  OpenVolume:%p", i, pFile, pFile->OpenVolume);
 
-            Status = gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid, 
+            Status = gBS->OpenProtocol(Handles[i], &gEfiDevicePathProtocolGuid,
                                        (VOID **)&pDevPath,
                                        ImageHandle,
                                        Handles[i],
@@ -377,7 +377,7 @@ EFI_STATUS EFIAPI vdisk_boot(IN EFI_HANDLE ImageHandle)
 
             for (j = 1; j < ARRAY_SIZE(gEfiBootFileName); j++)
             {
-                Status = vdisk_load_image(ImageHandle, pDevPath, gEfiBootFileName[j], 
+                Status = vdisk_load_image(ImageHandle, pDevPath, gEfiBootFileName[j],
                                            StrSize(gEfiBootFileName[j]), &Image);
                 if (EFI_SUCCESS == Status)
                 {
@@ -450,7 +450,7 @@ EFI_STATUS EFIAPI VDiskChainEfiMain
     vdisk_debug_pause();
 
     Status = vdisk_boot(ImageHandle);
-    
+
     gBS->DisconnectController(gVDiskBlockData.Handle, NULL, NULL);
     gBS->UninstallMultipleProtocolInterfaces(gVDiskBlockData.Handle,
             &gEfiBlockIoProtocolGuid, &gVDiskBlockData.BlockIo,
@@ -463,7 +463,7 @@ EFI_STATUS EFIAPI VDiskChainEfiMain
         gST->ConOut->OutputString(gST->ConOut, L"Maybe the image does not support " VENTOY_UEFI_DESC  L"!\r\n");
         sleep(30);
     }
-    
+
     vdisk_clear_input();
     gST->ConOut->ClearScreen(gST->ConOut);
 

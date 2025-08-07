@@ -1,5 +1,5 @@
 /******************************************************************************
- * ventoy_browser.c 
+ * ventoy_browser.c
  *
  * Copyright (c) 2022, longpanda <admin@ventoy.net>
  *
@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -65,7 +65,7 @@ static int ventoy_browser_strcmp(char *str1, char *str2)
             {
                 c1 = c1 - 'a' + 'A';
             }
-            
+
             if (grub_islower(c2))
             {
                 c2 = c2 - 'a' + 'A';
@@ -134,7 +134,7 @@ static browser_node * ventoy_browser_find_top_node(int dir)
             }
         }
     }
-    
+
     return sel;
 }
 
@@ -178,16 +178,16 @@ static int ventoy_browser_iterate_partition(struct grub_disk *disk, const grub_p
 
     if (g_tree_view_menu_style == 0)
     {
-        grub_snprintf(title, sizeof(title), "%-10s (%s,%s%d) [%s] %s %s", 
-            "DISK", disk->name, partition->msdostype == 0xee ? "gpt" : "msdos", 
-            partition->number + 1, (Label ? Label : ""), fs->name, 
+        grub_snprintf(title, sizeof(title), "%-10s (%s,%s%d) [%s] %s %s",
+            "DISK", disk->name, partition->msdostype == 0xee ? "gpt" : "msdos",
+            partition->number + 1, (Label ? Label : ""), fs->name,
             grub_get_human_size(partition->len << disk->log_sector_size, GRUB_HUMAN_SIZE_SHORT));
     }
     else
     {
-        grub_snprintf(title, sizeof(title), "(%s,%s%d) [%s] %s %s", 
-            disk->name, partition->msdostype == 0xee ? "gpt" : "msdos", 
-            partition->number + 1, (Label ? Label : ""), fs->name, 
+        grub_snprintf(title, sizeof(title), "(%s,%s%d) [%s] %s %s",
+            disk->name, partition->msdostype == 0xee ? "gpt" : "msdos",
+            partition->number + 1, (Label ? Label : ""), fs->name,
             grub_get_human_size(partition->len << disk->log_sector_size, GRUB_HUMAN_SIZE_SHORT));
     }
 
@@ -285,7 +285,7 @@ static int ventoy_browser_valid_filename(const char *filename, int len, int *typ
     {
         *type = img_type_wim;
     }
-    else if (FILE_FLT(VHD) && g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") || 
+    else if (FILE_FLT(VHD) && g_vhdboot_enable && (0 == grub_strcasecmp(filename + len - 4, ".vhd") ||
             (len >= 5 && 0 == grub_strcasecmp(filename + len - 5, ".vhdx"))))
     {
         *type = img_type_vhd;
@@ -353,7 +353,7 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
     (void)data;
 
     len = grub_strlen(filename);
-    
+
     if (info->dir)
     {
         if (!ventoy_browser_valid_dirname(filename, len))
@@ -395,7 +395,7 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
     else
     {
         grub_uint64_t fsize = info->size;
-        
+
         if (!ventoy_browser_valid_filename(filename, len, &type))
         {
             return 0;
@@ -425,7 +425,7 @@ static int ventoy_browser_iterate_dir(const char *filename, const struct grub_di
                 g_menu_fs->fs_close(&file);
             }
         }
-        
+
         node->dir = 0;
         grub_strncpy(node->filename, filename, sizeof(node->filename));
 
@@ -485,12 +485,12 @@ static grub_err_t ventoy_browser_iso_part(void)
     if (g_tree_view_menu_style == 0)
     {
         pos = grub_snprintf(buffer, buflen, "menuentry \"%-10s [../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                            "  echo 'return ...' \n}\n", "<--");        
+                            "  echo 'return ...' \n}\n", "<--");
     }
     else
     {
         pos = grub_snprintf(buffer, buflen, "menuentry \"[../]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                            "  echo 'return ...' \n}\n");        
+                            "  echo 'return ...' \n}\n");
     }
 
     grub_memcpy(buffer + pos, g_tree_script_buf + g_tree_script_pre, cfglen);
@@ -535,14 +535,14 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
         debug("Invalid fs %s\n", args[1]);
         return 1;
     }
-    
+
     dev = grub_device_open(args[0]);
     if (!dev)
     {
         debug("Failed to open device %s\n", args[0]);
         return 1;
     }
-    
+
     g_menu_fs = fs;
     g_menu_device = args[0];
     g_menu_dev = dev;
@@ -552,24 +552,24 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
     {
         g_menu_path_len = 0;
         g_menu_path_buf[0] = 0;
-        fs->fs_dir(dev, "/", ventoy_browser_iterate_dir, NULL);            
+        fs->fs_dir(dev, "/", ventoy_browser_iterate_dir, NULL);
     }
     else
     {
         g_menu_path_len = grub_snprintf(g_menu_path_buf, sizeof(g_menu_path_buf), "%s", args[2]);
-        fs->fs_dir(dev, g_menu_path_buf, ventoy_browser_iterate_dir, NULL); 
+        fs->fs_dir(dev, g_menu_path_buf, ventoy_browser_iterate_dir, NULL);
     }
     grub_device_close(dev);
 
     if (g_tree_view_menu_style == 0)
     {
         browser_ssprintf(&mbuf, "menuentry \"%-10s [(%s)%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                         "  echo 'return ...' \n}\n", "<--", args[0], g_menu_path_buf);        
+                         "  echo 'return ...' \n}\n", "<--", args[0], g_menu_path_buf);
     }
     else
     {
         browser_ssprintf(&mbuf, "menuentry \"[(%s)%s/..]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                         "  echo 'return ...' \n}\n", args[0], g_menu_path_buf);        
+                         "  echo 'return ...' \n}\n", args[0], g_menu_path_buf);
     }
 
     for (i = 1; i >= 0; i--)
@@ -581,7 +581,7 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
             {
                 browser_ssprintf(&mbuf, "%s", node->menuentry);
                 ventoy_browser_mbuf_extend(&mbuf);
-                
+
                 if (node->prev)
                 {
                     node->prev->next = node->next;
@@ -604,7 +604,7 @@ grub_err_t ventoy_cmd_browser_dir(grub_extcmd_context_t ctxt, int argc, char **a
         }
     }
     g_browser_list = NULL;
-    
+
     grub_snprintf(cfgfile, sizeof(cfgfile), "configfile mem:0x%lx:size:%d", (ulong)mbuf.buf, mbuf.pos);
     grub_script_execute_sourcecode(cfgfile);
 
@@ -616,7 +616,7 @@ grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **
 {
     char cfgfile[64];
     browser_mbuf mbuf;
-    
+
     (void)ctxt;
     (void)argc;
     (void)args;
@@ -631,14 +631,14 @@ grub_err_t ventoy_cmd_browser_disk(grub_extcmd_context_t ctxt, int argc, char **
     if (g_tree_view_menu_style == 0)
     {
         browser_ssprintf(&mbuf, "menuentry \"%-10s [%s]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                         "  echo 'return ...' \n}\n", "<--", 
-                         ventoy_get_vmenu_title("VTLANG_BROWER_RETURN"));        
+                         "  echo 'return ...' \n}\n", "<--",
+                         ventoy_get_vmenu_title("VTLANG_BROWER_RETURN"));
     }
     else
     {
         browser_ssprintf(&mbuf, "menuentry \"[%s]\" --class=\"vtoyret\" VTOY_RET {\n  "
-                         "  echo 'return ...' \n}\n", 
-                         ventoy_get_vmenu_title("VTLANG_BROWER_RETURN"));      
+                         "  echo 'return ...' \n}\n",
+                         ventoy_get_vmenu_title("VTLANG_BROWER_RETURN"));
     }
 
     grub_disk_dev_iterate(ventoy_browser_iterate_disk, &mbuf);

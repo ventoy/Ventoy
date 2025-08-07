@@ -59,7 +59,7 @@ grub_install_help_filter (int key, const char *text,
       return xasprintf(text, "unicode");
     case GRUB_INSTALL_OPTIONS_DIRECTORY:
     case GRUB_INSTALL_OPTIONS_DIRECTORY2:
-      return xasprintf(text, grub_util_get_pkglibdir ());      
+      return xasprintf(text, grub_util_get_pkglibdir ());
     case GRUB_INSTALL_OPTIONS_LOCALE_DIRECTORY:
       return xasprintf(text, grub_util_get_localedir ());
     case GRUB_INSTALL_OPTIONS_THEMES_DIRECTORY:
@@ -80,7 +80,7 @@ grub_install_copy_file (const char *src,
 			const char *dst,
 			int is_needed)
 {
-  grub_util_fd_t in, out;  
+  grub_util_fd_t in, out;
   ssize_t r;
 
   grub_util_info ("copying `%s' -> `%s'", src, dst);
@@ -106,7 +106,7 @@ grub_install_copy_file (const char *src,
 
   if (!grub_install_copy_buffer)
     grub_install_copy_buffer = xmalloc (GRUB_INSTALL_COPY_BUFFER_SIZE);
- 
+
   while (1)
     {
       r = grub_util_fd_read (in, grub_install_copy_buffer, GRUB_INSTALL_COPY_BUFFER_SIZE);
@@ -437,7 +437,7 @@ grub_install_make_image_wrap_file (const char *dir, const char *prefix,
 				   const char *mkimage_target, int note)
 {
   const struct grub_install_image_target_desc *tgt;
-  const char *const compnames[] = 
+  const char *const compnames[] =
     {
       [GRUB_COMPRESSION_AUTO] = "auto",
       [GRUB_COMPRESSION_NONE] = "none",
@@ -738,7 +738,7 @@ static struct
     [GRUB_INSTALL_PLATFORM_ARM_COREBOOT] =     { "arm",     "coreboot"  },
     [GRUB_INSTALL_PLATFORM_RISCV32_EFI] =      { "riscv32", "efi"       },
     [GRUB_INSTALL_PLATFORM_RISCV64_EFI] =      { "riscv64", "efi"       },
-  }; 
+  };
 
 char *
 grub_install_get_platforms_string (void)
@@ -766,7 +766,7 @@ grub_install_get_platforms_string (void)
     }
   ptr[-2] = 0;
   free (arr);
- 
+
   return platforms_string;
 }
 
@@ -937,7 +937,7 @@ grub_install_get_target (const char *src)
   fn = grub_util_path_concat (2, src, "modinfo.sh");
   f = grub_util_fd_open (fn, GRUB_UTIL_FD_O_RDONLY);
   if (!GRUB_UTIL_FD_IS_VALID (f))
-    grub_util_error (_("%s doesn't exist. Please specify --target or --directory"), 
+    grub_util_error (_("%s doesn't exist. Please specify --target or --directory"),
 		     fn);
   r = grub_util_fd_read (f, buf, sizeof (buf) - 1);
   if (r < 0)

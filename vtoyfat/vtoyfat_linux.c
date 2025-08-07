@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -23,7 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <fcntl.h>
 
 #include <fat_filelib.h>
@@ -34,21 +34,21 @@ static int vtoy_disk_read(uint32 sector, uint8 *buffer, uint32 sector_count)
 {
     lseek(g_disk_fd, sector * 512, SEEK_SET);
     read(g_disk_fd, buffer, sector_count * 512);
-    
+
     return 1;
 }
 
 static int check_secure_boot(void)
 {
     void *flfile = NULL;
-    
+
     flfile = fl_fopen("/EFI/BOOT/grubx64_real.efi", "rb");
     if (flfile)
     {
         fl_fclose(flfile);
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -111,24 +111,24 @@ int main(int argc, char **argv)
     char *disk;
 
     if (argc != 2 && argc != 3)
-    {   
+    {
         printf("Usage: vtoyfat /dev/sdbs \n");
         printf("Usage: vtoyfat -s /dev/sdbs \n");
         return 1;
     }
-    
+
     if (argv[1][0] == '-' && argv[1][1] == 'T')
     {
         return 0;
     }
-    
+
     disk = argv[1];
     if (argv[1][0] == '-' && argv[1][1] == 's')
     {
         op = 1;
         disk = argv[2];
-    } 
-    
+    }
+
     g_disk_fd = open(disk, O_RDONLY);
     if (g_disk_fd < 0)
     {
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
         else
         {
             rc = check_secure_boot();
-        }        
+        }
     }
 
     fl_shutdown();

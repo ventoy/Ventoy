@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -89,7 +89,7 @@ int ventoy_get_sys_file_line(char *buffer, int buflen, const char *fmt, ...)
                 break;
             }
         }
-        
+
         return 0;
     }
     else
@@ -147,7 +147,7 @@ int ventoy_is_file_exist(const char *fmt, ...)
     va_list ap;
     struct stat sb;
     char fullpath[MAX_PATH];
-    
+
     va_start (ap, fmt);
     vsnprintf(fullpath, MAX_PATH, fmt, ap);
     va_end (ap);
@@ -170,7 +170,7 @@ int ventoy_is_directory_exist(const char *fmt, ...)
     va_list ap;
     struct stat sb;
     char fullpath[MAX_PATH];
-    
+
     va_start (ap, fmt);
     vsnprintf(fullpath, MAX_PATH, fmt, ap);
     va_end (ap);
@@ -192,7 +192,7 @@ int ventoy_get_file_size(const char *file)
 {
 	int Size = -1;
     struct stat stStat;
-    
+
 	if (stat(file, &stStat) >= 0)
     {
         Size = (int)(stStat.st_size);
@@ -220,7 +220,7 @@ int ventoy_write_buf_to_file(const char *FileName, void *Bufer, int BufLen)
     {
         vlog("Failed to chmod <%s> %d\n", FileName, errno);
     }
-    
+
     size = write(fd, Bufer, BufLen);
     if ((int)size != BufLen)
     {
@@ -228,7 +228,7 @@ int ventoy_write_buf_to_file(const char *FileName, void *Bufer, int BufLen)
         vlog("write file %s failed %d err:%d\n", FileName, (int)size, errno);
         return 1;
     }
-    
+
     fsync(fd);
     close(fd);
 
@@ -247,7 +247,7 @@ static void * ventoy_local_thread_run(void* data)
     {
         sem_wait(&g_writeback_sem);
         callback();
-    }    
+    }
 
     return NULL;
 }
@@ -316,13 +316,13 @@ int ventoy_copy_file(const char *a, const char *b)
 {
     int len = 0;
     char *buf = NULL;
-    
+
     if (0 == ventoy_read_file_to_buf(a, 0, (void **)&buf, &len))
     {
-        ventoy_write_buf_to_file(b, buf, len);        
+        ventoy_write_buf_to_file(b, buf, len);
         free(buf);
     }
-    
+
     return 0;
 }
 

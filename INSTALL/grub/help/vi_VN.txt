@@ -3,7 +3,7 @@ F1 - Hiển thị thông tin trợ giúp
 F2 - Duyệt tìm và khởi động tệp từ ổ đĩa trên máy
 F3 - Chuyển đổi chế độ bảng chọn giữa dạng cây <-> dạng danh sách.
 F4 - Khởi động Windows hoặc GNU/Linux trên đĩa cục bộ
-F5 - Các tiện ích 
+F5 - Các tiện ích
 F6 - Tải menu GRUB2 tuỳ chọn
 F7 - Chuyển giữa giao diện đồ hoạ <-> giao diện văn bản
 

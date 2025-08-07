@@ -110,7 +110,7 @@ static int get_prefix(struct xattr_list *xattr, char *name)
 	return prefix_table[i].type;
 }
 
-	
+
 static int read_xattrs_from_system(char *filename, struct xattr_list **xattrs)
 {
 	ssize_t size, vsize;
@@ -201,7 +201,7 @@ static int read_xattrs_from_system(char *filename, struct xattr_list **xattrs)
 					goto failed;
 				}
 			}
-			
+
 			break;
 		}
 		xattr_list[i].vsize = vsize;
@@ -324,7 +324,7 @@ static struct dupl_id *check_id_dupl(struct xattr_list *xattr_list, int xattrs)
 			if(memcmp(xattr->value, dup_xattr->value, xattr->vsize))
 				break;
 		}
-		
+
 		if(i == xattrs)
 			break;
 	}
@@ -340,7 +340,7 @@ static struct dupl_id *check_id_dupl(struct xattr_list *xattr_list, int xattrs)
 		entry->next = dupl_id[checksum];
 		dupl_id[checksum] = entry;
 	}
-		
+
 	return entry;
 }
 
@@ -357,7 +357,7 @@ static void check_value_dupl(struct xattr_list *xattr)
 	for(entry = dupl_value[xattr->vchecksum]; entry; entry = entry->vnext) {
 		if(entry->vsize != xattr->vsize)
 			continue;
-		
+
 		if(memcmp(entry->value, xattr->value, xattr->vsize) == 0)
 			break;
 	}
@@ -417,7 +417,7 @@ static int get_xattr_id(int xattrs, struct xattr_list *xattr_list,
 	xattr_dupl->xattr_id = xattr_ids ++;
 	return xattr_dupl->xattr_id;
 }
-	
+
 
 long long write_xattrs()
 {
@@ -490,7 +490,7 @@ int generate_xattrs(int xattrs, struct xattr_list *xattr_list)
 	xattr_dupl = check_id_dupl(xattr_list, xattrs);
 	if(xattr_dupl->xattr_id != SQUASHFS_INVALID_XATTR)
 		return xattr_dupl->xattr_id;
-	 
+
 	/*
 	 * Scan the xattr_list deciding which type to assign to each
 	 * xattr.  The choice is fairly straightforward, and depends on the

@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -43,7 +43,7 @@
 
 STATIC ventoy_system_wrapper g_system_wrapper;
 
-static struct well_known_guid g_efi_well_known_guids[] = 
+static struct well_known_guid g_efi_well_known_guids[] =
 {
 	{ &gEfiAbsolutePointerProtocolGuid, "AbsolutePointer" },
 	{ &gEfiAcpiTableProtocolGuid, "AcpiTable" },
@@ -97,7 +97,7 @@ STATIC EFI_STATUS EFIAPI ventoy_handle_protocol
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    
+
     debug("ventoy_handle_protocol:%a", ventoy_get_guid_name(Protocol)); debug_sleep();
     Status = g_system_wrapper.OriHandleProtocol(Handle, Protocol, Interface);
 
@@ -105,11 +105,11 @@ STATIC EFI_STATUS EFIAPI ventoy_handle_protocol
     {
         EFI_FILE_PROTOCOL *FileProtocol = NULL;
         EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *pFile = *((EFI_SIMPLE_FILE_SYSTEM_PROTOCOL **)(Interface));
-        
+
         pFile->OpenVolume(pFile, &FileProtocol);
-        
-        trace("Handle FS Protocol: %p OpenVolume:%p, FileProtocol:%p, Open:%p", 
-            pFile, pFile->OpenVolume, FileProtocol, FileProtocol->Open); 
+
+        trace("Handle FS Protocol: %p OpenVolume:%p, FileProtocol:%p, Open:%p",
+            pFile, pFile->OpenVolume, FileProtocol, FileProtocol->Open);
 
         sleep(3);
     }
@@ -178,8 +178,8 @@ EFI_STATUS EFIAPI ventoy_locate_handle
     UINTN i;
     EFI_HANDLE Handle;
     EFI_STATUS Status = EFI_SUCCESS;
-    
-    debug("ventoy_locate_handle: %d %a %p", SearchType, ventoy_get_guid_name(Protocol), SearchKey); 
+
+    debug("ventoy_locate_handle: %d %a %p", SearchType, ventoy_get_guid_name(Protocol), SearchKey);
     Status = g_system_wrapper.OriLocateHandle(SearchType, Protocol, SearchKey, BufferSize, Buffer);
     debug("ventoy_locate_handle: %r Handle Count:%u", Status, *BufferSize/sizeof(EFI_HANDLE));
 

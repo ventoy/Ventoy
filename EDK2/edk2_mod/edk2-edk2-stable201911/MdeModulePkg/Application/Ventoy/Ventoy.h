@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef __VENTOY_H__
 #define __VENTOY_H__
 
@@ -54,7 +54,7 @@ typedef struct ventoy_image_disk_region
 typedef struct ventoy_image_location
 {
     ventoy_guid  guid;
-    
+
     /* image sector size, currently this value is always 2048 */
     UINT32   image_sector_size;
 
@@ -62,10 +62,10 @@ typedef struct ventoy_image_location
     UINT32   disk_sector_size;
 
     UINT32   region_count;
-    
+
     /*
      * disk region data
-     * If the image file has more than one fragments in disk, 
+     * If the image file has more than one fragments in disk,
      * there will be more than one region data here.
      *
      */
@@ -86,7 +86,7 @@ typedef struct ventoy_os_param
     char    vtoy_img_path[384];   // It seems to be enough, utf-8 format
     UINT64  vtoy_img_size;        // image file size in bytes
 
-    /* 
+    /*
      * Ventoy will write a copy of ventoy_image_location data into runtime memory
      * this is the physically address and length of that memory.
      * Address 0 means no such data exist.
@@ -95,7 +95,7 @@ typedef struct ventoy_os_param
      */
     UINT64  vtoy_img_location_addr;
     UINT32  vtoy_img_location_len;
-    
+
     UINT64  vtoy_reserved[4];     // Internal use by ventoy
 
     UINT8   vtoy_disk_signature[4];
@@ -124,7 +124,7 @@ typedef struct ventoy_chain_head
     UINT64 virt_img_size_in_bytes;
     UINT32 boot_catalog;
     UINT8  boot_catalog_sector[2048];
-    
+
     UINT32 img_chunk_offset;
     UINT32 img_chunk_num;
 
@@ -199,11 +199,11 @@ typedef struct ventoy_virt_chunk
 typedef struct ventoy_sector_flag
 {
     UINT8 flag; // 0:init   1:mem  2:remap
-    UINT64 remap_lba;    
+    UINT64 remap_lba;
 }ventoy_sector_flag;
 
 
-typedef struct vtoy_block_data 
+typedef struct vtoy_block_data
 {
 	EFI_HANDLE Handle;
 	EFI_BLOCK_IO_MEDIA Media;       /* Media descriptor */
@@ -272,7 +272,7 @@ typedef struct ventoy_grub_param
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
     ventoy_grub_param_file_replace img_replace[VTOY_MAX_CONF_REPLACE];
-    grub_env_printf_pf grub_env_printf;    
+    grub_env_printf_pf grub_env_printf;
 }ventoy_grub_param;
 
 typedef struct ventoy_ram_disk
@@ -318,7 +318,7 @@ typedef struct MBR_HEAD
 #pragma pack()
 
 
-typedef struct well_known_guid 
+typedef struct well_known_guid
 {
 	EFI_GUID *guid;
 	const char *name;
@@ -331,7 +331,7 @@ typedef struct ventoy_system_wrapper
 
     EFI_HANDLE_PROTOCOL NewHandleProtocol;
     EFI_HANDLE_PROTOCOL OriHandleProtocol;
-    
+
     EFI_OPEN_PROTOCOL NewOpenProtocol;
     EFI_OPEN_PROTOCOL OriOpenProtocol;
 
@@ -382,7 +382,7 @@ typedef struct DriverBindWrapper
 extern BOOLEAN gDebugPrint;
 VOID EFIAPI VtoyDebug(IN CONST CHAR8  *Format, ...);
 EFI_STATUS EFIAPI ventoy_wrapper_system(VOID);
-EFI_STATUS EFIAPI ventoy_block_io_read 
+EFI_STATUS EFIAPI ventoy_block_io_read
 (
     IN EFI_BLOCK_IO_PROTOCOL          *This,
     IN UINT32                          MediaId,

@@ -113,7 +113,7 @@ void process_cmdline ( char *cmdline ) {
                 die("Too many vf\n");
             snprintf(cmdline_vf_path[cmdline_vf_num], 64, "%s", value);
             cmdline_vf_num++;
-		}else if ( strcmp ( key, "pfsize" ) == 0 ) {    
+		}else if ( strcmp ( key, "pfsize" ) == 0 ) {
             pfventoy_file_size = (file_size_pf)strtoul(value, &endp, 0);
 		} else if ( strcmp ( key, "pfread" ) == 0 ) {
             pfventoy_file_read = (file_read_pf)strtoul(value, &endp, 0 );
@@ -146,6 +146,6 @@ void process_cmdline ( char *cmdline ) {
 	}
 
 	/* Show command line (after parsing "quiet" option) */
-	DBG ( "Command line: \"%s\" vf=%d pfsize=%p pfread=%p\n", 
+	DBG ( "Command line: \"%s\" vf=%d pfsize=%p pfread=%p\n",
 	    cmdline, cmdline_vf_num, pfventoy_file_size, pfventoy_file_read);
 }

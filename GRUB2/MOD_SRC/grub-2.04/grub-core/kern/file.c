@@ -66,7 +66,7 @@ grub_file_t grub_memfile_open(const char *name)
 {
     char *size = NULL;
     grub_file_t file = 0;
-    
+
     file = (grub_file_t)grub_zalloc(sizeof(*file));
     if (NULL == file)
     {
@@ -127,7 +127,7 @@ int grub_file_is_vlnk_suffix(const char *name, int len)
         if (grub_strncmp(name + len - 9, ".vlnk.", 6) == 0)
         {
             /* .iso .wim .img .vhd .efi .dat */
-            if (suffix == 0x6F73692E || suffix == 0x6D69772E || 
+            if (suffix == 0x6F73692E || suffix == 0x6D69772E ||
                 suffix == 0x676D692E || suffix == 0x6468762E ||
                 suffix == 0x6966652E || suffix == 0x7461642E)
             {
@@ -153,7 +153,7 @@ int grub_file_vtoy_vlnk(const char *src, const char *dst)
     {
         g_vtoy_vlnk.srclen = (int)grub_strlen(src);
         grub_strncpy(g_vtoy_vlnk.src, src, sizeof(g_vtoy_vlnk.src) - 1);
-        grub_strncpy(g_vtoy_vlnk.dst, dst, sizeof(g_vtoy_vlnk.dst) - 1);        
+        grub_strncpy(g_vtoy_vlnk.dst, dst, sizeof(g_vtoy_vlnk.dst) - 1);
     }
     else
     {
@@ -167,10 +167,10 @@ int grub_file_vtoy_vlnk(const char *src, const char *dst)
 int grub_file_add_vlnk(const char *src, const char *dst)
 {
     grub_vlnk *node = NULL;
-    
+
     if (src && dst)
     {
-        node = grub_zalloc(sizeof(grub_vlnk));    
+        node = grub_zalloc(sizeof(grub_vlnk));
         if (node)
         {
             node->srclen = (int)grub_strlen(src);
@@ -179,7 +179,7 @@ int grub_file_add_vlnk(const char *src, const char *dst)
 
             node->next = g_vlnk_list;
             g_vlnk_list = node;
-            return 0;            
+            return 0;
         }
     }
 
@@ -202,9 +202,9 @@ const char *grub_file_get_vlnk(const char *name, int *vlnk)
     {
         if (vlnk)
             *vlnk = 1;
-        return g_vtoy_vlnk.dst; 
+        return g_vtoy_vlnk.dst;
     }
-    
+
     while (node)
     {
         if (node->srclen == len && grub_strcmp(name, node->src) == 0)
@@ -349,7 +349,7 @@ grub_file_read (grub_file_t file, void *buf, grub_size_t len)
       return len;
     }
   }
-  
+
   read_hook = file->read_hook;
   read_hook_data = file->read_hook_data;
   if (!file->read_hook)
@@ -391,9 +391,9 @@ grub_file_seek (grub_file_t file, grub_off_t offset)
 		  N_("attempt to seek outside of the file"));
       return -1;
     }
-  
+
   old = file->offset;
   file->offset = offset;
-    
+
   return old;
 }

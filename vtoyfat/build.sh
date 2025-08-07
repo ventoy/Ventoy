@@ -14,12 +14,12 @@ mips64el-linux-musl-gcc -mips64r2 -mabi=64 -static -O2 -D_FILE_OFFSET_BITS=64 vt
 
 if [ -e vtoyfat_64 ] && [ -e vtoyfat_32 ] && [ -e vtoyfat_aa64 ] && [ -e vtoyfat_m64e ]; then
     echo -e "\n===== success $name =======\n"
-    
+
     strip --strip-all vtoyfat_32
     strip --strip-all vtoyfat_64
     aarch64-buildroot-linux-uclibc-strip --strip-all vtoyfat_aa64
     mips64el-linux-musl-strip --strip-all vtoyfat_m64e
-    
+
     [ -d ../INSTALL/tool/i386/ ] && mv vtoyfat_32 ../INSTALL/tool/i386/vtoyfat
     [ -d ../INSTALL/tool/x86_64/ ] && mv vtoyfat_64 ../INSTALL/tool/x86_64/vtoyfat
     [ -d ../INSTALL/tool/aarch64/ ] && mv vtoyfat_aa64 ../INSTALL/tool/aarch64/vtoyfat

@@ -413,7 +413,7 @@ If you're not building the squashfs-tools and kernel from source, then
 the tools and kernel may or may not have been built with support for LZ4, LZO or
 XZ compression.  The compression algorithms supported by the build of
 Mksquashfs can be found by typing mksquashfs without any arguments.  The
-compressors available are displayed at the end of the help message, e.g. 
+compressors available are displayed at the end of the help message, e.g.
 
 Compressors available and compressor specific options:
 	gzip (default)
@@ -472,7 +472,7 @@ overhead (LZO/LZ4 by definition are intended for weaker processors).
 3.3 Changing global compression defaults used in mksquashfs
 -----------------------------------------------------------
 
-There are a large number of options that can be used to control the 
+There are a large number of options that can be used to control the
 compression in mksquashfs.  By and large the defaults are the most
 optimum settings and should only be changed in exceptional circumstances!
 Note, this does not apply to the block size, increasing the block size
@@ -580,7 +580,7 @@ it will not match the "/a/b" sub-directory within directory "c", whereas a
 non-anchored exclude would.
 
 A couple of examples should make this clearer.
- 
+
 Anchored excludes
 
   1. mksquashfs example image.sqsh -wildcards -e 'test/*.gz'

@@ -96,7 +96,7 @@ static int lz4_options(char *argv[], int argc)
  * Currently LZ4 always returns a comp_opts structure, with
  * the version indicating LZ4_LEGACY stream fomat.  This is to
  * easily accomodate changes in the kernel code to different
- * stream formats 
+ * stream formats
  */
 static void *lz4_dump_options(int block_size, int *size)
 {
@@ -241,7 +241,7 @@ static void lz4_display_options(void *buffer, int size)
 failed:
 	fprintf(stderr, "lz4: error reading stored compressor options from "
 		"filesystem!\n");
-}	
+}
 
 
 static int lz4_compress(void *strm, void *dest, void *src,  int size,

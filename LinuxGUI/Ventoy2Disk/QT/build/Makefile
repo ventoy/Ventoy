@@ -39,9 +39,9 @@ DISTNAME      = Ventoy2Disk1.0.0
 DISTDIR = /home/panda/590/build-Ventoy2Disk-Desktop_Qt_5_9_0_GCC_64bit-Release/.tmp/Ventoy2Disk1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/home/panda/Qt5.9.0/5.9/gcc_64/lib
-LIBS          = $(SUBLIBS) -L/home/panda/Qt5.9.0/5.9/gcc_64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/home/panda/Qt5.9.0/5.9/gcc_64/lib -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread
 AR            = ar cqs
-RANLIB        = 
+RANLIB        =
 SED           = sed
 STRIP         = strip
 
@@ -384,14 +384,14 @@ DIST          = ../Ventoy2Disk/Lib/fat_io_lib/API.txt \
 		../Ventoy2Disk/partcfgdialog.cpp \
 		../Ventoy2Disk/ventoy2diskwindow.cpp
 QMAKE_TARGET  = Ventoy2Disk
-DESTDIR       = 
+DESTDIR       =
 TARGET        = Ventoy2Disk
 
 
 first: all
 ####### Build rules
 
-$(TARGET): ui_partcfgdialog.h ui_ventoy2diskwindow.h $(OBJECTS)  
+$(TARGET): ui_partcfgdialog.h ui_ventoy2diskwindow.h $(OBJECTS)
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: ../Ventoy2Disk/Ventoy2Disk.pro ../../Qt5.9.0/5.9/gcc_64/mkspecs/linux-g++/qmake.conf ../../Qt5.9.0/5.9/gcc_64/mkspecs/features/spec_pre.prf \
@@ -751,13 +751,13 @@ distdir: FORCE
 	$(COPY_FILE) --parents ../Ventoy2Disk/partcfgdialog.ui ../Ventoy2Disk/ventoy2diskwindow.ui $(DISTDIR)/
 
 
-clean: compiler_clean 
+clean: compiler_clean
 	-$(DEL_FILE) $(OBJECTS)
 	-$(DEL_FILE) *~ core *.core
 
 
-distclean: clean 
-	-$(DEL_FILE) $(TARGET) 
+distclean: clean
+	-$(DEL_FILE) $(TARGET)
 	-$(DEL_FILE) .qmake.stash
 	-$(DEL_FILE) Makefile
 
@@ -1039,11 +1039,11 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean
 
 ####### Compile
 
-ventoy_crc32.o: ../Ventoy2Disk/Core/ventoy_crc32.c 
+ventoy_crc32.o: ../Ventoy2Disk/Core/ventoy_crc32.c
 	$(CC) -c $(CFLAGS) $(INCPATH) -o ventoy_crc32.o ../Ventoy2Disk/Core/ventoy_crc32.c
 
 ventoy_disk.o: ../Ventoy2Disk/Core/ventoy_disk.c ../../Ventoy2Disk/Core/ventoy_define.h \
@@ -1065,7 +1065,7 @@ ventoy_json.o: ../Ventoy2Disk/Core/ventoy_json.c ../../Ventoy2Disk/Core/ventoy_d
 ventoy_log.o: ../Ventoy2Disk/Core/ventoy_log.c ../../Ventoy2Disk/Core/ventoy_define.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o ventoy_log.o ../Ventoy2Disk/Core/ventoy_log.c
 
-ventoy_md5.o: ../Ventoy2Disk/Core/ventoy_md5.c 
+ventoy_md5.o: ../Ventoy2Disk/Core/ventoy_md5.c
 	$(CC) -c $(CFLAGS) $(INCPATH) -o ventoy_md5.o ../Ventoy2Disk/Core/ventoy_md5.c
 
 ventoy_util.o: ../Ventoy2Disk/Core/ventoy_util.c ../../Ventoy2Disk/Core/ventoy_define.h \
@@ -1315,10 +1315,10 @@ decompress_unxz.o: ../Ventoy2Disk/Lib/xz-embedded/linux/lib/decompress_unxz.c ..
 		../Ventoy2Disk/Lib/xz-embedded/linux/lib/xz/xz_dec_bcj.c
 	$(CC) -c $(CFLAGS) $(INCPATH) -o decompress_unxz.o ../Ventoy2Disk/Lib/xz-embedded/linux/lib/decompress_unxz.c
 
-refresh_icon_data.o: ../Ventoy2Disk/QT/refresh_icon_data.c 
+refresh_icon_data.o: ../Ventoy2Disk/QT/refresh_icon_data.c
 	$(CC) -c $(CFLAGS) $(INCPATH) -o refresh_icon_data.o ../Ventoy2Disk/QT/refresh_icon_data.c
 
-secure_icon_data.o: ../Ventoy2Disk/QT/secure_icon_data.c 
+secure_icon_data.o: ../Ventoy2Disk/QT/secure_icon_data.c
 	$(CC) -c $(CFLAGS) $(INCPATH) -o secure_icon_data.o ../Ventoy2Disk/QT/secure_icon_data.c
 
 ventoy_qt_stub.o: ../Ventoy2Disk/QT/ventoy_qt_stub.c ../../Ventoy2Disk/Core/ventoy_define.h \
@@ -1734,10 +1734,10 @@ ventoy2diskwindow.o: ../Ventoy2Disk/ventoy2diskwindow.cpp ../Ventoy2Disk/ventoy2
 		../../Ventoy2Disk/QT/ventoy_qt.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ventoy2diskwindow.o ../Ventoy2Disk/ventoy2diskwindow.cpp
 
-moc_partcfgdialog.o: moc_partcfgdialog.cpp 
+moc_partcfgdialog.o: moc_partcfgdialog.cpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_partcfgdialog.o moc_partcfgdialog.cpp
 
-moc_ventoy2diskwindow.o: moc_ventoy2diskwindow.cpp 
+moc_ventoy2diskwindow.o: moc_ventoy2diskwindow.cpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_ventoy2diskwindow.o moc_ventoy2diskwindow.cpp
 
 ####### Install
@@ -1749,7 +1749,7 @@ install_target: first FORCE
 
 uninstall_target: FORCE
 	-$(DEL_FILE) $(INSTALL_ROOT)/opt/Ventoy2Disk/bin/$(QMAKE_TARGET)
-	-$(DEL_DIR) $(INSTALL_ROOT)/opt/Ventoy2Disk/bin/ 
+	-$(DEL_DIR) $(INSTALL_ROOT)/opt/Ventoy2Disk/bin/
 
 
 install: install_target  FORCE

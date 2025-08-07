@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -81,7 +81,7 @@ typedef struct ventoy_image_location
 
     /*
      * disk region data (region_count)
-     * If the image file has more than one fragments in disk, 
+     * If the image file has more than one fragments in disk,
      * there will be more than one region data here.
      *
      */
@@ -103,7 +103,7 @@ typedef struct ventoy_os_param
     char           vtoy_img_path[384];   // It seems to be enough, utf-8 format
     grub_uint64_t  vtoy_img_size;        // image file size in bytes
 
-    /* 
+    /*
      * Ventoy will write a copy of ventoy_image_location data into runtime memory
      * this is the physically address and length of that memory.
      * Address 0 means no such data exist.
@@ -113,7 +113,7 @@ typedef struct ventoy_os_param
     grub_uint64_t  vtoy_img_location_addr;
     grub_uint32_t  vtoy_img_location_len;
 
-    /* 
+    /*
      * These 32 bytes are reserved by ventoy.
      *
      * vtoy_reserved[0]: vtoy_break_level
@@ -154,8 +154,8 @@ typedef struct ventoy_windows_data
 typedef struct ventoy_secure_data
 {
     grub_uint8_t magic1[16];     /* VENTOY_GUID */
-    grub_uint8_t diskuuid[16];   
-    grub_uint8_t Checksum[16];    
+    grub_uint8_t diskuuid[16];
+    grub_uint8_t Checksum[16];
     grub_uint8_t adminSHA256[32];
     grub_uint8_t reserved[4000];
     grub_uint8_t magic2[16];     /* VENTOY_GUID */
@@ -199,7 +199,7 @@ typedef struct ventoy_chain_head
     grub_uint64_t virt_img_size_in_bytes;
     grub_uint32_t boot_catalog;
     grub_uint8_t  boot_catalog_sector[2048];
-    
+
     grub_uint32_t img_chunk_offset;
     grub_uint32_t img_chunk_num;
 
@@ -301,7 +301,7 @@ grub_uint64_t grub_udf_get_file_offset(grub_file_t file);
 grub_uint64_t grub_udf_get_last_pd_size_offset(void);
 grub_uint64_t grub_udf_get_last_file_attr_offset
 (
-    grub_file_t file, 
+    grub_file_t file,
     grub_uint32_t *startBlock,
     grub_uint64_t *fe_entry_size_offset
 );

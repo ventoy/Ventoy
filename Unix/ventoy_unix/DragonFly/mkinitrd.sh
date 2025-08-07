@@ -19,7 +19,7 @@ mkdir /mnt/tmp
 
 dd if=/dev/zero of=./data bs=1M count=8
 
-cat ./dmtable ./data ./dmtable > /mnt/dmtable 
+cat ./dmtable ./data ./dmtable > /mnt/dmtable
 
 umount /mnt
 

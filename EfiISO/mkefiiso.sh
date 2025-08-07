@@ -3,7 +3,7 @@
 rm -f ventoy_efiboot.img.*
 
 cd ISO
-mkisofs -R -D -sysid VENTOY -V VENTOY -P "longpanda admin@ventoy.net" -p 'https://www.ventoy.net' -o ../ventoy_efiboot.img ./ 
+mkisofs -R -D -sysid VENTOY -V VENTOY -P "longpanda admin@ventoy.net" -p 'https://www.ventoy.net' -o ../ventoy_efiboot.img ./
 cd ..
 
 xz --check=crc32 ventoy_efiboot.img

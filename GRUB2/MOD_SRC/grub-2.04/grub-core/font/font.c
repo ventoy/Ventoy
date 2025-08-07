@@ -928,7 +928,7 @@ grub_font_get_height (grub_font_t font)
 }
 
 /* Get the glyph for FONT corresponding to the Unicode code point CODE.
-   Returns the ASCII glyph for the code if no other fonts are available. 
+   Returns the ASCII glyph for the code if no other fonts are available.
    The glyphs are cached once loaded.  */
 struct grub_font_glyph *
 grub_font_get_glyph (grub_font_t font, grub_uint32_t code)

@@ -97,7 +97,7 @@ static int xz_options(char *argv[], int argc)
 				goto failed;
 			}
 		}
-	
+
 		return 1;
 	} else if(strcmp(argv[0], "-Xdict-size") == 0) {
 		char *b;
@@ -144,7 +144,7 @@ static int xz_options(char *argv[], int argc)
 	}
 
 	return -1;
-	
+
 failed:
 	return -2;
 }
@@ -190,7 +190,7 @@ static int xz_options_post(int block_size)
 		 * 2^n or as  2^n+2^(n+1)
 	 	*/
 		n = ffs(dictionary_size) - 1;
-		if(dictionary_size != (1 << n) && 
+		if(dictionary_size != (1 << n) &&
 				dictionary_size != ((1 << n) + (1 << (n + 1)))) {
 			fprintf(stderr, "xz: -Xdict-size is an unsupported "
 				"value, dict-size must be storable in xz "
@@ -287,7 +287,7 @@ static int xz_extract_options(int block_size, void *buffer, int size)
 		/* check passed comp opts struct is of the correct length */
 		if(size != sizeof(struct comp_opts))
 			goto failed;
-					 
+
 		SQUASHFS_INSWAP_COMP_OPTS(comp_opts);
 
 		dictionary_size = comp_opts->dictionary_size;
@@ -298,7 +298,7 @@ static int xz_extract_options(int block_size, void *buffer, int size)
 		 * size should 2^n or 2^n+2^(n+1)
 		 */
 		n = ffs(dictionary_size) - 1;
-		if(dictionary_size != (1 << n) && 
+		if(dictionary_size != (1 << n) &&
 				dictionary_size != ((1 << n) + (1 << (n + 1))))
 			goto failed;
 	}
@@ -342,7 +342,7 @@ static void xz_display_options(void *buffer, int size)
 	 * size should 2^n or 2^n+2^(n+1)
 	 */
 	n = ffs(dictionary_size) - 1;
-	if(dictionary_size != (1 << n) && 
+	if(dictionary_size != (1 << n) &&
 			dictionary_size != ((1 << n) + (1 << (n + 1))))
 		goto failed;
 
@@ -370,7 +370,7 @@ static void xz_display_options(void *buffer, int size)
 failed:
 	fprintf(stderr, "xz: error reading stored compressor options from "
 		"filesystem!\n");
-}	
+}
 
 
 /*
@@ -455,7 +455,7 @@ static int xz_compress(void *strm, void *dest, void *src,  int size,
 		res = lzma_stream_buffer_encode(filter->filter,
 			LZMA_CHECK_CRC32, NULL, src, size, filter->buffer,
 			&filter->length, block_size);
-	
+
 		if(res == LZMA_OK) {
 			if(!selected || selected->length > filter->length)
 				selected = filter;

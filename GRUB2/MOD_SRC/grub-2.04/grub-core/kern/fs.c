@@ -50,9 +50,9 @@ grub_fs_t grub_fs_list_probe(grub_device_t device, const char **list)
     if (!device->disk)
         return 0;
 
-    for (p = grub_fs_list; p; p = p->next) 
+    for (p = grub_fs_list; p; p = p->next)
     {
-        for (i = 0; list[i]; i++) 
+        for (i = 0; list[i]; i++)
         {
             if (grub_strcmp(p->name, list[i]) == 0)
                 break;
@@ -60,7 +60,7 @@ grub_fs_t grub_fs_list_probe(grub_device_t device, const char **list)
 
         if (list[i] == NULL)
             continue;
-        
+
         grub_dprintf("fs", "Detecting %s...\n", p->name);
 
 	    (p->fs_dir) (device, "/", probe_dummy_iter, NULL);

@@ -138,7 +138,7 @@ struct vdisk_partition {
 } __attribute__ (( packed ));
 
 /** Master Boot Record */
-struct vdisk_mbr {	
+struct vdisk_mbr {
 	/** Code area */
 	uint8_t code[440];
 	/** Disk signature */

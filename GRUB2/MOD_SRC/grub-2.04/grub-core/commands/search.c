@@ -189,14 +189,14 @@ part_hook (grub_disk_t disk, const grub_partition_t partition, void *data)
   if (!devname)
     return 1;
   ret = iterate_device (devname, ctx);
-  grub_free (devname);    
+  grub_free (devname);
 
   return ret;
 }
 
 /* Helper for FUNC_NAME.  */
 static void
-try (struct search_ctx *ctx)    
+try (struct search_ctx *ctx)
 {
   unsigned i;
   struct cache_entry **prev;

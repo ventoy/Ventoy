@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 
@@ -26,13 +26,13 @@
 ventoy_unpack_injection() {
     vtmagic=$(hexdump -n 2 -e '2/1 "%02X"' $VTOY_PATH/ventoy_injection)
     echo "ventoy_unpack_injection  vtmagic=$vtmagic ..."
-    
+
     if [ "1F8B" = "$vtmagic" ] || [ "1F9E" = "$vtmagic" ]; then
         echo "tar.gz  tar -xzvf"
         tar -xzvf $VTOY_PATH/ventoy_injection -C /
     elif [ "425A" = "$vtmagic" ]; then
         echo "tar.bz2  tar -xjvf"
-        tar -xjvf $VTOY_PATH/ventoy_injection -C / 
+        tar -xjvf $VTOY_PATH/ventoy_injection -C /
     elif [ "FD37" = "$vtmagic" ]; then
         echo "tar.xz  tar -xJvf"
         tar -xJvf $VTOY_PATH/ventoy_injection -C /

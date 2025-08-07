@@ -108,7 +108,7 @@ grub_relocator_new (void)
   ret = grub_zalloc (sizeof (struct grub_relocator));
   if (!ret)
     return NULL;
-    
+
   ret->postchunks = ~(grub_phys_addr_t) 0;
   ret->relocators_size = grub_relocator_jumper_size;
   grub_dprintf ("relocator", "relocators_size=%lu\n",
@@ -139,7 +139,7 @@ allocate_regstart (grub_phys_addr_t addr, grub_size_t size, grub_mm_region_t rb,
   grub_mm_header_t new_header;
   grub_mm_header_t hb = (grub_mm_header_t) (rb + 1);
 
-#ifdef DEBUG_RELOCATOR_NOMEM_DPRINTF  
+#ifdef DEBUG_RELOCATOR_NOMEM_DPRINTF
   grub_dprintf ("relocator", "ra = %p, rb = %p\n", regancestor, rb);
 #endif
   newreg_start = ALIGN_UP (newreg_raw_start, GRUB_MM_ALIGN);
@@ -163,7 +163,7 @@ allocate_regstart (grub_phys_addr_t addr, grub_size_t size, grub_mm_region_t rb,
     {
       new_header = hb->next;
       if (new_header == hb)
-	new_header = (void *) (newreg_start + sizeof (*rb));	    
+	new_header = (void *) (newreg_start + sizeof (*rb));
     }
   {
     struct grub_mm_header *newregfirst = rb->first;
@@ -212,7 +212,7 @@ allocate_inreg (grub_phys_addr_t paddr, grub_size_t size,
 		(unsigned long) paddr, (unsigned long) size, hb, hbp,
 		rb, (unsigned long) vaddr);
 #endif
-    
+
   if (ALIGN_UP (vaddr + size, GRUB_MM_ALIGN) + GRUB_MM_ALIGN
       <= (grub_addr_t) (hb + hb->size))
     {
@@ -246,7 +246,7 @@ allocate_inreg (grub_phys_addr_t paddr, grub_size_t size,
 	}
       else
 	foll = hb->next;
-	
+
       hbp->next = foll;
       if (rb->first == hb)
 	{
@@ -409,7 +409,7 @@ free_subchunk (const struct grub_relocator_subchunk *subchu)
       }
       break;
 #endif
-    }  
+    }
 }
 
 static int
@@ -439,7 +439,7 @@ malloc_in_range (struct grub_relocator *rel,
   if (end < start + size)
     return 0;
 
-  /* We have to avoid any allocations when filling scanline events. 
+  /* We have to avoid any allocations when filling scanline events.
      Hence 2-stages.
    */
   for (r = grub_mm_base; r; r = r->next)
@@ -527,7 +527,7 @@ malloc_in_range (struct grub_relocator *rel,
     {
 #ifdef DEBUG_RELOCATOR_NOMEM_DPRINTF
       grub_dprintf ("relocator", "Blocking at 0x%lx-0x%lx\n",
-		    (unsigned long) r - r->pre_size, 
+		    (unsigned long) r - r->pre_size,
 		    (unsigned long) (r + 1) + r->size);
 #endif
       events[N].type = FIRMWARE_BLOCK_START;
@@ -596,7 +596,7 @@ malloc_in_range (struct grub_relocator *rel,
       p = pa->next;
       if (p->magic == GRUB_MM_ALLOC_MAGIC)
 	continue;
-      do 
+      do
 	{
 	  if (p->magic != GRUB_MM_FREE_MAGIC)
 	    grub_fatal ("%s:%d free magic broken at %p (0x%x)\n",
@@ -654,12 +654,12 @@ malloc_in_range (struct grub_relocator *rel,
       {
 	grub_memset (counter, 0, (1 + (1 << DIGITSORT_BITS)) * sizeof (counter[0]));
 	for (j = 0; j < N; j++)
-	  counter[((events[j].pos >> (DIGITSORT_BITS * i)) 
+	  counter[((events[j].pos >> (DIGITSORT_BITS * i))
 		   & DIGITSORT_MASK) + 1]++;
 	for (j = 0; j <= DIGITSORT_MASK; j++)
 	  counter[j+1] += counter[j];
 	for (j = 0; j < N; j++)
-	  eventt[counter[((events[j].pos >> (DIGITSORT_BITS * i)) 
+	  eventt[counter[((events[j].pos >> (DIGITSORT_BITS * i))
 			  & DIGITSORT_MASK)]++] = events[j];
 	t = eventt;
 	eventt = events;
@@ -680,7 +680,7 @@ malloc_in_range (struct grub_relocator *rel,
     const int nlefto = 0;
 #endif
     grub_addr_t starta = 0;
-    for (j = from_low_priv ? 0 : N - 1; from_low_priv ? j < N : (j + 1); 
+    for (j = from_low_priv ? 0 : N - 1; from_low_priv ? j < N : (j + 1);
 	 from_low_priv ? j++ : j--)
       {
 	int isinsidebefore, isinsideafter;
@@ -734,7 +734,7 @@ malloc_in_range (struct grub_relocator *rel,
 	    nstarted--;
 	    break;
 	  }
-	isinsideafter = (!ncollisions && (nstarted || ((nlefto || nstartedfw) 
+	isinsideafter = (!ncollisions && (nstarted || ((nlefto || nstartedfw)
 						       && !nblockfw)));
 	if (from_low_priv) {
 	  if (!isinsidebefore && isinsideafter)
@@ -847,13 +847,13 @@ malloc_in_range (struct grub_relocator *rel,
 		      fend
 			= ALIGN_UP (alloc_end,
 				    GRUB_RELOCATOR_FIRMWARE_REQUESTS_QUANT);
-#ifdef DEBUG_RELOCATOR_NOMEM_DPRINTF  
+#ifdef DEBUG_RELOCATOR_NOMEM_DPRINTF
 		      grub_dprintf ("relocator", "requesting %lx-%lx\n",
 				    (unsigned long) fstart,
 				    (unsigned long) fend);
 #endif
 		      /* The failure here can be very expensive.  */
-		      if (!grub_relocator_firmware_alloc_region (fstart, 
+		      if (!grub_relocator_firmware_alloc_region (fstart,
 								 fend - fstart))
 			{
 			  if (from_low_priv)
@@ -889,7 +889,7 @@ malloc_in_range (struct grub_relocator *rel,
 		nallocs++;
 	      }
 	  }
-	  
+
 	switch (events[j].type)
 	  {
 	  case REG_BEG_START:
@@ -1201,7 +1201,7 @@ malloc_in_range (struct grub_relocator *rel,
 }
 
 static void
-adjust_limits (struct grub_relocator *rel, 
+adjust_limits (struct grub_relocator *rel,
 	       grub_phys_addr_t *min_addr, grub_phys_addr_t *max_addr,
 	       grub_phys_addr_t in_min, grub_phys_addr_t in_max)
 {
@@ -1299,9 +1299,9 @@ grub_relocator_alloc_chunk_addr (struct grub_relocator *rel,
     {
       if (rel->highestnonpostaddr < target + size)
 	rel->highestnonpostaddr = target + size;
-      
+
       if (rel->highestnonpostaddr < chunk->src + size)
-	rel->highestnonpostaddr = chunk->src + size;  
+	rel->highestnonpostaddr = chunk->src + size;
     }
 
   grub_dprintf ("relocator", "relocators_size=%ld\n",
@@ -1511,7 +1511,7 @@ grub_relocator_unload (struct grub_relocator *rel)
   for (chunk = rel->chunks; chunk; chunk = next)
     {
       unsigned i;
-      for (i = 0; i < chunk->nsubchunks; i++) 
+      for (i = 0; i < chunk->nsubchunks; i++)
 	free_subchunk (&chunk->subchunks[i]);
       grub_unmap_memory (chunk->srcv, chunk->size);
       next = chunk->next;
@@ -1546,7 +1546,7 @@ grub_relocator_prepare_relocs (struct grub_relocator *rel, grub_addr_t addr,
     *relsize = rel->relocators_size;
 
   grub_dprintf ("relocator", "Relocs allocated at %p\n", movers_chunk.srcv);
-  
+
   {
     unsigned i;
     grub_size_t count[257];
@@ -1558,7 +1558,7 @@ grub_relocator_prepare_relocs (struct grub_relocator *rel, grub_addr_t addr,
         struct grub_relocator_chunk *chunk;
 	for (chunk = rel->chunks; chunk; chunk = chunk->next)
 	  {
-	    grub_dprintf ("relocator", "chunk %p->%p, 0x%lx\n", 
+	    grub_dprintf ("relocator", "chunk %p->%p, 0x%lx\n",
 			  (void *) chunk->src, (void *) chunk->target,
 			  (unsigned long) chunk->size);
 	    nchunks++;
@@ -1602,7 +1602,7 @@ grub_relocator_prepare_relocs (struct grub_relocator *rel, grub_addr_t addr,
 
   for (j = 0; j < nchunks; j++)
     {
-      grub_dprintf ("relocator", "sorted chunk %p->%p, 0x%lx\n", 
+      grub_dprintf ("relocator", "sorted chunk %p->%p, 0x%lx\n",
 		    (void *) sorted[j].src, (void *) sorted[j].target,
 		    (unsigned long) sorted[j].size);
       if (sorted[j].src < sorted[j].target)
@@ -1644,7 +1644,7 @@ grub_mm_check_real (const char *file, int line)
       p = pa->next;
       if (p->magic == GRUB_MM_ALLOC_MAGIC)
 	continue;
-      do 
+      do
 	{
 	  if ((grub_addr_t) p < (grub_addr_t) (r + 1)
 	      || (grub_addr_t) p >= (grub_addr_t) (r + 1) + r->size)

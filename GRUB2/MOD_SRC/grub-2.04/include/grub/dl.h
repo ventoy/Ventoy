@@ -98,7 +98,7 @@ grub_mod_fini (void)
 #endif
 #else
 #ifdef __APPLE__
-#define GRUB_MOD_SECTION(x) _ ## x , _ ##x 
+#define GRUB_MOD_SECTION(x) _ ## x , _ ##x
 #else
 #define GRUB_MOD_SECTION(x) . ## x
 #endif

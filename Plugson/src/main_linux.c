@@ -27,10 +27,10 @@ void ventoy_signal_stop(int sig)
 {
     vlog("ventoy server exit due to signal ...\n");
     printf("ventoy server exit ...\n");
-    
+
     ventoy_http_stop();
     ventoy_http_exit();
-#ifndef VENTOY_SIM    
+#ifndef VENTOY_SIM
     ventoy_www_exit();
 #endif
     ventoy_disk_exit();
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     {
         ip = argv[1];
     }
-    
+
     if (isdigit(argv[2][0]))
     {
         port = argv[2];
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    ventoy_get_disk_info(argv);    
+    ventoy_get_disk_info(argv);
 
     vlog("===============================================\n");
     vlog("===== Ventoy Plugson %s:%s =====\n", ip, port);
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	}
 #endif
     ventoy_http_init();
-    
+
     rc = ventoy_http_start(ip, port);
     if (rc)
     {
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
             sleep(100);
         }
     }
-    
+
     return 0;
 }
 

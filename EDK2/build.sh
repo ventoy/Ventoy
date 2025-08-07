@@ -38,7 +38,7 @@ rm -f $VTEFI_PATH3
 unset WORKSPACE
 source ./edksetup.sh
 
-if [ "$EDKARCH" = "AARCH64" ]; then    
+if [ "$EDKARCH" = "AARCH64" ]; then
     GCC48_AARCH64_PREFIX=aarch64-linux-gnu- \
     build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48
 else
@@ -46,7 +46,7 @@ else
 fi
 
 if [ -e $VTEFI_PATH ] && [ -e $VTEFI_PATH2 ] && [ -e $VTEFI_PATH3 ]; then
-    echo -e '\n\n====================== SUCCESS ========================\n\n'    
+    echo -e '\n\n====================== SUCCESS ========================\n\n'
     cp -a $VTEFI_PATH $DST_PATH
     cp -a $VTEFI_PATH2 $DST_PATH2
     [ -d ../../VDiskChain ] && cp -a $VTEFI_PATH3 $DST_PATH3

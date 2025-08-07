@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
         }
         else
         {
-            QDir::setCurrent(curdir);        
-        }        
+            QDir::setCurrent(curdir);
+        }
     }
 
     if (!QFileInfo::exists("./boot/boot.img"))
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 
     ventoy_disk_exit();
     ventoy_http_exit();
-        
+
     vlog("######## Ventoy2Disk QT %s exit ########\n", ventoy_get_local_version());
 
     /* log exit must at the end */

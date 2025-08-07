@@ -30,7 +30,7 @@ Acknowledgements for Squashfs 4.0
 ---------------------------------
 
 Thanks to Tim Bird and CELF (Consumer Electronics Linux Forum) for helping
-fund mainstreaming of Squashfs into the 2.6.29 kernel and the 
+fund mainstreaming of Squashfs into the 2.6.29 kernel and the
 changes to the Squashfs tools to support the new 4.0 file system layout.
 
 Acknowledgements for Squashfs-3.3

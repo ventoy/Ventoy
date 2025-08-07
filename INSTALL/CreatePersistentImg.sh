@@ -14,7 +14,7 @@ print_usage() {
     echo '   -l label, default is casper-rw'
     echo '   -c configfile name inside the persistence file. File content is "/ union"'
     echo '   -o outputfile name, default is persistence.dat'
-    echo '   -e enable encryption, disabled by default (only few distros support this)'    
+    echo '   -e enable encryption, disabled by default (only few distros support this)'
     echo ''
 }
 
@@ -72,11 +72,11 @@ if echo $size | grep -q "^[0-9][0-9]*$"; then
     if echo $fstype | grep -q '^xfs$'; then
         vtMinSize=16
     fi
-    
+
     if [ $size -lt $vtMinSize ]; then
         echo "size too small ($size)"
         exit 1
-    fi    
+    fi
 else
     echo "Invalid size $size"
     exit 1
@@ -85,7 +85,7 @@ fi
 
 # check file system type
 # nodiscard must be set for ext2/3/4
-# -K must be set for xfs 
+# -K must be set for xfs
 if echo $fstype | grep -q '^ext[234]$'; then
     fsopt='-E nodiscard'
 elif [ "$fstype" = "xfs" ]; then
@@ -114,7 +114,7 @@ if [ ! -z "$passphrase" ]; then
     freeloop="/dev/mapper/persist_decrypted"
 fi
 
-mkfs -t $fstype $fsopt -L $label $freeloop 
+mkfs -t $fstype $fsopt -L $label $freeloop
 
 sync
 
@@ -122,7 +122,7 @@ if [ -n "$config" ]; then
     if [ -d ./persist_tmp_mnt ]; then
         rm -rf ./persist_tmp_mnt
     fi
-    
+
     mkdir ./persist_tmp_mnt
     if mount $freeloop ./persist_tmp_mnt; then
         echo '/ union' > ./persist_tmp_mnt/$config

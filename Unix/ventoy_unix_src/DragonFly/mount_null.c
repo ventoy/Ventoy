@@ -91,7 +91,7 @@ mount_null(const char *src, const char *dst)
 
 	if (mount(vfc.vfc_name, source, mntflags, &args))
 		err(1, NULL);
-    
+
 	return 0;
 }
 

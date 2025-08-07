@@ -51,7 +51,7 @@ grub_machine_init (void)
   grub_efi_boot_services_t *b;
 
   grub_efi_init ();
-  
+
   b = grub_efi_system_table->boot_services;
   efi_call_5 (b->create_event, GRUB_EFI_EVT_TIMER | GRUB_EFI_EVT_NOTIFY_SIGNAL,
               GRUB_EFI_TPL_CALLBACK, grub_loongson_increment_timer, NULL, &tmr_evt);

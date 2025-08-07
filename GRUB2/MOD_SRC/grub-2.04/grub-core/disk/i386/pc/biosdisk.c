@@ -71,7 +71,7 @@ static int grub_biosdisk_get_num_floppies (void)
  *   non-zero, otherwise zero.
  */
 
-static int 
+static int
 grub_biosdisk_rw_int13_extensions (int ah, int drive, void *dap)
 {
   struct grub_bios_int_registers regs;
@@ -91,7 +91,7 @@ grub_biosdisk_rw_int13_extensions (int ah, int drive, void *dap)
  *   NSEC sectors from COFF/HOFF/SOFF into SEGMENT. If an error occurs,
  *   return non-zero, otherwise zero.
  */
-static int 
+static int
 grub_biosdisk_rw_standard (int ah, int drive, int coff, int hoff,
 			   int soff, int nsec, int segment)
 {
@@ -110,7 +110,7 @@ grub_biosdisk_rw_standard (int ah, int drive, int coff, int hoff,
       /* set bits 0-5 of %cl to sector */
       regs.ecx |= soff & 0x3f;
 
-      /* set %dh to head and %dl to drive */  
+      /* set %dh to head and %dl to drive */
       regs.edx = (drive & 0xff) | ((hoff << 8) & 0xff00);
       /* set %ah to AH */
       regs.eax = (ah << 8) & 0xff00;
@@ -153,7 +153,7 @@ grub_biosdisk_check_int13_extensions (int drive)
   regs.ebx = 0x55aa;
   regs.flags = GRUB_CPU_INT_FLAGS_DEFAULT;
   grub_bios_interrupt (0x13, &regs);
-  
+
   if (regs.flags & GRUB_CPU_INT_FLAGS_CARRY)
     return 0;
 
@@ -171,7 +171,7 @@ grub_biosdisk_check_int13_extensions (int drive)
  *   Return the geometry of DRIVE in CYLINDERS, HEADS and SECTORS. If an
  *   error occurs, then return non-zero, otherwise zero.
  */
-static int 
+static int
 grub_biosdisk_get_diskinfo_standard (int drive,
 				     unsigned long *cylinders,
 				     unsigned long *heads,
@@ -185,12 +185,12 @@ grub_biosdisk_get_diskinfo_standard (int drive,
   regs.flags = GRUB_CPU_INT_FLAGS_DEFAULT;
   grub_bios_interrupt (0x13, &regs);
 
-  /* Check if unsuccessful. Ignore return value if carry isn't set to 
+  /* Check if unsuccessful. Ignore return value if carry isn't set to
      workaround some buggy BIOSes. */
   if ((regs.flags & GRUB_CPU_INT_FLAGS_CARRY) && ((regs.eax & 0xff00) != 0))
     return (regs.eax & 0xff00) >> 8;
 
-  /* bogus BIOSes may not return an error number */  
+  /* bogus BIOSes may not return an error number */
   /* 0 sectors means no disk */
   if (!(regs.ecx & 0x3f))
     /* XXX 0x60 is one of the unused error numbers */
@@ -218,7 +218,7 @@ grub_biosdisk_get_diskinfo_real (int drive, void *drp, grub_uint16_t ax)
   regs.flags = GRUB_CPU_INT_FLAGS_DEFAULT;
   grub_bios_interrupt (0x13, &regs);
 
-  /* Check if unsuccessful. Ignore return value if carry isn't set to 
+  /* Check if unsuccessful. Ignore return value if carry isn't set to
      workaround some buggy BIOSes. */
   if ((regs.flags & GRUB_CPU_INT_FLAGS_CARRY) && ((regs.eax & 0xff00) != 0))
     return (regs.eax & 0xff00) >> 8;
@@ -365,11 +365,11 @@ grub_biosdisk_rw (int cmd, grub_disk_t disk,
 static int ventoy_is_mbr_match(ventoy_mbr_head *head)
 {
     grub_uint32_t PartStartSector;
-    
+
     if (head->Byte55 != 0x55 || head->ByteAA != 0xAA) {
         return 0;
     }
-    
+
     if (head->PartTbl[2].SectorCount > 0 || head->PartTbl[3].SectorCount > 0) {
         return 0;
     }
@@ -503,7 +503,7 @@ grub_biosdisk_open (const char *name, grub_disk_t disk)
   disk->data = data;
 
   //fixup some buggy bios
-  if (total_sectors > (16434495 - 2097152) && total_sectors < (16434495 + 2097152) && 
+  if (total_sectors > (16434495 - 2097152) && total_sectors < (16434495 + 2097152) &&
       (data->flags & GRUB_BIOSDISK_FLAG_LBA) > 0 && (data->flags & GRUB_BIOSDISK_FLAG_CDROM) == 0) {
     if (grub_biosdisk_rw(0, disk, 0, 1, GRUB_MEMORY_MACHINE_SCRATCH_SEG) == 0) {
         ventoy_mbr_head *mbr = (ventoy_mbr_head *)GRUB_MEMORY_MACHINE_SCRATCH_ADDR;

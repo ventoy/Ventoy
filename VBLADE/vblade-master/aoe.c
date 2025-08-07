@@ -68,7 +68,7 @@ static ventoy_disk_map * vtoydm_get_img_map_data(const char *img_map_file, int *
     FILE *fp = NULL;
     ventoy_img_chunk *chunk = NULL;
     ventoy_disk_map *map = NULL;
-    
+
     fp = fopen(img_map_file, "rb");
     if (NULL == fp)
     {
@@ -95,7 +95,7 @@ static ventoy_disk_map * vtoydm_get_img_map_data(const char *img_map_file, int *
 
     if (len % sizeof(ventoy_img_chunk))
     {
-        fprintf(stderr, "image map file size %d is not aligned with %d\n", 
+        fprintf(stderr, "image map file size %d is not aligned with %d\n",
                 len, (int)sizeof(ventoy_img_chunk));
         goto end;
     }
@@ -106,12 +106,12 @@ static ventoy_disk_map * vtoydm_get_img_map_data(const char *img_map_file, int *
         fprintf(stderr, "Failed to malloc memory\n");
         goto end;
     }
-    
+
     for (i = 0; i < len / sizeof(ventoy_img_chunk); i++)
     {
         sector_num = chunk[i].img_end_sector - chunk[i].img_start_sector + 1;
         g_iso_file_size += sector_num * 2048;
-        
+
         map[i].img_start_sector = chunk[i].img_start_sector << 2;
         map[i].img_end_sector = (chunk[i].img_end_sector << 2) + 3;
         map[i].disk_start_sector = chunk[i].disk_start_sector;
@@ -147,7 +147,7 @@ static u64_t get_disk_sector(u64_t lba)
 {
     int i;
     ventoy_disk_map *cur = g_img_map;
-    
+
     for (i = 0; i < g_img_map_num; i++, cur++)
     {
         if (lba >= cur->img_start_sector && lba <= cur->img_end_sector)
@@ -168,7 +168,7 @@ int getsec(int fd, uchar *place, vlong lba, int nsec)
 
     count = 1;
     last_sector = get_disk_sector((u64_t)lba);
-    
+
     for (i = 1; i < nsec; i++)
     {
         sector = get_disk_sector((u64_t)(lba + i));
@@ -509,7 +509,7 @@ aoe(void)
 	if ((pagesz = sysconf(_SC_PAGESIZE)) < 0) {
 		perror("sysconf");
 		exit(1);
-	}        
+	}
 	if ((buf = malloc(bufsz + pagesz)) == NULL) {
 		perror("malloc");
 		exit(1);
@@ -547,7 +547,7 @@ aoe(void)
 void
 usage(void)
 {
-	fprintf(stderr, "usage: %s [-b bufcnt] [-o offset] [-l length] [-d ] [-s] [-r] [ -m mac[,mac...] ] shelf slot netif filename\n", 
+	fprintf(stderr, "usage: %s [-b bufcnt] [-o offset] [-l length] [-d ] [-s] [-r] [ -m mac[,mac...] ] shelf slot netif filename\n",
 		progname);
 	exit(1);
 }
@@ -636,7 +636,7 @@ main(int argc, char **argv)
 
     /* Avoid to be killed by systemd */
     if (access("/etc/initrd-release", F_OK) >= 0)
-	{		
+	{
 		argv[0][0] = '@';
 	}
 
@@ -731,7 +731,7 @@ main(int argc, char **argv)
 		    (long) getpid(), shelf, slot, size,
 		    readonly ? "O_RDONLY" : "O_RDWR");
     }
-    
+
 	fflush(stdout);
 	atainit();
 	aoe();

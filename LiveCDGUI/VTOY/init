@@ -24,7 +24,7 @@ mkdir -p /memory/xino /memory/changes /memory/images /memory/copy2ram
 mount -nt aufs -o nowarn_perm,xino=/memory/xino/.aufs.xino,br:/memory/changes=rw aufs /union
 
 
-#Draw background 
+#Draw background
 if [ -z "$quiet" ]; then
     echo "##################################################"
     echo "Starting Ventoy Live GUI <https://www.ventoy.net>"
@@ -41,10 +41,10 @@ else
     ln -s /opt/001/bin/kmod /bin/modprobe
 
     vga=`lspci | grep 0300: | head -n1 | cut -d: -f3-4 | sed s/:/d0000/g`; [ "$vga" ] && driver="$(grep -i $vga /lib/modules/`uname -r`/modules.alias 2>/dev/null | head -n1 | rev | cut -d" " -f1 | rev)"
-    
+
     # Nvidia quirk:
     [ "$driver" ] || { lspci | grep 0300: | head -n1 | cut -d: -f3 | grep -q "10de" && driver=nouveau; }
-    
+
     # VirtualBox quirk:
     [ "$driver" = vboxvideo ] || modprobe $driver 2>/dev/null
     test -e /dev/fb0 || { cp /opt/001/sbin/v86d /sbin; modprobe uvesafb mode_option=1024x768-32; }
@@ -69,9 +69,9 @@ done
 
 
 
-#clean 
+#clean
 if [ -n "$quiet" ]; then
-    while [ "`pidof fbv`" ]; do 
+    while [ "`pidof fbv`" ]; do
         usleep 500000
     done
     umount /opt/000 /opt/001 2>/dev/null

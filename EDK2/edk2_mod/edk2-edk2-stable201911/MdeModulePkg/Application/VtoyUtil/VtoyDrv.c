@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -74,11 +74,11 @@ EFI_STATUS ShowEfiDrivers(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdLine
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_COMPONENT_NAME_PROTOCOL *NameProtocol = NULL;
     EFI_COMPONENT_NAME2_PROTOCOL *Name2Protocol = NULL;
-    
+
     (VOID)ImageHandle;
     (VOID)CmdLine;
 
-    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentName2ProtocolGuid, 
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentName2ProtocolGuid,
                                      NULL, &Count, &Handles);
     if (EFI_ERROR(Status))
     {
@@ -105,7 +105,7 @@ EFI_STATUS ShowEfiDrivers(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdLine
     FreePool(Handles);
     Handles = NULL;
 
-    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentNameProtocolGuid, 
+    Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiComponentNameProtocolGuid,
                                      NULL, &Count, &Handles);
     if (EFI_ERROR(Status))
     {
@@ -134,7 +134,7 @@ EFI_STATUS ShowEfiDrivers(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdLine
     {
         Printf("%2d  %s\n", i, g_EfiDriverNameList[i]);
     }
-    
+
     return EFI_SUCCESS;
 }
 

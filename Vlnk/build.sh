@@ -16,12 +16,12 @@ mips64el-linux-musl-gcc -mips64r2 -mabi=64 -static -O2 -D_FILE_OFFSET_BITS=64 $S
 
 if [ -e vlnk_64 ] && [ -e vlnk_32 ] && [ -e vlnk_aa64 ] && [ -e vlnk_m64e ]; then
     echo -e "\n===== success =======\n"
-    
+
     strip --strip-all vlnk_32
     strip --strip-all vlnk_64
     aarch64-buildroot-linux-uclibc-strip --strip-all vlnk_aa64
     mips64el-linux-musl-strip --strip-all vlnk_m64e
-    
+
     [ -d ../INSTALL/tool/i386/ ] && mv vlnk_32 ../INSTALL/tool/i386/vlnk
     [ -d ../INSTALL/tool/x86_64/ ] && mv vlnk_64 ../INSTALL/tool/x86_64/vlnk
     [ -d ../INSTALL/tool/aarch64/ ] && mv vlnk_aa64 ../INSTALL/tool/aarch64/vlnk

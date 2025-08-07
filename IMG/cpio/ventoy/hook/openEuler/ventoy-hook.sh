@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
@@ -29,14 +29,14 @@ else
             VTKS="inst.ks=hd:/dev/ventoy:$vtRawKs"
             break
         fi
-        
+
         if echo $vtParam | $GREP -q '^ks=.*:/'; then
             vtRawKsFull="$vtParam"
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
             VTKS="ks=hd:/dev/ventoy:$vtRawKs"
             break
         fi
-        
+
         if echo $vtParam | $GREP -q '^inst.ks=.*:/'; then
             vtRawKsFull="$vtParam"
             vtRawKs=$(echo $vtParam | $AWK -F: '{print $NF}')
@@ -48,18 +48,18 @@ fi
 
 if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
     VTOVERLAY="rd.live.overlay=/dev/dm-1:/vtoyoverlayfs/overlayfs"
-    
+
     if [ -e /sbin/dmsquash-live-root ]; then
         echo "patch /sbin/dmsquash-live-root for persistent ..." >> $VTLOG
         $SED "/mount.*devspec.*\/run\/initramfs\/overlayfs/a . /ventoy/hook/openEuler/ventoy-overlay.sh" -i /sbin/dmsquash-live-root
     fi
-    
+
     #close selinux
     $BUSYBOX_PATH/mkdir -p $VTOY_PATH/selinuxfs
     if $BUSYBOX_PATH/mount -t selinuxfs selinuxfs $VTOY_PATH/selinuxfs; then
         echo 1 > $VTOY_PATH/selinuxfs/disable
         $BUSYBOX_PATH/umount $VTOY_PATH/selinuxfs
-    fi    
+    fi
     $BUSYBOX_PATH/rm -rf $VTOY_PATH/selinuxfs
 fi
 
@@ -72,7 +72,7 @@ if [ -n "$vtRawKs" ]; then
         VTKS=""
     else
         echo "$vtRawKs" > $VTOY_PATH/ventoy_ks_rootpath
-    fi    
+    fi
 fi
 
 if ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then

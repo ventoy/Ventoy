@@ -53,7 +53,7 @@ dial(char *eth, int bufcnt)
 	struct ifreq ifr;
 
 	struct bpf_program *bpf_program = create_bpf_program(shelf, slot);
-	
+
 	strncpy(device, BPF_DEV, sizeof BPF_DEV);
 
 	/* find a bpf device we can use, check /dev/bpf[0-9] */
@@ -102,7 +102,7 @@ dial(char *eth, int bufcnt)
 		}
 	}
 	if (v == 0) {
-		fprintf(stderr, 
+		fprintf(stderr,
 			"BIOCSBLEN: %s: No buffer size worked\n", eth);
 		goto bad;
 	}
@@ -152,7 +152,7 @@ dial(char *eth, int bufcnt)
 	if (ioctl(fd, BIOCSETF, (caddr_t)bpf_program) < 0) {
 		perror("BIOSETF");
 		goto bad;
-	} 
+	}
 
 	free_bpf_program(bpf_program);
 	return(fd);
@@ -171,7 +171,7 @@ getea(int s, char *eth, uchar *ea)
 	char *buf, *next, *end;
 	struct if_msghdr *ifm;
 	struct sockaddr_dl *sdl;
-	
+
 
 	mib[0] = CTL_NET; 	mib[1] = AF_ROUTE;
 	mib[2] = 0; 		mib[3] = AF_LINK;
@@ -184,7 +184,7 @@ getea(int s, char *eth, uchar *ea)
 	if (!(buf = (char *) malloc(len))) {
 		return (-1);
 	}
-	
+
 	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
 		free(buf);
 		return (-1);
@@ -195,7 +195,7 @@ getea(int s, char *eth, uchar *ea)
 		ifm = (struct if_msghdr *)next;
 		if (ifm->ifm_type == RTM_IFINFO) {
 			sdl = (struct sockaddr_dl *)(ifm + 1);
-			if (strncmp(&sdl->sdl_data[0], eth, 
+			if (strncmp(&sdl->sdl_data[0], eth,
 					sdl->sdl_nlen) == 0) {
 				memcpy(ea, LLADDR(sdl), ETHER_ADDR_LEN);
 				break;
@@ -232,8 +232,8 @@ getpkt(int fd, uchar *buf, int sz)
 {
 	register struct bpf_hdr *bh;
 	register int pktlen, retlen;
-	
-	if (pktn <= 0) { 
+
+	if (pktn <= 0) {
 		if ((pktn = read(fd, pktbuf, pktbufsz)) < 0) {
 			perror("read");
 			exit(1);
@@ -243,15 +243,15 @@ getpkt(int fd, uchar *buf, int sz)
 
 	bh = (struct bpf_hdr *) pktbp;
 	retlen = (int) bh->bh_caplen;
-	/* This memcpy() is currently needed */ 
+	/* This memcpy() is currently needed */
 	memcpy(buf, (void *)(pktbp + bh->bh_hdrlen),
 		retlen > sz ? sz : retlen);
-	pktlen = bh->bh_hdrlen + bh->bh_caplen; 
-	
+	pktlen = bh->bh_hdrlen + bh->bh_caplen;
+
 	pktbp = pktbp + BPF_WORDALIGN(pktlen);
 	pktn  -= (int) BPF_WORDALIGN(pktlen);
 
-	return retlen; 
+	return retlen;
 }
 
 int

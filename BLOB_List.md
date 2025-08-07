@@ -45,13 +45,13 @@
         <tr> <td>./IMG/cpio_x86/ventoy/tool/lz4cat64</td> <td>build</td>  <td>Build Instructions:<br/>./LZIP/buildlz4.txt</td>    </tr>
         <tr> <td>./IMG/cpio_x86/ventoy/tool/zstdcat</td> <td>build</td>  <td>Same with ./ZSTD/zstdcat<br/>Check the file hash to confirm</td>    </tr>
         <tr> <td>./IMG/cpio_x86/ventoy/tool/zstdcat64</td> <td>build</td>  <td>Same with ./ZSTD/zstdcat64<br/>Check the file hash to confirm</td>    </tr>
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTAA64.EFI</td> <td rowspan=4>build</td>  <td rowspan=4>Build Instructions:<br/> ./DOC/BuildVentoyFromSource.txt 4.1-Build grub2</td>                                     </tr>        
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTMIPS.EFI</td>     
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTAA64.EFI</td> <td rowspan=4>build</td>  <td rowspan=4>Build Instructions:<br/> ./DOC/BuildVentoyFromSource.txt 4.1-Build grub2</td>                                     </tr>
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTMIPS.EFI</td>
         <tr> <td>./INSTALL/EFI/BOOT/grubia32_real.efi</td>
         <tr> <td>./INSTALL/EFI/BOOT/grubx64_real.efi</td>
-        <tr> <td>./INSTALL/EFI/BOOT/grub.efi</td> <td rowspan=6>upstream</td>    <td rowspan=6>https://github.com/ValdikSS/Super-UEFIinSecureBoot-Disk </td>      </tr>        
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTIA32.EFI</td> 
-        <tr> <td>./INSTALL/EFI/BOOT/BOOTX64.EFI</td> 
+        <tr> <td>./INSTALL/EFI/BOOT/grub.efi</td> <td rowspan=6>upstream</td>    <td rowspan=6>https://github.com/ValdikSS/Super-UEFIinSecureBoot-Disk </td>      </tr>
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTIA32.EFI</td>
+        <tr> <td>./INSTALL/EFI/BOOT/BOOTX64.EFI</td>
         <tr> <td>./INSTALL/EFI/BOOT/grubia32.efi</td>
         <tr> <td>./INSTALL/EFI/BOOT/mmia32.efi</td>
         <tr> <td>./INSTALL/EFI/BOOT/MokManager.efi</td>
@@ -92,7 +92,7 @@
         <tr> <td>./INSTALL/tool/mips64el/mkexfatfs</td>
         <tr> <td>./INSTALL/tool/mips64el/mount.exfat-fuse</td>
         <tr> <td>./INSTALL/tool/x86_64/mkexfatfs</td>
-        <tr> <td>./INSTALL/tool/x86_64/mount.exfat-fuse</td>    
+        <tr> <td>./INSTALL/tool/x86_64/mount.exfat-fuse</td>
         <tr> <td>./INSTALL/tool/aarch64/vlnk</td> <td rowspan=4>build</td>    <td rowspan=4>Build Instructions:<br/>./Vlnk/build.sh</td>    </tr>
         <tr> <td>./INSTALL/tool/i386/vlnk</td>
         <tr> <td>./INSTALL/tool/mips64el/vlnk</td>
@@ -130,7 +130,7 @@
         <tr> <td>./INSTALL/ventoy/vtoyutil_ia32.efi</td>
         <tr> <td>./INSTALL/ventoy/vtoyutil_x64.efi</td>
         <tr> <td>./INSTALL/ventoy/ipxe.krn</td> <td>build</td>  <td>Build Instructions:<br/>./IPXE/buildipxe.sh</td>    </tr>
-        <tr> <td>./INSTALL/ventoy/memdisk</td> <td>upstream</td>  <td>Download from syslinux project.<br/>URL & File Hash documented in<br/> ./DOC/BuildVentoyFromSource.txt 5.9</td>      </tr>        
+        <tr> <td>./INSTALL/ventoy/memdisk</td> <td>upstream</td>  <td>Download from syslinux project.<br/>URL & File Hash documented in<br/> ./DOC/BuildVentoyFromSource.txt 5.9</td>      </tr>
         <tr> <td>./LiveCD/ISO/EFI/boot/vmlinuz64</td> <td>upstream</td>  <td>Download from TinyLinux website.<br/>URL & File Hash documented in<br/> ./DOC/BuildVentoyFromSource.txt 5.14</td>      </tr>
         <tr> <td>./LiveCDGUI/EXT/busybox-x86_64</td> <td>build</td>  <td>Same with ./IMG/cpio_x86/ventoy/busybox/busybox64<br/>Check the file hash to confirm</td>    </tr>
         <tr> <td>./LiveCDGUI/GRUB/bootx64.efi</td> <td rowspan=2>build</td>  <td rowspan=2>./DOC/BuildVentoyFromSource.txt 4.1-Build grub2</td>    </tr>
@@ -166,11 +166,11 @@
         <tr> <td>./IMG/cpio_x86/ventoy/busybox/xzcat32_musl</td>
         <tr> <td>./IMG/cpio_x86/ventoy/busybox/xzcat64_musl</td>
         <tr> <td>./IMG/cpio_arm64/ventoy/busybox/busyboxaa64</td>
-        <tr> <td>./IMG/cpio_mips64/ventoy/busybox/busyboxm64e</td>          
+        <tr> <td>./IMG/cpio_mips64/ventoy/busybox/busyboxm64e</td>
         <tr> <td>ISNTALL/ventoy/7z/64/7za.exe</td>  <td rowspan=2>upstream</td>  <td>Download from 7z project.<br/>URL & File Hash documented in<br/> ./DOC/BuildVentoyFromSource.txt 5.12</td>      </tr>
-        <tr> <td>ISNTALL/ventoy/7z/32/7za.exe</td>  
+        <tr> <td>ISNTALL/ventoy/7z/32/7za.exe</td>
         <tr> <td>./INSTALL/ventoy/wimboot.i386.efi</td> <td rowspan=2>build</td>    <td rowspan=2>Build Instructions:<br/>./wimboot/build.sh</td>    </tr>
-        <tr> <td>./INSTALL/ventoy/wimboot.x86_64</td>        
+        <tr> <td>./INSTALL/ventoy/wimboot.x86_64</td>
         <tr> <td> ./Unix/ventoy_unix/ClonOS/geom_ventoy_ko/13.x/64/geom_ventoy.ko</td> <td rowspan=18>build</td>    <td rowspan=18>Build Instructions:<br/>./Unix/BuildUnixKmod.txt</td>    </tr>
         <tr> <td> ./Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/10.x/32/geom_ventoy.ko</td></tr>
         <tr> <td> ./Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/10.x/64/geom_ventoy.ko</td></tr>

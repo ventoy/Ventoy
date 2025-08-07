@@ -1,9 +1,9 @@
 #!/bin/bash
 
-build_func() {    
+build_func() {
     libsuffix=$2
     toolDir=$3
-    gtkver=$4   
+    gtkver=$4
 
     if [ "$libsuffix" = "aa64" ]; then
         EXD=./EXLIB/aarch64
@@ -25,12 +25,12 @@ build_func() {
         fi
         XXLIB=""
     fi
-    
+
     XXFLAG="-std=gnu99 -D_FILE_OFFSET_BITS=64 $GTKFLAG $GLADE -Wall"
-    
-    
-    echo "CC=$1 libsuffix=$libsuffix toolDir=$toolDir $gtkver"    
-    
+
+
+    echo "CC=$1 libsuffix=$libsuffix toolDir=$toolDir $gtkver"
+
     $1 $XXFLAG -c -Wall -Wextra -Wshadow -Wformat-security -Winit-self \
         -Wmissing-prototypes -O2 -DLINUX \
         -I./Ventoy2Disk/Lib/libhttp/include \
@@ -38,7 +38,7 @@ build_func() {
         -DUSE_STACK_SIZE=102400 -DNDEBUG -fPIC \
         ./Ventoy2Disk/Lib/libhttp/include/civetweb.c \
         -o ./civetweb.o
-    
+
     $1 -O2 -Wall -Wno-unused-function -DSTATIC=static -DINIT= \
         -I./Ventoy2Disk \
         -I./Ventoy2Disk/Core \
@@ -66,10 +66,10 @@ build_func() {
         $XXLIB \
         -l pthread \
         ./civetweb.o \
-        -o Ventoy2Disk.${gtkver}_$libsuffix $XXFLAG 
+        -o Ventoy2Disk.${gtkver}_$libsuffix $XXFLAG
 
     rm -f *.o
-    
+
     if [ "$libsuffix" = "aa64" ]; then
         aarch64-linux-gnu-strip Ventoy2Disk.${gtkver}_$libsuffix
     elif [ "$libsuffix" = "m64e" ]; then
@@ -77,10 +77,10 @@ build_func() {
     else
         strip Ventoy2Disk.${gtkver}_$libsuffix
     fi
-    
+
     rm -f ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}_$libsuffix
     cp -a Ventoy2Disk.${gtkver}_$libsuffix ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}
-    
+
     $1 -O2 -D_FILE_OFFSET_BITS=64 Ventoy2Disk/ventoy_gui.c Ventoy2Disk/Core/ventoy_json.c -I Ventoy2Disk/Core  -DVTOY_GUI_ARCH="\"$toolDir\"" -o VentoyGUI.$toolDir
     cp -a VentoyGUI.$toolDir ../INSTALL/
 }

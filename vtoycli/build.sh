@@ -21,12 +21,12 @@ mips64el-linux-musl-gcc -mips64r2 -mabi=64 -static -O2 -D_FILE_OFFSET_BITS=64 $S
 
 if [ -e vtoycli_64 ] && [ -e vtoycli_32 ] && [ -e vtoycli_aa64 ] && [ -e vtoycli_m64e ]; then
     echo -e "\n===== success $name =======\n"
-    
+
     strip --strip-all vtoycli_32
     strip --strip-all vtoycli_64
     aarch64-buildroot-linux-uclibc-strip --strip-all vtoycli_aa64
     mips64el-linux-musl-strip --strip-all vtoycli_m64e
-    
+
     [ -d ../INSTALL/tool/i386/ ] && mv vtoycli_32 ../INSTALL/tool/i386/vtoycli
     [ -d ../INSTALL/tool/x86_64/ ] && mv vtoycli_64 ../INSTALL/tool/x86_64/vtoycli
     [ -d ../INSTALL/tool/aarch64/ ] && mv vtoycli_aa64 ../INSTALL/tool/aarch64/vtoycli

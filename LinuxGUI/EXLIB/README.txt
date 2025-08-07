@@ -1,11 +1,11 @@
 
-====== ARM64 ====== 
+====== ARM64 ======
 1. Download CentOS-7-aarch64-Everything-2009.iso from internet.
 2. mount CentOS-7-aarch64-Everything-2009.iso  /mnt
 3. sh prepare_lib_aarch64.sh /mnt/Packages/
 
 
-====== MIPS64EL ====== 
+====== MIPS64EL ======
 1. build dpkg for CentOS7
 download dpkg_1.18.25.tar.xz from internet.
 cd dpkg-1.18.25
@@ -27,15 +27,15 @@ pool/main/libg/libglvnd/libglvnd0_1.3.2-1~bpo10+2_mips64el.deb
 pool/main/libg/libglvnd/libglx0_1.3.2-1~bpo10+2_mips64el.deb
 pool/main/q/qtbase-opensource-src/libqt5concurrent5_5.11.3+dfsg1-1+deb10u4_mips64el.deb
 pool/main/q/qtbase-opensource-src/libqt5core5a_5.11.3+dfsg1-1+deb10u4_mips64el.deb
-pool/main/q/qtbase-opensource-src/libqt5dbus5_5.11.3+dfsg1-1+deb10u4_mips64el.deb 
-pool/main/q/qtbase-opensource-src/libqt5gui5_5.11.3+dfsg1-1+deb10u4_mips64el.deb 
+pool/main/q/qtbase-opensource-src/libqt5dbus5_5.11.3+dfsg1-1+deb10u4_mips64el.deb
+pool/main/q/qtbase-opensource-src/libqt5gui5_5.11.3+dfsg1-1+deb10u4_mips64el.deb
 pool/main/q/qtbase-opensource-src/libqt5network5_5.11.3+dfsg1-1+deb10u4_mips64el.deb
-pool/main/q/qtbase-opensource-src/libqt5opengl5_5.11.3+dfsg1-1+deb10u4_mips64el.deb 
+pool/main/q/qtbase-opensource-src/libqt5opengl5_5.11.3+dfsg1-1+deb10u4_mips64el.deb
 pool/main/q/qtbase-opensource-src/libqt5opengl5-dev_5.11.3+dfsg1-1+deb10u4_mips64el.deb
-pool/main/q/qtbase-opensource-src/libqt5widgets5_5.11.3+dfsg1-1+deb10u4_mips64el.deb 
-pool/main/q/qtbase-opensource-src/libqt5xml5_5.11.3+dfsg1-1+deb10u4_mips64el.deb  
-pool/main/q/qtbase-opensource-src/qt5-qmake_5.11.3+dfsg1-1+deb10u4_mips64el.deb    
-pool/main/q/qtbase-opensource-src/qtbase5-dev_5.11.3+dfsg1-1+deb10u4_mips64el.deb 
+pool/main/q/qtbase-opensource-src/libqt5widgets5_5.11.3+dfsg1-1+deb10u4_mips64el.deb
+pool/main/q/qtbase-opensource-src/libqt5xml5_5.11.3+dfsg1-1+deb10u4_mips64el.deb
+pool/main/q/qtbase-opensource-src/qt5-qmake_5.11.3+dfsg1-1+deb10u4_mips64el.deb
+pool/main/q/qtbase-opensource-src/qtbase5-dev_5.11.3+dfsg1-1+deb10u4_mips64el.deb
 pool/main/q/qtbase-opensource-src/qtbase5-dev-tools_5.11.3+dfsg1-1+deb10u4_mips64el.deb
 pool/main/q/qtbase-opensource-src/qtbase5-examples_5.11.3+dfsg1-1+deb10u4_mips64el.deb
 pool/main/q/qtbase-opensource-src/qtbase5-private-dev_5.11.3+dfsg1-1+deb10u4_mips64el.deb

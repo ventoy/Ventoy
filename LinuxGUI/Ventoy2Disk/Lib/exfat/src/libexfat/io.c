@@ -289,7 +289,7 @@ int exfat_close(struct exfat_dev* dev)
     		rc = -EIO;
     	}
     }
-	
+
 	free(dev);
 	return rc;
 }
@@ -337,7 +337,7 @@ off_t exfat_seek(struct exfat_dev* dev, off_t offset, int whence)
         {
             return -1;
         }
-        
+
         lseek(dev->fd, 512 * 2048 + offset, SEEK_SET);
         return offset;
     }
@@ -358,7 +358,7 @@ off_t exfat_seek(struct exfat_dev* dev, off_t offset, int whence)
     else
     {
         exfat_error("Invalid seek whence %d", whence);
-    	return lseek(dev->fd, offset, whence);        
+    	return lseek(dev->fd, offset, whence);
     }
 #endif
 }

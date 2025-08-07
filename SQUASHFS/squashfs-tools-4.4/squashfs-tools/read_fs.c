@@ -58,7 +58,7 @@ int read_block(int fd, long long start, long long *next, int expected,
 	unsigned short c_byte;
 	int res, compressed;
 	int outlen = expected ? expected : SQUASHFS_METADATA_SIZE;
-	
+
 	/* Read block size */
 	res = read_fs_bytes(fd, start, 2, &c_byte);
 	if(res == 0)
@@ -201,7 +201,7 @@ unsigned char *scan_inode_table(int fd, long long start, long long end,
 	*root_inode_size = bytes - (*root_inode_block + root_inode_offset);
 	bytes = *root_inode_block + root_inode_offset;
 	SQUASHFS_SWAP_DIR_INODE_HEADER(inode_table + bytes, &dir_inode->dir);
-	
+
 	if(dir_inode->base.inode_type == SQUASHFS_DIR_TYPE)
 		directory_start_block = dir_inode->dir.start_block;
 	else if(dir_inode->base.inode_type == SQUASHFS_LDIR_TYPE) {
@@ -290,10 +290,10 @@ unsigned char *scan_inode_table(int fd, long long start, long long end,
 			add_file(start, inode.file_size, file_bytes,
 				block_list, blocks, inode.fragment,
 				inode.offset, frag_bytes);
-				
+
 			cur_ptr += blocks * sizeof(unsigned int);
 			break;
-		}	
+		}
 		case SQUASHFS_LREG_TYPE: {
 			struct squashfs_lreg_inode_header inode;
 			int frag_bytes, blocks, i;
@@ -349,7 +349,7 @@ unsigned char *scan_inode_table(int fd, long long start, long long end,
 
 			cur_ptr += blocks * sizeof(unsigned int);
 			break;
-		}	
+		}
 		case SQUASHFS_SYMLINK_TYPE:
 		case SQUASHFS_LSYMLINK_TYPE: {
 			struct squashfs_symlink_inode_header inode;
@@ -383,7 +383,7 @@ unsigned char *scan_inode_table(int fd, long long start, long long end,
 			if(NO_INODE_BYTES(squashfs_dir_inode_header))
 				/* corrupted filesystem */
 				goto corrupted;
-				
+
 			SQUASHFS_SWAP_DIR_INODE_HEADER(cur_ptr, &dir_inode);
 
 			if(dir_inode.start_block < directory_start_block)
@@ -415,7 +415,7 @@ unsigned char *scan_inode_table(int fd, long long start, long long end,
 				if(NO_BYTES(sizeof(index)))
 					/* corrupted filesystem */
 					goto corrupted;
-			
+
 				SQUASHFS_SWAP_DIR_INDEX(cur_ptr, &index);
 
 				if(NO_BYTES(index.size + 1))
@@ -482,7 +482,7 @@ unsigned char *scan_inode_table(int fd, long long start, long long end,
 			goto corrupted;
 		}
 	}
-	
+
 	printf("Read existing filesystem, %d inodes scanned\n", files);
 	return inode_table;
 
@@ -559,7 +559,7 @@ struct compressor *read_super(int fd, struct squashfs_super_block *sBlk, char *s
 	 * been changed by the user specifying options on the command
 	 * line which need to be over-ridden).
 	 *
-	 * Compressor_extract_options is also used to ensure that 
+	 * Compressor_extract_options is also used to ensure that
 	 * we know how decompress a filesystem compressed with these
 	 * compression options.
 	 */
@@ -634,7 +634,7 @@ unsigned char *squashfs_readdir(int fd, int root_entries,
 	unsigned char *directory_table = NULL;
 	int byte, bytes = 0, dir_count;
 	long long start = sBlk->directory_table_start + directory_start_block,
-		last_start_block = start; 
+		last_start_block = start;
 
 	size += offset;
 	directory_table = malloc((size + SQUASHFS_METADATA_SIZE * 2 - 1) &
@@ -664,7 +664,7 @@ unsigned char *squashfs_readdir(int fd, int root_entries,
 		goto all_done;
 
 	bytes = offset;
- 	while(bytes < size) {			
+ 	while(bytes < size) {
 		SQUASHFS_SWAP_DIR_HEADER(directory_table + bytes, &dirh);
 
 		dir_count = dirh.count + 1;
@@ -940,7 +940,7 @@ long long read_filesystem(char *root_name, int fd, struct squashfs_super_block *
 			*inode_dir_start_block, *inode_dir_offset,
 			*inode_dir_file_size, last_directory_block, sBlk,
 			push_directory_entry);
-		if(directory_table == NULL) 
+		if(directory_table == NULL)
 			goto error;
 
 		root_inode_start -= start;

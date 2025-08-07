@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -71,7 +71,7 @@ STATIC EFI_MEMORY_DESCRIPTOR* GetMemDesc
 (
     OUT UINTN *pSize,
     OUT UINTN *pItemSize,
-    OUT UINTN *pDescCount    
+    OUT UINTN *pDescCount
 )
 {
     UINTN Size = 0;
@@ -136,7 +136,7 @@ EFI_STATUS FixWindowsMemhole(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdL
     EFI_MEMORY_DESCRIPTOR *Prev = NULL;
     EFI_MEMORY_DESCRIPTOR *Next = NULL;
     EFI_MEMORY_DESCRIPTOR *Curr = NULL;
-    
+
     (VOID)ImageHandle;
     (VOID)CmdLine;
 
@@ -173,7 +173,7 @@ EFI_STATUS FixWindowsMemhole(IN EFI_HANDLE    ImageHandle, IN CONST CHAR16 *CmdL
     }
 
     Printf("Fixup Windows mmap issue OK (%lu)\n", TotalMem);
-    
+
     return EFI_SUCCESS;
 }
 

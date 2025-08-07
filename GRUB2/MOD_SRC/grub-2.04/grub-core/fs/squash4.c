@@ -212,7 +212,7 @@ struct grub_fshelp_node
   struct grub_squash_data *data;
   struct grub_squash_inode ino;
   grub_size_t stsize;
-  struct 
+  struct
   {
     grub_disk_addr_t ino_chunk;
     grub_uint16_t ino_offset;
@@ -245,7 +245,7 @@ read_chunk (struct grub_squash_data *data, void *buf, grub_size_t len,
       csize = SQUASH_CHUNK_SIZE - offset;
       if (csize > len)
 	csize = len;
-  
+
       if (grub_le_to_cpu16 (d) & SQUASH_CHUNK_UNCOMPRESSED)
 	{
 	  grub_disk_addr_t a = chunk_start + 2 + offset;
@@ -258,7 +258,7 @@ read_chunk (struct grub_squash_data *data, void *buf, grub_size_t len,
       else
 	{
 	  char *tmp;
-	  grub_size_t bsize = grub_le_to_cpu16 (d) & ~SQUASH_CHUNK_FLAGS; 
+	  grub_size_t bsize = grub_le_to_cpu16 (d) & ~SQUASH_CHUNK_FLAGS;
 	  grub_disk_addr_t a = chunk_start + 2;
 	  tmp = grub_malloc (bsize);
 	  if (!tmp)
@@ -341,7 +341,7 @@ xz_decompress (char *inbuf, grub_size_t insize, grub_off_t off,
   while (len)
     {
       enum xz_ret xzret;
-      
+
       buf.out_pos = 0;
 
       xzret = xz_dec_run (data->xzdec, &buf);
@@ -381,7 +381,7 @@ xz_decompress (char *inbuf, grub_size_t insize, grub_off_t off,
 }
 
 int LZ4_uncompress_unknownOutputSize(const char *source, char *dest, int isize, int maxOutputSize);
-static grub_ssize_t lz4_decompress_wrap(char *inbuf, grub_size_t insize, grub_off_t off, 
+static grub_ssize_t lz4_decompress_wrap(char *inbuf, grub_size_t insize, grub_off_t off,
     char *outbuf, grub_size_t len, struct grub_squash_data *data)
 {
   char *udata = NULL;
@@ -400,7 +400,7 @@ static grub_ssize_t lz4_decompress_wrap(char *inbuf, grub_size_t insize, grub_of
   return len;
 }
 
-static grub_ssize_t zstd_decompress_wrap(char *inbuf, grub_size_t insize, grub_off_t off, 
+static grub_ssize_t zstd_decompress_wrap(char *inbuf, grub_size_t insize, grub_off_t off,
     char *outbuf, grub_size_t len, struct grub_squash_data *data)
 {
   char *udata = NULL;
@@ -411,11 +411,11 @@ static grub_ssize_t zstd_decompress_wrap(char *inbuf, grub_size_t insize, grub_o
   udata = grub_malloc (usize);
   if (!udata)
     return -1;
-  
-  ZSTD_decompress(udata, usize, inbuf, insize);      
+
+  ZSTD_decompress(udata, usize, inbuf, insize);
   grub_memcpy(outbuf, udata + off, len);
   grub_free(udata);
-  
+
   return len;
 }
 
@@ -440,9 +440,9 @@ squash_mount (grub_disk_t disk)
       return NULL;
     }
 
-  err = grub_disk_read (disk, 
+  err = grub_disk_read (disk,
 			grub_le_to_cpu64 (sb.unk1offset)
-			>> GRUB_DISK_SECTOR_BITS, 
+			>> GRUB_DISK_SECTOR_BITS,
 			grub_le_to_cpu64 (sb.unk1offset)
 			& (GRUB_DISK_SECTOR_SIZE - 1), sizeof (frag), &frag);
   if (grub_errno == GRUB_ERR_OUT_OF_RANGE)
@@ -495,7 +495,7 @@ squash_mount (grub_disk_t disk)
     }
 
   data->blksz = grub_le_to_cpu32 (data->sb.block_size);
-  for (data->log2_blksz = 0; 
+  for (data->log2_blksz = 0;
        (1U << data->log2_blksz) < data->blksz;
        data->log2_blksz++);
 
@@ -668,7 +668,7 @@ make_root_node (struct grub_squash_data *data, struct grub_fshelp_node *root)
   root->stack[0].ino_chunk = grub_le_to_cpu32 (data->sb.root_ino_chunk);
   root->stack[0].ino_offset = grub_cpu_to_le16 (data->sb.root_ino_offset);
  return read_chunk (data, &root->ino, sizeof (root->ino),
-		    grub_le_to_cpu64 (data->sb.inodeoffset) 
+		    grub_le_to_cpu64 (data->sb.inodeoffset)
 		    + root->stack[0].ino_chunk,
 		    root->stack[0].ino_offset);
 }
@@ -790,7 +790,7 @@ grub_squash_open (struct grub_file *file, const char *name)
 }
 
 static grub_ssize_t
-direct_read (struct grub_squash_data *data, 
+direct_read (struct grub_squash_data *data,
 	     struct grub_squash_cache_inode *ino,
 	     grub_off_t off, char *buf, grub_size_t len)
 {
@@ -907,7 +907,7 @@ direct_read (struct grub_squash_data *data,
 	  grub_free (block);
 	}
       else
-	err = grub_disk_read (data->disk, 
+	err = grub_disk_read (data->disk,
 			      (ino->cumulated_block_sizes[i] + a + boff)
 			      >> GRUB_DISK_SECTOR_BITS,
 			      (ino->cumulated_block_sizes[i] + a + boff)
@@ -971,7 +971,7 @@ grub_squash_read (grub_file_t file, char *buf, grub_size_t len)
     }
   else
     off -= direct_len;
- 
+
   err = read_chunk (data, &frag, sizeof (frag),
 		    data->fragments, sizeof (frag) * fragment);
   if (err)
@@ -982,7 +982,7 @@ grub_squash_read (grub_file_t file, char *buf, grub_size_t len)
     b = grub_le_to_cpu32 (ino->ino.long_file.offset) + off;
   else
     b = grub_le_to_cpu32 (ino->ino.file.offset) + off;
-  
+
   /* FIXME: cache uncompressed chunks.  */
   if (compressed)
     {
@@ -1038,7 +1038,7 @@ grub_squash_mtime (grub_device_t dev, grub_int32_t *tm)
   *tm = grub_le_to_cpu32 (data->sb.creation_time);
   squash_unmount (data);
   return GRUB_ERR_NONE;
-} 
+}
 
 static struct grub_fs grub_squash_fs =
   {

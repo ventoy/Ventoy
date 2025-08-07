@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -27,7 +27,7 @@
 #include "biso_joliet.h"
 #include "biso_dump.h"
 
-CONST STATIC CHAR *g_aszErrMsg[] = 
+CONST STATIC CHAR *g_aszErrMsg[] =
 {
     "Success",                   /* BISO_SUCCESS */
     "General failed",            /* BISO_ERR_FAILED */
@@ -79,20 +79,20 @@ VOID BISO_GetNow(OUT BISO_DATE_S *pstTM)
     {
         return;
     }
-    
+
     time(&ulTime);
-    pstGMTM = gmtime(&ulTime); 
+    pstGMTM = gmtime(&ulTime);
     iGMTHour = pstGMTM->tm_hour;
 
     pstLocalTM = localtime(&ulTime);
     iLocalHour = pstLocalTM->tm_hour;
 
-    iTimeZone = iLocalHour - iGMTHour;     
-    if (iTimeZone < -12) 
-    {  
+    iTimeZone = iLocalHour - iGMTHour;
+    if (iTimeZone < -12)
+    {
         iTimeZone += 24;
-    } 
-    else if (iTimeZone > 12) 
+    }
+    else if (iTimeZone > 12)
     {
         iTimeZone -= 24;
     }
@@ -123,7 +123,7 @@ VOID BISO_TimeConv(IN ULONG ulTime, OUT BISO_DATE_S *pstTM)
     pstTM->ucSecond  = pstLocalTM->tm_sec;
     pstTM->usMillSec = 0;
     pstTM->cZone     = (CHAR)BISO_UTIL_GetTimeZone();
-    
+
     return;
 }
 
@@ -258,7 +258,7 @@ ULONG BISO_OpenImageWithSVD(IN CONST CHAR *pcFileName, OUT BISO_READ_S *pstRead)
 
 ULONG BISO_GetVolumeSummary
 (
-    IN CONST BISO_READ_S *pstRead, 
+    IN CONST BISO_READ_S *pstRead,
     OUT BISO_VOLUME_SUMMARY_S *pstSummary
 )
 {
@@ -299,14 +299,14 @@ ULONG BISO_GetVolumeSummary
 
 ULONG BISO_GetDate
 (
-    IN CONST BISO_READ_S *pstRead, 
-    IN  BISO_DATE_TYPE_E enType, 
+    IN CONST BISO_READ_S *pstRead,
+    IN  BISO_DATE_TYPE_E enType,
     OUT BISO_DATE_S *pstDate
 )
 {
     CONST CHAR *pcDate = NULL;
     BISO_PVD_S *pstPVD = NULL;
-    
+
     if ((NULL == pstRead) || (enType >= BISO_DATE_TYPE_BUTT) || (NULL == pstDate))
     {
         BISO_DIAG("Invalid param %p %d %p.", pstRead, enType, pstDate);
@@ -349,25 +349,25 @@ ULONG BISO_GetDate
 
 /* 获取Rock Ridge扩展的Version 0: 没有使用Rock Ridge扩展  具体版本号: 一般都是1 */
 UINT BISO_GetRockRidgeVer(IN CONST BISO_READ_S *pstRead)
-{  
+{
     if ((NULL == pstRead) || (BOOL_TRUE != BISO_IS_READ_HANDLE_VALID(pstRead)))
     {
         return 0;
     }
 
-    return ((BISO_PARSER_S *)pstRead)->ucRRIPVersion;    
+    return ((BISO_PARSER_S *)pstRead)->ucRRIPVersion;
 }
 
 /* 获取Joliet扩展的Level */
 UINT BISO_GetJolietLevel(IN CONST BISO_READ_S *pstRead)
-{    
+{
     BISO_PARSER_S *pstParser = NULL;
 
     if ((NULL == pstRead) || (BOOL_TRUE != BISO_IS_READ_HANDLE_VALID(pstRead)))
     {
         return 0;
     }
-    
+
     pstParser = (BISO_PARSER_S *)pstRead;
     if (NULL == pstParser->pstSVD)
     {
@@ -379,7 +379,7 @@ UINT BISO_GetJolietLevel(IN CONST BISO_READ_S *pstRead)
 BISO_HANDLE BISO_GetRoot(IN CONST BISO_READ_S *pstRead)
 {
     BISO_PARSER_S *pstParser = (BISO_PARSER_S *)pstRead;
-    
+
     if (NULL == pstParser)
     {
         return NULL;
@@ -389,7 +389,7 @@ BISO_HANDLE BISO_GetRoot(IN CONST BISO_READ_S *pstRead)
 
 ULONG BISO_GetFileNodeByHdl
 (
-    IN  BISO_HANDLE       hFileHdl, 
+    IN  BISO_HANDLE       hFileHdl,
     OUT BISO_FILE_NODE_S *pstFileNode
 )
 {
@@ -426,7 +426,7 @@ ULONG BISO_GetFileNodeByHdl
 ULONG BISO_GetFileNodeByName
 (
     IN CONST BISO_READ_S *pstRead,
-    IN CONST CHAR *pcFullPath, 
+    IN CONST CHAR *pcFullPath,
     IN UCHAR ucFollowLink,
     OUT BISO_FILE_NODE_S *pstFileNode
 )
@@ -458,7 +458,7 @@ ULONG BISO_GetFileNodeByName
     if ((0 == pcFullPath[0]) || ((1 == strlen(pcFullPath)) && ('/' == pcFullPath[0])))
     {
         /* 出参赋值 */
-        memset(pstFileNode, 0, sizeof(BISO_FILE_NODE_S));        
+        memset(pstFileNode, 0, sizeof(BISO_FILE_NODE_S));
         BISO_SET_FLAG(pstFileNode, pstCurDir);
         scnprintf(pstFileNode->szName, sizeof(pstFileNode->szName), "%s", pstCurDir->szName);
         pstFileNode->hParent = 0;
@@ -491,7 +491,7 @@ ULONG BISO_GetFileNodeByName
     if (pstRootDir)
     {
         pstCurDir = pstRootDir->pstChild;
-    } 
+    }
     for (i = 0; (i < uiDirNum) && (NULL != pstRootDir) && (NULL != pstCurDir); i++)
     {
         usPos = auiDirPos[i] >> 16;
@@ -555,12 +555,12 @@ FOUND:
     else
     {
         /* 出参赋值 */
-        memset(pstFileNode, 0, sizeof(BISO_FILE_NODE_S));        
+        memset(pstFileNode, 0, sizeof(BISO_FILE_NODE_S));
         BISO_SET_FLAG(pstFileNode, pstCurDir);
         scnprintf(pstFileNode->szName, sizeof(pstFileNode->szName), "%s", pstCurDir->szName);
         if (BOOL_TRUE == BISO_DIR_TREE_IS_SYMLINK(pstCurDir))
         {
-            scnprintf(pstFileNode->szLinkTgt, sizeof(pstFileNode->szLinkTgt), "%s", 
+            scnprintf(pstFileNode->szLinkTgt, sizeof(pstFileNode->szLinkTgt), "%s",
                       pstCurDir->pstPosixInfo->pcLinkSrc);
         }
         pstFileNode->ui64FileSize = pstCurDir->uiSize;
@@ -606,7 +606,7 @@ ULONG BISO_GetFileNodeByExtent
             BISO_QUEUE_Push(pstQueue, pstCurDir);
             pstCurDir = pstCurDir->pstNext;
         }
-        
+
         pstFileList = pstDirTree->pstFileList;
         pstCurDir = pstFileList;
         while (pstCurDir)
@@ -631,12 +631,12 @@ ULONG BISO_GetFileNodeByExtent
     else
     {
         /* 出参赋值 */
-        memset(pstFileNode, 0, sizeof(BISO_FILE_NODE_S));        
+        memset(pstFileNode, 0, sizeof(BISO_FILE_NODE_S));
         BISO_SET_FLAG(pstFileNode, pstCurDir);
         scnprintf(pstFileNode->szName, sizeof(pstFileNode->szName), "%s", pstCurDir->szName);
         if (BOOL_TRUE == BISO_DIR_TREE_IS_SYMLINK(pstCurDir))
         {
-            scnprintf(pstFileNode->szLinkTgt, sizeof(pstFileNode->szLinkTgt), "%s", 
+            scnprintf(pstFileNode->szLinkTgt, sizeof(pstFileNode->szLinkTgt), "%s",
                       pstCurDir->pstPosixInfo->pcLinkSrc);
         }
         pstFileNode->ui64FileSize = pstCurDir->uiSize;
@@ -683,7 +683,7 @@ ULONG BISO_GetSVDFileNodeByExtent
             BISO_QUEUE_Push(pstQueue, pstCurDir);
             pstCurDir = pstCurDir->pstNext;
         }
-        
+
         pstFileList = pstDirTree->pstFileList;
         pstCurDir = pstFileList;
         while (pstCurDir)
@@ -708,7 +708,7 @@ ULONG BISO_GetSVDFileNodeByExtent
     else
     {
         /* 出参赋值 */
-        memset(pstFileNode, 0, sizeof(BISO_SVD_FILE_NODE_S));        
+        memset(pstFileNode, 0, sizeof(BISO_SVD_FILE_NODE_S));
         pstFileNode->ui64FileSize = pstCurDir->uiSize;
         pstFileNode->ui64DirRecOffet = pstCurDir->ui64FileRecordOffset;
         pstFileNode->ui64Seek = (UINT64)((UINT64)pstCurDir->uiExtent * BISO_BLOCK_SIZE);
@@ -718,16 +718,16 @@ ULONG BISO_GetSVDFileNodeByExtent
 
 ULONG BISO_GetFileTree
 (
-    IN  BISO_HANDLE  hTopDir, 
+    IN  BISO_HANDLE  hTopDir,
     IN  UINT         uiFlag,
     OUT BISO_HANDLE *phFileTree,
     OUT UINT        *puiNodeNum
 )
-{    
+{
     BISO_DIR_STAT_S *pstDirStat = NULL;
     BISO_DIR_TREE_S *pstCurNode = NULL;
     BISO_DIR_TREE_S *pstDirTree = (BISO_DIR_TREE_S *)hTopDir;
-    
+
     if ((NULL == pstDirTree) || (NULL == phFileTree) || (NULL == puiNodeNum))
     {
         return BISO_ERR_NULL_PTR;
@@ -746,7 +746,7 @@ ULONG BISO_GetFileTree
         case BISO_TREE_FLAG_CUR:
         {
             pstCurNode = pstDirTree->pstChild;
-            
+
             while (NULL != pstCurNode)
             {
                 *phFileTree++ = (BISO_HANDLE)pstCurNode;
@@ -759,7 +759,7 @@ ULONG BISO_GetFileTree
                 *phFileTree++ = (BISO_HANDLE)pstCurNode;
                 pstCurNode = pstCurNode->pstNext;
             }
-            
+
             break;
         }
         case BISO_TREE_FLAG_DFS:
@@ -781,12 +781,12 @@ ULONG BISO_GetFileTree
 
 ULONG BISO_GetDirStat
 (
-    IN  BISO_HANDLE      hTopDir, 
+    IN  BISO_HANDLE      hTopDir,
     OUT BISO_DIR_STAT_S *pstDirStat
 )
 {
     BISO_DIR_TREE_S *pstDirTree = NULL;
-    
+
     if ((NULL == hTopDir) || (NULL == pstDirStat))
     {
         return BISO_ERR_NULL_PTR;
@@ -797,7 +797,7 @@ ULONG BISO_GetDirStat
     {
         return BISO_ERR_INVALID_PARAM;
     }
-    
+
     memcpy(pstDirStat, pstDirTree->pstDirStat, sizeof(BISO_DIR_STAT_S));
     return BISO_SUCCESS;
 }
@@ -819,24 +819,24 @@ VOID BISO_Fill733(IN UINT uiData, OUT VOID *pBuf)
 #else
     puiData[0] = uiSwap;
     puiData[1] = uiData;
-#endif    
+#endif
 }
 
 UINT BISO_Get733(IN CONST VOID *pBuf)
 {
     UINT *puiData = (UINT *)pBuf;
-    
+
 #if (__BYTE_ORDER == __LITTLE_ENDIAN)
     return puiData[0];
 #else
     return puiData[1];
-#endif  
+#endif
 }
 
 UINT BISO_GetFileOccupySize(IN UINT uiRawSize)
 {
     UINT uiAlign = uiRawSize % BISO_SECTOR_SIZE;
-    
+
     if (0 == uiAlign)
     {
         return uiRawSize;

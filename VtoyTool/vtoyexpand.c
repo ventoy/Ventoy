@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -70,7 +70,7 @@ static void vlog(const char *fmt, ...)
         n += vsnprintf(log, sizeof(log) - 1, fmt, arg);
         va_end(arg);
 
-        fwrite(log, 1, n, fp);        
+        fwrite(log, 1, n, fp);
         fclose(fp);
     }
 }
@@ -90,7 +90,7 @@ static int copy_file(const char *file1, const char *file2)
         vlog("Failed to read file <%s>\n", file1);
         goto end;
     }
-    
+
     fp2 = fopen(file2, "wb+");
     if (!fp2)
     {
@@ -115,7 +115,7 @@ static int copy_file(const char *file1, const char *file2)
         vlog("Failed to read <%s> %d %d\n", file1, n, size);
         goto end;
     }
-    
+
     n = fwrite(buf, 1, size, fp2);
     if (n != size)
     {
@@ -167,7 +167,7 @@ static int vtoy_is_possible_blkdev(const char *name)
     {
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -184,7 +184,7 @@ static ulonglong vtoy_get_disk_size_in_byte(const char *disk)
     if (access(diskpath, F_OK) >= 0)
     {
         vlog("get disk size from sysfs for %s\n", disk);
-        
+
         fd = open(diskpath, O_RDONLY | O_BINARY);
         if (fd >= 0)
         {
@@ -233,7 +233,7 @@ static int get_disk_num(void)
     {
         return 0;
     }
-    
+
     while ((p = readdir(dir)) != NULL)
     {
         n++;
@@ -248,7 +248,7 @@ static int is_usb_disk(const char *diskname)
     int rc;
     char dstpath[1024] = { 0 };
     char syspath[1024] = { 0 };
-    
+
     snprintf(syspath, sizeof(syspath), "/sys/block/%s", diskname);
     rc = readlink(syspath, dstpath, sizeof(dstpath) - 1);
     if (rc > 0 && strstr(dstpath, "/usb"))
@@ -296,13 +296,13 @@ static int get_all_disk(void)
             vlog("disk %s is filted by name\n", p->d_name);
             continue;
         }
-    
+
         cursize = vtoy_get_disk_size_in_byte(p->d_name);
 
         node = g_disk_list + g_disk_num;
         g_disk_num++;
 
-        
+
         snprintf(node->name, sizeof(node->name), p->d_name);
         node->size = cursize;
         node->isUSB = is_usb_disk(p->d_name);
@@ -338,7 +338,7 @@ static int get_all_disk(void)
             node->size / 1024 / 1024 / 1024, node->size, node->isUSB);
     }
     vlog("============ DISK DUMP END ===========\n");
-    
+
     return 0;
 }
 
@@ -410,7 +410,7 @@ static int expand_var(const char *var, char *value, int len)
     {
         uiDst = strtoul(var + 22, NULL, 10);
         uiDst = uiDst * (1024ULL * 1024ULL * 1024ULL);
-    
+
         for (i = 0; i < g_disk_num; i++)
         {
             node = g_disk_list + i;
@@ -418,7 +418,7 @@ static int expand_var(const char *var, char *value, int len)
             {
                 continue;
             }
-        
+
             if (node->size > uiDst)
             {
                 delta = node->size - uiDst;
@@ -427,7 +427,7 @@ static int expand_var(const char *var, char *value, int len)
             {
                 delta = uiDst - node->size;
             }
-            
+
             if (delta < maxdelta)
             {
                 index = i;
@@ -481,10 +481,10 @@ int vtoyexpand_main(int argc, char **argv)
     {
         g_vtoy_disk_name += 5;
     }
-    vlog("<%s> <%s> <%s>\n", argv[1], argv[2], g_vtoy_disk_name);    
+    vlog("<%s> <%s> <%s>\n", argv[1], argv[2], g_vtoy_disk_name);
 
     get_all_disk();
-    
+
     fp = fopen(argv[1], "r");
     if (!fp)
     {
@@ -502,7 +502,7 @@ int vtoyexpand_main(int argc, char **argv)
 
     memset(line, 0, sizeof(line));
     memset(value, 0, sizeof(value));
-    
+
     while (fgets(line, sizeof(line), fp))
     {
         start = strstr(line, "$$VT_");
@@ -519,7 +519,7 @@ int vtoyexpand_main(int argc, char **argv)
             *end = 0;
             expand_var(start + 2, value, sizeof(value));
             fprintf(fout, "%s", value);
-            
+
             fprintf(fout, "%s", end + 2);
 
             memset(value, 0, sizeof(value));
@@ -531,7 +531,7 @@ int vtoyexpand_main(int argc, char **argv)
 
         line[0] = line[4095] = 0;
     }
-    
+
     fclose(fp);
     fclose(fout);
 
@@ -540,7 +540,7 @@ int vtoyexpand_main(int argc, char **argv)
 
     vlog("Copy file <%s> --> <%s>\n", TMP_FILE, argv[1]);
     copy_file(TMP_FILE, argv[1]);
-    
+
     return 0;
 }
 

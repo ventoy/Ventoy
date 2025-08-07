@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -61,7 +61,7 @@ void ventoy_syslog_printf(const char *Fmt, ...)
     time_t stamp;
     struct tm ttm;
     FILE *fp;
-    
+
     time(&stamp);
     localtime_r(&stamp, &ttm);
 
@@ -83,14 +83,14 @@ void ventoy_syslog_printf(const char *Fmt, ...)
 
     if (fp)
     {
-        fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
+        fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s",
 			ttm.tm_year, ttm.tm_mon + 1, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            log);
         fclose(fp);
 
         #ifdef VENTOY_SIM
-        printf("[%04u/%02u/%02u %02u:%02u:%02u] %s", 
+        printf("[%04u/%02u/%02u %02u:%02u:%02u] %s",
 			ttm.tm_year, ttm.tm_mon + 1, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            log);
@@ -106,7 +106,7 @@ void ventoy_syslog(int level, const char *Fmt, ...)
     time_t stamp;
     struct tm ttm;
     FILE *fp;
-    
+
     if (level > g_ventoy_log_level)
     {
         return;
@@ -131,14 +131,14 @@ void ventoy_syslog(int level, const char *Fmt, ...)
 #endif
     if (fp)
     {
-        fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s", 
+        fprintf(fp, "[%04u/%02u/%02u %02u:%02u:%02u] %s",
            ttm.tm_year + 1900, ttm.tm_mon + 1, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            log);
         fclose(fp);
 
         #ifdef VENTOY_SIM
-        printf("[%04u/%02u/%02u %02u:%02u:%02u] %s", 
+        printf("[%04u/%02u/%02u %02u:%02u:%02u] %s",
 			ttm.tm_year + 1900, ttm.tm_mon + 1, ttm.tm_mday,
            ttm.tm_hour, ttm.tm_min, ttm.tm_sec,
            log);

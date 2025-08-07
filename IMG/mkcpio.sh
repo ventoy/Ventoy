@@ -10,7 +10,7 @@ fi
 
 ############### cpio ############
 chmod -R 777 cpio
-rm -f ventoy.cpio ventoy_x86.cpio ventoy_arm64.cpio ventoy_mips64.cpio 
+rm -f ventoy.cpio ventoy_x86.cpio ventoy_arm64.cpio ventoy_mips64.cpio
 
 cp -a cpio	cpio_tmp
 

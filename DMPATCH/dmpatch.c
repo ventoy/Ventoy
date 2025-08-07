@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -70,7 +70,7 @@ static set_memory_attr_pf set_mem_rw = NULL;
 static kprobe_reg_pf reg_kprobe = NULL;
 static kprobe_unreg_pf unreg_kprobe = NULL;
 
-static volatile ko_param g_ko_param = 
+static volatile ko_param g_ko_param =
 {
     { magic_sig },
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -84,7 +84,7 @@ static volatile ko_param g_ko_param =
 #define PATCH_OP_POS2    1
 #define CODE_MATCH2(code, i) \
     (code[i] == 0x0C && code[i + 1] == 0x80 && code[i + 2] == 0x89 && code[i + 3] == 0xC6)
-    
+
 #define PATCH_OP_POS3    4
 #define CODE_MATCH3(code, i) \
     (code[i] == 0x44 && code[i + 1] == 0x89 && code[i + 2] == 0xe8 && code[i + 3] == 0x0c && code[i + 4] == 0x80)
@@ -190,23 +190,23 @@ static void notrace dmpatch_restore_code(int bytes, unsigned char *opCode, unsig
         set_mem_rw(align, 1);
         if (bytes == 1)
         {
-            *opCode = (unsigned char)code;            
+            *opCode = (unsigned char)code;
         }
         else
         {
             *(unsigned int *)opCode = code;
         }
-        set_mem_ro(align, 1);        
+        set_mem_ro(align, 1);
     }
 }
 
 static int notrace dmpatch_replace_code
 (
     int style,
-    unsigned long addr, 
-    unsigned long size, 
-    int expect, 
-    const char *desc, 
+    unsigned long addr,
+    unsigned long size,
+    int expect,
+    const char *desc,
     unsigned char **patch
 )
 {
@@ -277,7 +277,7 @@ static unsigned long notrace dmpatch_find_call_offset(unsigned long addr, unsign
     unsigned char aucOffset[8] = { 0, 0, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF };
 
     opCode = (unsigned char *)addr;
-    
+
     for (i = 0; i + 4 < size; i++)
     {
         if (opCode[i] == 0xE8)
@@ -328,7 +328,7 @@ static unsigned int notrace dmpatch_patch_claim_ptr(void)
             vdebug("Get addr: 0x%lx %lu file_open 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_file_open_addr);
             offset1 = dmpatch_find_call_offset(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.bdev_file_open_addr);
             if (offset1 == 0)
-            {            
+            {
                 vdebug("call bdev_file_open_addr Not found\n");
                 return 1;
             }
@@ -337,7 +337,7 @@ static unsigned int notrace dmpatch_patch_claim_ptr(void)
     else
     {
         vdebug("Get addr: 0x%lx %lu 0x%lx\n", g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.blkdev_get_addr);
-        vdebug("Put addr: 0x%lx %lu 0x%lx\n", g_ko_param.sym_put_addr, g_ko_param.sym_put_size, g_ko_param.blkdev_put_addr);        
+        vdebug("Put addr: 0x%lx %lu 0x%lx\n", g_ko_param.sym_put_addr, g_ko_param.sym_put_size, g_ko_param.blkdev_put_addr);
 
         offset1 = dmpatch_find_call_offset(g_ko_param.sym_get_addr, g_ko_param.sym_get_size, g_ko_param.blkdev_get_addr);
         offset2 = dmpatch_find_call_offset(g_ko_param.sym_put_addr, g_ko_param.sym_put_size, g_ko_param.blkdev_put_addr);
@@ -348,11 +348,11 @@ static unsigned int notrace dmpatch_patch_claim_ptr(void)
         }
     }
 
-    
-    vdebug("call addr1:0x%lx  call addr2:0x%lx\n", 
-        g_ko_param.sym_get_addr + offset1, 
+
+    vdebug("call addr1:0x%lx  call addr2:0x%lx\n",
+        g_ko_param.sym_get_addr + offset1,
         g_ko_param.sym_put_addr + offset2);
-    
+
     opCode = (unsigned char *)g_ko_param.sym_get_addr;
     for (i = offset1 - 1, t = 0; (i > 0) && (t < 24); i--, t++)
     {
@@ -372,15 +372,15 @@ static unsigned int notrace dmpatch_patch_claim_ptr(void)
         return 1;
     }
 
-    
+
     align = (unsigned long)g_get_patch[0] / g_ko_param.pgsize * g_ko_param.pgsize;
     set_mem_rw(align, 1);
     *(unsigned int *)(g_get_patch[0]) = 0;
-    set_mem_ro(align, 1);  
+    set_mem_ro(align, 1);
 
 
     if (offset2 > 0)
-    {        
+    {
         opCode = (unsigned char *)g_ko_param.sym_put_addr;
         for (i = offset2 - 1, t = 0; (i > 0) && (t < 24); i--, t++)
         {
@@ -391,21 +391,21 @@ static unsigned int notrace dmpatch_patch_claim_ptr(void)
                 {
                     vdebug("claim_ptr found at put addr 0x%lx\n", g_ko_param.sym_put_addr + i + 3);
                     g_put_patch[0] = opCode + i + 3;
-                    break;                
+                    break;
                 }
             }
-        }    
+        }
 
         if (g_put_patch[0] == 0)
         {
             vdebug("Claim_ptr not found in put\n");
             return 1;
         }
-        
+
         align = (unsigned long)g_put_patch[0] / g_ko_param.pgsize * g_ko_param.pgsize;
         set_mem_rw(align, 1);
         *(unsigned int *)(g_put_patch[0]) = 0;
-        set_mem_ro(align, 1);   
+        set_mem_ro(align, 1);
     }
 
     return 0;
@@ -477,7 +477,7 @@ static int notrace dmpatch_process(unsigned long a, unsigned long b, unsigned lo
     g_ko_param.kv_major = a;
     g_ko_param.kv_minor = b;
     g_ko_param.kv_subminor = c;
-    
+
     if (dmpatch_kv_above(6, 5, 0)) /* >= kernel 6.5 */
     {
         vdebug("new interface patch dm_get_table_device...\n");
@@ -512,7 +512,7 @@ static int notrace dmpatch_process(unsigned long a, unsigned long b, unsigned lo
     }
     else
     {
-        r = dmpatch_replace_code(1, g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device", g_put_patch);        
+        r = dmpatch_replace_code(1, g_ko_param.sym_put_addr, g_ko_param.sym_put_size, 1, "dm_put_table_device", g_put_patch);
         if (r)
         {
             rc = -EFAULT;
@@ -538,24 +538,24 @@ static int notrace dmpatch_init(void)
 {
     int rc = 0;
     u64 msr = 0;
-    
+
     if (g_ko_param.ibt == 0x8888)
     {
         msr = dmpatch_ibt_save();
     }
-    
-    kprintf = (printk_pf)(g_ko_param.printk_addr); 
 
-    vdebug("dmpatch_init start pagesize=%lu kernel=%lu.%lu.%lu ...\n", 
+    kprintf = (printk_pf)(g_ko_param.printk_addr);
+
+    vdebug("dmpatch_init start pagesize=%lu kernel=%lu.%lu.%lu ...\n",
         g_ko_param.pgsize, g_ko_param.kv_major, g_ko_param.kv_minor, g_ko_param.kv_subminor);
-    
+
     if (g_ko_param.struct_size != sizeof(ko_param))
     {
         vdebug("Invalid struct size %d %d\n", (int)g_ko_param.struct_size, (int)sizeof(ko_param));
         return -EINVAL;
     }
-    
-    if (g_ko_param.sym_get_addr == 0 || g_ko_param.sym_put_addr == 0 || 
+
+    if (g_ko_param.sym_get_addr == 0 || g_ko_param.sym_put_addr == 0 ||
         g_ko_param.ro_addr == 0 || g_ko_param.rw_addr == 0)
     {
         return -EINVAL;
@@ -606,7 +606,7 @@ static void notrace dmpatch_exit(void)
         }
     }
     else
-    {        
+    {
         for (i = 0; i < MAX_PATCH; i++)
         {
             dmpatch_restore_code(1, g_get_patch[i], 0x80);

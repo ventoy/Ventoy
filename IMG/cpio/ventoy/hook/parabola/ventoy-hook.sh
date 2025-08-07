@@ -1,20 +1,20 @@
 #!/ventoy/busybox/sh
 #************************************************************************************
 # Copyright (c) 2020, longpanda <admin@ventoy.net>
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation; either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 #************************************************************************************
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
@@ -22,11 +22,11 @@
 if $GREP -q '^"$mount_handler"' /init; then
     echo 'use mount_handler ...' >> $VTLOG
     $SED "/^\"\$mount_handler\"/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/parabola/ventoy-disk.sh \"\$parabolaisodevice\"" -i /init
-    
+
     if [ -f /hooks/parabolaiso ]; then
         $SED  '/while ! poll_device "${dev}"/a\    if /ventoy/busybox/sh /ventoy/hook/parabola/ventoy-timeout.sh ${dev}; then break; fi'   -i /hooks/parabolaiso
     fi
-    
+
 else
     # some archlinux initramfs doesn't contain device-mapper udev rules file
     ARCH_UDEV_DIR=$(ventoy_get_udev_conf_dir)

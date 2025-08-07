@@ -382,7 +382,7 @@ test_parse (char **args, int *argn, int argc)
 	      (*argn) += 2;
 	      continue;
 	    }
-      
+
 	  if (grub_strcmp (args[*argn], "-D") == 0)
 	    {
 	      g_test_case_insensitive = 1;
@@ -400,7 +400,7 @@ test_parse (char **args, int *argn, int argc)
 	      (*argn) += 2;
 	      continue;
 	    }
-      
+
 	  if (grub_strcmp (args[*argn], "-E") == 0)
 	    {
 	      g_test_case_insensitive = 1;

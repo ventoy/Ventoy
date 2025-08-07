@@ -49,7 +49,7 @@
 #define GRUB_UTF16_LOWER_SURROGATE(code) \
   (0xDC00 | (((code) - GRUB_UCS2_LIMIT) & 0x3ff))
 
-/* Process one character from UTF8 sequence. 
+/* Process one character from UTF8 sequence.
    At beginning set *code = 0, *count = 0. Returns 0 on failure and
    1 on success. *count holds the number of trailing bytes.  */
 static inline int
@@ -317,7 +317,7 @@ grub_encode_utf8_character (grub_uint8_t *dest, grub_uint8_t *destend,
 			    grub_uint32_t code);
 
 const grub_uint32_t *
-grub_unicode_get_comb_start (const grub_uint32_t *str, 
+grub_unicode_get_comb_start (const grub_uint32_t *str,
 			     const grub_uint32_t *cur);
 
 int

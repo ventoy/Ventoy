@@ -7,17 +7,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 
 
 /*
@@ -28,14 +28,14 @@
  * 详细的说明请参考标准文档(IEEE P1281、IEEE P1282)
  * SUSP定义的每一条Entry都是不定长的，其长度在结构里面描述
  */
- 
+
 #ifndef __BISO_ROCKRIDGE_H__
 #define __BISO_ROCKRIDGE_H__
 
 #ifndef S_IFLNK
-#define  S_IFLNK 0120000 
+#define  S_IFLNK 0120000
 #define  S_IFREG 0100000
-#define  S_IFDIR 0040000 
+#define  S_IFDIR 0040000
 #endif
 
 typedef VOID (* BISO_DUMP_ENTRY_PF)(IN VOID *pEntry);
@@ -77,10 +77,10 @@ typedef struct tagBISO_SUSP_ENTRY
     UCHAR ucVersion;
 
     /* 数据，具体长度有ucEntryLen确定 */
-    UCHAR aucData[1];        
+    UCHAR aucData[1];
 }BISO_SUSP_ENTRY_S;
 
-/* 
+/*
  * Continuation Area(可选)
  * !!!!!!!!!!!!!!!!!
  * !!!!!!!!!!!!!!!!!
@@ -123,7 +123,7 @@ typedef struct tagBISO_SUSP_ENTRY_PD
     UCHAR ucVersion;
 
     /* 数据，具体长度有ucEntryLen确定 */
-    UCHAR aucData[1];     
+    UCHAR aucData[1];
 }BISO_SUSP_ENTRY_PD_S;
 
 /*
@@ -150,8 +150,8 @@ typedef struct tagBISO_SUSP_ENTRY_SP
     UCHAR ucVersion;
 
     /* 检查字段 */
-    UCHAR ucChkBE;     
-    UCHAR ucChkEF;     
+    UCHAR ucChkBE;
+    UCHAR ucChkEF;
     UCHAR ucSkipLen;
 }BISO_SUSP_ENTRY_SP_S;
 
@@ -249,10 +249,10 @@ typedef struct tagBISO_ROCK_RIDGE_ENTRY_PX
     CHAR  cSignature2;  /* 必须为 'X' */
 
     /* 长度，包括控制字, 必须为44
-     * !!!!!!!!!!!!!!!!!!!!!!!!!! 
-     * !!!!!!!!!!!!!!!!!!!!!!!!!! 
-     * !!!!!!!!!!!!!!!!!!!!!!!!!! 
-     * !!!!!!!!!!!!!!!!!!!!!!!!!! 
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!
      * IEEE P1282 V1.10之前是36不是44
      */
     UCHAR ucEntryLen;
@@ -265,13 +265,13 @@ typedef struct tagBISO_ROCK_RIDGE_ENTRY_PX
 
     /* st_nlink字段 */
     BISO_DEF_733(uiPosixFileLink)
-    
+
     /* st_uid字段 */
     BISO_DEF_733(uiPosixFileUserId)
-    
+
     /* st_gid字段 */
     BISO_DEF_733(uiPosixFileGroupId)
-    
+
     /* st_ino字段, 注意这个字段在IEEE P1282 V1.10之前是没有的 */
     BISO_DEF_733(uiPosixFileSNO)
 }BISO_ROCK_RIDGE_ENTRY_PX_S;
@@ -307,20 +307,20 @@ typedef struct tagBISO_ROCK_RIDGE_ENTRY_SL
     /* 版本号， 必须为1 */
     UCHAR ucVersion;
 
-    /* 
-     * 0:最后一个软链接 
+    /*
+     * 0:最后一个软链接
      * 1:后面还有
      */
     UCHAR ucFlags;
 
     /* Componet内容，有具体的格式定义ISO_RRIP_SL_COMPONENT_S */
-    UCHAR aucComponet[1];    
+    UCHAR aucComponet[1];
 }BISO_ROCK_RIDGE_ENTRY_SL_S;
 
 typedef struct tagBISO_RRIP_SL_COMPONENT
 {
-    /* ucFlags 
-     * Bit0: Continue 
+    /* ucFlags
+     * Bit0: Continue
      * Bit1: Current当前目录 '.'
      * Bit2: Parent父目录 '..'
      * Bit3: Root 目录 '/'
@@ -357,9 +357,9 @@ typedef struct tagBISO_ROCK_RIDGE_ENTRY_NM
     /* 版本号， 必须为1 */
     UCHAR ucVersion;
 
-    /* 
-     * ucFlags 
-     * Bit0: Continue 
+    /*
+     * ucFlags
+     * Bit0: Continue
      * Bit1: Current当前目录 '.'
      * Bit2: Parent父目录 '..'
      * 其他位保留
@@ -441,8 +441,8 @@ typedef struct tagBISO_ROCK_RIDGE_ENTRY_TF
      * Bit4: Last Backup Time  是否记录
      * Bit5: Expiration Time   是否记录
      * Bit6: Effective Time    是否记录
-     * Bit7: Long-Form 时间格式 
-     *       0 表示7字节数组格式(ECMA-119 9.1.5)  
+     * Bit7: Long-Form 时间格式
+     *       0 表示7字节数组格式(ECMA-119 9.1.5)
      *       1 表示17字符串格式(ECMA-119 8.4.26.1)
      */
     UCHAR ucFlags;
@@ -468,7 +468,7 @@ typedef struct tagBISO_ROCK_RIDGE_ENTRY_SF
     BISO_DEF_733(uiVirFileSizeLow)
 
     /*
-     * ucDepth: 
+     * ucDepth:
      * 1-->64KB
      * 2-->16MB
      * 3-->4GB
@@ -487,8 +487,8 @@ ULONG BISO_RRIP_ReadExtInfo
 (
     IN  BISO_FILE_S       *pstFile,
     IN  BISO_PARSER_S     *pstParser,
-    IN  BISO_DIR_RECORD_S *pstRecord, 
-    OUT BISO_DIR_TREE_S   *pstDirTree 
+    IN  BISO_DIR_RECORD_S *pstRecord,
+    OUT BISO_DIR_TREE_S   *pstDirTree
 );
 VOID BISO_RRIP_GetPXInfo(IN VOID *pEntry, OUT BISO_DIR_TREE_S *pstDirTree);
 VOID BISO_RRIP_GetNMInfo(IN VOID *pEntry, OUT BISO_DIR_TREE_S *pstDirTree);

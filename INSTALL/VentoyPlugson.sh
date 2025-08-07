@@ -2,7 +2,7 @@
 
 . ./tool/ventoy_lib.sh
 
-print_usage() {    
+print_usage() {
     echo 'Usage:  sudo bash VentoyPlugson.sh [OPTION] /dev/sdX'
     echo '  OPTION: (optional)'
     echo '   -H x.x.x.x  http server IP address (default is 127.0.0.1)'
@@ -39,13 +39,13 @@ elif echo $machine | grep -E -q 'mips64'; then
 elif echo $machine | grep -E -q 'i[3-6]86'; then
     TOOLDIR=i386
 else
-    echo "Unsupported machine type $machine"    
+    echo "Unsupported machine type $machine"
     exit 1
 fi
 
 
 if ! [ -f "$OLDDIR/tool/plugson.tar.xz" ]; then
-    echo "Please run under the correct directory!" 
+    echo "Please run under the correct directory!"
     exit 1
 fi
 
@@ -71,7 +71,7 @@ cd ../../
 chmod +x -R ./tool/$TOOLDIR
 
 if ! [ -f "$OLDDIR/tool/$TOOLDIR/Plugson" ]; then
-    echo "$OLDDIR/tool/$TOOLDIR/Plugson does not exist!" 
+    echo "$OLDDIR/tool/$TOOLDIR/Plugson does not exist!"
     exit 1
 fi
 
@@ -104,7 +104,7 @@ while [ -n "$1" ]; do
     else
         DISK=$1
     fi
-    
+
     shift
 done
 
@@ -138,9 +138,9 @@ fi
 version=$(get_disk_ventoy_version $DISK)
 if [ $? -eq 0 ]; then
     echo "Ventoy version in Disk: $version"
-    
+
     vtPart1Type=$(dd if=$DISK bs=1 count=1 skip=450 status=none | hexdump -n1 -e  '1/1 "%02X"')
-    if [ "$vtPart1Type" = "EE" ]; then            
+    if [ "$vtPart1Type" = "EE" ]; then
         echo "Disk Partition Style  : GPT"
         partstyle=1
     else
@@ -165,15 +165,15 @@ PART1=$(get_disk_part_name $DISK 1)
 if grep -q "^$PART1 " /proc/mounts; then
     mtpnt=$(grep "^$PART1 " /proc/mounts | awk '{print $2}' | sed 's/\\040/ /g')
     fstype=$(grep "^$PART1 " /proc/mounts | awk '{print $3}')
-    
+
     if echo $fstype | grep -q -i 'fuse'; then
         if hexdump -C -n 16 $PART1 | grep -q -i "EXFAT"; then
             fstype="exFAT"
         elif hexdump -C -n 16 $PART1 | grep -q -i "NTFS"; then
-            fstype="NTFS"       
+            fstype="NTFS"
         fi
     fi
-    
+
     echo "$PART1 is mounted at $mtpnt $fstype"
 else
     echo "$PART1 is NOT mounted, please mount it first!"
@@ -219,7 +219,7 @@ if [ -f /proc/$wID/maps ]; then
 fi
 
 
-if [ -n "$OLDDIR" ]; then 
+if [ -n "$OLDDIR" ]; then
     CURDIR=$(pwd)
     if [ "$CURDIR" != "$OLDDIR" ]; then
         cd "$OLDDIR"
