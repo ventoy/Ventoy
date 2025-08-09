@@ -212,7 +212,7 @@ int ventoy_is_disk_4k_native(ventoy_disk *disk)
         rc = 1;
     }
 
-    vdebug("is 4k native disk <%s> <%d>\n", disk, rc);    
+    vdebug("is 4k native disk <%s> <%d>\n", disk->disk_model, rc);
     return rc;
 }
 
@@ -479,9 +479,6 @@ end:
 int ventoy_get_disk_info(ventoy_disk *disk)
 {
     
-    disk->is4kn = ventoy_is_disk_4k_native(disk);
-    if (disk->is4kn < 0) return 1;
-    
     strcpy(disk->disk_path, udisks_block_get_device(disk->blockdev));
     strcpy(disk->disk_name, disk->disk_path);
 
@@ -502,6 +499,10 @@ int ventoy_get_disk_info(ventoy_disk *disk)
     if (bus == NULL) bus = "-";
     
     scnprintf(disk->disk_model, "%s %s (%s)", vendor, model, bus);
+
+    disk->is4kn = ventoy_is_disk_4k_native(disk);
+    if (disk->is4kn < 0) return 1;
+    
 
     ventoy_get_vtoy_data(disk);
     
