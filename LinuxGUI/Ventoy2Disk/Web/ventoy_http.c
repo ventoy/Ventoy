@@ -1106,9 +1106,9 @@ static int ventoy_api_install(struct mg_connection *conn, VTOY_JSON *json)
         return 0;
     }
 
-    int size_in_bytes =  udisks_block_get_size(disk->blockdev);
+    guint64 size_in_bytes =  udisks_block_get_size(disk->blockdev);
     
-    if (size_in_bytes > 2199023255552ULL && style == 0)
+    if (size_in_bytes > 0x20000000000ULL && style == 0)
     {
         vlog("disk %s is more than 2TB and GPT is needed\n", path);
         ventoy_json_result(conn, VTOY_JSON_MBR_2TB_RET);
