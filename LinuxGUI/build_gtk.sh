@@ -5,6 +5,8 @@ build_func() {
     toolDir=$3
     gtkver=$4   
 
+    UDISKS2=$(pkg-config --libs -cflags udisks2)
+
     if [ "$libsuffix" = "aa64" ]; then
         EXD=./EXLIB/aarch64
         GTKFLAG="-pthread -I$EXD/usr/include/gtk-3.0 -I$EXD/usr/include/atk-1.0 -I$EXD/usr/include/at-spi2-atk/2.0 -I$EXD/usr/include/pango-1.0 -I$EXD/usr/include/gio-unix-2.0/ -I$EXD/usr/include/cairo -I$EXD/usr/include/gdk-pixbuf-2.0 -I$EXD/usr/include/glib-2.0 -I$EXD/usr/lib64/glib-2.0/include -I$EXD/usr/include/at-spi-2.0 -I$EXD/usr/include/dbus-1.0 -I$EXD/usr/lib64/dbus-1.0/include -I$EXD/usr/include/harfbuzz -I$EXD/usr/include/freetype2 -I$EXD/usr/include/pixman-1 -I$EXD/usr/include/libpng15 -I$EXD/usr/include/libdrm"
@@ -64,6 +66,7 @@ build_func() {
         Ventoy2Disk/Lib/exfat/src/mkfs/*.c \
         Ventoy2Disk/Lib/fat_io_lib/*.c \
         $XXLIB \
+        $UDISKS2 \
         -l pthread \
         ./civetweb.o \
         -o Ventoy2Disk.${gtkver}_$libsuffix $XXFLAG 
@@ -81,15 +84,13 @@ build_func() {
     rm -f ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}_$libsuffix
     cp -a Ventoy2Disk.${gtkver}_$libsuffix ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}
     
-    $1 -O2 -D_FILE_OFFSET_BITS=64 Ventoy2Disk/ventoy_gui.c Ventoy2Disk/Core/ventoy_json.c -I Ventoy2Disk/Core  -DVTOY_GUI_ARCH="\"$toolDir\"" -o VentoyGUI.$toolDir
+    $1 $UDISKS2 -O2 -D_FILE_OFFSET_BITS=64 Ventoy2Disk/ventoy_gui.c Ventoy2Disk/Core/ventoy_json.c -I Ventoy2Disk/Core  -DVTOY_GUI_ARCH="\"$toolDir\"" -o VentoyGUI.$toolDir
     cp -a VentoyGUI.$toolDir ../INSTALL/
 }
 
 
 build_func "gcc" '64' 'x86_64' 'gtk3'
-
 build_func "gcc" '64' 'x86_64' 'gtk2'
-
 build_func "gcc -m32" '32' 'i386' 'gtk2'
 build_func "gcc -m32" '32' 'i386' 'gtk3'
 
