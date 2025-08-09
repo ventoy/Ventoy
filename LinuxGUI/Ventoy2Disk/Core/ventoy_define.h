@@ -161,6 +161,7 @@ typedef struct ventoy_disk
     char disk_name[32];   // same as path, it is here for compatibility
     char disk_path[32];   // /dev/sda
     char disk_model[256]; // Sandisk/Kingston ...
+    int hint_ignore;
 }ventoy_disk;
 
 #pragma pack(1)

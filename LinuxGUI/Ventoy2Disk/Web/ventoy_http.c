@@ -1317,6 +1317,8 @@ static int ventoy_api_get_dev_list(struct mg_connection *conn, VTOY_JSON *json)
     for (i = 0; i < get_disks_len(); i++)
     {
         cur = &g_array_index(disks, ventoy_disk, i);
+
+        if (!alldev && cur->hint_ignore) continue;
       
         VTOY_JSON_FMT_OBJ_BEGIN();
         VTOY_JSON_FMT_STRN("name", cur->disk_name);

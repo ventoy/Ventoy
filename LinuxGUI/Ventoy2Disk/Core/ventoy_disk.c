@@ -499,6 +499,7 @@ int ventoy_get_disk_info(ventoy_disk *disk)
     if (bus == NULL) bus = "-";
     
     scnprintf(disk->disk_model, "%s %s (%s)", vendor, model, bus);
+    g_object_unref(drive);
 
     disk->is4kn = ventoy_is_disk_4k_native(disk);
     if (disk->is4kn < 0) return 1;
@@ -578,8 +579,6 @@ int ventoy_disk_enumerate_all(void)
 
         if (udisks_block_get_hint_system(block)) continue;
         
-        if (udisks_block_get_hint_ignore(block)) continue;
-
         if (udisks_object_peek_partition(obj) != NULL) continue;  // It must not be a partition
 
         // The block and the drive are not the same object
@@ -589,6 +588,7 @@ int ventoy_disk_enumerate_all(void)
         disk.obj = obj;
         disk.blockdev = block;
         disk.table = table;
+        disk.hint_ignore = udisks_block_get_hint_ignore(block);
         ventoy_get_disk_info(&disk);//check for error..
 
         g_array_append_val(disks, disk);
