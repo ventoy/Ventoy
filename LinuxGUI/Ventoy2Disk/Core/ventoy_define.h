@@ -20,6 +20,9 @@
 #ifndef __VENTOY_DEFINE_H__
 #define __VENTOY_DEFINE_H__
 
+#include <stdint.h>
+#include <udisks/udisks.h>
+
 #define MAX_DISK_NUM    256
 
 #define SIZE_1MB    1048576
@@ -124,27 +127,40 @@ typedef struct disk_ventoy_data
 }disk_ventoy_data;
 
 
+// typedef struct ventoy_disk
+// {
+//     char disk_name[32];   // sda
+//     char disk_path[64];   // /dev/sda
+
+//     char part1_name[32];   // sda1
+//     char part1_path[64];   // /dev/sda1
+//     char part2_name[32];   // sda2
+//     char part2_path[64];   // /dev/sda2
+
+//     char disk_model[256]; // Sandisk/Kingston ...
+//     char human_readable_size[32];
+
+//     int is4kn;
+//     int major;
+//     int minor;
+//     int type;
+//     int partstyle;
+//     uint64_t size_in_byte;
+
+//     disk_ventoy_data vtoydata;
+// }ventoy_disk;
+
 typedef struct ventoy_disk
 {
-    char disk_name[32];   // sda
-    char disk_path[64];   // /dev/sda
-
-    char part1_name[32];   // sda1
-    char part1_path[64];   // /dev/sda1
-    char part2_name[32];   // sda2
-    char part2_path[64];   // /dev/sda2
-
-    char disk_model[256]; // Sandisk/Kingston ...
+    UDisksObject *obj;
+    UDisksBlock *blockdev;
+    UDisksPartitionTable *table;
+    int is4kn; // Is 4k sector native?
     char human_readable_size[32];
-
-    int is4kn;
-    int major;
-    int minor;
-    int type;
-    int partstyle;
-    uint64_t size_in_byte;
-
     disk_ventoy_data vtoydata;
+    char disk_name[32];   // same as path, it is here for compatibility
+    char disk_path[32];   // /dev/sda
+    char disk_model[256]; // Sandisk/Kingston ...
 }ventoy_disk;
 
 #pragma pack(1)
