@@ -369,7 +369,7 @@ int ventoy_get_vtoy_data(ventoy_disk *disk)
     }
     
     /* step 6: save partitions start/end and preserved space */
-    if (strcmp(udisks_partition_table_get_type_(disk->table), "gpt"))
+    if (strcmp(udisks_partition_table_get_type_(disk->table), "gpt") == 0)
     {
         part_style = GPT_PART_STYLE;
 
