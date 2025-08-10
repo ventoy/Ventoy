@@ -88,14 +88,25 @@ build_func() {
     cp -a VentoyGUI.$toolDir ../INSTALL/
 }
 
+print_help() {
+    echo "Usage: ./build_gtk.sh <ARCH> <gtk2|gtk3>"
+}
 
-build_func "gcc" '64' 'x86_64' 'gtk3'
-build_func "gcc" '64' 'x86_64' 'gtk2'
-build_func "gcc -m32" '32' 'i386' 'gtk2'
-build_func "gcc -m32" '32' 'i386' 'gtk3'
+if [[ $# -ne 2 ]] || [[ $2 -ne 'gtk2' && $2 -ne 'gtk3' ]]; then
+    print_help
+    exit 1
+fi
 
-build_func "aarch64-linux-gnu-gcc" 'aa64' 'aarch64' 'gtk3'
-
-export PATH=/opt/mips-loongson-gcc8-linux-gnu-2021-02-08/bin/:$PATH
-build_func "mips-linux-gnu-gcc -mips64r2 -mabi=64" 'm64e' 'mips64el' 'gtk3'
-
+case $1 in
+"x86_64")
+    build_func "gcc" '64' 'x86_64' $2 ;;
+"i386")
+    build_func "gcc -m32" '32' 'i386' $2 ;;
+"aarch64")
+     build_func "aarch64-linux-gnu-gcc" 'aa64' 'aarch64' $2 ;;
+"mips64el")
+    export PATH=/opt/mips-loongson-gcc8-linux-gnu-2021-02-08/bin/:$PATH
+    build_func "mips-linux-gnu-gcc -mips64r2 -mabi=64" 'm64e' 'mips64el' $2 ;;
+*)
+    echo "Error: unknown ARCH";;
+esac
