@@ -2,7 +2,7 @@
 Type=Application
 Name=Ventoy GUI
 GenericName=USB Flasher
-Comment=Multi-ISO USB flashing utility, using GRUB
+Comment=Multi-ISO bootable-USB creator
 Icon=org.ventoy.VentoyGUI
 Categories=System
 Keywords="USB;Flash;Drive;Ventoy"
