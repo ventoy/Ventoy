@@ -2,7 +2,7 @@ id: org.ventoy.VentoyGUI
 runtime: org.gnome.Platform
 runtime-version: '48'
 sdk: org.gnome.Sdk
-command: run.sh
+command: ventoy-gtk3.sh
 modules:
   - name: udisks2
     sources:
@@ -176,11 +176,13 @@ modules:
   - name: ventoy_gui
     buildsystem: simple
     sources:
+      # - type: dir
+      #   path: "../../"
       - type: git
         url: https://github.com/LorenzoIanotto/VentoyUDisks.git
         branch: udisks
       - type: script
-        dest-filename: run.sh
+        dest-filename: ventoy-gtk3.sh
         commands:
           - cd /app
           - VentoyGUI --xdg
@@ -188,7 +190,16 @@ modules:
       - cd LinuxGUI && chmod +x ./build_gtk.sh
       - cd LinuxGUI && ./build_gtk.sh $(uname -m) gtk3
       - install -Dm755 LinuxGUI/Ventoy2Disk.gtk3_64 /app/bin/VentoyGUI
-      - install -Dm755 run.sh /app/bin/run.sh
+      - install -Dm755 ventoy-gtk3.sh /app/bin/ventoy-gtk3.sh
+      - install -Dm644 ICON/logo_16.png /app/share/icons/hicolor/16x16/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_32.png /app/share/icons/hicolor/32x32/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_48.png /app/share/icons/hicolor/48x48/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_64.png /app/share/icons/hicolor/64x64/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_72.png /app/share/icons/hicolor/72x72/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_128.png /app/share/icons/hicolor/128x128/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_256.png /app/share/icons/hicolor/256x256/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_512.png /app/share/icons/hicolor/512x512/apps/org.ventoy.VentoyGUI.png
+      - install -Dm644 LinuxGUI/assets/org.ventoy.VentoyGUI.desktop /app/share/applications/org.ventoy.VentoyGUI.desktop
 finish-args:
   # X11 + XShm access
   - --share=ipc

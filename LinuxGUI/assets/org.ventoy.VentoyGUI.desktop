@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Ventoy GUI
+GenericName=USB Flasher
+Comment=Multi-ISO USB flashing utility, using GRUB
+Icon=org.ventoy.VentoyGUI
+Categories=System
+Keywords="USB;Flash;Drive;Ventoy"
+Terminal=false
+Exec=ventoy-gtk3.sh
