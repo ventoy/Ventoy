@@ -204,6 +204,4 @@ finish-args:
   # X11 + XShm access
   - --share=ipc
   - --socket=x11
-  # Needs to talk to the network:
-  - --share=network
   - --system-talk-name=org.freedesktop.UDisks2
