@@ -204,7 +204,7 @@ modules:
       - install -Dm644 ICON/logo_512.png /app/share/icons/hicolor/512x512/apps/org.ventoy.VentoyGUI.png
       - install -Dm644 LinuxGUI/assets/org.ventoy.VentoyGUI.desktop /app/share/applications/org.ventoy.VentoyGUI.desktop
 finish-args:
-  # X11 + XShm access
   - --share=ipc
-  - --socket=x11
+  - --socket=fallback-x11
+  - --socket=wayland
   - --system-talk-name=org.freedesktop.UDisks2
