@@ -8,7 +8,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/storaged-project/udisks.git
-        branch: 2.10.x-branch
+        tag: udisks-2.10.1
     config-opts:
       - "--enable-available-modules=no"
       - "--enable-bcache=no"
@@ -45,11 +45,12 @@ modules:
         sources:
           - type: git
             url: https://github.com/linux-nvme/libnvme.git
+            tag: v1.15
       - name: libblockdev
         sources:
           - type: git
             url: https://github.com/storaged-project/libblockdev.git
-            branch: 3.3.x-devel
+            tag: 3.3.1
         config-opts:
           - "--disable-tests"
           - "--with-btrfs=no"
@@ -91,6 +92,7 @@ modules:
             sources:
               - type: git
                 url: https://github.com/JingchengLi/libaio.git
+                commit: 1b18bfa
             build-commands:
               - make prefix=/app install
           - name: lvm2
@@ -113,16 +115,16 @@ modules:
             sources:
               - type: git
                 url: https://gitlab.com/cryptsetup/cryptsetup.git
-                branch: v2.7.x
+                tag: v2.8.0
             config-opts:
               - --disable-asciidoc
               - --disable-ssh-token
             modules:
               - name: libpopt
-                buildsystem: cmake
                 sources:
                   - type: git
                     url: https://github.com/rpm-software-management/popt.git
+                    tag: popt-1.19-release
               - name: json-c
                 buildsystem: cmake
                 sources:
@@ -156,6 +158,7 @@ modules:
             sources:
               - type: git
                 url: https://github.com/util-linux/util-linux.git
+                tag: v2.41.1
       - name: atasmart
         buildsystem: autotools
         sources:
