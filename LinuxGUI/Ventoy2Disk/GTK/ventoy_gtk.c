@@ -1040,7 +1040,11 @@ void on_init_window(GtkBuilder *pBuilder)
     g_partCfgWindow = BUILDER_ITEM(GtkWidget, "part_cfg_dlg");
 
     g_dev_combobox = BUILDER_ITEM(GtkComboBoxText, "combobox_devlist");
+
     g_refresh_button = BUILDER_ITEM(GtkButton, "button_refresh");
+    GtkWidget *image = gtk_image_new_from_icon_name("view-refresh-symbolic", GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_image(g_refresh_button, image);
+
     g_install_button = BUILDER_ITEM(GtkButton, "button_install");
     g_update_button = BUILDER_ITEM(GtkButton, "button_update");
     
