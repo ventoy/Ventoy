@@ -1584,7 +1584,7 @@ static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
     s2 = node2->dir;
     len = grub_min(node1->dirlen, node2->dirlen);
 
-    for (i = 0; i < len; i++)
+    for (i = 0; i < len - 1; i++)
     {
         c1 = *s1++;
         c2 = *s2++;
