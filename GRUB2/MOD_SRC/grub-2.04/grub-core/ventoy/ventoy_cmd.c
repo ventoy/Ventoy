@@ -1569,19 +1569,25 @@ int ventoy_cmp_img(img_info *img1, img_info *img2)
 
 static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
 {
-    char *s1, *s2;
+    int i = 0;
     int c1 = 0;
     int c2 = 0;
+    int len = 0;
+    char *s1, *s2;
 
     if (g_plugin_image_list == VENTOY_IMG_WHITE_LIST)
     {
         return (node1->plugin_list_index - node2->plugin_list_index);
     }
 
-    for (s1 = node1->dir, s2 = node2->dir; *s1 && *s2; s1++, s2++)
+    s1 = node1->dir;
+    s2 = node2->dir;
+    len = grub_min(node1->dirlen, node2->dirlen);
+
+    for (i = 0; i < len; i++)
     {
-        c1 = *s1;
-        c2 = *s2;
+        c1 = *s1++;
+        c2 = *s2++;
 
         if (0 == g_sort_case_sensitive)
         {
@@ -1602,7 +1608,17 @@ static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
         }
     }
 
-    return *s1 - *s2;
+    if (len == node1->dirlen)
+    {
+        c1 = 0;
+    }
+    
+    if (len == node2->dirlen)
+    {
+        c2 = 0;
+    }
+
+    return (c1 - c2);
 }
 
 void ventoy_swap_img(img_info *img1, img_info *img2)
