@@ -203,6 +203,7 @@ modules:
       - install -Dm644 ICON/logo_256.png /app/share/icons/hicolor/256x256/apps/org.ventoy.VentoyGUI.png
       - install -Dm644 ICON/logo_512.png /app/share/icons/hicolor/512x512/apps/org.ventoy.VentoyGUI.png
       - install -Dm644 LinuxGUI/assets/org.ventoy.VentoyGUI.desktop /app/share/applications/org.ventoy.VentoyGUI.desktop
+      - install -Dm644 LinuxGUI/assets/org.ventoy.VentoyGUI.metainfo.xml /app/share/metainfo/org.ventoy.VentoyGUI.metainfo.xml
 finish-args:
   - --share=ipc
   - --socket=fallback-x11
