@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.ventoy.VentoyGUI</id>
+  <id>net.ventoy.VentoyGUI</id>
   
   <name>Ventoy GUI</name>
   <summary>Multi-ISO bootable-USB creator</summary>
@@ -27,7 +27,7 @@
 
   <content_rating type="oars-1.1" />
   
-  <launchable type="desktop-id">org.ventoy.VentoyGUI.desktop</launchable>
+  <launchable type="desktop-id">net.ventoy.VentoyGUI.desktop</launchable>
   <screenshots>
     <screenshot type="default">
       <image>https://ventoy.net/static/img/screen/screen_bios2.png</image>
