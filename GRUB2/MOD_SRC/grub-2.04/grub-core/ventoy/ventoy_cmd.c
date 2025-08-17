@@ -1598,11 +1598,11 @@ static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
 
         if (c1 != c2)
         {
-            break;
+            return (c1 - c2);
         }
     }
 
-    return (c1 - c2);
+    return *s1 - *s2;
 }
 
 void ventoy_swap_img(img_info *img1, img_info *img2)
