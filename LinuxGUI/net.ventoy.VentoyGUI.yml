@@ -173,14 +173,10 @@ modules:
         sha256: 3379c99890359dcff55aab7f7b3286f87c988d1da2fd616e6a9e305fb0a1de9e
         strip-components: 1
     build-commands:
-      # - chmod +x "ventoy-1.1.05/VentoyGUI.$(uname -m)"
-      # - mv "ventoy-1.1.05/VentoyGUI.$(uname -m)" ventoy-1.1.05/VentoyGUI
       - cp -r ventoy-1.1.05/* /app/
   - name: ventoy_gui
     buildsystem: simple
     sources:
-      # - type: dir
-      #   path: "../../"
       - type: git
         url: https://github.com/LorenzoIanotto/VentoyUDisks.git
         branch: udisks
@@ -190,9 +186,8 @@ modules:
           - cd /app
           - VentoyGUI --xdg
     build-commands:
-      - cd LinuxGUI && chmod +x ./build_gtk.sh
-      - cd LinuxGUI && ./build_gtk.sh $(uname -m) gtk3
-      - install -Dm755 LinuxGUI/Ventoy2Disk.gtk3_64 /app/bin/VentoyGUI
+      - cd LinuxGUI && make gtk3
+      - install -Dm755 LinuxGUI/Ventoy2Disk.gtk3 /app/bin/VentoyGUI
       - install -Dm755 ventoy-gtk3.sh /app/bin/ventoy-gtk3.sh
       - install -Dm644 ICON/logo_16.png /app/share/icons/hicolor/16x16/apps/net.ventoy.VentoyGUI.png
       - install -Dm644 ICON/logo_32.png /app/share/icons/hicolor/32x32/apps/net.ventoy.VentoyGUI.png
