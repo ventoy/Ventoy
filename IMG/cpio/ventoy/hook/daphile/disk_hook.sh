@@ -39,3 +39,6 @@ ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
 $BUSYBOX_PATH/rm -f /dev/dm-*
 
+
+set_ventoy_hook_finish
+
