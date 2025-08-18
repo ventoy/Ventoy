@@ -3,6 +3,9 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
+CONFIG += no_keywords
+CONFIG += link_pkgconfig
+PKGCONFIG += udisks2
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -117,17 +120,17 @@ DISTFILES += \
     Lib/fat_io_lib/version.txt
 
 
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Core
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Web
-INCLUDEPATH +=/home/panda/Ventoy2Disk/QT
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Include
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Lib/libhttp/include
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Lib/fat_io_lib/include
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Lib/xz-embedded/linux/include
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Lib/xz-embedded/linux/include/linux
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Lib/xz-embedded/userspace
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Lib/exfat/src/libexfat
-INCLUDEPATH +=/home/panda/Ventoy2Disk/Lib/fat_io_lib
+INCLUDEPATH +=Core
+INCLUDEPATH +=Web
+INCLUDEPATH +=QT
+INCLUDEPATH +=Include
+INCLUDEPATH +=Lib/libhttp/include
+INCLUDEPATH +=Lib/fat_io_lib/include
+INCLUDEPATH +=Lib/xz-embedded/linux/include
+INCLUDEPATH +=Lib/xz-embedded/linux/include/linux
+INCLUDEPATH +=Lib/xz-embedded/userspace
+INCLUDEPATH +=Lib/exfat/src/libexfat
+INCLUDEPATH +=Lib/fat_io_lib
 #INCLUDEPATH +=/usr/src/linux-headers-5.10.18-amd64-desktop/include
 #INCLUDEPATH +=/usr/src/linux-headers-5.10.18-amd64-desktop/arch/x86/include
 #INCLUDEPATH +=/usr/src/linux-headers-5.10.18-amd64-desktop/arch/x86/include/generated
