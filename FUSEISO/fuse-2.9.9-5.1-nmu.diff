@@ -1,0 +1,89 @@
+diff -Nru fuse-2.9.9/debian/changelog fuse-2.9.9/debian/changelog
+--- fuse-2.9.9/debian/changelog	2021-02-26 18:12:50.000000000 +0200
++++ fuse-2.9.9/debian/changelog	2022-10-15 18:34:48.000000000 +0300
+@@ -1,3 +1,10 @@
++fuse (2.9.9-5.1) unstable; urgency=medium
++
++  * Non-maintainer upload.
++  * Add upstream fix for FTBFS with glibc 2.34. (Closes: #1017154)
++
++ -- Adrian Bunk <bunk@debian.org>  Sat, 15 Oct 2022 18:34:48 +0300
++
+ fuse (2.9.9-5) unstable; urgency=medium
+ 
+   * Include HTML documentation in libfuse-dev (closes: #886449).
+diff -Nru fuse-2.9.9/debian/patches/0001-util-ulockmgr_server.c-conditionally-define-closefro.patch fuse-2.9.9/debian/patches/0001-util-ulockmgr_server.c-conditionally-define-closefro.patch
+--- fuse-2.9.9/debian/patches/0001-util-ulockmgr_server.c-conditionally-define-closefro.patch	1970-01-01 02:00:00.000000000 +0200
++++ fuse-2.9.9/debian/patches/0001-util-ulockmgr_server.c-conditionally-define-closefro.patch	2022-10-15 18:31:32.000000000 +0300
+@@ -0,0 +1,63 @@
++From 5a43d0f724c56f8836f3f92411e0de1b5f82db32 Mon Sep 17 00:00:00 2001
++From: Sam James <sam@gentoo.org>
++Date: Sat, 24 Jul 2021 22:02:45 +0100
++Subject: util/ulockmgr_server.c: conditionally define closefrom (fix
++ glibc-2.34+)
++
++closefrom(3) has joined us in glibc-land from *BSD and Solaris. Since
++it's available in glibc 2.34+, we want to detect it and only define our
++fallback if the libc doesn't provide it.
++
++Bug: https://bugs.gentoo.org/803923
++Signed-off-by: Sam James <sam@gentoo.org>
++---
++ configure.ac           | 1 +
++ util/ulockmgr_server.c | 6 ++++++
++ 2 files changed, 7 insertions(+)
++
++diff --git a/configure.ac b/configure.ac
++index 9946a0e..a2d481a 100644
++--- a/configure.ac
+++++ b/configure.ac
++@@ -55,6 +55,7 @@ fi
++ 
++ AC_CHECK_FUNCS([fork setxattr fdatasync splice vmsplice utimensat])
++ AC_CHECK_FUNCS([posix_fallocate])
+++AC_CHECK_FUNCS([closefrom])
++ AC_CHECK_MEMBERS([struct stat.st_atim])
++ AC_CHECK_MEMBERS([struct stat.st_atimespec])
++ 
++diff --git a/util/ulockmgr_server.c b/util/ulockmgr_server.c
++index 273c7d9..a04dac5 100644
++--- a/util/ulockmgr_server.c
+++++ b/util/ulockmgr_server.c
++@@ -22,6 +22,10 @@
++ #include <sys/socket.h>
++ #include <sys/wait.h>
++ 
+++#ifdef HAVE_CONFIG_H
+++	#include "config.h"
+++#endif
+++
++ struct message {
++ 	unsigned intr : 1;
++ 	unsigned nofd : 1;
++@@ -124,6 +128,7 @@ static int receive_message(int sock, void *buf, size_t buflen, int *fdp,
++ 	return res;
++ }
++ 
+++#if !defined(HAVE_CLOSEFROM)
++ static int closefrom(int minfd)
++ {
++ 	DIR *dir = opendir("/proc/self/fd");
++@@ -141,6 +146,7 @@ static int closefrom(int minfd)
++ 	}
++ 	return 0;
++ }
+++#endif
++ 
++ static void send_reply(int cfd, struct message *msg)
++ {
++-- 
++2.30.2
++
+diff -Nru fuse-2.9.9/debian/patches/series fuse-2.9.9/debian/patches/series
+--- fuse-2.9.9/debian/patches/series	2019-01-07 22:32:01.000000000 +0200
++++ fuse-2.9.9/debian/patches/series	2022-10-15 18:34:48.000000000 +0300
+@@ -6,3 +6,4 @@
+ 0006-arm64.patch
+ 0007-Add_autofs_to_mountpoint_file_system_whitelist.patch
+ 0008-Add_FAT_to_mountpoint_file_system_whitelist.patch
++0001-util-ulockmgr_server.c-conditionally-define-closefro.patch

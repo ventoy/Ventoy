@@ -291,6 +291,12 @@ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/disk.h
 KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/acpi.h
 endif
 
+if COND_loongarch64_efi
+KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/efi.h
+KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/disk.h
+KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/acpi.h
+endif
+
 if COND_riscv32_efi
 KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/efi.h
 KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/disk.h
