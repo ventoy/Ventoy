@@ -64,6 +64,12 @@ is_ventoy_hook_finished() {
 
 set_ventoy_hook_finish() {
     echo 'Y' > $VTOY_PATH/hook_finish
+
+    if [ -f /ventoy/ventoy_iso_part_dm_cmd ]; then
+        echo "### create iso part raw dm" >> $VTLOG
+        $BUSYBOX_PATH/sh /ventoy/ventoy_iso_part_dm_cmd >>$VTLOG 2>&1
+        $BUSYBOX_PATH/rm -f /ventoy/ventoy_iso_part_dm_cmd
+    fi
 }
 
 get_ventoy_disk_name() {
@@ -259,8 +265,8 @@ create_ventoy_device_mapper() {
         $VT_DM_BIN "$2" create ventoy $VTOY_PATH/ventoy_dm_table >>$VTLOG 2>&1
     fi
     
-    RAWDISKNAME=$($HEAD -n1 $VTOY_PATH/ventoy_raw_table | $AWK '{print $4}')
-    $VT_DM_BIN create ${RAWDISKNAME#/dev/}  $VTOY_PATH/ventoy_raw_table >>$VTLOG 2>&1
+    RAWDISKNAME=$($HEAD -n1 $VTOY_PATH/ventoy_raw_table | $AWK '{print $4}')    
+    echo "$VT_DM_BIN create ${RAWDISKNAME#/dev/}  $VTOY_PATH/ventoy_raw_table" > /ventoy/ventoy_iso_part_dm_cmd    
 }
 
 create_persistent_device_mapper() {

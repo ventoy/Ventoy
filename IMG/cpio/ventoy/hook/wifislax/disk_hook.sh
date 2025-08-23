@@ -46,3 +46,6 @@ done
 
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+

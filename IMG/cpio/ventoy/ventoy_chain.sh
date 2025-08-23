@@ -52,6 +52,11 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # Parted Magic
+    if [ -d /pmagic ]; then
+        echo 'pmagic'; return
+    fi
+
     # PrimeOS :
     if $GREP -q 'PrimeOS' /proc/version; then
         echo 'primeos'; return
@@ -235,10 +240,6 @@ ventoy_get_os_type() {
     
     if $GREP -q 'adelielinux' /proc/version; then
         echo 'adelie'; return
-    fi
-    
-    if $GREP -q 'pmagic' /proc/version; then
-        echo 'pmagic'; return
     fi
     
     if $GREP -q 'CDlinux' /proc/cmdline; then

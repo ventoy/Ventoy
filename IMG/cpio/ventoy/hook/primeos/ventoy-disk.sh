@@ -36,3 +36,6 @@ vtDM=$(ventoy_find_dm_id ${blkdev_num})
 echo -n "/dev/$vtDM" > /ventoy/rootdev
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+
