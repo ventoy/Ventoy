@@ -171,6 +171,8 @@ ventoy_get_os_type() {
             echo 'rhel7'; return
         elif $GREP -q 'openEuler' /etc/os-release; then
             echo 'openEuler'; return
+        elif $GREP -q 'Kylin Linux Advanced Server' /etc/os-release; then
+            echo 'openEuler'; return
         elif $GREP -q 'fuyu' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'deepin' /etc/os-release; then
