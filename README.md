@@ -63,7 +63,7 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 * Windows auto installation supported (1.0.09+)
 * Linux auto installation supported (1.0.09+)
 * Variables Expansion supported for Windows/Linux auto installation script
-* FAT32/exFAT/NTFS/UDF/XFS/Ext2(3)(4) supported for main partition
+* FAT32/exFAT/NTFS/UDF/XFS/Btrfs/Ext2(3)(4) supported for main partition
 * ISO files larger than 4GB supported
 * Menu alias, Menu tip message supported
 * Password protect supported
