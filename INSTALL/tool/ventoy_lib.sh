@@ -67,6 +67,14 @@ check_tool_work_ok() {
         ventoy_false
         return
     fi
+
+    if mkfs.fat --help > /dev/null; then
+        vtdebug "mkfs.vfat test ok ..."
+    else
+        vtdebug "mkfs.vfat test fail ..."
+        ventoy_false
+        return
+    fi
     
     if vtoycli fat -T; then
         vtdebug "vtoycli fat test ok ..."
