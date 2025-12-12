@@ -373,6 +373,13 @@ ventoy_get_os_type() {
             echo 'openEuler'; return
         fi
     fi
+    if [ -f /etc/kylin-release ]; then
+        if $GREP -i -q -m1 'Kylin.*Server.* V11 ' /etc/kylin-release; then
+            echo 'openEuler'; return
+        fi
+    fi
+
+
     
     if $GREP -q 'chimera' /proc/version; then
         echo 'chimera'; return
