@@ -7977,28 +7977,26 @@ delete_file(struct mg_connection *conn, const char *path)
 	}
 
 	/* This is an existing file (not a directory).
-	 * Check if write permission is granted. */
-	if (access(path, W_OK) != 0) {
-		/* File is read only */
-		send_http_error(
-		    conn,
-		    403,
-		    "Error: Delete not possible\nDeleting %s is not allowed",
-		    path);
-		return;
-	}
-
-	/* Try to delete it. */
+	 * Try to delete the file directly. */
 	if (mg_remove(conn, path) == 0) {
 		/* Delete was successful: Return 204 without content. */
 		send_http_error(conn, 204, "%s", "");
 	} else {
-		/* Delete not successful (file locked). */
-		send_http_error(conn,
-		                423,
-		                "Error: Cannot delete file\nremove(%s): %s",
-		                path,
-		                strerror(ERRNO));
+		/* Check if the error is a permission error. */
+		if (ERRNO == EACCES || ERRNO == EPERM) {
+			send_http_error(
+			    conn,
+			    403,
+			    "Error: Delete not possible\nDeleting %s is not allowed",
+			    path);
+		} else {
+			/* Delete not successful (file locked or other error). */
+			send_http_error(conn,
+			                423,
+			                "Error: Cannot delete file\nremove(%s): %s",
+			                path,
+			                strerror(ERRNO));
+		}
 	}
 }
 #endif /* !NO_FILES */

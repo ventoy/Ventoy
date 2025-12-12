@@ -25,6 +25,19 @@
 #include <string.h>
 #include <lzma.h>
 
+#if defined(__STDC_LIB_EXT1__)
+/* Use memset_s if available */
+#define secure_memset(dest, value, len) memset_s((dest), (len), (value), (len))
+#else
+/* Fallback secure_memset implementation */
+static void secure_memset(void *v, int c, size_t n) {
+    volatile unsigned char *p = (volatile unsigned char *)v;
+    while (n--) {
+        *p++ = (unsigned char)c;
+    }
+}
+#endif
+
 #include "squashfs_fs.h"
 #include "compressor.h"
 
@@ -120,7 +133,7 @@ static int lzma_uncompress(void *dest, void *src, int size, int outsize,
 		goto failed;
 	}
 
-	memset(lzma_header + LZMA_PROPS_SIZE, 255, LZMA_UNCOMP_SIZE);
+	secure_memset(lzma_header + LZMA_PROPS_SIZE, 255, LZMA_UNCOMP_SIZE);
 
 	strm.next_out = dest;
 	strm.avail_out = outsize;
