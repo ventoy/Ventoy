@@ -12,7 +12,7 @@ print_usage() {
     echo '   -l  list Ventoy information in sdX'
     echo ''
     echo '  OPTION: (optional)'
-    echo '   -r SIZE_MB  preserve some space at the bottom of the disk (only for install)'
+    echo '   -r SIZE_MiB preserve some space (MiB) at the bottom of the disk (only for install)'
     echo '   -s/-S       enable/disable secure boot support (default is enabled)'
     echo '   -g          use GPT partition style, default is MBR (only for install)'
     echo '   -L          Label of the 1st exfat partition (default is Ventoy)'
@@ -93,7 +93,7 @@ fi
 
 if [ -n "$RESERVE_SPACE" -a "$MODE" = "install" ]; then
     if echo $RESERVE_SIZE_MB | grep -q '^[0-9][0-9]*$'; then
-        vtdebug "User will reserve $RESERVE_SIZE_MB MB disk space"
+        vtdebug "User will reserve $RESERVE_SIZE_MB MiB disk space"
     else
         vterr "$RESERVE_SIZE_MB is invalid for reserved space"
         exit 1
@@ -231,7 +231,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
         reserve_sector_num=$(expr $sum_size_mb \* 2048)
 
         if [ $disk_sector_num -le $reserve_sector_num ]; then
-            vterr "Can't reserve $RESERVE_SIZE_MB MB space from $DISK"
+            vterr "Can't reserve $RESERVE_SIZE_MB MiB space from $DISK"
             exit 1
         fi
     fi
@@ -239,7 +239,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     #Print disk info
     echo "Disk : $DISK"
     parted -s $DISK p 2>&1 | grep Model
-    echo "Size : $disk_size_gb GB"
+    echo "Size : $disk_size_gb GiB"
     if [ -n "$VTGPT" ]; then
         echo "Style: GPT"
     else
@@ -248,7 +248,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     echo ''
 
     if [ -n "$RESERVE_SPACE" ]; then
-        echo "You will reserve $RESERVE_SIZE_MB MB disk space "
+        echo "You will reserve $RESERVE_SIZE_MB MiB disk space "
     fi
     echo ''
 
@@ -395,7 +395,7 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
     #Print disk info
     echo "Disk : $DISK"
     parted -s $DISK p 2>&1 | grep Model
-    echo "Size : $disk_size_gb GB" 
+    echo "Size : $disk_size_gb GiB" 
     echo "Style: $OldStyle"    
     echo ''
 
@@ -424,7 +424,7 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
     PART1_MB=$(expr $PART1_4K / 256)
     PART1_NEW_MB=$(expr $PART1_MB - 32)
 
-    echo "$PART1 is ${PART1_MB}MB"
+    echo "$PART1 is ${PART1_MB}MiB"
 
     #check partition layout
     echo "check partition layout ..."
