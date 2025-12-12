@@ -197,6 +197,8 @@ grub_disk_t EXPORT_FUNC(grub_disk_open) (const char *name);
 void EXPORT_FUNC(grub_disk_close) (grub_disk_t disk);
 grub_err_t EXPORT_FUNC(grub_disk_blocklist_read)(void *chunklist, grub_uint64_t sector, 
     grub_uint64_t size, grub_uint32_t log_sector_size);
+grub_err_t EXPORT_FUNC(grub_disk_blocklist_read2)(grub_disk_t disk, grub_uint64_t sector, 
+    grub_uint64_t size, char *buf);
 
 grub_err_t EXPORT_FUNC(grub_disk_read) (grub_disk_t disk,
 					grub_disk_addr_t sector,

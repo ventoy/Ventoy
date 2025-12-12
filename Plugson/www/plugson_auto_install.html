@@ -101,6 +101,10 @@
       timeouten: timeouten,
       autoselen: autoselen
     }, function(e) {
+
+      let data = m_data_autoins[current_tab_index][index];
+      data.timeout = timeoutval;
+      data.autosel = autoselval;
       Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
     });
   }
@@ -224,6 +228,7 @@
 
       var tdtimeout, timeoutdisable, timeoutval;
       var tdautosel, autoseldisable, autoselval;
+
       if (data[i].timeouten) {
         tdtimeout = '<th style="width:10%;"><input id="id_timeout_en_'+i+'" checked="checked" type="checkbox"/> timeout</th>';
         timeoutval = data[i].timeout;

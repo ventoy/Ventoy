@@ -95,6 +95,12 @@
     return (err);\
 }
 
+#define vtoy_tip(wait_seconds, fmt, ...) \
+    grub_printf(fmt, __VA_ARGS__); \
+    grub_refresh(); \
+    grub_sleep(wait_seconds)
+
+
 #define VTOY_APPEND_NEWBUF(buf) \
 {\
     char *__c = buf;\
@@ -1150,7 +1156,7 @@ int ventoy_plugin_find_conf_replace(const char *iso, conf_replace *nodes[VTOY_MA
 dud * ventoy_plugin_find_dud(const char *iso);
 int ventoy_plugin_load_dud(dud *node, const char *isopart);
 int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
-int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start);
+int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start, char *err, grub_uint32_t len);
 void ventoy_plugin_dump_persistence(void);
 grub_err_t ventoy_cmd_set_theme(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_set_theme_path(grub_extcmd_context_t ctxt, int argc, char **args);
