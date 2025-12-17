@@ -15,3 +15,9 @@ string translation:
 
 All the languages will be sorted by the name
 
+To keep `languages.json` consistent, two bash scripts were added:
+    1. **languages_check_order.sh** — validates that the file is an array of objects with string `name` and checks alphabetical order.
+    2. **languages_sort_by_names.sh** — automatically sorts the entries by `name` (case-insensitive by default) and rewrites the file, creating a `.bak` backup.
+    
+    - Both scripts can run without arguments and will detect `languages.json` in current directory.
+    - Requires `jq` and a UTF-8 environment.
