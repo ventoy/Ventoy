@@ -2214,6 +2214,10 @@ static int Windows11Bypass(const char *isofile, const char MntLetter, UINT8 Chec
         goto End;
     }
 
+    //bugfix: change VTOYEFI partition attribute
+    
+
+
     //Now we really need to bypass windows 11 check. create registry
 
     if (Check)
@@ -2390,6 +2394,45 @@ static int MountVTLRI(CHAR *ImgPath, DWORD PhyDrive)
     return 0;
 }
 
+static BOOL FindVentoyDiskBySig(UINT32 VtoySig, DWORD* pDiskNum)
+{
+    HANDLE Handle;
+    DWORD dwSize = 0;
+    CHAR PhyPath[128];
+    UINT8 SectorBuf[512];
+
+    Log("Find Ventoy Disk by Sig %08x ...", VtoySig);
+
+    for (int DiskNum = 0; DiskNum < 32; DiskNum++)
+    {
+        sprintf_s(PhyPath, sizeof(PhyPath), "\\\\.\\PhysicalDrive%d", DiskNum);
+        Handle = CreateFileA(PhyPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
+        if (Handle == INVALID_HANDLE_VALUE)
+        {
+            Log("Could not open the disk<%s>, error:%u", PhyPath, GetLastError());
+            continue;
+        }
+
+        if (!ReadFile(Handle, SectorBuf, sizeof(SectorBuf), &dwSize, NULL))
+        {
+            Log("ReadFile failed, dwSize:%u  error:%u", dwSize, GetLastError());
+            CloseHandle(Handle);
+            continue;
+        }
+
+        CloseHandle(Handle);
+
+        if (*(UINT32*)(SectorBuf + 0x1B8) == VtoySig)
+        {
+            Log("%s sig match ...", PhyPath);
+            *pDiskNum = DiskNum;
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 static int VentoyHook(ventoy_os_param *param)
 {
     int i;
@@ -2476,11 +2519,11 @@ static int VentoyHook(ventoy_os_param *param)
     if (g_os_param_reserved[6] == 1)
     {
         memcpy(&VtoySig, g_os_param_reserved + 7, 4);
-        for (i = 0; i < 5; i++)
+        for (i = 0; i < 3; i++)
         {
             VtoyLetter = 'A';
             Drives = GetLogicalDrives();
-            Log("Logic Drives: 0x%x  VentoySig:%08X", Drives, VtoySig);
+            Log("[%d] Logic Drives: 0x%x  VentoySig:%08X", i, Drives, VtoySig);
 
             while (Drives)
             {
@@ -2489,12 +2532,13 @@ static int VentoyHook(ventoy_os_param *param)
                     memset(UUID, 0, sizeof(UUID));
                     memset(&VtoyDiskExtent, 0, sizeof(VtoyDiskExtent));
                     DiskSig = 0;
+					
                     if (GetPhyDiskUUID(VtoyLetter, UUID, &DiskSig, &VtoyDiskExtent) == 0)
                     {
-                        Log("DiskSig=%08X PartStart=%lld", DiskSig, VtoyDiskExtent.StartingOffset.QuadPart);
+                        Log("[%d] DiskSig=%08X PartStart=%lld", i, DiskSig, VtoyDiskExtent.StartingOffset.QuadPart);
                         if (DiskSig == VtoySig && VtoyDiskExtent.StartingOffset.QuadPart == SIZE_1MB)
                         {
-                            Log("Ventoy Disk Sig match");
+                            Log("Ventoy Disk Sig and offset match");
                             vtoyfind = TRUE;
                             break;
                         }
@@ -2515,6 +2559,13 @@ static int VentoyHook(ventoy_os_param *param)
                 Log("Now wait and retry ...");
                 Sleep(1000);
             }
+        }
+
+        if (vtoyfind == FALSE) // vlnk mode Ventoy partition has no letter
+        {
+            Log("Warning: Ventoy partition has no drive letter, assume C: and find by sig");
+            VtoyLetter = 'C';            
+            vtoyfind = FindVentoyDiskBySig(VtoySig, &VtoyDiskExtent.DiskNumber);
         }
 
         if (vtoyfind == FALSE)
