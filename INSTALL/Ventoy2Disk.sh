@@ -21,7 +21,7 @@ elif uname -m | grep -E -q 'mips64'; then
 else
     export TOOLDIR=i386
 fi
-export PATH="./tool/$TOOLDIR:$PATH"
+export PATH="$OLDDIR/tool/$TOOLDIR:$PATH"
 
 
 echo ''
@@ -59,6 +59,14 @@ if [ $? -eq 0 ]; then
         [ -f ./${file%.xz} ] && chmod +x ./${file%.xz}
         [ -f ./$file ] && rm -f ./$file
     done
+fi
+
+#use static linked mkexfatfs for musl-libc environment
+if [ -f mkexfatfs_static ]; then
+    if ldd --version 2>&1 | grep -qi musl; then
+        mv mkexfatfs mkexfatfs_shared
+        mv mkexfatfs_static mkexfatfs
+    fi
 fi
 
 cd ../../

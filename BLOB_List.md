@@ -85,13 +85,14 @@
         <tr> <td>./INSTALL/tool/i386/V2DServer</td>
         <tr> <td>./INSTALL/tool/mips64el/V2DServer</td>
         <tr> <td>./INSTALL/tool/x86_64/V2DServer</td>
-        <tr> <td>./INSTALL/tool/aarch64/mkexfatfs</td> <td rowspan=8>build</td>    <td rowspan=8>Build Instructions:<br/>./DOC/BuildVentoyFromSource.txt 4.9<br/>./ExFAT/buidexfat.sh<br/>./ExFAT/buidexfat_aarch64.sh<br/>./ExFAT/buidlibfuse.sh<br/>./ExFAT/buidlibfuse_aarch64.sh<br/></td>    </tr>
+        <tr> <td>./INSTALL/tool/aarch64/mkexfatfs</td> <td rowspan=9>build</td>    <td rowspan=8>Build Instructions:<br/>./DOC/BuildVentoyFromSource.txt 4.9<br/>./ExFAT/buidexfat.sh<br/>./ExFAT/buidexfat_aarch64.sh<br/>./ExFAT/buidlibfuse.sh<br/>./ExFAT/buidlibfuse_aarch64.sh<br/></td>    </tr>
         <tr> <td>./INSTALL/tool/aarch64/mount.exfat-fuse</td>
         <tr> <td>./INSTALL/tool/i386/mkexfatfs</td>
         <tr> <td>./INSTALL/tool/i386/mount.exfat-fuse</td>
         <tr> <td>./INSTALL/tool/mips64el/mkexfatfs</td>
         <tr> <td>./INSTALL/tool/mips64el/mount.exfat-fuse</td>
         <tr> <td>./INSTALL/tool/x86_64/mkexfatfs</td>
+        <tr> <td>./INSTALL/tool/x86_64/mkexfatfs_static</td>
         <tr> <td>./INSTALL/tool/x86_64/mount.exfat-fuse</td>    
         <tr> <td>./INSTALL/tool/aarch64/vlnk</td> <td rowspan=4>build</td>    <td rowspan=4>Build Instructions:<br/>./Vlnk/build.sh</td>    </tr>
         <tr> <td>./INSTALL/tool/i386/vlnk</td>
