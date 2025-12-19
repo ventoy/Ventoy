@@ -177,6 +177,8 @@ ventoy_get_os_type() {
             echo 'deepin'; return
         elif $GREP -q 'chinauos' /etc/os-release; then
             echo 'deepin'; return
+        elif $GREP -qi 'aerynos' /etc/os-release; then
+            echo 'rhel7'; return
         fi
     fi
     

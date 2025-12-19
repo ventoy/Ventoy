@@ -37,6 +37,7 @@
 #define VTOY_SIZE_4MB     (4 * 1024 * 1024)
 #define VTOY_SIZE_512KB   (512 * 1024)
 #define VTOY_SIZE_1KB     1024
+#define VTOY_SIZE_4KB     4096
 #define VTOY_SIZE_32KB    (32 * 1024)
 #define VTOY_SIZE_128KB   (128 * 1024)
 
@@ -662,6 +663,7 @@ grub_uint32_t ventoy_get_iso_boot_catlog(grub_file_t file);
 int ventoy_has_efi_eltorito(grub_file_t file, grub_uint32_t sector);
 grub_err_t ventoy_cmd_linux_chain_data(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_linux_systemd_menu(grub_extcmd_context_t ctxt, int argc, char **args);
+grub_err_t ventoy_cmd_linux_initrd(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_linux_limine_menu(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_linux_locate_initrd(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_initrd_count(grub_extcmd_context_t ctxt, int argc, char **args);
@@ -1279,6 +1281,7 @@ typedef struct systemd_menu_ctx
 {
     char *dev;
     char *buf;
+    const char *initrd_cmd;
     int pos;
     int len;
 }systemd_menu_ctx;

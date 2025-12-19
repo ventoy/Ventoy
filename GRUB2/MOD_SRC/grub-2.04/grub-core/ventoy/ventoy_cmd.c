@@ -7039,6 +7039,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_cmp_checksum", ventoy_cmd_cmp_checksum, 0, NULL, "", "", NULL },
     { "vt_push_menu_lang", ventoy_cmd_push_menulang, 0, NULL, "", "", NULL },
     { "vt_pop_menu_lang", ventoy_cmd_pop_menulang, 0, NULL, "", "", NULL },
+    { "vt_linux_initrd", ventoy_cmd_linux_initrd, 0, NULL, "", "", NULL },
 
 };
 
