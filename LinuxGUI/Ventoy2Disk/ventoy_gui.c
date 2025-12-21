@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -1192,26 +1194,34 @@ static int detect_gui_exe_path(int argc, char **argv, const char *curpath, char 
     vlog("This is %s%d X environment.\n", guitype, ver);
     vlog("exe = %s\n", pathbuf);
     
-    if (access(pathbuf, F_OK) == -1)
+    int fd = open(pathbuf, O_RDONLY);
+    if (fd == -1)
     {
-        vlog("%s is not exist.\n", pathbuf);
+        vlog("%s does not exist or cannot be opened.\n", pathbuf);
         return 1;
     }
 
-    if (access(pathbuf, X_OK) == -1)
+    if (fstat(fd, &filestat) == 0)
     {
-        vlog("execute permission check fail, try chmod.\n", pathbuf);
-        if (stat(pathbuf, &filestat) == 0)
+        if ((filestat.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)) == 0)
         {
+            vlog("execute permission check fail, try chmod.\n");
             mode = filestat.st_mode | S_IXUSR | S_IXGRP | S_IXOTH;
-            ret = chmod(pathbuf, mode);
+            ret = fchmod(fd, mode);
             vlog("old mode=%o new mode=%o ret=%d\n", filestat.st_mode, mode, ret);
+        }
+        else
+        {
+            vlog("execute permission check success.\n");
         }
     }
     else
     {
-        vlog("execute permission check success.\n");
+        vlog("fstat failed on %s\n", pathbuf);
+        close(fd);
+        return 1;
     }
+    close(fd);
 
     return 0;
 }
