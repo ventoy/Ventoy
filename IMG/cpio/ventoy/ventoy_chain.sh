@@ -376,7 +376,7 @@ ventoy_get_os_type() {
         fi
     fi
     if [ -f /etc/kylin-release ]; then
-        if $GREP -i -q -m1 'Kylin.*Server.* V11 ' /etc/kylin-release; then
+        if $GREP -i -q -m1 'Kylin.*Server.* V1[1-9] ' /etc/kylin-release; then
             echo 'openEuler'; return
         fi
     fi

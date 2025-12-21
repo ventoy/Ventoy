@@ -2785,6 +2785,40 @@ static BOOL WriteBackupDataToDisk(HANDLE hDrive, UINT64 Offset, BYTE *Data, DWOR
 	return TRUE;
 }
 
+static int DeleteVtoyEFIMountPoint(int PhyDrive)
+{
+    int i = 0;
+	BOOL bRet;
+	CHAR DriveLetters[MAX_PATH] = { 0 };
+	CHAR DriveName[] = "?:\\";
+
+    Log("Try to delete VtoyEFI mount point for PhyDrive %d\n", PhyDrive);
+
+    GetLettersBelongPhyDrive(PhyDrive, DriveLetters, sizeof(DriveLetters));
+
+	if (DriveLetters[0] == 0)
+	{
+		Log("No drive letter was assigned...");
+	}
+	else
+	{
+		// Unmount all mounted volumes that belong to this drive
+		// Do it in reverse so that we always end on the first volume letter
+		for (i = (int)strlen(DriveLetters); i > 0; i--)
+		{
+			DriveName[0] = DriveLetters[i - 1];
+			if (IsVentoyLogicalDrive(DriveName[0]))
+			{
+				Log("%s is ventoy logical drive", DriveName);
+				bRet = DeleteVolumeMountPointA(DriveName);
+				Log("Delete mountpoint %s ret:%u code:%u", DriveName, bRet, LASTERR);
+				break;
+			}
+		}
+	}
+    
+    return 0;
+}
 
 int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 {
@@ -2874,28 +2908,7 @@ int UpdateVentoy2PhyDrive(PHY_DRIVE_INFO *pPhyDrive, int TryId)
 	SetFilePointer(hDrive, 512 * 2040, NULL, FILE_BEGIN);
 	ReadFile(hDrive, ReservedData, sizeof(ReservedData), &dwSize, NULL);
 
-	GetLettersBelongPhyDrive(pPhyDrive->PhyDrive, DriveLetters, sizeof(DriveLetters));
-
-	if (DriveLetters[0] == 0)
-	{
-		Log("No drive letter was assigned...");
-	}
-	else
-	{
-		// Unmount all mounted volumes that belong to this drive
-		// Do it in reverse so that we always end on the first volume letter
-		for (i = (int)strlen(DriveLetters); i > 0; i--)
-		{
-			DriveName[0] = DriveLetters[i - 1];
-			if (IsVentoyLogicalDrive(DriveName[0]))
-			{
-				Log("%s is ventoy logical drive", DriveName);
-				bRet = DeleteVolumeMountPointA(DriveName);
-				Log("Delete mountpoint %s ret:%u code:%u", DriveName, bRet, LASTERR);
-				break;
-			}
-		}
-	}
+    DeleteVtoyEFIMountPoint(pPhyDrive->PhyDrive);
 
 	// It kind of blows, but we have to relinquish access to the physical drive
 	// for VDS to be able to delete the partitions that reside on it...
@@ -3270,6 +3283,9 @@ End:
 			{
 				Log("Change EFI partition attr success");
 				pPhyDrive->Part2GPTAttr = VENTOY_EFI_PART_ATTR;
+
+                Sleep(1000);
+                DeleteVtoyEFIMountPoint(pPhyDrive->PhyDrive);
 			}
 			else
 			{
