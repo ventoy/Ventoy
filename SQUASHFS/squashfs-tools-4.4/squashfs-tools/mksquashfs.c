@@ -4856,13 +4856,13 @@ void read_recovery_data(char *recovery_file, char *destination_file)
 		BAD_ERROR("Failed to open recovery file because %s\n",
 			strerror(errno));
 
+	if(stat(destination_file, &buf) == -1)
+		BAD_ERROR("Failed to stat destination file, because %s\n",
+			strerror(errno));
+
 	fd = open(destination_file, O_RDWR);
 	if(fd == -1)
 		BAD_ERROR("Failed to open destination file because %s\n",
-			strerror(errno));
-
-	if(fstat(fd, &buf) == -1)
-		BAD_ERROR("Failed to stat destination file, because %s\n",
 			strerror(errno));
 
 	res = read_bytes(recoverfd, header2, RECOVER_ID_SIZE);
