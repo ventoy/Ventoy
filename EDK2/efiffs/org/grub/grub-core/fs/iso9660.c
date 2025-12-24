@@ -424,7 +424,7 @@ set_rockridge (struct grub_iso9660_data *data)
 
       /* The 2nd data byte stored how many bytes are skipped every time
 	 to get to the SUA (System Usage Area).  */
-      data->susp_skip = entry->u.data[1 + 2];
+      data->susp_skip = *(&entry->u.version + 1 + 2);
       entry = (struct grub_iso9660_susp_entry *) ((char *) entry + entry->len);
 
       /* Iterate over the entries in the SUA area to detect
@@ -561,12 +561,10 @@ susp_iterate_dir (struct grub_iso9660_susp_entry *entry,
   /* The filename in the rock ridge entry.  */
   if (grub_strncmp ("NM", (char *) entry->sig, 2) == 0)
     {
-      /* The flags are stored at the data position 0, here the
-	 filename type is stored.  */
-      /* FIXME: Fix this slightly improper cast.  */
-      if (entry->u.data[1 + 0] & GRUB_ISO9660_RR_DOT)
+      /* The flags are stored in the byte following the version number. */
+      if (entry->u.version & GRUB_ISO9660_RR_DOT)
 	ctx->filename = (char *) ".";
-      else if (entry->u.data[1 + 0] & GRUB_ISO9660_RR_DOTDOT)
+      else if (entry->u.version & GRUB_ISO9660_RR_DOTDOT)
 	ctx->filename = (char *) "..";
       else if (entry->len >= 5)
 	{
@@ -590,7 +588,7 @@ susp_iterate_dir (struct grub_iso9660_susp_entry *entry,
 	      return grub_errno;
 	    }
 	  ctx->filename_alloc = 1;
-	  grub_memcpy (ctx->filename + off, (char *) &entry->u.data[1 + 1], csize);
+	  grub_memcpy (ctx->filename + off, (char *) &entry->u.version + 1 + 1, csize);
 	  ctx->filename[off + csize] = '\0';
 	}
     }
@@ -599,7 +597,7 @@ susp_iterate_dir (struct grub_iso9660_susp_entry *entry,
     {
       /* At position 0 of the PX record the st_mode information is
 	 stored (little-endian).  */
-      grub_uint32_t mode = ((entry->u.data[1 + 0] + (entry->u.data[1 + 1] << 8))
+      grub_uint32_t mode = ((*(&entry->u.version + 1 + 0) + (*(&entry->u.version + 1 + 1) << 8))
 			    & GRUB_ISO9660_FSTYPE_MASK);
 
       switch (mode)
@@ -625,7 +623,7 @@ susp_iterate_dir (struct grub_iso9660_susp_entry *entry,
       while (pos + sizeof (*entry) < entry->len)
 	{
 	  /* The current position is the `Component Flag'.  */
-	  switch (entry->u.data[1 + pos] & 30)
+	  switch (*(&entry->u.version + 1 + pos) & 30)
 	    {
 	    case 0:
 	      {
@@ -634,9 +632,9 @@ susp_iterate_dir (struct grub_iso9660_susp_entry *entry,
 		   Record'.  */
 		if (ctx->symlink && !ctx->was_continue)
 		  add_part (ctx, "/", 1);
-		add_part (ctx, (char *) &entry->u.data[1 + pos + 2],
-			  entry->u.data[1 + pos + 1]);
-		ctx->was_continue = (entry->u.data[1 + pos] & 1);
+		add_part (ctx, (char *) &entry->u.version + 1 + pos + 2,
+			  *(&entry->u.version + 1 + pos + 1));
+		ctx->was_continue = (*(&entry->u.version + 1 + pos) & 1);
 		break;
 	      }
 
@@ -654,7 +652,7 @@ susp_iterate_dir (struct grub_iso9660_susp_entry *entry,
 	    }
 	  /* In pos + 1 the length of the `Component Record' is
 	     stored.  */
-	  pos += entry->u.data[1 + pos + 1] + 2;
+	  pos += *(&entry->u.version + 1 + pos + 1) + 2;
 	}
 
       /* Check if `grub_realloc' failed.  */
