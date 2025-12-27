@@ -27,6 +27,6 @@ All languages must be sorted **lexicographically by name**
 > After adding a new language package in `LANGUAGES/languages.json`, please also add a corresponding entry
 > to the supported languages list file located at:
 >
->  [`LANGUAGES/languages_list.md`](LANGUAGES/languages_list.md)
+>  [`LANGUAGES/languages_list.md`](languages_list.md)
 >
 > This helps keep the language support documentation complete and up to date.
