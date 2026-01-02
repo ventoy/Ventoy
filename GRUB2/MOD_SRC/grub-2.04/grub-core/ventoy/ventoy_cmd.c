@@ -202,6 +202,10 @@ int ventoy_get_fs_type(const char *fs)
     {
         return ventoy_fs_fat;
     }
+    else if (grub_strncmp(fs, "btrfs", 5) == 0)
+    {
+        return ventoy_fs_btrfs;
+    }
 
     return ventoy_fs_max;
 }
@@ -1569,19 +1573,25 @@ int ventoy_cmp_img(img_info *img1, img_info *img2)
 
 static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
 {
-    char *s1, *s2;
+    int i = 0;
     int c1 = 0;
     int c2 = 0;
+    int len = 0;
+    char *s1, *s2;
 
     if (g_plugin_image_list == VENTOY_IMG_WHITE_LIST)
     {
         return (node1->plugin_list_index - node2->plugin_list_index);
     }
 
-    for (s1 = node1->dir, s2 = node2->dir; *s1 && *s2; s1++, s2++)
+    s1 = node1->dir;
+    s2 = node2->dir;
+    len = grub_min(node1->dirlen, node2->dirlen);
+
+    for (i = 0; i < len - 1; i++)
     {
-        c1 = *s1;
-        c2 = *s2;
+        c1 = *s1++;
+        c2 = *s2++;
 
         if (0 == g_sort_case_sensitive)
         {
@@ -1598,8 +1608,18 @@ static int ventoy_cmp_subdir(img_iterator_node *node1, img_iterator_node *node2)
 
         if (c1 != c2)
         {
-            break;
+            return (c1 - c2);
         }
+    }
+
+    if (len == node1->dirlen)
+    {
+        c1 = 0;
+    }
+    
+    if (len == node2->dirlen)
+    {
+        c2 = 0;
     }
 
     return (c1 - c2);
@@ -1680,7 +1700,7 @@ static int ventoy_vlnk_probe_fs(ventoy_vlnk_part *cur)
 {
     const char *fs[ventoy_fs_max + 1] = 
     {
-        "exfat", "ntfs", "ext2", "xfs", "udf", "fat", NULL
+        "exfat", "ntfs", "ext2", "xfs", "udf", "fat", "btrfs", NULL
     };
 
     if (!cur->dev)
@@ -3235,12 +3255,48 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
     return;
 }
 
-int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, grub_disk_addr_t start)
+static const char* g_chunk_err_msg[VTOY_CHUNK_ERR_MAX] = 
+{
+    "success",
+    "File system use more than 1 disks! (maybe RAID)",
+    "File system enable RAID feature, this is NOT supported!",
+    "File is compressed in disk, this is not supported!",
+    "File not flat in disk! (maybe compressed)",
+    "Read buffer overflow!",
+};
+
+static const char * ventoy_get_chunk_err_msg(grub_uint32_t err)
+{
+    if (err < VTOY_CHUNK_ERR_MAX)
+    {
+        return g_chunk_err_msg[err];
+    }
+    
+    return "XXXX";
+}
+
+int ventoy_check_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, 
+grub_disk_addr_t start, char *err, grub_uint32_t len)
 {
     grub_uint32_t i = 0;
     grub_uint64_t total = 0;
     grub_uint64_t fileblk = 0;
     ventoy_img_chunk *chunk = NULL;
+
+    if (chunklist->err_code)
+    {
+        if (err)
+        {
+            grub_snprintf(err, len, "%s", ventoy_get_chunk_err_msg(chunklist->err_code));
+        }
+    
+        return 1;
+    }
+
+    if (err)
+    {
+        grub_snprintf(err, len, "Unsupported chunk list.");
+    }
 
     for (i = 0; i < chunklist->cur_chunk; i++)
     {
@@ -3290,6 +3346,10 @@ int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, gr
     else if (fs_type == ventoy_fs_ext)
     {
         grub_ext_get_file_chunk(start, file, chunklist);        
+    }
+    else if (fs_type == ventoy_fs_btrfs)
+    {
+        grub_btrfs_get_file_chunk(start, file, chunklist);        
     }
     else
     {
@@ -3350,8 +3410,10 @@ int ventoy_get_block_list(grub_file_t file, ventoy_img_chunk_list *chunklist, gr
 static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int rc;
+    int fs_type;
     grub_file_t file;
     grub_disk_addr_t start;
+    char errmsg[128];
     
     (void)ctxt;
     (void)argc;
@@ -3371,7 +3433,8 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
         grub_free(g_img_chunk_list.chunk);
     }
 
-    if (ventoy_get_fs_type(file->fs->name) >= ventoy_fs_max)
+    fs_type = ventoy_get_fs_type(file->fs->name);
+    if (fs_type >= ventoy_fs_max)
     {
         grub_file_close(file);
         return grub_error(GRUB_ERR_BAD_ARGUMENT, "Unsupported filesystem %s\n", file->fs->name); 
@@ -3392,12 +3455,17 @@ static grub_err_t ventoy_cmd_img_sector(grub_extcmd_context_t ctxt, int argc, ch
 
     ventoy_get_block_list(file, &g_img_chunk_list, start);
 
-    rc = ventoy_check_block_list(file, &g_img_chunk_list, start);
+    rc = ventoy_check_block_list(file, &g_img_chunk_list, start, errmsg, sizeof(errmsg));
     grub_file_close(file);
-    
+
     if (rc)
     {
-        return grub_error(GRUB_ERR_NOT_IMPLEMENTED_YET, "Unsupported chunk list.\n");
+        if (fs_type == ventoy_fs_btrfs)
+        {
+            vtoy_tip(10, "%s\n\nWill exit in 10 seconds...\n", errmsg);
+            grub_exit();            
+        }
+        return grub_error(GRUB_ERR_NOT_IMPLEMENTED_YET, "%s\n", errmsg);
     }
 
     grub_memset(&g_grub_param->file_replace, 0, sizeof(g_grub_param->file_replace));
@@ -3934,6 +4002,7 @@ static grub_err_t ventoy_cmd_test_block_list(grub_extcmd_context_t ctxt, int arg
     grub_uint32_t i;
     grub_file_t file;
     ventoy_img_chunk_list chunklist;
+    char errmsg[128];
     
     (void)ctxt;
     (void)argc;
@@ -3957,8 +4026,9 @@ static grub_err_t ventoy_cmd_test_block_list(grub_extcmd_context_t ctxt, int arg
 
     ventoy_get_block_list(file, &chunklist, 0);
     
-    if (0 != ventoy_check_block_list(file, &chunklist, 0))
+    if (0 != ventoy_check_block_list(file, &chunklist, 0, errmsg, sizeof(errmsg)))
     {
+        grub_printf("%s\n", errmsg);
         grub_printf("########## UNSUPPORTED ###############\n");
     }
 
@@ -6969,6 +7039,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_cmp_checksum", ventoy_cmd_cmp_checksum, 0, NULL, "", "", NULL },
     { "vt_push_menu_lang", ventoy_cmd_push_menulang, 0, NULL, "", "", NULL },
     { "vt_pop_menu_lang", ventoy_cmd_pop_menulang, 0, NULL, "", "", NULL },
+    { "vt_linux_initrd", ventoy_cmd_linux_initrd, 0, NULL, "", "", NULL },
 
 };
 

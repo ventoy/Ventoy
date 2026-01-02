@@ -466,6 +466,37 @@ grub_err_t grub_disk_blocklist_read(void *chunklist, grub_uint64_t sector,
     return 0;
 }
 
+grub_err_t grub_disk_blocklist_read2(grub_disk_t disk, grub_uint64_t sector, 
+    grub_uint64_t size, char *buf)
+{
+    ventoy_img_chunk_list *chunk_list = (ventoy_img_chunk_list *)(disk->read_hook_data);
+
+    if (buf < chunk_list->buf || buf >= chunk_list->buf + VTOY_CHUNK_BUF_SIZE)
+    {
+        return 2;
+    }
+
+    if ((chunk_list->buf + chunk_list->last_off) != buf)
+    {
+        chunk_list->err_code = VTOY_CHUNK_ERR_NOT_FLAT;
+        return 0;
+    }
+
+    if (chunk_list->last_off + size > VTOY_CHUNK_BUF_SIZE)
+    {
+        chunk_list->err_code = VTOY_CHUNK_ERR_OVER_FLOW;
+        return 0;
+    }
+
+    chunk_list->last_off += (grub_uint32_t)size;
+    if (chunk_list->last_off == VTOY_CHUNK_BUF_SIZE)
+    {
+        chunk_list->last_off = 0;
+    }
+
+    return grub_disk_blocklist_read(chunk_list, sector, size, disk->log_sector_size);
+}
+
 /* Read data from the disk.  */
 grub_err_t
 grub_disk_read (grub_disk_t disk, grub_disk_addr_t sector,
@@ -474,6 +505,14 @@ grub_disk_read (grub_disk_t disk, grub_disk_addr_t sector,
     if (disk->read_hook == (grub_disk_read_hook_t)(void *)grub_disk_blocklist_read)
     {
         return grub_disk_blocklist_read((ventoy_img_chunk_list *)disk->read_hook_data, sector, size, disk->log_sector_size);
+    }
+    else if (disk->read_hook == (grub_disk_read_hook_t)(void *)grub_disk_blocklist_read2)
+    {
+        grub_err_t rv = grub_disk_blocklist_read2(disk, sector, size, (char *)buf);
+        if (rv != 2)
+        {
+            return rv;
+        }
     }
 
   /* First of all, check if the region is within the disk.  */

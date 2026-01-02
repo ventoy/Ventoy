@@ -52,6 +52,11 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # Parted Magic
+    if [ -d /pmagic ]; then
+        echo 'pmagic'; return
+    fi
+
     # PrimeOS :
     if $GREP -q 'PrimeOS' /proc/version; then
         echo 'primeos'; return
@@ -172,6 +177,8 @@ ventoy_get_os_type() {
             echo 'deepin'; return
         elif $GREP -q 'chinauos' /etc/os-release; then
             echo 'deepin'; return
+        elif $GREP -qi 'aerynos' /etc/os-release; then
+            echo 'rhel7'; return
         fi
     fi
     
@@ -235,10 +242,6 @@ ventoy_get_os_type() {
     
     if $GREP -q 'adelielinux' /proc/version; then
         echo 'adelie'; return
-    fi
-    
-    if $GREP -q 'pmagic' /proc/version; then
-        echo 'pmagic'; return
     fi
     
     if $GREP -q 'CDlinux' /proc/cmdline; then
@@ -372,6 +375,13 @@ ventoy_get_os_type() {
             echo 'openEuler'; return
         fi
     fi
+    if [ -f /etc/kylin-release ]; then
+        if $GREP -i -q -m1 'Kylin.*Server.* V1[1-9] ' /etc/kylin-release; then
+            echo 'openEuler'; return
+        fi
+    fi
+
+
     
     if $GREP -q 'chimera' /proc/version; then
         echo 'chimera'; return

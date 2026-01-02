@@ -101,6 +101,9 @@
       timeouten: timeouten,
       autoselen: autoselen
     }, function(e) {
+      let data = m_data_persistence[current_tab_index][index];
+      data.timeout = timeoutval;
+      data.autosel = autoselval;
       Message.success(g_vtoy_cur_language.STR_SAVE_SUCCESS);
     });
   }

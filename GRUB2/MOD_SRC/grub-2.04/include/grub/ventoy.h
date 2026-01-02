@@ -36,6 +36,7 @@ typedef enum ventoy_fs_type
     ventoy_fs_xfs,       /* 3: XFS */
     ventoy_fs_udf,       /* 4: UDF */
     ventoy_fs_fat,       /* 5: FAT */
+    ventoy_fs_btrfs,     /* 6: BTRFS */
 
     ventoy_fs_max
 }ventoy_fs_type;
@@ -252,11 +253,14 @@ typedef struct ventoy_virt_chunk
 #define DEFAULT_CHUNK_NUM   1024
 typedef struct ventoy_img_chunk_list
 {
+    char *buf;
+    grub_uint32_t last_off;
+    grub_uint32_t err_code;
+
     grub_uint32_t max_chunk;
     grub_uint32_t cur_chunk;
     ventoy_img_chunk *chunk;
 }ventoy_img_chunk_list;
-
 
 #pragma pack()
 
@@ -291,7 +295,21 @@ typedef struct ventoy_grub_param
 
 #pragma pack()
 
+#define VTOY_CHUNK_BUF_SIZE          (4 * 1024 * 1024)
+
+typedef enum vtoy_chunk_err
+{
+    VTOY_CHUNK_ERR_NONE = 0,
+    VTOY_CHUNK_ERR_MULTI_DEV,
+    VTOY_CHUNK_ERR_RAID,
+    VTOY_CHUNK_ERR_COMPRESS,
+    VTOY_CHUNK_ERR_NOT_FLAT,
+    VTOY_CHUNK_ERR_OVER_FLOW,
+    VTOY_CHUNK_ERR_MAX
+}vtoy_chunk_err;
+
 int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
+int grub_btrfs_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 void grub_iso9660_set_nojoliet(int nojoliet);
 int grub_iso9660_is_joliet(void);

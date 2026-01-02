@@ -84,3 +84,6 @@ cp -a /dev/$vtDM /dev/ventoy
 ln -s /dev/$vtDM /dev/root
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+
