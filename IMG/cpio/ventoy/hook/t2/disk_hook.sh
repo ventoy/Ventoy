@@ -25,7 +25,19 @@ fi
 
 VTPATH_OLD=$PATH; PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 
-modprobe dm-mod
+vtlog "Loading dax and dm-mod module ..."
+$BUSYBOX_PATH/modprobe dax      > /dev/null 2>&1
+$BUSYBOX_PATH/modprobe dm-mod   > /dev/null 2>&1
+
+if $GREP -q 'device-mapper' /proc/devices; then
+    vtlog "dm-mod module check success ..."
+else
+    vtlog "Need to extract dax and dm-mod module ..."
+    $VTOY_PATH/tool/zstdcat /lib/modules/$(uname -r)/drivers/dax/dax.ko.zst > $VTOY_PATH/extract_dax.ko
+    $BUSYBOX_PATH/insmod $VTOY_PATH/extract_dax.ko
+    $VTOY_PATH/tool/zstdcat /lib/modules/$(uname -r)/drivers/md/dm-mod.ko.zst > $VTOY_PATH/extract_dm_mod.ko
+    $BUSYBOX_PATH/insmod $VTOY_PATH/extract_dm_mod.ko
+fi
 
 wait_for_usb_disk_ready
 
