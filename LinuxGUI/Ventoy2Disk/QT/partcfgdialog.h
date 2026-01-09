@@ -28,7 +28,7 @@ public:
     explicit PartCfgDialog(QWidget *parent = nullptr);
     ~PartCfgDialog();
 
-private slots:
+private Q_SLOTS:
     void on_pushButtonOK_clicked();
 
     void on_pushButtonCancel_clicked();
