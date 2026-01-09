@@ -11,6 +11,10 @@ elif [ -e /lib/libz.a ]; then
     export VTZLIB=/lib/libz.a
 elif [ -e /usr/lib/libz.a ]; then
     export VTZLIB=/usr/lib/libz.a
+elif [ -e /usr/lib/x86_64-linux-gnu/libz.a ]; then
+    export VTZLIB=/usr/lib/x86_64-linux-gnu/libz.a
+elif [ -e /usr/lib/loongarch64-linux-gnu/libz.a ]; then
+    export VTZLIB=/usr/lib/loongarch64-linux-gnu/libz.a
 fi
 
 rm -f unsquashfs
@@ -28,6 +32,8 @@ if uname -a | egrep -q 'x86_64|amd64'; then
     name=unsquashfs_64
 elif uname -a | egrep -q 'aarch64'; then
     name=unsquashfs_aa64
+elif uname -a | egrep -q 'loongarch64'; then
+    name=unsquashfs_la64
 else
     name=unsquashfs_32
 fi

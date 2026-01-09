@@ -189,6 +189,10 @@ typedef struct ventoy_virt_chunk
   #define VENTOY_UEFI_DESC   L"ARM64 UEFI"
   #define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_aa64.efi"
   #define UDF_EFI_DRIVER_PATH  L"\\ventoy\\udf_aa64.efi"
+#elif defined (MDE_CPU_LOONGARCH64)
+  #define VENTOY_UEFI_DESC   L"LOONGARCH64 UEFI"
+  #define ISO9660_EFI_DRIVER_PATH  L"\\ventoy\\iso9660_la64.efi"
+  #define UDF_EFI_DRIVER_PATH  L"\\ventoy\\udf_la64.efi"
 #else
   #error Unknown Processor Type
 #endif

@@ -37,6 +37,8 @@
   #define VENTOY_UEFI_DESC   L"ARM UEFI"
 #elif defined (MDE_CPU_AARCH64)
   #define VENTOY_UEFI_DESC   L"ARM64 UEFI"
+#elif defined (MDE_CPU_LOONGARCH64)
+  #define VENTOY_UEFI_DESC   L"LOONGARCH64 UEFI"
 #else
   #error Unknown Processor Type
 #endif
