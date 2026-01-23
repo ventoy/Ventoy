@@ -1642,6 +1642,37 @@ static int ExpandSingleVar(VarDiskInfo *pDiskInfo, int DiskNum, const char *var,
         Log("%s=<PhyDrive%d>", var, index);
         sprintf_s(value, len, "%d", index);
     }
+    else if (strncmp(var, "VT_WINDOWS_DISK_NONVTOY_CLOSEST_", 32) == 0)
+    {
+        uiDst = strtoul(var + 32, NULL, 10);
+        uiDst = uiDst * (1024ULL * 1024ULL * 1024ULL);
+
+        for (i = 0; i < DiskNum; i++)
+        {
+            if (pDiskInfo[i].Capacity == 0 || i == g_vtoy_disk_drive)
+            {
+                continue;
+            }
+
+            if (pDiskInfo[i].Capacity > uiDst)
+            {
+                uiDelta = pDiskInfo[i].Capacity - uiDst;
+            }
+            else
+            {
+                uiDelta = uiDst - pDiskInfo[i].Capacity;
+            }
+
+            if (uiDelta < uiMaxDelta)
+            {
+                uiMaxDelta = uiDelta;
+                index = i;
+            }
+        }
+
+        Log("%s=<PhyDrive%d>", var, index);
+        sprintf_s(value, len, "%d", index);
+    }
     else
     {
         Log("Invalid var name <%s>", var);
