@@ -114,7 +114,7 @@ if [ ! -z "$passphrase" ]; then
     freeloop="/dev/mapper/persist_decrypted"
 fi
 
-mkfs -t $fstype $fsopt -L $label $freeloop 
+yes | mkfs -t $fstype $fsopt -L $label $freeloop
 
 sync
 
