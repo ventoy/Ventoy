@@ -855,7 +855,7 @@ static int load_languages(void)
         }
         else
         {
-            ventoy_code_set_cur_language("English (English)");            
+            ventoy_code_set_cur_language("Romanian (Română)");            
         }
         pCurLang = ventoy_code_get_cur_language();
     }

@@ -1624,6 +1624,7 @@ module = {
 module = {
   name = ventoy;
   common = ventoy/ventoy.c;
+  common = ventoy/ventoy_sysinfo.c;
   common = ventoy/ventoy_cmd.c;
   common = ventoy/ventoy_linux.c;
   common = ventoy/ventoy_unix.c;

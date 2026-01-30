@@ -42,6 +42,7 @@
 #endif
 #include <grub/ventoy.h>
 #include "ventoy_def.h"
+#include "ventoy_sysinfo.h"
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
@@ -496,6 +497,8 @@ GRUB_MOD_INIT(ventoy)
     ventoy_env_init();
     ventoy_arch_mode_init();
     ventoy_register_all_cmd();
+    
+    grub_register_command("ventoy_show_sysinfo", ventoy_display_sysinfo, 0, "Show System Info Overlay");
 }
 
 GRUB_MOD_FINI(ventoy)
