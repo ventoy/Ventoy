@@ -271,16 +271,11 @@ STATIC EFI_STATUS EFIAPI ventoy_write_iso_sector
     UINT32 i = 0;
     UINTN secLeft = 0;
     UINTN secRead = 0;
-    UINT64 ReadStart = 0;
-    UINT64 ReadEnd = 0;
     UINT8 *pCurBuf = (UINT8 *)Buffer;
     ventoy_img_chunk *pchunk = g_chunk;
     EFI_BLOCK_IO_PROTOCOL *pRawBlockIo = gBlockData.pRawBlockIo;
     
     debug("write iso sector %lu  count %u", Sector, Count);
-
-    ReadStart = Sector * 2048;
-    ReadEnd = (Sector + Count) * 2048;
 
     for (i = 0; Count > 0 && i < g_img_chunk_num; i++, pchunk++)
     {
@@ -603,7 +598,6 @@ EFI_STATUS EFIAPI ventoy_block_io_write
 ) 
 {
     UINT32 secNum = 0;
-    UINT64 offset = 0;
     
     (VOID)This;
     (VOID)MediaId;
@@ -614,7 +608,6 @@ EFI_STATUS EFIAPI ventoy_block_io_write
     }
 
     secNum = BufferSize / 2048;
-    offset = Lba * 2048;
 
     return ventoy_write_iso_sector(Lba, secNum, Buffer);
 }
@@ -673,13 +666,18 @@ EFI_STATUS EFIAPI ventoy_fill_device_path(VOID)
 {
     UINTN CurVtoyDpId = 0;
     UINTN NameLen = 0;
-    UINT8 TmpBuf[128] = {0};
+    UINT8 TmpBuf[128];
+    UINT8 i;
     VENDOR_DEVICE_PATH *venPath = NULL;
     CHAR16 VtoyDpName[32];
 
     CurVtoyDpId = ventoy_get_current_device_path_id();
     UnicodeSPrintAsciiFormat(VtoyDpName, sizeof(VtoyDpName), "ventoy_%03lu", CurVtoyDpId);
 
+    for (i = 0; i < 128; i++)
+    {
+        TmpBuf[i] = 0;
+    }
     venPath = (VENDOR_DEVICE_PATH *)TmpBuf;
     NameLen = StrSize(VtoyDpName);
     venPath->Header.Type = HARDWARE_DEVICE_PATH;

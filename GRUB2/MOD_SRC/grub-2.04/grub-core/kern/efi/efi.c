@@ -157,7 +157,8 @@ grub_efi_get_loaded_image (grub_efi_handle_t image_handle)
 void
 grub_reboot (void)
 {
-  grub_machine_fini (GRUB_LOADER_FLAG_NORETURN);
+  grub_machine_fini (GRUB_LOADER_FLAG_NORETURN |
+		     GRUB_LOADER_FLAG_EFI_KEEP_ALLOCATED_MEMORY);
   efi_call_4 (grub_efi_system_table->runtime_services->reset_system,
               GRUB_EFI_RESET_COLD, GRUB_EFI_SUCCESS, 0, NULL);
   for (;;) ;
@@ -281,7 +282,8 @@ grub_addr_t
 grub_efi_modules_addr (void)
 {
   grub_efi_loaded_image_t *image;
-  struct grub_pe32_header *header;
+  struct grub_msdos_image_header *header;
+  struct grub_pe_image_header *pe_image_header;
   struct grub_pe32_coff_header *coff_header;
   struct grub_pe32_section_table *sections;
   struct grub_pe32_section_table *section;
@@ -293,7 +295,10 @@ grub_efi_modules_addr (void)
     return 0;
 
   header = image->image_base;
-  coff_header = &(header->coff_header);
+  pe_image_header
+    = (struct grub_pe_image_header *) ((char *) header
+                                       + header->pe_image_header_offset);
+  coff_header = &(pe_image_header->coff_header);
   sections
     = (struct grub_pe32_section_table *) ((char *) coff_header
 					  + sizeof (*coff_header)

@@ -100,6 +100,11 @@ CONST CHAR16 *gEfiBootFileName[] =
     L"\\EFI\\BOOT\\BOOTaa64.EFI",
     L"\\EFI\\BOOT\\bootaa64.efi",
     L"\\efi\\boot\\bootaa64.efi",
+#elif defined (MDE_CPU_LOONGARCH64)
+    L"\\EFI\\BOOT\\GRUBLOONGARCH64.EFI",
+    L"\\EFI\\BOOT\\BOOTLOONGARCH64.EFI",
+    L"\\EFI\\BOOT\\bootloongarch64.efi",
+    L"\\efi\\boot\\bootloongarch64.efi",
 #endif
     
 };
@@ -503,10 +508,15 @@ STATIC EFI_STATUS EFIAPI ventoy_load_image
 )
 {
     EFI_STATUS Status = EFI_SUCCESS;
-    CHAR16 TmpBuf[256] = {0};
+    CHAR16 TmpBuf[256];
+    UINT8 i;
     FILEPATH_DEVICE_PATH *pFilePath = NULL;
     EFI_DEVICE_PATH_PROTOCOL *pImgPath = NULL;
 
+    for (i = 0; i < 256; i++)
+    {
+        TmpBuf[i] = 0;
+    }
     pFilePath = (FILEPATH_DEVICE_PATH *)TmpBuf;
     pFilePath->Header.Type = MEDIA_DEVICE_PATH;
     pFilePath->Header.SubType = MEDIA_FILEPATH_DP;

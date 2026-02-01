@@ -9,6 +9,10 @@ aarch64-buildroot-linux-uclibc-gcc -Os -static -DVTOY_AA64 -D_FILE_OFFSET_BITS=6
 
 mips64el-linux-musl-gcc -mips64r2 -mabi=64 -Os -static -DVTOY_MIPS64 -D_FILE_OFFSET_BITS=64  *.c BabyISO/*.c -IBabyISO -Wall -DBUILD_VTOY_TOOL  -o  vtoytool_m64e
 
+#loongarch
+#gcc -specs /usr/local/musl/lib/musl-gcc.specs -Os  -DVTOY_LOONGARCH64 -D_FILE_OFFSET_BITS=64  *.c BabyISO/*.c -IBabyISO -Wall -DUSE_MUSL_C -DBUILD_VTOY_TOOL  -o  vtoytool_la64
+
+
 #gcc -D_FILE_OFFSET_BITS=64 -static -Wall -DBUILD_VTOY_TOOL  *.c BabyISO/*.c -IBabyISO  -o  vtoytool_64
 #gcc -D_FILE_OFFSET_BITS=64  -Wall -DBUILD_VTOY_TOOL -m32  *.c BabyISO/*.c -IBabyISO  -o  vtoytool_32
 

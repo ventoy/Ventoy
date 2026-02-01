@@ -28,9 +28,10 @@
 void
 grub_halt (void)
 {
-  grub_machine_fini (GRUB_LOADER_FLAG_NORETURN);
+  grub_machine_fini (GRUB_LOADER_FLAG_NORETURN |
+                    GRUB_LOADER_FLAG_EFI_KEEP_ALLOCATED_MEMORY);
 #if !defined(__ia64__) && !defined(__arm__) && !defined(__aarch64__) && !defined(__mips__) &&\
-    !defined(__riscv)
+    !defined(__loongarch__) && !defined(__riscv)
   grub_acpi_halt ();
 #endif
   efi_call_4 (grub_efi_system_table->runtime_services->reset_system,

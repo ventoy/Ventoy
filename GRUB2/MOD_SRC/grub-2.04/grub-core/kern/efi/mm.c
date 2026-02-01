@@ -662,7 +662,8 @@ grub_efi_mm_init (void)
 		       2 * BYTES_TO_PAGES (MEMORY_MAP_SIZE));
 }
 
-#if defined (__aarch64__) || defined (__arm__) || defined (__riscv)
+#if defined (__aarch64__) || defined (__arm__) || defined (__riscv) || \
+  defined (__loongarch__)
 grub_err_t
 grub_efi_get_ram_base(grub_addr_t *base_addr)
 {

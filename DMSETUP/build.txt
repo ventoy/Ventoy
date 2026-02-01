@@ -64,6 +64,12 @@ build for 32bit, static linked with dietlibc
 5. mips64el-linux-musl-strip dmsetup/dmsetup.static
 6. get dmsetup/dmsetup.static as the dmsetupm64e binary file
 
+======================== Build for loongarch64 dmsetup =========================
+1. extract device mapper source code
+2. ./configure  build_alias=loongarch64-unknown-linux-gnu --disable-nls  --disable-selinux --disable-shared  --enable-static_link CC='gcc -specs /usr/local/musl/lib/musl-gcc.specs'
+3. make
+4. strip --strip-all dmsetup/dmsetup.static
+5. get dmsetup/dmsetup.static as the dmsetupla64 binary file
 
 
 

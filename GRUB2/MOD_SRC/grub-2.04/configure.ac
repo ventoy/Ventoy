@@ -108,6 +108,9 @@ case "$target_cpu" in
   aarch64*)
 		target_cpu=arm64
 		;;
+  loongarch64)
+		target_cpu=loongarch64
+		;;
   riscv32*)
 		target_cpu=riscv32
 		;;
@@ -138,6 +141,7 @@ if test "x$with_platform" = x; then
     ia64-*) platform=efi ;;
     arm-*) platform=uboot ;;
     arm64-*) platform=efi ;;
+    loongarch64-*) platform=efi;;
     riscv32-*) platform=efi ;;
     riscv64-*) platform=efi ;;
     *)
@@ -189,6 +193,7 @@ case "$target_cpu"-"$platform" in
   arm-coreboot) ;;
   arm-efi) ;;
   arm64-efi) ;;
+  loongarch64-efi) ;;
   riscv32-efi) ;;
   riscv64-efi) ;;
   *-emu) ;;
@@ -833,6 +838,21 @@ if ( test "x$target_cpu" = xi386 || test "x$target_cpu" = xx86_64 ) && test "x$p
   TARGET_CFLAGS="$TARGET_CFLAGS -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow"
 fi
 
+if test "x$target_cpu" = xloongarch64; then
+  AC_CACHE_CHECK([whether _mno_explicit_relocs works], [grub_cv_cc_mno_explicit_relocs], [
+    CFLAGS="$TARGET_CFLAGS -mno-explicit-relocs -Werror"
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+	[grub_cv_cc_mno_explicit_relocs=yes],
+	[grub_cv_cc_mno_explicit_relocs=no])
+  ])
+  if test "x$grub_cv_cc_mno_explicit_relocs" = xyes; then
+    TARGET_CFLAGS="$TARGET_CFLAGS -mno-explicit-relocs -fno-plt"
+    TARGET_CCASFLAGS="$TARGET_CCASFLAGS -mno-explicit-relocs -fno-plt"
+  fi
+  TARGET_CFLAGS="$TARGET_CFLAGS -Wa,-mla-global-with-abs"
+  TARGET_CCASFLAGS="$TARGET_CCASFLAGS -Wa,-mla-global-with-abs"
+fi
+
 # GRUB doesn't use float or doubles at all. Yet some toolchains may decide
 # that floats are a good fit to run instead of what's written in the code.
 # Given that floating point unit is disabled (if present to begin with)
@@ -1171,7 +1191,8 @@ AC_SUBST(TARGET_LDFLAGS_OLDMAGIC)
 
 LDFLAGS="$TARGET_LDFLAGS"
 
-if test "$target_cpu" = x86_64 || test "$target_cpu" = sparc64 || test "$target_cpu" = riscv64 ; then
+if test "$target_cpu" = x86_64 || test "$target_cpu" = sparc64 || test "$target_cpu" = riscv64 \
+  || test "$target_cpu" = loongarch64 ; then
   # Use large model to support 4G memory
   AC_CACHE_CHECK([whether option -mcmodel=large works], grub_cv_cc_mcmodel, [
     CFLAGS="$TARGET_CFLAGS -mcmodel=large"
@@ -1934,6 +1955,8 @@ AM_CONDITIONAL([COND_x86_64_efi], [test x$target_cpu = xx86_64 -a x$platform = x
 AM_CONDITIONAL([COND_i386_xen], [test x$target_cpu = xi386 -a x$platform = xxen])
 AM_CONDITIONAL([COND_i386_xen_pvh], [test x$target_cpu = xi386 -a x$platform = xxen_pvh])
 AM_CONDITIONAL([COND_x86_64_xen], [test x$target_cpu = xx86_64 -a x$platform = xxen])
+AM_CONDITIONAL([COND_loongarch64], [test x$target_cpu = xloongarch64])
+AM_CONDITIONAL([COND_loongarch64_efi], [test x$target_cpu = xloongarch64 -a x$platform = xefi])
 AM_CONDITIONAL([COND_mips64_efi], [test x$target_cpu = xmips64el -a x$platform = xefi])
 AM_CONDITIONAL([COND_mips_loongson], [test x$target_cpu = xmipsel -a x$platform = xloongson])
 AM_CONDITIONAL([COND_mips_qemu_mips], [test "(" x$target_cpu = xmips -o x$target_cpu = xmipsel ")"  -a x$platform = xqemu_mips])
