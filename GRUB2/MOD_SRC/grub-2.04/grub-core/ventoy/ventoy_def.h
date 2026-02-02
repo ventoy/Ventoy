@@ -883,6 +883,13 @@ typedef struct VDIPREHEADER
     grub_uint32_t   u32Signature;
     /** The image version (VDI_IMAGE_VERSION). */
     grub_uint32_t   u32Version;
+    grub_uint32_t   u32HeaderSize, u32ImageType, u32ImageFlags;
+    char            szDescription[256];
+    grub_uint32_t   u32BlockmapOffset, u32DataOffset;
+    grub_uint32_t   u32Cylinders, u32Heads, u32Sectors;
+    grub_uint32_t   u32SectorSize, u32Unused1;
+    grub_uint64_t   u64DiskSize;
+    grub_uint32_t   u32BlockSize, u32BlockExtra, u32BlocksInImage, u32BlocksAllocated;
 } VDIPREHEADER, *PVDIPREHEADER;
 
 #pragma pack()
