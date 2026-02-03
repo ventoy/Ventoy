@@ -99,14 +99,10 @@ build_qt_i386() {
 
 #build QT5 for x86_64
 build_qt_x86_64() {
-    compile_lib "gcc" "ar" "x86_64"
-    QT_INC_PATH="/opt/Qt5.9.0/5.9/gcc_64/include"
-    QT_LIB_PATH="/opt/Qt5.9.0/5.9/gcc_64/lib"
-    LFLAGS="-Wl,-O1 -Wl,-rpath-link,$QT_LIB_PATH -L$QT_LIB_PATH"
-    build_qt_app "g++"   "x86_64" "64"
-    
-    force_copy Ventoy2Disk.qt5_64 ../INSTALL/tool/x86_64/Ventoy2Disk.qt5
-    rm -f ./libVentoyQT_x86_64.a
+    cd ./Ventoy2Disk/
+    make --file=QT/build/Makefile Ventoy2Disk
+    cd ..
+    cp ./Ventoy2Disk/Ventoy2Disk ./Ventoy2Disk.qt5
 }
 
 
@@ -166,5 +162,5 @@ force_copy ./Ventoy2Disk.qt5_32 ../INSTALL/tool/i386/Ventoy2Disk.qt5
 rm -f ./libVentoyQT_i386.a
 
 build_qt_x86_64
-build_qt_aarch64
-build_qt_mips64el
+# build_qt_aarch64
+# build_qt_mips64el
