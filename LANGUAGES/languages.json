@@ -206,7 +206,7 @@
         "STR_INCORRECT_DIR":"올바른 디렉터리에서 실행하십시오!",
         "STR_INCORRECT_TREE_DIR":"여기서 프로그램 (INSTALL 디렉터리)을 실행하지 말고 설치 패키지를 다운로드하여 압축을 푼 후 그곳에서 실행해 주십시오.",
         "STR_DEVICE":"장치",
-        "STR_LOCAL_VER":"패키지의 Ventoy 버전",
+        "STR_LOCAL_VER":"새 패키지의 Ventoy 버전",
         "STR_DISK_VER":"장치 내부의 Ventoy 버전",
         "STR_STATUS":"상태 - 준비 완료",
         "STR_INSTALL":"설치",
