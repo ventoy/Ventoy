@@ -3,6 +3,9 @@ version: '2'
 services:
   ventoy:
     build: .
-    privileged: true
+    cap_add:
+      - SYS_ADMIN
+    device_cgroup_rules:
+      - 'b *:* rwm'
     volumes:
      - .:/ventoy
