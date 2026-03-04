@@ -344,8 +344,8 @@ ventoy_get_os_type() {
     fi
     
     
-    if [ -e /init ]; then
-        if $GREP -q -m1 'T2 SDE' /init; then
+    if [ -e /etc/initrd-release ]; then
+        if $GREP -q -m1 't2sde' /etc/initrd-release; then
             echo 't2'; return
         fi
     fi
