@@ -1,0 +1,11 @@
+wimboot
+*.s
+*.o
+*.a
+*.elf
+*.map
+*.unsigned
+*.efi
+*.cab
+elf2efi32
+elf2efi64

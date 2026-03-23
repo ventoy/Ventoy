@@ -2,10 +2,10 @@
 
 VTOY_PATH=$PWD/../
 
-cd wimboot-2.7.3/src
+cd wimboot-2.9.0/src
 
 make clean
-make -j 16
+make -j 16 wimboot.x86_64 wimboot.i386.efi
 
 rm -f *.xz
 xz wimboot.x86_64
