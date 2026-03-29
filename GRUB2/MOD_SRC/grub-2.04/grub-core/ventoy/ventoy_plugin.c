@@ -2765,7 +2765,7 @@ int ventoy_plugin_get_persistent_chunklist(const char *isopath, int index, vento
     start = file->device->disk->partition->start;
     ventoy_get_block_list(file, chunk_list, start);
     
-    if (0 != ventoy_check_block_list(file, chunk_list, start))
+    if (0 != ventoy_check_block_list(file, chunk_list, start, NULL, 0))
     {
         grub_free(chunk_list->chunk);
         chunk_list->chunk = NULL;

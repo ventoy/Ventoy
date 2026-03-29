@@ -232,7 +232,7 @@
   SHA-256: cde08b6a2cf5ad914f05203e18e3f7c2ed6060a63604e3d75536f19b55e8e0af  
 
 5.8 imdisk
-  download http://www.ltr-data.se/files/imdiskinst.exe and extract it by 7zip.
+  download http://static.ltr-data.se/files/imdiskinst_2.0.10.exe and extract it by 7zip.
   
   INSTALL/ventoy/imdisk/64/imdisk.sys --> sys/amd64/imdisk.sys  SHA-256: 6702202220268787e361f5a82dae53362c8e6c6dcd240bb01b44dd77ae0788da
   INSTALL/ventoy/imdisk/64/imdisk.exe --> cli/amd64/imdisk.exe  SHA-256: 9759175380af836869443e5f21ce2e33022125d154bc6b3d1c04dc36b190de04
@@ -274,3 +274,4 @@
 5.14 ./LiveCD/ISO/EFI/boot/vmlinuz64
  download from http://www.tinycorelinux.net/11.x/x86_64/archive/11.0/distribution_files/vmlinuz64    
  vmlinuz64  SHA-256: 641077fc1f9914af244c248453005f56536ba9e7f54ba3e52402f26709ddb8a5
+
