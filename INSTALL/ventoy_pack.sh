@@ -13,7 +13,11 @@ dos2unix -q ./tool/distro_gui_type.json
 
 . ./tool/ventoy_lib.sh
 
-GRUB_DIR=../GRUB2/INSTALL
+sh ../KBD/mkconfig.sh || exit 1
+
+if [ -z "$GRUB_DIR" ]; then
+    GRUB_DIR=../GRUB2/INSTALL/i386-pc
+fi
 LANG_DIR=../LANGUAGES
 
 if ! [ -d $GRUB_DIR ]; then
@@ -139,7 +143,10 @@ rm -rf $tmpdir
 mkdir -p $tmpdir/boot
 mkdir -p $tmpdir/ventoy
 echo $curver > $tmpdir/ventoy/version
-dd if=$LOOP of=$tmpdir/boot/boot.img bs=1 count=512  status=none
+# Keep the staged Ventoy boot sector header. Re-dumping the first 512 bytes
+# from the temporary loop device can lose the Ventoy-specific MBR signature
+# that runtime device checks expect.
+cp $OPT ./grub/i386-pc/boot.img $tmpdir/boot/boot.img
 dd if=$LOOP of=$tmpdir/boot/core.img bs=512 count=2047 skip=1 status=none
 xz --check=crc32 $tmpdir/boot/core.img
 

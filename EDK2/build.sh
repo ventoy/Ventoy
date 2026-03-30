@@ -1,5 +1,8 @@
 #!/bin/sh
 
+VTOY_ARM64_TOOLCHAIN_DIR=${VTOY_ARM64_TOOLCHAIN_DIR:-/opt/arm-gnu-toolchain-11.3.rel1-x86_64-aarch64-none-linux-gnu}
+VTOY_ARM64_PREFIX=${VTOY_ARM64_PREFIX:-aarch64-none-linux-gnu-}
+
 if [ -z "$1" ]; then
     EDKARCH=X64
     postfix=x64
@@ -13,7 +16,7 @@ elif [ "$1" = "aa64" ]; then
     shift
 fi
 
-cd edk2-edk2-stable201911
+cd edk2-stable201911
 
 rm -rf ./Conf/.cache
 rm -f ./Conf/.AutoGenIdFile.txt
@@ -39,7 +42,8 @@ unset WORKSPACE
 source ./edksetup.sh
 
 if [ "$EDKARCH" = "AARCH64" ]; then    
-    GCC48_AARCH64_PREFIX=aarch64-linux-gnu- \
+    PATH=$PATH:$VTOY_ARM64_TOOLCHAIN_DIR/bin \
+    GCC48_AARCH64_PREFIX=$VTOY_ARM64_PREFIX \
     build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48
 else
     build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48
@@ -56,4 +60,3 @@ else
     cd ..
     exit 1
 fi
-

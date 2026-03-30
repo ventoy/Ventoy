@@ -1,8 +1,8 @@
-version: '2'
-
 services:
   ventoy:
     build: .
+    environment:
+     - VT_ENABLE_MIPS64EL=${VT_ENABLE_MIPS64EL:-1}
     privileged: true
     volumes:
      - .:/ventoy

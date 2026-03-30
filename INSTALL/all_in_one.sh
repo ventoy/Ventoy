@@ -1,6 +1,7 @@
 #!/bin/sh
 
 VTOY_PATH=$PWD/..
+VTOY_ARM64_TOOLCHAIN_DIR=${VTOY_ARM64_TOOLCHAIN_DIR:-/opt/arm-gnu-toolchain-11.3.rel1-x86_64-aarch64-none-linux-gnu}
 
 cilog() {
     datestr=$(date +"%Y/%m/%d %H:%M:%S")
@@ -14,11 +15,11 @@ cd $VTOY_PATH/DOC
 cilog "prepare_env ..."
 sh prepare_env.sh
 
-export PATH=$PATH:/opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin:/opt/mips-loongson-gcc7.3-linux-gnu/2019.06-29/bin/:/opt/mips64el-linux-musl-gcc730/bin/
+export PATH=$PATH:$VTOY_ARM64_TOOLCHAIN_DIR/bin:/opt/aarch64--uclibc--stable-2020.08-1/bin:/opt/mips-loongson-gcc7.3-linux-gnu/2019.06-29/bin/:/opt/mips64el-linux-musl-gcc730/bin/
 
 cilog "build grub2 ..."
 cd $VTOY_PATH/GRUB2
-sh buildgrub.sh >> $LOG 2>&1 || exit 1
+sh buildgrub.sh all >> $LOG 2>&1 || exit 1
 
 cilog "build ipxe ..."
 cd $VTOY_PATH/IPXE
