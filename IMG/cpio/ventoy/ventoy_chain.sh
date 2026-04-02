@@ -169,7 +169,7 @@ ventoy_get_os_type() {
             echo 'debian'; return
         elif $GREP -q 'Solus' /etc/os-release; then
             echo 'rhel7'; return
-        elif $GREP -q 'openEuler' /etc/os-release; then
+        elif $GREP -q -i 'openEuler' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'fuyu' /etc/os-release; then
             echo 'openEuler'; return
