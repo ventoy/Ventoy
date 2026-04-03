@@ -23,12 +23,18 @@
 
 #define IS_DIGIT(x) ((x) >= '0' && (x) <= '9')
 
-#ifndef USE_DIET_C
+#ifndef USE_MUSL_C
+
+#ifndef USE_DIET_C 
 #ifndef __mips__
 typedef unsigned long long uint64_t;
 #endif
 typedef unsigned int    uint32_t;
 typedef unsigned short  uint16_t;
+typedef unsigned char   uint8_t;
+#endif
+
+#else
 typedef unsigned char   uint8_t;
 #endif
 
