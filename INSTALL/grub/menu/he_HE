@@ -1,0 +1,90 @@
+{
+    "VTLANG_LANGUAGE_NAME": "עברית",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L: שפה F1: עזרה  F2: עיון  F3: תצוגת רשימה  F4: אתחול מקומי  F5: כלים   F6: תפריט מורחב",
+    "VTLANG_STR_HOTKEY_TREE": "L: שפה  F1: עזרה  F2: עיון  F3: תצוגת עץ  F4: אתחול מקומי F5: כלים  F6: תפריט מורחב",
+    "VTLANG_RETURN_PREVIOUS": "חזרה לתפריט הקודם [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "חזרה לתפריט הקודם",
+    
+    "VTLANG_MENU_LANG": "בחירת שפת תפריט",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "חפש והפעל Windows ",
+    "VTLANG_LB_SBOOT_G4D": "חפש והפעל Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "הפעל את הכונן המקומי הראשון",
+    "VTLANG_LB_SBOOT_HDD2": "הפעל את הכונן המקומי השני",  
+    "VTLANG_LB_SBOOT_HDD3": "הפעל את הכונן המקומי השלישי",
+    "VTLANG_LB_SBOOT_X64EFI": "חפש והפעל את BOOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "חפש והפעל את BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": " חפש והפעל את BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "חפש והפעל את xorboot",
+    
+    "VTLANG_FILE_CHKSUM": "סיכום ביקורת קבצים ",
+    "VTLANG_CHKSUM_MD5_CALC": "חשב md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC": "חשב sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC": "חשב sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC": "חשב sha512sum",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "חשב ואמת md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "חשב ואמת sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "חשב ואמת sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "חשב ואמת sha512sum",
+    
+    "VTLANG_POWER": "הפעלה מחדש",
+    "VTLANG_POWER_REBOOT": "הפעל מחדש",
+    "VTLANG_POWER_HALT": "עצור",
+    "VTLANG_POWER_BOOT_EFIFW": "הפעל מחדש להגדרות EFI",
+    
+    "VTLANG_KEYBRD_LAYOUT": "פריסות מקלדת",
+    "VTLANG_HWINFO": "מידע על חומרה",
+    
+    "VTLANG_RESOLUTION_CFG": "הגדרות רזולוציה",
+    "VTLANG_SCREEN_MODE": "מצב הצגה",
+    "VTLANG_SCREEN_TEXT_MODE": "כפה מצב טקסט",
+    "VTLANG_SCREEN_GUI_MODE": "כפה מצג גרפי",
+    
+    "VTLANG_THEME_SELECT": "בחירת ערכת עיצוב",
+    
+    "VTLANG_UEFI_UTIL": "תוכניות שרות Ventoy למערכת EFI",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "הצג מנהלי EFI",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "תקן כשלון BlinitializeLibrary של Windows",
+    
+    "VTLANG_JSON_CHK_JSON": "בדוק את קובץ ההגדרות json של התוסף (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "בדוק את הגדרות הבקרה הגלובליות של התוסף",
+    "VTLANG_JSON_CHK_THEME": "בדוק את הגדרות תוסף ערכת העיצוב",
+    "VTLANG_JSON_CHK_AUTOINS": "בדוק את הגדרות תוסף ההתקנה האוטומטית",
+    "VTLANG_JSON_CHK_PERSIST": "בדוק את הגדרות תוסף השמירה",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "בדוק את הגדרות תוסף שמות המדף של התפריט",
+    "VTLANG_JSON_CHK_MENU_TIP": "בדוק את הגדרות תוסף טיפ התפריט",
+    "VTLANG_JSON_CHK_MENU_CLASS": "בדוק את הגדרות תוסף מחלקת התפריט",
+    "VTLANG_JSON_CHK_INJECTION": "בדוק את הגדרות תוסף ההזרקה",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "בדוק את הגדרות תוסף הדיסקון הזיכרון האוטומטי",
+    "VTLANG_JSON_CHK_IMG_LIST": "בדוק את הגדרות תוסף רשימת התמונות",
+    "VTLANG_JSON_CHK_IMG_BLIST": "בדוק את הגדרות תוסף רשימת החסימה של התמונות",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "בדוק את הגדרות תוסף החלפת קובץ ההפעלה",
+    "VTLANG_JSON_CHK_DUD": "בדוק את הגדרות תוסף כשל",
+    "VTLANG_JSON_CHK_PASSWORD": "בדוק את הגדרות תוסף הסיסמה",
+    
+    "VTLANG_NORMAL_MODE": "הפעלה במצב רגיל",
+    "VTLANG_WIMBOOT_MODE": "הפעל במצב wimboot",
+    "VTLANG_GRUB2_MODE": "הפעל במצב grub2",
+    "VTLANG_MEMDISK_MODE": "הפעל במצב דיסקון זיכרון",
+    
+    "VTLANG_RET_TO_LISTVIEW": "חזור לתצוגת רשימה",
+    "VTLANG_RET_TO_TREEVIEW": "חזור לתצוגת עץ",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "הפעל ללא תבנית התקנה אוטומטית",
+    "VTLANG_AUTOINS_USE": "הפעל עם",
+    
+    "VTLANG_NO_PERSIST": "הפעל ללא שמירת מצב ",  
+    "VTLANG_PERSIST_USE": "הפעל עם",
+    
+    "VTLANG_BROWER_RETURN": "חזור",
+    
+    "VTLANG_ENTER_EXIT": "לצאת לחץ Enter",
+    "VTLANG_ENTER_REBOOT": "להפעלה מחדש לחץ Enter",
+    "VTLANG_ENTER_CONTINUE": "להמשך לחץ Enter ",
+    
+    "VTLANG_CTRL_TEMP_SET": "הגדרות בקרה זמניות",
+    "VTLANG_WIN11_BYPASS_CHECK": "עקוף בדיקות CPU/TPM/אבטחת אתחול בהתקנת Windows 11", 
+    "VTLANG_LINUX_REMOUNT": "טען מחדש את מחיצת Ventoy לאחר אתחול לינוקס",
+    "VTLANG_SECONDARY_BOOT_MENU": "הצג תפריט אתחול משני",
+}
