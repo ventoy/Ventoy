@@ -99,6 +99,9 @@
     <ClCompile Include="AlertSuppress.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ventoy_cli.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ventoy2Disk.h">
