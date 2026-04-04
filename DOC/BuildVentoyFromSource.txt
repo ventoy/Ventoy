@@ -262,9 +262,9 @@
  SHA-256: 2943f02f85fee0c9551aec47110a558a73f919c032b3c51e56d6f197b5ec4d7b  
    
 5.12 7za.exe
- download from https://www.7-zip.org/a/7z1900-extra.7z
- ISNTALL/ventoy/7z/64/7za.exe  SHA-256: 8117e40ee7f824f63373a4f5625bb62749f69159d0c449b3ce2f35aad3b83549
- ISNTALL/ventoy/7z/32/7za.exe  SHA-256: ea308c76a2f927b160a143d94072b0dce232e04b751f0c6432a94e05164e716d
+ download from https://github.com/ip7z/7zip/releases/download/26.00/7z2600-extra.7z
+ ISNTALL/ventoy/7z/64/7za.exe  SHA-256: 3A30D7761967AD217B90E3E3E02AABD82B13065D7401BF436ADEFDF75CFEA72E
+ ISNTALL/ventoy/7z/32/7za.exe  SHA-256: 392D39CADDFFB4B078807EE05E69C94719027AC9C9445503806E47116ACF6686
  
 5.13 ./Ventoy/Unix/ventoy_unix/DragonFly/sbin/dmsetup
  download from https://cdimage.debian.org/mirror/dragonflybsd.org/iso-images/dfly-x86_64-5.8.3_REL.iso.bz2
