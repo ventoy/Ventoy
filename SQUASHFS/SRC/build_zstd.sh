@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LIBDIR=$PWD/../LIB/ZSTD
-ZSTDDIR=zstd-1.4.4
+ZSTDDIR=zstd-1.5.7
 
 rm -rf $LIBDIR
 rm -rf $ZSTDDIR

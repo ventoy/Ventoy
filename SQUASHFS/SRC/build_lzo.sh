@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LIBDIR=$PWD/../LIB/LZO
-LZODIR=lzo-2.08
+LZODIR=lzo-2.10
 
 rm -rf $LIBDIR
 rm -rf $LZODIR
