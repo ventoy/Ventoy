@@ -1,11 +1,20 @@
 SECTIONS {
 
-	/* Align sections to keep PE tools happy */
-	alignment = 16;
+	/* Align sections to allow for page-level runtime protection */
+	alignment = 0x1000;
 
 	/* Virtual addresses start at 0x20000 */
 	. = 0x20000;
 	_start = .;
+
+	/* bootmgr.exe hardcodes the address 0x30000 for use as a
+	 * buffer accessible by real-mode code.  We can't fit
+	 * everything below this region, so we explicitly verify that
+	 * all BIOS-mode code and initialised data fits below this
+	 * region, and choose to place .bss above it.
+	 */
+	_forbidden_start = 0x30000;
+	_forbidden_end = 0x40000;
 
 	/* bzImage prefix */
 	_prefix_pos = 0;
@@ -30,54 +39,49 @@ SECTIONS {
 	}
 	_bss16_len = ABSOLUTE ( _ebss16 ) - ABSOLUTE ( _bss16 );
 
-	/* Payload section */
+	/* Data (and 16-bit BIOS text) section */
 	_payload_pos = ( _prefix_pos + _prefix_len );
-	.payload : AT ( _payload_pos ) {
+	_data_pos = _payload_pos;
+	.data : AT ( _data_pos ) {
+		_data = .;
 		_payload = .;
 		/* Portions that must be accessible in 16-bit modes */
-		_text16 = .;
 		*(.text16)
 		*(.text16.*)
-		_etext16 = .;
-		_data16 = .;
 		*(.rodata16)
 		*(.rodata16.*)
 		*(.data16)
 		*(.data16.*)
-		_edata16 = .;
 		/* Portions that need not be accessible in 16-bit modes */
-		_text = .;
-		*(.text)
-		*(.text.*)
-		_etext = .;
-		_data = .;
 		*(.rodata)
 		*(.rodata.*)
 		*(.data)
 		*(.data.*)
 		. = ALIGN ( alignment );
 		_edata = .;
-		_epayload = .;
 	}
-	_text16_len = ABSOLUTE ( _etext16 ) - ABSOLUTE ( _text16 );
-	_data16_len = ABSOLUTE ( _edata16 ) - ABSOLUTE ( _data16 );
-	_text_len = ABSOLUTE ( _etext ) - ABSOLUTE ( _text );
 	_data_len = ABSOLUTE ( _edata ) - ABSOLUTE ( _data );
-	_payload_len = ABSOLUTE ( _epayload ) - ABSOLUTE ( _payload );
 
-	/* bootmgr.exe hardcodes the address 0x30000 for use as a
-	 * buffer accessible by real-mode code.  We can't fit our
-	 * .text, .data, and .bss below this region, so explicitly
-	 * place the .bss higher in memory.
-	 */
-	_forbidden_start = 0x30000;
-	_forbidden_end = 0x40000;
+	/* Text (excluding 16-bit BIOS text) section */
+	_text_pos = ( _data_pos + _data_len );
+	.text : AT ( _text_pos ) {
+		_text = .;
+		*.i386.*(.text)
+		*.i386.*(.text.*)
+		ASSERT ( ABSOLUTE ( . ) <= ABSOLUTE ( _forbidden_start ),
+			 "Binary is too large" );
+		*(.text)
+		*(.text.*)
+		. = ALIGN ( alignment );
+		_epayload = .;
+		_etext = .;
+	}
+	_text_len = ABSOLUTE ( _etext ) - ABSOLUTE ( _text );
+	_payload_len = ABSOLUTE ( _epayload ) - ABSOLUTE ( _payload );
 
 	/* Uninitialised data section */
 	.bss ( NOLOAD ) : {
 		_bss = .;
-		ASSERT ( ABSOLUTE ( . ) <= ABSOLUTE ( _forbidden_start ),
-			 "Binary is too large" );
 		. = ABSOLUTE ( _forbidden_end );
 		*(.bss)
 		*(.bss.*)
@@ -89,15 +93,24 @@ SECTIONS {
 	}
 	_bss_len = ABSOLUTE ( _ebss ) - ABSOLUTE ( _bss );
 
+	/* Secure Boot Advanced Targeting (SBAT) section */
+	_sbat_pos = ( _text_pos + _text_len );
+	.sbat : AT ( _sbat_pos ) {
+		_sbat = .;
+		*(.sbat)
+		*(.sbat.*)
+		_msbat = .;
+		. = ALIGN ( alignment );
+		_esbat = .;
+	}
+	_sbat_used = ABSOLUTE ( _msbat ) - ABSOLUTE ( _sbat );
+	_sbat_len = ABSOLUTE ( _esbat ) - ABSOLUTE ( _sbat );
+
 	/* Relocations section */
-	_reloc_pos = ( _payload_pos + _payload_len );
+	_reloc_pos = ( _sbat_pos + _sbat_len );
 	_reloc = .;
 
 	_end = .;
-
-	_text_total_len = ( _text_len + _text16_len );
-	_data_total_len = ( _data_len + _data16_len );
-	_bss_total_len = ( _bss_len + _bss16_len );
 
 	/* Symbols required by i386.x86_64 objects */
 	__i386__start = _start;

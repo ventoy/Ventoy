@@ -2,7 +2,7 @@
 
 VTOY_PATH=$PWD/../
 
-cd wimboot-2.7.3/src
+cd wimboot-2.7.6/src
 
 make clean
 make -j 16

@@ -181,7 +181,7 @@ static int wim_chunk ( struct vdisk_file *file, struct wim_header *header,
 		/* Identify decompressor */
 		if ( header->flags & WIM_HDR_LZX ) {
 			decompress = lzx_decompress;
-        } else if (header->flags & WIM_HDR_XPRESS) {
+		} else if (header->flags & WIM_HDR_XPRESS) {
             decompress = xca_decompress;
 		} else {
 			DBG ( "Can't handle unknown compression scheme %#08x "
@@ -300,7 +300,8 @@ int wim_count ( struct vdisk_file *file, struct wim_header *header,
 	int rc;
 
 	/* Count metadata entries */
-	for ( offset = 0 ; ( offset + sizeof ( entry ) ) <= header->lookup.len ;
+	for ( offset = 0, *count = 0 ;
+	      ( offset + sizeof ( entry ) ) <= header->lookup.len ;
 	      offset += sizeof ( entry ) ) {
 
 		/* Read entry */

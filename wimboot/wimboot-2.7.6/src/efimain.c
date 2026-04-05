@@ -32,6 +32,23 @@
 #include "efiblock.h"
 #include "efiboot.h"
 
+/** SBAT section attributes */
+#define __sbat __attribute__ (( section ( ".sbat" ), aligned ( 512 ) ))
+
+/** SBAT metadata */
+#define SBAT_CSV							\
+	/* SBAT version */						\
+	"sbat,1,SBAT Version,sbat,1,"					\
+	"https://github.com/rhboot/shim/blob/main/SBAT.md"		\
+	"\n"								\
+	/* wimboot version */						\
+	"wimboot," SBAT_GENERATION ",iPXE,wimboot," VERSION ","		\
+	"https://ipxe.org/wimboot"					\
+	"\n"
+
+/** SBAT metadata (with no terminating NUL) */
+const char sbat[ sizeof ( SBAT_CSV ) - 1 ] __sbat = SBAT_CSV;
+
 /**
  * Process command line
  *

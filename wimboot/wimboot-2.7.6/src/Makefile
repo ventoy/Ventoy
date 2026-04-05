@@ -1,4 +1,6 @@
-VERSION := v2.7.3
+VERSION := v2.7.6
+
+SBAT_GENERATION := 1
 
 OBJECTS := prefix.o startup.o callback.o main.o vsprintf.o string.o peloader.o
 OBJECTS += int13.o vdisk.o cpio.o stdio.o lznt1.o xca.o die.o efi.o efimain.o
@@ -23,7 +25,8 @@ RM		:= rm
 GCAB		:= gcab
 PESIGN		:= pesign
 DIFF		:= diff
-CUT		:= cut
+GREP		:= grep
+XARGS		:= xargs
 BINUTILS_DIR	:= /usr
 BFD_DIR		:= $(BINUTILS_DIR)
 ZLIB_DIR	:= /usr
@@ -32,6 +35,7 @@ HOST_CFLAGS += -Wall -W -Werror
 
 CFLAGS += -Os -ffreestanding -Wall -W -Werror -nostdinc -I. -fshort-wchar
 CFLAGS += -DVERSION="\"$(VERSION)\""
+CFLAGS += -DSBAT_GENERATION="\"$(SBAT_GENERATION)\""
 
 CFLAGS_i386 += -m32 -march=i386 -malign-double -fno-pic
 CFLAGS_x86_64 += -m64 -mno-red-zone -fpie
@@ -69,6 +73,12 @@ WNAPM_FLAGS := $(shell $(WNAPM_TEST) && \
 		 $(ECHO) '-Wno-address-of-packed-member')
 WORKAROUND_CFLAGS += $(WNAPM_FLAGS)
 
+# Inhibit spurious warnings from array bounds checking
+WBOUNDS_TEST = $(CC) -Wno-array-bounds -x c -c /dev/null \
+		     -o /dev/null >/dev/null 2>&1
+WBOUNDS_FLAGS := $(shell $(WBOUNDS_TEST) && $(ECHO) '-Wno-array-bounds')
+WORKAROUND_CFLAGS += $(WBOUNDS_FLAGS)
+
 # Inhibit LTO
 LTO_TEST = $(CC) -fno-lto -x c -c /dev/null -o /dev/null >/dev/null 2>&1
 LTO_FLAGS := $(shell $(LTO_TEST) && $(ECHO) '-fno-lto')
@@ -102,13 +112,13 @@ wimboot.%.unsigned : wimboot.%.elf efireloc Makefile
 	./efireloc $< $@
 
 wimboot.%.unsigned.hash : wimboot.%.unsigned Makefile
-	$(PESIGN) -h -i $< | $(CUT) -d" " -f2- > $@
+	$(PESIGN) -h -i $< | $(XARGS) -n 1 $(ECHO) | $(GREP) -x '[0-9a-f]*' > $@
 
 wimboot.%.efi : wimboot.%.unsigned Makefile
 	$(CP) $< $@
 
 wimboot.%.efi.hash : wimboot.%.efi Makefile
-	$(PESIGN) -h -i $< | $(CUT) -d" " -f2- > $@
+	$(PESIGN) -h -i $< | $(XARGS) -n 1 $(ECHO) | $(GREP) -x '[0-9a-f]*' > $@
 
 wimboot.% : wimboot.%.efi wimboot.%.efi.hash wimboot.%.unsigned.hash Makefile
 	$(DIFF) wimboot.$*.efi.hash wimboot.$*.unsigned.hash

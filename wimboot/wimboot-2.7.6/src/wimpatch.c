@@ -683,6 +683,10 @@ static int wim_construct_patch ( struct vdisk_file *file,
 				   &patch->boot ) ) != 0 )
 		return rc;
 
+	/* Update boot image metadata in patched header, if applicable */
+	if ( boot_index )
+		memcpy ( boot, &patch->boot, sizeof ( *boot ) );
+
 	/* Record original boot index */
 	patch->boot_index = patch->header.boot_index;
 
