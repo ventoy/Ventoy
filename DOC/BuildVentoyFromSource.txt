@@ -173,15 +173,20 @@
   https://busybox.net/downloads/busybox-1.32.0.tar.bz2
   use BUSYBOX/x86_64_ash.config and uclibc to build busybox-1.32
 
-4.19 == Build lunzip32/lunzip64 ==
-  http://mirror.yongbok.net/nongnu/lzip/lunzip/lunzip-1.11.tar.gz
-  PATH=$PATH:/opt/diet/bin
-  ./configure --disable-nls CC='diet gcc -nostdinc'
+4.19 == Build lunzip32/lunzip64/lunzipaa64 ==
+  https://download.savannah.nongnu.org/releases/lzip/lunzip/lunzip-1.16.tar.gz
+  # i386
+  ./configure CC='/opt/diet32/bin/diet gcc -m32 -nostdinc'
   make
   strip --strip-all lunzip
-  
-  #aarch64
-  ./configure --disable-nls CC='aarch64-buildroot-linux-uclibc-gcc -static'
+
+  # x86_64
+  ./configure CC='/opt/diet64/bin/diet gcc -nostdinc'
+  make
+  strip --strip-all lunzip
+
+  # aarch64
+  ./configure CC='aarch64-buildroot-linux-uclibc-gcc -static'
   make
   aarch64-buildroot-linux-uclibc-strip --strip-all lunzip
 
