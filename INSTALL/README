@@ -11,7 +11,7 @@ Ventoy2Disk.sh CMD [ OPTION ] /dev/sdX
     
   OPTION: (optional)
    -r SIZE_MB  preserve some space at the bottom of the disk (only for install)
-   -s          enable secure boot support (default is disabled)
+   -S          disable secure boot support (default is enabled)
    -g          use GPT partition style, default is MBR style (only for install)
 
 Please refer https://www.ventoy.net/en/doc_start.html for details.   
