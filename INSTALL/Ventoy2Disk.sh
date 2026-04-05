@@ -66,6 +66,16 @@ if [ -f mkexfatfs_static ]; then
     if ldd --version 2>&1 | grep -qi musl; then
         mv mkexfatfs mkexfatfs_shared
         mv mkexfatfs_static mkexfatfs
+    else
+        if ./mkexfatfs -V > /dev/null 2>&1; then
+            echo "mkexfatfs can not run, check static version" >> ./log.txt
+        else
+            if ./mkexfatfs_static -V > /dev/null 2>&1; then
+                echo "Use static version of mkexfatfs" >> ./log.txt
+                mv mkexfatfs mkexfatfs_shared
+                mv mkexfatfs_static mkexfatfs
+            fi
+        fi
     fi
 fi
 
