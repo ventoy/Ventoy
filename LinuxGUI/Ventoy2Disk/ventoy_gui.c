@@ -1221,6 +1221,7 @@ int real_main(int argc, char **argv)
     int ret;
     int euid;
     char *exe = NULL;
+    const char *env = NULL;
     char path[PATH_MAX];
     char curpath[PATH_MAX];
 
@@ -1268,6 +1269,18 @@ int real_main(int argc, char **argv)
         if (detect_gui_exe_path(argc, argv, curpath, path, sizeof(path)))
         {
             return 1;
+        }
+
+        if (strstr(path, "gtk"))
+        {
+            env = getenv("XDG_SESSION_TYPE");
+            vlog("=== XDG_SESSION_TYPE is <%s> ===\n", env ? env : "NULL");
+            
+            if (env && strncasecmp(env, "wayland", 7) == 0)
+            {
+                vlog("Force GDK_BACKEND from %s to x11 for better compatibility\n", env);
+                setenv("GDK_BACKEND", "x11", 1);
+            }
         }
 
         if (euid == 0)

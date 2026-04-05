@@ -52,6 +52,11 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # Parted Magic
+    if [ -d /pmagic ]; then
+        echo 'pmagic'; return
+    fi
+
     # PrimeOS :
     if $GREP -q 'PrimeOS' /proc/version; then
         echo 'primeos'; return
@@ -164,7 +169,7 @@ ventoy_get_os_type() {
             echo 'debian'; return
         elif $GREP -q 'Solus' /etc/os-release; then
             echo 'rhel7'; return
-        elif $GREP -q 'openEuler' /etc/os-release; then
+        elif $GREP -q -i 'openEuler' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'fuyu' /etc/os-release; then
             echo 'openEuler'; return
@@ -172,6 +177,10 @@ ventoy_get_os_type() {
             echo 'deepin'; return
         elif $GREP -q 'chinauos' /etc/os-release; then
             echo 'deepin'; return
+        elif $GREP -qi 'aerynos' /etc/os-release; then
+            echo 'rhel7'; return
+        elif $GREP -qi 'ID_LIKE=debian' /etc/os-release; then
+            echo 'debian'; return
         fi
     fi
     
@@ -235,10 +244,6 @@ ventoy_get_os_type() {
     
     if $GREP -q 'adelielinux' /proc/version; then
         echo 'adelie'; return
-    fi
-    
-    if $GREP -q 'pmagic' /proc/version; then
-        echo 'pmagic'; return
     fi
     
     if $GREP -q 'CDlinux' /proc/cmdline; then
@@ -311,8 +316,8 @@ ventoy_get_os_type() {
     fi
     
     
-    if [ -e /init ]; then
-        if $GREP -q -m1 'T2 SDE' /init; then
+    if [ -e /etc/initrd-release ]; then
+        if $GREP -q -m1 't2sde' /etc/initrd-release; then
             echo 't2'; return
         fi
     fi
@@ -372,6 +377,13 @@ ventoy_get_os_type() {
             echo 'openEuler'; return
         fi
     fi
+    if [ -f /etc/kylin-release ]; then
+        if $GREP -i -q -m1 'Kylin.*Server.* V1[1-9] ' /etc/kylin-release; then
+            echo 'openEuler'; return
+        fi
+    fi
+
+
     
     if $GREP -q 'chimera' /proc/version; then
         echo 'chimera'; return
@@ -381,6 +393,12 @@ ventoy_get_os_type() {
     if $GREP -q '4.19.' /proc/version; then
         if [ -d /lib/dracut/hooks ]; then
             echo 'openEuler'; return
+        fi
+    fi
+    
+    if [ -f /etc/tinyramfs/config ]; then
+        if $GREP -q 'EWE_ISO' /etc/tinyramfs/config; then
+            echo "ewe"; return
         fi
     fi
     

@@ -68,6 +68,7 @@ static int verbose = 0;
 #define CMD_DUMP_ISO_INFO     3
 #define CMD_EXTRACT_ISO_FILE  4
 #define CMD_PRINT_EXTRACT_ISO_FILE  5
+#define CMD_PRINT_RAW_TABLE         6
 
 static uint64_t g_iso_file_size;
 static char g_disk_name[128];
@@ -578,6 +579,45 @@ static uint64_t vtoydm_get_part_start(const char *diskname, int part)
     return size;
 }
 
+static uint64_t vtoydm_get_part_secnum(const char *diskname, int part)
+{
+    int fd;
+    unsigned long long size = 0;
+    char diskpath[256] = {0};
+    char sizebuf[64] = {0};
+
+    diskname += 5; /* skip /dev/ */
+
+    if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
+    {
+        snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%sp%d/size", diskname, part);
+    }
+    else
+    {
+        snprintf(diskpath, sizeof(diskpath) - 1, "/sys/class/block/%s%d/size", diskname, part);
+    }
+
+    if (access(diskpath, F_OK) >= 0)
+    {
+        debug("get part size from sysfs for %s %d\n", diskname, part);
+        
+        fd = open(diskpath, O_RDONLY | O_BINARY);
+        if (fd >= 0)
+        {
+            read(fd, sizebuf, sizeof(sizebuf));
+            size = strtoull(sizebuf, NULL, 10);
+            close(fd);
+            return size;
+        }
+    }
+    else
+    {
+        debug("%s not exist \n", diskpath);
+    }
+
+    return size;
+}
+
 static int vtoydm_vlnk_convert(char *disk, int len, int *part, uint64_t *offset)
 {
     int rc = 1;
@@ -627,6 +667,24 @@ end:
     return rc;
 }
 
+static int vtoydm_print_raw_linear_table(const char *img_map_file, const char *diskname, int part)
+{
+    uint64_t disk_sector_num;
+
+    disk_sector_num = vtoydm_get_part_secnum(diskname, part);
+
+    if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
+    {
+        printf("0 %lu linear %sp%d 0\n", (unsigned long)disk_sector_num, diskname, part);
+    }
+    else
+    {
+        printf("0 %lu linear %s%d 0\n", (unsigned long)disk_sector_num, diskname, part);
+    }
+    
+    return 0;
+}
+
 int vtoydm_main(int argc, char **argv)
 {
     int ch;
@@ -639,7 +697,7 @@ int vtoydm_main(int argc, char **argv)
     char filepath[300] = {0};
     char outfile[300] = {0};
 
-    while ((ch = getopt(argc, argv, "s:l:o:d:f:v::i::p::c::h::e::E::")) != -1)
+    while ((ch = getopt(argc, argv, "s:l:o:d:f:v::i::p::r::c::h::e::E::")) != -1)
     {
         if (ch == 'd')
         {
@@ -652,6 +710,10 @@ int vtoydm_main(int argc, char **argv)
         else if (ch == 'p')
         {
             cmd = CMD_PRINT_TABLE;
+        }
+        else if (ch == 'r')
+        {
+            cmd = CMD_PRINT_RAW_TABLE;
         }
         else if (ch == 'c')
         {
@@ -712,6 +774,10 @@ int vtoydm_main(int argc, char **argv)
         case CMD_PRINT_TABLE:
         {
             return vtoydm_print_linear_table(filepath, diskname, part, offset);
+        }
+        case CMD_PRINT_RAW_TABLE:
+        {
+            return vtoydm_print_raw_linear_table(filepath, diskname, part);
         }
         case CMD_CREATE_DM:
         {

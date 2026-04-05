@@ -34,6 +34,9 @@ typedef enum VTOY_FS
 
 #define FAT32_MAX_LIMIT             (32 * 1073741824ULL)
 
+#define VENTOY_EFI_PART_ATTR        0x8000000000000000ULL
+
+
 #define SIZE_1KB					(1024)
 #define SIZE_1GB					(1024 * 1024 * 1024)
 #define SIZE_1TB					(1024ULL * 1024ULL * 1024ULL * 1024ULL)

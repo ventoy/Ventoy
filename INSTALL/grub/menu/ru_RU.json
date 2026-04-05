@@ -1,8 +1,8 @@
 {
     "VTLANG_LANGUAGE_NAME": "Russian (Русский)",
     
-    "VTLANG_STR_HOTKEY_LIST": "L:Язык  F1:Помощь  F2:Просмотр  F3:ВидСписком  F4:Локальная загрузка  F5:Инструменты  F6:Выйти из меню",
-    "VTLANG_STR_HOTKEY_TREE": "L:Язык  F1:Помощь  F2:Просмотр  F3:ВидДревом  F4:Локальная загрузка  F5:Инструменты  F6:Выйти из меню",
+    "VTLANG_STR_HOTKEY_LIST": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидСписок  F4:ЛокалЗагрузка  F5:Сервис  F6:РасширМеню",
+    "VTLANG_STR_HOTKEY_TREE": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидДерево  F4:ЛокалЗагрузка  F5:Сервис  F6:РасширМеню",
     "VTLANG_RETURN_PREVIOUS": "Вернуться в предыдущее меню [Esc]",
     "VTLANG_RETURN_PRV_NOESC": "Вернуться в предыдущее меню",
     
@@ -37,13 +37,13 @@
     "VTLANG_HWINFO": "Сведения об оборудовании",
     
     "VTLANG_RESOLUTION_CFG": "Конфигурация разрешения",
-    "VTLANG_SCREEN_MODE": "Режим Screen Display",
+    "VTLANG_SCREEN_MODE": "Режим отображения экрана",
     "VTLANG_SCREEN_TEXT_MODE": "Выбрать текстовый режим",
     "VTLANG_SCREEN_GUI_MODE": "Выбрать графический режим",
     
     "VTLANG_THEME_SELECT": "Выбор темы",
     
-    "VTLANG_UEFI_UTIL": "UEFI утилиты Ventoy",
+    "VTLANG_UEFI_UTIL": "Утилиты UEFI Ventoy",
     "VTLANG_UTIL_SHOW_EFI_DRV": "Показать драйверы EFI",
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "Исправить ошибку Windows «BlinitializeLibrary»",
     

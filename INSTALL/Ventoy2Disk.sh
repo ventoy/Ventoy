@@ -21,7 +21,7 @@ elif uname -m | grep -E -q 'mips64'; then
 else
     export TOOLDIR=i386
 fi
-export PATH="./tool/$TOOLDIR:$PATH"
+export PATH="$OLDDIR/tool/$TOOLDIR:$PATH"
 
 
 echo ''
@@ -59,6 +59,24 @@ if [ $? -eq 0 ]; then
         [ -f ./${file%.xz} ] && chmod +x ./${file%.xz}
         [ -f ./$file ] && rm -f ./$file
     done
+fi
+
+#use static linked mkexfatfs for musl-libc environment
+if [ -f mkexfatfs_static ]; then
+    if ldd --version 2>&1 | grep -qi musl; then
+        mv mkexfatfs mkexfatfs_shared
+        mv mkexfatfs_static mkexfatfs
+    else
+        if ./mkexfatfs -V > /dev/null 2>&1; then
+            echo "mkexfatfs can not run, check static version" >> ./log.txt
+        else
+            if ./mkexfatfs_static -V > /dev/null 2>&1; then
+                echo "Use static version of mkexfatfs" >> ./log.txt
+                mv mkexfatfs mkexfatfs_shared
+                mv mkexfatfs_static mkexfatfs
+            fi
+        fi
+    fi
 fi
 
 cd ../../

@@ -72,27 +72,29 @@ ventoy_unpack_initramfs() {
     
     for vtx in '1F8B zcat' '1F9E zcat' '425A bzcat' '5D00 lzcat' 'FD37 xzcat' '894C lzopcat' '0221 lz4cat' '28B5 zstdcat' '3037 cat' '4C5A lunzip -c'; do
         if [ "${vtx:0:4}" = "${vtmagic:0:4}" ]; then
-            echo "vtx=$vtx" >> $VTLOG            
-            if [ $vtskip -eq 0 ]; then            
-                if [ "${vtx:5}" = "xzcat" ]; then
-                    rm -f $VTOY_PATH/xzlog
-                    ${vtx:5} $vtfile 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
-                    if grep -q 'corrupted data' $VTOY_PATH/xzlog; then
-                        echo 'xzcat failed, now try xzminidec...' >> $VTLOG                        
-                        rm -f $VTOY_PATH/xzlog
-                        cat $vtfile | xzminidec 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+            echo "vtx=$vtx" >> $VTLOG  
+            if [ $vtskip -ne 0 ]; then
+                dd if=$vtfile skip=$vtskip iflag=skip_bytes status=none > ${vtfile}.skip
+                rm -f $vtfile
+                mv ${vtfile}.skip $vtfile
+            fi
 
-                        if grep -q 'limit' $VTOY_PATH/xzlog; then                    
-                            echo 'xzminidec failed, now try xzcat_musl ...' >> $VTLOG  
-                            xzcat_musl $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
-                        fi
+            if [ "${vtx:5}" = "xzcat" ]; then
+                rm -f $VTOY_PATH/xzlog
+                ${vtx:5} $vtfile 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+                if grep -q 'corrupted data' $VTOY_PATH/xzlog; then
+                    echo 'xzcat failed, now try xzminidec...' >> $VTLOG                        
+                    rm -f $VTOY_PATH/xzlog
+                    cat $vtfile | xzminidec 2> $VTOY_PATH/xzlog | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+
+                    if grep -q 'limit' $VTOY_PATH/xzlog; then                    
+                        echo 'xzminidec failed, now try xzcat_musl ...' >> $VTLOG  
+                        xzcat_musl $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
                     fi
-                else
-                    ${vtx:5} $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
                 fi
             else
-                dd if=$vtfile skip=$vtskip iflag=skip_bytes status=none | ${vtx:5} | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
-            fi
+                ${vtx:5} $vtfile | (cpio -idmu 2>>$VTLOG; cat > $vttmp)
+            fi            
             break
         fi
     done

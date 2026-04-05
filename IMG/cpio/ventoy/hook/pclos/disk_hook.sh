@@ -72,3 +72,6 @@ ventoy_os_install_device_mapper $vtdiskname
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+

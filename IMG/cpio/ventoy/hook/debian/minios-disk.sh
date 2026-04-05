@@ -80,3 +80,6 @@ ventoy_os_install_dmsetup $vtdiskname
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+

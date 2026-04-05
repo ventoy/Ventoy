@@ -40,3 +40,6 @@ mknod -m 660 /dev/ventoy b $blkdev_num
 echo "/dev/ventoy" > cdrom.hint
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+

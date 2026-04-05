@@ -727,6 +727,7 @@ static void * ventoy_update_thread(void *data)
     MBR_HEAD MBR;
     ventoy_disk *disk = NULL;
     ventoy_thread_data *thread = (ventoy_thread_data *)data;
+    VTOY_GPT_INFO *pstGPT = NULL;
 
     vdebug("ventoy_update_thread run ...\n");
 
@@ -789,6 +790,36 @@ static void * ventoy_update_thread(void *data)
     {
         vlog("No need to update MBR\n");
     }
+
+    
+    if (disk->vtoydata.partition_style)
+    {
+        pstGPT = (VTOY_GPT_INFO *)malloc(sizeof(VTOY_GPT_INFO));
+        memset(pstGPT, 0, sizeof(VTOY_GPT_INFO));
+            
+        offset = lseek(fd, 0, SEEK_SET);
+        len = read(fd, pstGPT, sizeof(VTOY_GPT_INFO));
+        vlog("Read GPT table offset:%llu len:%llu ...\n", (_ull)offset, (_ull)len);
+
+        if (pstGPT->PartTbl[1].Attr != 0x8000000000000000ULL)
+        {
+            vlog("Update EFI part attr from 0x%016llx to 0x%016llx\n", 
+                 pstGPT->PartTbl[1].Attr, 0x8000000000000000ULL);
+
+            pstGPT->PartTbl[1].Attr = 0x8000000000000000ULL;
+
+            pstGPT->Head.PartTblCrc = ventoy_crc32(pstGPT->PartTbl, sizeof(pstGPT->PartTbl));
+            pstGPT->Head.Crc = 0;
+            pstGPT->Head.Crc = ventoy_crc32(&(pstGPT->Head), pstGPT->Head.Length);            
+            ventoy_write_gpt_part_table(fd, disk->size_in_byte, pstGPT);
+        }
+        else
+        {
+            vlog("No need to update EFI part attr\n");
+        }
+        free(pstGPT);
+    }
+    
 
     g_current_progress = PT_SYNC_DATA1;
 

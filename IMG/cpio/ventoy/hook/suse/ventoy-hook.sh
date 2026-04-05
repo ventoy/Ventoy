@@ -26,6 +26,12 @@ if [ -f $VTOY_PATH/autoinstall ]; then
     fi
 fi
 
+if $GREP -q 'rdinit=/vtoy/vtoy' /proc/cmdline; then    
+    echo "remove rdinit param" >> $VTLOG
+    echo "ptoptions=+rdinit" >> /linuxrc.config
+fi
+
+
 if $BUSYBOX_PATH/ls $VTOY_PATH | $GREP -q 'ventoy_dud[0-9]'; then
     if [ -f /linuxrc.config ]; then
         vtKerVer=$($BUSYBOX_PATH/uname -r)

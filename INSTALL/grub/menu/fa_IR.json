@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Persian (فارسی)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:زبان  F1:راهنما  F2:مرور  F3:نمای لیستی  F4:بوت محلی  F5:ابزار  F6:بازگشت",
+    "VTLANG_STR_HOTKEY_TREE": "L:زبان  F1:راهنما  F2:مرور  F3:نمای درختی  F4:بوت محلی  F5:ابزار  F6:بازگشت",
+    "VTLANG_RETURN_PREVIOUS": "بازگشت به منوی قبلی [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "بازگشت به منوی قبلی",
+    
+    "VTLANG_MENU_LANG": "منوی انتخاب زبان",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "جستجو و بوت ویندوز",
+    "VTLANG_LB_SBOOT_G4D": "جستجو و بوت Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "بوت اولین دیسک محلی",
+    "VTLANG_LB_SBOOT_HDD2": "بوت دومین دیسک محلی",
+    "VTLANG_LB_SBOOT_HDD3": "بوت سومین دیسک محلی",
+    "VTLANG_LB_SBOOT_X64EFI": "جستجو و بوت BOOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "جستجو و بوت BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": "جستجو و بوت BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "جستجو و بوت xorboot",
+    
+    "VTLANG_FILE_CHKSUM": "اعتبارسنجی فایل",
+    "VTLANG_CHKSUM_MD5_CALC": "محاسبه md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC": "محاسبه sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC": "محاسبه sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC": "محاسبه sha512sum",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "محاسبه و بررسی md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "محاسبه و بررسی sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "محاسبه و بررسی sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "محاسبه و بررسی sha512sum",
+    
+    "VTLANG_POWER": "انرژی",
+    "VTLANG_POWER_REBOOT": "ریبوت",
+    "VTLANG_POWER_HALT": "توقف",
+    "VTLANG_POWER_BOOT_EFIFW": "ریبوت به تنظیمات EFI",
+    
+    "VTLANG_KEYBRD_LAYOUT": "نمایه صفحه کلید",
+    "VTLANG_HWINFO": "اطلاعات سخت افزار",
+    
+    "VTLANG_RESOLUTION_CFG": "پیکربندی رزولوشن",
+    "VTLANG_SCREEN_MODE": "حالت نمایش صفحه",
+    "VTLANG_SCREEN_TEXT_MODE": "حالت متنی اجباری",
+    "VTLANG_SCREEN_GUI_MODE": "حالت گرافیکی اجباری",
+    
+    "VTLANG_THEME_SELECT": "انتخاب تم",
+    
+    "VTLANG_UEFI_UTIL": "ابزار های کمکی Ventoy UEFI",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "نمایش درایور های EFI",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "رفع خطای Windows BlinitializeLibrary",
+    
+    "VTLANG_JSON_CHK_JSON": "بررسی پیکربندی json افزونه (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "بررسی پیکربندی افزونه کنترل سراسری",
+    "VTLANG_JSON_CHK_THEME": "بررسی پیکربندی افزونه قالب",
+    "VTLANG_JSON_CHK_AUTOINS": "بررسی پیکربندی افزونه نصب خودکار",
+    "VTLANG_JSON_CHK_PERSIST": "بررسی پیکربندی افزونه‌ی تداوم",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "بررسی پیکربندی افزونه نام مستعار منو",
+    "VTLANG_JSON_CHK_MENU_TIP": "بررسی پیکربندی افزونه نکته منو",
+    "VTLANG_JSON_CHK_MENU_CLASS": "بررسی پیکربندی افزونه کلاس منو",
+    "VTLANG_JSON_CHK_INJECTION": "بررسی پیکربندی افزونه تزریق",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "بررسی پیکربندی افزونه memdisk خودکار",
+    "VTLANG_JSON_CHK_IMG_LIST": "بررسی پیکربندی افزونه لیست ایمیج ها",
+    "VTLANG_JSON_CHK_IMG_BLIST": "بررسی پیکربندی افزونه لیست سیاه ایمیج",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "بررسی پیکربندی افزونه جایگزینی فایل پیکربندی بوت",
+    "VTLANG_JSON_CHK_DUD": "بررسی پیکربندی افزونه dud",
+    "VTLANG_JSON_CHK_PASSWORD": "بررسی پیکربندی افزونه کلمه عبور",
+    
+    "VTLANG_NORMAL_MODE": "بوت در حالت عادی",
+    "VTLANG_WIMBOOT_MODE": "بوت در حالت wimboot",
+    "VTLANG_GRUB2_MODE": "بوت در حالت grub2",
+    "VTLANG_MEMDISK_MODE": "بوت در حالت memdisk",
+    
+    "VTLANG_RET_TO_LISTVIEW": "بازگشت به نمای لیستی",
+    "VTLANG_RET_TO_TREEVIEW": "بازگشت به نمای درختی",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "بوت بدون قالب نصب خودکار",
+    "VTLANG_AUTOINS_USE": "بوت با",
+    
+    "VTLANG_NO_PERSIST": "بوت بدون تداوم",
+    "VTLANG_PERSIST_USE": "بوت با",
+    
+    "VTLANG_BROWER_RETURN": "بازگشت",
+    
+    "VTLANG_ENTER_EXIT": "جهت خروج دکمه Enter را فشار دهید",
+    "VTLANG_ENTER_REBOOT": "جهت ریبوت دکمه Enter را فشار دهید",
+    "VTLANG_ENTER_CONTINUE": "جهت ادامه دکمه Enter را فشار دهید",
+    
+    "VTLANG_CTRL_TEMP_SET": "تنظیمات کنترل موقت",
+    "VTLANG_WIN11_BYPASS_CHECK": "دور زدن بررسی CPU/TPM/SecureBoot در هنگام نصب ویندوز 11",
+    "VTLANG_WIN11_BYPASS_NRO": "دور زدن نیاز به حساب کاربری آنلاین هنگام نصب ویندوز 11",
+    "VTLANG_LINUX_REMOUNT": "اتصال پارتیشن Ventoy بعد از بوت لینوکس",
+    "VTLANG_SECONDARY_BOOT_MENU": "نمایش منوی بوت ثانویه",
+    
+    "MENU_STR_XXX": ""
+}

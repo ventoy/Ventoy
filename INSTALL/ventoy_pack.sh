@@ -126,6 +126,7 @@ mkdir -p $tmpmnt/tool
 dd status=none bs=1024 count=16  if=./tool/i386/vtoycli    of=$tmpmnt/tool/mount.exfat-fuse_i386
 dd status=none bs=1024 count=16  if=./tool/x86_64/vtoycli  of=$tmpmnt/tool/mount.exfat-fuse_x86_64
 dd status=none bs=1024 count=16  if=./tool/aarch64/vtoycli of=$tmpmnt/tool/mount.exfat-fuse_aarch64
+cp -a ./tool/create_ventoy_iso_part_dm.sh  $tmpmnt/tool/
 
 
 rm -f $tmpmnt/grub/i386-pc/*.img
