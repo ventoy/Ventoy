@@ -367,6 +367,7 @@ EOF
    
     udevadm trigger --name-match=$DISK >/dev/null 2>&1
     partprobe >/dev/null 2>&1
+    partx -u $DISK >/dev/null 2>&1
     sleep 3
     echo "Done"
 
@@ -475,7 +476,6 @@ format_ventoy_disk_gpt() {
         mkpart Ventoy ntfs $part1_start_sector $part1_end_sector \
         mkpart VTOYEFI fat16 $part2_start_sector $part2_end_sector \
         $vt_set_efi_type \
-        set 2 hidden on \
         quit
 
     sync
@@ -485,6 +485,7 @@ format_ventoy_disk_gpt() {
 
     udevadm trigger --name-match=$DISK >/dev/null 2>&1
     partprobe >/dev/null 2>&1
+    partx -u $DISK >/dev/null 2>&1
     sleep 3
     echo "Done"
 
