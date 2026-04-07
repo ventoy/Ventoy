@@ -258,6 +258,24 @@ gfxmenu_full_redraw_screen (grub_gfxmenu_view_t view)
     }
 }
 
+/* Match desktop to the current selection before first paint (set_chosen_entry
+   is only used when the selection changes).  */
+static void
+sync_class_background_for_current_selection (grub_gfxmenu_view_t view)
+{
+  int prev_using;
+
+  if (!view->class_bg_active || !view->menu)
+    return;
+
+  prev_using = view->using_class_bg;
+  if (!maybe_apply_class_background (view))
+    {
+      if (prev_using)
+	restore_default_desktop (view);
+    }
+}
+
 /* Create a new view object, loading the theme specified by THEME_PATH and
    associating MODEL with the view.  */
 grub_gfxmenu_view_t
@@ -565,6 +583,8 @@ void
 grub_gfxmenu_view_draw (grub_gfxmenu_view_t view)
 {
   init_terminal (view);
+
+  sync_class_background_for_current_selection (view);
 
   init_background (view);
 
