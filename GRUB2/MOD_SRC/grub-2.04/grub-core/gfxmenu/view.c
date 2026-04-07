@@ -135,6 +135,7 @@ setup_class_backgrounds (grub_gfxmenu_view_t view)
   view->class_bg_active = 0;
   view->default_desktop_raw = 0;
   view->using_class_bg = 0;
+  view->class_bg_synced_entry = -1;
 
   if (!view->theme_path || !theme_has_backgrounds_dir (view->theme_path))
     return;
@@ -263,17 +264,18 @@ gfxmenu_full_redraw_screen (grub_gfxmenu_view_t view)
 static void
 sync_class_background_for_current_selection (grub_gfxmenu_view_t view)
 {
-  int prev_using;
+  int had_class_bg;
 
   if (!view->class_bg_active || !view->menu)
     return;
 
-  prev_using = view->using_class_bg;
-  if (!maybe_apply_class_background (view))
-    {
-      if (prev_using)
-	restore_default_desktop (view);
-    }
+  if (view->selected == view->class_bg_synced_entry)
+    return;
+
+  had_class_bg = view->using_class_bg;
+  if (!maybe_apply_class_background (view) && had_class_bg)
+    restore_default_desktop (view);
+  view->class_bg_synced_entry = view->selected;
 }
 
 /* Create a new view object, loading the theme specified by THEME_PATH and
@@ -663,7 +665,8 @@ void
 grub_gfxmenu_set_chosen_entry (int entry, void *data)
 {
   grub_gfxmenu_view_t view = data;
-  int prev_using;
+  int had_class_bg;
+  int applied;
 
   if (!view->class_bg_active)
     {
@@ -672,23 +675,20 @@ grub_gfxmenu_set_chosen_entry (int entry, void *data)
       return;
     }
 
-  prev_using = view->using_class_bg;
+  had_class_bg = view->using_class_bg;
   view->selected = entry;
 
-  if (maybe_apply_class_background (view))
-    {
-      gfxmenu_full_redraw_screen (view);
-      return;
-    }
+  applied = maybe_apply_class_background (view);
 
-  if (prev_using)
-    {
-      restore_default_desktop (view);
-      gfxmenu_full_redraw_screen (view);
-      return;
-    }
+  if (!applied && had_class_bg)
+    restore_default_desktop (view);
 
-  grub_gfxmenu_redraw_menu (view);
+  if (applied || had_class_bg)
+    gfxmenu_full_redraw_screen (view);
+  else
+    grub_gfxmenu_redraw_menu (view);
+
+  view->class_bg_synced_entry = view->selected;
 }
 
 void

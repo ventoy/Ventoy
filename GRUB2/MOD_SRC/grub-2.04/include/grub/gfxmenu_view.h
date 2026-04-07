@@ -128,6 +128,7 @@ struct grub_gfxmenu_view
   int class_bg_active;
   struct grub_video_bitmap *default_desktop_raw;
   int using_class_bg;
+  int class_bg_synced_entry;
 };
 
 #endif /* ! GRUB_GFXMENU_VIEW_HEADER */
