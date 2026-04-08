@@ -116,6 +116,8 @@ grub_gfxmenu_try (int entry, grub_menu_t menu, int nested)
 			  & GRUB_VIDEO_MODE_TYPE_DOUBLE_BUFFERED)
     && !(mode_info.mode_type & GRUB_VIDEO_MODE_TYPE_UPDATING_SWAP);
   view->selected = entry;
+  if (view->menu != menu)
+    view->class_bg_synced_entry = -1;
   view->menu = menu;
   view->nested = nested;
   view->first_timeout = -1;
