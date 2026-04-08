@@ -49,8 +49,8 @@ static grub_gfxmenu_view_t term_view;
 
 static int
 backgrounds_dir_probe_hook (const char *filename __attribute__((unused)),
-			    const struct grub_dirhook_info *info __attribute__((unused)),
-			    void *data __attribute__((unused)))
+          const struct grub_dirhook_info *info __attribute__((unused)),
+          void *data __attribute__((unused)))
 {
   return 0;
 }
@@ -95,7 +95,7 @@ theme_has_backgrounds_dir (const char *theme_path)
       grub_errno = GRUB_ERR_NONE;
       (fs->fs_dir) (dev, path, backgrounds_dir_probe_hook, NULL);
       if (grub_errno == GRUB_ERR_NONE)
-	ok = 1;
+        ok = 1;
     }
 
 out:
@@ -119,7 +119,7 @@ clone_video_bitmap (struct grub_video_bitmap *src)
     return 0;
 
   if (grub_video_bitmap_create (&dst, src->mode_info.width, src->mode_info.height,
-				src->mode_info.blit_format))
+      src->mode_info.blit_format))
     return 0;
   src_data = grub_video_bitmap_get_data (src);
   dst_data = grub_video_bitmap_get_data (dst);
@@ -132,6 +132,8 @@ clone_video_bitmap (struct grub_video_bitmap *src)
 static void
 setup_class_backgrounds (grub_gfxmenu_view_t view)
 {
+  grub_free (view->class_bg_applied_path);
+  view->class_bg_applied_path = 0;
   view->class_bg_active = 0;
   view->default_desktop_raw = 0;
   view->using_class_bg = 0;
@@ -144,36 +146,23 @@ setup_class_backgrounds (grub_gfxmenu_view_t view)
     {
       view->default_desktop_raw = clone_video_bitmap (view->raw_desktop_image);
       if (!view->default_desktop_raw)
-	return;
+        return;
     }
 
   view->class_bg_active = 1;
 }
 
-static struct grub_video_bitmap *
-try_loading_background_for_class (grub_gfxmenu_view_t view,
-				  const char *class_name)
+static char *
+class_background_png_path (const char *bgs_dir, const char *class_name)
 {
-  struct grub_video_bitmap *raw = 0;
-  char *theme_dir = 0, *bgs_dir = 0, *path = 0, *p = 0;
+  char *path;
+  char *p;
   static const char ext[] = ".png";
 
-  if (!view || !view->theme_path || !class_name)
-    return 0;
-
-  theme_dir = grub_get_dirname (view->theme_path);
-  if (!theme_dir)
-    return 0;
-
-  bgs_dir = grub_resolve_relative_path (theme_dir, "backgrounds/");
-  grub_free (theme_dir);
-  if (!bgs_dir)
-    return 0;
-
   path = grub_malloc (grub_strlen (bgs_dir) + grub_strlen (class_name)
-		      + grub_strlen (ext) + 3);
+          + grub_strlen (ext) + 3);
   if (!path)
-    goto out;
+    return 0;
 
   p = grub_stpcpy (path, bgs_dir);
   if (path == p || p[-1] != '/')
@@ -181,14 +170,7 @@ try_loading_background_for_class (grub_gfxmenu_view_t view,
   p = grub_stpcpy (p, class_name);
   p = grub_stpcpy (p, ext);
   *p = '\0';
-
-  grub_video_bitmap_load (&raw, path);
-  grub_errno = GRUB_ERR_NONE;
-
-out:
-  grub_free (path);
-  grub_free (bgs_dir);
-  return raw;
+  return path;
 }
 
 static void
@@ -201,6 +183,8 @@ restore_default_desktop (grub_gfxmenu_view_t view)
   view->raw_desktop_image = 0;
   view->scaled_desktop_image = 0;
   view->using_class_bg = 0;
+  grub_free (view->class_bg_applied_path);
+  view->class_bg_applied_path = 0;
 
   if (!view->default_desktop_raw)
     return;
@@ -212,28 +196,65 @@ restore_default_desktop (grub_gfxmenu_view_t view)
   init_background (view);
 }
 
-/* Returns 1 if a class background was applied.  */
+
+/* 0 = no class image, 1 = loaded new, 2 = already showing same file.  */
 static int
 maybe_apply_class_background (grub_gfxmenu_view_t view)
 {
   grub_menu_entry_t entry;
   struct grub_menu_entry_class *c;
-  struct grub_video_bitmap *raw;
+  struct grub_video_bitmap *raw = 0;
+  char *theme_dir = 0;
+  char *bgs_dir = 0;
+  char *path = 0;
 
-  if (!view || !view->menu)
+  if (!view || !view->menu || !view->theme_path)
     return 0;
 
   entry = grub_menu_get_entry (view->menu, view->selected);
   if (!entry)
     return 0;
 
+  theme_dir = grub_get_dirname (view->theme_path);
+  if (!theme_dir)
+    return 0;
+  bgs_dir = grub_resolve_relative_path (theme_dir, "backgrounds/");
+  grub_free (theme_dir);
+  if (!bgs_dir)
+    return 0;
+
   for (c = entry->classes; c; c = c->next)
     {
       if (!c->name)
-	continue;
-      raw = try_loading_background_for_class (view, c->name);
+        continue;
+
+      path = class_background_png_path (bgs_dir, c->name);
+      if (!path)
+        {
+          grub_free (bgs_dir);
+          return 0;
+        }
+
+      if (view->using_class_bg && view->class_bg_applied_path
+          && grub_strcmp (path, view->class_bg_applied_path) == 0)
+        {
+          grub_free (path);
+          grub_free (bgs_dir);
+          return 2;
+        }
+
+      grub_video_bitmap_load (&raw, path);
+      grub_errno = GRUB_ERR_NONE;
       if (!raw)
-	continue;
+        {
+          grub_free (path);
+          path = 0;
+          continue;
+        }
+
+      grub_free (view->class_bg_applied_path);
+      view->class_bg_applied_path = path;
+      path = 0;
 
       grub_video_bitmap_destroy (view->raw_desktop_image);
       grub_video_bitmap_destroy (view->scaled_desktop_image);
@@ -241,8 +262,11 @@ maybe_apply_class_background (grub_gfxmenu_view_t view)
       view->scaled_desktop_image = 0;
       view->using_class_bg = 1;
       init_background (view);
+      grub_free (bgs_dir);
       return 1;
     }
+
+  grub_free (bgs_dir);
   return 0;
 }
 
@@ -265,6 +289,7 @@ static void
 sync_class_background_for_current_selection (grub_gfxmenu_view_t view)
 {
   int had_class_bg;
+  int apply_result;
 
   if (!view->class_bg_active || !view->menu)
     return;
@@ -273,7 +298,8 @@ sync_class_background_for_current_selection (grub_gfxmenu_view_t view)
     return;
 
   had_class_bg = view->using_class_bg;
-  if (!maybe_apply_class_background (view) && had_class_bg)
+  apply_result = maybe_apply_class_background (view);
+  if (apply_result == 0 && had_class_bg)
     restore_default_desktop (view);
   view->class_bg_synced_entry = view->selected;
 }
@@ -340,6 +366,7 @@ grub_gfxmenu_view_new (const char *theme_path,
   view->class_bg_active = 0;
   view->default_desktop_raw = 0;
   view->using_class_bg = 0;
+  view->class_bg_applied_path = 0;
 
   /* Set the timeout bar's frame.  */
   view->progress_message_frame.width = view->screen.width * 4 / 5;
@@ -376,6 +403,7 @@ grub_gfxmenu_view_destroy (grub_gfxmenu_view_t view)
   grub_video_bitmap_destroy (view->raw_desktop_image);
   grub_video_bitmap_destroy (view->scaled_desktop_image);
   grub_video_bitmap_destroy (view->default_desktop_raw);
+  grub_free (view->class_bg_applied_path);
   if (view->terminal_box)
     view->terminal_box->destroy (view->terminal_box);
   grub_free (view->terminal_font_name);
@@ -666,7 +694,8 @@ grub_gfxmenu_set_chosen_entry (int entry, void *data)
 {
   grub_gfxmenu_view_t view = data;
   int had_class_bg;
-  int applied;
+  int apply_result;
+  int need_restore_default;
 
   if (!view->class_bg_active)
     {
@@ -675,20 +704,33 @@ grub_gfxmenu_set_chosen_entry (int entry, void *data)
       return;
     }
 
+  if (entry == view->selected)
+    {
+      grub_gfxmenu_redraw_menu (view);
+      return;
+    }
+
   had_class_bg = view->using_class_bg;
   view->selected = entry;
 
-  applied = maybe_apply_class_background (view);
+  apply_result = maybe_apply_class_background (view);
+  view->class_bg_synced_entry = view->selected;
 
-  if (!applied && had_class_bg)
+  if (apply_result == 2)
+    {
+      grub_gfxmenu_redraw_menu (view);
+      return;
+    }
+
+  need_restore_default = (apply_result == 0 && had_class_bg);
+
+  if (need_restore_default)
     restore_default_desktop (view);
 
-  if (applied || had_class_bg)
+  if (apply_result == 1 || need_restore_default)
     gfxmenu_full_redraw_screen (view);
   else
     grub_gfxmenu_redraw_menu (view);
-
-  view->class_bg_synced_entry = view->selected;
 }
 
 void
