@@ -163,15 +163,16 @@ ventoy_get_vblade_bin() {
 }
 
 ventoy_find_bin_path() {        
+    #must use built-in dmsetup, so first try ventoy path. Otherwise ubuntu installer unhappy. #3567
+    if $BUSYBOX_PATH/which "$1" > /dev/null; then
+        $BUSYBOX_PATH/which "$1"; return
+    fi
     for vt_path in '/bin' '/sbin' '/usr/bin' '/usr/sbin' '/usr/local/bin' '/usr/local/sbin' '/root/bin'; do
         if [ -e "$vt_path/$1" ]; then
             echo "$vt_path/$1"; return
         fi
     done
-    if $BUSYBOX_PATH/which "$1" > /dev/null; then
-        $BUSYBOX_PATH/which "$1"; return
-    fi
-    
+
     echo ""
 }
 
