@@ -87,7 +87,11 @@
     "VTLANG_WIN11_BYPASS_CHECK": "Bypass CPU/TPM/SecureBoot check when install Windows 11",
     "VTLANG_WIN11_BYPASS_NRO": "Bypass online account requirement when install Windows 11",
     "VTLANG_LINUX_REMOUNT": "Mount Ventoy partition after boot Linux",
-    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",
+    "VTLANG_SECONDARY_BOOT_MENU": "Show secondary boot menu",    
+    "VTLANG_WIN_UEFI_RES_LOCK": "Lock the resolution when UEFI boot Windows/WinPE",
+    "VTLANG_UEFI_RES_LOCK_NONE": "None",
+    "VTLANG_UEFI_RES_LOCK_MAX": "Highest",
+    "VTLANG_UEFI_RES_LOCK_1024_768": "1024 x 768",
     
     "MENU_STR_XXX": ""
 }

@@ -1820,13 +1820,15 @@ STATIC EFI_STATUS EFIAPI ventoy_set_mode
     return EFI_SUCCESS;
 }
 
-EFI_STATUS ventoy_lock_max_res(VOID)
+EFI_STATUS ventoy_lock_res(UINT8 LockType)
 {
 	UINT32 i = 0;
 	UINT32 x = 0;
     UINT32 y = 0;
+    UINT32 SelMode = 0;
     UINT32 CurMode = 0;
     UINT32 Highest = 0;
+    UINT32 M1024_768 = MAX_UINT32;
 	UINTN  Size;
 	EFI_STATUS rc;
     EFI_GRAPHICS_OUTPUT_PROTOCOL *gop = NULL;
@@ -1834,6 +1836,12 @@ EFI_STATUS ventoy_lock_max_res(VOID)
 
     /* already hook */
     if (g_org_set_mode)
+    {
+        return EFI_SUCCESS;
+    }
+
+    /* 1: Highest   2: 1024x768 */
+    if (LockType == 0 || LockType > 2)
     {
         return EFI_SUCCESS;
     }
@@ -1852,6 +1860,11 @@ EFI_STATUS ventoy_lock_max_res(VOID)
 		/* Get mode information */
 		if (gop->QueryMode(gop, i, &Size, &info) == EFI_SUCCESS)
         {
+            if (info->HorizontalResolution == 1024 && info->VerticalResolution == 768)
+            {
+                M1024_768 = i;
+            }
+
             if (x < info->HorizontalResolution ||
                (x == info->HorizontalResolution && y < info->VerticalResolution))
             {
@@ -1862,12 +1875,31 @@ EFI_STATUS ventoy_lock_max_res(VOID)
 		}
     }
 
-    if (Highest != CurMode)
+
+    if (LockType == 1)
     {
-        gop->SetMode(gop, Highest);
+        SelMode = Highest;
+    }
+    else
+    {
+        if (M1024_768 == MAX_UINT32)
+        {
+            SelMode = Highest;
+        }
+        else
+        {
+            SelMode = M1024_768;
+            x = 1024;
+            y = 768;
+        }
     }
 
-    debug("Lock resolution to Mode:%d  %d x %d", Highest, x, y);
+    if (SelMode != CurMode)
+    {
+        gop->SetMode(gop, SelMode);
+    }
+    debug("Lock resolution to Mode:%d  %d x %d", SelMode, x, y);
+
 
     g_org_mode_num = CurMode;
     g_org_set_mode = gop->SetMode;
@@ -1876,7 +1908,7 @@ EFI_STATUS ventoy_lock_max_res(VOID)
     return EFI_SUCCESS;
 }
 
-EFI_STATUS ventoy_unlock_max_res(VOID)
+EFI_STATUS ventoy_unlock_res(VOID)
 {
 	EFI_STATUS rc;
     EFI_GRAPHICS_OUTPUT_PROTOCOL *gop = NULL;

@@ -431,12 +431,12 @@ int ventoy_global_var_init(void)
 
 static ctrl_var_cfg g_ctrl_vars[] =
 {
-    { "VTOY_WIN11_BYPASS_CHECK",  1 },
-    { "VTOY_WIN11_BYPASS_NRO",    1 },
-    { "VTOY_LINUX_REMOUNT",       0 },
-    { "VTOY_SECONDARY_BOOT_MENU", 1 },
-    { "VTOY_WIN_UEFI_MAX_RES",    1 },
-    { NULL, 0 }
+    { "VTOY_WIN11_BYPASS_CHECK",  "1" },
+    { "VTOY_WIN11_BYPASS_NRO",    "1" },
+    { "VTOY_LINUX_REMOUNT",       "0" },
+    { "VTOY_SECONDARY_BOOT_MENU", "1" },
+    { "VTOY_WIN_UEFI_RES_LOCK",   "1" },
+    { NULL, "" }
 };
 
 static const char * ventoy_ctrl_var_read_hook(struct grub_env_var *var, const char *val)
@@ -447,7 +447,7 @@ static const char * ventoy_ctrl_var_read_hook(struct grub_env_var *var, const ch
     {
         if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
         {
-            return g_ctrl_vars[i].value ? "1" : "0";
+            return g_ctrl_vars[i].szval;
         }
     }
 
@@ -462,14 +462,14 @@ static char * ventoy_ctrl_var_write_hook(struct grub_env_var *var, const char *v
     {
         if (grub_strcmp(g_ctrl_vars[i].name, var->name) == 0)
         {
-            if (val && val[0] == '1' && val[1] == 0)
+            if (val && grub_isdigit(val[0]) && val[1] == 0)
             {
-                g_ctrl_vars[i].value = 1;
-                return grub_strdup("1");
+                g_ctrl_vars[i].szval[0] = val[0];
+                return grub_strdup(val);
             }
             else
             {
-                g_ctrl_vars[i].value = 0;
+                g_ctrl_vars[i].szval[0] = '0';
                 return grub_strdup("0");
             }
         }
@@ -480,12 +480,13 @@ static char * ventoy_ctrl_var_write_hook(struct grub_env_var *var, const char *v
 
 int ventoy_ctrl_var_init(void)
 {
-    int i;
+    ctrl_var_cfg *cfg = g_ctrl_vars;
 
-    for (i = 0; g_ctrl_vars[i].name; i++)
+    while (cfg->name)
     {
-        ventoy_env_export(g_ctrl_vars[i].name, g_ctrl_vars[i].value ? "1" : "0");
-        grub_register_variable_hook(g_ctrl_vars[i].name, ventoy_ctrl_var_read_hook, ventoy_ctrl_var_write_hook);
+        ventoy_env_export(cfg->name, cfg->szval);
+        grub_register_variable_hook(cfg->name, ventoy_ctrl_var_read_hook, ventoy_ctrl_var_write_hook);
+        cfg++;
     }
 
     return 0;

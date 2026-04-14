@@ -1263,9 +1263,9 @@ EFI_STATUS EFIAPI VentoyEfiMain
         return Status;
     }
 
-    if (g_os_param_reserved[11] == 1)
+    if (g_os_param_reserved[11])
     {
-        ventoy_lock_max_res();
+        ventoy_lock_res(g_os_param_reserved[11]);
     }
 
     ventoy_disable_ex_filesystem();
@@ -1346,9 +1346,9 @@ EFI_STATUS EFIAPI VentoyEfiMain
 
     ventoy_enable_ex_filesystem();
 
-    if (g_os_param_reserved[11] == 1)
+    if (g_os_param_reserved[11])
     {
-        ventoy_unlock_max_res();
+        ventoy_unlock_res();
     }
 
     return EFI_SUCCESS;

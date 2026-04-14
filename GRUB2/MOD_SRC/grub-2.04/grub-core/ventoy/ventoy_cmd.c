@@ -3246,13 +3246,20 @@ void ventoy_fill_os_param(grub_file_t file, ventoy_os_param *param)
     grub_memcpy(param->vtoy_reserved + 7, g_ventoy_part_info->MBR.BootCode + 0x1b8, 4);
 
 
-    /* Windows UEFI force highest resolution */
+    /* Windows UEFI force resolution lock */
     if (g_ventoy_chain_type == 1) /* Windows */
     {
-        val = ventoy_get_env("VTOY_WIN_UEFI_MAX_RES");
-        if (val && val[0] == '1' && val[1] == 0)
+        val = ventoy_get_env("VTOY_WIN_UEFI_RES_LOCK");
+        if (val && val[1] == 0)
         {
-            param->vtoy_reserved[11] = 1;
+            if (val[0] == '1')
+            {
+                param->vtoy_reserved[11] = 1;
+            }
+            else if (val[0] == '2')
+            {
+                param->vtoy_reserved[11] = 2;
+            }
         }
     }
 

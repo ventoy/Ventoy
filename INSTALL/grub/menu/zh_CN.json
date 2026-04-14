@@ -88,6 +88,10 @@
     "VTLANG_WIN11_BYPASS_NRO": "安装 Windows 11 时绕过在线账户的要求",
     "VTLANG_LINUX_REMOUNT": "启动 Linux 系统后挂载 Ventoy 分区",
     "VTLANG_SECONDARY_BOOT_MENU": "显示二级启动菜单",
+    "VTLANG_WIN_UEFI_RES_LOCK": "UEFI启动 Windows/WinPE 时锁定分辨率",
+    "VTLANG_UEFI_RES_LOCK_NONE": "不锁定",
+    "VTLANG_UEFI_RES_LOCK_MAX": "锁定最高分辨率",
+    "VTLANG_UEFI_RES_LOCK_1024_768": "锁定 1024 x 768",
     
     "MENU_STR_XXX": ""
 }

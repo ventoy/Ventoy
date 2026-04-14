@@ -428,8 +428,8 @@ EFI_STATUS ventoy_hook_1st_cdrom_start(VOID);
 EFI_STATUS ventoy_hook_1st_cdrom_stop(VOID);
 EFI_STATUS ventoy_disable_ex_filesystem(VOID);
 EFI_STATUS ventoy_enable_ex_filesystem(VOID);
-EFI_STATUS ventoy_lock_max_res(VOID);
-EFI_STATUS ventoy_unlock_max_res(VOID);
+EFI_STATUS ventoy_lock_res(UINT8 LockType);
+EFI_STATUS ventoy_unlock_res(VOID);
 
 #endif
 
