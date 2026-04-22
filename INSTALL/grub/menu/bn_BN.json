@@ -91,7 +91,8 @@
     "VTLANG_WIN_UEFI_RES_LOCK": "Lock the resolution when UEFI boot Windows/WinPE",
     "VTLANG_UEFI_RES_LOCK_NONE": "None",
     "VTLANG_UEFI_RES_LOCK_MAX": "Highest",
-    "VTLANG_UEFI_RES_LOCK_1024_768": "1024 x 768",
+    "VTLANG_UEFI_RES_LOCK_1024_768": "Fixed 1024 x 768",
+    "VTLANG_UEFI_RES_LOCK_BE1024_768": "At least 1024 x 768",
 
 
     "MENU_STR_XXX": ""

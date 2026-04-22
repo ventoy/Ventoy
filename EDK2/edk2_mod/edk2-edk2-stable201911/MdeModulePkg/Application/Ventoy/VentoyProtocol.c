@@ -1804,7 +1804,7 @@ EFI_STATUS ventoy_hook_1st_cdrom_stop(VOID)
 #endif
 
 
-STATIC UINT32 g_org_mode_num;
+STATIC UINT32 g_org_mode_num = 0;
 STATIC EFI_GRAPHICS_OUTPUT_PROTOCOL_SET_MODE  g_org_set_mode = NULL;
 
 STATIC EFI_STATUS EFIAPI ventoy_set_mode
@@ -1818,6 +1818,29 @@ STATIC EFI_STATUS EFIAPI ventoy_set_mode
 
     /* Force highest resolution */
     return EFI_SUCCESS;
+}
+
+STATIC EFI_STATUS EFIAPI ventoy_set_mode2
+(
+  IN  EFI_GRAPHICS_OUTPUT_PROTOCOL *This,
+  IN  UINT32                       ModeNumber
+)
+{
+    UINTN Size;
+    EFI_STATUS rc;
+    EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = NULL;
+
+    /* Force >= 1024x768 */
+    rc = This->QueryMode(This, ModeNumber, &Size, &info);
+    if (rc == EFI_SUCCESS)
+    {
+        if (info->HorizontalResolution < 1024 || info->VerticalResolution < 768)
+        {
+            return EFI_SUCCESS;
+        }
+    }
+
+    return g_org_set_mode(This, ModeNumber);
 }
 
 EFI_STATUS ventoy_lock_res(UINT8 LockType)
@@ -1840,8 +1863,8 @@ EFI_STATUS ventoy_lock_res(UINT8 LockType)
         return EFI_SUCCESS;
     }
 
-    /* 1: Highest   2: 1024x768 */
-    if (LockType == 0 || LockType > 2)
+    /* 1: Highest   2: 1024x768 3: >= 1024x768 */
+    if (LockType == 0 || LockType > 3)
     {
         return EFI_SUCCESS;
     }
@@ -1852,6 +1875,16 @@ EFI_STATUS ventoy_lock_res(UINT8 LockType)
         debug("Failed to locate GOP protocol");
         return EFI_SUCCESS;
     }
+
+
+    if (LockType == 3)
+    {
+        g_org_mode_num = MAX_UINT32;
+        g_org_set_mode = gop->SetMode;
+        gop->SetMode = ventoy_set_mode2;
+        return EFI_SUCCESS;
+    }
+
 
     CurMode = gop->Mode->Mode;
 
@@ -1926,7 +1959,10 @@ EFI_STATUS ventoy_unlock_res(VOID)
         return EFI_SUCCESS;
     }
 
-    g_org_set_mode(gop, g_org_mode_num);
+    if (g_org_mode_num != MAX_UINT32)
+    {
+        g_org_set_mode(gop, g_org_mode_num);
+    }
 
     gop->SetMode = g_org_set_mode;
     g_org_set_mode = NULL;

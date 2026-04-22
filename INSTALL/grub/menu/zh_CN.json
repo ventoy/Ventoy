@@ -92,6 +92,7 @@
     "VTLANG_UEFI_RES_LOCK_NONE": "不锁定",
     "VTLANG_UEFI_RES_LOCK_MAX": "锁定最高分辨率",
     "VTLANG_UEFI_RES_LOCK_1024_768": "锁定 1024 x 768",
+    "VTLANG_UEFI_RES_LOCK_BE1024_768": "锁定 1024 x 768 及以上",
     
     "MENU_STR_XXX": ""
 }

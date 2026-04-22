@@ -435,7 +435,7 @@ static ctrl_var_cfg g_ctrl_vars[] =
     { "VTOY_WIN11_BYPASS_NRO",    "1" },
     { "VTOY_LINUX_REMOUNT",       "0" },
     { "VTOY_SECONDARY_BOOT_MENU", "1" },
-    { "VTOY_WIN_UEFI_RES_LOCK",   "1" },
+    { "VTOY_WIN_UEFI_RES_LOCK",   "3" },
     { NULL, "" }
 };
 
