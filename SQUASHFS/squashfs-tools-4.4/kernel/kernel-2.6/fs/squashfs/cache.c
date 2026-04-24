@@ -125,6 +125,16 @@ struct squashfs_cache_entry *squashfs_cache_get(struct super_block *sb,
 
 			if (entry->length < 0)
 				entry->error = entry->length;
+			else if (entry->length > cache->block_size) {
+				/*
+				 * Sanity check: decompressed length must not
+				 * exceed the allocated cache buffer size.
+				 * Reject entries with out-of-range lengths
+				 * derived from untrusted filesystem metadata.
+				 */
+				entry->error = -EIO;
+				entry->length = 0;
+			}
 
 			entry->pending = 0;
 
@@ -301,22 +311,42 @@ int squashfs_copy_data(void *buffer, struct squashfs_cache_entry *entry,
 	else if (buffer == NULL)
 		return min(length, entry->length - offset);
 
+	/*
+	 * Validate entry->length against the allocated cache buffer size
+	 * before using it to derive copy sizes.  Both 'remaining' and
+	 * 'bytes' below are bounded by entry->length, so clamping it here
+	 * prevents memcpy sizes from exceeding the allocated buffer
+	 * boundaries when filesystem metadata is untrusted or corrupted.
+	 */
+	if (entry->length < 0 || entry->length > entry->cache->block_size)
+		return 0;
+
 	while (offset < entry->length) {
 		void *buff = entry->data[offset / PAGE_CACHE_SIZE]
 				+ (offset % PAGE_CACHE_SIZE);
 		int bytes = min_t(int, entry->length - offset,
 				PAGE_CACHE_SIZE - (offset % PAGE_CACHE_SIZE));
 
-		if (bytes >= remaining) {
-			memcpy(buffer, buff, remaining);
-			remaining = 0;
+		if (bytes <= 0)
 			break;
-		}
+
+		/*
+		 * Explicitly validate bytes against the remaining request
+		 * size before copying.  This ensures the copy size is
+		 * bounded by both the allocated source page buffer and the
+		 * caller's destination buffer, preventing overflows when
+		 * filesystem metadata is untrusted or corrupted.
+		 */
+		if (bytes > remaining)
+			bytes = remaining;
 
 		memcpy(buffer, buff, bytes);
 		buffer += bytes;
 		remaining -= bytes;
 		offset += bytes;
+
+		if (remaining == 0)
+			break;
 	}
 
 	return length - remaining;
