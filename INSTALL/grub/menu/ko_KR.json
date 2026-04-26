@@ -79,20 +79,20 @@
     
     "VTLANG_BROWER_RETURN": "돌아가기",
     
-    "VTLANG_ENTER_EXIT": "종료하려면 Enter 키를 누르십시오",
-    "VTLANG_ENTER_REBOOT": "다시 시작하려면 Enter 키를 누르십시오",
-    "VTLANG_ENTER_CONTINUE": "계속하려면 Enter 키를 누르십시오",
+    "VTLANG_ENTER_EXIT": "종료하려면 Enter 키를 누르세요",
+    "VTLANG_ENTER_REBOOT": "다시 시작하려면 Enter 키를 누르세요",
+    "VTLANG_ENTER_CONTINUE": "계속하려면 Enter 키를 누르세요",
     
     "VTLANG_CTRL_TEMP_SET": "임시 제어 설정",
     "VTLANG_WIN11_BYPASS_CHECK": "Windows 11 설치 시 CPU/TPM/SecureBoot 검사 회피",
     "VTLANG_WIN11_BYPASS_NRO": "Windows 11 설치 시 온라인 계정 요구 사항 무시",
     "VTLANG_LINUX_REMOUNT": "Linux 부팅 후 Ventoy 파티션 마운트",
     "VTLANG_SECONDARY_BOOT_MENU": "보조 부팅 메뉴 표시",
-    "VTLANG_WIN_UEFI_RES_LOCK": "Lock the resolution when UEFI boot Windows/WinPE",
-    "VTLANG_UEFI_RES_LOCK_NONE": "None",
-    "VTLANG_UEFI_RES_LOCK_MAX": "Highest",
-    "VTLANG_UEFI_RES_LOCK_1024_768": "Fixed 1024 x 768",
-    "VTLANG_UEFI_RES_LOCK_BE1024_768": "At least 1024 x 768",
+    "VTLANG_WIN_UEFI_RES_LOCK": "UEFI가 Windows/WinPE를 부팅할 때 해상도 잠금",
+    "VTLANG_UEFI_RES_LOCK_NONE": "없음",
+    "VTLANG_UEFI_RES_LOCK_MAX": "최대",
+    "VTLANG_UEFI_RES_LOCK_1024_768": "고정 1024 x 768",
+    "VTLANG_UEFI_RES_LOCK_BE1024_768": "최소 1024 x 768",
 
 
     "MENU_STR_XXX": ""
