@@ -1,8 +1,8 @@
 {
     "VTLANG_LANGUAGE_NAME": "Russian (Русский)",
     
-    "VTLANG_STR_HOTKEY_LIST": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидСписок  F4:ЛокалЗагрузка  F5:Сервис  F6:РасширМеню",
-    "VTLANG_STR_HOTKEY_TREE": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидДерево  F4:ЛокалЗагрузка  F5:Сервис  F6:РасширМеню",
+    "VTLANG_STR_HOTKEY_LIST": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидСписок  F4:ЛокЗагрузка  F5:Сервис  F6:РасшМеню",
+    "VTLANG_STR_HOTKEY_TREE": "L:Язык  F1:Помощь  F2:Обзор  F3:ВидДерево  F4:ЛокЗагрузка  F5:Сервис  F6:РасшМеню",
     "VTLANG_RETURN_PREVIOUS": "Вернуться в предыдущее меню [Esc]",
     "VTLANG_RETURN_PRV_NOESC": "Вернуться в предыдущее меню",
     
@@ -13,7 +13,7 @@
     "VTLANG_LB_SBOOT_HDD1": "Загрузить 1-й локальный диск",
     "VTLANG_LB_SBOOT_HDD2": "Загрузить 2-й локальный диск",
     "VTLANG_LB_SBOOT_HDD3": "Загрузить 3-й локальный диск",
-    "VTLANG_LB_SBOOT_X64EFI": "Найти и загрузить OOTX64.EFI",
+    "VTLANG_LB_SBOOT_X64EFI": "Найти и загрузить BOOTX64.EFI",
     "VTLANG_LB_SBOOT_IA32EFI": "Найти и загрузить BOOTIA32.EFI",
     "VTLANG_LB_SBOOT_AA64EFI": "Найти и загрузить BOOTAA64.EFI",
     "VTLANG_LB_SBOOT_XORBOOT": "Найти и загрузить xorboot",
@@ -31,7 +31,7 @@
     "VTLANG_POWER": "Питание",
     "VTLANG_POWER_REBOOT": "Перезагрузить",
     "VTLANG_POWER_HALT": "Завершить работу",
-    "VTLANG_POWER_BOOT_EFIFW": "Перезагрузиться в настройку EFI",
+    "VTLANG_POWER_BOOT_EFIFW": "Перезагрузиться в настройки EFI",
     
     "VTLANG_KEYBRD_LAYOUT": "Раскладки клавиатуры",
     "VTLANG_HWINFO": "Сведения об оборудовании",
@@ -68,8 +68,8 @@
     "VTLANG_GRUB2_MODE": "Загрузиться в режиме grub2",
     "VTLANG_MEMDISK_MODE": "Загрузиться в режиме memdisk",
     
-    "VTLANG_RET_TO_LISTVIEW": "Вернуться к Виду списком",
-    "VTLANG_RET_TO_TREEVIEW": "Вернуться к Виду древом",
+    "VTLANG_RET_TO_LISTVIEW": "Вернуться к виду списком",
+    "VTLANG_RET_TO_TREEVIEW": "Вернуться к виду деревом",
     
     "VTLANG_NO_AUTOINS_SCRIPT": "Загрузка без шаблона автоматической установки",
     "VTLANG_AUTOINS_USE": "Загрузиться с",
@@ -79,20 +79,20 @@
     
     "VTLANG_BROWER_RETURN": "Вернуться",
     
-    "VTLANG_ENTER_EXIT": "нажмите клавишу ввода, чтобы выйти",
-    "VTLANG_ENTER_REBOOT": "нажмите клавишу ввода для перезагрузки",
-    "VTLANG_ENTER_CONTINUE": "нажмите клавишу ввода, чтобы продолжить",
+    "VTLANG_ENTER_EXIT": "нажмите Enter для выхода",
+    "VTLANG_ENTER_REBOOT": "нажмите Enter для перезагрузки",
+    "VTLANG_ENTER_CONTINUE": "нажмите Enter для продолжения",
     
     "VTLANG_CTRL_TEMP_SET": "Настройки временного управления",
     "VTLANG_WIN11_BYPASS_CHECK": "Обойти проверку CPU/TPM/SecureBoot при установке Windows 11",
     "VTLANG_WIN11_BYPASS_NRO": "Обойти требование сетевой учётной записи при установке Windows 11",
     "VTLANG_LINUX_REMOUNT": "Смонтировать раздел Ventoy после загрузки Linux",
     "VTLANG_SECONDARY_BOOT_MENU": "Показать вторичное загрузочное меню",
-    "VTLANG_WIN_UEFI_RES_LOCK": "Lock the resolution when UEFI boot Windows/WinPE",
-    "VTLANG_UEFI_RES_LOCK_NONE": "None",
-    "VTLANG_UEFI_RES_LOCK_MAX": "Highest",
-    "VTLANG_UEFI_RES_LOCK_1024_768": "Fixed 1024 x 768",
-    "VTLANG_UEFI_RES_LOCK_BE1024_768": "At least 1024 x 768",
+    "VTLANG_WIN_UEFI_RES_LOCK": "Блокировать разрешение при загрузке Windows/WinPE в режиме UEFI",
+    "VTLANG_UEFI_RES_LOCK_NONE": "Нет",
+    "VTLANG_UEFI_RES_LOCK_MAX": "Наибольшее",
+    "VTLANG_UEFI_RES_LOCK_1024_768": "Фиксированное 1024 x 768",
+    "VTLANG_UEFI_RES_LOCK_BE1024_768": "Не менее 1024 x 768"
 
 
     "MENU_STR_XXX": ""
