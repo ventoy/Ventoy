@@ -1,0 +1,93 @@
+{
+    "VTLANG_LANGUAGE_NAME": "Tagalog (Pilipinas)",
+    
+    "VTLANG_STR_HOTKEY_LIST": "L:Lengguwahe / Wika  F1:Help  F2:Browse  F3:ListView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTLANG_STR_HOTKEY_TREE": "L:Lengguwahe / Wika  F1:Help  F2:Browse  F3:TreeView  F4:Localboot  F5:Tools  F6:ExMenu",
+    "VTLANG_RETURN_PREVIOUS": "Bumalik sa nakaraang menu [Esc]",
+    "VTLANG_RETURN_PRV_NOESC": "Bumalik sa nakaraang menu",
+    
+    "VTLANG_MENU_LANG": "Piliin ang Lengguwahe / Wika ng Menu",
+    
+    "VTLANG_LB_SBOOT_WINDOWS": "Hanapin at i-boot ang Windows",
+    "VTLANG_LB_SBOOT_G4D": "Hanapin at i-boot ang Grub4dos",
+    "VTLANG_LB_SBOOT_HDD1": "I-boot ang unang local disk",
+    "VTLANG_LB_SBOOT_HDD2": "I-boot ang pangalawang local disk",
+    "VTLANG_LB_SBOOT_HDD3": "I-boot ang pangatlong local disk",
+    "VTLANG_LB_SBOOT_X64EFI": "Hanapin at i-boot ang BOOTX64.EFI",
+    "VTLANG_LB_SBOOT_IA32EFI": "Hanapin at i-boot ang BOOTIA32.EFI",
+    "VTLANG_LB_SBOOT_AA64EFI": "Hanapin at i-boot ang BOOTAA64.EFI",
+    "VTLANG_LB_SBOOT_XORBOOT": "Hanapin at i-boot ang xorboot",
+    
+    "VTLANG_FILE_CHKSUM": "Checksum ng file",
+    "VTLANG_CHKSUM_MD5_CALC": "Kalkulahin ang md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC": "Kalkulahin ang sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC": "Kalkulahin ang sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC": "Kalkulahin ang sha512sum",
+    "VTLANG_CHKSUM_MD5_CALC_CHK": "Kalkulahin at i-check ang md5sum",
+    "VTLANG_CHKSUM_SHA1_CALC_CHK": "Kalkulahin at i-check ang sha1sum",
+    "VTLANG_CHKSUM_SHA256_CALC_CHK": "Kalkulahin at i-check ang sha256sum",
+    "VTLANG_CHKSUM_SHA512_CALC_CHK": "Kalkulahin at i-check ang sha512sum",
+    
+    "VTLANG_POWER": "Power",
+    "VTLANG_POWER_REBOOT": "I-reboot",
+    "VTLANG_POWER_HALT": "Pahintuin",
+    "VTLANG_POWER_BOOT_EFIFW": "Mag-reboot sa EFI setup",
+    
+    "VTLANG_KEYBRD_LAYOUT": "Mga Layout ng Keyboard",
+    "VTLANG_HWINFO": "Impormasyon ng Hardware",
+    
+    "VTLANG_RESOLUTION_CFG": "Mga Setting ng Resolusyon",
+    "VTLANG_SCREEN_MODE": "Display Mode ng Screen",
+    "VTLANG_SCREEN_TEXT_MODE": "Ipilit ang Text Mode",
+    "VTLANG_SCREEN_GUI_MODE": "Ipilit ang Graphics Mode",
+    
+    "VTLANG_THEME_SELECT": "Piliin ang Theme",
+    
+    "VTLANG_UEFI_UTIL": "Ventoy UEFI Utilities",
+    "VTLANG_UTIL_SHOW_EFI_DRV": "Ipakita ang mga EFI Driver",
+    "VTLANG_UTIL_FIX_BLINIT_FAIL": "Ayusin ang Windows BlinitializeLibrary Failure",
+    
+    "VTLANG_JSON_CHK_JSON": "I-check ang plugin JSON configuration (ventoy.json)",
+    "VTLANG_JSON_CHK_CONTROL": "I-check ang global control plugin configuration",
+    "VTLANG_JSON_CHK_THEME": "I-check ang theme plugin configuration",
+    "VTLANG_JSON_CHK_AUTOINS": "I-check ang auto install plugin configuration",
+    "VTLANG_JSON_CHK_PERSIST": "I-check ang persistence plugin configuration",
+    "VTLANG_JSON_CHK_MENU_ALIAS": "I-check ang menu alias plugin configuration",
+    "VTLANG_JSON_CHK_MENU_TIP": "I-check ang menu tip plugin configuration",
+    "VTLANG_JSON_CHK_MENU_CLASS": "I-check ang menu class plugin configuration",
+    "VTLANG_JSON_CHK_INJECTION": "I-check ang injection plugin configuration",
+    "VTLANG_JSON_CHK_AUTO_MEMDISK": "I-check ang auto memdisk plugin configuration",
+    "VTLANG_JSON_CHK_IMG_LIST": "I-check ang image list plugin configuration",
+    "VTLANG_JSON_CHK_IMG_BLIST": "I-check ang image blacklist plugin configuration",
+    "VTLANG_JSON_CHK_CONF_REPLACE": "I-check ang boot conf replace plugin configuration",
+    "VTLANG_JSON_CHK_DUD": "I-check ang dud plugin configuration",
+    "VTLANG_JSON_CHK_PASSWORD": "I-check ang password plugin configuration",
+    
+    "VTLANG_NORMAL_MODE": "I-boot sa normal mode",
+    "VTLANG_WIMBOOT_MODE": "I-boot sa wimboot mode",
+    "VTLANG_GRUB2_MODE": "I-boot sa grub2 mode",
+    "VTLANG_MEMDISK_MODE": "I-boot sa memdisk mode",
+    
+    "VTLANG_RET_TO_LISTVIEW": "Bumalik sa ListView",
+    "VTLANG_RET_TO_TREEVIEW": "Bumalik sa TreeView",
+    
+    "VTLANG_NO_AUTOINS_SCRIPT": "Mag-boot nang walang auto installation template",
+    "VTLANG_AUTOINS_USE": "I-boot gamit ang",
+    
+    "VTLANG_NO_PERSIST": "Mag-boot nang walang persistence",
+    "VTLANG_PERSIST_USE": "I-boot gamit ang",
+    
+    "VTLANG_BROWER_RETURN": "Bumalik",
+    
+    "VTLANG_ENTER_EXIT": "pindutin ang Enter para mag-exit",
+    "VTLANG_ENTER_REBOOT": "pindutin ang Enter para mag-reboot",
+    "VTLANG_ENTER_CONTINUE": "pindutin ang Enter para magpatuloy",
+    
+    "VTLANG_CTRL_TEMP_SET": "Pansamantalang Mga Control Setting",
+    "VTLANG_WIN11_BYPASS_CHECK": "I-bypass ang check sa CPU/TPM/SecureBoot kapag nag-i-install ng Windows 11",
+    "VTLANG_WIN11_BYPASS_NRO": "I-bypass ang requirement sa online account kapag nag-i-install ng Windows 11",
+    "VTLANG_LINUX_REMOUNT": "I-mount ang Ventoy partition pagkatapos mag-boot ng Linux",
+    "VTLANG_SECONDARY_BOOT_MENU": "Ipakita ang pangalawang boot menu",
+    
+    "MENU_STR_XXX": ""
+}
