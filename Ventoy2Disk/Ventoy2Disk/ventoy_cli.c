@@ -3,6 +3,8 @@
 #include <tlhelp32.h>
 #include <Psapi.h>
 #include <commctrl.h>
+#include <io.h>
+#include <fcntl.h>
 #include "resource.h"
 #include "Language.h"
 #include "Ventoy2Disk.h"
@@ -10,6 +12,23 @@
 #include "VentoyJson.h"
 
 extern void CLISetReserveSpace(int MB);
+
+#define CLI_OP_INSTALL      0
+#define CLI_OP_UPDATE       1
+#define CLI_OP_LIST         2
+#define CLI_OP_HELP         3
+#define CLI_OP_VERSION      4
+#define CLI_OP_SAFEINSTALL  5
+
+static void CLIPrint(const char *Fmt, ...)
+{
+    va_list Arg;
+    char szBuf[1024];
+    va_start(Arg, Fmt);
+    vsnprintf_s(szBuf, sizeof(szBuf), sizeof(szBuf) - 1, Fmt, Arg);
+    va_end(Arg);
+    printf("%s\n", szBuf);
+}
 
 typedef struct CLI_CFG
 {
@@ -168,6 +187,30 @@ static int CLI_GetPhyDriveInfo(int PhyDrive, PHY_DRIVE_INFO* pInfo)
     return 0;
 }
 
+static BOOL CLI_ConfirmDestructiveOperation(PHY_DRIVE_INFO *pDrvInfo)
+{
+    char Answer[16];
+
+    if (g_NoNeedInputYes)
+        return TRUE;
+
+    CLIPrint("WARNING: ALL DATA on PhyDrive %d (%s %s, %d GB) will be LOST.",
+             pDrvInfo->PhyDrive, pDrvInfo->VendorId, pDrvInfo->ProductId,
+             GetHumanReadableGBSize(pDrvInfo->SizeInBytes));
+    printf("Continue? (y/n): ");
+    fflush(stdout);
+    if (!fgets(Answer, sizeof(Answer), stdin) || (Answer[0] != 'y' && Answer[0] != 'Y'))
+    { CLIPrint("Aborted."); return FALSE; }
+
+    CLIPrint("WARNING: ALL DATA on PhyDrive %d will be LOST. Double-check.", pDrvInfo->PhyDrive);
+    printf("Continue? (y/n): ");
+    fflush(stdout);
+    if (!fgets(Answer, sizeof(Answer), stdin) || (Answer[0] != 'y' && Answer[0] != 'Y'))
+    { CLIPrint("Aborted."); return FALSE; }
+
+    return TRUE;
+}
+
 static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_CFG *pCfg)
 {
     int i;
@@ -186,13 +229,29 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
     for (i = 0; i < argc; i++)
     {
         opt = argv[i];
-        if (_stricmp(opt, "/I") == 0)
+        if (_stricmp(opt, "/HELP") == 0 || _stricmp(opt, "/?") == 0)
         {
-            op = 0;
+            op = CLI_OP_HELP;
+        }
+        else if (_stricmp(opt, "/V") == 0)
+        {
+            op = CLI_OP_VERSION;
+        }
+        else if (_stricmp(opt, "/L") == 0)
+        {
+            op = CLI_OP_LIST;
+        }
+        else if (_stricmp(opt, "/SI") == 0)
+        {
+            op = CLI_OP_SAFEINSTALL;
+        }
+        else if (_stricmp(opt, "/I") == 0)
+        {
+            op = CLI_OP_INSTALL;
         }
         else if (_stricmp(opt, "/U") == 0)
         {
-            op = 1;
+            op = CLI_OP_UPDATE;
         }
         else if (_stricmp(opt, "/GPT") == 0)
         {
@@ -201,6 +260,14 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         else if (_stricmp(opt, "/NoSB") == 0)
         {
             g_SecureBoot = FALSE;
+        }
+        else if (_stricmp(opt, "/SB") == 0)
+        {
+            g_SecureBoot = TRUE;
+        }
+        else if (_stricmp(opt, "/Y") == 0)
+        {
+            g_NoNeedInputYes = 1;
         }
         else if (_stricmp(opt, "/NoUSBCheck") == 0)
         {
@@ -213,7 +280,7 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         else if (_strnicmp(opt, "/Drive:", 7) == 0)
         {
             Log("Get PhyDrive by logical drive %C:", opt[7]);
-            PhyDrive = GetPhyDriveByLogicalDrive(opt[7], NULL);            
+            PhyDrive = GetPhyDriveByLogicalDrive(opt[7], NULL);
         }
         else if (_strnicmp(opt, "/PhyDrive:", 10) == 0)
         {
@@ -238,6 +305,21 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
                 fstype = VTOY_FS_UDF;
             }
         }
+        else if (_strnicmp(opt, "/Label:", 7) == 0)
+        {
+            if (strlen(opt + 7) > 32)
+            {
+                CLIPrint("[ERROR] /Label: value too long (max 32 chars)");
+                return 1;
+            }
+            safe_strcpy(g_VolumeLabel, opt + 7);
+        }
+    }
+
+    if (op == CLI_OP_HELP || op == CLI_OP_VERSION)
+    {
+        pCfg->op = op;
+        return 0;
     }
 
     if (op < 0 || PhyDrive < 0)
@@ -246,9 +328,8 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         return 1;
     }
 
-    Log("Ventoy CLI %s PhyDrive:%d %s SecureBoot:%d ReserveSpace:%dMB USBCheck:%u FS:%s NonDest:%d",
-        op == 0 ? "install" : "update",
-        PhyDrive, PartStyle ? "GPT" : "MBR",
+    Log("Ventoy CLI op:%d PhyDrive:%d %s SecureBoot:%d ReserveSpace:%dMB USBCheck:%u FS:%s NonDest:%d",
+        op, PhyDrive, PartStyle ? "GPT" : "MBR",
         g_SecureBoot, ReserveMB, USBCheck, GetVentoyFsFmtNameByTypeA(fstype), NonDest
         );
 
@@ -262,6 +343,11 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         pDrvInfo->PhyDrive, GetBusTypeString(pDrvInfo->BusType), pDrvInfo->RemovableMedia,
         GetHumanReadableGBSize(pDrvInfo->SizeInBytes), pDrvInfo->SizeInBytes,
         pDrvInfo->VendorId, pDrvInfo->ProductId);
+
+    if (op == CLI_OP_LIST)
+    {
+        GetLettersBelongPhyDrive(PhyDrive, pDrvInfo->DriveLetters, sizeof(pDrvInfo->DriveLetters));
+    }
 
     if (IsVentoyPhyDrive(PhyDrive, pDrvInfo->SizeInBytes, &MBR, &Part2StartSector, &Part2GPTAttr))
     {
@@ -280,7 +366,7 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         }
     }
 
-    if (op == 0 && NonDest)
+    if (op == CLI_OP_INSTALL && NonDest)
     {
         GetLettersBelongPhyDrive(PhyDrive, pDrvInfo->DriveLetters, sizeof(pDrvInfo->DriveLetters));
     }
@@ -455,8 +541,12 @@ PHY_DRIVE_INFO* CLI_PhyDrvInfo(void)
 }
 
 /*
- * Ventoy2Disk.exe VTOYCLI  { /I | /U }  { /Drive:F: | /PhyDrive:1 }  /GPT  /NoSB  /R:4096 /NoUSBCheck
- * 
+ * Ventoy2Disk.exe VTOYCLI CMD [OPTION] { /Drive:F: | /PhyDrive:N }
+ *
+ * CMD: /I /SI /U /L /V /HELP /?
+ * OPTION: /GPT /NoSB /SB /R:MB /FS:TYPE /Label:NAME /NoUSBCheck /NonDest /Y
+ *
+ * Run with /HELP for full usage.
  */
 int VentoyCLIMain(int argc, char** argv)
 {
@@ -466,6 +556,36 @@ int VentoyCLIMain(int argc, char** argv)
 
     DeleteFileA(VENTOY_CLI_PERCENT);
     DeleteFileA(VENTOY_CLI_DONE);
+
+    {
+        HANDLE hOut   = GetStdHandle(STD_OUTPUT_HANDLE);
+        HANDLE hIn    = GetStdHandle(STD_INPUT_HANDLE);
+        DWORD  outType = (hOut && hOut != INVALID_HANDLE_VALUE) ? GetFileType(hOut) : FILE_TYPE_UNKNOWN;
+        DWORD  inType  = (hIn  && hIn  != INVALID_HANDLE_VALUE) ? GetFileType(hIn)  : FILE_TYPE_UNKNOWN;
+
+        if (outType == FILE_TYPE_PIPE || outType == FILE_TYPE_DISK)
+        {
+            /* Launched with redirected stdout (pipe capture or "> file") —
+             * hook C runtime stdout to the inherited Win32 handle. */
+            int fd = _open_osfhandle((intptr_t)hOut, _O_WRONLY | _O_TEXT);
+            if (fd >= 0) { FILE *fp = _fdopen(fd, "w"); if (fp) { *stdout = *fp; setvbuf(stdout, NULL, _IONBF, 0); } }
+        }
+        else if (AttachConsole(ATTACH_PARENT_PROCESS))
+        {
+            /* Launched from an interactive console (e.g. cmd.exe). */
+            FILE *fp;
+            freopen_s(&fp, "CONOUT$", "w", stdout);
+            freopen_s(&fp, "CONOUT$", "w", stderr);
+            if (inType != FILE_TYPE_PIPE && inType != FILE_TYPE_DISK)
+                freopen_s(&fp, "CONIN$", "r", stdin);
+        }
+
+        if (inType == FILE_TYPE_PIPE || inType == FILE_TYPE_DISK)
+        {
+            int fd = _open_osfhandle((intptr_t)hIn, _O_RDONLY | _O_TEXT);
+            if (fd >= 0) { FILE *fp = _fdopen(fd, "r"); if (fp) { *stdin = *fp; } }
+        }
+    }
 
     g_CLI_PhyDrvInfo = pDrvInfo = (PHY_DRIVE_INFO*)malloc(sizeof(PHY_DRIVE_INFO));
     if (!pDrvInfo)
@@ -479,8 +599,83 @@ int VentoyCLIMain(int argc, char** argv)
         goto end;
     }
 
+    if (CliCfg.op == CLI_OP_HELP)
+    {
+        CLIPrint("Usage: Ventoy2Disk.exe VTOYCLI [CMD] [OPTION] { /Drive:F: | /PhyDrive:N }");
+        CLIPrint("");
+        CLIPrint("CMD (one required):");
+        CLIPrint("  /I          Force install (overwrites existing; no prompts)");
+        CLIPrint("  /SI         Safe install (fails if Ventoy present; prompts for confirmation)");
+        CLIPrint("  /U          Update Ventoy on disk");
+        CLIPrint("  /L          List Ventoy info on disk (read-only)");
+        CLIPrint("  /V          Print local Ventoy version and exit");
+        CLIPrint("  /HELP /?    Show this help");
+        CLIPrint("");
+        CLIPrint("OPTION (optional):");
+        CLIPrint("  /GPT           GPT partition style (default: MBR; install only)");
+        CLIPrint("  /NoSB          Disable secure boot support (default: enabled)");
+        CLIPrint("  /SB            Enable secure boot support explicitly");
+        CLIPrint("  /R:SIZE_MB     Reserve SIZE_MB megabytes at end of disk");
+        CLIPrint("  /FS:TYPE       Filesystem: exFAT (default), NTFS, FAT32, UDF");
+        CLIPrint("  /Label:NAME    Volume label for partition 1 (default: Ventoy)");
+        CLIPrint("  /NoUSBCheck    Allow installation on non-USB drives");
+        CLIPrint("  /NonDest       Non-destructive install (resize existing partition)");
+        CLIPrint("  /Y             Auto-confirm prompts (for scripted/silent use)");
+        CLIPrint("");
+        CLIPrint("Drive (required for all CMDs except /V):");
+        CLIPrint("  /Drive:F:      Select by logical drive letter");
+        CLIPrint("  /PhyDrive:N    Select by physical drive number");
+        ret = 0;
+        goto end;
+    }
+
+    if (CliCfg.op == CLI_OP_VERSION)
+    {
+        CLIPrint("%s", GetLocalVentoyVersion());
+        ret = 0;
+        goto end;
+    }
+
+    if (CliCfg.op == CLI_OP_LIST)
+    {
+        if (pDrvInfo->VentoyVersion[0] == 0 || pDrvInfo->VentoyVersion[0] == '?')
+        {
+            CLIPrint("Ventoy Version in Disk : N/A");
+            ret = 1;
+        }
+        else
+        {
+            CLIPrint("Ventoy Version in Disk : %s", pDrvInfo->VentoyVersion);
+            CLIPrint("Disk Partition Style   : %s", pDrvInfo->PartStyle ? "GPT" : "MBR");
+            CLIPrint("Secure Boot Support    : %s", pDrvInfo->SecureBootSupport ? "YES" : "NO");
+            CLIPrint("Filesystem Type        : %s", pDrvInfo->VentoyFsType);
+            CLIPrint("Disk Size              : %d GB", GetHumanReadableGBSize(pDrvInfo->SizeInBytes));
+            CLIPrint("Bus Type               : %s", GetBusTypeString(pDrvInfo->BusType));
+            ret = 0;
+        }
+        goto end;
+    }
+
+    if (CliCfg.op == CLI_OP_SAFEINSTALL)
+    {
+        if (pDrvInfo->VentoyVersion[0] != 0 && pDrvInfo->VentoyVersion[0] != '?')
+        {
+            CLIPrint("[ERROR] PhyDrive %d already has Ventoy %s.",
+                     pDrvInfo->PhyDrive, pDrvInfo->VentoyVersion);
+            CLIPrint("        Use /U to update, or /I to force-reinstall.");
+            ret = 1;
+            goto end;
+        }
+        if (!CLI_ConfirmDestructiveOperation(pDrvInfo))
+        {
+            ret = 0;
+            goto end;
+        }
+        CliCfg.op = CLI_OP_INSTALL;
+    }
+
     //Check USB type for install
-    if (CliCfg.op == 0 && CliCfg.USBCheck)
+    if (CliCfg.op == CLI_OP_INSTALL && CliCfg.USBCheck)
     {
         if (pDrvInfo->BusType != BusTypeUsb)
         {
@@ -489,7 +684,7 @@ int VentoyCLIMain(int argc, char** argv)
         }
     }
 
-    if (CliCfg.op == 0)
+    if (CliCfg.op == CLI_OP_INSTALL)
     {
         if (CliCfg.NonDest)
         {
