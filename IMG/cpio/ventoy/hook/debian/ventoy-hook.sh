@@ -58,6 +58,9 @@ ventoy_get_debian_distro() {
         if $GREP -q 'Tails' /etc/os-release; then
             echo 'tails'; return
         fi
+        if $GREP -q 'NAME="Kylin"' /etc/os-release; then
+            echo 'kylin'; return
+        fi
     fi
 
     if $GREP -q 'slax/' /proc/cmdline; then

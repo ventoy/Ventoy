@@ -316,6 +316,7 @@ var g_vtoy_cur_language_en =
     "STR_ENABLE": " Enable",
     "STR_ADD": "Add",
     "STR_DEL": "Delete",
+    "STR_DEL_SHORT": "Del",
     "STR_CLEAR": "Clear",
     "STR_STATUS": "Status",
     "STR_DEFAULT": "Default",
@@ -459,6 +460,7 @@ var g_vtoy_cur_language_cn =
     "STR_ENABLE": " 使能",
     "STR_ADD": "新增",
     "STR_DEL": "删除",
+    "STR_DEL_SHORT": "删除",
     "STR_CLEAR": "清除",
     "STR_STATUS": "状态",
     "STR_DEFAULT": "默认",
@@ -1007,7 +1009,7 @@ function VtoyCommonChangeLanguage(newlang) {
         $(this).text(g_vtoy_cur_language.STR_ADD);
     });
     $("span[id=id_span_btn_del]").each(function(){
-        $(this).text(g_vtoy_cur_language.STR_DEL);
+        $(this).text(g_vtoy_cur_language.STR_DEL_SHORT);
     });
 
     $("span[id=id_span_enable]").each(function(){
@@ -1436,7 +1438,7 @@ function ventoy_get_xslg_addbtn(mclass) {
 }
 
 function ventoy_get_xslg_delbtn(mclass) {
-    return '<button class="btn btn-xs btn-lg btn-danger btn-del '+mclass+'"><span class="fa fa-trash">&nbsp;&nbsp;</span><span id="id_span_btn_del">'+g_vtoy_cur_language.STR_DEL+'</span></button>';
+    return '<button class="btn btn-xs btn-lg btn-danger btn-del '+mclass+'"><span class="fa fa-trash">&nbsp;&nbsp;</span><span id="id_span_btn_del">'+g_vtoy_cur_language.STR_DEL_SHORT+'</span></button>';
 }
 
 function ventoy_get_addbtn(mclass) {
@@ -1444,7 +1446,7 @@ function ventoy_get_addbtn(mclass) {
 }
 
 function ventoy_get_delbtn(mclass) {
-    return '<button class="btn btn-danger btn-del '+mclass+'"><span class="fa fa-trash">&nbsp;&nbsp;</span><span id="id_span_btn_del">'+g_vtoy_cur_language.STR_DEL+'</span></button>';
+    return '<button class="btn btn-danger btn-del '+mclass+'"><span class="fa fa-trash">&nbsp;&nbsp;</span><span id="id_span_btn_del">'+g_vtoy_cur_language.STR_DEL_SHORT+'</span></button>';
 }
 
 function ventoy_confirm(title, cb, data1, data2) {

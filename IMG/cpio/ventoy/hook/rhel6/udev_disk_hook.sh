@@ -72,6 +72,12 @@ ventoy_udev_disk_common_hook $* "noreplace"
 
 $BUSYBOX_PATH/mount $VTOY_DM_PATH /mnt/ventoy
 
+#fix Oracle Linux 6.9 install issue
+if $GREP -q -i 'Oracle Linux'  /mnt/ventoy/.discinfo; then
+    ln -s /mnt/ventoy  /mnt/source
+fi
+
+
 # 
 # We do a trick for rhel6 series here.
 # Use /dev/$vtCheatLoop and wapper it as a removable cdrom with bind mount.

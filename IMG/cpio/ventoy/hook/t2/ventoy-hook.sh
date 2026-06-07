@@ -19,6 +19,8 @@
 
 . $VTOY_PATH/hook/ventoy-os-lib.sh
 
+$SED  "/Searching/i $BUSYBOX_PATH/sh $VTOY_PATH/hook/t2/disk_hook.sh"  -i /init
+$SED  "/disktype/i x=/dev/ventoy"  -i /init
 $SED  "/getdevice *devicefile/i $BUSYBOX_PATH/sh $VTOY_PATH/hook/t2/disk_hook.sh"  -i /init
 $SED  "/getdevice *devicefile/a devicefile=/dev/ventoy"  -i /init
 

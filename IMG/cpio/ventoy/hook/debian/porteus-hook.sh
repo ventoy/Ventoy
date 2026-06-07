@@ -33,11 +33,13 @@ echo "_vtRet1=$_vtRet1  _vtRet2=$_vtRet2 ..." >> $VTLOG
 
 if [ $_vtRet1 -ne 0 -a $_vtRet2 -eq 0 ]; then
     vtFindFlag=0
-    $GREP '`value from`' /usr/* -r | $AWK -F: '{print $1}' | while read vtline; do
+    $GREP '`value from`' /usr/* -r | $AWK -F: '{print $1}' > $VTOY_PATH/.porteus
+    while read vtline; do
         echo "hooking $vtline ..." >> $VTLOG
         $SED "s#\`value from\`#$vtPath#g"  -i $vtline
         vtFindFlag=1
-    done
+    done < $VTOY_PATH/.porteus
+    rm -f $VTOY_PATH/.porteus
 
     if [ $vtFindFlag -eq 0 ]; then
         if $GREP -q '`value from`' /linuxrc; then

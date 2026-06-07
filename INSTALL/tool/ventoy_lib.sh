@@ -60,7 +60,7 @@ check_tool_work_ok() {
         return
     fi
    
-    if mkexfatfs -V > /dev/null; then
+    if mkexfatfs -V > /dev/null; then        
         vtdebug "mkexfatfs test ok ..."
     else
         vtdebug "mkexfatfs test fail ..."
@@ -341,6 +341,7 @@ EOF
    
     udevadm trigger --name-match=$DISK >/dev/null 2>&1
     partprobe >/dev/null 2>&1
+    partx -u $DISK >/dev/null 2>&1
     sleep 3
     echo "Done"
 
@@ -458,6 +459,7 @@ format_ventoy_disk_gpt() {
 
     udevadm trigger --name-match=$DISK >/dev/null 2>&1
     partprobe >/dev/null 2>&1
+    partx -u $DISK >/dev/null 2>&1
     sleep 3
     echo "Done"
 
