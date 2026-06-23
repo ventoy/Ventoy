@@ -1,0 +1,10 @@
+
+# Ventoy Secure Boot Policy
+
+
+
+
+
+
+
+
