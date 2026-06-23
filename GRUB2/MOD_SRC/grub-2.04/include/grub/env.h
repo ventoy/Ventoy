@@ -24,6 +24,11 @@
 #include <grub/types.h>
 #include <grub/menu.h>
 
+#define VTOY_SB_POLICY_BYPASS   0
+#define VTOY_SB_POLICY_CHECK    1
+extern grub_uint8_t EXPORT_VAR(g_sys_sb);
+extern grub_uint8_t EXPORT_VAR(g_sb_policy);
+
 struct grub_env_var;
 
 typedef const char *(*grub_env_read_hook_t) (struct grub_env_var *var,

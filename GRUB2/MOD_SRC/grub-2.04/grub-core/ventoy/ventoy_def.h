@@ -195,6 +195,16 @@ typedef struct cpio_newc_header
 #define check_free(p, func) if (p) { func(p); p = NULL; }
 #define grub_check_free(p) if (p) { grub_free(p); p = NULL; }
 
+#define VTOY_SHIM_POLICY_GUID    {0x90a29d14, 0x3968, 0x48fe, { 0x85, 0x81, 0x6b, 0x7f, 0x7d, 0xc4, 0x70, 0x55 }};
+
+typedef void (*VTOY_BYPASS_SB)(void);
+typedef void (*VTOY_CHECK_SB)(void);
+typedef struct _VTOY_SHIM{
+	VTOY_BYPASS_SB ByPassSB;
+	VTOY_CHECK_SB CheckSB;
+} VTOY_SHIM;
+
+
 typedef int (*grub_char_check_func)(int c);
 #define ventoy_is_decimal(str)  ventoy_string_check(str, grub_isdigit)
 
@@ -1326,6 +1336,8 @@ int ventoy_ctrl_var_init(void);
 int ventoy_global_var_init(void);
 grub_err_t ventoy_cmd_push_menulang(grub_extcmd_context_t ctxt, int argc, char **args);
 grub_err_t ventoy_cmd_pop_menulang(grub_extcmd_context_t ctxt, int argc, char **args);
+void ventoy_prompt_end(void);
+int ventoy_set_sb_policy(void);
 
 #endif /* __VENTOY_DEF_H__ */
 

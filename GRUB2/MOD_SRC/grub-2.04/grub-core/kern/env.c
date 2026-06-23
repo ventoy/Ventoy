@@ -22,6 +22,9 @@
 #include <grub/misc.h>
 #include <grub/mm.h>
 
+grub_uint8_t g_sys_sb = 0;
+grub_uint8_t g_sb_policy = VTOY_SB_POLICY_BYPASS;
+
 /* The initial context.  */
 static struct grub_env_context initial_context;
 
@@ -238,12 +241,12 @@ grub_env_export (const char *name)
   if (! var)
     {
       grub_err_t err;
-      
+
       err = grub_env_set (name, "");
       if (err)
 	return err;
       var = grub_env_find (name);
-    }    
+    }
   var->global = 1;
 
   return GRUB_ERR_NONE;

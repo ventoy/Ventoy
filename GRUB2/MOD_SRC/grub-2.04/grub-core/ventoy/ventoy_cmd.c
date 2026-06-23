@@ -4723,7 +4723,7 @@ static grub_err_t ventoy_cmd_img_unhook_root(grub_extcmd_context_t ctxt, int arg
 static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     int ret = 1;
-    grub_uint8_t *var;
+    grub_uint8_t *var = NULL;
     grub_size_t size;
     grub_efi_guid_t global = GRUB_EFI_GLOBAL_VARIABLE_GUID;
 
@@ -4734,6 +4734,7 @@ static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, in
     var = grub_efi_get_variable("SecureBoot", &global, &size);
     if (var && *var == 1)
     {
+        grub_free(var);
         return 0;
     }
 
@@ -5118,7 +5119,7 @@ int ventoy_load_part_table(const char *diskname)
     return 0;
 }
 
-static void ventoy_prompt_end(void)
+void ventoy_prompt_end(void)
 {
     int op = 0;
     char c;
@@ -6412,6 +6413,40 @@ static grub_err_t ventoy_cmd_load_menu_lang(grub_extcmd_context_t ctxt, int argc
     VENTOY_CMD_RETURN(0);
 }
 
+static grub_err_t ventoy_cmd_sb_info(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    const char *policy = NULL;
+
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+#ifdef GRUB_MACHINE_EFI
+
+    if (g_sb_policy == VTOY_SB_POLICY_BYPASS)
+    {
+        policy = "ByPass";
+    }
+    else if (g_sb_policy == VTOY_SB_POLICY_CHECK)
+    {
+        policy = "Check";
+    }
+    else
+    {
+        policy = "XXX";
+    }
+
+    grub_printf("UEFI Firmware Secure Boot: %s\n", g_sys_sb ? "Enable" : "Disable");
+    grub_printf("Ventoy Secure Boot Policy: %s\n", policy);
+#else
+    grub_printf("Non EFI mode!\n");
+#endif
+
+    grub_refresh();
+
+    VENTOY_CMD_RETURN(0);
+}
+
 static int ventoy_chksum_pathcmp(int chktype, char *rlpath, char *rdpath)
 {
     char *pos1 = NULL;
@@ -7059,6 +7094,8 @@ static cmd_para ventoy_cmds[] =
     { "vt_push_menu_lang", ventoy_cmd_push_menulang, 0, NULL, "", "", NULL },
     { "vt_pop_menu_lang", ventoy_cmd_pop_menulang, 0, NULL, "", "", NULL },
     { "vt_linux_initrd", ventoy_cmd_linux_initrd, 0, NULL, "", "", NULL },
+
+    { "vt_sbinfo", ventoy_cmd_sb_info, 0, NULL, "", "", NULL },
 
 };
 
