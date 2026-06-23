@@ -1231,6 +1231,32 @@ EFI_STATUS EFIAPI ventoy_boot(IN EFI_HANDLE ImageHandle)
     return EFI_SUCCESS;
 }
 
+#if defined (MDE_CPU_X64)
+STATIC BOOLEAN EFIAPI CheckVtoyShim(VOID)
+{
+    UINT8 SecureBoot = 0;
+	UINTN DataSize;
+	EFI_STATUS Status;
+    EFI_GUID Guid = VTOY_SHIM_POLICY_GUID;
+    VOID *Prot = NULL;
+
+	DataSize = sizeof(SecureBoot);
+	Status = gST->RuntimeServices->GetVariable(L"SecureBoot", &gEfiGlobalVariableGuid, NULL,
+				     &DataSize, &SecureBoot);
+	if (!EFI_ERROR(Status) && SecureBoot)
+    {
+        Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&Prot);
+        if (EFI_ERROR(Status))
+        {
+            VtoyDebug("Failed to locate Vtoy Shim Protocol %lx\r\n", Status);
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+#endif
+
 EFI_STATUS EFIAPI VentoyEfiMain
 (
     IN EFI_HANDLE         ImageHandle,
@@ -1239,6 +1265,15 @@ EFI_STATUS EFIAPI VentoyEfiMain
 {
     EFI_STATUS Status = EFI_SUCCESS;
     EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *Protocol;
+
+#if defined (MDE_CPU_X64)
+    /* check that Ventoy Shim must exist */
+    if (!CheckVtoyShim())
+    {
+        sleep(5);
+        return EFI_NOT_FOUND;
+    }
+#endif
 
     g_sector_flag_num = 512; /* initial value */
 

@@ -23,7 +23,10 @@
   MODULE_TYPE                    = UEFI_APPLICATION
   VERSION_STRING                 = 1.0
   ENTRY_POINT                    = VtoyUtilEfiMain
-
+ 
+[BuildOptions]
+  # Force standard GNU ld to pack and align ELF segments to 4KB page boundaries
+  GCC:*_*_*_DLINK_FLAGS = -Wl,-z,common-page-size=0x1000 -Wl,-z,max-page-size=0x1000
 
 [Sources]
   VtoyUtil.h
