@@ -6415,13 +6415,12 @@ static grub_err_t ventoy_cmd_load_menu_lang(grub_extcmd_context_t ctxt, int argc
 
 static grub_err_t ventoy_cmd_sb_info(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    const char *policy = NULL;
-
     (void)ctxt;
     (void)argc;
     (void)args;
 
 #ifdef GRUB_MACHINE_EFI
+    const char *policy = NULL;
 
     if (g_sb_policy == VTOY_SB_POLICY_BYPASS)
     {

@@ -49,7 +49,9 @@ int g_ventoy_debug = 0;
 static int g_efi_os = 0xFF;
 grub_uint32_t g_ventoy_plat_data;
 
+#ifdef GRUB_MACHINE_EFI
 static VTOY_SHIM *g_vtoy_shim = NULL;
+#endif
 
 void ventoy_debug(const char *fmt, ...)
 {
