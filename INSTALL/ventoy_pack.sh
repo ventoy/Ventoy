@@ -1,5 +1,64 @@
 #!/bin/sh
 
+if [ "$VENTOY_CERT_PASS" = "YES" ]; then
+    read -s -p "Enter cert key passphrase: " KEY_PASS   
+    echo
+
+    if openssl pkey -in "$VENTOY_CERT_KEY" -passin pass:"$KEY_PASS" -out /dev/null  > /dev/null 2>&1; then
+        echo "Password check OK"
+    else
+        echo "Incorrect password"
+        exit 1
+    fi
+fi
+
+SBAT_VER=1
+sign_efi() {
+    efi=$1
+    
+    if [ ! -f "$efi" ]; then
+        printf "### %-64s  non-exist\n" "$efi"
+        return
+    fi
+
+    #Don't sign if VENTOY_CERT_KEY is not defined.
+    if [ -z "$VENTOY_CERT_KEY" -o -z "$VENTOY_CERT_PEM" ]; then
+        printf "### %-64s  NO-CA\n" "$efi"
+        return
+    fi    
+
+    if echo $efi | grep -q '\.xz$'; then
+        xzcat $efi > ${efi}.unxz
+        mv ${efi}.unxz  ${efi}
+    fi
+
+    sbstr=$(printf "%08x" $SBAT_VER)
+    echo -en "\x8a\x06\x55\xf7\x4f\xe0\x2b\x45\x9d\x6d\x7c\x55\x96\xb3\xc0\x7d\x${sbstr:6:2}\x${sbstr:4:2}\x${sbstr:2:2}\x${sbstr:0:2}" | \
+        dd bs=1 count=20 of=${efi} seek=40 conv=notrunc status=none
+
+    rm -f "${efi}.signed"
+    if [ "$VENTOY_CERT_PASS" = "YES" ]; then
+        expect -f ./sign_with_pass.exp "$KEY_PASS" "$VENTOY_CERT_KEY" "$VENTOY_CERT_PEM" "${efi}" "${efi}.signed" >/dev/null 2>&1
+    else
+        sbsign --key "$VENTOY_CERT_KEY" --cert "$VENTOY_CERT_PEM" --output "${efi}.signed" "${efi}" >/dev/null 2>&1
+    fi
+
+    if [ -f "${efi}.signed" ]; then
+        if echo $efi | grep -q '\.xz$'; then
+            xz --check=crc32 "${efi}.signed"
+            mv "${efi}.signed.xz" "$efi"
+            rm -f "${efi}.signed"
+        else
+            mv "${efi}.signed" "$efi"
+        fi
+    else
+        echo "### %-64s  failed\n" "$efi"
+        exit 1
+    fi 
+
+    printf "### %-64s  success\n" "$efi"
+}
+
 if [ "$1" = "CI" ]; then
     OPT='-dR'
 else
@@ -130,6 +189,27 @@ cp -a ./tool/create_ventoy_iso_part_dm.sh  $tmpmnt/tool/
 
 
 rm -f $tmpmnt/grub/i386-pc/*.img
+
+
+sign_efi $tmpmnt/EFI/BOOT/fbx64.efi
+sign_efi $tmpmnt/EFI/BOOT/fbia32.efi
+sign_efi $tmpmnt/EFI/BOOT/fbaa64.efi
+sign_efi $tmpmnt/EFI/BOOT/grubx64_real.efi
+sign_efi $tmpmnt/EFI/BOOT/grubia32_real.efi
+sign_efi $tmpmnt/ventoy/iso9660_x64.efi
+sign_efi $tmpmnt/ventoy/iso9660_ia32.efi
+sign_efi $tmpmnt/ventoy/iso9660_aa64.efi
+sign_efi $tmpmnt/ventoy/udf_x64.efi
+sign_efi $tmpmnt/ventoy/udf_ia32.efi
+sign_efi $tmpmnt/ventoy/udf_aa64.efi
+sign_efi $tmpmnt/ventoy/ventoy_x64.efi
+sign_efi $tmpmnt/ventoy/ventoy_ia32.efi
+sign_efi $tmpmnt/ventoy/ventoy_aa64.efi
+sign_efi $tmpmnt/ventoy/vtoyutil_x64.efi
+sign_efi $tmpmnt/ventoy/vtoyutil_ia32.efi
+sign_efi $tmpmnt/ventoy/vtoyutil_aa64.efi
+sign_efi $tmpmnt/ventoy/wimboot.i386.efi.xz
+sign_efi $tmpmnt/ventoy/wimboot.x86_64.xz
 
 
 umount $tmpmnt && rm -rf $tmpmnt
@@ -271,6 +351,13 @@ cd $CurDir
 mv ../LiveCDGUI/ventoy*.iso ./
 
 if [ -e ventoy-${curver}-windows.zip ] && [ -e ventoy-${curver}-linux.tar.gz ]; then
+
+    if [ -z "$VENTOY_CERT_KEY" -o -z "$VENTOY_CERT_PEM" ]; then
+        echo "[warning]: EFI files are not signed and can only boot when Secure Boot is disabled."
+        echo "[warning]: EFI files are not signed and can only boot when Secure Boot is disabled."
+        echo "[warning]: EFI files are not signed and can only boot when Secure Boot is disabled."
+    fi
+
     echo -e "\n ============= SUCCESS =================\n"
 else
     echo -e "\n ============= FAILED =================\n"
