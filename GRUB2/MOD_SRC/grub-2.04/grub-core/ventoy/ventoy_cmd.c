@@ -6413,6 +6413,19 @@ static grub_err_t ventoy_cmd_load_menu_lang(grub_extcmd_context_t ctxt, int argc
     VENTOY_CMD_RETURN(0);
 }
 
+static grub_err_t ventoy_cmd_update_sb_policy(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    (void)ctxt;
+    (void)argc;
+    (void)args;
+
+#ifdef GRUB_MACHINE_EFI
+    ventoy_set_sb_policy();
+#endif
+
+    VENTOY_CMD_RETURN(0);
+}
+
 static grub_err_t ventoy_cmd_sb_info(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     (void)ctxt;
@@ -7095,6 +7108,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_linux_initrd", ventoy_cmd_linux_initrd, 0, NULL, "", "", NULL },
 
     { "vt_sbinfo", ventoy_cmd_sb_info, 0, NULL, "", "", NULL },
+    { "vt_update_sb_policy", ventoy_cmd_update_sb_policy, 0, NULL, "", "", NULL },
 
 };
 

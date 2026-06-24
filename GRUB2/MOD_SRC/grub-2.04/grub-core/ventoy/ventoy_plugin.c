@@ -2556,10 +2556,6 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
         grub_env_unset("VTOY_MENU_TIP_ENABLE");
     }
 
-#ifdef GRUB_MACHINE_EFI
-    ventoy_set_sb_policy();
-#endif
-
     VENTOY_CMD_RETURN(GRUB_ERR_NONE);
 }
 
