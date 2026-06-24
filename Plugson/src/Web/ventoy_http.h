@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -37,7 +37,7 @@ typedef enum bios_mode
     bios_ia32,
     bios_aa64,
     bios_mips,
-    
+
     bios_max
 }bios_mode;
 
@@ -81,6 +81,8 @@ typedef struct data_control
     int linux_remount;
     int secondary_menu;
     int password_asterisk;
+    int uefi_res_lock;
+    int uefi_sb_policy;
     char default_search_root[MAX_PATH];
     char default_image[MAX_PATH];
     char default_kbd_layout[32];
@@ -110,7 +112,7 @@ typedef struct data_theme
     char ventoy_top[32];
     char ventoy_color[32];
     char serial_param[256];
-    
+
     path_node *fontslist;
 }data_theme;
 
@@ -410,6 +412,9 @@ else\
 
 #define CONTROL_PARSE_INT_DEF_1(node, val) \
     if (node->unData.pcStrVal[0] == '0') val = 0
+
+#define CONTROL_PARSE_INT_DEF_3(node, val) \
+    if (node->unData.pcStrVal[0] == '3') val = 3
 
 #define VTOY_JSON_INT(key, val) vtoy_json_get_int(json, key, &val)
 #define VTOY_JSON_STR(key, buf) vtoy_json_get_string(json, key, sizeof(buf), buf)
