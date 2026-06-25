@@ -118,14 +118,19 @@ mkfs -t $fstype $fsopt -L $label $freeloop
 
 sync
 
-if [ -n "$config" ]; then
+if [ -n "$config" ] || [ "$label" = "vtoycow" ]; then
     if [ -d ./persist_tmp_mnt ]; then
         rm -rf ./persist_tmp_mnt
     fi
     
     mkdir ./persist_tmp_mnt
     if mount $freeloop ./persist_tmp_mnt; then
-        echo '/ union' > ./persist_tmp_mnt/$config
+        if [ -n "$config" ]; then
+            echo '/ union' > ./persist_tmp_mnt/$config
+        elif [ "$label" = "vtoycow" ]; then
+            mkdir -p ./persist_tmp_mnt/vtoyoverlayfs/overlayfs/
+            chcon system_u:object_r:root_t:s0 ./persist_tmp_mnt/vtoyoverlayfs/overlayfs
+        fi
         sync
         umount ./persist_tmp_mnt
     fi
