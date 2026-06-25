@@ -66,7 +66,7 @@ iterate_device (const char *name, void *data)
   int found = 0;
 
   /* Skip floppy drives when requested.  */
-  if (ctx->no_floppy &&
+  if (ctx->no_floppy && strlen(name) > 2 && 
       name[0] == 'f' && name[1] == 'd' && name[2] >= '0' && name[2] <= '9')
     return 0;
 
