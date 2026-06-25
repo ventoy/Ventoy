@@ -359,12 +359,27 @@ int ventoy_set_sb_policy(void)
 
 static void ventoy_get_uefi_sb(void)
 {
+    grub_uint8_t secure_boot = 0;
+    grub_uint8_t setup_mode = 0;
     grub_uint8_t *var = NULL;
     grub_size_t size = 0;
     grub_efi_guid_t global = GRUB_EFI_GLOBAL_VARIABLE_GUID;
 
     var = grub_efi_get_variable("SecureBoot", &global, &size);
     if (var && size == 1 && *var == 1)
+    {
+        secure_boot = 1;
+    }
+    grub_check_free(var);
+
+    size = 0;
+    var = grub_efi_get_variable("SetupMode", &global, &size);
+    if (var && size == 1 && *var == 1)
+    {
+        setup_mode = 1;
+    }
+
+    if (secure_boot == 1 && setup_mode == 0)
     {
         g_sys_sb = 1;
     }

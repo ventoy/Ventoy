@@ -146,25 +146,59 @@ STATIC EFI_STATUS ParseCmdline(IN EFI_HANDLE ImageHandle)
 }
 
 #if defined (MDE_CPU_X64)
-STATIC BOOLEAN EFIAPI CheckVtoyShim(VOID)
+
+STATIC BOOLEAN EFIAPI IsSecureBootEnabled(VOID)
 {
     UINT8 SecureBoot = 0;
 	UINTN DataSize;
 	EFI_STATUS Status;
-    EFI_GUID Guid = VTOY_SHIM_POLICY_GUID;
-    VOID *Prot = NULL;
 
 	DataSize = sizeof(SecureBoot);
 	Status = gST->RuntimeServices->GetVariable(L"SecureBoot", &gEfiGlobalVariableGuid, NULL,
 				     &DataSize, &SecureBoot);
-	if (!EFI_ERROR(Status) && SecureBoot)
+	if (EFI_ERROR(Status))
     {
-        Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&Prot);
-        if (EFI_ERROR(Status))
-        {
-            gST->ConOut->OutputString(gST->ConOut, L"Can not locate Vtoy Shim\r\n");
-            return FALSE;
-        }
+        return FALSE;
+    }
+
+	return SecureBoot ? TRUE : FALSE;
+}
+
+STATIC BOOLEAN EFIAPI IsSetupMode(VOID)
+{
+    UINT8 SetupMode = 0;
+	UINTN DataSize;
+	EFI_STATUS Status;
+
+	DataSize = sizeof(SetupMode);
+	Status = gST->RuntimeServices->GetVariable(L"SetupMode", &gEfiGlobalVariableGuid, NULL,
+				     &DataSize, &SetupMode);
+	if (EFI_ERROR(Status))
+    {
+        return FALSE;
+    }
+
+	return SetupMode ? TRUE : FALSE;
+}
+
+
+STATIC BOOLEAN EFIAPI CheckVtoyShim(VOID)
+{
+	EFI_STATUS Status;
+    EFI_GUID Guid = VTOY_SHIM_POLICY_GUID;
+    VOID *Prot = NULL;
+
+    /* If secure boot is not enabled or in SetupMode, nothing needed */
+    if (!IsSecureBootEnabled() || IsSetupMode())
+    {
+        return TRUE;
+    }
+
+    Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&Prot);
+    if (EFI_ERROR(Status))
+    {
+        gST->ConOut->OutputString(gST->ConOut, L"Can not locate Vtoy Shim\r\n");
+        return FALSE;
     }
 
     return TRUE;
