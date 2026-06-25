@@ -46,6 +46,10 @@ STATIC SHIM_LOCK gShimLock;
 STATIC EFI_EXIT_BOOT_SERVICES gSysExitBootServices = NULL;
 STATIC EFI_GET_VARIABLE gSysGetVariable = NULL;
 
+STATIC VOID EFIAPI HookSystemService(VOID);
+STATIC VOID EFIAPI UnHookSystemService(VOID);
+
+
 STATIC VOID EFIAPI VtoyLog(CONST CHAR16 *Format, ...)
 {
     VA_LIST         Marker;
@@ -432,6 +436,7 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
         return EFI_SUCCESS;
     }
 
+
     /*
      * Step 1:
      * Use original UEFI firmware auth API.
@@ -623,26 +628,13 @@ STATIC BOOLEAN EFIAPI IsSetupMode(VOID)
 STATIC EFI_STATUS EFIAPI ShimEfiMain
 (
     IN EFI_HANDLE         ImageHandle,
-    IN EFI_SYSTEM_TABLE  *SystemTable,
-    IN BOOLEAN            IsSecureBoot,
-    IN BOOLEAN            IsSetup
+    IN EFI_SYSTEM_TABLE  *SystemTable
 )
 {
     EFI_STATUS Status;
     SHIM_LOCK *ShimLock = NULL;
     shim_void_func_pf Func1 = NULL;
     shim_void_func_pf Func2 = NULL;
-
-    /* If secure boot is not enabled or in SetupMode, nothing needed, just launch Ventoy grub */
-    if (!IsSecureBoot || IsSetup)
-    {
-        Status = LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
-        if (EFI_ERROR(Status))
-        {
-            vErr(L"Failed to launch %s", REAL_GRUB_FILE);
-        }
-        return Status;
-    }
 
     /* We must be launched by shim */
     Status = gBS->LocateProtocol(&gShimLockGUID, NULL, (VOID**)&ShimLock);
@@ -691,6 +683,7 @@ STATIC EFI_STATUS EFIAPI ShimEfiMain
     Func1(); /* call shim unhook_system_services() */
     Func2(); /* call shim uninstall_shim_protocols() */
 
+    HookSystemService();
 
     /* Hook the system security policy */
     Status = HookSecurityPolicy();
@@ -715,22 +708,9 @@ END:
 
     UnInstallVtoyShimProtocol();
 
+    UnHookSystemService();
+
     return Status;
-}
-
-STATIC EFI_STATUS EFIAPI VtoyExitBootServices
-(
-    IN  EFI_HANDLE  ImageHandle,
-    IN  UINTN       MapKey
-)
-{
-    UnHookSecurityPolicy();
-    UnInstallVtoyShimProtocol();
-
-    gST->RuntimeServices->GetVariable = gSysGetVariable;
-    gBS->ExitBootServices = gSysExitBootServices;
-
-    return gSysExitBootServices(ImageHandle, MapKey);
 }
 
 EFI_STATUS EFIAPI VtoyGetVariable
@@ -763,6 +743,43 @@ EFI_STATUS EFIAPI VtoyGetVariable
     return Status;
 }
 
+STATIC VOID EFIAPI UnHookSystemService(VOID)
+{
+    if (gSysExitBootServices)
+    {
+        gBS->ExitBootServices = gSysExitBootServices;
+        gSysExitBootServices = NULL;
+    }
+
+    if (gSysGetVariable)
+    {
+        gST->RuntimeServices->GetVariable = gSysGetVariable;
+        gSysGetVariable = NULL;
+    }
+}
+
+
+STATIC EFI_STATUS EFIAPI VtoyExitBootServices
+(
+    IN  EFI_HANDLE  ImageHandle,
+    IN  UINTN       MapKey
+)
+{
+    UnHookSecurityPolicy();
+    UnInstallVtoyShimProtocol();
+    UnHookSystemService();
+
+    return gSysExitBootServices(ImageHandle, MapKey);
+}
+
+STATIC VOID EFIAPI HookSystemService(VOID)
+{
+    gSysExitBootServices = gBS->ExitBootServices;
+    gBS->ExitBootServices = VtoyExitBootServices;
+
+    gSysGetVariable = gST->RuntimeServices->GetVariable;
+    gST->RuntimeServices->GetVariable = VtoyGetVariable;
+}
 
 EFI_STATUS EFIAPI VtoyShimEfiMain
 (
@@ -779,20 +796,16 @@ EFI_STATUS EFIAPI VtoyShimEfiMain
 
     if (!IsSecureBoot || IsSetup)
     {
-        Status = ShimEfiMain(ImageHandle, SystemTable, IsSecureBoot, IsSetup);
+        /* If secure boot is not enabled or in SetupMode, nothing needed, just launch Ventoy grub */
+        Status = LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
+        if (EFI_ERROR(Status))
+        {
+            vErr(L"Failed to launch %s", REAL_GRUB_FILE);
+        }
     }
     else
     {
-        gSysExitBootServices = gBS->ExitBootServices;
-        gBS->ExitBootServices = VtoyExitBootServices;
-
-        gSysGetVariable = gST->RuntimeServices->GetVariable;
-        gST->RuntimeServices->GetVariable = VtoyGetVariable;
-
-        Status = ShimEfiMain(ImageHandle, SystemTable, IsSecureBoot, IsSetup);
-
-        gBS->ExitBootServices = gSysExitBootServices;
-        gST->RuntimeServices->GetVariable = gSysGetVariable;
+        Status = ShimEfiMain(ImageHandle, SystemTable);
     }
 
     return Status;
