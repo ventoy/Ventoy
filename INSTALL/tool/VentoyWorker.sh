@@ -312,22 +312,18 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
 
     #format part1
     wait_and_create_part ${PART1} ${PART2}    
-    if [ -b ${PART1} ]; then
-        vtinfo "Format partition 1 ${PART1} ..."
+    vtinfo "Format partition 1 ${PART1}..."
+    mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
+    if [ $? -ne 0 ]; then
+        vtwarn "mkexfatfs failed; retrying..."
         mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
         if [ $? -ne 0 ]; then
-            echo "mkexfatfs failed, now retry..."
-            mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
-            if [ $? -ne 0 ]; then
-                echo "######### mkexfatfs failed, exit ########"
-                exit 1
-            fi
-        else
-            echo "mkexfatfs success"
-        fi        
+            vterr "######## mkexfatfs failed, exit ########"
+            exit 1
+        fi
     else
-        vterr "${PART1} NOT exist"
-    fi
+        vtinfo "mkexfatfs success"
+    fi        
 
     vtinfo "writing data to disk ..."
     dd status=none conv=fsync if=./boot/boot.img of=$DISK bs=1 count=446
