@@ -1,12 +1,6 @@
 #!/bin/sh
 
-OLDDIR=$(pwd)
-
-if ! [ -f ./tool/ventoy_lib.sh ]; then
-    if [ -f ${0%Ventoy2Disk.sh}/tool/ventoy_lib.sh ]; then
-        cd ${0%Ventoy2Disk.sh}    
-    fi
-fi
+cd "$(dirname "$0")"
 
 if [ -f ./ventoy/version ]; then
     curver=$(cat ./ventoy/version) 
@@ -21,7 +15,7 @@ elif uname -m | grep -E -q 'mips64'; then
 else
     export TOOLDIR=i386
 fi
-export PATH="$OLDDIR/tool/$TOOLDIR:$PATH"
+export PATH="$(pwd)/tool/$TOOLDIR:$PATH"
 
 
 echo ''
@@ -87,11 +81,4 @@ if [ -f /bin/bash ]; then
     /bin/bash ./tool/VentoyWorker.sh $*
 else
     ash ./tool/VentoyWorker.sh $*
-fi
-
-if [ -n "$OLDDIR" ]; then 
-    CURDIR=$(pwd)
-    if [ "$CURDIR" != "$OLDDIR" ]; then
-        cd "$OLDDIR"
-    fi
 fi
