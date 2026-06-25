@@ -190,7 +190,6 @@ EFI_STATUS EFIAPI LaunchRealGrub(EFI_HANDLE ImageHandle, CONST CHAR16 *FileName)
         goto END;
     }
 
-
     Status = gBS->StartImage(ChildHandle, NULL, NULL);
     if (EFI_ERROR(Status))
     {
@@ -198,7 +197,6 @@ EFI_STATUS EFIAPI LaunchRealGrub(EFI_HANDLE ImageHandle, CONST CHAR16 *FileName)
         gBS->UnloadImage(ChildHandle);
         goto END;
     }
-
 
 END:
 
@@ -604,7 +602,6 @@ STATIC BOOLEAN EFIAPI IsSecureBootEnabled(VOID)
 STATIC EFI_STATUS EFIAPI EnvInit(VOID)
 {
     EFI_STATUS Status;
-    EFI_GUID Guid = SHIM_LOCK_GUID;
 
     Status = gBS->LocateProtocol(&gEfiDevicePathToTextProtocolGuid, NULL, (VOID**)&gDpToText);
 	if (EFI_ERROR(Status) || !gDpToText || !gDpToText->ConvertDevicePathToText)
@@ -620,13 +617,6 @@ STATIC EFI_STATUS EFIAPI EnvInit(VOID)
         return Status;
     }
 
-    Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&gShimLock);
-    if (EFI_ERROR(Status) || !gShimLock)
-    {
-        vLog(L"Failed to locate SHIM LOCK Protocol %lx", Status);
-        return Status;
-    }
-
     return EFI_SUCCESS;
 }
 
@@ -638,20 +628,34 @@ EFI_STATUS EFIAPI VtoyShimEfiMain
 )
 {
     EFI_STATUS Status;
+    EFI_GUID Guid = SHIM_LOCK_GUID;
     unhook_system_services_pf Func = NULL;
 
-    /* If secure boot is not enabled, nothing needed, just launch Ventoy grub */
-    if (!IsSecureBootEnabled())
-    {
-        return LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
-    }
-
     Status = EnvInit();
-	if (EFI_ERROR(Status))
+    if (EFI_ERROR(Status))
     {
         vErr(L"Failed to prepare env");
         return Status;
     }
+
+    /* If secure boot is not enabled, nothing needed, just launch Ventoy grub */
+    if (!IsSecureBootEnabled())
+    {
+        Status = LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
+        if (EFI_ERROR(Status))
+        {
+            vErr(L"Failed to launch %s", REAL_GRUB_FILE);
+        }
+        return Status;
+    }
+
+    Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&gShimLock);
+    if (EFI_ERROR(Status) || !gShimLock)
+    {
+        vErr(L"Failed to locate SHIM LOCK Protocol %lx", Status);
+        return Status;
+    }
+
 
     Status = InstallVtoyShimProtocol();
     if (EFI_ERROR(Status))
@@ -696,6 +700,11 @@ EFI_STATUS EFIAPI VtoyShimEfiMain
 
     /* Finally launch Ventoy grub */
     Status = LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
+    if (EFI_ERROR(Status))
+    {
+        vErr(L"Failed to finally launch real grub %s", REAL_GRUB_FILE);
+        goto END;
+    }
 
 END:
 
