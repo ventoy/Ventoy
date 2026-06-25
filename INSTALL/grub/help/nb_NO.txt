@@ -1,0 +1,19 @@
+ L - Valg av språk
+F1 - Vis hjelpeinformasjon
+F2 - Bla gjennom og start fra filer på lokal disk
+F3 - Bytt menyvisning til Trevisning <-> Listevisning
+F4 - Start Windows/Linux fra lokal disk
+F5 - Verktøy
+F6 - Last inn tilpasset Grub2 meny
+F7 - Bytt mellom GRAFISK modus <-> TEKST modus
+
+m/Ctrl+m - Sjekksum av diskbilder (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk-modus (Kun for små WinPE/LiveCD ISO/IMG-filer)
+w/Ctrl+w - WIMBOOT-modus (Kun for Windows/WinPE ISO-filer)
+r/Ctrl+r - Grub2-modus (Gjelder kun enkelte Linux-distroer)
+i/Ctrl+i - Kompatibilitetsmodus (Kun for feilsøking)
+u/Ctrl+u - Last inn ISO EFI-driver (Kun for feilsøking)
+
+
+
+Trykk ESCAPE for å gå tilbake ......
