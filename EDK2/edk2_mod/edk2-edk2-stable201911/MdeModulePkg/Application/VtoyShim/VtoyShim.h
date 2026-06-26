@@ -88,6 +88,7 @@ typedef VOID (*shim_void_func_pf)(VOID);
 #define VtoySleep(sec)      gBS->Stall(1000000 * (sec))
 #define vLog(fmt, ...)      VtoyLog(fmt "\r\n", ##__VA_ARGS__)
 #define vErr(fmt, ...)      VtoyLog(fmt "\r\n", ##__VA_ARGS__); VtoySleep(5)
+#define vDbg(fmt, ...)      VtoyLog(fmt "\r\n", ##__VA_ARGS__); VtoySleep(2)
 
 #define CheckFreePool(p) \
 do { \

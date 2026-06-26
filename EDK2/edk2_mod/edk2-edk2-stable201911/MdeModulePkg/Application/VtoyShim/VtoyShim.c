@@ -34,6 +34,7 @@
 
 #define CUR_SBAT_VER    1
 
+STATIC BOOLEAN gPolicySetFlag = FALSE;
 STATIC EFI_GUID gVtoySbatGUID = { 0xf755068a, 0xe04f, 0x452b, { 0x9d, 0x6d, 0x7c, 0x55, 0x96, 0xb3, 0xc0, 0x7d }};
 STATIC EFI_GUID gShimLockGUID = SHIM_LOCK_GUID;
 STATIC EFI_SECURITY_FILE_AUTHENTICATION_STATE gSysSecFileAuth = NULL;
@@ -374,6 +375,11 @@ STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
         return EFI_SUCCESS;
     }
 
+    if (!gPolicySetFlag)
+    {
+        goto SHIM_CHECK;
+    }
+
     /*
      * Step 1:
      * Use original UEFI firmware auth API.
@@ -388,6 +394,8 @@ STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
         }
     }
 
+
+SHIM_CHECK:
 
     /*
      * Step 2:
@@ -436,6 +444,10 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
         return EFI_SUCCESS;
     }
 
+    if (!gPolicySetFlag)
+    {
+        goto SHIM_CHECK;
+    }
 
     /*
      * Step 1:
@@ -452,6 +464,7 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
     }
 
 
+SHIM_CHECK:
     /*
      * Step 2:
      * Use shim verify API.
@@ -546,11 +559,13 @@ STATIC VOID EFIAPI UnHookSecurityPolicy(VOID)
 
 STATIC VOID EFIAPI VtoyByPassSB(VOID)
 {
+    gPolicySetFlag = TRUE;
     gVtoyByPassSB = TRUE;
 }
 
 STATIC VOID EFIAPI VtoyCheckSB(VOID)
 {
+    gPolicySetFlag = TRUE;
     gVtoyByPassSB = FALSE;
 }
 
@@ -693,6 +708,7 @@ STATIC EFI_STATUS EFIAPI ShimEfiMain
         goto END;
     }
 
+
     /* Finally launch Ventoy grub */
     Status = LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
     if (EFI_ERROR(Status))
@@ -765,11 +781,16 @@ STATIC EFI_STATUS EFIAPI VtoyExitBootServices
     IN  UINTN       MapKey
 )
 {
+    EFI_EXIT_BOOT_SERVICES SysExitBS;
+
+    /* UnHookSystemService will set gSysExitBootServices NULL */
+    SysExitBS = gSysExitBootServices;
+
     UnHookSecurityPolicy();
     UnInstallVtoyShimProtocol();
     UnHookSystemService();
 
-    return gSysExitBootServices(ImageHandle, MapKey);
+    return SysExitBS(ImageHandle, MapKey);
 }
 
 STATIC VOID EFIAPI HookSystemService(VOID)
