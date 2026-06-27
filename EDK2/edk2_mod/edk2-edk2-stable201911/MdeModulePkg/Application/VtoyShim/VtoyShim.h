@@ -101,12 +101,13 @@ do { \
 
 #define VTOY_SHIM_POLICY_GUID    {0x90a29d14, 0x3968, 0x48fe, { 0x85, 0x81, 0x6b, 0x7f, 0x7d, 0xc4, 0x70, 0x55 }};
 
-
 typedef VOID (EFIAPI *VTOY_BYPASS_SB)(VOID);
 typedef VOID (EFIAPI *VTOY_CHECK_SB)(VOID);
+typedef VOID (EFIAPI *VTOY_LAUNCHED)(VOID);
 typedef struct _VTOY_SHIM{
 	VTOY_BYPASS_SB ByPassSB;
 	VTOY_BYPASS_SB CheckSB;
+	VTOY_LAUNCHED Launched;
 } VTOY_SHIM;
 
 CONST UINT8 * ventoy_get_der_data(UINT32 *Len);

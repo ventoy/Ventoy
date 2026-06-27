@@ -199,9 +199,11 @@ typedef struct cpio_newc_header
 
 typedef void (*VTOY_BYPASS_SB)(void);
 typedef void (*VTOY_CHECK_SB)(void);
+typedef void (*VTOY_LAUNCHED)(void);
 typedef struct _VTOY_SHIM{
 	VTOY_BYPASS_SB ByPassSB;
 	VTOY_CHECK_SB CheckSB;
+	VTOY_LAUNCHED Launched;
 } VTOY_SHIM;
 
 

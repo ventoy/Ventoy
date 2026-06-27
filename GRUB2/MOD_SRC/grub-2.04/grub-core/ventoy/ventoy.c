@@ -406,7 +406,8 @@ static int ventoy_secure_boot_init(void)
     if (g_ventoy_plat_data == VTOY_PLAT_X86_64_UEFI)
     {
         g_vtoy_shim = grub_efi_locate_protocol(&ProtGuid, NULL);
-        if (g_vtoy_shim == NULL || g_vtoy_shim->ByPassSB == NULL || g_vtoy_shim->CheckSB == NULL)
+        if (g_vtoy_shim == NULL || g_vtoy_shim->ByPassSB == NULL ||
+            g_vtoy_shim->CheckSB == NULL || g_vtoy_shim->Launched == NULL)
         {
             grub_cls();
             grub_printf(VTOY_WARNING"\n");
@@ -418,6 +419,8 @@ static int ventoy_secure_boot_init(void)
 
             ventoy_prompt_end();
         }
+
+        g_vtoy_shim->Launched();
     }
 
     return 0;

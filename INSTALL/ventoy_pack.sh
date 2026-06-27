@@ -12,7 +12,6 @@ if [ "$VENTOY_CERT_PASS" = "YES" ]; then
     fi
 fi
 
-SBAT_VER=1
 sign_efi() {
     efi=$1
     
@@ -32,10 +31,6 @@ sign_efi() {
         mv ${efi}.unxz  ${efi}
     fi
 
-    sbstr=$(printf "%08x" $SBAT_VER)
-    echo -en "\x8a\x06\x55\xf7\x4f\xe0\x2b\x45\x9d\x6d\x7c\x55\x96\xb3\xc0\x7d\x${sbstr:6:2}\x${sbstr:4:2}\x${sbstr:2:2}\x${sbstr:0:2}" | \
-        dd bs=1 count=20 of=${efi} seek=40 conv=notrunc status=none
-
     rm -f "${efi}.signed"
     if [ "$VENTOY_CERT_PASS" = "YES" ]; then
         expect -f ./sign_with_pass.exp "$KEY_PASS" "$VENTOY_CERT_KEY" "$VENTOY_CERT_PEM" "${efi}" "${efi}.signed" >/dev/null 2>&1
@@ -52,7 +47,7 @@ sign_efi() {
             mv "${efi}.signed" "$efi"
         fi
     else
-        echo "### %-64s  failed\n" "$efi"
+        printf "### %-64s  failed\n" "$efi"
         exit 1
     fi 
 
@@ -191,7 +186,6 @@ cp -a ./tool/create_ventoy_iso_part_dm.sh  $tmpmnt/tool/
 rm -f $tmpmnt/grub/i386-pc/*.img
 
 
-sign_efi $tmpmnt/EFI/BOOT/fbx64.efi
 sign_efi $tmpmnt/EFI/BOOT/fbia32.efi
 sign_efi $tmpmnt/EFI/BOOT/fbaa64.efi
 sign_efi $tmpmnt/EFI/BOOT/grubx64_real.efi
@@ -210,6 +204,23 @@ sign_efi $tmpmnt/ventoy/vtoyutil_ia32.efi
 sign_efi $tmpmnt/ventoy/vtoyutil_aa64.efi
 sign_efi $tmpmnt/ventoy/wimboot.i386.efi.xz
 sign_efi $tmpmnt/ventoy/wimboot.x86_64.xz
+
+#inject Ventoy Grub sign sha256 value into VtoyShim
+grub_signsha256=$(pesign -i $tmpmnt/EFI/BOOT/grubx64_real.efi -h -d sha256 | awk '{print $2}')
+magic_cnt=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | wc -l)
+if [ $magic_cnt -ne 1 ]; then
+    echo "hash magic duplicate"
+    exit 1
+fi
+magic_off_hex=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | awk '{print $1}')
+magic_off=$(printf '%u' "0x${magic_off_hex}")
+
+echo_cmd=$(echo $grub_signsha256 | sed 's/\(..\)/\\x\1/g')
+
+echo Ventoy Grub sign hash $grub_signsha256
+echo -en "$echo_cmd" | dd bs=1 count=32 of=$tmpmnt/EFI/BOOT/fbx64.efi seek=$magic_off conv=notrunc status=none
+
+sign_efi $tmpmnt/EFI/BOOT/fbx64.efi
 
 
 umount $tmpmnt && rm -rf $tmpmnt

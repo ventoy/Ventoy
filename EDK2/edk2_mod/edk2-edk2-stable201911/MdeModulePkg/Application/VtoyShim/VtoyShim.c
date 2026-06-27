@@ -34,8 +34,14 @@
 
 #define CUR_SBAT_VER    1
 
-STATIC BOOLEAN gPolicySetFlag = FALSE;
-STATIC EFI_GUID gVtoySbatGUID = { 0xf755068a, 0xe04f, 0x452b, { 0x9d, 0x6d, 0x7c, 0x55, 0x96, 0xb3, 0xc0, 0x7d }};
+STATIC UINT8 gVtoyGrubSha256Hash[32] __attribute__((aligned(32)))  = {
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26,
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26,
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26,
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26
+};
+
+STATIC BOOLEAN gGrubLaunched = FALSE;
 STATIC EFI_GUID gShimLockGUID = SHIM_LOCK_GUID;
 STATIC EFI_SECURITY_FILE_AUTHENTICATION_STATE gSysSecFileAuth = NULL;
 STATIC EFI_SECURITY2_FILE_AUTHENTICATION gSysSec2FileAuth = NULL;
@@ -85,10 +91,8 @@ STATIC VOID EFIAPI DumpDevicePath(const EFI_DEVICE_PATH_PROTOCOL *DevicePath)
     }
 }
 
-STATIC VOID EFIAPI ShowSBWarning(BOOLEAN Reboot, const EFI_DEVICE_PATH_PROTOCOL *DevicePath)
+STATIC VOID EFIAPI ShowSBWarning(const EFI_DEVICE_PATH_PROTOCOL *DevicePath)
 {
-    UINTN Index = 0;
-
     vLog(L"\r\n=======================================================");
     vLog(L"=======================================================\r\n");
 
@@ -99,20 +103,7 @@ STATIC VOID EFIAPI ShowSBWarning(BOOLEAN Reboot, const EFI_DEVICE_PATH_PROTOCOL 
     vLog(L"=======================================================");
     vLog(L"=======================================================");
 
-    if (Reboot)
-    {
-        vLog(L"\r\n###### Press Enter to reboot... ######");
-        if (gST->ConIn)
-        {
-            gST->ConIn->Reset(gST->ConIn, FALSE);
-            gBS->WaitForEvent(1, &gST->ConIn->WaitForKey, &Index);
-        }
-        gRT->ResetSystem(EfiResetWarm, EFI_SECURITY_VIOLATION, 0, NULL);
-    }
-    else
-    {
-        VtoySleep(5);
-    }
+    VtoySleep(5);
 }
 
 
@@ -335,27 +326,60 @@ END:
     return Status;
 }
 
-
-STATIC BOOLEAN VtoyCheckRevoke(VOID *Buffer, UINTN Size)
+STATIC EFI_STATUS EFIAPI CheckVtoyGrub
+(
+    VOID *FileBuffer,
+	UINTN FileSize
+)
 {
-    UINT32 uiVer = 0;
-    EFI_IMAGE_DOS_HEADER *DosHead = (EFI_IMAGE_DOS_HEADER *)Buffer;
+    UINTN Index = 0;
+    EFI_STATUS Status = EFI_SECURITY_VIOLATION;
+    PE_COFF_LOADER_IMAGE_CONTEXT Ctx;
+    UINT8 Sha256Hash[64];
+    UINT8 Sha1Hash[64];
 
-    if (Size > sizeof(EFI_IMAGE_DOS_HEADER) && DosHead->e_magic == 0x5A4D)
+    ZeroMem(&Ctx, sizeof(Ctx));
+    ZeroMem(Sha1Hash, sizeof(Sha1Hash));
+    ZeroMem(Sha256Hash, sizeof(Sha256Hash));
+
+    Status = gShimLock.Context(FileBuffer, FileSize, &Ctx);
+    if (EFI_ERROR(Status))
     {
-        if (CompareMem(DosHead->e_res2, &gVtoySbatGUID, 16) == 0)
-        {
-            CopyMem(&uiVer, DosHead->e_res2 + 8, 4);
-            if (uiVer < CUR_SBAT_VER)
-            {
-                vLog(L"Ventoy EFI file revoke (%u < %u)", uiVer, CUR_SBAT_VER);
-                return FALSE;
-            }
-        }
+        vErr(L"Cannot get shim context %lx", Status);
+        goto END;
     }
 
-    return TRUE;
+    Status = gShimLock.Hash(FileBuffer, FileSize, &Ctx, Sha256Hash, Sha1Hash);
+    if (EFI_ERROR(Status))
+    {
+        vErr(L"Cannot get shim hash %lx", Status);
+        goto END;
+    }
+
+    if (CompareMem(Sha256Hash, gVtoyGrubSha256Hash, 32) != 0)
+    {
+        vErr(L"Ventoy hash check failed.");
+        goto END;
+    }
+
+    Status = EFI_SUCCESS;
+
+END:
+
+    if (EFI_ERROR(Status))
+    {
+        vLog(L"\r\n###### Press Enter to reboot... ######");
+        if (gST->ConIn)
+        {
+            gST->ConIn->Reset(gST->ConIn, FALSE);
+            gBS->WaitForEvent(1, &gST->ConIn->WaitForKey, &Index);
+        }
+        gRT->ResetSystem(EfiResetWarm, EFI_SECURITY_VIOLATION, 0, NULL);
+    }
+
+    return Status;
 }
+
 
 STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
 (
@@ -365,7 +389,6 @@ STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
 )
 {
     EFI_STATUS Status;
-    BOOLEAN bRevokeChkOK = TRUE;
     UINT32 Size = 0;
     VOID *Buffer = NULL;
 
@@ -375,9 +398,17 @@ STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
         return EFI_SUCCESS;
     }
 
-    if (!gPolicySetFlag)
+    if (!gGrubLaunched)
     {
-        goto SHIM_CHECK;
+        Status = ReadAuthFile(DevicePathConst, &Buffer, &Size);
+        if (EFI_ERROR(Status))
+        {
+            return EFI_SECURITY_VIOLATION;
+        }
+
+        Status = CheckVtoyGrub(Buffer, Size);
+        FreePool(Buffer);
+        return Status;
     }
 
     /*
@@ -395,8 +426,6 @@ STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
     }
 
 
-SHIM_CHECK:
-
     /*
      * Step 2:
      * Use shim verify API.
@@ -408,20 +437,15 @@ SHIM_CHECK:
         if (!EFI_ERROR(Status))
         {
             Status = gShimLock.Verify(Buffer, Size);
+            FreePool(Buffer);
             if (!EFI_ERROR(Status))
             {
-                bRevokeChkOK = VtoyCheckRevoke(Buffer, Size);
-                if (bRevokeChkOK)
-                {
-                    FreePool(Buffer);
-                    return EFI_SUCCESS;
-                }
+                return EFI_SUCCESS;
             }
-            FreePool(Buffer);
         }
     }
 
-    ShowSBWarning(!bRevokeChkOK, DevicePathConst);
+    ShowSBWarning(DevicePathConst);
 
     return EFI_SECURITY_VIOLATION;
 }
@@ -436,7 +460,6 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
 )
 {
     EFI_STATUS Status;
-    BOOLEAN bRevokeChkOK = TRUE;
 
     /* Just return OK if the user choose to bypass SB */
     if (gVtoyByPassSB)
@@ -444,9 +467,9 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
         return EFI_SUCCESS;
     }
 
-    if (!gPolicySetFlag)
+    if (!gGrubLaunched)
     {
-        goto SHIM_CHECK;
+        return CheckVtoyGrub(FileBuffer, FileSize);
     }
 
     /*
@@ -464,7 +487,6 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
     }
 
 
-SHIM_CHECK:
     /*
      * Step 2:
      * Use shim verify API.
@@ -477,16 +499,12 @@ SHIM_CHECK:
             Status = gShimLock.Verify(FileBuffer, (UINT32)FileSize);
             if (!EFI_ERROR(Status))
             {
-                bRevokeChkOK = VtoyCheckRevoke(FileBuffer, FileSize);
-                if (bRevokeChkOK)
-                {
-                    return EFI_SUCCESS;
-                }
+                return EFI_SUCCESS;
             }
         }
     }
 
-    ShowSBWarning(!bRevokeChkOK, DevicePath);
+    ShowSBWarning(DevicePath);
 
     return EFI_SECURITY_VIOLATION;
 }
@@ -559,14 +577,17 @@ STATIC VOID EFIAPI UnHookSecurityPolicy(VOID)
 
 STATIC VOID EFIAPI VtoyByPassSB(VOID)
 {
-    gPolicySetFlag = TRUE;
     gVtoyByPassSB = TRUE;
 }
 
 STATIC VOID EFIAPI VtoyCheckSB(VOID)
 {
-    gPolicySetFlag = TRUE;
     gVtoyByPassSB = FALSE;
+}
+
+STATIC VOID EFIAPI VtoyLaunched(VOID)
+{
+    gGrubLaunched = TRUE;
 }
 
 STATIC VOID EFIAPI UnInstallVtoyShimProtocol(VOID)
@@ -588,6 +609,7 @@ STATIC EFI_STATUS EFIAPI InstallVtoyShimProtocol(VOID)
 
     gVtoyShimProtocol.ByPassSB = VtoyByPassSB;
     gVtoyShimProtocol.CheckSB = VtoyCheckSB;
+    gVtoyShimProtocol.Launched = VtoyLaunched;
 
     Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&Prot);
     if (!EFI_ERROR(Status))
