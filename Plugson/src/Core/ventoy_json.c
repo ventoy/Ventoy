@@ -764,40 +764,42 @@ int vtoy_json_destroy(VTOY_JSON *pstJson)
 
 int vtoy_json_escape_string(char *buf, int buflen, const char *str, int newline)
 {
-    char last = 0;
     int count = 0;
 
-    *buf++ = '"';
-    count++;
+    #define PUTC(c) if (count < buflen) buf[count] = (c); count++
 
-    while (*str)
+    PUTC('"');
+    while (str && *str)
     {
-        if (*str == '"' && last != '\\')
+        // safely check
+        if (*str == '"' || *str == '\\' || (unsigned char)*str < 32)
         {
-            *buf = '\\';
-            count++;
-            buf++;
+            PUTC('\\');
+            if (*str == '"') { PUTC('"'); }
+            else if (*str == '\\') { PUTC('\\'); }
+            else if (*str == '\b') { PUTC('b'); }
+            else if (*str == '\f') { PUTC('f'); }
+            else if (*str == '\n') { PUTC('n'); }
+            else if (*str == '\r') { PUTC('r'); }
+            else if (*str == '\t') { PUTC('t'); }
+            else { PUTC('?'); }
         }
-    
-        *buf = *str;
-        count++;
-        buf++;
-
-        last = *str;
+        else
+        {
+            PUTC(*str);
+        }
         str++;
     }
+    PUTC('"');
+    PUTC(',');
+    if (newline) { PUTC('\n'); }
 
-    *buf++ = '"';
-    count++;
-    
-    *buf++ = ',';
-    count++;
-
-    if (newline)
-    {
-        *buf++ = '\n';
-        count++;        
+    // Safe null-termination
+    if (count < buflen) {
+        buf[count] = '\0';
+    } else if (buflen > 0) {
+        buf[buflen - 1] = '\0';
     }
-
+    
     return count;
 }
