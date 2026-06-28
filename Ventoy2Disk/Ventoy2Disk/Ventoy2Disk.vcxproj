@@ -179,7 +179,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2Disk32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -199,7 +199,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2DiskArm.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -219,7 +219,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2DiskArm64.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -239,7 +239,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2Disk64.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -263,7 +263,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2Disk32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -287,7 +287,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2DiskArm.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -311,7 +311,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2DiskArm64.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -335,7 +335,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>gdi32.dll;advapi32.dll;shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Ventoy2Disk64.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
