@@ -4752,23 +4752,10 @@ static grub_err_t ventoy_cmd_img_unhook_root(grub_extcmd_context_t ctxt, int arg
 #ifdef GRUB_MACHINE_EFI
 static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    int ret = 1;
-    grub_uint8_t *var = NULL;
-    grub_size_t size;
-    grub_efi_guid_t global = GRUB_EFI_GLOBAL_VARIABLE_GUID;
-
     (void)ctxt;
     (void)argc;
     (void)args;
-
-    var = grub_efi_get_variable("SecureBoot", &global, &size);
-    if (var && *var == 1)
-    {
-        grub_free(var);
-        return 0;
-    }
-
-    return ret;
+    return g_sys_sb ? 0 : 1;
 }
 #else
 static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -6463,7 +6450,6 @@ static grub_err_t ventoy_cmd_sb_info(grub_extcmd_context_t ctxt, int argc, char 
     (void)args;
 
 #ifdef GRUB_MACHINE_EFI
-    const char *env = NULL;
     const char *policy = NULL;
     grub_efi_guid_t security =
         { 0xA46423E3, 0x4617, 0x49f1, {0xB9, 0xFF, 0xD1, 0xBF, 0xA9, 0x11, 0x58, 0x39 } };
@@ -6483,13 +6469,9 @@ static grub_err_t ventoy_cmd_sb_info(grub_extcmd_context_t ctxt, int argc, char 
         policy = "XXX";
     }
 
-    env = grub_env_get("grub_uefi_version");
-    grub_printf("UEFI Firmware Version     : %s\n", env ? env : "NA");
-    grub_printf("UEFI Firmware Secure Boot : %s\n", g_sys_sb ? "Enable" : "Disable");
-    grub_printf("Ventoy Secure Boot Policy : %s\n", policy);
-
-    grub_printf("UEFI Security  Protocol   : %s\n", grub_efi_locate_protocol(&security, NULL) ? "Yes" : "No");
-    grub_printf("UEFI Security2 Protocol   : %s\n", grub_efi_locate_protocol(&security2, NULL) ? "Yes" : "No");
+    grub_printf("UEFI Security           %s\n", grub_efi_locate_protocol(&security, NULL) ? "Yes" : "No");
+    grub_printf("UEFI Security2          %s\n", grub_efi_locate_protocol(&security2, NULL) ? "Yes" : "No");
+    grub_printf("Ventoy Secure Policy    %s\n", policy);
 
 #else
     grub_printf("Non EFI mode!\n");

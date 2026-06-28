@@ -314,6 +314,25 @@ static void ventoy_get_uefi_version(char *str, grub_size_t len)
         grub_snprintf(str, len, "%s.%d", str, uefi_minor_2);
 }
 
+static void ventoy_get_pi_version(char *str, grub_size_t len)
+{
+    grub_uint32_t data = 0;
+    grub_efi_uintn_t i = 0;
+    grub_efi_guid_t dxest =
+        { 0x05ad34ba, 0x6f02, 0x4214, {0x95, 0x2e, 0x4d, 0xa0, 0x39, 0x8e, 0x2b, 0xb9 } };
+
+    for (i = 0; i < grub_efi_system_table->num_table_entries; i++)
+    {
+        if (grub_memcmp(&dxest, &grub_efi_system_table->configuration_table[i].vendor_guid, 16) == 0)
+        {
+            grub_memcpy(&data, (char *)grub_efi_system_table->configuration_table[i].vendor_table + 8, 4);
+            break;
+        }
+    }
+
+    grub_snprintf(str, len, "%d.%d", (data >> 16) & 0xFFFF, (data & 0xFFFF) / 10);
+}
+
 int ventoy_set_sb_policy(void)
 {
     const char *env = NULL;
@@ -486,8 +505,12 @@ static int ventoy_hwinfo_init(void)
 #ifdef GRUB_MACHINE_EFI
     ventoy_get_uefi_version(str, sizeof(str));
     ventoy_env_export("grub_uefi_version", str);
+
+    ventoy_get_pi_version(str, sizeof(str));
+    ventoy_env_export("grub_pi_version", str);
 #else
     ventoy_env_export("grub_uefi_version", "NA");
+    ventoy_env_export("grub_pi_version", "NA");
 #endif
 
     return 0;
