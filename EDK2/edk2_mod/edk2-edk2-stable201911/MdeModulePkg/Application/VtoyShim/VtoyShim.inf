@@ -31,6 +31,7 @@
 [Sources]
   VtoyShim.h
   VtoyShim.c
+  sha256.c
   
 [Packages]
   MdePkg/MdePkg.dec

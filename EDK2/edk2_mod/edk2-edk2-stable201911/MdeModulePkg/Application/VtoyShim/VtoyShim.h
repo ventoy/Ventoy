@@ -110,7 +110,7 @@ typedef struct _VTOY_SHIM{
 	VTOY_LAUNCHED Launched;
 } VTOY_SHIM;
 
-CONST UINT8 * ventoy_get_der_data(UINT32 *Len);
+void calc_sha256(const void *data, UINT64 len, void *output);
 
 #endif
 

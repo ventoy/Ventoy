@@ -206,7 +206,7 @@ sign_efi $tmpmnt/ventoy/wimboot.i386.efi.xz
 sign_efi $tmpmnt/ventoy/wimboot.x86_64.xz
 
 #inject Ventoy Grub sign sha256 value into VtoyShim
-grub_signsha256=$(pesign -i $tmpmnt/EFI/BOOT/grubx64_real.efi -h -d sha256 | awk '{print $2}')
+grub_sha256=$(sha256sum $tmpmnt/EFI/BOOT/grubx64_real.efi | awk '{print $1}')
 magic_cnt=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | wc -l)
 if [ $magic_cnt -ne 1 ]; then
     echo "hash magic duplicate"
@@ -215,9 +215,9 @@ fi
 magic_off_hex=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | awk '{print $1}')
 magic_off=$(printf '%u' "0x${magic_off_hex}")
 
-echo_cmd=$(echo $grub_signsha256 | sed 's/\(..\)/\\x\1/g')
+echo_cmd=$(echo $grub_sha256 | sed 's/\(..\)/\\x\1/g')
 
-echo Ventoy Grub sign hash $grub_signsha256
+echo Ventoy Grub hash $grub_sha256
 echo -en "$echo_cmd" | dd bs=1 count=32 of=$tmpmnt/EFI/BOOT/fbx64.efi seek=$magic_off conv=notrunc status=none
 
 sign_efi $tmpmnt/EFI/BOOT/fbx64.efi
