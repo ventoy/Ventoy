@@ -241,6 +241,11 @@ struct squashfs_cache *squashfs_cache_init(char *name, int entries,
 		return NULL;
 	}
 
+	if (entries <= 0 || (size_t)entries > SIZE_MAX / sizeof(*(cache->entry))) {
+		ERROR("Invalid entries count for %s cache\n", name);
+		goto cleanup;
+	}
+
 	cache->entry = kcalloc(entries, sizeof(*(cache->entry)), GFP_KERNEL);
 	if (cache->entry == NULL) {
 		ERROR("Failed to allocate %s cache\n", name);
@@ -252,6 +257,10 @@ struct squashfs_cache *squashfs_cache_init(char *name, int entries,
 	cache->entries = entries;
 	cache->block_size = block_size;
 	cache->pages = block_size >> PAGE_CACHE_SHIFT;
+	if (cache->pages <= 0 || (size_t)cache->pages > SIZE_MAX / sizeof(void *)) {
+		ERROR("Invalid pages count for %s cache\n", name);
+		goto cleanup;
+	}
 	cache->name = name;
 	cache->num_waiters = 0;
 	spin_lock_init(&cache->lock);
