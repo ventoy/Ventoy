@@ -35,24 +35,109 @@
 #include <ventoy_disk.h>
 #include <ventoy_util.h>
 #include <fat_filelib.h>
+#include <udisks/udisks.h>
 
-int g_disk_num = 0;
 static int g_fatlib_media_fd = 0;
 static uint64_t g_fatlib_media_offset = 0;
-ventoy_disk *g_disk_list = NULL;
 
-static const char *g_ventoy_dev_type_str[VTOY_DEVICE_END] = 
-{
-    "unknown", "scsi", "USB", "ide", "dac960",
-    "cpqarray", "file", "ataraid", "i2o",
-    "ubd", "dasd", "viodasd", "sx8", "dm",
-    "xvd", "sd/mmc", "virtblk", "aoe",
-    "md", "loopback", "nvme", "brd", "pmem"
-};
+// UDisks2 context
+static UDisksClient *client;
+GArray *disks = NULL;
 
-static const char * ventoy_get_dev_type_name(ventoy_dev_type type)
+// static const char *g_ventoy_dev_type_str[VTOY_DEVICE_END] = 
+// {
+//     "unknown", "scsi", "USB", "ide", "dac960",
+//     "cpqarray", "file", "ataraid", "i2o",
+//     "ubd", "dasd", "viodasd", "sx8", "dm",
+//     "xvd", "sd/mmc", "virtblk", "aoe",
+//     "md", "loopback", "nvme", "brd", "pmem"
+// };
+
+/**
+ * Get a ref to the client [transfer: none]
+ */
+UDisksClient *get_udisks_client()
 {
-    return (type < VTOY_DEVICE_END) ? g_ventoy_dev_type_str[type] : "unknown";
+    return client;
+}
+
+/**
+ * Null safe disks length check
+ */
+int get_disks_len()
+{
+    if (disks == NULL) return 0;
+
+    return disks->len;
+}
+
+/**
+ * Do not free the returned pointer
+ */
+ventoy_disk *disks_get_by_name(const char *diskname)
+{
+   
+    for (int i = 0; i < disks->len; i++)
+    {
+        ventoy_disk *current = &g_array_index(disks, ventoy_disk, i);
+
+        if (strcmp(current->disk_name, diskname) == 0)
+        {
+            return current;
+        }
+    }
+
+    return NULL;
+}
+
+int ventoy_disk_open(ventoy_disk *disk, const char *mode, int flags)
+{
+    
+    GVariant *options;
+
+    {
+        GVariantBuilder builder;
+        g_variant_builder_init(&builder, G_VARIANT_TYPE_VARDICT);
+        g_variant_builder_add(&builder,
+                              "{sv}",
+                              "flags",
+                              g_variant_new_int32(flags));
+        options = g_variant_builder_end(&builder);
+        g_variant_ref_sink(options);
+    }
+
+    GVariant *out_fd = NULL;
+    GUnixFDList *out_fd_list = NULL;
+    
+    GError *error = NULL;
+    udisks_block_call_open_device_sync(disk->blockdev,
+                                       mode,
+                                       options,
+                                       NULL,
+                                       &out_fd,
+                                       &out_fd_list,
+                                       NULL,
+                                       &error);
+
+    g_variant_unref(options);
+    
+    if (error != NULL)
+    {
+        vlog("Failed to open device: %s\n", error->message);
+        g_error_free(error);
+        return -1;
+    }
+
+    gint fd = g_unix_fd_list_get(out_fd_list, g_variant_get_handle(out_fd), &error);
+
+    if (error != NULL)
+    {
+        vlog("Failed to open device: %s\n", error->message);
+        g_error_free(error);
+        return -1;
+    }
+
+    return (int)fd;
 }
 
 static int ventoy_check_blk_major(int major, const char *type)
@@ -100,253 +185,52 @@ static int ventoy_check_blk_major(int major, const char *type)
     return valid;
 }
 
-static int ventoy_get_disk_devnum(const char *name, int *major, int* minor)
+static uint64_t ventoy_get_disk_devnum(const ventoy_disk *disk)
 {
-    int rc;
-    char *pos;
-    char devnum[16] = {0};
-    
-    rc = ventoy_get_sys_file_line(devnum, sizeof(devnum), "/sys/block/%s/dev", name);
-    if (rc)
-    {
-        return 1;
-    }
-
-    pos = strstr(devnum, ":");
-    if (!pos)
-    {
-        return 1;
-    }
-
-    *major = (int)strtol(devnum, NULL, 10);
-    *minor = (int)strtol(pos + 1, NULL, 10);
-
-    return 0;
+    return udisks_block_get_device_number(disk->blockdev);
 }
 
-static ventoy_dev_type ventoy_get_dev_type(const char *name, int major, int minor)
+
+int ventoy_is_disk_4k_native(ventoy_disk *disk)
 {
-    int rc;
-    char syspath[128];
-    char dstpath[256];
-
-    memset(syspath, 0, sizeof(syspath));
-    memset(dstpath, 0, sizeof(dstpath));
-    
-    scnprintf(syspath, "/sys/block/%s", name);
-    rc = readlink(syspath, dstpath, sizeof(dstpath) - 1);
-    if (rc > 0 && strstr(dstpath, "/usb"))
-    {
-        return VTOY_DEVICE_USB;
-    }
-    
-    if (SCSI_BLK_MAJOR(major) && (minor % 0x10 == 0)) 
-    {
-        return VTOY_DEVICE_SCSI;
-    }
-    else if (IDE_BLK_MAJOR(major) && (minor % 0x40 == 0)) 
-    {
-        return VTOY_DEVICE_IDE;
-    }
-    else if (major == DAC960_MAJOR && (minor % 0x8 == 0)) 
-    {
-        return VTOY_DEVICE_DAC960;
-    }
-    else if (major == ATARAID_MAJOR && (minor % 0x10 == 0)) 
-    {
-        return VTOY_DEVICE_ATARAID;
-    }
-    else if (major == AOE_MAJOR && (minor % 0x10 == 0)) 
-    {
-        return VTOY_DEVICE_AOE;
-    }
-    else if (major == DASD_MAJOR && (minor % 0x4 == 0)) 
-    {
-        return VTOY_DEVICE_DASD;
-    }
-    else if (major == VIODASD_MAJOR && (minor % 0x8 == 0)) 
-    {
-        return VTOY_DEVICE_VIODASD;
-    }
-    else if (SX8_BLK_MAJOR(major) && (minor % 0x20 == 0)) 
-    {
-        return VTOY_DEVICE_SX8;
-    }
-    else if (I2O_BLK_MAJOR(major) && (minor % 0x10 == 0)) 
-    {
-        return VTOY_DEVICE_I2O;
-    }
-    else if (CPQARRAY_BLK_MAJOR(major) && (minor % 0x10 == 0)) 
-    {
-        return VTOY_DEVICE_CPQARRAY;
-    }
-    else if (UBD_MAJOR == major && (minor % 0x10 == 0)) 
-    {
-        return VTOY_DEVICE_UBD;
-    }
-    else if (XVD_MAJOR == major && (minor % 0x10 == 0)) 
-    {
-        return VTOY_DEVICE_XVD;
-    }
-    else if (SDMMC_MAJOR == major && (minor % 0x8 == 0)) 
-    {
-        return VTOY_DEVICE_SDMMC;
-    }
-    else if (ventoy_check_blk_major(major, "virtblk"))
-    {
-        return VTOY_DEVICE_VIRTBLK;
-    }
-    else if (major == LOOP_MAJOR)
-    {
-        return VTOY_DEVICE_LOOP;
-    }
-    else if (major == MD_MAJOR)
-    {
-        return VTOY_DEVICE_MD;
-    }
-    else if (major == RAM_MAJOR)
-    {
-        return VTOY_DEVICE_RAM;
-    }
-    else if (strstr(name, "nvme") && ventoy_check_blk_major(major, "blkext"))
-    {
-        return VTOY_DEVICE_NVME;
-    }
-    else if (strstr(name, "pmem") && ventoy_check_blk_major(major, "blkext"))
-    {
-        return VTOY_DEVICE_PMEM;
-    }
-    
-    return VTOY_DEVICE_END;
-}
-
-static int ventoy_is_possible_blkdev(const char *name)
-{
-    if (name[0] == '.')
-    {
-        return 0;
-    }
-
-    /* /dev/ramX */
-    if (name[0] == 'r' && name[1] == 'a' && name[2] == 'm')
-    {
-        return 0;
-    }
-    
-    /* /dev/zramX */
-    if (name[0] == 'z' && name[1] == 'r' && name[2] == 'a' && name[3] == 'm')
-    {
-        return 0;
-    }
-
-    /* /dev/loopX */
-    if (name[0] == 'l' && name[1] == 'o' && name[2] == 'o' && name[3] == 'p')
-    {
-        return 0;
-    }
-
-    /* /dev/dm-X */
-    if (name[0] == 'd' && name[1] == 'm' && name[2] == '-' && isdigit(name[3]))
-    {
-        return 0;
-    }
-
-    /* /dev/srX */
-    if (name[0] == 's' && name[1] == 'r' && isdigit(name[2]))
-    {
-        return 0;
-    }
-    
-    return 1;
-}
-
-int ventoy_is_disk_4k_native(const char *disk)
-{
-    int fd;
     int rc = 0;
     int logsector = 0;
     int physector = 0;
-    char diskpath[256] = {0};
 
-    snprintf(diskpath, sizeof(diskpath) - 1, "/dev/%s", disk);
-
-    fd = open(diskpath, O_RDONLY | O_BINARY);
-    if (fd >= 0)
+    int fd = ventoy_disk_open(disk, "r", O_BINARY);
+    if (fd < 1)
     {
-        ioctl(fd, BLKSSZGET, &logsector);
-        ioctl(fd, BLKPBSZGET, &physector);
-        
-        if (logsector == 4096 && physector == 4096)
-        {
-            rc = 1;
-        }
-        close(fd);
+        vlog("Can't open device %s", disk->disk_model);
+        return -1;
+    };
+
+    ioctl(fd, BLKSSZGET, &logsector);
+    ioctl(fd, BLKPBSZGET, &physector);
+    
+    if (logsector == 4096 && physector == 4096)
+    {
+        rc = 1;
     }
 
-    vdebug("is 4k native disk <%s> <%d>\n", disk, rc);    
+    vdebug("is 4k native disk <%s> <%d>\n", disk->disk_model, rc);
     return rc;
 }
 
-uint64_t ventoy_get_disk_size_in_byte(const char *disk)
+uint64_t ventoy_get_disk_size_in_byte(const ventoy_disk *disk)
 {
-    int fd;
-    int rc;
-    unsigned long long size = 0;
-    char diskpath[256] = {0};
-    char sizebuf[64] = {0};
-
-    // Try 1: get size from sysfs
-    snprintf(diskpath, sizeof(diskpath) - 1, "/sys/block/%s/size", disk);
-    if (access(diskpath, F_OK) >= 0)
-    {
-        vdebug("get disk size from sysfs for %s\n", disk);
-        
-        fd = open(diskpath, O_RDONLY | O_BINARY);
-        if (fd >= 0)
-        {
-            read(fd, sizebuf, sizeof(sizebuf));
-            size = strtoull(sizebuf, NULL, 10);
-            close(fd);
-            return (uint64_t)(size * 512);
-        }
-    }
-    else
-    {
-        vdebug("%s not exist \n", diskpath);
-    }
-
-    // Try 2: get size from ioctl
-    snprintf(diskpath, sizeof(diskpath) - 1, "/dev/%s", disk);
-    fd = open(diskpath, O_RDONLY);
-    if (fd >= 0)
-    {
-        vdebug("get disk size from ioctl for %s\n", disk);
-        rc = ioctl(fd, BLKGETSIZE64, &size);
-        if (rc == -1)
-        {
-            size = 0;
-            vdebug("failed to ioctl %d\n", rc);
-        }
-        close(fd);
-    }
-    else
-    {
-        vdebug("failed to open %s %d\n", diskpath, errno);
-    }
-
-    vdebug("disk %s size %llu bytes\n", disk, size);
-    return size;
+    return udisks_block_get_size(disk->blockdev);
 }
 
-int ventoy_get_disk_vendor(const char *name, char *vendorbuf, int bufsize)
-{
-    return ventoy_get_sys_file_line(vendorbuf, bufsize, "/sys/block/%s/device/vendor", name);
-}
+// We can get this from the drive
+// int ventoy_get_disk_vendor(const ventoy_disk *disk)
+// {
+//     return udisks_block_get_drive(disk->blockdev)->
+// }
 
-int ventoy_get_disk_model(const char *name, char *modelbuf, int bufsize)
-{
-    return ventoy_get_sys_file_line(modelbuf, bufsize, "/sys/block/%s/device/model", name);
-}
+// int ventoy_get_disk_model(const ventoy_disk *disk)
+// {
+//     return ventoy_get_sys_file_line(modelbuf, bufsize, "/sys/block/%s/device/model", name);
+// }
 
 static int fatlib_media_sector_read(uint32 sector, uint8 *buffer, uint32 sector_count)
 {
@@ -431,10 +315,11 @@ static int fatlib_get_ventoy_version(char *verbuf, int bufsize)
     return rc;
 }
 
-int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
+int ventoy_get_vtoy_data(ventoy_disk *disk)
 {
+    if (disk->table == NULL) return 1;
+
     int i;
-    int fd;
     int len;
     int rc = 1;
     int ret = 1;
@@ -448,46 +333,47 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
     disk_ventoy_data *vtoy = NULL;    
     VTOY_GPT_INFO *gpt = NULL;
     
-    vtoy = &(info->vtoydata);
+    vtoy = &(disk->vtoydata);
     gpt = &(vtoy->gptinfo);
+
+    /* step 1: Init memory */
     memset(vtoy, 0, sizeof(disk_ventoy_data));
 
-    vdebug("ventoy_get_vtoy_data %s\n", info->disk_path);
+    vdebug("ventoy_get_vtoy_data %s\n", udisks_block_get_device(disk->blockdev));
 
-    if (info->size_in_byte < (2 * VTOYEFI_PART_BYTES))
+    /* step 2: Check size */
+    if (udisks_block_get_size(disk->blockdev) < (2 * VTOYEFI_PART_BYTES))
     {
-        vdebug("disk %s is too small %llu\n", info->disk_path, (_ull)info->size_in_byte);
+        vdebug("disk %s is too small %llu\n", udisks_block_get_device(disk->blockdev), (_ull)udisks_block_get_size(disk->blockdev));
         return 1;
     }
 
-    fd = open(info->disk_path, O_RDONLY | O_BINARY);
-    if (fd < 0)
-    {
-        vdebug("failed to open %s %d\n", info->disk_path, errno);
-        return 1;
-    }
+    /* step 3: open the device */
+    int fd = ventoy_disk_open(disk, "r", O_BINARY);
 
-    len = (int)read(fd, &(vtoy->gptinfo), sizeof(VTOY_GPT_INFO));
+    if (fd < 1) return 1;
+
+    /* step 4: read gpt table */
+    len = (int)read(fd, gpt, sizeof(VTOY_GPT_INFO));
     if (len != sizeof(VTOY_GPT_INFO))
     {
-        vdebug("failed to read %s %d\n", info->disk_path, errno);
+        vdebug("failed to read %s %d\n", udisks_block_get_device(disk->blockdev), errno);
         goto end;
     }
 
+    /* step 5: handle invalid magic */
     if (gpt->MBR.Byte55 != 0x55 || gpt->MBR.ByteAA != 0xAA)
     {
         vdebug("Invalid mbr magic 0x%x 0x%x\n", gpt->MBR.Byte55, gpt->MBR.ByteAA);
         goto end;
     }
-
-    if (gpt->MBR.PartTbl[0].FsFlag == 0xEE && strncmp(gpt->Head.Signature, "EFI PART", 8) == 0)
+    
+    /* step 6: save partitions start/end and preserved space */
+    if (strcmp(udisks_partition_table_get_type_(disk->table), "gpt") == 0)
     {
         part_style = GPT_PART_STYLE;
-        if (ppartstyle)
-        {
-            *ppartstyle = part_style;
-        }
 
+        /* checks that 2 partitions are present */
         if (gpt->PartTbl[0].StartLBA == 0 || gpt->PartTbl[1].StartLBA == 0)
         {
             vdebug("NO ventoy efi part layout <%llu %llu>\n", 
@@ -496,6 +382,7 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
             goto end;
         }
 
+        /* the second one must be naed VTOYEFI for ventoy to be installed */
         for (i = 0; i < 36; i++)
         {
             name[i] = (char)(gpt->PartTbl[1].Name[i]);
@@ -511,24 +398,21 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
         part2_start_sector = gpt->PartTbl[1].StartLBA;
         part2_sector_count = gpt->PartTbl[1].LastLBA - part2_start_sector + 1;
 
-        preserved_space = info->size_in_byte - (part2_start_sector + part2_sector_count + 33) * 512;
+        preserved_space = udisks_block_get_size(disk->blockdev) - (part2_start_sector + part2_sector_count + 33) * 512;
     }
     else
     {
         part_style = MBR_PART_STYLE;
-        if (ppartstyle)
-        {
-            *ppartstyle = part_style;
-        }
-        
+
         part1_start_sector = gpt->MBR.PartTbl[0].StartSectorId;
         part1_sector_count = gpt->MBR.PartTbl[0].SectorCount;
         part2_start_sector = gpt->MBR.PartTbl[1].StartSectorId;
         part2_sector_count = gpt->MBR.PartTbl[1].SectorCount;
 
-        preserved_space = info->size_in_byte - (part2_start_sector + part2_sector_count) * 512;
+        preserved_space = udisks_block_get_size(disk->blockdev) - (part2_start_sector + part2_sector_count) * 512;
     }
 
+    /* step 7: check for ventoy partition layout */
     if (part1_start_sector != VTOYIMG_PART_START_SECTOR ||
         part2_sector_count != VTOYEFI_PART_SECTORS ||
         (part1_start_sector + part1_sector_count) != part2_start_sector)
@@ -543,7 +427,8 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
 
     vtoy->ventoy_valid = 1;
 
-    vdebug("now check secure boot for %s ...\n", info->disk_path);
+    /* step 8: check for secure boot */
+    vdebug("now check secure boot for %s ...\n", udisks_block_get_device(disk->blockdev));
 
     g_fatlib_media_fd = fd;
     g_fatlib_media_offset = part2_start_sector;
@@ -587,169 +472,155 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
     vtoy->partition_style = part_style;
     vtoy->part2_start_sector = part2_start_sector;
 
-    rc = 0;
 end:
-    vtoy_safe_close_fd(fd);
-    return rc;
+    return 0;
 }
 
-int ventoy_get_disk_info(const char *name, ventoy_disk *info)
+int ventoy_get_disk_info(ventoy_disk *disk)
 {
-    char vendor[64] = {0};
-    char model[128] = {0};
+    
+    strcpy(disk->disk_path, udisks_block_get_device(disk->blockdev));
+    strcpy(disk->disk_name, disk->disk_path);
 
-    vdebug("get disk info %s\n", name);
+    // ventoy_get_disk_devnum(name, &disk->major, &disk->minor);
+    // ventoy_get_disk_vendor(name, vendor, sizeof(vendor));
+    // ventoy_get_disk_model(name, model, sizeof(model));
 
-    strlcpy(info->disk_name, name);
-    scnprintf(info->disk_path, "/dev/%s", name);
+    scnprintf(disk->human_readable_size, "%llu GB", (_ull)ventoy_get_human_readable_gb(udisks_block_get_size(disk->blockdev)));
+    UDisksDrive *drive = udisks_client_get_drive_for_block(client, disk->blockdev);
 
-    if (strstr(name, "nvme") || strstr(name, "mmc") || strstr(name, "nbd"))
+    char *vendor = udisks_drive_get_vendor(drive);
+    if (vendor == NULL) vendor = "-";
+    
+    char *model = udisks_drive_get_model(drive);
+    if (vendor == NULL) vendor = "-";
+
+    char *bus = udisks_drive_get_connection_bus(drive);
+    if (bus == NULL) bus = "-";
+    
+    scnprintf(disk->disk_model, "%s %s (%s)", vendor, model, bus);
+    g_object_unref(drive);
+
+    disk->is4kn = ventoy_is_disk_4k_native(disk);
+    if (disk->is4kn < 0) return 1;
+    
+
+    ventoy_get_vtoy_data(disk);
+    
+    // vdebug("disk:<%s %d:%d> model:<%s> size:%llu (%s)\n", 
+    //     disk->disk_path, disk->major, disk->minor, disk->disk_model, udisks_block_get_size(disk->blockdev), disk->human_readable_size);
+
+    if (disk->vtoydata.ventoy_valid)
     {
-        scnprintf(info->part1_name, "%sp1", name);
-        scnprintf(info->part1_path, "/dev/%sp1", name);
-        scnprintf(info->part2_name, "%sp2", name);
-        scnprintf(info->part2_path, "/dev/%sp2", name);
+        vdebug("%s Ventoy:<%s> %s secureboot:%d preserve:%llu\n", udisks_block_get_device(disk->blockdev), disk->vtoydata.ventoy_ver, 
+            disk->vtoydata.partition_style == MBR_PART_STYLE ? "MBR" : "GPT",
+            disk->vtoydata.secure_boot_flag, (_ull)(disk->vtoydata.preserved_space));
     }
     else
     {
-        scnprintf(info->part1_name, "%s1", name);
-        scnprintf(info->part1_path, "/dev/%s1", name);
-        scnprintf(info->part2_name, "%s2", name);
-        scnprintf(info->part2_path, "/dev/%s2", name);
-    }
-    
-    info->is4kn = ventoy_is_disk_4k_native(name);
-    info->size_in_byte = ventoy_get_disk_size_in_byte(name);
-
-    ventoy_get_disk_devnum(name, &info->major, &info->minor);
-    info->type = ventoy_get_dev_type(name, info->major, info->minor);
-    ventoy_get_disk_vendor(name, vendor, sizeof(vendor));
-    ventoy_get_disk_model(name, model, sizeof(model));
-
-    scnprintf(info->human_readable_size, "%llu GB", (_ull)ventoy_get_human_readable_gb(info->size_in_byte));
-    scnprintf(info->disk_model, "%s %s (%s)", vendor, model, ventoy_get_dev_type_name(info->type));
-
-    ventoy_get_vtoy_data(info, &(info->partstyle));
-    
-    vdebug("disk:<%s %d:%d> model:<%s> size:%llu (%s)\n", 
-        info->disk_path, info->major, info->minor, info->disk_model, info->size_in_byte, info->human_readable_size);
-
-    if (info->vtoydata.ventoy_valid)
-    {
-        vdebug("%s Ventoy:<%s> %s secureboot:%d preserve:%llu\n", info->disk_path, info->vtoydata.ventoy_ver, 
-            info->vtoydata.partition_style == MBR_PART_STYLE ? "MBR" : "GPT",
-            info->vtoydata.secure_boot_flag, (_ull)(info->vtoydata.preserved_space));
-    }
-    else
-    {
-        vdebug("%s NO Ventoy detected\n", info->disk_path);
+        vdebug("%s NO Ventoy detected\n", udisks_block_get_device(disk->blockdev));
     }
 
     return 0;
 }
 
-static int ventoy_disk_compare(const ventoy_disk *disk1, const ventoy_disk *disk2)
-{
-    if (disk1->type == VTOY_DEVICE_USB && disk2->type == VTOY_DEVICE_USB)
-    {
-        return strcmp(disk1->disk_name, disk2->disk_name);
-    }
-    else if (disk1->type == VTOY_DEVICE_USB)
-    {
-        return -1;
-    }
-    else if (disk2->type == VTOY_DEVICE_USB)
-    {
-        return 1;
-    }
-    else
-    {
-        return strcmp(disk1->disk_name, disk2->disk_name);
-    }
-}
+// static int ventoy_disk_compare(const ventoy_disk *disk1, const ventoy_disk *disk2)
+// {
+//     if (disk1->type == VTOY_DEVICE_USB && disk2->type == VTOY_DEVICE_USB)
+//     {
+//         return strcmp(disk1->disk_name, disk2->disk_name);
+//     }
+//     else if (disk1->type == VTOY_DEVICE_USB)
+//     {
+//         return -1;
+//     }
+//     else if (disk2->type == VTOY_DEVICE_USB)
+//     {
+//         return 1;
+//     }
+//     else
+//     {
+//         return strcmp(disk1->disk_name, disk2->disk_name);
+//     }
+// }
 
-static int ventoy_disk_sort(void)
-{
-    int i, j;
-    ventoy_disk *tmp;
-
-    tmp = malloc(sizeof(ventoy_disk));
-    if (!tmp)
-    {
-        return 1;
-    }
-
-    for (i = 0; i < g_disk_num; i++)
-    for (j = i + 1; j < g_disk_num; j++)
-    {
-        if (ventoy_disk_compare(g_disk_list + i, g_disk_list + j) > 0)
-        {
-            memcpy(tmp, g_disk_list + i, sizeof(ventoy_disk));
-            memcpy(g_disk_list + i, g_disk_list + j, sizeof(ventoy_disk));
-            memcpy(g_disk_list + j, tmp, sizeof(ventoy_disk));
-        }
-    }
-
-    free(tmp);
-    return 0;
-}
 
 int ventoy_disk_enumerate_all(void)
 {
-    int rc = 0;
-    DIR* dir = NULL;
-    struct dirent* p = NULL;
-
     vdebug("ventoy_disk_enumerate_all\n");
 
-    dir = opendir("/sys/block");
-    if (!dir)
+    if (disks != NULL)
     {
-        vlog("Failed to open /sys/block %d\n", errno);
-        return 1;
-    }
-
-    while (((p = readdir(dir)) != NULL) && (g_disk_num < MAX_DISK_NUM))
-    {
-        if (ventoy_is_possible_blkdev(p->d_name))
+        for (int i = 0; i < disks->len; ++i)
         {
-            memset(g_disk_list + g_disk_num, 0, sizeof(ventoy_disk));
-            if (0 == ventoy_get_disk_info(p->d_name, g_disk_list + g_disk_num))
-            {
-                g_disk_num++;                    
-            }
-        }
-    }
-    closedir(dir);
+            ventoy_disk *disk = &g_array_index(disks, ventoy_disk, i);
 
-    ventoy_disk_sort();
-    
-    return rc;
+            if (disk->obj) g_object_unref(disk->obj);
+            if (disk->blockdev) g_object_unref(disk->blockdev);
+            if (disk->table) g_object_unref(disk->table);
+        }
+
+        g_array_free(disks, TRUE);
+    }
+
+    disks = g_array_new(FALSE, FALSE, sizeof(ventoy_disk));
+
+    GList *el = g_dbus_object_manager_get_objects(udisks_client_get_object_manager(client));
+
+    for (; el != NULL; el = el->next)
+    {
+        UDisksObject *obj = UDISKS_OBJECT (el->data);
+        UDisksBlock *block = udisks_object_get_block(obj);
+        UDisksPartitionTable *table = udisks_object_get_partition_table(obj);
+
+        if (block == NULL) continue;
+
+        if (udisks_block_get_device(block) == NULL) continue;
+
+        if (udisks_block_get_hint_system(block)) continue;
+        
+        if (udisks_object_peek_partition(obj) != NULL) continue;  // It must not be a partition
+
+        // The block and the drive are not the same object
+        if (udisks_block_get_drive(block) == NULL || strcmp(udisks_block_get_drive(block), "/") == 0) continue;
+
+        ventoy_disk disk;
+        disk.obj = obj;
+        disk.blockdev = block;
+        disk.table = table;
+        disk.hint_ignore = udisks_block_get_hint_ignore(block);
+        ventoy_get_disk_info(&disk);//check for error..
+
+        g_array_append_val(disks, disk);
+    }
+
+    // Here we could sort the array...
+
+    return 0;
 }
 
 void ventoy_disk_dump(ventoy_disk *cur)
 {
     if (cur->vtoydata.ventoy_valid)
     {
-        vdebug("%s [%s] %s\tVentoy: %s %s secureboot:%d preserve:%llu\n", 
-            cur->disk_path, cur->human_readable_size, cur->disk_model,
+        vdebug("%s [%s]\tVentoy: %s %s secureboot:%d preserve:%llu\n", 
+            udisks_block_get_device(cur->blockdev), cur->human_readable_size,
             cur->vtoydata.ventoy_ver, cur->vtoydata.partition_style == MBR_PART_STYLE ? "MBR" : "GPT",
             cur->vtoydata.secure_boot_flag, (_ull)(cur->vtoydata.preserved_space));
     }
     else
     {
-        vdebug("%s [%s] %s\tVentoy: NA\n", cur->disk_path, cur->human_readable_size, cur->disk_model); 
+        vdebug("%s [%s]\tVentoy: NA\n", udisks_block_get_device(cur->blockdev), cur->human_readable_size); 
     }
 }
 
 void ventoy_disk_dump_all(void)
 {
-    int i;
-    
     vdebug("============= DISK DUMP ============\n");
-    for (i = 0; i < g_disk_num; i++)
+    for (int i = 0; i < disks->len; i++)
     {
-        ventoy_disk_dump(g_disk_list + i);
+        ventoy_disk *disk = &g_array_index(disks, ventoy_disk, i);
+        ventoy_disk_dump(disk);
     }
 }
 
@@ -761,7 +632,16 @@ int ventoy_disk_install(ventoy_disk *disk, void *efipartimg)
 
 int ventoy_disk_init(void)
 {
-    g_disk_list = malloc(sizeof(ventoy_disk) * MAX_DISK_NUM);
+    GError *error = NULL;
+    client = udisks_client_new_sync(NULL, &error);
+    disks = NULL;
+
+    if (!client)
+    {
+        vlog("Error connecting to UDisks: %s\n", error->message);
+        g_error_free(error);
+        return 1;
+    }
 
     ventoy_disk_enumerate_all();
     ventoy_disk_dump_all();
@@ -771,9 +651,14 @@ int ventoy_disk_init(void)
 
 void ventoy_disk_exit(void)
 {
-    check_free(g_disk_list);        
-    g_disk_list = NULL;
-    g_disk_num  = 0;
+    for (int i = 0; i < disks->len; ++i)
+    {
+        ventoy_disk disk = g_array_index(disks, ventoy_disk, i);
+
+        g_object_unref(disk.blockdev);
+        g_object_unref(disk.table);
+    }
+    g_array_free(disks, TRUE);
+    disks = NULL;
+    g_object_unref(client);
 }
-
-

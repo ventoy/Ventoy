@@ -34,7 +34,7 @@ void MyQThread::install_run()
 
     vlog("install run %d ...\n", m_index);
 
-    cur = g_disk_list + m_index;
+    cur = &g_array_index(disks, ventoy_disk, m_index);
     snprintf(disk_name, sizeof(disk_name), "%s", cur->disk_name);
     snprintf(dec, sizeof(dec), "%llu", (unsigned long long)m_reserve_space);
 
@@ -59,7 +59,7 @@ void MyQThread::install_run()
         while (percent != 100)
         {
             percent = ventoy_code_get_percent();
-            emit thread_event(THREAD_MSG_PROGRESS_BAR, percent);
+            Q_EMIT thread_event(THREAD_MSG_PROGRESS_BAR, percent);
             msleep(50);
         }
 
@@ -72,7 +72,7 @@ void MyQThread::install_run()
         ret = 1;
     }
 
-    emit thread_event(THREAD_MSG_INSTALL_FINISH, ret);
+    Q_EMIT thread_event(THREAD_MSG_INSTALL_FINISH, ret);
     m_running = false;
 }
 
@@ -87,7 +87,7 @@ void MyQThread::update_run()
 
     vlog("install run %d ...\n", m_index);
 
-    cur = g_disk_list + m_index;
+    cur = &g_array_index(disks, ventoy_disk, m_index);
     snprintf(disk_name, sizeof(disk_name), "%s", cur->disk_name);
     snprintf(buf, sizeof(buf), "{\"method\":\"update\",\"disk\":\"%s\",\"secure_boot\":%d}", disk_name, m_secureboot);
 
@@ -100,7 +100,7 @@ void MyQThread::update_run()
         while (percent != 100)
         {
             percent = ventoy_code_get_percent();
-            emit thread_event(THREAD_MSG_PROGRESS_BAR, percent);
+            Q_EMIT thread_event(THREAD_MSG_PROGRESS_BAR, percent);
             msleep(50);
         }
 
@@ -113,7 +113,7 @@ void MyQThread::update_run()
         ret = 1;
     }
 
-    emit thread_event(THREAD_MSG_UPDATE_FINISH, ret);
+    Q_EMIT thread_event(THREAD_MSG_UPDATE_FINISH, ret);
     m_running = false;
 }
 
@@ -321,13 +321,10 @@ static ventoy_disk *select_active_dev(const QString &select, int *activeid)
     /* find the match one */
     if (!select.isEmpty())
     {
-        for (i = 0; i < g_disk_num; i++)
+        for (i = 0; i < get_disks_len(); i++)
         {
-            cur = g_disk_list + i;
-            if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
-            {
-                continue;
-            }
+            cur = &g_array_index(disks, ventoy_disk, i);
+            if (!alldev && cur->hint_ignore) continue;
 
             if (select.compare(cur->disk_name) == 0)
             {
@@ -338,13 +335,10 @@ static ventoy_disk *select_active_dev(const QString &select, int *activeid)
     }
 
     /* find the first one that installed with Ventoy */
-    for (i = 0; i < g_disk_num; i++)
+    for (i = 0; i < get_disks_len(); i++)
     {
-        cur = g_disk_list + i;
-        if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
-        {
-            continue;
-        }
+        cur = &g_array_index(disks, ventoy_disk, i);
+        if (!alldev && cur->hint_ignore) continue;
 
         if (cur->vtoydata.ventoy_valid)
         {
@@ -353,30 +347,12 @@ static ventoy_disk *select_active_dev(const QString &select, int *activeid)
         }
     }
 
-    /* find the first USB interface device */
-    for (i = 0; i < g_disk_num; i++)
-    {
-        cur = g_disk_list + i;
-        if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
-        {
-            continue;
-        }
-
-        if (cur->type == VTOY_DEVICE_USB)
-        {
-            *activeid = i;
-            return cur;
-        }
-    }
-
     /* use the first one */
-    for (i = 0; i < g_disk_num; i++)
+    for (i = 0; i < get_disks_len(); i++)
     {
-        cur = g_disk_list + i;
-        if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
-        {
-            continue;
-        }
+        cur = &g_array_index(disks, ventoy_disk, i);
+        if (!alldev && cur->hint_ignore) continue;
+
 
         *activeid = i;
         return cur;
@@ -395,14 +371,11 @@ void Ventoy2DiskWindow::FillDeviceList(const QString &select)
 
     ui->comboBoxDevice->clear();
 
-    for (int i = 0; i < g_disk_num; i++)
+    for (int i = 0; i < get_disks_len(); i++)
     {
-        cur = g_disk_list + i;
+        cur = &g_array_index(disks, ventoy_disk, i);
+        if (!alldev && cur->hint_ignore) continue;
 
-        if (alldev == 0 && cur->type != VTOY_DEVICE_USB)
-        {
-            continue;
-        }
 
         QString item;
         item.sprintf("%s  [%s]  %s", cur->disk_name, cur->human_readable_size, cur->disk_model);
@@ -505,13 +478,13 @@ void Ventoy2DiskWindow::on_ButtonInstall_clicked()
     }
 
     index = ui->comboBoxDevice->currentIndex();
-    if (index < 0 || index > g_disk_num)
+    if (index < 0 || index > get_disks_len())
     {
         vlog("Invalid combobox current index %d\n", index);
         return;
     }
 
-    cur = g_disk_list + index;
+    cur = &g_array_index(disks, ventoy_disk, index);
 
     if (cur->is4kn)
     {
@@ -520,7 +493,9 @@ void Ventoy2DiskWindow::on_ButtonInstall_clicked()
         return;
     }
 
-    if (ventoy_code_get_cur_part_style() == 0 && cur->size_in_byte > 2199023255552ULL)
+    guint64 size_in_bytes =  udisks_block_get_size(cur->blockdev);
+
+    if (ventoy_code_get_cur_part_style() == 0 && size_in_bytes > 20000000000ULL)
     {
         lang_string("STR_DISK_2TB_MBR_ERROR", msg);
         QMessageBox::critical(NULL, title_err, msg);
@@ -529,7 +504,7 @@ void Ventoy2DiskWindow::on_ButtonInstall_clicked()
 
     if (m_partcfg->reserve)
     {
-        size = cur->size_in_byte / SIZE_1MB;
+        size = size_in_bytes / SIZE_1MB;
         space = m_partcfg->resvalue;
         if (m_partcfg->unit == 1)
         {
@@ -589,13 +564,13 @@ void Ventoy2DiskWindow::on_ButtonUpdate_clicked()
     }
 
     index = ui->comboBoxDevice->currentIndex();
-    if (index < 0 || index > g_disk_num)
+    if (index < 0 || index > get_disks_len())
     {
         vlog("Invalid combobox current index %d\n", index);
         return;
     }
 
-    cur = g_disk_list + index;
+    cur = &g_array_index(disks, ventoy_disk, index);
     if (cur->vtoydata.ventoy_valid == 0)
     {
         vlog("invalid ventoy version");
@@ -645,13 +620,13 @@ void Ventoy2DiskWindow::on_comboBoxDevice_currentIndexChanged(int index)
     ui->labelVentoyDeviceVer->setText("");
     ui->labelVentoyDevicePartStyle->setText("");
 
-    if (index < 0 || index > g_disk_num)
+    if (index < 0 || index > get_disks_len())
     {
         vlog("invalid combobox index %d\n", index);
         return;
     }
 
-    cur = g_disk_list + index;
+    cur = &g_array_index(disks, ventoy_disk, index);
     if (cur->vtoydata.ventoy_valid)
     {
         if (cur->vtoydata.secure_boot_flag)
@@ -724,13 +699,13 @@ void Ventoy2DiskWindow::on_actionClear_Ventoy_triggered()
     }
 
     index = ui->comboBoxDevice->currentIndex();
-    if (index < 0 || index > g_disk_num)
+    if (index < 0 || index > get_disks_len())
     {
         vlog("Invalid combobox current index %d\n", index);
         return;
     }
 
-    cur = g_disk_list + index;
+    cur = &g_array_index(disks, ventoy_disk, index);
 
     lang_string("STR_INSTALL_TIP", msg);
     if (QMessageBox::Yes != QMessageBox::warning(NULL, title_warn, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::No))
@@ -861,7 +836,7 @@ void Ventoy2DiskWindow::thread_event(int msg, int data)
         ui->ButtonInstall->setEnabled(true);
         ui->ButtonRefresh->setEnabled(true);
 
-        snprintf(disk_name, sizeof(disk_name), "%s", g_disk_list[m_thread->m_index].disk_name);
+        snprintf(disk_name, sizeof(disk_name), "%s", g_array_index(disks, ventoy_disk, m_thread->m_index).disk_name);
         FillDeviceList(disk_name);
     }
     else if (msg == THREAD_MSG_UPDATE_FINISH)
@@ -885,7 +860,7 @@ void Ventoy2DiskWindow::thread_event(int msg, int data)
         ui->ButtonInstall->setEnabled(true);
         ui->ButtonRefresh->setEnabled(true);
 
-        snprintf(disk_name, sizeof(disk_name), "%s", g_disk_list[m_thread->m_index].disk_name);
+        snprintf(disk_name, sizeof(disk_name), "%s", g_array_index(disks, ventoy_disk, m_thread->m_index).disk_name);
         FillDeviceList(disk_name);
     }
 }
