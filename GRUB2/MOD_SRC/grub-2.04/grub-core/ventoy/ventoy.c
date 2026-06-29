@@ -418,28 +418,24 @@ static int ventoy_secure_boot_init(void)
     }
 
 
-    /*
-     * When SecureBoot enabled, Ventoy grub must be launched by Ventoy Shim.
-     * Currently only x86_64 support this feature.
-     */
     if (g_ventoy_plat_data == VTOY_PLAT_X86_64_UEFI)
     {
         g_vtoy_shim = grub_efi_locate_protocol(&ProtGuid, NULL);
         if (g_vtoy_shim == NULL || g_vtoy_shim->ByPassSB == NULL ||
             g_vtoy_shim->CheckSB == NULL || g_vtoy_shim->Launched == NULL)
         {
-            grub_cls();
-            grub_printf(VTOY_WARNING"\n");
-            grub_printf(VTOY_WARNING"\n");
-            grub_printf(VTOY_WARNING"\n\n\n");
-
-            grub_printf("Ventoy grub is not launched by Ventoy shim.\n\n");
-            grub_refresh();
-
-            ventoy_prompt_end();
+            /*
+             * Generally when SecureBoot enabled, Ventoy grub must be launched by Ventoy Shim.
+             * But there are some exceptions:
+             *   1. Ventoy key was enrolled directly to the UEFI DB
+             *   2. Some UEFI firmware (MSI) has Image Execution Policy as Always Execute which
+             *      means Secure Boot is effectively disabled.
+             */
         }
-
-        g_vtoy_shim->Launched();
+        else
+        {
+            g_vtoy_shim->Launched();
+        }
     }
 
     return 0;
