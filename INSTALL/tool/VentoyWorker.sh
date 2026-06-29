@@ -186,7 +186,7 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     else
         if parted -v > /dev/null 2>&1; then
             PARTTOOL='parted'            
-        elif fdisk -v >/dev/null 2>&1; then
+        elif command -v fdisk > /dev/null 2>&1; then
             PARTTOOL='fdisk'            
         else
             vterr "Both parted and fdisk are not found in the system, Ventoy can't create new partitions."
