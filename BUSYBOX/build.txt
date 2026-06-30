@@ -14,7 +14,7 @@ rename ./busybox to xzcat
 
 
 ======== How to build ash/hexdump/xzcat for mips64el ======== 
-#download mips64el-musl cross toolchain from https://github.com/ventoy/musl-cross-make/releases/download/latest/
+#download mips64el-musl cross toolchain from https://github.com/ventoy/musl-cross-make/releases/download/latest/output.tar.bz2 
 #How to get ash.config/hexdump.cofig/xzcat.config
 #ARCH=mips CROSS_COMPILE=mips64el-linux-musl- make allnoconfig "CFLAGS+=-mips64r2 -mabi=64 -Os" "LDFLAGS+=-mips64r2 -mabi=64 -Os"
 #ARCH=mips CROSS_COMPILE=mips64el-linux-musl- make menuconfig  "CFLAGS+=-mips64r2 -mabi=64 -Os" "LDFLAGS+=-mips64r2 -mabi=64 -Os"
