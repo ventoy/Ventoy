@@ -1430,7 +1430,9 @@ STATIC BOOL VDS_CallBack_FormatVolume(void* pInterface, VDS_DISK_PROP* pDiskProp
 	
 	Log("VDS_CallBack_FormatVolume (%C:) (%s) ClusterSize:%u ...", VdsPara->DriveLetter, GetVentoyFsFmtNameByTypeA(fs), VdsPara->ClusterSize);
 
-	hr = IVdsVolumeMF3_FormatEx2(pVolume, pFs, 0, VdsPara->ClusterSize, L"Ventoy", VDS_FSOF_FORCE | VDS_FSOF_QUICK, &pAsync);
+	WCHAR LabelW[64];
+	MultiByteToWideChar(CP_ACP, 0, g_VolumeLabel, -1, LabelW, 64);
+	hr = IVdsVolumeMF3_FormatEx2(pVolume, pFs, 0, VdsPara->ClusterSize, LabelW, VDS_FSOF_FORCE | VDS_FSOF_QUICK, &pAsync);
 	while (SUCCEEDED(hr))
 	{
 		hr = IVdsAsync_QueryStatus(pAsync, &hr2, &completed);
