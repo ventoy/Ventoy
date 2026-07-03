@@ -145,32 +145,6 @@ STATIC EFI_STATUS ParseCmdline(IN EFI_HANDLE ImageHandle)
     return EFI_SUCCESS;
 }
 
-#if defined (MDE_CPU_X64)
-STATIC BOOLEAN EFIAPI CheckVtoyShim(VOID)
-{
-    UINT8 SecureBoot = 0;
-	UINTN DataSize;
-	EFI_STATUS Status;
-    EFI_GUID Guid = VTOY_SHIM_POLICY_GUID;
-    VOID *Prot = NULL;
-
-	DataSize = sizeof(SecureBoot);
-	Status = gST->RuntimeServices->GetVariable(L"SecureBoot", &gEfiGlobalVariableGuid, NULL,
-				     &DataSize, &SecureBoot);
-	if (!EFI_ERROR(Status) && SecureBoot)
-    {
-        Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&Prot);
-        if (EFI_ERROR(Status))
-        {
-            gST->ConOut->OutputString(gST->ConOut, L"Can not locate Vtoy Shim\r\n");
-            return FALSE;
-        }
-    }
-
-    return TRUE;
-}
-#endif
-
 EFI_STATUS EFIAPI VtoyUtilEfiMain
 (
     IN EFI_HANDLE         ImageHandle,
@@ -179,15 +153,6 @@ EFI_STATUS EFIAPI VtoyUtilEfiMain
 {
     UINTN i;
     UINTN Len;
-
-#if defined (MDE_CPU_X64)
-    /* check that Ventoy Shim must exist */
-    if (!CheckVtoyShim())
-    {
-        gBS->Stall(5 * 1000000);
-        return EFI_NOT_FOUND;
-    }
-#endif
 
     ParseCmdline(ImageHandle);
 

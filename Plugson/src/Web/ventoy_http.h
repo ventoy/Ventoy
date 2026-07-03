@@ -414,7 +414,7 @@ else\
     if (node->unData.pcStrVal[0] == '0') val = 0
 
 #define CONTROL_PARSE_INT_DEF_3(node, val) \
-    if (node->unData.pcStrVal[0] == '3') val = 3
+    if (node->unData.pcStrVal[0] >= '0' && node->unData.pcStrVal[0] < '3') val = node->unData.pcStrVal[0] - '0'
 
 #define VTOY_JSON_INT(key, val) vtoy_json_get_int(json, key, &val)
 #define VTOY_JSON_STR(key, buf) vtoy_json_get_string(json, key, sizeof(buf), buf)

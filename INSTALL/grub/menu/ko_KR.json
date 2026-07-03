@@ -88,11 +88,11 @@
     "VTLANG_WIN11_BYPASS_NRO": "Windows 11 설치 시 온라인 계정 요구 사항 무시",
     "VTLANG_LINUX_REMOUNT": "Linux 부팅 후 Ventoy 파티션 마운트",
     "VTLANG_SECONDARY_BOOT_MENU": "보조 부팅 메뉴 표시",
-    "VTLANG_WIN_UEFI_RES_LOCK": "Lock the resolution when UEFI boot Windows/WinPE",
-    "VTLANG_UEFI_RES_LOCK_NONE": "None",
-    "VTLANG_UEFI_RES_LOCK_MAX": "Highest",
-    "VTLANG_UEFI_RES_LOCK_1024_768": "Fixed 1024 x 768",
-    "VTLANG_UEFI_RES_LOCK_BE1024_768": "At least 1024 x 768",
+    "VTLANG_WIN_UEFI_RES_LOCK": "UEFI 부팅 시 Windows/WinPE 해상도 고정",
+    "VTLANG_UEFI_RES_LOCK_NONE": "고정 안 함",
+    "VTLANG_UEFI_RES_LOCK_MAX": "최고 해상도로 고정",
+    "VTLANG_UEFI_RES_LOCK_1024_768": "1024 x 768로 고정",
+    "VTLANG_UEFI_RES_LOCK_BE1024_768": "1024 x 768 이상으로 고정",
 
 
     "MENU_STR_XXX": ""

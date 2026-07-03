@@ -34,15 +34,28 @@
 
 #define CUR_SBAT_VER    1
 
-STATIC EFI_GUID gVtoySbatGUID = { 0xf755068a, 0xe04f, 0x452b, { 0x9d, 0x6d, 0x7c, 0x55, 0x96, 0xb3, 0xc0, 0x7d }};
-STATIC EFI_DEVICE_PATH_TO_TEXT_PROTOCOL *gDpToText = NULL;
-STATIC EFI_DEVICE_PATH_FROM_TEXT_PROTOCOL *gTextToDp = NULL;
+STATIC UINT8 gVtoyGrubSha256Hash[32] __attribute__((aligned(32)))  = {
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26,
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26,
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26,
+    0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26
+};
+
+STATIC BOOLEAN gGrubLaunched = FALSE;
+STATIC EFI_GUID gShimLockGUID = SHIM_LOCK_GUID;
 STATIC EFI_SECURITY_FILE_AUTHENTICATION_STATE gSysSecFileAuth = NULL;
 STATIC EFI_SECURITY2_FILE_AUTHENTICATION gSysSec2FileAuth = NULL;
 STATIC BOOLEAN gVtoyByPassSB = FALSE; /* must be FALSE by default for revoke */
 STATIC VTOY_SHIM gVtoyShimProtocol;
 STATIC EFI_HANDLE gVtoyShimProtHandle;
-STATIC SHIM_LOCK *gShimLock = NULL;
+STATIC SHIM_LOCK gShimLock;
+
+STATIC EFI_EXIT_BOOT_SERVICES gSysExitBootServices = NULL;
+STATIC EFI_GET_VARIABLE gSysGetVariable = NULL;
+
+STATIC VOID EFIAPI HookSystemService(VOID);
+STATIC VOID EFIAPI UnHookSystemService(VOID);
+
 
 STATIC VOID EFIAPI VtoyLog(CONST CHAR16 *Format, ...)
 {
@@ -66,11 +79,15 @@ STATIC VOID EFIAPI DumpDevicePath(const EFI_DEVICE_PATH_PROTOCOL *DevicePath)
 {
     CHAR16 *DPStr = NULL;
 
-    DPStr = gDpToText->ConvertDevicePathToText(DevicePath, TRUE, TRUE);
+    if (DevicePath)
+    {
+        DPStr = ConvertDevicePathToText(DevicePath, TRUE, TRUE);
+    }
+
     if (DPStr)
     {
         vLog(L"%s", DPStr);
-        gBS->FreePool(DPStr);
+        FreePool(DPStr);
     }
     else
     {
@@ -78,31 +95,19 @@ STATIC VOID EFIAPI DumpDevicePath(const EFI_DEVICE_PATH_PROTOCOL *DevicePath)
     }
 }
 
-STATIC VOID EFIAPI ShowSBWarning(BOOLEAN Reboot, const EFI_DEVICE_PATH_PROTOCOL *DevicePath)
+STATIC VOID EFIAPI ShowSBWarning(const EFI_DEVICE_PATH_PROTOCOL *DevicePath)
 {
-    UINTN Index = 0;
-
     vLog(L"\r\n=======================================================");
     vLog(L"=======================================================\r\n");
 
     DumpDevicePath(DevicePath);
 
-    vLog(L"\r\n####### Security Boot Violation ##########\r\n");
+    vLog(L"\r\n####### Ventoy Security Boot Violation ##########\r\n");
 
     vLog(L"=======================================================");
     vLog(L"=======================================================");
 
-    if (Reboot)
-    {
-        vLog(L"\r\n###### Press Enter to reboot... ######");
-        gST->ConIn->Reset(gST->ConIn, FALSE);
-        gBS->WaitForEvent(1, &gST->ConIn->WaitForKey, &Index);
-        gRT->ResetSystem(EfiResetWarm, EFI_SECURITY_VIOLATION, 0, NULL);
-    }
-    else
-    {
-        VtoySleep(5);
-    }
+    VtoySleep(5);
 }
 
 
@@ -128,7 +133,6 @@ STATIC VOID * EFIAPI FindShimFuncAddr(UINT64 FuncOffset)
         return (UINT8 *)ImgLoader->LoadImage + (FuncOffset - NM_SHIM_LOAD_IMAGE_OFFSET);
     }
 }
-
 
 EFI_STATUS EFIAPI LaunchRealGrub(EFI_HANDLE ImageHandle, CONST CHAR16 *FileName)
 {
@@ -156,7 +160,7 @@ EFI_STATUS EFIAPI LaunchRealGrub(EFI_HANDLE ImageHandle, CONST CHAR16 *FileName)
         goto END;
     }
 
-    DevDpStr = gDpToText->ConvertDevicePathToText(DeviceDP, FALSE, TRUE);
+    DevDpStr = ConvertDevicePathToText(DeviceDP, FALSE, TRUE);
     if (!DevDpStr)
     {
         vLog(L"Failed to convert device path to text");
@@ -175,7 +179,7 @@ EFI_STATUS EFIAPI LaunchRealGrub(EFI_HANDLE ImageHandle, CONST CHAR16 *FileName)
 
     UnicodeSPrint(NewDpStr, BufferSize, L"%s/EFI/BOOT/%s", DevDpStr, FileName);
 
-    TargetDp = gTextToDp->ConvertTextToDevicePath(NewDpStr);
+    TargetDp = ConvertTextToDevicePath(NewDpStr);
     if (!TargetDp)
     {
         vLog(L"Failed to convert new text <%s> to device path", NewDpStr);
@@ -190,7 +194,6 @@ EFI_STATUS EFIAPI LaunchRealGrub(EFI_HANDLE ImageHandle, CONST CHAR16 *FileName)
         goto END;
     }
 
-
     Status = gBS->StartImage(ChildHandle, NULL, NULL);
     if (EFI_ERROR(Status))
     {
@@ -199,155 +202,41 @@ EFI_STATUS EFIAPI LaunchRealGrub(EFI_HANDLE ImageHandle, CONST CHAR16 *FileName)
         goto END;
     }
 
-
 END:
 
-    CheckBSFreePool(DevDpStr);
+    CheckFreePool(DevDpStr);
     CheckFreePool(NewDpStr);
-    CheckBSFreePool(TargetDp);
+    CheckFreePool(TargetDp);
 
     return Status;
 }
 
 
-
-STATIC EFI_STATUS EFIAPI ReadAuthFile
+STATIC EFI_STATUS EFIAPI CheckVtoyGrub
 (
-    const EFI_DEVICE_PATH_PROTOCOL *DevicePathConst,
-    VOID **Buffer,
-    UINT32 *Size
+    VOID *FileBuffer,
+	UINTN FileSize
 )
 {
-    EFI_STATUS Status;
-    UINTN TmpSize = 0;
-    CHAR16 *DpStr = NULL;
-	EFI_HANDLE Handle = NULL;
-    EFI_DEVICE_PATH *DevPath = NULL;
-    EFI_DEVICE_PATH *TmpPath = NULL;
-	EFI_FILE_IO_INTERFACE *FileIO = NULL;
-	EFI_FILE *File = NULL;
-	EFI_FILE *Root = NULL;
-    UINT8 *FileData = NULL;
-    EFI_FILE_INFO *FInfo = NULL;
-    UINT8 Buf[1024];
+    UINT8 Sha256Hash[64];
 
-	DevPath	= TmpPath = DuplicateDevicePath(DevicePathConst);
-    if (!DevPath)
+    if (!FileBuffer || FileSize < sizeof(EFI_IMAGE_DOS_HEADER))
     {
-        Status = EFI_OUT_OF_RESOURCES;
-        goto END;
+        vErr(L"Invalid FileBuffer:%p or size:%ld", FileBuffer, FileSize);
+        return EFI_SECURITY_VIOLATION;
     }
 
-	Status = gBS->LocateDevicePath(&gEfiSimpleFileSystemProtocolGuid, &DevPath, &Handle);
-    if (EFI_ERROR(Status))
+    ZeroMem(Sha256Hash, sizeof(Sha256Hash));
+    calc_sha256(FileBuffer, (UINT64)FileSize, Sha256Hash);
+
+    if (CompareMem(Sha256Hash, gVtoyGrubSha256Hash, 32) != 0)
     {
-        vLog(L"Failed to locate simple file protocol %lx", Status);
-        goto END;
+        vErr(L"Ventoy hash check failed.");
+        gRT->ResetSystem(EfiResetWarm, EFI_SECURITY_VIOLATION, 0, NULL);
+        return EFI_SECURITY_VIOLATION;
     }
 
-    DpStr = gDpToText->ConvertDevicePathToText(DevPath, FALSE, TRUE);
-    if (!DpStr)
-    {
-        Status = EFI_OUT_OF_RESOURCES;
-        goto END;
-    }
-
-    Status = gBS->HandleProtocol(Handle, &gEfiSimpleFileSystemProtocolGuid, (VOID **)&FileIO);
-    if (EFI_ERROR(Status))
-    {
-        vLog(L"Failed to handle simple file protocol %lx", Status);
-        goto END;
-    }
-
-    Status = FileIO->OpenVolume(Handle, &Root);
-	if (EFI_ERROR(Status))
-    {
-		vLog(L"Failed to open drive volume (%lx)\n", Status);
-		goto END;
-	}
-
-    Status = Root->Open(Root, &File, DpStr, EFI_FILE_MODE_READ, 0);
-    if (EFI_ERROR(Status))
-    {
-		vLog(L"Failed to open file (%s) (%lx)\n", DpStr, Status);
-		goto END;
-	}
-
-    FInfo = (EFI_FILE_INFO *)Buf;
-    TmpSize = sizeof(Buf);
-    ZeroMem(FInfo, sizeof(EFI_FILE_INFO));
-
-    Status = File->GetInfo(File, &gEfiFileInfoGuid, &TmpSize, FInfo);
-    if (EFI_ERROR(Status) || FInfo->FileSize == 0 || FInfo->FileSize >= 0xFFFFFFFFUL)
-    {
-		vLog(L"Failed to open file (%s) (%lx) Size(%ld)\n", DpStr, Status, (UINTN)FInfo->FileSize);
-		goto END;
-	}
-
-    FileData = AllocatePool(FInfo->FileSize);
-    if (!FileData)
-    {
-        Status = EFI_OUT_OF_RESOURCES;
-        goto END;
-    }
-
-    TmpSize = FInfo->FileSize;
-    Status = File->Read(File, &TmpSize, FileData);
-    if (EFI_ERROR(Status) || TmpSize != (UINTN)FInfo->FileSize)
-    {
-		vLog(L"Failed to read file (%lx) Read:%ld Size:%ld\n", Status, TmpSize, (UINTN)FInfo->FileSize);
-		goto END;
-	}
-
-
-END:
-
-    if (File)
-    {
-        File->Close(File);
-    }
-
-    if (Root)
-    {
-        Root->Close(Root);
-    }
-
-    CheckFreePool(TmpPath);
-    CheckBSFreePool(DpStr);
-
-    if (EFI_ERROR(Status))
-    {
-        CheckFreePool(FileData);
-    }
-    else
-    {
-        *Buffer = FileData;
-        *Size = (UINT32)FInfo->FileSize;
-    }
-
-    return Status;
-}
-
-
-STATIC BOOLEAN VtoyCheckRevoke(VOID *Buffer, UINTN Size)
-{
-    UINT32 uiVer = 0;
-    EFI_IMAGE_DOS_HEADER *DosHead = (EFI_IMAGE_DOS_HEADER *)Buffer;
-
-    if (Size > sizeof(EFI_IMAGE_DOS_HEADER))
-    {
-        if (CompareMem(DosHead->e_res2, &gVtoySbatGUID, 16) == 0)
-        {
-            CopyMem(&uiVer, DosHead->e_res2 + 8, 4);
-            if (uiVer < CUR_SBAT_VER)
-            {
-                vLog(L"Ventoy EFI file revoke (%u < %u)", uiVer, CUR_SBAT_VER);
-                return FALSE;
-            }
-        }
-    }
-
-    return TRUE;
+    return EFI_SUCCESS;
 }
 
 STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
@@ -357,59 +246,17 @@ STATIC EFI_STATUS EFIAPI SecurityPolicyAuth
 	const EFI_DEVICE_PATH_PROTOCOL *DevicePathConst
 )
 {
-    EFI_STATUS Status;
-    BOOLEAN bRevokeChkOK = TRUE;
-    UINT32 Size = 0;
-    VOID *Buffer = NULL;
-
-    /* Just return OK if the user choose to bypass SB */
-    if (gVtoyByPassSB)
-    {
-        return EFI_SUCCESS;
-    }
-
     /*
-     * Step 1:
-     * Use original UEFI firmware auth API.
-     * If it's OK, it may be signed with Microsoft UEFI CA. (e.g. bootmgr/shim/...)
+     * Some old UEFI firmware (without Security2 protocol) will hang when run OpenVolume.
+     * So finally I decide not to support such UEFI firmware.
+     * It means that for UEFI firmware before 2.5 (about 2015) Ventoy only supports Bypass policy.
+     *
      */
-    if (gSysSecFileAuth)
-    {
-        Status = gSysSecFileAuth(This, AuthenticationStatus, DevicePathConst);
-        if (!EFI_ERROR(Status))
-        {
-            return EFI_SUCCESS;
-        }
-    }
 
-
-    /*
-     * Step 2:
-     * Use shim verify API.
-     * If it's OK, it may be signed with a MOK key. (e.g. Ventoy EFI files)
-     */
-    if (gShimLock && gShimLock->Verify)
-    {
-        Status = ReadAuthFile(DevicePathConst, &Buffer, &Size);
-        if (!EFI_ERROR(Status))
-        {
-            Status = gShimLock->Verify(Buffer, Size);
-            if (!EFI_ERROR(Status))
-            {
-                bRevokeChkOK = VtoyCheckRevoke(Buffer, Size);
-                if (bRevokeChkOK)
-                {
-                    FreePool(Buffer);
-                    return EFI_SUCCESS;
-                }
-            }
-            FreePool(Buffer);
-        }
-    }
-
-    ShowSBWarning(!bRevokeChkOK, DevicePathConst);
-
-    return EFI_SECURITY_VIOLATION;
+    (VOID)This;
+    (VOID)AuthenticationStatus;
+    (VOID)DevicePathConst;
+    return EFI_SUCCESS;
 }
 
 STATIC EFI_STATUS EFIAPI Security2PolicyAuth
@@ -422,12 +269,16 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
 )
 {
     EFI_STATUS Status;
-    BOOLEAN bRevokeChkOK = TRUE;
 
     /* Just return OK if the user choose to bypass SB */
     if (gVtoyByPassSB)
     {
         return EFI_SUCCESS;
+    }
+
+    if (!gGrubLaunched)
+    {
+        return CheckVtoyGrub(FileBuffer, FileSize);
     }
 
     /*
@@ -450,23 +301,19 @@ STATIC EFI_STATUS EFIAPI Security2PolicyAuth
      * Use shim verify API.
      * If it's OK, it may be signed with a MOK key. (e.g. Ventoy EFI files)
      */
-    if (gShimLock && gShimLock->Verify)
+    if (gShimLock.Verify)
     {
         if (FileBuffer && FileSize > 0 && FileSize < 0xFFFFFFFFUL)
         {
-            Status = gShimLock->Verify(FileBuffer, (UINT32)FileSize);
+            Status = gShimLock.Verify(FileBuffer, (UINT32)FileSize);
             if (!EFI_ERROR(Status))
             {
-                bRevokeChkOK = VtoyCheckRevoke(FileBuffer, FileSize);
-                if (bRevokeChkOK)
-                {
-                    return EFI_SUCCESS;
-                }
+                return EFI_SUCCESS;
             }
         }
     }
 
-    ShowSBWarning(!bRevokeChkOK, DevicePath);
+    ShowSBWarning(DevicePath);
 
     return EFI_SECURITY_VIOLATION;
 }
@@ -524,13 +371,13 @@ STATIC VOID EFIAPI UnHookSecurityPolicy(VOID)
         return;
     }
 
-    if (Security2 && gSysSec2FileAuth)
+    if (Security2 && gSysSec2FileAuth && Security2->FileAuthentication == Security2PolicyAuth)
     {
         Security2->FileAuthentication = gSysSec2FileAuth;
         gSysSec2FileAuth = NULL;
     }
 
-    if (Security && gSysSecFileAuth)
+    if (Security && gSysSecFileAuth && Security->FileAuthenticationState == SecurityPolicyAuth)
     {
         Security->FileAuthenticationState = gSysSecFileAuth;
         gSysSecFileAuth = NULL;
@@ -545,6 +392,11 @@ STATIC VOID EFIAPI VtoyByPassSB(VOID)
 STATIC VOID EFIAPI VtoyCheckSB(VOID)
 {
     gVtoyByPassSB = FALSE;
+}
+
+STATIC VOID EFIAPI VtoyLaunched(VOID)
+{
+    gGrubLaunched = TRUE;
 }
 
 STATIC VOID EFIAPI UnInstallVtoyShimProtocol(VOID)
@@ -566,6 +418,7 @@ STATIC EFI_STATUS EFIAPI InstallVtoyShimProtocol(VOID)
 
     gVtoyShimProtocol.ByPassSB = VtoyByPassSB;
     gVtoyShimProtocol.CheckSB = VtoyCheckSB;
+    gVtoyShimProtocol.Launched = VtoyLaunched;
 
     Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&Prot);
     if (!EFI_ERROR(Status))
@@ -601,57 +454,46 @@ STATIC BOOLEAN EFIAPI IsSecureBootEnabled(VOID)
 	return SecureBoot ? TRUE : FALSE;
 }
 
-STATIC EFI_STATUS EFIAPI EnvInit(VOID)
+STATIC BOOLEAN EFIAPI IsSetupMode(VOID)
 {
-    EFI_STATUS Status;
-    EFI_GUID Guid = SHIM_LOCK_GUID;
+    UINT8 SetupMode = 0;
+	UINTN DataSize;
+	EFI_STATUS Status;
 
-    Status = gBS->LocateProtocol(&gEfiDevicePathToTextProtocolGuid, NULL, (VOID**)&gDpToText);
-	if (EFI_ERROR(Status) || !gDpToText || !gDpToText->ConvertDevicePathToText)
+	DataSize = sizeof(SetupMode);
+	Status = gST->RuntimeServices->GetVariable(L"SetupMode", &gEfiGlobalVariableGuid, NULL,
+				     &DataSize, &SetupMode);
+	if (EFI_ERROR(Status))
     {
-        vLog(L"Failed to locate PathToText Protocol %lx", Status);
-        return Status;
+        return FALSE;
     }
 
-    Status = gBS->LocateProtocol(&gEfiDevicePathFromTextProtocolGuid, NULL, (VOID**)&gTextToDp);
-	if (EFI_ERROR(Status) || !gTextToDp || !gTextToDp->ConvertTextToDevicePath)
-    {
-        vLog(L"Failed to locate PathFromText Protocol %lx", Status);
-        return Status;
-    }
-
-    Status = gBS->LocateProtocol(&Guid, NULL, (VOID**)&gShimLock);
-    if (EFI_ERROR(Status) || !gShimLock)
-    {
-        vLog(L"Failed to locate SHIM LOCK Protocol %lx", Status);
-        return Status;
-    }
-
-    return EFI_SUCCESS;
+	return SetupMode ? TRUE : FALSE;
 }
 
-
-EFI_STATUS EFIAPI VtoyShimEfiMain
+STATIC EFI_STATUS EFIAPI ShimEfiMain
 (
     IN EFI_HANDLE         ImageHandle,
     IN EFI_SYSTEM_TABLE  *SystemTable
 )
 {
     EFI_STATUS Status;
-    unhook_system_services_pf Func = NULL;
+    SHIM_LOCK *ShimLock = NULL;
+    shim_void_func_pf Func1 = NULL;
+    shim_void_func_pf Func2 = NULL;
 
-    /* If secure boot is not enabled, nothing needed, just launch Ventoy grub */
-    if (!IsSecureBootEnabled())
+    /* We must be launched by shim */
+    Status = gBS->LocateProtocol(&gShimLockGUID, NULL, (VOID**)&ShimLock);
+    if (EFI_ERROR(Status) || !ShimLock)
     {
-        return LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
-    }
-
-    Status = EnvInit();
-	if (EFI_ERROR(Status))
-    {
-        vErr(L"Failed to prepare env");
+        vErr(L"Failed to locate SHIM LOCK Protocol %lx", Status);
         return Status;
     }
+
+    /* Backup shim Lock because we will remove it later  */
+    gShimLock.Verify = ShimLock->Verify;
+    gShimLock.Hash = ShimLock->Hash;
+    gShimLock.Context = ShimLock->Context;
 
     Status = InstallVtoyShimProtocol();
     if (EFI_ERROR(Status))
@@ -675,16 +517,19 @@ EFI_STATUS EFIAPI VtoyShimEfiMain
      * It may break in future versions of shim, and a better approach may exist.
      *
      */
-    Func = FindShimFuncAddr(NM_UNHOOK_SYSTEM_SERVICES_OFFSET);
-    if (!Func)
+    Func1 = FindShimFuncAddr(NM_UNHOOK_SYSTEM_SERVICES_OFFSET);
+    Func2 = FindShimFuncAddr(NM_UNINSTALL_SHIM_PROTOCOLS_OFFSET);
+    if (!Func1 || !Func2)
     {
-        vErr(L"Can not find shim unhook_system_services");
+        vErr(L"Can not find shim func %p %p", Func1, Func2);
         Status = EFI_NOT_FOUND;
         goto END;
     }
 
-    Func(); /* call shim unhook_system_services() */
+    Func1(); /* call shim unhook_system_services() */
+    Func2(); /* call shim uninstall_shim_protocols() */
 
+    HookSystemService();
 
     /* Hook the system security policy */
     Status = HookSecurityPolicy();
@@ -694,8 +539,14 @@ EFI_STATUS EFIAPI VtoyShimEfiMain
         goto END;
     }
 
+
     /* Finally launch Ventoy grub */
     Status = LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
+    if (EFI_ERROR(Status))
+    {
+        vErr(L"Failed to finally launch real grub %s", REAL_GRUB_FILE);
+        goto END;
+    }
 
 END:
 
@@ -703,6 +554,111 @@ END:
     UnHookSecurityPolicy();
 
     UnInstallVtoyShimProtocol();
+
+    UnHookSystemService();
+
+    return Status;
+}
+
+EFI_STATUS EFIAPI VtoyGetVariable
+(
+    IN     CHAR16                      *VariableName,
+    IN     EFI_GUID                    *VendorGuid,
+    OUT    UINT32                      *Attributes,    OPTIONAL
+    IN OUT UINTN                       *DataSize,
+    OUT    VOID                        *Data           OPTIONAL
+)
+{
+    BOOLEAN bChk = FALSE;
+    EFI_STATUS Status;
+
+    if (gVtoyByPassSB && VariableName && VendorGuid && DataSize && Data && (*DataSize) > 0)
+    {
+        bChk = TRUE;
+    }
+
+    Status = gSysGetVariable(VariableName, VendorGuid, Attributes, DataSize, Data);
+    if (bChk && (!EFI_ERROR(Status)))
+    {
+        if (CompareMem(&gShimLockGUID, VendorGuid, 16) == 0 &&
+            StrCmp(VariableName, L"MokSBState") == 0)
+        {
+            *(UINT8 *)Data = 1;
+        }
+    }
+
+    return Status;
+}
+
+STATIC VOID EFIAPI UnHookSystemService(VOID)
+{
+    if (gSysExitBootServices)
+    {
+        gBS->ExitBootServices = gSysExitBootServices;
+        gSysExitBootServices = NULL;
+    }
+
+    if (gSysGetVariable)
+    {
+        gST->RuntimeServices->GetVariable = gSysGetVariable;
+        gSysGetVariable = NULL;
+    }
+}
+
+
+STATIC EFI_STATUS EFIAPI VtoyExitBootServices
+(
+    IN  EFI_HANDLE  ImageHandle,
+    IN  UINTN       MapKey
+)
+{
+    EFI_EXIT_BOOT_SERVICES SysExitBS;
+
+    /* UnHookSystemService will set gSysExitBootServices NULL */
+    SysExitBS = gSysExitBootServices;
+
+    UnHookSecurityPolicy();
+    UnInstallVtoyShimProtocol();
+    UnHookSystemService();
+
+    return SysExitBS(ImageHandle, MapKey);
+}
+
+STATIC VOID EFIAPI HookSystemService(VOID)
+{
+    gSysExitBootServices = gBS->ExitBootServices;
+    gBS->ExitBootServices = VtoyExitBootServices;
+
+    gSysGetVariable = gST->RuntimeServices->GetVariable;
+    gST->RuntimeServices->GetVariable = VtoyGetVariable;
+}
+
+EFI_STATUS EFIAPI VtoyShimEfiMain
+(
+    IN EFI_HANDLE         ImageHandle,
+    IN EFI_SYSTEM_TABLE  *SystemTable
+)
+{
+    BOOLEAN IsSetup = FALSE;
+    BOOLEAN IsSecureBoot = FALSE;
+    EFI_STATUS Status;
+
+    IsSetup = IsSetupMode();
+    IsSecureBoot = IsSecureBootEnabled();
+
+    if (!IsSecureBoot || IsSetup)
+    {
+        /* If secure boot is not enabled or in SetupMode, nothing needed, just launch Ventoy grub */
+        Status = LaunchRealGrub(ImageHandle, REAL_GRUB_FILE);
+        if (EFI_ERROR(Status))
+        {
+            vErr(L"Failed to launch %s", REAL_GRUB_FILE);
+        }
+    }
+    else
+    {
+        Status = ShimEfiMain(ImageHandle, SystemTable);
+    }
 
     return Status;
 }

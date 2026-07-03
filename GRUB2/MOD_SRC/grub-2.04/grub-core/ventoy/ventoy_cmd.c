@@ -896,6 +896,36 @@ static grub_err_t ventoy_cmd_strstr(grub_extcmd_context_t ctxt, int argc, char *
     return (grub_strstr(args[0], args[1])) ? 0 : 1;
 }
 
+static grub_err_t ventoy_cmd_istrstr(grub_extcmd_context_t ctxt, int argc, char **args)
+{
+    grub_err_t ret = 1;
+    char *s1 = NULL;
+    char *s2 = NULL;
+
+    (void)ctxt;
+
+    if (argc != 2)
+    {
+        return 1;
+    }
+
+    s1 = grub_strdup(args[0]);
+    s2 = grub_strdup(args[1]);
+    if (s1 == NULL || s2 == NULL)
+    {
+        goto end;
+    }
+
+    ventoy_str_toupper(s1);
+    ventoy_str_toupper(s2);
+    ret = (grub_strstr(s1, s2)) ? 0 : 1;
+
+end:
+    grub_check_free(s1);
+    grub_check_free(s2);
+    return ret;
+}
+
 static grub_err_t ventoy_cmd_strbegin(grub_extcmd_context_t ctxt, int argc, char **args)
 {
     char *c0, *c1;
@@ -4722,23 +4752,10 @@ static grub_err_t ventoy_cmd_img_unhook_root(grub_extcmd_context_t ctxt, int arg
 #ifdef GRUB_MACHINE_EFI
 static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, int argc, char **args)
 {
-    int ret = 1;
-    grub_uint8_t *var = NULL;
-    grub_size_t size;
-    grub_efi_guid_t global = GRUB_EFI_GLOBAL_VARIABLE_GUID;
-
     (void)ctxt;
     (void)argc;
     (void)args;
-
-    var = grub_efi_get_variable("SecureBoot", &global, &size);
-    if (var && *var == 1)
-    {
-        grub_free(var);
-        return 0;
-    }
-
-    return ret;
+    return g_sys_sb ? 0 : 1;
 }
 #else
 static grub_err_t ventoy_cmd_check_secureboot_var(grub_extcmd_context_t ctxt, int argc, char **args)
@@ -6434,6 +6451,10 @@ static grub_err_t ventoy_cmd_sb_info(grub_extcmd_context_t ctxt, int argc, char 
 
 #ifdef GRUB_MACHINE_EFI
     const char *policy = NULL;
+    grub_efi_guid_t security =
+        { 0xA46423E3, 0x4617, 0x49f1, {0xB9, 0xFF, 0xD1, 0xBF, 0xA9, 0x11, 0x58, 0x39 } };
+    grub_efi_guid_t security2 =
+        { 0x94ab2f58, 0x1438, 0x4ef1, {0x91, 0x52, 0x18, 0x94, 0x1a, 0x3a, 0x0e, 0x68 } };
 
     if (g_sb_policy == VTOY_SB_POLICY_BYPASS)
     {
@@ -6448,8 +6469,10 @@ static grub_err_t ventoy_cmd_sb_info(grub_extcmd_context_t ctxt, int argc, char 
         policy = "XXX";
     }
 
-    grub_printf("UEFI Firmware Secure Boot: %s\n", g_sys_sb ? "Enable" : "Disable");
-    grub_printf("Ventoy Secure Boot Policy: %s\n", policy);
+    grub_printf("UEFI Security           %s\n", grub_efi_locate_protocol(&security, NULL) ? "Yes" : "No");
+    grub_printf("UEFI Security2          %s\n", grub_efi_locate_protocol(&security2, NULL) ? "Yes" : "No");
+    grub_printf("Ventoy Secure Policy    %s\n", policy);
+
 #else
     grub_printf("Non EFI mode!\n");
 #endif
@@ -6944,6 +6967,7 @@ static cmd_para ventoy_cmds[] =
     { "vt_incr",  ventoy_cmd_incr,  0, NULL, "{Var} {INT}",   "Increase integer variable",    NULL },
     { "vt_mod",  ventoy_cmd_mod,  0, NULL, "{Int} {Int} {Var}",   "mod integer variable",    NULL },
     { "vt_strstr",  ventoy_cmd_strstr,  0, NULL, "",   "",    NULL },
+    { "vt_istrstr",  ventoy_cmd_istrstr,  0, NULL, "",   "",    NULL },
     { "vt_str_begin",  ventoy_cmd_strbegin,  0, NULL, "",   "",    NULL },
     { "vt_str_casebegin",  ventoy_cmd_strcasebegin,  0, NULL, "",   "",    NULL },
     { "vt_debug", ventoy_cmd_debug, 0, NULL, "{on|off}",   "turn debug on/off",    NULL },
