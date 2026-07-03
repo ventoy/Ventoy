@@ -764,40 +764,61 @@ int vtoy_json_destroy(VTOY_JSON *pstJson)
 
 int vtoy_json_escape_string(char *buf, int buflen, const char *str, int newline)
 {
-    char last = 0;
     int count = 0;
 
-    *buf++ = '"';
-    count++;
+    /* Fix: wrapped in do/while(0) so PUTC is a single statement. Without
+     * this, an unbraced "if (x) PUTC(c); else ...;" would silently
+     * detach count++ from the intended branch -- a classic C macro bug.
+     */
+    #define PUTC(c)                                        \
+    do {                                                \
+        if (count < buflen) buf[count] = (char)(c);     \
+            count++;                                        \
+    } while (0)
 
-    while (*str)
+    PUTC('"');
+
+    while (str && *str)
     {
-        if (*str == '"' && last != '\\')
-        {
-            *buf = '\\';
-            count++;
-            buf++;
-        }
-    
-        *buf = *str;
-        count++;
-        buf++;
+        unsigned char ch = (unsigned char)*str;
 
-        last = *str;
+        if (ch == '"' || ch == '\\' || ch < 0x20)
+        {
+            PUTC('\\');
+            switch (ch)
+            {
+                case '"':  PUTC('"');  break;
+                case '\\': PUTC('\\'); break;
+                case '\b': PUTC('b');  break;
+                case '\f': PUTC('f');  break;
+                case '\n': PUTC('n');  break;
+                case '\r': PUTC('r');  break;
+                case '\t': PUTC('t');  break;
+                default:
+                    PUTC('u');
+                    PUTC('0');
+                    PUTC('0');
+                    PUTC("0123456789abcdef"[(ch >> 4) & 0xF]);
+                    PUTC("0123456789abcdef"[ch & 0xF]);
+                    break;
+            }
+        }
+        else
+        {
+            PUTC(ch);
+        }
         str++;
     }
 
-    *buf++ = '"';
-    count++;
-    
-    *buf++ = ',';
-    count++;
-
+    PUTC('"');
+    PUTC(',');
     if (newline)
-    {
-        *buf++ = '\n';
-        count++;        
-    }
+        PUTC('\n');
+
+    #undef PUTC
+
+    if (buflen > 0)
+        buf[(count < buflen) ? count : (buflen - 1)] = '\0';
 
     return count;
 }
