@@ -32,7 +32,10 @@
 
 #if defined(_MSC_VER) || defined(WIN32)
 #define ssprintf(curpos, buf, len, fmt, ...) \
-    curpos += scnprintf(buf + curpos, len - curpos, fmt, ##__VA_ARGS__)
+do { \
+    if ((curpos) < (len)) \
+        (curpos) += scnprintf((buf) + (curpos), (len) - (curpos), fmt, ##__VA_ARGS__); \
+} while (0)
 
 #define VTOY_JSON_IS_SKIPABLE(c) (((c) <= 32) ? 1 : 0)
 
