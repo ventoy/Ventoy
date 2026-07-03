@@ -350,9 +350,9 @@ int vtoy_json_escape_string(char *buf, int buflen, const char *str, int newline)
 #define VTOY_JSON_FMT_STRN_EX_LN(P, Key, Val)  \
 {\
     ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": ", P, Key);\
-    __uiCurPos += vtoy_json_escape_string(__pcBuf + __uiCurPos, __uiBufLen - __uiCurPos, Val, 1);\
+    if (__uiCurPos < __uiBufLen) \
+        __uiCurPos += vtoy_json_escape_string(__pcBuf + __uiCurPos, __uiBufLen - __uiCurPos, Val, 1);\
 }
-
     
 #define VTOY_JSON_FMT_NULL(Key)       ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": null,", Key)
 
