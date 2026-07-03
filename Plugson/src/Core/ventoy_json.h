@@ -48,7 +48,10 @@
 #else
 
 #define ssprintf(curpos, buf, len, fmt, args...) \
-    curpos += scnprintf(buf + curpos, len - curpos, fmt, ##args)
+do { \
+    if ((curpos) < (len)) \
+        (curpos) += scnprintf((buf) + (curpos), (len) - (curpos), fmt, ##args); \
+} while (0)
 
 #define VTOY_JSON_IS_SKIPABLE(c) (((c) <= 32) ? 1 : 0)
 
