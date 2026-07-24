@@ -32,7 +32,10 @@
 
 #if defined(_MSC_VER) || defined(WIN32)
 #define ssprintf(curpos, buf, len, fmt, ...) \
-    curpos += scnprintf(buf + curpos, len - curpos, fmt, ##__VA_ARGS__)
+do { \
+    if ((curpos) < (len)) \
+        (curpos) += scnprintf((buf) + (curpos), (len) - (curpos), fmt, ##__VA_ARGS__); \
+} while (0)
 
 #define VTOY_JSON_IS_SKIPABLE(c) (((c) <= 32) ? 1 : 0)
 
@@ -48,7 +51,10 @@
 #else
 
 #define ssprintf(curpos, buf, len, fmt, args...) \
-    curpos += scnprintf(buf + curpos, len - curpos, fmt, ##args)
+do { \
+    if ((curpos) < (len)) \
+        (curpos) += scnprintf((buf) + (curpos), (len) - (curpos), fmt, ##args); \
+} while (0)
 
 #define VTOY_JSON_IS_SKIPABLE(c) (((c) <= 32) ? 1 : 0)
 
@@ -347,9 +353,9 @@ int vtoy_json_escape_string(char *buf, int buflen, const char *str, int newline)
 #define VTOY_JSON_FMT_STRN_EX_LN(P, Key, Val)  \
 {\
     ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "%s\"%s\": ", P, Key);\
-    __uiCurPos += vtoy_json_escape_string(__pcBuf + __uiCurPos, __uiBufLen - __uiCurPos, Val, 1);\
+    if (__uiCurPos < __uiBufLen) \
+        __uiCurPos += vtoy_json_escape_string(__pcBuf + __uiCurPos, __uiBufLen - __uiCurPos, Val, 1);\
 }
-
     
 #define VTOY_JSON_FMT_NULL(Key)       ssprintf(__uiCurPos, __pcBuf, __uiBufLen, "\"%s\": null,", Key)
 

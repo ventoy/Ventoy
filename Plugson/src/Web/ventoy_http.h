@@ -287,7 +287,8 @@ typedef struct data_persistence
         if (ventoy_data_cmp_##plug(g_data_##plug + i, g_data_##plug + bios_max))\
         {\
             g_json_exist[plugin_type_##plug][i] = 1;\
-            pos += ventoy_data_save_##plug(g_data_##plug + i, title, JSON_SAVE_BUFFER + pos, JSON_BUF_MAX - pos);\
+            if (pos < JSON_BUF_MAX) \
+                pos += ventoy_data_save_##plug(g_data_##plug + i, title, JSON_SAVE_BUFFER + pos, JSON_BUF_MAX - pos);\
         }\
     }\
 }
@@ -298,21 +299,17 @@ typedef struct data_persistence
 {\
     int i = 0; \
     int pos = 0; \
-\
     (void)json;\
-\
     VTOY_JSON_FMT_BEGIN(pos, JSON_BUFFER, JSON_BUF_MAX);\
     VTOY_JSON_FMT_ARY_BEGIN();\
-\
     for (i = 0; i <= bios_max; i++)\
     {\
-        __uiCurPos += ventoy_data_json_##name(g_data_##name + i, JSON_BUFFER + __uiCurPos, JSON_BUF_MAX - __uiCurPos);\
-        VTOY_JSON_FMT_COMA();\
+        if (__uiCurPos < JSON_BUF_MAX) \
+            __uiCurPos += ventoy_data_json_##name(g_data_##name + i, JSON_BUFFER + __uiCurPos, JSON_BUF_MAX - __uiCurPos);\
+            VTOY_JSON_FMT_COMA();\
     }\
-\
     VTOY_JSON_FMT_ARY_END();\
     VTOY_JSON_FMT_END(pos);\
-\
     ventoy_json_buffer(conn, JSON_BUFFER, pos);\
 }
 
