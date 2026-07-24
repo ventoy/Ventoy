@@ -17,5 +17,10 @@
 # 
 #************************************************************************************
 
+if $GREP -q 'rdinit=/vtoy/vtoy' /proc/cmdline; then
+    echo "fix rdinit" >> $VTLOG
+    $SED "/switch_root.*\/mnt\/.installer-mp/i\ sh $VTOY_PATH/hook/debian/pve-wa.sh /mnt/.installer-mp/sbin/unconfigured.sh" -i /init
+fi
+
 $SED "/\/sys\/block\/hd\*/i\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/debian/pve-disk.sh"  -i /init
 $SED "s#/sys/block/hd\*#/sys/block/dm* /sys/block/hd*#"  -i /init
