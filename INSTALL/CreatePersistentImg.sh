@@ -12,7 +12,8 @@ print_usage() {
     echo '   -s size in MB, default is 1024'
     echo '   -t filesystem type, default is ext4  ext2/ext3/ext4/xfs are supported now'
     echo '   -l label, default is casper-rw'
-    echo '   -c configfile name inside the persistence file. File content is "/ union"'
+    echo '   -c specify the path to the config file what to be put into the persistence file.'
+    echo '      If not exist, config file name is the path basename and file content is "/ union"'
     echo '   -o outputfile name, default is persistence.dat'
     echo '   -e enable encryption, disabled by default (only few distros support this)'    
     echo ''
@@ -125,7 +126,12 @@ if [ -n "$config" ]; then
     
     mkdir ./persist_tmp_mnt
     if mount $freeloop ./persist_tmp_mnt; then
-        echo '/ union' > ./persist_tmp_mnt/$config
+        config_name="${config##*/}"
+        if [ -f "$config" ]; then
+            cat "$config" > ./persist_tmp_mnt/$config_name
+        else
+            echo '/ union' > ./persist_tmp_mnt/$config_name
+        fi
         sync
         umount ./persist_tmp_mnt
     fi
