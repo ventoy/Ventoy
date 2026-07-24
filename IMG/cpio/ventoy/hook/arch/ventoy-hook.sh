@@ -67,4 +67,5 @@ fi
 
 if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
     $SED "1 aexport cow_label=vtoycow" -i /init 
+    $SED "/parse.*cmdline/aecho cow_label=vtoycow>>/tmp/cmdline" -i /init 
 fi

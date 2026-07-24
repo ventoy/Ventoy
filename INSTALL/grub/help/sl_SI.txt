@@ -1,0 +1,19 @@
+ L - Izbira jezika
+F1 - Prikaz informacij o pomoči
+F2 - Brskanje in zagon datotek na lokalnem disku
+F3 - Preklop med načinom menija Treeview <-> ListView
+F4 - Zagon Windows/Linux na lokalnem disku
+F5 - Pripomočki
+F6 - Naložitev prilagojenega menija Grub2
+F7 - Preklop med načinom GUI <-> načinom TEXT
+
+m/Ctrl+m - Preveri kontrolno vsoto slikovnih datotek (md5/sha1/sha256/sha512)
+d/Ctrl+d - Način Memdisk (samo za majhne WinPE/LiveCD ISO/IMG)
+w/Ctrl+w - Način WIMBOOT (samo za datoteke Windows/WinPE ISO)
+r/Ctrl+r – Način Grub2 (samo za nekatere distribucije Linux)
+i/Ctrl+i – Združljiv način (samo za odpravljanje napak)
+u/Ctrl+u – Naloži ISO EFI gonilnik (samo za odpravljanje napak, uradno se ne more uporabljati)
+
+
+
+Pritisnite ESC za vrnitev ......

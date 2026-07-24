@@ -40,3 +40,6 @@ if ! [ -e $VTOY_DM_PATH ]; then
 fi
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+

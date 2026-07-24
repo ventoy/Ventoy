@@ -101,6 +101,11 @@ ventoy_get_os_type() {
         fi
     fi
 
+    # Parted Magic
+    if [ -d /pmagic ]; then
+        echo 'pmagic'; return
+    fi
+
     # rhel5/CentOS5 and all other distributions based on them
     if $GREP -q 'el5' /proc/version; then
         echo 'rhel5'; return
@@ -200,7 +205,7 @@ ventoy_get_os_type() {
             echo 'debian'; return
         elif $GREP -q 'Solus' /etc/os-release; then
             echo 'rhel7'; return
-        elif $GREP -q 'openEuler' /etc/os-release; then
+        elif $GREP -q -i 'openEuler' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'fuyu' /etc/os-release; then
             echo 'openEuler'; return
@@ -267,10 +272,6 @@ ventoy_get_os_type() {
     
     if $GREP -q 'adelielinux' /proc/version; then
         echo 'adelie'; return
-    fi
-    
-    if $GREP -q 'pmagic' /proc/version; then
-        echo 'pmagic'; return
     fi
     
     if $GREP -q 'CDlinux' /proc/cmdline; then
@@ -343,8 +344,8 @@ ventoy_get_os_type() {
     fi
     
     
-    if [ -e /init ]; then
-        if $GREP -q -m1 'T2 SDE' /init; then
+    if [ -e /etc/initrd-release ]; then
+        if $GREP -q -m1 't2sde' /etc/initrd-release; then
             echo 't2'; return
         fi
     fi

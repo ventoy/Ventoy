@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -41,7 +41,7 @@ STATIC CONST CHAR16 *gCurFeature= NULL;
 STATIC CHAR16 *gCmdLine = NULL;
 STATIC grub_env_printf_pf g_env_printf = NULL;
 
-STATIC VtoyUtilFeature gFeatureList[] = 
+STATIC VtoyUtilFeature gFeatureList[] =
 {
     { L"fix_windows_mmap", FixWindowsMemhole },
     { L"show_efi_drivers", ShowEfiDrivers    },
@@ -93,7 +93,7 @@ VOID EFIAPI VtoyUtilDebug(IN CONST CHAR8  *Format, ...)
 }
 
 STATIC EFI_STATUS ParseCmdline(IN EFI_HANDLE ImageHandle)
-{   
+{
     CHAR16 *pPos = NULL;
     CHAR16 *pCmdLine = NULL;
     EFI_STATUS Status = EFI_SUCCESS;
@@ -117,7 +117,7 @@ STATIC EFI_STATUS ParseCmdline(IN EFI_HANDLE ImageHandle)
         gST->ConOut->OutputString(gST->ConOut, L"\r\n##########################");
         return EFI_SUCCESS;
     }
-    
+
     if (StrStr(pCmdLine, L"debug"))
     {
         gVtoyDebugPrint = TRUE;
@@ -139,9 +139,9 @@ STATIC EFI_STATUS ParseCmdline(IN EFI_HANDLE ImageHandle)
     }
 
     gCurFeature = pPos + StrLen(L"feature=");
-    
+
     gCmdLine = pCmdLine;
-    
+
     return EFI_SUCCESS;
 }
 
@@ -153,7 +153,7 @@ EFI_STATUS EFIAPI VtoyUtilEfiMain
 {
     UINTN i;
     UINTN Len;
-    
+
     ParseCmdline(ImageHandle);
 
     for (i = 0; gCurFeature && i < ARRAY_SIZE(gFeatureList); i++)
@@ -170,7 +170,7 @@ EFI_STATUS EFIAPI VtoyUtilEfiMain
     if (gCmdLine)
     {
         FreePool(gCmdLine);
-        gCmdLine = NULL;        
+        gCmdLine = NULL;
     }
 
     return EFI_SUCCESS;

@@ -17,19 +17,23 @@
 # 
 #************************************************************************************
 
+$CAT /proc/cmdline > /ventoy/cmdline
+$SED 's#live-media=[^ ]*#live-media=/dev/mapper/ventoy#g' -i /ventoy/cmdline
 
 if [ -e /init ] && $GREP -q '^mountroot$' /init; then
     echo "Here before mountroot ..." >> $VTLOG
     
     $SED  "/^mountroot$/i\\$BUSYBOX_PATH/sh $VTOY_PATH/hook/deepin/disk_mount_hook.sh"  -i /init
     $SED  "/^mountroot$/i\\export LIVEMEDIA=/dev/mapper/ventoy"  -i /init
-    $SED  "/^mountroot$/i\\export LIVE_MEDIA=/dev/mapper/ventoy"  -i /init    
+    $SED  "/^mountroot$/i\\export LIVE_MEDIA=/dev/mapper/ventoy"  -i /init
+
+    $SED "/mount *[-]t *proc/a\\mount --bind /ventoy/cmdline /proc/cmdline" -i /init   
 
     if $GREP -q 'live-media=' /proc/cmdline; then
         if [ -f /scripts/casper ] && $GREP -q '^  *LIVEMEDIA=' /scripts/casper; then
             $SED "s#^  *LIVEMEDIA=.*#LIVEMEDIA=/dev/mapper/ventoy#" -i /scripts/casper
-        fi
-    fi
+        fi        
+    fi           
 else
     echo "Here use udev hook ..." >> $VTLOG
     ventoy_systemd_udevd_work_around

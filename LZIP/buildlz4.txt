@@ -1,0 +1,8 @@
+
+/opt/diet64/bin/diet -Os gcc -D_FILE_OFFSET_BITS=64  smallz4cat.c -o  lz4cat64
+
+aarch64-buildroot-linux-uclibc-gcc -Os -static -D_FILE_OFFSET_BITS=64  smallz4cat.c -o  lz4cataa64
+
+mips64el-linux-musl-gcc -mips64r2 -mabi=64 -static -Os -D_FILE_OFFSET_BITS=64 smallz4cat.c -o  lz4catm64e
+
+

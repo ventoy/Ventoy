@@ -36,3 +36,6 @@ blkdev_num=$($VTOY_PATH/tool/dmsetup ls | grep ventoy | sed 's/.*(\([0-9][0-9]*\
 mknod -m 0660 /dev/ventoy b $blkdev_num
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+

@@ -1,0 +1,10 @@
+ventoy_geom kernel mod is used to boot FreeBSD and other Unix distros.
+This kernel mod need to build inside a FreeBSD system.
+
+use VM to install a FreeBSD (e.g.  9.X/10.X/11.X/....), need to install source code.
+copy these files for example:  Unix/ventoy_unix_src/FreeBSD/geom_ventoy_src/10.x/sys to /sys directory.
+cd /sys/modules/geom/geom_ventoy/
+make
+make install
+
+Other distros are similar.

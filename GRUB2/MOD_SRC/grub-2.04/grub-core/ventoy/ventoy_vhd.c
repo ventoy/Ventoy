@@ -536,12 +536,25 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
     {
         grub_file_seek(file, 0);
         grub_file_read(file, &vdihdr, sizeof(vdihdr));
-        if (vdihdr.u32Signature == VDI_IMAGE_SIGNATURE &&
-            grub_strncmp(vdihdr.szFileInfo, VDI_IMAGE_FILE_INFO, grub_strlen(VDI_IMAGE_FILE_INFO)) == 0)
+        if (vdihdr.u32Signature == VDI_IMAGE_SIGNATURE)            
         {
-            offset = 2 * 1048576;
-            g_img_trim_head_secnum = offset / 512;
             grub_snprintf(type, sizeof(type), "vdi");
+            if (grub_strncmp(vdihdr.szFileInfo, VDI_IMAGE_FILE_INFO, grub_strlen(VDI_IMAGE_FILE_INFO)) == 0)
+            {
+                offset = 2 * 1048576;
+                g_img_trim_head_secnum = offset / 512;
+                debug("VDI V1\n");
+            }
+            else if (grub_strncmp(vdihdr.szFileInfo, VDI_IMAGE_FILE_INFO2, grub_strlen(VDI_IMAGE_FILE_INFO2)) == 0)
+            {
+                offset = 2 * 1048576;
+                g_img_trim_head_secnum = offset / 512;
+                debug("VDI V2\n");
+            }
+            else
+            {
+                debug("invalid file info <%s>\n", vdihdr.szFileInfo);
+            }
         }
         else
         {
@@ -568,7 +581,7 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
         if (gpt->MBR.Byte55 != 0x55 || gpt->MBR.ByteAA != 0xAA)
         {
             grub_env_set(args[1], "unknown");
-            debug("invalid mbr signature: 0x%x 0x%x\n", gpt->MBR.Byte55, gpt->MBR.ByteAA);
+            debug("invalid mbr signature: 0x%x 0x%x offset=%d\n", gpt->MBR.Byte55, gpt->MBR.ByteAA, offset);
             goto end;
         }
 

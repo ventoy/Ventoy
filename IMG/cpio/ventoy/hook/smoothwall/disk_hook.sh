@@ -50,3 +50,6 @@ if [ "$1" = "fakecdrom" ]; then
 fi
 
 PATH=$VTPATH_OLD
+
+set_ventoy_hook_finish
+

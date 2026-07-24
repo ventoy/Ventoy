@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -36,6 +36,7 @@ typedef enum ventoy_fs_type
     ventoy_fs_xfs,       /* 3: XFS */
     ventoy_fs_udf,       /* 4: UDF */
     ventoy_fs_fat,       /* 5: FAT */
+    ventoy_fs_btrfs,     /* 6: BTRFS */
 
     ventoy_fs_max
 }ventoy_fs_type;
@@ -81,7 +82,7 @@ typedef struct ventoy_image_location
 
     /*
      * disk region data (region_count)
-     * If the image file has more than one fragments in disk, 
+     * If the image file has more than one fragments in disk,
      * there will be more than one region data here.
      *
      */
@@ -103,7 +104,7 @@ typedef struct ventoy_os_param
     char           vtoy_img_path[384];   // It seems to be enough, utf-8 format
     grub_uint64_t  vtoy_img_size;        // image file size in bytes
 
-    /* 
+    /*
      * Ventoy will write a copy of ventoy_image_location data into runtime memory
      * this is the physically address and length of that memory.
      * Address 0 means no such data exist.
@@ -113,7 +114,7 @@ typedef struct ventoy_os_param
     grub_uint64_t  vtoy_img_location_addr;
     grub_uint32_t  vtoy_img_location_len;
 
-    /* 
+    /*
      * These 32 bytes are reserved by ventoy.
      *
      * vtoy_reserved[0]: vtoy_break_level
@@ -124,6 +125,7 @@ typedef struct ventoy_os_param
      * vtoy_reserved[5]: vtoy_linux_remount
      * vtoy_reserved[6]: vtoy_vlnk
      * vtoy_reserved[7~10]: vtoy_disk_sig[4] used for vlnk
+     * vtoy_reserved[11]: vtoy_win_uefi_max_res
      *
      */
     grub_uint8_t   vtoy_reserved[32];    // Internal use by ventoy
@@ -154,8 +156,8 @@ typedef struct ventoy_windows_data
 typedef struct ventoy_secure_data
 {
     grub_uint8_t magic1[16];     /* VENTOY_GUID */
-    grub_uint8_t diskuuid[16];   
-    grub_uint8_t Checksum[16];    
+    grub_uint8_t diskuuid[16];
+    grub_uint8_t Checksum[16];
     grub_uint8_t adminSHA256[32];
     grub_uint8_t reserved[4000];
     grub_uint8_t magic2[16];     /* VENTOY_GUID */
@@ -199,7 +201,7 @@ typedef struct ventoy_chain_head
     grub_uint64_t virt_img_size_in_bytes;
     grub_uint32_t boot_catalog;
     grub_uint8_t  boot_catalog_sector[2048];
-    
+
     grub_uint32_t img_chunk_offset;
     grub_uint32_t img_chunk_num;
 
@@ -252,11 +254,14 @@ typedef struct ventoy_virt_chunk
 #define DEFAULT_CHUNK_NUM   1024
 typedef struct ventoy_img_chunk_list
 {
+    char *buf;
+    grub_uint32_t last_off;
+    grub_uint32_t err_code;
+
     grub_uint32_t max_chunk;
     grub_uint32_t cur_chunk;
     ventoy_img_chunk *chunk;
 }ventoy_img_chunk_list;
-
 
 #pragma pack()
 
@@ -291,7 +296,21 @@ typedef struct ventoy_grub_param
 
 #pragma pack()
 
+#define VTOY_CHUNK_BUF_SIZE          (4 * 1024 * 1024)
+
+typedef enum vtoy_chunk_err
+{
+    VTOY_CHUNK_ERR_NONE = 0,
+    VTOY_CHUNK_ERR_MULTI_DEV,
+    VTOY_CHUNK_ERR_RAID,
+    VTOY_CHUNK_ERR_COMPRESS,
+    VTOY_CHUNK_ERR_NOT_FLAT,
+    VTOY_CHUNK_ERR_OVER_FLOW,
+    VTOY_CHUNK_ERR_MAX
+}vtoy_chunk_err;
+
 int grub_ext_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
+int grub_btrfs_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 int grub_fat_get_file_chunk(grub_uint64_t part_start, grub_file_t file, ventoy_img_chunk_list *chunk_list);
 void grub_iso9660_set_nojoliet(int nojoliet);
 int grub_iso9660_is_joliet(void);
@@ -301,7 +320,7 @@ grub_uint64_t grub_udf_get_file_offset(grub_file_t file);
 grub_uint64_t grub_udf_get_last_pd_size_offset(void);
 grub_uint64_t grub_udf_get_last_file_attr_offset
 (
-    grub_file_t file, 
+    grub_file_t file,
     grub_uint32_t *startBlock,
     grub_uint64_t *fe_entry_size_offset
 );

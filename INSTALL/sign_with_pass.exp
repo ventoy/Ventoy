@@ -1,0 +1,19 @@
+#!/usr/bin/expect -f
+
+set password [lindex $argv 0]
+set key_file  [lindex $argv 1]
+set cert_file [lindex $argv 2]
+set input_file [lindex $argv 3]
+set output_file [lindex $argv 4]
+
+
+spawn bash -c "sbsign --key '$key_file' --cert '$cert_file' --output '$output_file' '$input_file' 2>&1"
+expect -nocase -re "Enter PEM pass phrase:"
+send "$password\r"
+
+
+expect eof
+
+
+set ret [wait]
+exit [lindex $ret 3]

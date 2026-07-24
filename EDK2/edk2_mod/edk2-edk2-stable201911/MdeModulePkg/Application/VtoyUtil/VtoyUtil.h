@@ -7,19 +7,21 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef __VTOYUTIL_H__
 #define __VTOYUTIL_H__
+
+#define VTOY_SHIM_POLICY_GUID    {0x90a29d14, 0x3968, 0x48fe, { 0x85, 0x81, 0x6b, 0x7f, 0x7d, 0xc4, 0x70, 0x55 }};
 
 #pragma pack(1)
 
@@ -44,14 +46,14 @@ typedef struct ventoy_grub_param
     grub_env_set_pf grub_env_set;
     ventoy_grub_param_file_replace file_replace;
     ventoy_grub_param_file_replace img_replace[VTOY_MAX_CONF_REPLACE];
-    grub_env_printf_pf grub_env_printf;    
+    grub_env_printf_pf grub_env_printf;
 }ventoy_grub_param;
 #pragma pack()
 
 
 typedef struct VtoyUtilFeature
 {
-    CONST CHAR16 *Cmd;    
+    CONST CHAR16 *Cmd;
     VTOY_UTIL_PROC_PF MainProc;
 }VtoyUtilFeature;
 

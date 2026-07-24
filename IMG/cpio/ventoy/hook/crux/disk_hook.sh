@@ -47,3 +47,6 @@ else
 fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2"
+
+set_ventoy_hook_finish
+

@@ -19,3 +19,7 @@ sh ./build.sh aa64 || exit 1
 echo '======== build EDK2 for x86_64-efi ==============='
 sh ./build.sh      || exit 1
 
+
+echo '======== build EDK2 for x86_64-efi ==============='
+sh ./build_shim.sh      || exit 1
+
