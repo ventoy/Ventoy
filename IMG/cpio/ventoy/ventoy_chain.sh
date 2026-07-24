@@ -100,7 +100,11 @@ ventoy_get_os_type() {
         echo 'rhel7'; return
 
     elif $GREP -q 'euleros' /proc/version; then
-        echo 'rhel7'; return
+        if [ -d /usr/Euler/project/init ]; then
+            echo 'euleros'; return
+        else
+            echo 'rhel7'; return
+        fi
 
     # SUSE
     elif $GREP -q 'SUSE' /proc/version; then
