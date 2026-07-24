@@ -539,21 +539,41 @@ grub_err_t ventoy_cmd_get_vtoy_type(grub_extcmd_context_t ctxt, int argc, char *
         if (vdihdr.u32Signature == VDI_IMAGE_SIGNATURE)            
         {
             grub_snprintf(type, sizeof(type), "vdi");
-            if (grub_strncmp(vdihdr.szFileInfo, VDI_IMAGE_FILE_INFO, grub_strlen(VDI_IMAGE_FILE_INFO)) == 0)
+            if (vdihdr.u32ImageType != 2)
             {
-                offset = 2 * 1048576;
-                g_img_trim_head_secnum = offset / 512;
-                debug("VDI V1\n");
+                debug("VDI image must be static, but it is type <%d>\n", vdihdr.u32ImageType);
             }
-            else if (grub_strncmp(vdihdr.szFileInfo, VDI_IMAGE_FILE_INFO2, grub_strlen(VDI_IMAGE_FILE_INFO2)) == 0)
+            else if (vdihdr.u32Version != 0x10001)
             {
-                offset = 2 * 1048576;
-                g_img_trim_head_secnum = offset / 512;
-                debug("VDI V2\n");
+                debug("VDI image must be version 1.1, but it is version <%d.%d>\n",
+                    vdihdr.u32Version >> 16, vdihdr.u32Version & 0xffff);
+            }
+            else if (vdihdr.u32SectorSize != 512)
+            {
+                debug("VDI image sector size must be 512, but it is <%d>\n", vdihdr.u32SectorSize);
+            }
+            else if (vdihdr.u32BlockmapOffset & 0x1ff)
+            {
+                debug("VDI image blockmap offset <%d> is not on a sector boundary\n", vdihdr.u32BlockmapOffset);
+            }
+            else if (vdihdr.u32DataOffset & 0x1ff)
+            {
+                debug("VDI image data offset <%d> is not on a sector boundary\n", vdihdr.u32DataOffset);
+            }
+            else if (vdihdr.u32BlockSize != 1048576)
+            {
+                debug("VDI image cluster size must be 1048576, but it is <%d>\n", vdihdr.u32BlockSize);
+            }
+            else if (vdihdr.u64DiskSize > (grub_uint64_t)vdihdr.u32BlocksInImage << 20)
+            {
+                debug("VDI image bitmap has room for only <%lld> bytes, but image is <%lld> bytes\n",
+                    (grub_uint64_t)vdihdr.u32BlocksInImage << 20, vdihdr.u64DiskSize);
             }
             else
             {
-                debug("invalid file info <%s>\n", vdihdr.szFileInfo);
+                offset = vdihdr.u32DataOffset;
+                g_img_trim_head_secnum = offset / 512;
+                debug("%s\n", vdihdr.szFileInfo);
             }
         }
         else
