@@ -48,7 +48,7 @@
     "VTLANG_UTIL_FIX_BLINIT_FAIL": "ᱡᱟᱨᱞᱟ BlinitializeLibrary ᱰᱤᱜᱟᱹᱣ ᱠᱚ ᱴᱷᱤᱠ ᱢᱮ", 
     
     "VTLANG_JSON_CHK_JSON": "ᱠᱷᱚᱧᱡᱟ json ᱠᱚᱱᱯᱷᱤᱜᱽᱨᱮᱥᱚᱱ (ventoy.json) ᱧᱮᱞ ᱢᱮ",
-    "VTLANG_JSON_CHK_CONTROL": "ᱡᱮᱜᱮᱫ ᱠᱟᱵᱚᱡᱽ ᱠᱷᱚᱧᱡᱟ ᱧᱮᱞ ᱵᱤᱲᱟᱹᱣ ᱢᱮ",
+"VTLANG_JSON_CHK_CONTROL": "ᱡᱮᱜᱮᱫ ᱠᱟᱵᱚᱡᱽ ᱠᱷᱚᱧᱡᱟ ᱧᱮᱞ ᱵᱤᱲᱟᱹᱣ ᱢᱮ",
     "VTLANG_JSON_CHK_THEME": "ᱛᱷᱤᱢ ᱛᱷᱚᱧᱡᱟ ᱠᱚᱱᱯᱷᱤᱜᱨᱟᱥᱚᱱ ᱧᱮᱞ ᱵᱤᱲᱟᱹᱣ ᱢᱮ",
     "VTLANG_JSON_CHK_AUTOINS": "ᱟᱡ ᱛᱮ ᱵᱚᱦᱟᱞᱚᱜ ᱠᱚᱱᱯᱷᱤᱜᱨᱟᱥᱚᱱ ᱧᱮᱞ ᱵᱤᱲᱟᱹᱣ ᱢᱮ",
     "VTLANG_JSON_CHK_PERSIST": "ᱯᱚᱨᱥᱤᱥᱴᱮᱱᱥ ᱯᱞᱚᱜᱤᱱ ᱠᱚᱱᱯᱷᱤᱜᱽᱨᱮᱥᱚᱱ ᱧᱮᱞ ᱵᱤᱲᱟᱹᱣ ᱢᱮ",
