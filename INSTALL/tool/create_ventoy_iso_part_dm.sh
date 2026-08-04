@@ -33,6 +33,6 @@ if dmsetup -h > /dev/null 2>&1; then
         echo "Create /dev/mapper/$VPART success"
     fi    
 else
-    echo "dmsetup program not avaliable"
+    echo "dmsetup program not available"
     exit 1
 fi

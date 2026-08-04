@@ -31,7 +31,7 @@ sh buildedk.sh >> $LOG 2>&1 || exit 1
 
 
 #
-# We almost rarely modifiy these code, so no need to build them everytime
+# We almost rarely modify these code, so no need to build them every time
 # If you want to rebuild them, just uncomment them.
 #
 

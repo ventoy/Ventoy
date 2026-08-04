@@ -30,7 +30,7 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
     )
 
 ///
-/// UNDI ROM ID and devive ID signature.
+/// UNDI ROM ID and device ID signature.
 ///
 #define PXE_BUSTYPE_PXE PXE_BUSTYPE ('!', 'P', 'X', 'E')
 
@@ -1079,7 +1079,7 @@ typedef struct s_pxe_cpb_start_31 {
 
   ///
   /// protocol driver can provide anything for this Unique_ID, UNDI remembers
-  /// that as just a 64bit value assocaited to the interface specified by
+  /// that as just a 64bit value associated to the interface specified by
   /// the ifnum and gives it back as a parameter to all the call-back routines
   /// when calling for that interface!
   ///
@@ -1419,7 +1419,7 @@ typedef struct s_pxe_db_statistics {
 #define PXE_STATISTICS_RX_BROADCAST_FRAMES  0x06
 
 ///
-/// Number of valid mutlicast frames received and not dropped.
+/// Number of valid multicast frames received and not dropped.
 ///
 #define PXE_STATISTICS_RX_MULTICAST_FRAMES  0x07
 

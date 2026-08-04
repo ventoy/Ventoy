@@ -20,7 +20,7 @@
 #endif
 
 
-/* The following definations are copied from shim source code */
+/* The following definitions are copied from shim source code */
 
 #define SHIM_LOCK_GUID  {0x605dab50, 0xe046, 0x4300, {0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23 } };
 

@@ -27,8 +27,8 @@ diff -uprN vblade-17.orig/aoe.c vblade-17/aoe.c
  }
  
  int
--aoeata(Ata *p, int pktlen)	// do ATA reqeust
-+aoeata(int place)	// do ATA reqeust
+-aoeata(Ata *p, int pktlen)	// do ATA request
++aoeata(int place)	// do ATA request
  {
 -	Ataregs r;
 -	int len = 60;
