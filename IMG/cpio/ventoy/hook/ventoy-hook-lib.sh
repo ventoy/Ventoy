@@ -512,6 +512,9 @@ ventoy_create_persistent_link() {
         VTLABEL=casper-rw
     fi
 
+    echo "$VTLABEL" > $VTOY_PATH/ventoy_persistent_label
+    echo "/dev/$vtDM" > $VTOY_PATH/ventoy_persistent_dev
+
     vtlog "Persistent Label: ##${VTLABEL}##"
 
     if ! [ -e /dev/disk/by-label/$VTLABEL ]; then
