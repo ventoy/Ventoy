@@ -314,10 +314,10 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
     wait_and_create_part ${PART1} ${PART2}    
     if [ -b ${PART1} ]; then
         vtinfo "Format partition 1 ${PART1} ..."
-        mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
+        $mkexfatfs "$VTNEW_LABEL" "$cluster_sectors" ${PART1}
         if [ $? -ne 0 ]; then
             echo "mkexfatfs failed, now retry..."
-            mkexfatfs -n "$VTNEW_LABEL" -s $cluster_sectors ${PART1}
+            $mkexfatfs "$VTNEW_LABEL" "$cluster_sectors" ${PART1}
             if [ $? -ne 0 ]; then
                 echo "######### mkexfatfs failed, exit ########"
                 exit 1
