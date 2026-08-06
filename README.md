@@ -84,6 +84,8 @@ A GUI Ventoy plugin configurator. [VentoyPlugson](https://www.ventoy.net/en/plug
 
 ![avatar](https://www.ventoy.net/static/img/screen/screen_uefi.png)
 
+# Supported Languages  
+See all supported languages here: [languages_list.md](LANGUAGES/languages_list.md)
 
 # Installation Instructions
 See [https://www.ventoy.net/en/doc_start.html](https://www.ventoy.net/en/doc_start.html) for detailed instructions. 
