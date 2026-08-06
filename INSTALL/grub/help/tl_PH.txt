@@ -1,0 +1,19 @@
+ L - Pumili ng Lengguwahe (Wika)
+F1 - Ipakita ang help information
+F2 - Mag-browse at mag-boot ng mga file sa local disk
+F3 - Palitan ang menu mode bilang Treeview <-> ListView
+F4 - I-boot ang Windows/Linux sa local disk
+F5 - Mga Utility
+F6 - I-load ang Custom na Grub2 Menu
+F7 - Mag-palit sa pagitan ng GUI Mode <-> TEXT Mode
+
+m/Ctrl+m - Checksum ng image file (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk Mode (Para lamang sa maliliit na WinPE/LiveCD ISO/IMG file)
+w/Ctrl+w - WIMBOOT Mode (Para lamang sa mga Windows/WinPE ISO file)
+r/Ctrl+r - Grub2 Mode (Para lamang sa iilang Linux distro)
+i/Ctrl+i - Compatible Mode (Para lamang sa debugging)
+u/Ctrl+u - I-load ang ISO EFI driver (Para lamang sa debugging, hindi para sa opisyal na paggamit)
+
+
+
+Pindutin ang ESC para bumalik ......
