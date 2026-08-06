@@ -22,7 +22,23 @@
 
 /* The following definations are copied from shim source code */
 
-#define SHIM_LOCK_GUID  {0x605dab50, 0xe046, 0x4300, {0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23 } };
+#define SHIM_LOCK_GUID  {0x605dab50, 0xe046, 0x4300, {0xab, 0xb6, 0x3d, 0xd8, 0x10, 0xdd, 0x8b, 0x23 } }
+#define MSFT_DBX_SVN_OWN_GUID { 0x9d132b6c, 0x59d5, 0x4388, {0xab, 0x1c, 0x18, 0x5c, 0xfc, 0xb2, 0xeb, 0x92}}
+#define EFI_BOOTMGR_DBXSVN_GUID { 0x9d132b61, 0x59d5, 0x4388, {0xab, 0x1c, 0x18, 0x5c, 0x3c, 0xb2, 0xeb, 0x92}}
+
+
+#define EFI_VAR_MATCH(pguid, name) \
+    (CompareMem((pguid), VendorGuid, 16) == 0 && StrCmp(VariableName, (name)) == 0)
+
+#define DBX_SVN_SET(SigData, SVN) \
+do { \
+    SigData[17] = 0; \
+    SigData[18] = 0; \
+    SigData[19] = (SVN); \
+    SigData[20] = 0; \
+} while (0)
+
+
 
 typedef
 EFI_STATUS
@@ -88,7 +104,7 @@ typedef VOID (*shim_void_func_pf)(VOID);
 #define VtoySleep(sec)      gBS->Stall(1000000 * (sec))
 #define vLog(fmt, ...)      VtoyLog(fmt "\r\n", ##__VA_ARGS__)
 #define vErr(fmt, ...)      VtoyLog(fmt "\r\n", ##__VA_ARGS__); VtoySleep(5)
-#define vDbg(fmt, ...)      VtoyLog(fmt "\r\n", ##__VA_ARGS__); VtoySleep(2)
+#define vDbg(fmt, ...)      VtoyLog(fmt "\r\n", ##__VA_ARGS__); VtoySleep(1)
 
 #define CheckFreePool(p) \
 do { \

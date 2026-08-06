@@ -46,6 +46,8 @@
 
 [Guids]
   gEfiGlobalVariableGuid
+  gEfiImageSecurityDatabaseGuid
+  gEfiCertSha256Guid
   gShellVariableGuid
   gEfiVirtualCdGuid
   gEfiFileInfoGuid

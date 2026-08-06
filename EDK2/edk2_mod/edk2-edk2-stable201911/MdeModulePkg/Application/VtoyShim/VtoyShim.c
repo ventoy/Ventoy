@@ -21,6 +21,7 @@
 #include <Protocol/LoadedImage.h>
 #include <Guid/FileInfo.h>
 #include <Guid/FileSystemInfo.h>
+#include <Guid/ImageAuthentication.h>
 #include <Protocol/BlockIo.h>
 #include <Protocol/RamDisk.h>
 #include <Protocol/SimpleFileSystem.h>
@@ -43,6 +44,8 @@ STATIC UINT8 gVtoyGrubSha256Hash[32] __attribute__((aligned(32)))  = {
 
 STATIC BOOLEAN gGrubLaunched = FALSE;
 STATIC EFI_GUID gShimLockGUID = SHIM_LOCK_GUID;
+STATIC EFI_GUID gMsftDBXSVNOwnerGUID = MSFT_DBX_SVN_OWN_GUID;
+STATIC EFI_GUID gBootMgrDBXSVNGUID = EFI_BOOTMGR_DBXSVN_GUID;
 STATIC EFI_SECURITY_FILE_AUTHENTICATION_STATE gSysSecFileAuth = NULL;
 STATIC EFI_SECURITY2_FILE_AUTHENTICATION gSysSec2FileAuth = NULL;
 STATIC BOOLEAN gVtoyByPassSB = FALSE; /* must be FALSE by default for revoke */
@@ -560,6 +563,60 @@ END:
     return Status;
 }
 
+STATIC EFI_STATUS EFIAPI VtoyHookDBX(UINTN DataSize, VOID *Data)
+{
+    UINT32 i = 0;
+    UINT32 Count = 0;
+    UINTN Offset = 0;
+    EFI_SIGNATURE_LIST *pstCurSig = NULL;
+    EFI_SIGNATURE_DATA *pstSigData = NULL;
+
+    for (Offset = 0; Offset + sizeof(EFI_SIGNATURE_LIST) <= DataSize; Offset += pstCurSig->SignatureListSize)
+    {
+        pstCurSig = (EFI_SIGNATURE_LIST *)((UINT8 *)Data + Offset);
+        if (pstCurSig->SignatureSize == 0 || pstCurSig->SignatureListSize == 0 ||
+            Offset + pstCurSig->SignatureListSize > DataSize ||
+            pstCurSig->SignatureListSize < sizeof(EFI_SIGNATURE_LIST) + pstCurSig->SignatureHeaderSize)
+        {
+            break;
+        }
+
+        if (!CompareGuid(&pstCurSig->SignatureType, &gEfiCertSha256Guid))
+        {
+            continue;
+        }
+
+        pstSigData = (EFI_SIGNATURE_DATA *)((UINT8 *)pstCurSig + sizeof(EFI_SIGNATURE_LIST) + pstCurSig->SignatureHeaderSize);
+        Count = (pstCurSig->SignatureListSize - sizeof(EFI_SIGNATURE_LIST) - pstCurSig->SignatureHeaderSize) / pstCurSig->SignatureSize;
+
+#if 0
+    if (Count > 0 && pstCurSig->SignatureSize == 48)
+    {
+        vDbg(L"Make a fake SVN signature for test");
+        CopyMem(&pstSigData->SignatureOwner, &gMsftDBXSVNOwnerGUID, sizeof(EFI_GUID));
+        ZeroMem(pstSigData->SignatureData, pstCurSig->SignatureSize);
+        CopyMem(&pstSigData->SignatureData + 1, &gBootMgrDBXSVNGUID, sizeof(EFI_GUID));
+        pstSigData->SignatureData[0]  = 1;
+        DBX_SVN_SET(pstSigData->SignatureData, 100);
+        break;
+    }
+#endif
+
+        for (i = 0; i < Count; i++)
+        {
+            if (CompareGuid(&pstSigData->SignatureOwner, &gMsftDBXSVNOwnerGUID) &&
+                CompareGuid((CONST EFI_GUID *)(pstSigData->SignatureData + 1), &gBootMgrDBXSVNGUID))
+            {
+                DBX_SVN_SET(pstSigData->SignatureData, 1);
+                return EFI_SUCCESS;
+            }
+            pstSigData = (EFI_SIGNATURE_DATA *)((UINT8 *)pstSigData + pstCurSig->SignatureSize);
+        }
+    }
+
+    return EFI_SUCCESS;
+}
+
 EFI_STATUS EFIAPI VtoyGetVariable
 (
     IN     CHAR16                      *VariableName,
@@ -572,18 +629,21 @@ EFI_STATUS EFIAPI VtoyGetVariable
     BOOLEAN bChk = FALSE;
     EFI_STATUS Status;
 
-    if (gVtoyByPassSB && VariableName && VendorGuid && DataSize && Data && (*DataSize) > 0)
+    if (gVtoyByPassSB && VariableName && VendorGuid && DataSize && Data)
     {
         bChk = TRUE;
     }
 
     Status = gSysGetVariable(VariableName, VendorGuid, Attributes, DataSize, Data);
-    if (bChk && (!EFI_ERROR(Status)))
+    if (bChk && EFI_SUCCESS == Status)
     {
-        if (CompareMem(&gShimLockGUID, VendorGuid, 16) == 0 &&
-            StrCmp(VariableName, L"MokSBState") == 0)
+        if (EFI_VAR_MATCH(&gShimLockGUID, L"MokSBState"))
         {
             *(UINT8 *)Data = 1;
+        }
+        else if (EFI_VAR_MATCH(&gEfiImageSecurityDatabaseGuid, L"dbx"))
+        {
+            VtoyHookDBX(*DataSize, Data);
         }
     }
 
@@ -592,6 +652,9 @@ EFI_STATUS EFIAPI VtoyGetVariable
 
 STATIC VOID EFIAPI UnHookSystemService(VOID)
 {
+    UINT32 uiNewCRC = 0;
+    EFI_TABLE_HEADER *Hdr = &gST->RuntimeServices->Hdr;
+
     if (gSysExitBootServices)
     {
         gBS->ExitBootServices = gSysExitBootServices;
@@ -602,6 +665,10 @@ STATIC VOID EFIAPI UnHookSystemService(VOID)
     {
         gST->RuntimeServices->GetVariable = gSysGetVariable;
         gSysGetVariable = NULL;
+
+        Hdr->CRC32 = 0;
+        gBS->CalculateCrc32(Hdr, Hdr->HeaderSize, &uiNewCRC);
+        Hdr->CRC32 = uiNewCRC;
     }
 }
 
@@ -626,11 +693,18 @@ STATIC EFI_STATUS EFIAPI VtoyExitBootServices
 
 STATIC VOID EFIAPI HookSystemService(VOID)
 {
+    UINT32 uiNewCRC = 0;
+    EFI_TABLE_HEADER  *Hdr = &gST->RuntimeServices->Hdr;
+
     gSysExitBootServices = gBS->ExitBootServices;
     gBS->ExitBootServices = VtoyExitBootServices;
 
     gSysGetVariable = gST->RuntimeServices->GetVariable;
     gST->RuntimeServices->GetVariable = VtoyGetVariable;
+
+    Hdr->CRC32 = 0;
+    gBS->CalculateCrc32(Hdr, Hdr->HeaderSize, &uiNewCRC);
+    Hdr->CRC32 = uiNewCRC;
 }
 
 EFI_STATUS EFIAPI VtoyShimEfiMain
