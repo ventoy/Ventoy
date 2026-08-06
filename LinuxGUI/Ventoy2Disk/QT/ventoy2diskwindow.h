@@ -41,9 +41,8 @@ public:
     explicit MyQThread(QObject *parent = nullptr);
 protected:
     void run();
-signals:
+Q_SIGNALS:
     void thread_event(int msg, int data);
-public slots:
 };
 
 
@@ -71,7 +70,7 @@ protected:
     void showEvent(QShowEvent *ev);
     void closeEvent(QCloseEvent *event);
 
-private slots:
+private Q_SLOTS:
 
     void thread_event(int msg, int data);
     void part_style_check_action(QAction *act);
