@@ -123,6 +123,13 @@ struct grub_gfxmenu_view
   int first_timeout;
 
   int *menu_title_offset;
+
+  /* Per-class backgrounds: enabled when theme_dir/backgrounds/ exists.  */
+  int class_bg_active;
+  struct grub_video_bitmap *default_desktop_raw;
+  int using_class_bg;
+  int class_bg_synced_entry;
+  char *class_bg_applied_path;
 };
 
 #endif /* ! GRUB_GFXMENU_VIEW_HEADER */
