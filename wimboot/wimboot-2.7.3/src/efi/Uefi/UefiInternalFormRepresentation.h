@@ -1569,7 +1569,7 @@ typedef struct _EFI_IFR_MAP {
 } EFI_IFR_MAP;
 //
 // Definitions for Keyboard Package
-// Releated definitions are in Section of EFI_HII_DATABASE_PROTOCOL
+// Related definitions are in Section of EFI_HII_DATABASE_PROTOCOL
 //
 
 ///

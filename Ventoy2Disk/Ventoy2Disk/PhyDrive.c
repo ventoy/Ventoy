@@ -1575,7 +1575,7 @@ int ClearVentoyFromPhyDrive(HWND hWnd, PHY_DRIVE_INFO *pPhyDrive, char *pDrvLett
 
     SET_FILE_POS(512);
     bRet = WriteFile(hDrive, pTmpBuf, SIZE_2MB - 512, &dwSize, NULL);
-    Log("Write fisrt 1MB ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
+    Log("Write first 1MB ret:%d size:%u err:%d", bRet, dwSize, LASTERR);
     if (!bRet)
     {
         rc = 1;
@@ -2556,7 +2556,7 @@ int PartitionResizeForVentoy(PHY_DRIVE_INFO *pPhyDrive)
 	//Refresh Drive Layout
 	DeviceIoControl(hDrive, IOCTL_DISK_UPDATE_PROPERTIES, NULL, 0, NULL, 0, &dwSize, NULL);
 	
-	//We must close handle here, because it will block the refresh bellow
+	//We must close handle here, because it will block the refresh below
 	CHECK_CLOSE_HANDLE(hDrive);
 
 	Sleep(2000);

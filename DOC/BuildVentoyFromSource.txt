@@ -69,11 +69,11 @@
     sh all_in_one.sh
 
     It should be noted that:
-    1. Only grub2/EDK2/IPXE will be recompiled in all_in_one.sh. Other parts contain binaries and are rarely modified, so will not be recompiled everytime.
+    1. Only grub2/EDK2/IPXE will be recompiled in all_in_one.sh. Other parts contain binaries and are rarely modified, so will not be recompiled every time.
        You can rebuild these parts separately if you want.
        
     2. Some parts of Ventoy have a 32-bit and 64-bit version (like 4.9, 4.10, 4.11 follows)
-       all_in_one.sh only builds the 64bit version of them. If you want to rebuild the 32bit verison, you should create a 32-bit CentOS environment and build them.
+       all_in_one.sh only builds the 64bit version of them. If you want to rebuild the 32bit version, you should create a 32-bit CentOS environment and build them.
        Fortunately these parts are rarely modified, so you only need to build once or you can directly use the binaries I have built.
 
     Besides, after a full compile and packaging, you can only build the part you modified (for example grub2) and run ventoy_pack.sh to generate the package.

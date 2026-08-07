@@ -157,7 +157,7 @@ Notes about shared libraries
 
     Please don't create a shared library of XZ Embedded itself unless
     it is fine to rebuild everything depending on that shared library
-    everytime you upgrade to a newer version of XZ Embedded. There are
+    every time you upgrade to a newer version of XZ Embedded. There are
     no API or ABI stability guarantees between different versions of
     XZ Embedded.
 

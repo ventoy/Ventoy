@@ -1,4 +1,4 @@
 tinycore follows the GPL-v2 License (see gpl-2.0.txt)
 
-Ventoy does not modify its source code, only its binraries are used.
+Ventoy does not modify its source code, only its binaries are used.
 

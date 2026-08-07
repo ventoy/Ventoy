@@ -1,5 +1,5 @@
 /******************************************************************************
- * vtoyloader.c  ---- ventoy loader (wapper for binary loader)
+ * vtoyloader.c  ---- ventoy loader (wrapper for binary loader)
  *
  * Copyright (c) 2020, longpanda <admin@ventoy.net>
  *

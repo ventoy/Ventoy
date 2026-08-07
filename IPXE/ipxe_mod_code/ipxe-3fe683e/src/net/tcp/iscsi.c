@@ -167,7 +167,7 @@ static void iscsi_rx_buffered_data_done ( struct iscsi_session *iscsi ) {
  *
  * This can be used when the RX PDU type handler wishes to buffer up
  * all received data and process the PDU as a single unit.  The caller
- * is repsonsible for calling iscsi_rx_buffered_data_done() after
+ * is responsible for calling iscsi_rx_buffered_data_done() after
  * processing the data.
  */
 static int iscsi_rx_buffered_data ( struct iscsi_session *iscsi,

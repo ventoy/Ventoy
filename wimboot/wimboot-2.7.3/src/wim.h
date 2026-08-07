@@ -65,7 +65,7 @@ struct wim_header {
 	uint8_t signature[8];
 	/** Header length */
 	uint32_t header_len;
-	/** Verson */
+	/** Version */
 	uint32_t version;
 	/** Flags */
 	uint32_t flags;

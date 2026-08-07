@@ -84,7 +84,7 @@ struct grub_partition
   /* The type partition map.  */
   grub_partition_map_t partmap;
 
-  /* The type of partition whne it's on MSDOS.
+  /* The type of partition when it's on MSDOS.
      Used for embedding detection.  */
   grub_uint8_t msdostype;
 

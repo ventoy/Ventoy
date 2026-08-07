@@ -111,7 +111,7 @@ static int vtoy_os_param_from_file(const char *filename, ventoy_os_param *param)
     }
     else
     {
-        debug("ventoy os pararm NOT found in file %s\n", filename);
+        debug("ventoy os param NOT found in file %s\n", filename);
         rc = 1;
     }
     
@@ -649,7 +649,7 @@ int vtoydump_main(int argc, char **argv)
     
     memset(param, 0, sizeof(ventoy_os_param));
 
-    debug("get os pararm from file %s\n", filename);
+    debug("get os param from file %s\n", filename);
     rc = vtoy_os_param_from_file(filename, param);
     if (rc)
     {

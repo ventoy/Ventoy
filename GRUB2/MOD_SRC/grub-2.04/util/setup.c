@@ -581,7 +581,7 @@ SETUP (const char *dir,
     {
       /*
        * On SPARC, the block-list entries need to be based off the beginning
-       * of the parition, not the beginning of the disk.
+       * of the partition, not the beginning of the disk.
        */
       struct grub_boot_blocklist *block;
       block = bl.first_block;
@@ -595,7 +595,7 @@ SETUP (const char *dir,
 
     /*
      * Reserve space for the boot block since it can not be in the
-     * Parition table on SPARC.
+     * Partition table on SPARC.
      */
     assert (bl.first_block->len > 2);
     bl.first_block->start += 2;
