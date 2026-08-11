@@ -1,18 +1,18 @@
 L - 選擇語言
-F1 - 顯示本説明資訊
-F2 - 瀏覽並啟動本地硬碟中的映像檔
-F3 - 功能表顯示模式切換。可在清單模式和目錄模式之間自由切換。
-F4 - 啟動本地硬碟上的 Windows/Linux 等系統。
-F5 - 各類工具
-F6 - 載入自訂 GRUB2 選單。
-F7 - 介面在文字模式和圖形模式之間切換。
+F1 - 顯示說明資訊
+F2 - 瀏覽並啟動本機磁碟中的檔案
+F3 - 在樹狀檢視與清單檢視之間切換選單模式
+F4 - 從本機磁碟啟動 Windows/Linux
+F5 - 實用工具
+F6 - 載入自訂 Grub2 選單
+F7 - 在圖形模式與文字模式之間切換
 
-m/Ctrl+m - 計算檔案校驗值（md5/sha1/sha256/sha512）
-d/Ctrl+d - MEMDISK 模式，把檔載入到記憶體啟動（只適用於檔很小的 WinPE/LiveCD等）
-w/Ctrl+w - WIMBOOT 模式 （只適用於 Windows/WinPE ISO檔）
-r/Ctrl+r - Grub2 模式 （只適用於常見的一些 Linux 系統ISO檔）
-i/Ctrl+i - 相容模式 （只用作調試目的，不能正式使用）
-u/Ctrl+u - 載入 ISO efi 驅動（只用作調試目的，不能正式使用）
+m/Ctrl+m - 計算映像檔的檢查碼（MD5/SHA1/SHA256/SHA512）
+d/Ctrl+d - Memdisk 模式（僅適用於較小的 WinPE/LiveCD ISO/IMG 檔案）
+w/Ctrl+w - WIMBOOT 模式（僅適用於 Windows/WinPE ISO 檔案）
+r/Ctrl+r - Grub2 模式（僅適用於部分 Linux 發行版）
+i/Ctrl+i - 相容模式（僅供除錯）
+u/Ctrl+u - 載入 ISO EFI 驅動程式（僅供除錯，不適用於正式用途）
 
 
-按 ESC 鍵返回 ......
+按 ESC 鍵返回……
