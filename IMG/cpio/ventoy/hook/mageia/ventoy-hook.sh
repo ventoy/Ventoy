@@ -23,7 +23,7 @@
 #ventoy_add_udev_rule "$VTOY_PATH/hook/mageia/udev_disk_hook.sh %k noreplace"
 
 ventoy_set_inotify_script  mageia/ventoy-inotifyd-hook.sh
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/mageia/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/99-ventoy-inotifyd-start.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/mageia/ventoy-inotifyd-start.sh $VT_DRACUT_HOOKS/pre-udev/99-ventoy-inotifyd-start.sh
 
 
 

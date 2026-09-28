@@ -34,7 +34,7 @@ if is_inotify_ventoy_part $3; then
     vtlog "find ventoy partition ..."
     
     vtReplaceOpt=noreplace
-    if [ -f /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh ]; then
+    if [ -f $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-repo.sh ]; then
         vtReplaceOpt=""
     fi
     

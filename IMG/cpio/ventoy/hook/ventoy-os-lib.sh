@@ -22,6 +22,13 @@ VT_PRINTK_LEVEL=0
 VT_UDEV_RULE_FILE_NAME="99-ventoy.rules"
 VT_UDEV_RULE_PREFIX="ACTION==\"add\", SUBSYSTEM==\"block\","
 
+
+if [ -d /var/lib/dracut/hooks ]; then
+    VT_DRACUT_HOOKS=/var/lib/dracut/hooks
+else
+    VT_DRACUT_HOOKS=/lib/dracut/hooks
+fi
+
 ventoy_close_printk() {
     VT_PRINTK_LEVEL=$($CAT /proc/sys/kernel/printk | $AWK '{print $1}')
     if [ -e /proc/sys/kernel/printk ]; then

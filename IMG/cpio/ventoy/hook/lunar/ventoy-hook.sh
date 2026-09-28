@@ -24,4 +24,4 @@ $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=/dev/ventoy#" -i /lib/dracu
 $BUSYBOX_PATH/rm -f /usr/lib/systemd/system-generators/systemd-fstab-generator /lib/systemd/system-generators/systemd-fstab-generator
 
 ventoy_set_inotify_script  lunar/ventoy-inotifyd-hook.sh
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/lunar/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/01-ventoy-inotifyd-start.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/lunar/ventoy-inotifyd-start.sh $VT_DRACUT_HOOKS/pre-udev/01-ventoy-inotifyd-start.sh

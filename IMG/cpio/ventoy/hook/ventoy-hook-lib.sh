@@ -32,12 +32,18 @@ VTOY_DM_PATH=/dev/mapper/ventoy
 VTOY_DEBUG_LEVEL=$($BUSYBOX_PATH/hexdump -n 1 -s 450 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 VTOY_LINUX_REMOUNT=$($BUSYBOX_PATH/hexdump -n 1 -s 454 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
 VTOY_VLNK_BOOT=$($BUSYBOX_PATH/hexdump -n 1 -s 455 -e '1/1 "%02x"' $VTOY_PATH/ventoy_os_param)
+if [ -d /var/lib/dracut/hooks ]; then
+    VT_DRACUT_HOOKS=/var/lib/dracut/hooks
+else
+    VT_DRACUT_HOOKS=/lib/dracut/hooks
+fi
 
 if [ "$VTOY_DEBUG_LEVEL" = "01" ]; then
     if [ -e /dev/console ]; then
         VTLOG=/dev/console
     fi
 fi
+
 
 vtlog() {
     if [ "$VTLOG" = "$VTOY_PATH/log" ]; then

@@ -30,5 +30,5 @@ else
     
     #don't call it too early issue 2225
     #$BUSYBOX_PATH/sh $vtHook n /dev "${vtdisk#/dev/}2"
-    cp -a  $VTOY_PATH/hook/rhel7/ventoy-inotifyd-call.sh /lib/dracut/hooks/initqueue/settled/90-ventoy-inotifyd-call.sh   
+    cp -a  $VTOY_PATH/hook/rhel7/ventoy-inotifyd-call.sh $VT_DRACUT_HOOKS/initqueue/settled/90-ventoy-inotifyd-call.sh   
 fi

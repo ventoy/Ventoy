@@ -93,9 +93,9 @@ else
     vtPriority=01
 fi
 
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/${vtPriority}-ventoy-inotifyd-start.sh
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-timeout.sh /lib/dracut/hooks/initqueue/timeout/${vtPriority}-ventoy-timeout.sh
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-repo.sh /lib/dracut/hooks/pre-pivot/99-ventoy-repo.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-inotifyd-start.sh $VT_DRACUT_HOOKS/pre-udev/${vtPriority}-ventoy-inotifyd-start.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-timeout.sh $VT_DRACUT_HOOKS/initqueue/timeout/${vtPriority}-ventoy-timeout.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/openEuler/ventoy-repo.sh $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-repo.sh
 
 if [ -f /sbin/dmsquash-live-root ]; then
     echo "patch /sbin/dmsquash-live-root ..." >> $VTLOG
@@ -109,5 +109,5 @@ fi
 
 
 if [ -f $VTOY_PATH/autoinstall ]; then
-    cp -a $VTOY_PATH/hook/openEuler/ventoy-autoexp.sh /lib/dracut/hooks/pre-mount/99-ventoy-autoexp.sh
+    cp -a $VTOY_PATH/hook/openEuler/ventoy-autoexp.sh $VT_DRACUT_HOOKS/pre-mount/99-ventoy-autoexp.sh
 fi

@@ -23,4 +23,4 @@ $SED "s#printf\(.*\)\$CMDLINE#printf\1\$CMDLINE root=live:/dev/mapper/ventoy#" -
 
 ventoy_set_inotify_script  gobo/ventoy-inotifyd-hook.sh
 
-$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/gobo/ventoy-inotifyd-start.sh /lib/dracut/hooks/pre-udev/01-ventoy-inotifyd-start.sh
+$BUSYBOX_PATH/cp -a $VTOY_PATH/hook/gobo/ventoy-inotifyd-start.sh $VT_DRACUT_HOOKS/pre-udev/01-ventoy-inotifyd-start.sh
