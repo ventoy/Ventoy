@@ -43,7 +43,7 @@ done
 #                                                                  #
 ####################################################################
 $BUSYBOX_PATH/mkdir -p /ventoy/modules
-$BUSYBOX_PATH/ls -1a / | $EGREP '\.ko$|\.ko.[gx]z$' | while read vtline; do
+$BUSYBOX_PATH/ls -1a / | $EGREP '\.ko$|\.ko.[gx]z$|\.ko.zst$' | while read vtline; do
     if [ "${vtline:0:1}" = "." ]; then
         $BUSYBOX_PATH/mv /${vtline} /ventoy/modules/${vtline:1}
     else
