@@ -36,19 +36,24 @@ if [ "$vtdiskname" = "unknown" ]; then
     exit 0
 fi
 
+if grep -q 'device-mapper' /proc/devices; then
+    vtlog "dm-mod already loaded"
+else
+    vtlog "dm-mod not loaded, get from squashfs"
 
-vtoydm -i -f $VTOY_PATH/ventoy_image_map -d $vtdiskname > $VTOY_PATH/iso_file_list
+    vtoydm -i -f $VTOY_PATH/ventoy_image_map -d $vtdiskname > $VTOY_PATH/iso_file_list
 
-vtline=$(grep '[-][-] drivers-.*\.squashfs'  $VTOY_PATH/iso_file_list)
-sector=$(echo $vtline | awk '{print $(NF-1)}')
-length=$(echo $vtline | awk '{print $NF}')
+    vtline=$(grep '[-][-] drivers-.*\.squashfs'  $VTOY_PATH/iso_file_list)
+    sector=$(echo $vtline | awk '{print $(NF-1)}')
+    length=$(echo $vtline | awk '{print $NF}')
 
-vtoydm -e -f $VTOY_PATH/ventoy_image_map -d $vtdiskname -s $sector -l $length -o $VTOY_PATH/driver.squashfs
-mount -t squashfs $VTOY_PATH/driver.squashfs /lib/modules
-modprobe dm-mod
+    vtoydm -e -f $VTOY_PATH/ventoy_image_map -d $vtdiskname -s $sector -l $length -o $VTOY_PATH/driver.squashfs
+    mount -t squashfs $VTOY_PATH/driver.squashfs /lib/modules
+    modprobe dm-mod
 
-umount /lib/modules
-rm -f $VTOY_PATH/driver.squashfs
+    umount /lib/modules
+    rm -f $VTOY_PATH/driver.squashfs
+fi
 
 ventoy_udev_disk_common_hook "${vtdiskname#/dev/}2" "noreplace"
 
