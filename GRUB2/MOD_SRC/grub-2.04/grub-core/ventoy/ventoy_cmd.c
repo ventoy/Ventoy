@@ -4288,6 +4288,11 @@ static grub_err_t ventoy_cmd_check_mode(grub_extcmd_context_t ctxt, int argc, ch
     }
     else if (args[0][0] == '1')
     {
+        if (argc == 2 && ventoy_check_mode_by_name(args[1], "vtcompat"))
+        {
+            return 0;
+        }
+
         return g_ventoy_iso_raw ? 0 : 1;
     }
     else if (args[0][0] == '2')
@@ -6249,7 +6254,8 @@ static grub_err_t ventoy_cmd_need_secondary_menu(grub_extcmd_context_t ctxt, int
     if (ventoy_check_mode_by_name(args[0], "vtgrub2") ||
         ventoy_check_mode_by_name(args[0], "vtwimboot") ||
         ventoy_check_mode_by_name(args[0], "vtmemdisk") ||
-        ventoy_check_mode_by_name(args[0], "vtnormal")
+        ventoy_check_mode_by_name(args[0], "vtnormal") ||
+        ventoy_check_mode_by_name(args[0], "vtcompat")
         )
     {
         return 1;

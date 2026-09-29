@@ -30,6 +30,9 @@ elif $GREP -q 'setting up the root filesystem' /init; then
 elif [ -d /etc/udev/rules.d ] || [ -d /lib/udev/rules.d ]; then    
     ventoy_systemd_udevd_work_around
     ventoy_add_udev_rule "$VTOY_PATH/hook/default/udev_disk_hook.sh %k noreplace"
+elif $GREP -q 'NVIDIA CORPORATION' /init; then
+    $SED "s/while true; do/while false; do/" -i /init
+    $SED "/^FOUNDDEV=/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/mats-hook.sh \"\${ROOTFS}/\${MNTNV}\""  -i /init
 else
     $SED "/mdev *-s/a\ $BUSYBOX_PATH/sh $VTOY_PATH/hook/gentoo/disk_hook.sh"  -i /init    
 fi
