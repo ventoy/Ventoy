@@ -675,14 +675,42 @@ static grub_err_t
 grub_cmd_extra_initrd_append (grub_command_t cmd __attribute__ ((unused)),
 		int argc, char *argv[])
 {
+    grub_uint32_t i;
     int newclen = 0;
     char *pos = NULL;
     char *end = NULL;
     char buf[256] = {0};
+    const char *suffix = NULL;
+    const char *check_suffix[] = { ".ko", ".ko.zst", ".ko.xz", ".ko.gz" };
 
     if (argc != 1)
     {
         return 1;
+    }
+
+    if (grub_strstr(argv[0], ".ko"))
+    {
+        if (ventoy_check_file_exist("%s", argv[0]))
+        {
+            suffix = "";
+        }
+    }
+    else
+    {
+        for (i = 0; i < sizeof(check_suffix) / sizeof(check_suffix[0]); i++)
+        {
+            if (ventoy_check_file_exist("%s%s", argv[0], check_suffix[i]))
+            {
+                suffix = check_suffix[i];
+                break;
+            }
+        }
+    }
+
+    if (!suffix)
+    {
+        grub_printf("ko file <%s> not exist\n", argv[0]);
+        return 0;
     }
 
     for (pos = argv[0]; *pos; pos++)
@@ -699,11 +727,11 @@ grub_cmd_extra_initrd_append (grub_command_t cmd __attribute__ ((unused)),
         newclen = (int)grub_strlen(end + 1);
         if ((110 + newclen) % 4 == 0)
         {
-            grub_snprintf(buf, sizeof(buf), "newc:.%s:%s", end + 1, argv[0]);
+            grub_snprintf(buf, sizeof(buf), "newc:.%s%s:%s%s", end + 1, suffix, argv[0], suffix);
         }
         else
         {
-            grub_snprintf(buf, sizeof(buf), "newc:%s:%s", end + 1, argv[0]);
+            grub_snprintf(buf, sizeof(buf), "newc:%s%s:%s%s", end + 1, suffix, argv[0], suffix);
         }
 
         if (ventoy_extra_initrd_num < 256)
@@ -714,6 +742,7 @@ grub_cmd_extra_initrd_append (grub_command_t cmd __attribute__ ((unused)),
 
     return 0;
 }
+
 
 static grub_err_t
 grub_cmd_extra_initrd_reset (grub_command_t cmd __attribute__ ((unused)),
