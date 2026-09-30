@@ -280,6 +280,37 @@ create_ventoy_device_mapper() {
     #echo "$VT_DM_BIN ls"                                                        >> /ventoy/ventoy_iso_part_dm_cmd    
 }
 
+create_ventoy_wrapper_device_mapper() {
+    vtlog "create_ventoy_wrapper_device_mapper $*"
+    
+    VT_DM_BIN=$(ventoy_find_bin_path dmsetup)
+    if [ -z "$VT_DM_BIN" ]; then
+        vtlog "no dmsetup avaliable, lastly try inbox dmsetup"
+        VT_DM_BIN=$VTOY_PATH/tool/dmsetup
+    fi
+    
+    vtlog "dmsetup avaliable in system $VT_DM_BIN"
+
+    if ventoy_check_dm_module "$1"; then
+        vtlog "device-mapper module check success"
+    else
+        vterr "Error: no dm module avaliable"
+    fi
+    
+    $VTOY_PATH/tool/vtoydm -w -f $VTOY_PATH/ventoy_image_map -d $1 > $VTOY_PATH/ventoy_dm_table
+    
+    VT_LOOP_DEV=$(losetup -f)
+    losetup $VT_LOOP_DEV /ventoy/dmwrapper.bin
+    $SED "s#/dev/loop0#$VT_LOOP_DEV#" -i $VTOY_PATH/ventoy_dm_table
+
+
+    if [ -z "$2" ]; then
+        $VT_DM_BIN create ventoy $VTOY_PATH/ventoy_dm_table >>$VTLOG 2>&1
+    else
+        $VT_DM_BIN "$2" create ventoy $VTOY_PATH/ventoy_dm_table >>$VTLOG 2>&1
+    fi    
+}
+
 create_persistent_device_mapper() {
     vtlog "create_persistent_device_mapper $*"
     
@@ -597,6 +628,57 @@ ventoy_udev_disk_common_hook() {
     fi    
 }
 
+ventoy_create_wrapper_dm() {
+    if echo $1 | $EGREP -q "nvme.*p[0-9]$|mmc.*p[0-9]$|nbd.*p[0-9]$"; then
+        VTDISK="${1:0:-2}"    
+    else
+        VTDISK="${1:0:-1}"
+    fi
+
+    if [ -e /vtoy/vtoy ]; then
+        VTRWMOD=""
+    else
+        VTRWMOD="--readonly"
+    fi
+    
+    # create device mapper for iso image file
+    if create_ventoy_wrapper_device_mapper "/dev/$VTDISK" $VTRWMOD; then
+        vtlog "==== create wrapper ventoy device mapper success ===="
+    else
+        vtlog "==== create wrapper ventoy device mapper failed ===="
+        
+        $SLEEP 3
+        
+        if $GREP -q "/dev/$VTDISK" /proc/mounts; then
+            $GREP "/dev/$VTDISK" /proc/mounts | while read vtLine; do
+                vtPart=$(echo $vtLine | $AWK '{print $1}')
+                vtMnt=$(echo $vtLine | $AWK '{print $2}')
+                vtlog "$vtPart is mounted on $vtMnt  now umount it ..."
+                $BUSYBOX_PATH/umount $vtMnt
+            done
+        fi
+        
+        if create_ventoy_wrapper_device_mapper "/dev/$VTDISK" $VTRWMOD; then
+            vtlog "==== create wrapper ventoy device mapper success after retry ===="
+        else
+            vtlog "==== create wrapper ventoy device mapper failed after retry ===="
+            return
+        fi
+    fi
+    
+    if [ "$2" = "noreplace" ]; then
+        vtlog "no need to replace block device"
+    else
+        ventoy_copy_device_mapper "/dev/$1"
+    fi
+    
+    if [ -f $VTOY_PATH/ventoy_persistent_map ]; then
+        create_persistent_device_mapper "/dev/$VTDISK"
+        ventoy_create_persistent_link
+    fi
+}
+
+
 ventoy_create_dev_ventoy_part() {   
     blkdev_num=$($VTOY_PATH/tool/dmsetup ls | $GREP ventoy | $SED 's/.*(\([0-9][0-9]*\),.*\([0-9][0-9]*\).*/\1 \2/')
     $BUSYBOX_PATH/mknod -m 0666 /dev/ventoy b $blkdev_num
@@ -612,6 +694,34 @@ ventoy_create_dev_ventoy_part() {
             
             vtPartid=$(expr $vtPartid + 1)
         done   
+    fi
+}
+
+
+ventoy_remove_all_dm() {
+    if [ -e /vtoy_dm_table ]; then
+        vtPartid=1                        
+        $CAT /vtoy_dm_table | while read vtline; do            
+            vtlog "dmsetup remove ventoy${vtPartid}"
+            $VTOY_PATH/tool/dmsetup remove ventoy${vtPartid}
+            vtPartid=$(expr $vtPartid + 1)
+        done   
+    fi
+
+    vtlog "dmsetup remove ventoy"
+    $VTOY_PATH/tool/dmsetup remove ventoy
+    rm -f /dev/ventoy*
+    
+    if [ -e $VTOY_PATH/ventoy_raw_table ]; then
+        RAWDISKNAME=$($HEAD -n1 $VTOY_PATH/ventoy_raw_table | $AWK '{print $4}')
+        vtlog "dmsetup remove ${RAWDISKNAME#/dev/}"
+        $VTOY_PATH/tool/dmsetup remove ${RAWDISKNAME#/dev/}
+        rm -f $VTOY_PATH/ventoy_iso_part_dm_cmd
+    fi
+
+    if [ -e $VTOY_PATH/persistent_dm_table ]; then
+        vtlog "dmsetup remove vtoy_persistent"
+        $VTOY_PATH/tool/dmsetup remove vtoy_persistent   
     fi
 }
 

@@ -1,0 +1,16 @@
+#!/usr/bin/ash
+
+run_earlyhook() {
+    :
+}
+
+run_hook() {
+    msg ":: Ventoy hook..."    
+    /ventoy/busybox/sh /ventoy/loop/steamos/ventoy-disk.sh    
+}
+
+run_cleanuphook() {
+    :
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

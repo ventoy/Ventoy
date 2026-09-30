@@ -661,6 +661,8 @@ int ventoy_str_all_digit(const char *str);
 int ventoy_str_all_alnum(const char *str);
 int ventoy_str_len_alnum(const char *str, int len);
 char * ventoy_str_basename(char *path);
+void ventoy_timeout_lock(int lock);
+void ventoy_theme_lock(int lock);
 grub_err_t ventoy_env_int_set(const char *name, int value);
 int ventoy_str_chrcnt(const char *str, char c);
 int ventoy_strcmp(const char *pattern, const char *str);

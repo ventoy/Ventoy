@@ -84,6 +84,11 @@ grub_core_cmd_insmod (struct grub_command *cmd __attribute__ ((unused)),
       return grub_error (GRUB_ERR_BAD_SIGNATURE, "Cannot insmod when SecureBoot is enabled and Policy is check.");
   }
 
+  if (grub_strcmp(argv[0], "steamenv") == 0) {
+      grub_printf("Ventoy skip module steamenv ...\n");
+      return 0;
+  }
+
   if (argv[0][0] == '/' || argv[0][0] == '(' || argv[0][0] == '+')
     mod = grub_dl_load_file (argv[0]);
   else

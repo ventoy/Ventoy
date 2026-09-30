@@ -70,6 +70,7 @@ static int verbose = 0;
 #define CMD_PRINT_EXTRACT_ISO_FILE  5
 #define CMD_PRINT_RAW_TABLE         6
 #define CMD_COPY_ISO                7
+#define CMD_PRINT_WRAP_TABLE        8
 
 static uint64_t g_iso_file_size;
 static char g_disk_name[128];
@@ -789,6 +790,191 @@ static int vtoydm_print_raw_linear_table(const char *img_map_file, const char *d
     return 0;
 }
 
+static int vtoydm_print_wrap_linear_table(const char *img_map_file, const char *diskname, int part, uint64_t offset)
+{
+    int i;
+    int len;
+    int cnt;
+    uint64_t sector_num = 0;
+    uint64_t iso_file_size = 0;
+    uint32_t dir_rec_secs = 0;
+    uint32_t curr_offset = 0;
+    uint32_t dir_entry_cnt = 0;
+    uint32_t head_sector_num = 0;
+    uint32_t uiCurrExtent = 0;
+    uint32_t iso_sector_num = 0;
+    uint32_t disk_sector_num;
+    uint32_t sector_start;
+    ventoy_img_chunk *chunk = NULL;
+    uint8_t *pucBuf = NULL;
+    FILE *pstFile = NULL;
+    BISO_PVD_S *pstPVD = NULL;
+    BISO_VD_S *pstEVD = NULL;
+    BISO_DIR_RECORD_S *pstRecord = NULL;
+
+    chunk = vtoydm_get_img_map_data(img_map_file, &len);
+    if (NULL == chunk)
+    {
+        return 1;
+    }
+
+    cnt = len / sizeof(ventoy_img_chunk);
+    for (i = 0; i < cnt; i++)
+    {
+        sector_num = chunk[i].img_end_sector - chunk[i].img_start_sector + 1;
+        iso_file_size += sector_num * 2048;
+    }
+
+
+    iso_sector_num = (uint32_t)(iso_file_size / 2048);
+    dir_entry_cnt = (uint32_t)((iso_file_size + (0xFFFFF800 - 1)) / 0xFFFFF800);
+    head_sector_num = 16 + 2 + dir_entry_cnt / (2048 / 46) + 2;
+
+    debug("Total iso file size: %llu iso sectors:%u dir record cnt:%u, header sectors:%u\n",
+          (_ULL)iso_file_size, iso_sector_num, dir_entry_cnt, head_sector_num);
+
+    pucBuf = (uint8_t *)malloc(head_sector_num * 2048);
+    if (!pucBuf)
+    {
+        free(chunk);
+        return 1;
+    }
+    memset(pucBuf, 0, head_sector_num * 2048);
+
+    /* Fill PVD */
+    pstPVD = (BISO_PVD_S *)(pucBuf + 0x8000);
+    pstPVD->ucType = BISO_VD_TYPE_PVD;
+    memcpy(pstPVD->szId, BISO_VD_ID, 5);
+    pstPVD->ucVersion = 1;
+    memset(pstPVD->szSystemId, ' ', sizeof(pstPVD->szSystemId));
+    memset(pstPVD->szVolumeSetId, ' ', sizeof(pstPVD->szVolumeSetId));
+    memset(pstPVD->szPublisherId, ' ', sizeof(pstPVD->szPublisherId));
+    memset(pstPVD->szPreparerId, ' ', sizeof(pstPVD->szPreparerId));
+    memset(pstPVD->szApplicationId, ' ', sizeof(pstPVD->szApplicationId));
+    memset(pstPVD->szCopyrightFileId, ' ', sizeof(pstPVD->szCopyrightFileId));
+    memset(pstPVD->szAbstractFileId, ' ', sizeof(pstPVD->szAbstractFileId));
+    memset(pstPVD->szBibliographicFileId, ' ', sizeof(pstPVD->szBibliographicFileId));
+    memset(pstPVD->szCreationDate, '0', sizeof(pstPVD->szCreationDate));
+    memset(pstPVD->szModifyDate, '0', sizeof(pstPVD->szModifyDate));
+    memset(pstPVD->szExpirationDate, '0', sizeof(pstPVD->szExpirationDate));
+    memset(pstPVD->szEffectiveDate, '0', sizeof(pstPVD->szEffectiveDate));
+
+    memset(pstPVD->szVolumeId, ' ', sizeof(pstPVD->szVolumeId));
+    memcpy(pstPVD->szVolumeId, "Ventoy", 6);
+    memcpy(pstPVD->szPublisherId, "VENTOY", 6);
+    memcpy(pstPVD->szPreparerId, "https://www.ventoy.net", 22);
+
+    BISO_FILL_733(pstPVD->uiVolumeSpace, head_sector_num + iso_sector_num);
+    BISO_FILL_723(pstPVD->usVolumeSet, 1);
+    BISO_FILL_723(pstPVD->usVolumeSeq, 1);
+    BISO_FILL_723(pstPVD->usBlockSize, 2048);
+
+    pstPVD->stRootDirRecord.ucLength = 34;
+    pstPVD->stRootDirRecord.ucExtAttrLen = 0;
+
+    BISO_FILL_733(pstPVD->stRootDirRecord.uiExtent, 0x12);
+    pstPVD->stRootDirRecord.ucFlags = 2;
+    BISO_FILL_723(pstPVD->stRootDirRecord.uiVolumeSeqNum, 1);
+    pstPVD->stRootDirRecord.ucNameLen = 1;
+
+    /* End VD */
+    pstEVD = (BISO_VD_S *)(pucBuf + 0x8800);
+    pstEVD->ucType = BISO_VD_TYPE_END;
+    memcpy(pstEVD->szId, BISO_VD_ID, 5);
+    pstEVD->ucVersion = 1;
+
+
+    /* Fill Dir Record */
+    pstRecord = (BISO_DIR_RECORD_S *)(pucBuf + 0x9000 + 2 * sizeof(BISO_DIR_RECORD_S));
+    uiCurrExtent = head_sector_num;
+    curr_offset = sizeof(BISO_DIR_RECORD_S) * 2;
+    dir_rec_secs = 1;
+
+    while (iso_file_size > 0)
+    {
+        pstRecord->ucLength = 46;
+        BISO_FILL_733(pstRecord->uiExtent, uiCurrExtent);
+        BISO_FILL_723(pstRecord->uiVolumeSeqNum, 1);
+        pstRecord->ucNameLen = 12;
+        memcpy(pstRecord->szName, "ventoy.raw;1", 12);
+
+        if (iso_file_size > 0xFFFFF800)
+        {
+            pstRecord->ucFlags = 0x80;
+            BISO_FILL_733(pstRecord->uiSize, 0xFFFFF800);
+            uiCurrExtent += 0xFFFFF800 / 2048;
+            iso_file_size -= 0xFFFFF800;
+
+
+            pstRecord = (BISO_DIR_RECORD_S *)((char *)pstRecord + 46);
+            curr_offset += 46;
+
+            if (curr_offset > (2048 - 46))
+            {
+                pstRecord = (BISO_DIR_RECORD_S *)((char *)pstRecord + (2048 - curr_offset));
+                curr_offset = 0;
+                dir_rec_secs++;
+            }
+        }
+        else
+        {
+            pstRecord->ucFlags = 0x00;
+            BISO_FILL_733(pstRecord->uiSize, iso_file_size);
+            break;
+        }
+    }
+
+
+    BISO_FILL_733(pstPVD->stRootDirRecord.uiSize, dir_rec_secs * 2048);
+    pstRecord = (BISO_DIR_RECORD_S *)(pucBuf + 0x9000);
+    memcpy(pstRecord, &pstPVD->stRootDirRecord, sizeof(BISO_DIR_RECORD_S));
+
+    pstRecord++;
+    memcpy(pstRecord, &pstPVD->stRootDirRecord, sizeof(BISO_DIR_RECORD_S));
+    pstRecord->szName[0] = 0x01;
+
+
+    pstFile = fopen("/ventoy/dmwrapper.bin", "wb+");
+    if (pstFile)
+    {
+        fwrite(pucBuf, 2048, head_sector_num, pstFile);
+        fclose(pstFile);
+    }
+
+    printf("0 %u linear /dev/loop0 0\n", head_sector_num * 4);
+
+    for (i = 0; i < len / sizeof(ventoy_img_chunk); i++)
+    {
+        sector_start = chunk[i].img_start_sector + head_sector_num;
+        disk_sector_num = (uint32_t)(chunk[i].disk_end_sector + 1 - chunk[i].disk_start_sector);
+
+        /* TBD: to be more flexible */
+        #if 0
+        printf("%u %u linear %s %llu\n",
+               (sector_start << 2), disk_sector_num,
+               diskname, (unsigned long long)chunk[i].disk_start_sector);
+        #else
+        if (strstr(diskname, "nvme") || strstr(diskname, "mmc") || strstr(diskname, "nbd"))
+        {
+            printf("%u %u linear %sp%d %llu\n",
+               (sector_start << 2), disk_sector_num,
+               diskname, part, (unsigned long long)chunk[i].disk_start_sector - offset);
+        }
+        else
+        {
+            printf("%u %u linear %s%d %llu\n",
+               (sector_start << 2), disk_sector_num,
+               diskname, part, (unsigned long long)chunk[i].disk_start_sector - offset);
+        }
+        #endif
+    }
+
+    free(chunk);
+    free(pucBuf);
+    return 0;
+}
+
+
 int vtoydm_main(int argc, char **argv)
 {
     int ch;
@@ -801,7 +987,7 @@ int vtoydm_main(int argc, char **argv)
     char filepath[300] = {0};
     char outfile[300] = {0};
 
-    while ((ch = getopt(argc, argv, "s:l:o:d:f:v::i::p::r::c::h::e::E::C::")) != -1)
+    while ((ch = getopt(argc, argv, "s:l:o:d:f:v::i::p::r::c::h::e::E::C::w::")) != -1)
     {
         if (ch == 'd')
         {
@@ -818,6 +1004,10 @@ int vtoydm_main(int argc, char **argv)
         else if (ch == 'r')
         {
             cmd = CMD_PRINT_RAW_TABLE;
+        }
+        else if (ch == 'w')
+        {
+            cmd = CMD_PRINT_WRAP_TABLE;
         }
         else if (ch == 'c')
         {
@@ -886,6 +1076,10 @@ int vtoydm_main(int argc, char **argv)
         case CMD_PRINT_RAW_TABLE:
         {
             return vtoydm_print_raw_linear_table(filepath, diskname, part);
+        }
+        case CMD_PRINT_WRAP_TABLE:
+        {
+            return vtoydm_print_wrap_linear_table(filepath, diskname, part, offset);
         }
         case CMD_CREATE_DM:
         {

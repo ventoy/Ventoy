@@ -49,6 +49,10 @@ int g_ventoy_debug = 0;
 static int g_efi_os = 0xFF;
 grub_uint32_t g_ventoy_plat_data;
 
+static grub_uint8_t g_timeout_lock = 0;
+static grub_uint8_t g_theme_lock = 0;
+static char *g_lock_theme = NULL;
+
 #ifdef GRUB_MACHINE_EFI
 static VTOY_SHIM *g_vtoy_shim = NULL;
 #endif
@@ -234,6 +238,29 @@ int ventoy_strncmp (const char *pattern, const char *str, grub_size_t n)
     }
 
     return (int)(grub_uint8_t)*pattern - (int)(grub_uint8_t)*str;
+}
+
+void ventoy_timeout_lock(int lock)
+{
+    g_timeout_lock = lock ? 1 : 0;
+}
+
+void ventoy_theme_lock(int lock)
+{
+    const char *env = NULL;
+
+    g_theme_lock = 0;
+    grub_check_free(g_lock_theme);
+
+    if (lock)
+    {
+        env = grub_env_get("theme");
+        if (env)
+        {
+            g_lock_theme = grub_strdup(env);
+            g_theme_lock = 1;
+        }
+    }
 }
 
 grub_err_t ventoy_env_int_set(const char *name, int value)
@@ -553,6 +580,19 @@ static char * ventoy_global_var_write_hook(struct grub_env_var *var, const char 
     return grub_strdup(val);
 }
 
+static char * ventoy_timeout_write_hook(struct grub_env_var *var, const char *val)
+{
+    (void)var;
+    return grub_strdup(g_timeout_lock ? "-1" : val);
+}
+
+static char * ventoy_theme_write_hook(struct grub_env_var *var, const char *val)
+{
+    (void)var;
+    return grub_strdup(g_theme_lock ? g_lock_theme : val);
+}
+
+
 int ventoy_global_var_init(void)
 {
     int i;
@@ -563,6 +603,9 @@ int ventoy_global_var_init(void)
         ventoy_env_export(g_global_vars[i].name, g_global_vars[i].defval);
         grub_register_variable_hook(g_global_vars[i].name, ventoy_global_var_read_hook, ventoy_global_var_write_hook);
     }
+
+    grub_register_variable_hook("timeout", NULL, ventoy_timeout_write_hook);
+    grub_register_variable_hook("theme", NULL, ventoy_theme_write_hook);
 
     return 0;
 }
