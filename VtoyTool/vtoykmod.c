@@ -24,9 +24,6 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#ifdef VTOY_X86_64
-#include <cpuid.h>
-#endif
 
 #define _ull unsigned long long
 
@@ -619,11 +616,18 @@ int vtoykmod_fill_param(char **argv)
 }
 
 #ifdef VTOY_X86_64
+static inline void vtoy_cpuid_count(uint32_t leaf, uint32_t subleaf, uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx)
+{
+    __asm__ __volatile__ ("cpuid"
+        : "=a" (*eax), "=b" (*ebx), "=c" (*ecx), "=d" (*edx)
+        : "a" (leaf), "c" (subleaf));
+}
+
 static int vtoykmod_check_ibt(void)
 {
     uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
     
-    __cpuid_count(7, 0, eax, ebx, ecx, edx);
+    vtoy_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx);
     
     if (edx & (1 << 20))
     {

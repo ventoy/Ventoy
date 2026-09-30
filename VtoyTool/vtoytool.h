@@ -21,6 +21,10 @@
 #ifndef __VTOYTOOL_H__
 #define __VTOYTOOL_H__
 
+#ifndef __bitwise
+#define __bitwise
+#endif
+
 #define IS_DIGIT(x) ((x) >= '0' && (x) <= '9')
 
 #ifndef USE_DIET_C

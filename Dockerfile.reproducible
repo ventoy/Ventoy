@@ -1,0 +1,113 @@
+FROM debian:12-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LC_ALL=C \
+    TZ=UTC \
+    SOURCE_DATE_EPOCH=1700000000 \
+    FORCE_SOURCE_DATE=1 \
+    ZERO_AR_DATE=1 \
+    PYTHONHASHSEED=0
+
+RUN dpkg --add-architecture i386 && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    g++ \
+    libc6-dev-i386 \
+    lib32gcc-12-dev \
+    crossbuild-essential-arm64 \
+    gcc-mingw-w64 \
+    g++-mingw-w64 \
+    clang \
+    lld \
+    llvm \
+    musl \
+    musl-dev \
+    musl-tools \
+    bison \
+    flex \
+    nasm \
+    acpica-tools \
+    autotools-dev \
+    automake \
+    autoconf \
+    libtool \
+    gettext \
+    texinfo \
+    help2man \
+    pkg-config \
+    libdevmapper-dev \
+    libfuse-dev \
+    uuid-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    liblzma-dev \
+    liblzo2-dev \
+    libzstd-dev \
+    liblz4-dev \
+    bsdextrautils \
+    autopoint \
+    dos2unix \
+    cpio \
+    genisoimage \
+    xorriso \
+    squashfs-tools \
+    lz4 \
+    zstd \
+    lzip \
+    zip \
+    unzip \
+    patch \
+    wget \
+    curl \
+    git \
+    python3 \
+    python3-minimal \
+    python3-setuptools \
+    python-is-python3 \
+    diffoscope \
+    file \
+    ca-certificates \
+    mtools \
+    dosfstools \
+    exfatprogs \
+    ntfs-3g \
+    fdisk \
+    parted \
+    && ln -sf /usr/include/x86_64-linux-gnu/asm /usr/include/asm \
+    && ln -sf /usr/include/x86_64-linux-gnu/gnu /usr/include/gnu \
+    # Upstream sources contain case-insensitive Windows SDK header includes that fail on case-sensitive Linux filesystems.
+    && ln -sf /usr/x86_64-w64-mingw32/include/windows.h /usr/x86_64-w64-mingw32/include/Windows.h \
+    && ln -sf /usr/x86_64-w64-mingw32/include/versionhelpers.h /usr/x86_64-w64-mingw32/include/VersionHelpers.h \
+    && ln -sf /usr/i686-w64-mingw32/include/windows.h /usr/i686-w64-mingw32/include/Windows.h \
+    && ln -sf /usr/i686-w64-mingw32/include/versionhelpers.h /usr/i686-w64-mingw32/include/VersionHelpers.h \
+    # Upstream GRUB autogen explicitly invokes aclocal-1.15 and automake-1.15.
+    && ln -sf /usr/bin/aclocal /usr/bin/aclocal-1.15 \
+    && ln -sf /usr/bin/automake /usr/bin/automake-1.15 \
+    && mkdir -p /usr/local/musl/lib \
+    && ln -sf /usr/lib/x86_64-linux-musl/musl-gcc.specs /usr/local/musl/lib/musl-gcc.specs \
+    && rm -rf /var/lib/apt/lists/*
+
+# dietlibc 0.34 fails under modern GCC due to -Werror and requires multilib paths for 32-bit compilation on x86_64.
+WORKDIR /tmp/dietlibc-build
+RUN (curl -fSL --retry 3 https://github.com/ventoy/vtoytoolchain/releases/download/1.0/dietlibc-0.34.tar.xz -o dietlibc-0.34.tar.xz || \
+     curl -fSL --retry 3 https://www.fefe.de/dietlibc/dietlibc-0.34.tar.xz -o dietlibc-0.34.tar.xz) && \
+    echo "7994ad5a63d00446da2e95da1f3f03355b272f096d7eb9830417ab14393b3ace  dietlibc-0.34.tar.xz" | sha256sum -c - && \
+    tar -xf dietlibc-0.34.tar.xz && \
+    cd dietlibc-0.34 && \
+    find . -type f \( -name "Makefile*" -o -name "*.makefile" \) -exec sed -i 's/-Werror//g' {} + 2>/dev/null || true && \
+    prefix=/opt/diet64 make -j$(nproc) || prefix=/opt/diet64 make && \
+    prefix=/opt/diet64 make install 2>/dev/null && \
+    make clean && \
+    sed -i "s/MYARCH:=.*/MYARCH=i386/" Makefile && \
+    GCC_VER=$(gcc -dumpversion | cut -d. -f1) && \
+    sed -i "s|CC=gcc|CC=gcc -m32 -B/usr/lib/gcc/x86_64-linux-gnu/${GCC_VER}/32/ -L/usr/lib/gcc/x86_64-linux-gnu/${GCC_VER}/32/|" Makefile && \
+    find . -type f \( -name "Makefile*" -o -name "*.makefile" \) -exec sed -i 's/-Werror//g' {} + 2>/dev/null || true && \
+    prefix=/opt/diet32 make -j$(nproc) || prefix=/opt/diet32 make && \
+    prefix=/opt/diet32 make install 2>/dev/null && \
+    ln -sf /opt/diet64/bin/diet /usr/local/bin/diet && \
+    cd / && rm -rf /tmp/dietlibc-build
+
+WORKDIR /ventoy
+
+CMD ["/bin/bash", "/ventoy/build_reproducible.sh"]

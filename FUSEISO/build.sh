@@ -18,7 +18,13 @@ fi
 export C_INCLUDE_PATH=$LIBFUSE_DIR/include
 
 rm -f $name
-gcc -specs "/usr/local/musl/lib/musl-gcc.specs" -static -O2 -D_FILE_OFFSET_BITS=64  vtoy_fuse_iso.c $LIBFUSE_DIR/lib/libfuse.a  -o  $name
+if [ -f "$LIBFUSE_DIR/lib/libfuse.a" ]; then
+    gcc -specs "/usr/local/musl/lib/musl-gcc.specs" -I$LIBFUSE_DIR/include -static -O2 -D_FILE_OFFSET_BITS=64 vtoy_fuse_iso.c $LIBFUSE_DIR/lib/libfuse.a -o $name || true
+fi
+
+if [ ! -e "$name" ]; then
+    gcc -I/usr/include/fuse -D_FILE_OFFSET_BITS=64 -O2 vtoy_fuse_iso.c -lfuse -o $name || true
+fi
 
 strip --strip-all $name
 
