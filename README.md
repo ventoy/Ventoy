@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/github/release/ventoy/Ventoy.svg?style=for-the-badge">
+ <a href="https://github.com/ventoy/Ventoy/releases"><img src="https://img.shields.io/github/release/ventoy/Ventoy.svg?style=for-the-badge">
   <img src="https://img.shields.io/github/license/ventoy/Ventoy?style=for-the-badge">
   <img src="https://img.shields.io/github/stars/ventoy/Ventoy?style=for-the-badge">
   <img src="https://img.shields.io/github/downloads/ventoy/Ventoy/total.svg?style=for-the-badge">
