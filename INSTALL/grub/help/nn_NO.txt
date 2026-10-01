@@ -1,0 +1,19 @@
+ L - Vel språk
+F1 - Vis hjelpeinformasjon
+F2 - Bla gjennom og start filer på den lokale disken
+F3 - Byt menymodus mellom Trevisning <-> Listevisning
+F4 - Start Windows/Linux på den lokale disken
+F5 - Verktøy
+F6 - Last tilpassa Grub2-meny
+F7 - Byt mellom GUI-modus <-> TEKST-modus
+
+m/Ctrl+m - Sjekksummér biletfiler (md5/sha1/sha256/sha512)
+d/Ctrl+d - Memdisk-modus (Berre for små WinPE/LiveCD ISO/IMG)
+w/Ctrl+w - WIMBOOT-modus (Berre for Windows/WinPE ISO-filer)
+r/Ctrl+r - Grub2-modus (Berre for nokre Linux-distribusjonar)
+i/Ctrl+i - Kompatibilitetsmodus (Berre for feilsøking)
+u/Ctrl+u - Last ISO EFI-drivar (Berre for feilsøking, kan ikkje brukast offisielt)
+
+
+
+Trykk ESC for å gå tilbake ......
