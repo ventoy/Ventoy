@@ -75,6 +75,12 @@ if [ "$1" = "CI" ]; then
     sed "s/VENTOY_VERSION=.*/VENTOY_VERSION=\"$Ver\"/"  -i ./grub/grub.cfg
 fi
 
+cilog "fetching 7-zip executables"
+mkdir -p ./ventoy/7z/32
+mkdir -p ./ventoy/7z/64
+wget -q -P  ./ventoy/7z/32/7za.exe.xz wget https://github.com/abstract-threadpool/Ventoy-7zip/releases/latest/download/7za-x86.xz
+wget -q -P  ./ventoy/7z/64/7za.exe.xz wget https://github.com/abstract-threadpool/Ventoy-7zip/releases/latest/download/7za-x64.xz
+
 cilog "packing ventoy-$Ver ..."
 sh ventoy_pack.sh $1 >> $LOG 2>&1 || exit 1
 
