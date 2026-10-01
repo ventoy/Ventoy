@@ -32,7 +32,7 @@ fi
 
 # 
 # We do a trick for ATL series here.
-# Use /dev/vtCheatLoop and wapper it as a cdrom with bind mount.
+# Use /dev/vtCheatLoop and wrapper it as a cdrom with bind mount.
 # Then the installer will accept /dev/vtCheatLoop as the install medium.
 #
 vtCheatLoop=loop6

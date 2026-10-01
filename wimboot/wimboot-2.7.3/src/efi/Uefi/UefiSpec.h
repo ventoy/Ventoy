@@ -827,7 +827,7 @@ EFI_STATUS
 
   @retval EFI_SUCCESS           Image was loaded into memory correctly.
   @retval EFI_NOT_FOUND         Both SourceBuffer and DevicePath are NULL.
-  @retval EFI_INVALID_PARAMETER One or more parametes are invalid.
+  @retval EFI_INVALID_PARAMETER One or more parameters are invalid.
   @retval EFI_UNSUPPORTED       The image type is not supported.
   @retval EFI_OUT_OF_RESOURCES  Image was not loaded due to insufficient resources.
   @retval EFI_LOAD_ERROR        Image was not loaded because the image format was corrupt or not
@@ -1298,7 +1298,7 @@ EFI_STATUS
   @retval EFI_UNSUPPORTED       Handle does not support Protocol.
   @retval EFI_INVALID_PARAMETER One or more parameters are invalid.
   @retval EFI_ACCESS_DENIED     Required attributes can't be supported in current environment.
-  @retval EFI_ALREADY_STARTED   Item on the open list already has requierd attributes whose agent
+  @retval EFI_ALREADY_STARTED   Item on the open list already has required attributes whose agent
                                 handle is the same as AgentHandle.
 
 **/

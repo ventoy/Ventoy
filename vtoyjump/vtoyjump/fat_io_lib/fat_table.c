@@ -118,7 +118,7 @@ static struct fat_buffer *fatfs_fat_read_sector(struct fatfs *fs, uint32 sector)
     struct fat_buffer *last = NULL;
     struct fat_buffer *pcur = fs->fat_buffer_head;
 
-    // Itterate through sector buffer list
+    // Iterate through sector buffer list
     while (pcur)
     {
         // Sector within this buffer?
@@ -180,7 +180,7 @@ int fatfs_fat_purge(struct fatfs *fs)
 {
     struct fat_buffer *pcur = fs->fat_buffer_head;
 
-    // Itterate through sector buffer list
+    // Iterate through sector buffer list
     while (pcur)
     {
         // Writeback sector if changed

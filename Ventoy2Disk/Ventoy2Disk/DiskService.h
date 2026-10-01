@@ -71,7 +71,7 @@ BOOL PSHELL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize);
 const CHAR* DISK_GetWindowsDir(void);
 
 //
-// Internel define
+// Internal define
 //
 
 

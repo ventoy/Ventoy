@@ -1686,7 +1686,7 @@ for ext in pcf pcf.gz bdf bdf.gz ttf ttf.gz; do
   for dir in . /usr/src /usr/share/fonts/X11/misc /usr/share/fonts/unifont /usr/share/fonts/uni /usr/share/fonts/truetype/unifont /usr/share/fonts/misc; do
     if test -f "$dir/unifont.$ext"; then
       md5="$(md5sum "$dir/unifont.$ext"|awk '{ print $1; }')"
-      # PCF and BDF from version 6.3 isn't hanled properly by libfreetype.
+      # PCF and BDF from version 6.3 isn't handled properly by libfreetype.
       if test "$md5" = 0a54834d2788c83886a3e1785a6a1e61 || test "$md5" = 28f2565c7a41d8d407e2551159385edb || test "$md5" = dae5e588461b3b92b87b6ffee734f936 || test "$md5" = 4a3d687aa5bb329ed05f4263a1016791 ; then
         continue
       fi

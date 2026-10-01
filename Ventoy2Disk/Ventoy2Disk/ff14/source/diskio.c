@@ -3,7 +3,7 @@
 /*-----------------------------------------------------------------------*/
 /* If a working storage control module is available, it should be        */
 /* attached to the FatFs via a glue function rather than modifying it.   */
-/* This is an example of glue functions to attach various exsisting      */
+/* This is an example of glue functions to attach various existing      */
 /* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
 
@@ -91,21 +91,21 @@ DSTATUS disk_status (
 	case DEV_RAM :
 		result = RAM_disk_status();
 
-		// translate the reslut code here
+		// translate the result code here
 
 		return stat;
 
 	case DEV_MMC :
 		result = MMC_disk_status();
 
-		// translate the reslut code here
+		// translate the result code here
 
 		return stat;
 
 	case DEV_USB :
 		result = USB_disk_status();
 
-		// translate the reslut code here
+		// translate the result code here
 
 		return stat;
 	}
@@ -132,21 +132,21 @@ DSTATUS disk_initialize (
 	case DEV_RAM :
 		result = RAM_disk_initialize();
 
-		// translate the reslut code here
+		// translate the result code here
 
 		return stat;
 
 	case DEV_MMC :
 		result = MMC_disk_initialize();
 
-		// translate the reslut code here
+		// translate the result code here
 
 		return stat;
 
 	case DEV_USB :
 		result = USB_disk_initialize();
 
-		// translate the reslut code here
+		// translate the result code here
 
 		return stat;
 	}
