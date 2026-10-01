@@ -293,7 +293,9 @@ BOOLEAN __stdcall FormatExCallback(FILE_SYSTEM_CALLBACK_COMMAND Command, DWORD M
 
 BOOL DLL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
 {
-	PWCHAR  Label = L"Ventoy";
+	WCHAR   LabelW[64];
+	MultiByteToWideChar(CP_ACP, 0, g_VolumeLabel, -1, LabelW, 64);
+	PWCHAR  Label = LabelW;
 	PWCHAR  Format = NULL;
 	WCHAR   RootDirectory[MAX_PATH] = { 0 };
 	HMODULE ifsModule;
