@@ -6166,7 +6166,7 @@ FRESULT f_mkfs (
 			b_data = b_fat + sz_fat * n_fat + sz_dir;	/* Data base */
 
 			/* Align data area to erase block boundary (for flash memory media) */
-			n = (DWORD)(((b_data + sz_blk - 1) & ~(sz_blk - 1)) - b_data);	/* Sectors to next nearest from current data base */
+			n = (DWORD)(((b_data + sz_blk - 1) & ~(LBA_t)(sz_blk - 1)) - b_data);	/* Sectors to next nearest from current data base */
 			if (fsty == FS_FAT32) {		/* FAT32: Move FAT */
 				sz_rsv += n; b_fat += n;
 			} else {					/* FAT: Expand FAT */
