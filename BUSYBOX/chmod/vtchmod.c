@@ -11,7 +11,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    if (argv[1][0] == '-' && argv[1][1] == '6')
+    if (strlen(argv[1]) > 1 && argv[1][0] == '-' && argv[1][1] == '6')
     {
         struct utsname buf;
         if (0 == uname(&buf))
