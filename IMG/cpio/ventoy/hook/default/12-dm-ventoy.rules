@@ -1,1 +1,0 @@
-ACTION=="add|change", KERNEL=="dm-[0-9]*", ENV{DM_NAME}=="ventoy[0-9]*", ENV{DM_UDEV_DISABLE_SYBSYSTEM_RULES_FLAG}="", ENV{DM_UDEV_DISABLE_DISK_RULES_FLAG}="", ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}="", IMPORT{program}="/ventoy/hook/default/ventoy-udev.sh $env{DM_NAME}"

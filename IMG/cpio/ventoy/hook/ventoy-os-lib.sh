@@ -63,6 +63,19 @@ ventoy_get_udev_conf_path() {
     echo "$VT_RULE_DIR/$VT_UDEV_RULE_FILE_NAME"
 }
 
+ventoy_add_udev_auto_rule() {
+    VT_RULE_DIR=$(ventoy_get_udev_conf_dir)    
+    cp -a $VTOY_PATH/hook/default/90-ventoy-auto.rules $VT_RULE_DIR/11-ventoy-auto.rules
+    cp -a $VTOY_PATH/hook/default/90-ventoy-auto.rules $VT_RULE_DIR/90-ventoy-auto.rules
+    chmod 0644 $VT_RULE_DIR/*ventoy*
+}
+
+
+ventoy_dracut_pivot_udev_rule() {
+    cp -a $VTOY_PATH/hook/default/ventoy-pivot-udev-rule.sh  $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-udev-rules.sh
+}
+
+
 ventoy_add_kernel_udev_rule() {
     VT_UDEV_RULE_PATH=$(ventoy_get_udev_conf_path)
     echo "KERNEL==\"$1\", $VT_UDEV_RULE_PREFIX RUN+=\"$2\"" >> $VT_UDEV_RULE_PATH
@@ -177,4 +190,9 @@ ventoy_iso_scan_check() {
     fi
     
     [ $vtCheckOk -eq 1 ]
+}
+
+ventoy_wrapper_dracut_hook() {
+    echo "#/bin/sh" > $2
+    echo "$BUSYBOX_PATH/sh $1" >> $2    
 }
