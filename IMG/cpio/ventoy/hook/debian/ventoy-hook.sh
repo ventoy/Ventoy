@@ -60,16 +60,7 @@ ventoy_get_debian_distro() {
         fi
         if $GREP -q 'NAME="Kylin"' /etc/os-release; then
             echo 'kylin'; return
-        fi
-        
-        if $GREP -q 'ID=ubuntu' /etc/os-release; then
-            if $GREP -q 'VERSION_ID=\"2[4-9]\.' /etc/os-release; then
-                echo 'ubuntu'; return
-            fi
-            if $GREP -q 'VERSION_ID=\"3[0-9]\.' /etc/os-release; then
-                echo 'ubuntu'; return
-            fi
-        fi
+        fi        
     fi
 
     if $GREP -q 'slax/' /proc/cmdline; then
