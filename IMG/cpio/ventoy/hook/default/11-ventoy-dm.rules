@@ -1,25 +1,12 @@
-ACTION=="add", SUBSYSTEM=="block", KERNEL=="dm-*", \
+ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="dm-*", \
     ENV{DM_NAME}=="[vV]entoy*", \
     ENV{DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG}="", \
     ENV{DM_UDEV_DISABLE_DISK_RULES_FLAG}="", \
     ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=""
 
-ACTION=="add", SUBSYSTEM=="block", KERNEL=="dm-*", \
+ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="dm-*", \
     ENV{DM_NAME}=="vtoy*", \
     ENV{DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG}="", \
     ENV{DM_UDEV_DISABLE_DISK_RULES_FLAG}="", \
     ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=""
-
-ACTION=="change", SUBSYSTEM=="block", KERNEL=="dm-*", \
-    ENV{DM_NAME}=="[vV]entoy*", \
-    ENV{DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG}="", \
-    ENV{DM_UDEV_DISABLE_DISK_RULES_FLAG}="", \
-    ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=""
-
-ACTION=="change", SUBSYSTEM=="block", KERNEL=="dm-*", \
-    ENV{DM_NAME}=="vtoy*", \
-    ENV{DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG}="", \
-    ENV{DM_UDEV_DISABLE_DISK_RULES_FLAG}="", \
-    ENV{DM_UDEV_DISABLE_OTHER_RULES_FLAG}=""
-
 

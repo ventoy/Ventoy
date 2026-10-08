@@ -14,8 +14,8 @@ if dmsetup -h > /dev/null 2>&1; then
     for t in *; do
         if grep -q "^${VPART_MAJOR_MINOR}$" $t/dev; then
             VPART=$t
-            echo 0 $(cat /sys/class/block/$VPART/size) linear /dev/$VPART 0 | dmsetup create $VPART
-            dmsetup mknodes "$VPART" > /dev/null 2>&1
+            echo 0 $(cat /sys/class/block/$VPART/size) linear /dev/$VPART 0 | dmsetup create VentoyPart
+            dmsetup mknodes "VentoyPart" > /dev/null 2>&1
             break
         fi
     done
@@ -30,7 +30,7 @@ if dmsetup -h > /dev/null 2>&1; then
             udevadm trigger --type=devices --action=add  > /dev/null 2>&1
             udevadm settle > /dev/null 2>&1
         fi
-        echo "Create /dev/mapper/$VPART success"
+        echo "Create /dev/mapper/VentoyPart success"
     fi    
 else
     echo "dmsetup program not avaliable"

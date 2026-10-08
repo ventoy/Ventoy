@@ -64,6 +64,14 @@ vterr() {
 }
 
 
+ventoy_copy_file() {
+    cp -a "$1" "$2"
+    if [ -n "$3" ]; then
+        chmod $3 "$2"
+    fi
+}
+
+
 is_ventoy_hook_finished() {
     [ -e $VTOY_PATH/hook_finish ]
 }
@@ -77,7 +85,7 @@ set_ventoy_hook_finish() {
         echo "### iso part dm cmd" >> $VTLOG
         $CAT /ventoy/ventoy_iso_part_dm_cmd >> $VTLOG        
         $BUSYBOX_PATH/sh /ventoy/ventoy_iso_part_dm_cmd >>$VTLOG 2>&1        
-        #$BUSYBOX_PATH/rm -f /ventoy/ventoy_iso_part_dm_cmd
+        $BUSYBOX_PATH/mv /ventoy/ventoy_iso_part_dm_cmd  /ventoy/ventoy_iso_part_dm_cmd_bk
     fi
 }
 
@@ -275,9 +283,8 @@ create_ventoy_device_mapper() {
     fi
 
     RAWDISKNAME=$($HEAD -n1 $VTOY_PATH/ventoy_raw_table | $AWK '{print $4}')    
-    echo "$VT_DM_BIN create  VentoyPart  $VTOY_PATH/ventoy_raw_table"  > /ventoy/ventoy_iso_part_dm_cmd    
-    #echo "$VT_DM_BIN mknodes VentoyPart"                              >> /ventoy/ventoy_iso_part_dm_cmd    
-    #echo "$VT_DM_BIN ls"                                                        >> /ventoy/ventoy_iso_part_dm_cmd    
+    echo "$VT_DM_BIN create  VentoyPart  $VTOY_PATH/ventoy_raw_table"  >  /ventoy/ventoy_iso_part_dm_cmd
+    echo "echo 1 > $VTOY_PATH/ventoy_raw_dm_done"                      >> /ventoy/ventoy_iso_part_dm_cmd
 }
 
 create_ventoy_loop_device_mapper() {
@@ -739,15 +746,9 @@ ventoy_remove_all_dm() {
     $VTOY_PATH/tool/dmsetup remove ventoy >> $VTLOG 2>&1
     rm -f /dev/ventoy*
 
-    if [ -e $VTOY_PATH/ventoy_raw_table ]; then
-        RAWDISKNAME=$($HEAD -n1 $VTOY_PATH/ventoy_raw_table | $AWK '{print $4}')
-        DMRAWDISKNAME=${RAWDISKNAME#/dev/}
-        if $VTOY_PATH/tool/dmsetup ls | $GREP -qw "$DMRAWDISKNAME"; then
-            vtlog "dmsetup remove ${DMRAWDISKNAME}"
-            $VTOY_PATH/tool/dmsetup remove "$DMRAWDISKNAME"
-        else
-            vtlog "no need to remove DM ${DMRAWDISKNAME}"
-        fi
+    if [ -e $VTOY_PATH/ventoy_raw_dm_done ]; then
+        vtlog "dmsetup remove VentoyPart"
+        $VTOY_PATH/tool/dmsetup remove VentoyPart
         rm -f $VTOY_PATH/ventoy_iso_part_dm_cmd
     fi
 
@@ -1011,3 +1012,59 @@ ventoy_mount_iso() {
 
     $BUSYBOX_PATH/false
 }
+
+ventoy_init_udev_auto_rules() {
+    ventoy_copy_file /ventoy/hook/default/11-ventoy-dm.rules  /etc/udev/rules.d/11-ventoy-dm.rules  0644
+}
+
+ventoy_copy_udev_auto_rules() {
+    if ! [ -e $VTOY_PATH/ventoy_raw_dm_done ]; then
+        vtlog "ventoy_raw_dm_done not exist, no need for udev auto rule"
+        return
+    fi
+
+    vtlog "==== Copy udev auto rules ===="
+    for vroot in sysroot newroot new_root root; do
+        if [ -d $vroot/etc/udev/rules.d ]; then
+            cp -a /ventoy/hook/default/90-ventoy-auto.rules /ventoy/udevtmp.rules
+        
+            vtDM=$($VTOY_PATH/tool/dmsetup info VentoyPart | $GREP Major | $SED "s/.*[^0-9]\([0-9][0-9]*\)$/\1/")
+            $SED "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.rules
+
+            vtRAWDISKNAME=$($HEAD -n1 $VTOY_PATH/ventoy_raw_table | $AWK '{print $4}')
+            $SED "s/yyy/${vtRAWDISKNAME#/dev/}/g" -i /ventoy/udevtmp.rules
+
+            vtlog "VentoyPart is /dev/dm-${vtDM} map to $vtRAWDISKNAME"
+
+            ventoy_copy_file /ventoy/udevtmp.rules  $vroot/etc/udev/rules.d/90-ventoy-auto.rules  0644
+            ventoy_copy_file /ventoy/udevtmp.rules  $vroot/etc/udev/rules.d/11-ventoy-auto.rules  0644
+            
+            if [ -d $vroot/etc/systemd/system/sysinit.target.wants ]; then
+                vtlog "copy udev trigger service"
+                cp -a /ventoy/hook/default/ventoy-udev-trigger.service /ventoy/udevtmp.service
+                $SED "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.service
+                ventoy_copy_file /ventoy/udevtmp.service  $vroot/etc/systemd/system/ventoy-udev-trigger.service  0644
+                
+                mkdir -p $vroot/etc/systemd/system-preset
+                echo 'enable ventoy-udev-trigger.service' > $vroot/etc/systemd/system-preset/80-ventoy-udev.preset
+
+                $BUSYBOX_PATH/ln -sf /etc/systemd/system/ventoy-udev-trigger.service $vroot/etc/systemd/system/sysinit.target.wants/ventoy-udev-trigger.service
+            else
+                vtlog "sysinit wants dir not exist"
+            fi
+
+            break
+        fi
+    done
+}
+
+ventoy_dracut_pivot_udev_rule() {
+    echo "#!/bin/sh" > $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-udev-rules.sh
+    echo "/ventoy/busybox/sh $VTOY_PATH/hook/default/ventoy-pivot-udev-rule.sh" >> $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-udev-rules.sh
+}
+
+ventoy_dracut_pivot_selinux_off() {
+    echo "#!/bin/sh" > $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-selinux-off.sh
+    echo "/ventoy/busybox/sh $VTOY_PATH/hook/default/ventoy-pivot-selinux-off.sh" >> $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-selinux-off.sh
+}
+

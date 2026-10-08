@@ -71,11 +71,6 @@ ventoy_add_udev_auto_rule() {
 }
 
 
-ventoy_dracut_pivot_udev_rule() {
-    cp -a $VTOY_PATH/hook/default/ventoy-pivot-udev-rule.sh  $VT_DRACUT_HOOKS/pre-pivot/99-ventoy-udev-rules.sh
-}
-
-
 ventoy_add_kernel_udev_rule() {
     VT_UDEV_RULE_PATH=$(ventoy_get_udev_conf_path)
     echo "KERNEL==\"$1\", $VT_UDEV_RULE_PREFIX RUN+=\"$2\"" >> $VT_UDEV_RULE_PATH

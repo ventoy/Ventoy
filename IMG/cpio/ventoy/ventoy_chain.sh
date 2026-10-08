@@ -415,6 +415,9 @@ echo "OS=###${VTOS}###" >>$VTLOG
 if [ -e "$VTOY_PATH/hook/$VTOS/ventoy-hook.sh" ]; then
     $BUSYBOX_PATH/sh "$VTOY_PATH/hook/$VTOS/ventoy-hook.sh"
 fi
+if [ -e "$VTOY_PATH/hook/$VTOS/ventoy-uauto-hook.sh" ]; then
+    $BUSYBOX_PATH/sh "$VTOY_PATH/hook/$VTOS/ventoy-uauto-hook.sh"
+fi
 
 
 

@@ -60,7 +60,7 @@ ventoy_get_debian_distro() {
         fi
         if $GREP -q 'NAME="Kylin"' /etc/os-release; then
             echo 'kylin'; return
-        fi        
+        fi
     fi
 
     if $GREP -q 'slax/' /proc/cmdline; then

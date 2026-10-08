@@ -1,0 +1,8 @@
+[Unit]
+Description=Ventoy subiquity curtin Workaround
+
+[Service]
+Type=oneshot
+ExecStart=/etc/ventoy/ventoy-curtin-wa.sh
+PrivateMounts=no
+ProtectSystem=no

@@ -1,0 +1,11 @@
+[Unit]
+Description=Ventoy DM device udev attributes
+After=systemd-udevd.service
+
+[Service]
+Type=oneshot
+ExecStart=-udevadm trigger --subsystem-match=block --sysname-match=DMXXX
+ExecStart=udevadm settle
+
+[Install]
+WantedBy=sysinit.target
