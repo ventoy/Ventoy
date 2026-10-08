@@ -20,17 +20,29 @@ subiquity_curtin_workaround() {
 }
 
 
-if [ -d /root/etc/systemd/system -a -d /root/etc/udev/rules.d ]; then
-    vtlog "systemd udev check OK"
-
+vroot=$(ventoy_new_root_dir)
+if [ -z "$vroot" ]; then
+    vtlog "new sysroot not found"
+else
     ventoy_copy_udev_auto_rules
-
-    if ls /root/etc/udev/rules.d | grep -q 'snap.*desktop'; then
+    if ls $vroot/etc/udev/rules.d | grep -q 'snap.*desktop'; then
         subiquity_curtin_workaround
     else
         vtlog "no snap desktop detected"
     fi
-else
-    vtlog "systemd or udev not exist"
 fi
 
+if [ -d $vroot/usr/share/clonezilla ]; then
+    vtlog "add cheat service for clonezilla"
+    
+    vtDM=$($VTOY_PATH/tool/dmsetup info VentoyPart | grep Major | sed "s/.*[^0-9]\([0-9][0-9]*\)$/\1/")
+    vtRAWDISKNAME=$(head -n1 $VTOY_PATH/ventoy_raw_table | awk '{print $4}')
+    
+    cp -a /ventoy/hook/debian/ventoy-clonezilla-cheat.service /ventoy/udevtmp.service
+    sed "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.service
+    sed "s/VTISOPART/${vtRAWDISKNAME#/dev/}/g" -i /ventoy/udevtmp.service
+
+    ventoy_copy_file /ventoy/udevtmp.service  $vroot/etc/systemd/system/ventoy-clonezilla-cheat.service  0644
+    echo 'enable ventoy-clonezilla-cheat.service' > $vroot/etc/systemd/system-preset/90-ventoy-clonezilla.preset
+    ln -sf /etc/systemd/system/ventoy-clonezilla-cheat.service $vroot/etc/systemd/system/sysinit.target.wants/ventoy-clonezilla-cheat.service
+fi

@@ -1,0 +1,11 @@
+[Unit]
+Description=Ventoy CloneZilla Device Cheat
+After=systemd-udevd.service
+
+[Service]
+Type=oneshot
+ExecStart=mv /dev/VTISOPART /dev/bk_VTISOPART
+ExecStart=cp -a /dev/DMXXX  /dev/VTISOPART
+
+[Install]
+WantedBy=sysinit.target

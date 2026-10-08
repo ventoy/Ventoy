@@ -1,0 +1,9 @@
+#!/bin/sh
+
+for i in 0 1 2 3 4 5 6 7 8 9; do
+    [ -b /dev/DMXXX ] && break
+    sleep 1
+done
+
+udevadm trigger --subsystem-match=block --sysname-match=DMXXX
+udevadm settle
