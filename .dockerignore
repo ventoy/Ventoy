@@ -1,0 +1,3 @@
+# The build container is hermetic and mounts the source tree at runtime.
+*
+!Dockerfile.reproducible
