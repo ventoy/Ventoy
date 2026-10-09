@@ -1,0 +1,23 @@
+# gcc 4.8.5-28 as shipped in CentOS 7.5.1804. This is the compiler recorded
+# in the .comment section of the committed vtchmod32 / vtchmod64 / vtchmod64_musl.
+FROM centos:7.5.1804@sha256:7a45e4a1efbaafc1d9aa89925b6fdb33288a96d35ea0581412316e2f0ad3720a
+RUN printf '%s\n' \
+  '[base]' \
+  'name=CentOS-7.5.1804 - Base' \
+  'baseurl=http://vault.centos.org/7.5.1804/os/$basearch/' \
+  'gpgcheck=1' \
+  'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7' \
+  '' \
+  '[updates]' \
+  'name=CentOS-7.5.1804 - Updates' \
+  'baseurl=http://vault.centos.org/7.5.1804/updates/$basearch/' \
+  'gpgcheck=1' \
+  'gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7' \
+  > /etc/yum.repos.d/CentOS-Base.repo \
+  && rm -f /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-fasttrack.repo \
+        /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo \
+        /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-Debuginfo.repo \
+        /etc/yum.repos.d/CentOS-x86_64-kernel.repo \
+  && yum -y install gcc-4.8.5-28.el7 make binutils glibc-devel glibc.i686 glibc-devel.i686 tar xz bzip2 \
+  && yum clean all \
+  && rpm -q gcc | grep -qx 'gcc-4.8.5-28.el7.x86_64'
