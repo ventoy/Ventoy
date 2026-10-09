@@ -214,6 +214,11 @@
   });
 
   $("#id_conf_replace_tbl").on('click', '.ConfReplaceAddBtn', function() {
+    if (m_data_conf_replace[current_tab_index].length >= 2) {
+        Message.error(g_vtoy_cur_language.STR_CONF_REPLACE_MAX_ENTRY);
+        return;
+    }
+
     if (g_current_language === 'en') {
         $('#ConfReplaceForm #ConfReplaceForm_lang_1').text("ISO Path");
         $('#ConfReplaceForm #ConfReplaceForm_lang_2').text(" OK");
