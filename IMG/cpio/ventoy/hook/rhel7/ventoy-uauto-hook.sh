@@ -17,6 +17,11 @@ vtoy_udev_auto_hook() {
             fi
         fi
     fi
+
+    if [ -d $VT_DRACUT_HOOKS/pre-pivot ]; then
+        vtlog "dracut distro"
+        ventoy_dracut_pivot_udev_rule
+    fi
 }
 
 vtoy_udev_auto_hook

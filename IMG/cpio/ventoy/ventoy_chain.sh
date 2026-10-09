@@ -406,7 +406,10 @@ ventoy_get_os_type() {
         fi
     fi
     
-    
+    if [ -f /scripts/casper ]; then
+        echo "debian"; return
+    fi
+
     echo "default"
 }
 
