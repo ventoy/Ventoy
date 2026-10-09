@@ -146,10 +146,10 @@ typedef EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL   SIMPLE_TEXT_OUTPUT_INTERFACE;
 #define EFI_WIDE_ATTRIBUTE  0x80
 
 /**
-  Reset the text output device hardware and optionaly run diagnostics
+  Reset the text output device hardware and optionally run diagnostics
 
   @param  This                 The protocol instance pointer.
-  @param  ExtendedVerification Driver may perform more exhaustive verfication
+  @param  ExtendedVerification Driver may perform more exhaustive verification
                                operation of the device during reset.
 
   @retval EFI_SUCCESS          The text output device was reset.

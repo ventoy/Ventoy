@@ -417,7 +417,7 @@ int fatfs_create_path_string(char* path, char *filename, char* out, int maxlen)
             len++;
         }
 
-        // Add a seperator if trailing one not found
+        // Add a separator if trailing one not found
         if (last != '\\' && last != '/')
             *out++ = seperator;
 

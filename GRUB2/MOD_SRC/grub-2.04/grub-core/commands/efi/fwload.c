@@ -93,7 +93,7 @@ grub_efi_load_driver (grub_size_t size, void *boot_image, int connect)
                        &loaded_image_guid, (void **)&loaded_image);
   if (status != GRUB_EFI_SUCCESS)
   {
-    grub_error (GRUB_ERR_BAD_OS, "not a dirver");
+    grub_error (GRUB_ERR_BAD_OS, "not a driver");
     goto fail;
   }
   grub_dprintf ("efi", "StartImage: %p\n", boot_image);
