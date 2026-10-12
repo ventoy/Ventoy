@@ -149,6 +149,10 @@ grub_env_get (const char *name)
   if (var->read_hook)
     return var->read_hook (var, var->value);
 
+  /* theme var hook will cause them return '' after unset */
+  if (var->value && var->value[0] == 0 && grub_strcmp(name, "theme") == 0)
+    return 0;
+
   return var->value;
 }
 
