@@ -10,7 +10,7 @@ echo "======= install dietlibc =============="
 rm -rf /opt/diet32
 rm -rf /opt/diet64
 
-tar -xvf dietlibc-0.34.tar.xz
+tar -xf dietlibc-0.34.tar.xz
 cd dietlibc-0.34
 
 prefix=/opt/diet64 make -j 4
@@ -19,7 +19,7 @@ prefix=/opt/diet64 make install 2>/dev/null
 cd ..
 rm -rf dietlibc-0.34
 
-tar -xvf dietlibc-0.34.tar.xz
+tar -xf dietlibc-0.34.tar.xz
 cd dietlibc-0.34
 
 sed "s/MYARCH:=.*/MYARCH=i386/" -i Makefile
