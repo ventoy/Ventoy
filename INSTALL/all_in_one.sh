@@ -45,28 +45,28 @@ sh buildedk.sh >> $LOG 2>&1 || exit 1
 #sh build.sh || exit 1
 
 cd $VTOY_PATH/FUSEISO
-sh build.sh
-sh build_aarch64.sh
+sh build.sh  >> $LOG 2>&1
+sh build_aarch64.sh  >> $LOG 2>&1
 
 
 # cd $VTOY_PATH/ExFAT
-# sh buidlibfuse.sh || exit 1
-# sh buidexfat.sh || exit 1
+# sh buidlibfuse.sh  >> $LOG 2>&1 || exit 1
+# sh buidexfat.sh  >> $LOG 2>&1 || exit 1
 # /bin/cp -a EXFAT/shared/mkexfatfs   $VTOY_PATH/INSTALL/tool/mkexfatfs_64
 # /bin/cp -a EXFAT/shared/mount.exfat-fuse   $VTOY_PATH/INSTALL/tool/mount.exfat-fuse_64
 
 
 # cd $VTOY_PATH/SQUASHFS/SRC
-# sh build_lz4.sh
-# sh build_lzma.sh
-# sh build_lzo.sh
-# sh build_zstd.sh
+# sh build_lz4.sh  >> $LOG 2>&1
+# sh build_lzma.sh >> $LOG 2>&1
+# sh build_lzo.sh  >> $LOG 2>&1
+# sh build_zstd.sh >> $LOG 2>&1
 
 # cd $VTOY_PATH/SQUASHFS/squashfs-tools-4.4/squashfs-tools
-# sh build.sh
+# sh build.sh  >> $LOG 2>&1
 
 # cd $VTOY_PATH/VBLADE/vblade-master
-# sh build.sh
+# sh build.sh  >> $LOG 2>&1
 
 cd $VTOY_PATH/INSTALL
 

@@ -13,6 +13,10 @@ wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/g
 wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/aarch64--uclibc--stable-2020.08-1.tar.bz2
 wget -q -P /opt/ https://github.com/ventoy/vtoytoolchain/releases/download/1.0/mips-loongson-gcc7.3-2019.06-29-linux-gnu.tar.gz
 
+wget -q -O $VTOY_PATH/ExFAT/exfat-1.3.0.zip  https://codeload.github.com/relan/exfat/zip/v1.3.0
+wget -q -O $VTOY_PATH/ExFAT/libfuse-fuse-2.9.9.zip  https://codeload.github.com/libfuse/libfuse/zip/fuse-2.9.9
+
+
 date +"%Y/%m/%d %H:%M:%S"
 echo downloading environment finish...
 
