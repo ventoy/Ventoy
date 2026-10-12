@@ -272,6 +272,12 @@ int main(int argc, const char **argv)
     pBackGptInfo = malloc(sizeof(VTOY_BK_GPT_INFO));
     if (NULL == pMainGptInfo || NULL == pBackGptInfo)
     {
+        if (pMainGptInfo) {
+            free(pMainGptInfo);
+        }
+        if (pBackGptInfo) {
+            free(pBackGptInfo);
+        }
         close(fd);
         return 1;
     }
