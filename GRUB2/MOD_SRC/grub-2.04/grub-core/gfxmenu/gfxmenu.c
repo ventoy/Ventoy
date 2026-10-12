@@ -45,7 +45,7 @@ extern int g_ventoy_menu_refresh;
 
 static grub_gfxmenu_view_t cached_view;
 
-static void 
+static void
 grub_gfxmenu_viewer_fini (void *data __attribute__ ((unused)))
 {
 }
@@ -102,7 +102,9 @@ grub_gfxmenu_try (int entry, grub_menu_t menu, int nested)
 					   mode_info.width,
 					   mode_info.height);
     }
-  grub_free (full_theme_path);
+
+  if (full_theme_path)
+    grub_free (full_theme_path);
 
   if (! cached_view)
     {
