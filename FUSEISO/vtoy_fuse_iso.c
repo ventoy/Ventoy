@@ -7,12 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  *
@@ -42,6 +42,7 @@ typedef struct dmtable_entry
 static int verbose = 0;
 #define debug(fmt, ...) if(verbose) printf(fmt, ##__VA_ARGS__)
 
+static int g_disk_rw = 0;
 static int g_disk_fd = -1;
 static uint64_t g_iso_file_size;
 static char g_mnt_point[512];
@@ -65,22 +66,33 @@ static int ventoy_iso_getattr(const char *path, struct stat *statinfo)
         }
         else if (strcmp(path, g_iso_file_name) == 0)
         {
-            statinfo->st_mode  = S_IFREG | 0444;
-            statinfo->st_nlink = 1;
-            statinfo->st_size  = g_iso_file_size;
+            if (g_disk_rw)
+            {
+                statinfo->st_mode  = S_IFREG | 0644;
+                statinfo->st_nlink = 1;
+                statinfo->st_size  = g_iso_file_size;
+                statinfo->st_blksize = 512;
+                statinfo->st_blocks  = (g_iso_file_size + 511) / 512;
+            }
+            else
+            {
+                statinfo->st_mode  = S_IFREG | 0444;
+                statinfo->st_nlink = 1;
+                statinfo->st_size  = g_iso_file_size;
+            }
             ret = 0;
         }
     }
-    
+
     return ret;
 }
 
 static int ventoy_iso_readdir
 (
-    const char *path, 
-    void *buf, 
+    const char *path,
+    void *buf,
     fuse_fill_dir_t filler,
-    off_t offset, 
+    off_t offset,
     struct fuse_file_info *file
 )
 {
@@ -106,9 +118,12 @@ static int ventoy_iso_open(const char *path, struct fuse_file_info *file)
         return -ENOENT;
     }
 
-    if ((file->flags & 3) != O_RDONLY)
+    if (g_disk_rw == 0)
     {
-        return -EACCES;
+        if ((file->flags & 3) != O_RDONLY)
+        {
+            return -EACCES;
+        }
     }
 
     return 0;
@@ -121,7 +136,7 @@ static int ventoy_read_iso_sector(uint32_t sector, uint32_t num, char *buf)
     uint32_t readSec = 0;
     off_t offset = 0;
     dmtable_entry *entry = NULL;
-    
+
     for (i = 0; i < g_disk_entry_num && num > 0; i++)
     {
         entry = g_disk_entry_list + i;
@@ -144,9 +159,39 @@ static int ventoy_read_iso_sector(uint32_t sector, uint32_t num, char *buf)
     return 0;
 }
 
+static int ventoy_write_iso_sector(uint32_t sector, uint32_t num, const char *buf)
+{
+    uint32_t i = 0;
+    uint32_t leftSec = 0;
+    uint32_t readSec = 0;
+    off_t offset = 0;
+    dmtable_entry *entry = NULL;
+
+    for (i = 0; i < g_disk_entry_num && num > 0; i++)
+    {
+        entry = g_disk_entry_list + i;
+
+        if (sector >= entry->isoSector && sector < entry->isoSector + entry->sectorNum)
+        {
+            offset = (entry->diskSector + (sector - entry->isoSector)) * 512;
+
+            leftSec = entry->sectorNum - (sector - entry->isoSector);
+            readSec = (leftSec > num) ? num : leftSec;
+
+            pwrite(g_disk_fd, buf, readSec * 512, offset);
+
+            sector += readSec;
+            buf += readSec * 512;
+            num -= readSec;
+        }
+    }
+
+    return 0;
+}
+
 static int ventoy_iso_read
 (
-    const char *path, char *buf, 
+    const char *path, char *buf,
     size_t size, off_t offset,
     struct fuse_file_info *file
 )
@@ -157,12 +202,12 @@ static int ventoy_iso_read
     uint32_t number = 0;
     size_t leftsize = 0;
     char secbuf[512];
-    
+
     (void)file;
-    
+
     if(strcmp(path, g_iso_file_name) != 0)
     {
-        return -ENOENT;        
+        return -ENOENT;
     }
 
     if (offset >= g_iso_file_size)
@@ -174,7 +219,7 @@ static int ventoy_iso_read
     {
         size = g_iso_file_size - offset;
     }
-    
+
     leftsize = size;
     sector = offset / 512;
 
@@ -200,8 +245,11 @@ static int ventoy_iso_read
     }
 
     number = leftsize / 512;
-    ventoy_read_iso_sector(sector, number, buf);
-    buf += number * 512;
+    if (number > 0)
+    {
+        ventoy_read_iso_sector(sector, number, buf);
+        buf += number * 512;
+    }
 
     mod = leftsize % 512;
     if (mod > 0)
@@ -213,12 +261,95 @@ static int ventoy_iso_read
     return size;
 }
 
-static struct fuse_operations ventoy_op = 
+static int ventoy_iso_write
+(
+    const char *path, const char *buf,
+    size_t size, off_t offset,
+    struct fuse_file_info *file
+)
+{
+    uint32_t mod = 0;
+    uint32_t align = 0;
+    uint32_t sector = 0;
+    uint32_t number = 0;
+    size_t leftsize = 0;
+    char secbuf[512];
+
+    (void)file;
+
+    if (!g_disk_rw)
+    {
+        return -EROFS;
+    }
+
+    if(strcmp(path, g_iso_file_name) != 0)
+    {
+        return -ENOENT;
+    }
+
+    if (offset >= g_iso_file_size)
+    {
+        return -ENOSPC;
+    }
+
+    if (offset + size > g_iso_file_size)
+    {
+        size = g_iso_file_size - offset;
+    }
+
+    leftsize = size;
+    sector = offset / 512;
+
+    mod = offset % 512;
+    if (mod > 0)
+    {
+        align = 512 - mod;
+        ventoy_read_iso_sector(sector, 1, secbuf);
+
+        if (leftsize > align)
+        {
+            memcpy(secbuf + mod, buf, align);
+            ventoy_write_iso_sector(sector, 1, secbuf);
+
+            buf += align;
+            offset += align;
+            sector++;
+            leftsize -= align;
+        }
+        else
+        {
+            memcpy(secbuf + mod, buf, leftsize);
+            ventoy_write_iso_sector(sector, 1, secbuf);
+            return size;
+        }
+    }
+
+    number = leftsize / 512;
+    if (number > 0)
+    {
+        ventoy_write_iso_sector(sector, number, buf);
+        buf += number * 512;
+    }
+
+    mod = leftsize % 512;
+    if (mod > 0)
+    {
+        ventoy_read_iso_sector(sector + number, 1, secbuf);
+        memcpy(secbuf, buf, mod);
+        ventoy_write_iso_sector(sector + number, 1, secbuf);
+    }
+
+    return size;
+}
+
+
+static struct fuse_operations ventoy_op =
 {
     .getattr    = ventoy_iso_getattr,
     .readdir    = ventoy_iso_readdir,
     .open       = ventoy_iso_open,
     .read       = ventoy_iso_read,
+    .write      = ventoy_iso_write,
 };
 
 static int ventoy_parse_dmtable(const char *filename)
@@ -238,8 +369,8 @@ static int ventoy_parse_dmtable(const char *filename)
     /* read untill the last line */
     while (fgets(line, sizeof(line), fp) && g_disk_entry_num < MAX_ENTRY_NUM)
     {
-        sscanf(line, "%u %u linear %s %llu", 
-               &entry->isoSector, &entry->sectorNum, 
+        sscanf(line, "%u %u linear %s %llu",
+               &entry->isoSector, &entry->sectorNum,
                diskname, &entry->diskSector);
 
         g_iso_file_size += (uint64_t)entry->sectorNum * 512ULL;
@@ -256,7 +387,7 @@ static int ventoy_parse_dmtable(const char *filename)
 
     debug("iso file size: %llu disk name %s\n", g_iso_file_size, diskname);
 
-    g_disk_fd = open(diskname, O_RDONLY);
+    g_disk_fd = open(diskname, g_disk_rw ? O_RDWR : O_RDONLY);
     if (g_disk_fd < 0)
     {
         debug("Failed to open %s\n", diskname);
@@ -274,13 +405,13 @@ int main(int argc, char **argv)
 
     /* Avoid to be killed by systemd */
     if (access("/etc/initrd-release", F_OK) >= 0)
-    {		
+    {
         argv[0][0] = '@';
     }
 
     g_iso_file_name[0] = '/';
-    
-    while ((ch = getopt(argc, argv, "f:s:m:v::t::")) != -1)
+
+    while ((ch = getopt(argc, argv, "f:s:m:v::t::w::")) != -1)
     {
         if (ch == 'f')
         {
@@ -302,6 +433,10 @@ int main(int argc, char **argv)
         {
             return 0;
         }
+        else if (ch == 'w') // write
+        {
+            g_disk_rw = 1;
+        }
     }
 
     if (filename[0] == 0)
@@ -322,6 +457,10 @@ int main(int argc, char **argv)
     }
 
     debug("ventoy fuse iso: %s %s %s\n", filename, g_iso_file_name, g_mnt_point);
+    if (g_disk_rw)
+    {
+        debug("fuse rw mode\n");
+    }
 
     g_disk_entry_list = malloc(MAX_ENTRY_NUM * sizeof(dmtable_entry));
     if (NULL == g_disk_entry_list)
