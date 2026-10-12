@@ -1018,7 +1018,7 @@ ventoy_init_udev_auto_rules() {
 }
 
 ventoy_new_root_dir() {
-    for vroot in sysroot newroot new_root root live/aufs pup_new; do
+    for vroot in /sysroot /newroot /new_root /root /live/aufs /pup_new; do
         if [ -d $vroot/etc/udev/rules.d ]; then
             echo "$vroot"
             return
