@@ -37,7 +37,7 @@ sed '/#define *__s64/d' -i include/fuse_kernel.h
 sed  's/__u64/uint64_t/g'    -i include/fuse_kernel.h
 sed  's/__s64/int64_t/g'    -i include/fuse_kernel.h
 
-./configure --prefix="$LIBFUSE_DIR" --host=aarch64 CC=aarch64-buildroot-linux-uclibc-gcc
+./configure --prefix="$LIBFUSE_DIR" --host=aarch64  --disable-example CC=aarch64-buildroot-linux-uclibc-gcc
 
 
 make -j 16

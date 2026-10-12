@@ -5,6 +5,8 @@ if ! [ -f ./dietlibc-0.34.tar.xz ]; then
     exit 1
 fi
 
+echo "======= install dietlibc =============="
+
 rm -rf /opt/diet32
 rm -rf /opt/diet64
 

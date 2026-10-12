@@ -33,8 +33,9 @@ fi
 
 ./makeconf.sh
 
-./configure --prefix="$LIBFUSE_DIR" CFLAGS='-specs /usr/local/musl/lib/musl-gcc.specs'
+./configure --prefix="$LIBFUSE_DIR" CFLAGS='-specs /usr/local/musl/lib/musl-gcc.specs' --disable-example
 make -j 16
 make install
 cd ..
+
 rm -rf libfuse

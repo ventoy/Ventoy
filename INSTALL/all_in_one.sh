@@ -44,9 +44,9 @@ sh buildedk.sh >> $LOG 2>&1 || exit 1
 #cd $VTOY_PATH/vtoycli
 #sh build.sh || exit 1
 
-#cd $VTOY_PATH/FUSEISO
-#sh build_libfuse.sh
-#sh build.sh
+cd $VTOY_PATH/FUSEISO
+sh build.sh
+sh build_aarch64.sh
 
 
 # cd $VTOY_PATH/ExFAT

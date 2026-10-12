@@ -15,6 +15,10 @@ fi
 # use musl-c to build for x86_64
 #
 
+if [ ! -d $LIBFUSE_DIR ]; then
+    sh build_libfuse.sh
+fi
+
 export C_INCLUDE_PATH=$LIBFUSE_DIR/include
 
 rm -f $name
@@ -30,3 +34,4 @@ fi
 
 strip --strip-all $name
 
+rm -rf $LIBFUSE_DIR

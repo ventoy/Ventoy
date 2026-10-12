@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#[ -d /opt/diet64 ] || sh ./installdietlibc.sh
+[ -d /opt/diet64 ] || sh ./installdietlibc.sh
+
+[ -d /usr/local/musl ] || sh ./installmusl.sh
 
 [ -d /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu ] || tar xf /opt/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu.tar.xz  -C /opt
 
