@@ -1,0 +1,67 @@
+# Runs BUSYBOX/chmod/build.sh, unmodified, inside a CentOS 7.5 container with
+# the toolchains listed in DOC/BuildVentoyFromSource.txt, and fails unless all
+# ten vtchmod* files it produces are byte-identical to the committed ones.
+# See BUSYBOX/chmod/ci/README.md.
+name: build-vtchmod
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'BUSYBOX/chmod/**'
+      - 'IMG/cpio_x86/ventoy/busybox/vtchmod*'
+      - 'IMG/cpio_arm64/ventoy/busybox/vtchmod*'
+      - 'IMG/cpio_mips64/ventoy/busybox/vtchmod*'
+      - 'DOC/installdietlibc.sh'
+      - '.github/workflows/build-vtchmod.yml'
+  push:
+    paths:
+      - 'BUSYBOX/chmod/**'
+      - 'IMG/cpio_x86/ventoy/busybox/vtchmod*'
+      - 'IMG/cpio_arm64/ventoy/busybox/vtchmod*'
+      - 'IMG/cpio_mips64/ventoy/busybox/vtchmod*'
+      - 'DOC/installdietlibc.sh'
+      - '.github/workflows/build-vtchmod.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: vtchmod32 / 64 / 64_musl / aa64 / m64e via BUSYBOX/chmod/build.sh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Fetch toolchains (pinned SHA-256)
+        run: sh BUSYBOX/chmod/ci/fetch.sh
+
+      # actions/checkout needs a newer glibc than CentOS 7 has, so the
+      # container is run explicitly instead of via `container:`.
+      - name: Build CentOS 7.5 image
+        run: docker build -t vtchmod-centos75 -f BUSYBOX/chmod/ci/Dockerfile.centos75 BUSYBOX/chmod/ci
+
+      - name: Run BUSYBOX/chmod/build.sh in the container
+        run: |
+          mkdir -p BUSYBOX/chmod/ci/out
+          docker run --rm \
+            -v "$PWD:/src:ro" \
+            -v "$PWD/BUSYBOX/chmod/ci/dl:/dl:ro" \
+            -v "$PWD/BUSYBOX/chmod/ci/out:/out" \
+            vtchmod-centos75 bash /src/BUSYBOX/chmod/ci/build.sh
+          docker run --rm -v "$PWD/BUSYBOX/chmod/ci/out:/out" vtchmod-centos75 chown -R "$(id -u):$(id -g)" /out
+
+      - name: Verify byte-identical to committed
+        run: sh BUSYBOX/chmod/ci/verify.sh
+
+      - name: Smoke test (native x86, qemu-user for aarch64/mips64el)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-user-static
+          sh BUSYBOX/chmod/ci/test.sh
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: vtchmod
+          path: BUSYBOX/chmod/ci/out/
+          if-no-files-found: error
