@@ -253,7 +253,7 @@ getlba(uchar *p)
 }
 
 int
-aoeata(Ata *p, int pktlen)	// do ATA reqeust
+aoeata(Ata *p, int pktlen)	// do ATA request
 {
 	Ataregs r;
 	int len = 60;

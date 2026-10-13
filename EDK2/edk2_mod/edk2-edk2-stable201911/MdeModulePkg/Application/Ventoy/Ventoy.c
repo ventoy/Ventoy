@@ -406,7 +406,7 @@ EFI_STATUS EFIAPI ventoy_delete_ramdisk_param(VOID)
         Status = gRT->SetVariable(L"VentoyRamDisk", &VarGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
                   sizeof(g_backup_ramdisk_param), &g_backup_ramdisk_param);
-        debug("resotre ramdisk variable %r", Status);
+        debug("restore ramdisk variable %r", Status);
     }
     else
     {

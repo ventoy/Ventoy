@@ -222,7 +222,7 @@ R0.10c (November 09, 2014)
   Changed option name _USE_ERASE to _USE_TRIM.
   Fixed volume label created by Mac OS X cannot be retrieved with f_getlabel(). (appeared at R0.09b)
   Fixed a potential problem of FAT access that can appear on disk error.
-  Fixed null pointer dereference on attempting to delete the root direcotry. (appeared at R0.08)
+  Fixed null pointer dereference on attempting to delete the root directory. (appeared at R0.08)
 
 
 
@@ -298,7 +298,7 @@ R0.13 (May 21, 2017)
   Improved NoFatChain flag of the fragmented file to be set after it is truncated and got contiguous.
   Fixed archive attribute is left not set when a file on the exFAT volume is renamed. (appeared at R0.12)
   Fixed exFAT FAT entry can be collapsed when write or lseek operation to the existing file is done. (appeared at R0.12c)
-  Fixed creating a file can fail when a new cluster allocation to the exFAT directory occures. (appeared at R0.12c)
+  Fixed creating a file can fail when a new cluster allocation to the exFAT directory occurs. (appeared at R0.12c)
 
 
 
@@ -317,7 +317,7 @@ R0.13b (April 07, 2018)
 
   Added support for UTF-32 encoding on the API. (FF_LFN_UNICODE = 3)
   Added support for Unix style volume ID. (FF_STR_VOLUME_ID = 2)
-  Fixed accesing any object on the exFAT root directory beyond the cluster boundary can fail. (appeared at R0.12c)
+  Fixed accessing any object on the exFAT root directory beyond the cluster boundary can fail. (appeared at R0.12c)
   Fixed f_setlabel() does not reject some invalid characters. (appeared at R0.09b)
 
 

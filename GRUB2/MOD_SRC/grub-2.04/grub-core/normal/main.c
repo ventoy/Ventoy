@@ -153,7 +153,7 @@ read_config_file (const char *config)
     }
   else
     {
-      /* $root is guranteed to be defined, otherwise open above would fail */
+      /* $root is guaranteed to be defined, otherwise open above would fail */
       config_dir = grub_xasprintf ("(%s)%s", grub_env_get ("root"), config);
       if (config_dir)
 	grub_env_set ("config_file", config_dir);

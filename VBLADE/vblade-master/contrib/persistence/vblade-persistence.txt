@@ -81,7 +81,7 @@ The template for these scripts is `vblade.init.in`, the actual
 templating is done using tpage(1p), see `vblade.init.generate`.
 
 Support for using Debian's start-stop-daemon has been prepared but
-requires pid file supprt in vblade to be usable.
+requires pid file support in vblade to be usable.
 
 
 == BUGS
