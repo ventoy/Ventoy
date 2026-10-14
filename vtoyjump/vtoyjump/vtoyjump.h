@@ -20,6 +20,10 @@
 #ifndef __VTOYJUMP_H__
 #define __VTOYJUMP_H__
 
+#ifndef ERROR_VIRTDISK_PROVIDER_NOT_FOUND
+#define ERROR_VIRTDISK_PROVIDER_NOT_FOUND 0xC0140005
+#endif
+
 #pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" ) 
 
 #define SIZE_1MB   (1024 * 1024)

@@ -1,6 +1,8 @@
 #!/bin/sh
 
-if [ -n "$PKG_DATE" ]; then
+if [ -n "$SOURCE_DATE_EPOCH" ]; then
+    plugson_verion=$(date -u -d "@$SOURCE_DATE_EPOCH" '+%Y%m%d %H:%M:%S' 2>/dev/null || date -u -r "$SOURCE_DATE_EPOCH" '+%Y%m%d %H:%M:%S' 2>/dev/null || echo "20231114 22:13:20")
+elif [ -n "$PKG_DATE" ]; then
     plugson_verion=$PKG_DATE
 else
     plugson_verion=$(date '+%Y%m%d %H:%M:%S')
@@ -22,23 +24,25 @@ if [ -f ./www.tar.xz ]; then
     rm -f ./www.tar.xz
 fi
 
-VV=$(grep -m1 '\?v=' ./www/index.html |   sed  's/.*v=\([0-9][0-9]*\).*/\1/g')
-let VV++
-echo V=$VV
-sed "s/\?v=[0-9][0-9]*/?v=$VV/g" -i ./www/index.html 
+if [ -z "$SOURCE_DATE_EPOCH" ]; then
+    VV=$(grep -m1 '\?v=' ./www/index.html |   sed  's/.*v=\([0-9][0-9]*\).*/\1/g')
+    let VV++
+    echo V=$VV
+    sed "s/\?v=[0-9][0-9]*/?v=$VV/g" -i ./www/index.html
+fi
 
 
 [ -f ./www/helplist ] && rm -f ./www/helplist
-ls -1 ../INSTALL/grub/help/ | while read line; do 
+ls -1 ../INSTALL/grub/help/ | while read line; do
     echo -n ${line:0:5} >> ./www/helplist
-done 
+done
 [ -f ./www/menulist ] && rm -f ./www/menulist
-ls -1 ../INSTALL/grub/menu/ | while read line; do 
+ls -1 ../INSTALL/grub/menu/ | while read line; do
     echo -n ${line:0:5} >> ./www/menulist
-done 
+done
 echo -n "$plugson_verion" > ./www/buildtime
 
-tar cf www.tar www
+tar --mtime="@${SOURCE_DATE_EPOCH:-1700000000}" --owner=0 --group=0 --numeric-owner --sort=name -cf www.tar www
 xz --check=crc32 www.tar
 
 rm -f ../INSTALL/VentoyPlugson.exe

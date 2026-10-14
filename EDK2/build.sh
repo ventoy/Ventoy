@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -z "$1" ]; then
     EDKARCH=X64
@@ -38,15 +38,21 @@ rm -f $VTEFI_PATH3
 unset WORKSPACE
 source ./edksetup.sh
 
-if [ "$EDKARCH" = "AARCH64" ]; then    
-    GCC48_AARCH64_PREFIX=aarch64-linux-gnu- \
-    build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48
-else
-    build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48
-fi
+build_module() {
+    if [ "$EDKARCH" = "AARCH64" ]; then
+        GCC48_AARCH64_PREFIX=aarch64-linux-gnu- \
+        build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48 -m $1
+    else
+        build -p MdeModulePkg/MdeModulePkg.dsc -a $EDKARCH -b RELEASE -t GCC48 -m $1
+    fi
+}
+
+build_module MdeModulePkg/Application/Ventoy/Ventoy.inf
+build_module MdeModulePkg/Application/VtoyUtil/VtoyUtil.inf
+build_module MdeModulePkg/Application/VDiskChain/VDiskChain.inf
 
 if [ -e $VTEFI_PATH ] && [ -e $VTEFI_PATH2 ] && [ -e $VTEFI_PATH3 ]; then
-    echo -e '\n\n====================== SUCCESS ========================\n\n'    
+    echo -e '\n\n====================== SUCCESS ========================\n\n'
     cp -a $VTEFI_PATH $DST_PATH
     cp -a $VTEFI_PATH2 $DST_PATH2
     [ -d ../../VDiskChain ] && cp -a $VTEFI_PATH3 $DST_PATH3

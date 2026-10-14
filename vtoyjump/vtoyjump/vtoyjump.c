@@ -21,10 +21,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <Windows.h>
+#include <windows.h>
 #include <virtdisk.h>
 #include <winioctl.h>
-#include <VersionHelpers.h>
+#include <versionhelpers.h>
 #include "vtoyjump.h"
 #include "fat_filelib.h"
 

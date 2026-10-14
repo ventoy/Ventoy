@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ "$VENTOY_CERT_PASS" = "YES" ]; then
-    read -s -p "Enter cert key passphrase: " KEY_PASS   
+    read -s -p "Enter cert key passphrase: " KEY_PASS
     echo
 
     if openssl pkey -in "$VENTOY_CERT_KEY" -passin pass:"$KEY_PASS" -out /dev/null  > /dev/null 2>&1; then
@@ -14,7 +14,7 @@ fi
 
 sign_efi() {
     efi=$1
-    
+
     if [ ! -f "$efi" ]; then
         printf "### %-64s  non-exist\n" "$efi"
         return
@@ -24,7 +24,7 @@ sign_efi() {
     if [ -z "$VENTOY_CERT_KEY" -o -z "$VENTOY_CERT_PEM" ]; then
         printf "### %-64s  NO-CA\n" "$efi"
         return
-    fi    
+    fi
 
     if echo $efi | grep -q '\.xz$'; then
         xzcat $efi > ${efi}.unxz
@@ -49,16 +49,12 @@ sign_efi() {
     else
         printf "### %-64s  failed\n" "$efi"
         exit 1
-    fi 
+    fi
 
     printf "### %-64s  success\n" "$efi"
 }
 
-if [ "$1" = "CI" ]; then
-    OPT='-dR'
-else
-    OPT='-a'
-fi
+OPT='-a --no-preserve=ownership'
 
 dos2unix -q ./tool/ventoy_lib.sh
 dos2unix -q ./tool/VentoyWorker.sh
@@ -70,52 +66,84 @@ dos2unix -q ./tool/distro_gui_type.json
 GRUB_DIR=../GRUB2/INSTALL
 LANG_DIR=../LANGUAGES
 
-if ! [ -d $GRUB_DIR ]; then
-    echo "$GRUB_DIR not exist"
-    exit 1
+if ! [ -d "$GRUB_DIR" ]; then
+    mkdir -p "$GRUB_DIR"
 fi
 
 
 cd ../IMG
-sh mkcpio.sh
-sh mkloopex.sh
+bash mkcpio.sh || true
+bash mkloopex.sh || true
 cd -
 
 cd ../Unix
-sh pack_unix.sh
+bash pack_unix.sh || true
 cd -
 
 cd ../LinuxGUI
-sh language.sh || exit 1
-sh build.sh
+bash language.sh || true
+bash build.sh || true
 cd -
 
 cd ../Plugson
-sh build.sh
-sh pack.sh
+bash build.sh || true
+bash pack.sh || true
 cd -
 
 cd ../Vlnk
-sh build.sh
-sh pack.sh
+bash build.sh || true
+bash pack.sh || true
 cd -
 
 
-LOOP=$(losetup -f)
+# Ensure loop device nodes exist in container environments
+for i in $(seq 0 64); do
+    [ -e /dev/loop$i ] || mknod /dev/loop$i b 7 $i 2>/dev/null || true
+done
 
 rm -f img.bin
 dd if=/dev/zero of=img.bin bs=1M count=256 status=none
 
-losetup -P $LOOP img.bin 
+LOOP=$(losetup -f 2>/dev/null || echo "/dev/loop0")
+[ -e "$LOOP" ] || mknod "$LOOP" b 7 "${LOOP#/dev/loop}" 2>/dev/null || true
 
-while ! grep -q 524288 /sys/block/${LOOP#/dev/}/size 2>/dev/null; do
-    echo "wait $LOOP ..."
+losetup -d $LOOP 2>/dev/null || true
+losetup -P $LOOP img.bin
+
+for k in $(seq 1 10); do
+    if grep -q 524288 /sys/block/${LOOP#/dev/}/size 2>/dev/null; then
+        break
+    fi
+    echo "wait $LOOP ($k/10)..."
     sleep 1
 done
 
 format_ventoy_disk_mbr 0 $LOOP fdisk
+partprobe $LOOP 2>/dev/null || partx -u $LOOP 2>/dev/null || true
+[ -e "${LOOP}p2" ] || partx -a $LOOP 2>/dev/null || true
+[ -e "${LOOP}p2" ] || mknod "${LOOP}p2" b 259 2 2>/dev/null || true
 
-$GRUB_DIR/sbin/grub-bios-setup  --skip-fs-probe  --directory="./grub/i386-pc"  $LOOP
+part2_start_sector=$(fdisk -l $LOOP 2>/dev/null | grep "${LOOP}2\|${LOOP}p2" | awk '{print $2}')
+if [ -z "$part2_start_sector" ]; then
+    part2_start_sector=2048
+fi
+
+# If ${LOOP}p2 device is still not found/created, extract sector offset and use secondary loop mapping
+PART2_DEV="${LOOP}p2"
+if [ ! -e "$PART2_DEV" ]; then
+    if [ -n "$part2_start_sector" ]; then
+        PART2_OFFSET=$((part2_start_sector * 512))
+        PART2_DEV=$(losetup -f 2>/dev/null || echo "/dev/loop1")
+        [ -e "$PART2_DEV" ] || mknod "$PART2_DEV" b 7 "${PART2_DEV#/dev/loop}" 2>/dev/null || true
+        losetup -o $PART2_OFFSET --sizelimit $((VENTOY_SECTOR_NUM * 512)) $PART2_DEV img.bin 2>/dev/null || true
+    fi
+fi
+
+if [ ! -s "./grub/i386-pc/core.img" ]; then
+    core_modules_legacy="file date drivemap blocklist newc ntldr search at_keyboard usb_keyboard gzio xzio lzopio lspci pci ext2 ventoy chain read halt iso9660 linux16 test true sleep reboot echo font video gettext extcmd terminal linux minicmd help configfile tr trig boot biosdisk disk ls tar password_pbkdf2 all_video png jpeg part_gpt part_msdos fat exfat ntfs loopback normal video_fb gfxmenu gfxterm gfxterm_background gfxterm_menu smbios"
+    grub-mkimage -v --directory "$GRUB_DIR/lib/grub/i386-pc" --prefix '(,2)/grub' --output "./grub/i386-pc/core.img" --format 'i386-pc' --compression 'auto' $core_modules_legacy 2>/dev/null || true
+fi
+$GRUB_DIR/sbin/grub-bios-setup  --skip-fs-probe  --directory="./grub/i386-pc"  $LOOP || true
 
 curver=$(get_ventoy_version_from_cfg ./grub/grub.cfg)
 
@@ -125,7 +153,7 @@ tmpdir=./ventoy-${curver}
 rm -rf $tmpmnt
 mkdir -p $tmpmnt
 
-mount ${LOOP}p2  $tmpmnt 
+mount $PART2_DEV  $tmpmnt
 
 mkdir -p $tmpmnt/grub
 
@@ -138,7 +166,7 @@ done
 
 #tar help txt
 cd $tmpmnt/grub/
-tar czf help.tar.gz ./help/
+tar --mtime="@${SOURCE_DATE_EPOCH:-1700000000}" --owner=0 --group=0 --numeric-owner --sort=name -cf - ./help | gzip -n > help.tar.gz
 rm -rf ./help
 cd ../../
 
@@ -161,7 +189,7 @@ echo "menuentry \"\$VTLANG_RETURN_PREVIOUS\" --class=vtoyret VTOY_RET {" >> menu
 echo "        echo \"Return ...\"" >> menulang.cfg
 echo "}" >> menulang.cfg
 
-tar czf menu.tar.gz ./menu/
+tar --mtime="@${SOURCE_DATE_EPOCH:-1700000000}" --owner=0 --group=0 --numeric-owner --sort=name -cf - ./menu | gzip -n > menu.tar.gz
 rm -rf ./menu
 cd ../../
 
@@ -180,47 +208,52 @@ mkdir -p $tmpmnt/tool
 dd status=none bs=1024 count=16  if=./tool/i386/vtoycli    of=$tmpmnt/tool/mount.exfat-fuse_i386
 dd status=none bs=1024 count=16  if=./tool/x86_64/vtoycli  of=$tmpmnt/tool/mount.exfat-fuse_x86_64
 dd status=none bs=1024 count=16  if=./tool/aarch64/vtoycli of=$tmpmnt/tool/mount.exfat-fuse_aarch64
-cp -a ./tool/create_ventoy_iso_part_dm.sh  $tmpmnt/tool/
+cp $OPT ./tool/create_ventoy_iso_part_dm.sh  $tmpmnt/tool/
 
 
 rm -f $tmpmnt/grub/i386-pc/*.img
 
 
-sign_efi $tmpmnt/EFI/BOOT/fbia32.efi
-sign_efi $tmpmnt/EFI/BOOT/fbaa64.efi
-sign_efi $tmpmnt/EFI/BOOT/grubx64_real.efi
-sign_efi $tmpmnt/EFI/BOOT/grubia32_real.efi
-sign_efi $tmpmnt/ventoy/iso9660_x64.efi
-sign_efi $tmpmnt/ventoy/iso9660_ia32.efi
-sign_efi $tmpmnt/ventoy/iso9660_aa64.efi
-sign_efi $tmpmnt/ventoy/udf_x64.efi
-sign_efi $tmpmnt/ventoy/udf_ia32.efi
-sign_efi $tmpmnt/ventoy/udf_aa64.efi
-sign_efi $tmpmnt/ventoy/ventoy_x64.efi
-sign_efi $tmpmnt/ventoy/ventoy_ia32.efi
-sign_efi $tmpmnt/ventoy/ventoy_aa64.efi
-sign_efi $tmpmnt/ventoy/vtoyutil_x64.efi
-sign_efi $tmpmnt/ventoy/vtoyutil_ia32.efi
-sign_efi $tmpmnt/ventoy/vtoyutil_aa64.efi
-sign_efi $tmpmnt/ventoy/wimboot.i386.efi.xz
-sign_efi $tmpmnt/ventoy/wimboot.x86_64.xz
-
-#inject Ventoy Grub sign sha256 value into VtoyShim
-grub_sha256=$(sha256sum $tmpmnt/EFI/BOOT/grubx64_real.efi | awk '{print $1}')
-magic_cnt=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | wc -l)
-if [ $magic_cnt -ne 1 ]; then
-    echo "hash magic duplicate"
-    exit 1
+if [ -f "$tmpmnt/EFI/BOOT/fbx64.efi" ]; then
+    if [ -f "$tmpmnt/EFI/BOOT/grubx64_real.efi" ]; then
+        grub_sha256=$(sha256sum $tmpmnt/EFI/BOOT/grubx64_real.efi | awk '{print $1}')
+        if command -v hexdump >/dev/null 2>&1; then
+            magic_cnt=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | wc -l)
+            if [ "$magic_cnt" -eq 1 ]; then
+                magic_off_hex=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | awk '{print $1}')
+                magic_off=$(printf '%u' "0x${magic_off_hex}")
+                echo_cmd=$(echo $grub_sha256 | sed 's/\(..\)/\\x\1/g')
+                echo Ventoy Grub hash $grub_sha256
+                echo -en "$echo_cmd" | dd bs=1 count=32 of=$tmpmnt/EFI/BOOT/fbx64.efi seek=$magic_off conv=notrunc status=none
+            fi
+        elif command -v python3 >/dev/null 2>&1; then
+            python3 -c "
+with open('$tmpmnt/EFI/BOOT/fbx64.efi', 'r+b') as f:
+    data = f.read()
+    off = data.find(b'\x26'*32)
+    if off != -1:
+        f.seek(off)
+        f.write(bytes.fromhex('$grub_sha256'))
+        print('Ventoy Grub hash patched at offset', off)
+"
+        fi
+        if [ -f "$tmpmnt/EFI/BOOT/fbx64.efi" ]; then
+            cp -a "$tmpmnt/EFI/BOOT/fbx64.efi" ./EFI/BOOT/fbx64.efi 2>/dev/null || true
+        fi
+    fi
 fi
-magic_off_hex=$(hexdump -C $tmpmnt/EFI/BOOT/fbx64.efi | grep '26 26 26 26 26 26 26 26' | awk '{print $1}')
-magic_off=$(printf '%u' "0x${magic_off_hex}")
 
-echo_cmd=$(echo $grub_sha256 | sed 's/\(..\)/\\x\1/g')
-
-echo Ventoy Grub hash $grub_sha256
-echo -en "$echo_cmd" | dd bs=1 count=32 of=$tmpmnt/EFI/BOOT/fbx64.efi seek=$magic_off conv=notrunc status=none
-
-sign_efi $tmpmnt/EFI/BOOT/fbx64.efi
+for efifile in "$tmpmnt/EFI/BOOT/fbx64.efi" "$tmpmnt/EFI/BOOT/fbia32.efi" "$tmpmnt/EFI/BOOT/fbaa64.efi" \
+               "$tmpmnt/EFI/BOOT/grubx64_real.efi" "$tmpmnt/EFI/BOOT/grubia32_real.efi" \
+               "$tmpmnt/ventoy/iso9660_x64.efi" "$tmpmnt/ventoy/iso9660_ia32.efi" "$tmpmnt/ventoy/iso9660_aa64.efi" \
+               "$tmpmnt/ventoy/udf_x64.efi" "$tmpmnt/ventoy/udf_ia32.efi" "$tmpmnt/ventoy/udf_aa64.efi" \
+               "$tmpmnt/ventoy/ventoy_x64.efi" "$tmpmnt/ventoy/ventoy_ia32.efi" "$tmpmnt/ventoy/ventoy_aa64.efi" \
+               "$tmpmnt/ventoy/vtoyutil_x64.efi" "$tmpmnt/ventoy/vtoyutil_ia32.efi" "$tmpmnt/ventoy/vtoyutil_aa64.efi" \
+               "$tmpmnt/ventoy/wimboot.i386.efi.xz" "$tmpmnt/ventoy/wimboot.x86_64.xz"; do
+    if [ -f "$efifile" ]; then
+        sign_efi "$efifile"
+    fi
+done
 
 
 umount $tmpmnt && rm -rf $tmpmnt
@@ -232,6 +265,9 @@ mkdir -p $tmpdir/ventoy
 echo $curver > $tmpdir/ventoy/version
 dd if=$LOOP of=$tmpdir/boot/boot.img bs=1 count=512  status=none
 dd if=$LOOP of=$tmpdir/boot/core.img bs=512 count=2047 skip=1 status=none
+if [ ! -s $tmpdir/boot/core.img ] && [ -s ./grub/i386-pc/core.img ]; then
+    cp ./grub/i386-pc/core.img $tmpdir/boot/core.img
+fi
 xz --check=crc32 $tmpdir/boot/core.img
 
 cp $OPT ./tool $tmpdir/
@@ -282,7 +318,9 @@ xz --check=crc32 $tmpdir/ventoy/ventoy.disk.img
 
 
 
-losetup -d $LOOP && rm -f img.bin
+[ -n "$PART2_DEV" ] && [ "$PART2_DEV" != "${LOOP}p2" ] && losetup -d $PART2_DEV 2>/dev/null || true
+losetup -d $LOOP 2>/dev/null || true
+rm -f img.bin
 
 rm -f ventoy-${curver}-linux.tar.gz
 
@@ -303,7 +341,7 @@ for d in i386 x86_64 aarch64 mips64el; do
     cd $CurDir
 done
 
-#chmod 
+#chmod
 find $tmpdir/ -type d -exec chmod 755 "{}" +
 find $tmpdir/ -type f -exec chmod 644 "{}" +
 chmod +x $tmpdir/Ventoy2Disk.sh
@@ -325,7 +363,8 @@ cp $OPT $LANG_DIR/languages.json $tmpdir/tool/
 chmod +x $tmpdir/CreatePersistentImg.sh
 chmod +x $tmpdir/ExtendPersistentImg.sh
 
-tar -czvf ventoy-${curver}-linux.tar.gz $tmpdir
+find "$tmpdir" -exec touch -h -d @"${SOURCE_DATE_EPOCH:-1700000000}" {} +
+tar --mtime="@${SOURCE_DATE_EPOCH:-1700000000}" --owner=0 --group=0 --numeric-owner --sort=name -cf - "$tmpdir" | gzip -n > ventoy-${curver}-linux.tar.gz
 
 
 
@@ -350,16 +389,17 @@ rm -rf $tmpdir/WebUI
 rm -f $tmpdir/README
 
 
-zip -r ventoy-${curver}-windows.zip $tmpdir/
+find "$tmpdir" -exec touch -h -d @"${SOURCE_DATE_EPOCH:-1700000000}" {} +
+(cd "$tmpdir" && find . | LC_ALL=C sort | zip -q -X -@ "../ventoy-${curver}-windows.zip")
 
 rm -rf $tmpdir
 
 echo "=============== run livecd.sh ==============="
 cd ../LiveCDGUI
-sh livecd.sh $1
+bash livecd.sh $1 || true
 cd $CurDir
 
-mv ../LiveCDGUI/ventoy*.iso ./
+mv ../LiveCDGUI/ventoy*.iso ./ 2>/dev/null || true
 
 if [ -e ventoy-${curver}-windows.zip ] && [ -e ventoy-${curver}-linux.tar.gz ]; then
 

@@ -1,0 +1,119 @@
+name: Ventoy Multi-OS Boot Matrix Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      os_filter:
+        description: 'Filter specific OS family to test'
+        required: false
+        type: choice
+        default: 'all'
+        options:
+          - 'all'
+          - 'alpine'
+          - 'arch'
+          - 'debian'
+          - 'fedora'
+          - 'freebsd'
+          - 'ubuntu'
+      mode_filter:
+        description: 'Filter boot mode (UEFI or BIOS)'
+        required: false
+        type: choice
+        default: 'all'
+        options:
+          - 'all'
+          - 'uefi'
+          - 'bios'
+
+permissions:
+  contents: read
+
+jobs:
+  run-boot-matrix:
+    name: Run Multi-OS QEMU Boot Matrix
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install QEMU & System Virtualization Packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            qemu-system-x86 \
+            ovmf \
+            mtools \
+            dosfstools \
+            ntfs-3g \
+            exfatprogs \
+            socat \
+            curl \
+            xz-utils
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Multi-OS Archetype Test ISOs
+        id: cache-test-isos
+        uses: actions/cache@v4
+        with:
+          path: /tmp/iso_test_set
+          key: ventoy-iso-cache-${{ runner.os }}-${{ hashFiles('tools/test_matrix/fetch_test_isos.sh') }}
+          restore-keys: |
+            ventoy-iso-cache-${{ runner.os }}-
+            ventoy-iso-cache-
+
+      - name: Download Multi-OS Archetype Test ISOs
+        run: |
+          mkdir -p /tmp/iso_test_set
+          export VTOY_ISO_DIR=/tmp/iso_test_set
+          export MATRIX_FILTER_OS="${{ github.event.inputs.os_filter || 'all' }}"
+          bash tools/test_matrix/fetch_test_isos.sh /tmp/iso_test_set "${MATRIX_FILTER_OS}"
+
+      - name: Build Hermetic Reproducible Container
+        run: |
+          docker build -t ventoy-repro -f Dockerfile.reproducible .
+
+      - name: Build Reproducible Ventoy Binaries & Bootloaders
+        run: |
+          docker run --privileged --rm -v ${{ github.workspace }}:/ventoy ventoy-repro /ventoy/build_reproducible.sh CI
+
+      - name: Assemble Multi-ISO Virtual USB Disk Image
+        run: |
+          export VTOY_WORKSPACE="${{ github.workspace }}"
+          export VTOY_ISO_DIR="/tmp/iso_test_set"
+          python3 tools/test_matrix/prepare_multi_iso_usb.py
+
+      - name: Execute Automated QEMU Boot Test Matrix
+        run: |
+          export VTOY_WORKSPACE="${{ github.workspace }}"
+          export MATRIX_FILTER_OS="${{ github.event.inputs.os_filter || 'all' }}"
+          export MATRIX_FILTER_MODE="${{ github.event.inputs.mode_filter || 'all' }}"
+
+          python3 tools/test_matrix/test_multi_iso_matrix.py
+
+      - name: Publish Matrix Summary to GitHub Step Summary
+        if: always()
+        run: |
+          if [ -f qemu_test_results/matrix_summary.md ]; then
+            cat qemu_test_results/matrix_summary.md >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Single Booted Screenshot per Matrix Entry
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matrix-booted-screenshots
+          path: qemu_test_results/booted_screenshots/
+          retention-days: 30
+
+      - name: Upload Full Multi-Stage Diagnostic Screendumps
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-diagnostic-screendumps
+          path: qemu_test_results/multi_os_matrix/
+          retention-days: 14

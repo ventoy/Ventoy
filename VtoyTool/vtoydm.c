@@ -29,7 +29,6 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <linux/fs.h>
 #include <dirent.h>
 #include "biso.h"
 #include "biso_list.h"
@@ -37,6 +36,10 @@
 #include "biso_plat.h"
 #include "biso_9660.h"
 #include "vtoytool.h"
+
+#ifndef BLKGETSIZE64
+#define BLKGETSIZE64 _IOR(0x12,114,size_t)
+#endif
 
 #ifndef O_BINARY
 #define O_BINARY 0

@@ -1,0 +1,35 @@
+# Release packages and checksums
+INSTALL/ventoy-*.tar.gz
+INSTALL/ventoy-*.zip
+INSTALL/ventoy-*.iso
+INSTALL/sha256.txt
+
+# Downloaded archives and extracted source trees
+EDK2/*.zip
+EDK2/edk2-edk2-stable201911/
+GRUB2/grub-2.04.tar.xz
+GRUB2/SRC/
+GRUB2/INSTALL/
+GRUB2/PXE/
+GRUB2/NBP/
+LiveCDGUI/EXT/
+
+# Intermediate compiled binaries and packaging artifacts
+IMG/*.cpio
+Unix/*.cpio
+Vlnk/vlnk_*
+vtoycli/vtoycli_*
+LinuxGUI/V2D*
+LinuxGUI/WebUI/static/js/languages.js
+Plugson/Plugson*
+INSTALL/img.bin
+INSTALL/log.txt
+INSTALL/EFI/BOOT/fbx64.efi
+INSTALL/tool/plugson.tar.xz
+INSTALL/VentoyPlugson*.exe
+INSTALL/VentoyVlnk.*
+
+# Build logs and temporary files
+build.log
+*.log
+*.tmp

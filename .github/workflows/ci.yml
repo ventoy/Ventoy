@@ -2,36 +2,182 @@ name: Ventoy CI
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - main
+    tags:
+      - 'v*'
   pull_request:
-    branches: [ master ]
-  
+    branches:
+      - master
+      - main
   workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publish compiled artifacts as a GitHub Release'
+        required: false
+        type: boolean
+        default: false
+      custom_tag:
+        description: 'Optional custom release tag (e.g. v1.1.17)'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  build-and-verify:
+    name: Build & Verify Reproducibility
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Run docker compose up
-      run: docker compose up
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ventoy-windows
-        path: INSTALL/ventoy-*windows*
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ventoy-linux
-        path: INSTALL/ventoy-*linux*
-    - uses: actions/upload-artifact@v4
-      with:
-        name: ventoy-livecd
-        path: INSTALL/ventoy-*livecd*
-    - uses: actions/upload-artifact@v4
-      with:
-        name: SHA256SUM
-        path: INSTALL/sha256.txt
-    - uses: actions/upload-artifact@v4
-      with:
-        name: xxx-build-log
-        path: DOC/build.log
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Hermetic Reproducible Container
+        run: |
+          docker build -t ventoy-repro -f Dockerfile.reproducible .
+
+      - name: Execute Two-Pass Reproducibility Verification Gate
+        run: |
+          docker run --privileged --rm -v ${{ github.workspace }}:/ventoy ventoy-repro /ventoy/verify_reproducibility.sh
+
+      - name: Build Full Deterministic Ventoy Pipeline
+        run: |
+          docker run --privileged --rm -v ${{ github.workspace }}:/ventoy ventoy-repro /ventoy/build_reproducible.sh CI
+
+      - name: Generate Release Packages & Checksums
+        id: package
+        run: |
+          mkdir -p release_artifacts
+
+          if ls INSTALL/ventoy-*linux.tar.gz 1> /dev/null 2>&1; then
+            cp -a INSTALL/ventoy-*linux.tar.gz release_artifacts/
+          fi
+          if ls INSTALL/ventoy-*windows.zip 1> /dev/null 2>&1; then
+            cp -a INSTALL/ventoy-*windows.zip release_artifacts/
+          fi
+          if ls INSTALL/ventoy-*.iso 1> /dev/null 2>&1; then
+            cp -a INSTALL/ventoy-*.iso release_artifacts/
+          fi
+          if [ -f INSTALL/sha256.txt ]; then
+            cp -a INSTALL/sha256.txt release_artifacts/
+          fi
+
+          python3 tools/test_matrix/create_virtual_usb.py || true
+          if [ -f ventoy_usb.img ]; then
+            xz -c -9 --check=crc32 ventoy_usb.img > release_artifacts/ventoy_virtual_usb.img.xz
+          fi
+
+          cd release_artifacts
+          sha256sum * > SHA256SUMS
+          cat SHA256SUMS
+          cd ..
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ventoy-release-packages
+          path: release_artifacts/
+          retention-days: 14
+
+  test-boot-matrix:
+    name: QEMU Multi-OS Boot Matrix Test
+    runs-on: ubuntu-latest
+    needs: [build-and-verify]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install QEMU & OVMF Dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-system-x86 ovmf mtools dosfstools ntfs-3g exfatprogs socat
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ventoy-release-packages
+          path: release_artifacts/
+
+      - name: Run QEMU Boot Verification Harness
+        run: |
+          if [ -f release_artifacts/ventoy_virtual_usb.img.xz ]; then
+            unxz -c release_artifacts/ventoy_virtual_usb.img.xz > ventoy_usb.img
+          else
+            python3 tools/test_matrix/create_virtual_usb.py
+          fi
+
+          python3 tools/test_matrix/test_qemu_boot.py
+
+      - name: Upload Boot Test Screendumps
+        uses: actions/upload-artifact@v4
+        with:
+          name: qemu-boot-screenshots
+          path: qemu_test_results/
+          retention-days: 14
+        if: always()
+
+  publish-release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-and-verify, test-boot-matrix]
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release == true)
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ventoy-release-packages
+          path: release_artifacts/
+
+      - name: Determine Release Tag
+        id: tag
+        run: |
+          if [ -n "${{ inputs.custom_tag }}" ]; then
+            RAW_TAG="${{ inputs.custom_tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            RAW_TAG="${GITHUB_REF#refs/tags/}"
+          else
+            CURVER=$(grep 'set VENTOY_VERSION=' INSTALL/grub/grub.cfg | cut -d'"' -f2 || echo "1.1.17")
+            RAW_TAG="v${CURVER}"
+          fi
+          VER="${RAW_TAG#v}"
+          echo "RELEASE_TAG=${RAW_TAG}" >> $GITHUB_OUTPUT
+          echo "RELEASE_VER=${VER}" >> $GITHUB_OUTPUT
+
+      - name: Generate Release Notes Body
+        run: |
+          cat << 'EOF' > RELEASE_NOTES.md
+          SHA-256
+
+          ```
+          EOF
+          if [ -f release_artifacts/sha256.txt ]; then
+            cat release_artifacts/sha256.txt >> RELEASE_NOTES.md
+          elif [ -f release_artifacts/SHA256SUMS ]; then
+            cat release_artifacts/SHA256SUMS >> RELEASE_NOTES.md
+          fi
+          echo '```' >> RELEASE_NOTES.md
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.RELEASE_TAG }}
+          name: Ventoy ${{ steps.tag.outputs.RELEASE_VER }} release
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          files: release_artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
