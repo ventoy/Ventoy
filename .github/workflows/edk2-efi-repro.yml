@@ -1,0 +1,34 @@
+name: EDK2 EFI reproducibility
+
+# Rebuilds Ventoy's own EFI binaries (Ventoy/VtoyUtil apps, iso9660/udf EfiFs drivers;
+# x64/ia32/aa64) and fails unless each matches the signed copy in the release byte for
+# byte, apart from the Authenticode signature. Runs against a published release, so it
+# is not triggered by ordinary pushes (new source would not match the old release).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version to check, e.g. 1.1.18 (default: VENTOY_VERSION in INSTALL/grub/grub.cfg)"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install host tools
+        run: sudo apt-get update -q && sudo apt-get install -y -q mtools
+      - uses: actions/cache@v4
+        with:
+          path: EDK2/ci/cache
+          key: edk2-efi-repro-${{ hashFiles('EDK2/ci/run-all.sh') }}
+      - name: Rebuild and compare
+        # On a release the tagged tree's INSTALL/grub/grub.cfg VENTOY_VERSION is the release version.
+        run: sh EDK2/ci/run-all.sh ${{ inputs.version }}
