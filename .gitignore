@@ -1,0 +1,27 @@
+# OS/IDE
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+*~
+
+# MSVC build output
+x64/
+*.obj
+*.pdb
+*.iobj
+*.ipdb
+*.res
+*.recipe
+*.tlog
+*.lastbuildstate
+*.exe
+*.dll
+
+# Test / runtime output
+cli_log.txt
+cli_done.txt
+cli_percent.txt
+log.txt
+
