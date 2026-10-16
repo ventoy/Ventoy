@@ -686,19 +686,16 @@ grub_install_copy_nls(const char *src __attribute__ ((unused)),
         char *dstf = grub_util_path_concat_ext (2, dst_locale,
                                                 install_locales.entries[i],
                                                 ".mo");
-        if (grub_install_compress_file (srcf, dstf, 0))
+        if (!grub_install_compress_file (srcf, dstf, 0))
           {
-            free (srcf);
-            free (dstf);
-            continue;
+            char *srcf2 = grub_util_path_concat_ext (4, locale_dir,
+                                                     install_locales.entries[i],
+                                                     "LC_MESSAGES", PACKAGE, ".mo");
+            if (grub_install_compress_file (srcf2, dstf, 0) == 0)
+              grub_util_error (_("cannot find locale `%s'"),
+                               install_locales.entries[i]);
+            free (srcf2);
           }
-        free (srcf);
-        srcf = grub_util_path_concat_ext (4, locale_dir,
-                                          install_locales.entries[i],
-                                          "LC_MESSAGES", PACKAGE, ".mo");
-        if (grub_install_compress_file (srcf, dstf, 0) == 0)
-          grub_util_error (_("cannot find locale `%s'"),
-                           install_locales.entries[i]);
         free (srcf);
         free (dstf);
       }
@@ -758,8 +755,9 @@ grub_install_get_platforms_string (void)
   qsort (arr, ARRAY_SIZE (platforms), sizeof (char *), grub_qsort_strcmp);
   for (i = 0; i < ARRAY_SIZE (platforms); i++)
     {
-      strcpy (ptr, arr[i]);
-      ptr += strlen (arr[i]);
+      size_t slen = strlen (arr[i]);
+      memcpy (ptr, arr[i], slen);
+      ptr += slen;
       *ptr++ = ',';
       *ptr++ = ' ';
       free (arr[i]);
