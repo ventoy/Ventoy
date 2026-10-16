@@ -2474,6 +2474,7 @@ grub_err_t ventoy_cmd_load_plugin(grub_extcmd_context_t ctxt, int argc, char **a
     grub_env_set("VTOY_TIP_TOP", "80%+5");
     grub_env_set("VTOY_TIP_COLOR", "blue");
     grub_env_set("VTOY_TIP_ALIGN", "left");
+    grub_env_set("VTOY_TIP_FONT", "");
 
     file = ventoy_grub_file_open(GRUB_FILE_TYPE_LINUX_INITRD, "%s/ventoy/ventoy.json", args[0]);
     if (!file)
