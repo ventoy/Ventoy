@@ -113,13 +113,6 @@ int main(int argc, char *argv[])
 
     gtk_init(&argc, &argv);
     
-    if (geteuid() != 0)
-    {
-        early_msgbox(GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, 
-                     "Ventoy2Disk permission denied!\r\nPlease run with root privileges.");
-        return EACCES;
-    }
-
     if (access("./boot/boot.img", F_OK) == -1)
     {
         adjust_cur_dir(argv[0]);        

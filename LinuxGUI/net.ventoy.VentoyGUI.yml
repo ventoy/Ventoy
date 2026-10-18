@@ -1,0 +1,206 @@
+id: net.ventoy.VentoyGUI
+runtime: org.gnome.Platform
+runtime-version: '48'
+sdk: org.gnome.Sdk
+command: ventoy-gtk3.sh
+modules:
+  - name: udisks2
+    sources:
+      - type: git
+        url: https://github.com/storaged-project/udisks.git
+        tag: udisks-2.10.1
+    config-opts:
+      - "--enable-available-modules=no"
+      - "--enable-bcache=no"
+      - "--enable-btrfs=no"
+      - "--enable-introspection=no"
+      - "--enable-lvm2=no"
+      - "--enable-modules=no"
+      - "--enable-vdo=no"
+      - "--enable-zram=no"
+      - "--disable-smart"
+      - "--with-systemdsystemunitdir=no"
+      - "--with-tmpfilesdir=no"
+    modules:
+      - name: polkit
+        buildsystem: meson
+        sources:
+          - type: git
+            url: https://github.com/polkit-org/polkit.git
+            tag: "126"
+        config-opts:
+          - -Dlibs-only=true
+          - -Dintrospection=false
+        modules:
+          - name: pam
+            sources:
+              - type: archive
+                url: https://github.com/linux-pam/linux-pam/releases/download/v1.4.0/Linux-PAM-1.4.0.tar.xz
+                sha256: cd6d928c51e64139be3bdb38692c68183a509b83d4f2c221024ccd4bcddfd034
+            config-opts:
+              - "--includedir=/app/include/security"
+              - "--disable-doc"
+      - name: libnvme
+        buildsystem: meson
+        sources:
+          - type: git
+            url: https://github.com/linux-nvme/libnvme.git
+            tag: v1.15
+      - name: libblockdev
+        sources:
+          - type: git
+            url: https://github.com/storaged-project/libblockdev.git
+            tag: 3.3.1
+        config-opts:
+          - "--disable-tests"
+          - "--with-btrfs=no"
+          - "--with-dm=no"
+          - "--with-gtk-doc=no"
+          - "--with-lvm=no"
+          - "--with-lvm_dbus=no"
+          - "--with-mpath=no"
+          - "--with-nvdimm=no"
+          - "--with-escrow=no"
+          - "--with-tools=no"
+          - "--with-smart=no"
+          - "--with-smartmontools=no"
+        modules:
+          - name: libparted
+            cleanup:
+              - /bin
+              - /share
+            sources:
+              - type: archive
+                url: https://alpha.gnu.org/gnu/parted/parted-3.2.153.tar.xz
+                sha256: a1445d837ac4bc809ff9146ab3ac112ecc1b5639d23b7ea7b668d45aca058a2a
+            config-opts:
+              - --disable-device-mapper
+          - name: kmod
+            buildsystem: meson
+            sources:
+              - type: git
+                url: https://github.com/kmod-project/kmod.git
+                tag: v34
+            config-opts:
+              - -Dbashcompletiondir=no
+              - -Dzshcompletiondir=no
+              - -Dfishcompletiondir=no
+              - -Dtools=false
+              - -Dmanpages=false
+          - name: libaio
+            buildsystem: simple
+            sources:
+              - type: git
+                url: https://github.com/JingchengLi/libaio.git
+                commit: 1b18bfa
+            build-commands:
+              - make prefix=/app install
+          - name: lvm2
+            buildsystem: simple
+            sources:
+              - type: git
+                url: https://gitlab.com/lvmteam/lvm2.git
+                tag: v2_03_34
+            make-args:
+              - device-mapper
+            build-options:
+              no-debuginfo: true
+            build-commands:
+              - ./configure --prefix=/app --exec-prefix=/app --enable-pkgconfig
+              - make install_device-mapper
+              - cd libdm && make install_pkgconfig
+              - chmod 755 /app/lib/libdevmapper.so
+              - chmod 755 /app/sbin/dmsetup
+          - name: libcryptsetup
+            sources:
+              - type: git
+                url: https://gitlab.com/cryptsetup/cryptsetup.git
+                tag: v2.8.0
+            config-opts:
+              - --disable-asciidoc
+              - --disable-ssh-token
+            modules:
+              - name: libpopt
+                sources:
+                  - type: git
+                    url: https://github.com/rpm-software-management/popt.git
+                    tag: popt-1.19-release
+              - name: json-c
+                buildsystem: cmake
+                sources:
+                  - type: git
+                    url: https://github.com/json-c/json-c.git
+                    tag: json-c-0.18-20240915
+          - name: keyutils
+            buildsystem: simple
+            sources:
+              - type: archive
+                url: https://src.fedoraproject.org/repo/pkgs/keyutils/keyutils-1.6.1.tar.bz2/sha512/ea6e20b2594234c7f51581eef2b8fd19c109fa9eacaaef8dfbb4f237bd1d6fdf071ec23b4ff334cb22a46461d09d17cf499987fd1f00e66f27506888876961e1/keyutils-1.6.1.tar.bz2
+                sha256: c8b15722ae51d95b9ad76cc6d49a4c2cc19b0c60f72f61fb9bf43eea7cbd64ce
+            build-commands:
+              - make
+              - make LIBDIR=/app/lib BINDIR=/app/bin SBINDIR=/app/sbin INCLUDEDIR=/app/include MANDIR=/app/share/man SHAREDIR=/app/share/keyutils install
+          - name: bytesize
+            sources:
+              - type: git
+                url: https://github.com/storaged-project/libbytesize.git
+                tag: "2.11"
+          - name: fdisk
+            buildsystem: meson
+            config-opts:
+              - "-Dauto_features=disabled"
+              - "-Dbuild-libfdisk=enabled"
+              - "-Dbuild-fdisks=enabled"
+              - "-Dbuild-libuuid=enabled"
+              - "-Dbuild-libblkid=enabled"
+              - "-Duse-tty-group=false"
+              - "-Dlibutil=enabled"
+            sources:
+              - type: git
+                url: https://github.com/util-linux/util-linux.git
+                tag: v2.41.1
+      - name: atasmart
+        buildsystem: autotools
+        sources:
+          - type: git
+            url: https://github.com/libatasmart/libatasmart.git
+            tag: v0.19
+  - name: ventoy_release
+    buildsystem: simple
+    sources:
+      - type: archive
+        url: https://github.com/ventoy/Ventoy/releases/download/v1.1.05/ventoy-1.1.05-linux.tar.gz
+        sha256: 3379c99890359dcff55aab7f7b3286f87c988d1da2fd616e6a9e305fb0a1de9e
+        strip-components: 1
+    build-commands:
+      - cp -r ventoy-1.1.05/* /app/
+  - name: ventoy_gui
+    buildsystem: simple
+    sources:
+      - type: git
+        url: https://github.com/LorenzoIanotto/VentoyUDisks.git
+        branch: udisks
+      - type: script
+        dest-filename: ventoy-gtk3.sh
+        commands:
+          - cd /app
+          - VentoyGUI --xdg
+    build-commands:
+      - cd LinuxGUI && make gtk3
+      - install -Dm755 LinuxGUI/Ventoy2Disk.gtk3 /app/bin/VentoyGUI
+      - install -Dm755 ventoy-gtk3.sh /app/bin/ventoy-gtk3.sh
+      - install -Dm644 ICON/logo_16.png /app/share/icons/hicolor/16x16/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_32.png /app/share/icons/hicolor/32x32/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_48.png /app/share/icons/hicolor/48x48/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_64.png /app/share/icons/hicolor/64x64/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_72.png /app/share/icons/hicolor/72x72/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_128.png /app/share/icons/hicolor/128x128/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_256.png /app/share/icons/hicolor/256x256/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 ICON/logo_512.png /app/share/icons/hicolor/512x512/apps/net.ventoy.VentoyGUI.png
+      - install -Dm644 LinuxGUI/assets/net.ventoy.VentoyGUI.desktop /app/share/applications/net.ventoy.VentoyGUI.desktop
+      - install -Dm644 LinuxGUI/assets/net.ventoy.VentoyGUI.metainfo.xml /app/share/metainfo/net.ventoy.VentoyGUI.metainfo.xml
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --system-talk-name=org.freedesktop.UDisks2
