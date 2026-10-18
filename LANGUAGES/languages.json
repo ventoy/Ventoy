@@ -1085,7 +1085,7 @@
         "STR_WEB_TOKEN_MISMATCH":"Daemon status byl aktualizován, prosím vyskoušejte to později.",
         "STR_WEB_SERVICE_BUSY":"Služba je zaneprázdnená, prosím vyskoušejte to později.",
         "STR_MENU_VTSI_CREATE":"Vygenerovat VTSI Soubor",
-        "STR_VTSI_CREATE_TIP":"Tentokrát se do zařízení nebude zapisovat, jenom se vygeneruje VTSI soubor#@Pokračovat?",     
+        "STR_VTSI_CREATE_TIP":"Tentokrát se do zařízení nebude zapisovat, jenom se vygeneruje VTSI soubor#@Pokračovat?",
         "STR_VTSI_CREATE_SUCCESS":"VTSI soubor úspěšne vytvořen!#@Múžete použit Rufus(3.15+) na jeho zapsání do zařízení pro dokončení instalace Ventoy.",
         "STR_VTSI_CREATE_FAILED":"Chyba při vytváření VTSI souboru.",
         "STR_MENU_PART_RESIZE":"Nedestruktivní Instalace",
@@ -1100,7 +1100,7 @@
         "STR_PART_CLUSTER":"Velikost clusteru",
         "STR_PART_CLUSTER_DEFAULT":"Výchozí hodnota systému",
         "STR_DONATE":"Darovat",
-        "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
+        "STR_4KN_UNSUPPORTED":"Ventoy v současné době nepodporuje nativní zařízení 4K.",
         
         "STRXXX":""
     },
