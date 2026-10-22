@@ -76,10 +76,17 @@ if ! [ -d $GRUB_DIR ]; then
 fi
 
 
+cd ../BUSYBOX/chmod
+sh build.sh
+cd -
+
+
+
 cd ../IMG
 sh mkcpio.sh
 sh mkloopex.sh
 cd -
+
 
 cd ../Unix
 sh pack_unix.sh
