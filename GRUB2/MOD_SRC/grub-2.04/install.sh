@@ -123,7 +123,9 @@ else
     rm -f $VT_DIR/GRUB2/NBP/core.0
     cp -a $VT_DIR/GRUB2/PXE/grub2/i386-pc/core.0    $VT_DIR/GRUB2/NBP/core.0  || exit 1
     
-    rm -f $VT_DIR/INSTALL/grub/i386-pc/boot.img
+    rm -rf $VT_DIR/INSTALL/grub/i386-pc
+    mkdir -p $VT_DIR/INSTALL/grub/i386-pc
+    
     cp -a $VT_DIR/GRUB2/INSTALL/lib/grub/i386-pc/boot.img  $VT_DIR/INSTALL/grub/i386-pc/boot.img   || exit 1
     
     #copy other modules
