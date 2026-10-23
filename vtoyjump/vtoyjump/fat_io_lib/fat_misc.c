@@ -297,7 +297,7 @@ int fatfs_lfn_create_sfn(char *sfn_output, char *filename)
     memset(sfn_output, ' ', FAT_SFN_SIZE_FULL);
     memset(ext, ' ', 3);
 
-    // Find dot seperator
+    // Find dot separator
     for (i = 0; i< len; i++)
     {
         if (filename[i]=='.')

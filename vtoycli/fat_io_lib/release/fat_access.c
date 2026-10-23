@@ -63,7 +63,7 @@ int fatfs_init(struct fatfs *fs)
         return FAT_INIT_MEDIA_ACCESS_ERROR;
 
     // MBR: Sector 0 on the disk
-    // NOTE: Some removeable media does not have this.
+    // NOTE: Some removable media does not have this.
 
     // Load MBR (LBA 0) into the 512 byte buffer
     if (!fs->disk_io.read_media(0, fs->currentsector.sector, 1))
@@ -422,7 +422,7 @@ uint32 fatfs_get_file_entry(struct fatfs *fs, uint32 Cluster, char *name_to_find
     while (1)
     {
         // Read sector
-        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successfull
+        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successful
         {
             // Analyse Sector
             for (item = 0; item < FAT_DIR_ENTRIES_PER_SECTOR; item++)
@@ -521,7 +521,7 @@ int fatfs_sfn_exists(struct fatfs *fs, uint32 Cluster, char *shortname)
     while (1)
     {
         // Read sector
-        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successfull
+        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successful
         {
             // Analyse Sector
             for (item = 0; item < FAT_DIR_ENTRIES_PER_SECTOR; item++)
@@ -628,7 +628,7 @@ int fatfs_update_file_length(struct fatfs *fs, uint32 Cluster, char *shortname, 
     while (1)
     {
         // Read sector
-        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successfull
+        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successful
         {
             // Analyse Sector
             for (item = 0; item < FAT_DIR_ENTRIES_PER_SECTOR; item++)
@@ -698,7 +698,7 @@ int fatfs_mark_file_deleted(struct fatfs *fs, uint32 Cluster, char *shortname)
     while (1)
     {
         // Read sector
-        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successfull
+        if (fatfs_sector_reader(fs, Cluster, x++, 0)) // If sector read was successful
         {
             // Analyse Sector
             for (item = 0; item < FAT_DIR_ENTRIES_PER_SECTOR; item++)

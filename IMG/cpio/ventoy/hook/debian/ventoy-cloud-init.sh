@@ -48,7 +48,7 @@ if [ $vtSplit -eq 1 ]; then
     sh /ventoy/hook/default/auto_install_varexp.sh  /tmpcidata/user-data
     sh /ventoy/hook/default/auto_install_varexp.sh  /tmpcidata/meta-data
 else
-    vtlog "only user-data avaliable"
+    vtlog "only user-data available"
     cp -a $VTOY_PATH/autoinstall  /tmpcidata/user-data
     touch /tmpcidata/meta-data
     

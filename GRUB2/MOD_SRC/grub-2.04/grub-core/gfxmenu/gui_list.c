@@ -205,7 +205,7 @@ check_scrollbar (list_impl_t self)
       && min_height <= (int) self->bounds.height)
     return 1;
 
-  /* Unprintable dimenstions. */
+  /* Unprintable dimensions. */
   self->draw_scrollbar = 0;
   return 0;
 }
