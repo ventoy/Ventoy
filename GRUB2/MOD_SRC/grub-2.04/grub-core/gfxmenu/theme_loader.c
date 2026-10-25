@@ -169,6 +169,8 @@ theme_set_string (grub_gfxmenu_view_t view,
     grub_env_set("VTOY_TIP_TOP", value);
   else if (! grub_strcmp("menu-tip-color", name))
     grub_env_set("VTOY_TIP_COLOR", value);
+  else if (!grub_strcmp("menu-tip-font", name))
+    grub_env_set("VTOY_TIP_FONT", value);
   else if (! grub_strcmp ("desktop-image", name))
     {
       struct grub_video_bitmap *raw_bitmap;
@@ -851,19 +853,22 @@ if (flag == 0)
         tmpmsg[500] = 0;
         
         g_menu_update_mode = 1;
-        p.len += grub_snprintf(p.buf + p.len, 4096, 
+        p.len += grub_snprintf(
+            p.buf + p.len, 4096,
             "\n+ vbox{\n    left = %s\n    top = %s\n"
-            "+ label { id=\"VTOY_MENU_TIP_1\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
-            "+ label { id=\"VTOY_MENU_TIP_2\" text = \"%s\" color = \"%s\" align = \"%s\"}\n"
+            "+ label { id=\"VTOY_MENU_TIP_1\" text = \"%s\" color = \"%s\" align = \"%s\" font = \"%s\"}\n"
+            "+ label { id=\"VTOY_MENU_TIP_2\" text = \"%s\" color = \"%s\" align = \"%s\" font = \"%s\"}\n"
             "}\n",
             grub_env_get("VTOY_TIP_LEFT"),
             grub_env_get("VTOY_TIP_TOP"),
             tmpmsg,
             grub_env_get("VTOY_TIP_COLOR"),
             grub_env_get("VTOY_TIP_ALIGN"),
+            grub_env_get("VTOY_TIP_FONT"),
             tmpmsg,
             grub_env_get("VTOY_TIP_COLOR"),
-            grub_env_get("VTOY_TIP_ALIGN")
+            grub_env_get("VTOY_TIP_ALIGN"),
+            grub_env_get("VTOY_TIP_FONT")
         );
 
         flag = 1;
