@@ -12,7 +12,7 @@
 
 char g_ventoy_dir[MAX_PATH];
 
-static BOOL g_ChromeFirst = TRUE;
+// static BOOL g_ChromeFirst = TRUE;
 static BOOL g_running = FALSE;
 static HWND g_refresh_button;
 static HWND g_start_button;
@@ -116,28 +116,28 @@ static void OpenURL(void)
 {
     int i;
 	char url[128];
-    const static char * Browsers[] = 
-    {
-        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
-        "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
-        NULL
-    };
+    // const static char * Browsers[] = 
+    // {
+    //     "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    //     "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    //     "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
+    //     "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
+    //     NULL
+    // };
 
 	sprintf_s(url, sizeof(url), "http://%s:%s/index.html", g_sysinfo.ip, g_sysinfo.port);
 
-	if (g_ChromeFirst)
-	{
-		for (i = 0; Browsers[i] != NULL; i++)
-		{
-			if (ventoy_is_file_exist("%s", Browsers[i]))
-			{
-				ShellExecuteA(NULL, "open", Browsers[i], url, NULL, SW_SHOW);
-				return;
-			}
-		}
-	}
+	// if (g_ChromeFirst)
+	// {
+	// 	for (i = 0; Browsers[i] != NULL; i++)
+	// 	{
+	// 		if (ventoy_is_file_exist("%s", Browsers[i]))
+	// 		{
+	// 			ShellExecuteA(NULL, "open", Browsers[i], url, NULL, SW_SHOW);
+	// 			return;
+	// 		}
+	// 	}
+	// }
 
     ShellExecuteA(NULL, "open", url, NULL, NULL, SW_SHOW);
 }
@@ -547,14 +547,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     UNREFERENCED_PARAMETER(hPrevInstance);
 
-	for (i = 0; i < __argc; i++)
-	{
-		if (__argv[i] && _stricmp(__argv[i], "/F") == 0)
-		{
-			g_ChromeFirst = FALSE;
-			break;
-		}
-	}
+	// for (i = 0; i < __argc; i++)
+	// {
+	// 	if (__argv[i] && _stricmp(__argv[i], "/F") == 0)
+	// 	{
+	// 		g_ChromeFirst = FALSE;
+	// 		break;
+	// 	}
+	// }
 
 	DllProtect();
 
@@ -679,4 +679,5 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     return 0;
 }
+
 
