@@ -231,6 +231,7 @@ extern PHY_DRIVE_INFO *g_PhyDriveList;
 extern DWORD g_PhyDriveCount;
 extern int g_ForceOperation;
 extern int g_NoNeedInputYes;
+extern CHAR g_VolumeLabel[64];
 extern HWND g_ProgressBarHwnd;
 extern HFONT g_language_normal_font;
 extern HFONT g_language_bold_font;

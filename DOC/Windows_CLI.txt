@@ -1,0 +1,105 @@
+Ventoy2Disk CLI Mode (Windows)
+==============================
+
+Usage:
+  Ventoy2Disk.exe VTOYCLI [CMD] [OPTION] { /Drive:F: | /PhyDrive:N }
+
+CMD (one required):
+  /I          Force install (overwrites any existing Ventoy; no prompts)
+  /SI         Safe install (fails if Ventoy already present; prompts for confirmation)
+  /U          Update Ventoy on disk
+  /L          List Ventoy info on disk (read-only, no changes made)
+  /V          Print the local Ventoy version and exit (no drive required)
+  /HELP /?    Show this help
+
+OPTION (optional):
+  /GPT           Use GPT partition style (default: MBR; install only)
+  /NoSB          Disable Secure Boot support (default: enabled)
+  /SB            Enable Secure Boot support explicitly
+  /R:SIZE_MB     Reserve SIZE_MB megabytes at the end of the disk (install only)
+  /FS:TYPE       Filesystem for partition 1: exFAT (default), NTFS, FAT32, UDF
+  /Label:NAME    Volume label for partition 1 (default: Ventoy; max 32 chars)
+  /NoUSBCheck    Allow installation on non-USB drives
+  /NonDest       Non-destructive install (resize existing partition rather than wiping)
+  /Y             Auto-confirm prompts (for scripted/silent use)
+
+Drive selection (required for all CMDs except /V):
+  /Drive:F:      Select drive by logical drive letter
+  /PhyDrive:N    Select drive by physical drive number (e.g. /PhyDrive:1)
+
+
+Notes
+-----
+
+- VTOYCLI must be the first argument after Ventoy2Disk.exe.
+- The program must be run from the directory that contains the Ventoy
+  installation files (boot\, ventoy\, EFI\).
+- Administrator privileges are required for all write operations.
+- Output goes to both the console (stdout) and cli_log.txt.
+- Progress is tracked in cli_percent.txt (0-100); completion status is
+  written to cli_done.txt (0=success, 1=error). These files are used by
+  the Ventoy GUI web server and can be ignored in manual/scripted use.
+
+
+Safe install vs force install
+------------------------------
+
+  /SI  Checks whether Ventoy is already present before proceeding.
+       If Ventoy is found, the operation is refused and the user is
+       directed to use /U (update) or /I (force-reinstall) instead.
+       When Ventoy is not present, /SI prompts for confirmation twice
+       before writing to the disk. Use /Y to suppress the prompts.
+
+  /I   Always installs, overwriting any existing data. No prompts.
+       Intended for the GUI web server and scripted automation.
+
+
+Examples
+--------
+
+  # Show installed Ventoy info on drive F:
+  Ventoy2Disk.exe VTOYCLI /L /Drive:F:
+
+  Example output:
+    Ventoy Version in Disk : 1.0.97
+    Disk Partition Style   : MBR
+    Secure Boot Support    : YES
+    Filesystem Type        : exFAT
+    Disk Size              : 32 GB
+    Bus Type               : USB
+
+  # Show the local Ventoy version (no USB needed)
+  Ventoy2Disk.exe VTOYCLI /V
+
+  # Safe install with interactive confirmation
+  Ventoy2Disk.exe VTOYCLI /SI /Drive:F:
+
+  # Safe install, scripted (no prompts), GPT, custom label
+  Ventoy2Disk.exe VTOYCLI /SI /Drive:F: /GPT /Label:MyUSB /Y
+
+  # Force install (silent, for automation/GUI callers)
+  Ventoy2Disk.exe VTOYCLI /I /PhyDrive:1 /GPT /NoSB
+
+  # Update existing Ventoy installation
+  Ventoy2Disk.exe VTOYCLI /U /Drive:F:
+
+
+Comparison with Unix CLI
+-------------------------
+
+  Unix flag   Windows equivalent   Notes
+  -i          /SI                  Safe install (refuses if already present)
+  -I          /I                   Force install
+  -u          /U                   Update
+  -l          /L                   List info
+  -g          /GPT                 GPT partition style
+  -s          /SB                  Enable Secure Boot (explicit)
+  -S          /NoSB                Disable Secure Boot
+  -r SIZE     /R:SIZE_MB           Reserve space
+  -L LABEL    /Label:NAME          Partition 1 volume label
+  -n          /NonDest             Non-destructive install
+  -V          /V                   Print local version
+  -h/--help   /HELP /?             Usage
+  (n/a)       /FS:TYPE             Filesystem type (Windows only)
+  (n/a)       /NoUSBCheck          Skip USB type check (Windows only)
+  (n/a)       /Y                   Auto-confirm (Windows only)
