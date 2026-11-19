@@ -334,16 +334,16 @@ if [ "$MODE" = "install" -a -z "$NONDESTRUCTIVE" ]; then
 
     if [ -n "$VTGPT" ]; then
         echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92
-        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
+        xzcat ./boot/core.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=2014 seek=34
         echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
     else
-        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
+        xzcat ./boot/core.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
     
     # check and umount
     check_umount_disk "$DISK"
 
-    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
+    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
 
     #test UUID
     testUUIDStr=$(vtoy_gen_uuid | hexdump -C)
@@ -500,13 +500,13 @@ elif [ "$MODE" = "install" -a -n "$NONDESTRUCTIVE" ]; then
     
     if [ "$OldStyle" = "GPT" ]; then
         echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92        
-        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
+        xzcat ./boot/core.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=2014 seek=34
         echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
     else
-        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
+        xzcat ./boot/core.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
     
-    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
+    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start_sector
     
     #test UUID
     testUUIDStr=$(vtoy_gen_uuid | hexdump -C)
@@ -594,7 +594,7 @@ else
     if [ "$PART1_TYPE" = "EE" ]; then
         vtdebug "This is GPT partition style ..."
         echo -en '\x22' | dd status=none of=$DISK conv=fsync bs=1 count=1 seek=92
-        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2014 seek=34
+        xzcat ./boot/core.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=2014 seek=34
         echo -en '\x23' | dd of=$DISK conv=fsync bs=1 count=1 seek=17908 status=none
     else
         vtdebug "This is MBR partition style ..."
@@ -608,7 +608,7 @@ else
             echo -en '\x80' | dd of=$DISK conv=fsync bs=1 count=1 seek=446 status=none
             echo -en '\x00' | dd of=$DISK conv=fsync bs=1 count=1 seek=462 status=none
         fi
-        xzcat ./boot/core.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=2047 seek=1
+        xzcat ./boot/core.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=2047 seek=1
     fi
 
     dd status=none conv=fsync if=./rsvdata.bin seek=2040 bs=512 count=8 of=${DISK}
@@ -616,7 +616,7 @@ else
 
     check_umount_disk "$DISK"
     
-    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
+    xzcat ./ventoy/ventoy.disk.img.xz | dd status=none iflag=fullblock conv=fsync of=$DISK bs=512 count=$VENTOY_SECTOR_NUM seek=$part2_start
     sync
 
     vtinfo "esp partition processing ..."
