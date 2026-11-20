@@ -117,7 +117,7 @@ BOOLEAN ventoy_is_cdrom_dp_exist(VOID)
 }
 
 #if 0
-/* Block IO procotol */
+/* Block IO protocol */
 #endif
 
 EFI_STATUS EFIAPI ventoy_block_io_reset
@@ -1746,7 +1746,7 @@ EFI_STATUS ventoy_hook_keyboard_stop(VOID)
 }
 
 #if 0
-/* Fixup the 1st cdrom influnce for Windows boot */
+/* Fixup the 1st cdrom influence for Windows boot */
 #endif
 
 STATIC EFI_STATUS EFIAPI ventoy_wrapper_locate_handle

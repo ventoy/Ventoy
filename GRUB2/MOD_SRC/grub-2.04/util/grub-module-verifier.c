@@ -25,7 +25,7 @@ struct grub_module_verifier_arch archs[] = {
   },
   { "powerpc", 4, 1, EM_PPC, GRUB_MODULE_VERIFY_SUPPORTS_RELA, (int[]){
       GRUB_ELF_R_PPC_ADDR16_LO,
-      GRUB_ELF_R_PPC_REL24, /* It has limited range but GRUB adds trampolines when necessarry.  */
+      GRUB_ELF_R_PPC_REL24, /* It has limited range but GRUB adds trampolines when necessary.  */
       GRUB_ELF_R_PPC_ADDR16_HA,
       GRUB_ELF_R_PPC_ADDR32,
       GRUB_ELF_R_PPC_REL32,
@@ -33,7 +33,7 @@ struct grub_module_verifier_arch archs[] = {
       -1
     } },
   { "sparc64", 8, 1, EM_SPARCV9, GRUB_MODULE_VERIFY_SUPPORTS_RELA, (int[]){
-      R_SPARC_WDISP30, /* It has limited range but GRUB adds trampolines when necessarry. */
+      R_SPARC_WDISP30, /* It has limited range but GRUB adds trampolines when necessary. */
       R_SPARC_HH22,
       R_SPARC_HM10,
       R_SPARC_LM22,
@@ -93,7 +93,7 @@ struct grub_module_verifier_arch archs[] = {
       -1
     } },
   { "arm", 4, 0, EM_ARM, GRUB_MODULE_VERIFY_SUPPORTS_REL, (int[]){
-      /* Some relocations are range-limited but trampolines are added when necessarry. */
+      /* Some relocations are range-limited but trampolines are added when necessary. */
       R_ARM_ABS32,
       R_ARM_CALL,
       R_ARM_JUMP24,

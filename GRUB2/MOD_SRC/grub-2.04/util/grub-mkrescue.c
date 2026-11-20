@@ -449,7 +449,7 @@ main (int argc, char *argv[])
   argp_argv[0] = argv[0];
   argp_argc = 1;
 
-  /* argp doesn't allow us to catch unknwon arguments,
+  /* argp doesn't allow us to catch unknown arguments,
      so catch them before passing to argp
    */
   {

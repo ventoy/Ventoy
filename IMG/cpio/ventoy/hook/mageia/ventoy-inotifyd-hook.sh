@@ -46,7 +46,7 @@ if is_inotify_ventoy_part $3; then
     # cheatcode for mageia
     #
     # From mageia/soft/drakx/mdk-stage1 source code, we see that the stage1 binary will search 
-    # /tmp/syslog file to determin whether there is a DAC960 cdrom in the system.
+    # /tmp/syslog file to determine whether there is a DAC960 cdrom in the system.
     # So we insert some string to /tmp/syslog file to cheat the stage1 program.
     #
     $BUSYBOX_PATH/mkdir -p /dev/rd

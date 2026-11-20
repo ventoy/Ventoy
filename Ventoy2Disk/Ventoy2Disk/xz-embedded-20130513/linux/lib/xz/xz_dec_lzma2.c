@@ -147,8 +147,8 @@ struct lzma_dec {
 
 	/*
 	 * LZMA properties or related bit masks (number of literal
-	 * context bits, a mask dervied from the number of literal
-	 * position bits, and a mask dervied from the number
+	 * context bits, a mask derived from the number of literal
+	 * position bits, and a mask derived from the number
 	 * position bits)
 	 */
 	uint32_t lc;
@@ -190,7 +190,7 @@ struct lzma_dec {
 	uint16_t dist_slot[DIST_STATES][DIST_SLOTS];
 
 	/*
-	 * Probility trees for additional bits for match distance
+	 * Probability trees for additional bits for match distance
 	 * when the distance is in the range [4, 127].
 	 */
 	uint16_t dist_special[FULL_DISTANCES - DIST_MODEL_END];
@@ -484,7 +484,7 @@ static __always_inline void rc_normalize(struct rc_dec *rc)
 }
 
 /*
- * Decode one bit. In some versions, this function has been splitted in three
+ * Decode one bit. In some versions, this function has been split in three
  * functions so that the compiler is supposed to be able to more easily avoid
  * an extra branch. In this particular version of the LZMA decoder, this
  * doesn't seem to be a good idea (tested with GCC 3.3.6, 3.4.6, and 4.3.3

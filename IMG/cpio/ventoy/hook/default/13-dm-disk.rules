@@ -31,7 +31,7 @@ ENV{ID_PART_ENTRY_SCHEME}=="gpt", ENV{ID_PART_GPT_AUTO_ROOT}=="1", SYMLINK+="gpt
 # Add inotify watch to track changes on this device.
 # Using the watch rule is not optimal - it generates a lot of spurious
 # and useless events whenever the device opened for read-write is closed.
-# The best would be to generete the event directly in the tool changing
+# The best would be to generate the event directly in the tool changing
 # relevant information so only relevant events will be processed
 # (like creating a filesystem, changing filesystem label etc.).
 #

@@ -80,7 +80,7 @@
 #pragma warning ( disable : 4057 )
 
 //
-// ASSERT(FALSE) or while (TRUE) are legal constructes so supress this warning
+// ASSERT(FALSE) or while (TRUE) are legal constructs so suppress this warning
 //
 #pragma warning ( disable : 4127 )
 
@@ -99,7 +99,7 @@
 
 #if defined(_MSC_EXTENSIONS)
   //
-  // use Microsoft C complier dependent integer width types
+  // use Microsoft C compiler dependent integer width types
   //
 
   ///
@@ -254,7 +254,7 @@ typedef INT64   INTN;
   #define EFIAPI __cdecl
 #elif defined(__GNUC__)
   ///
-  /// Define the standard calling convention reguardless of optimization level.
+  /// Define the standard calling convention regardless of optimization level.
   /// The GCC support assumes a GCC compiler that supports the EFI ABI. The EFI
   /// ABI is much closer to the x64 Microsoft* ABI than standard x64 (x86-64)
   /// GCC ABI. Thus a standard x64 (x86-64) GCC compiler can not be used for
