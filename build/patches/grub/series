@@ -1,0 +1,3 @@
+# Patches against GRUB 2.14
+0001-ventoy-grub.patch  # Ventoy module, hooks, and the mips64el port.
+0002-grub-generated-build-files.patch  # configure and automake output. Regenerated only when autogen can run.

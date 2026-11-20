@@ -37,6 +37,7 @@
 #include "fat_write.h"
 #include "fat_misc.h"
 #include "fat_string.h"
+#include "fat_format.h"
 #include "fat_filelib.h"
 #include "fat_cache.h"
 

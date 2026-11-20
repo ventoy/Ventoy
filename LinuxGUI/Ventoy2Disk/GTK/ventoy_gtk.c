@@ -795,6 +795,12 @@ void on_button_update_clicked(GtkWidget *widget, gpointer data)
         return;
     }
 
+    if (cur->vtoydata.part2_sector_count < VTOYEFI_PART_SECTORS)
+    {
+        msgbox(GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "STR_UPDATE_SMALL_ESP");
+        return;
+    }
+
     if (GTK_RESPONSE_OK != msgbox(GTK_MESSAGE_INFO, GTK_BUTTONS_OK_CANCEL, "STR_UPDATE_TIP"))
     {
         return;

@@ -1026,7 +1026,7 @@ int VentoyProcSecureBoot(BOOL SecureBoot)
 
 
 
-static int disk_xz_flush(void *src, unsigned int size)
+static long disk_xz_flush(void *src, unsigned long size)
 {
     unsigned int i;
     BYTE *buf = (BYTE *)src;
@@ -1036,7 +1036,7 @@ static int disk_xz_flush(void *src, unsigned int size)
         *g_part_img_pos = *buf++;
 
         g_disk_unxz_len++;
-        if ((g_disk_unxz_len % SIZE_1MB) == 0)
+        if ((g_disk_unxz_len % SIZE_1MB) == 0 && g_disk_unxz_len < VENTOY_EFI_PART_SIZE)
         {
             g_part_img_pos = g_part_img_buf[g_disk_unxz_len / SIZE_1MB];
         }
@@ -1046,7 +1046,7 @@ static int disk_xz_flush(void *src, unsigned int size)
         }
     }
 
-    return (int)size;
+    return (long)size;
 }
 
 static void unxz_error(char *x)
@@ -1087,9 +1087,11 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
     int i;
     int rc = 0;
     int len = 0;
-    int writelen = 0;
+    long writelen = 0;
     int partwrite = 0;
     int Pos = PT_WRITE_VENTOY_START;
+    /* Write and verify each take 16 steps, filling PT_WRITE_VENTOY_START .. +32. */
+    int step = (VENTOY_EFI_PART_SIZE / SIZE_1MB) / 16;
     DWORD dwSize = 0;
     BOOL bRet;
     unsigned char *data = NULL;
@@ -1098,6 +1100,10 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
     BYTE *CheckBuf = NULL;
 
 	Log("FormatPart2Fat %llu...", (ULONGLONG)StartSectorId);
+    if (step < 1)
+    {
+        step = 1;
+    }
 
     CheckBuf = malloc(SIZE_1MB);
     if (!CheckBuf)
@@ -1144,7 +1150,7 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
                 }
 
                 PROGRESS_BAR_SET_POS(Pos);
-                if (i % 2 == 0)
+                if ((i % step) == 0)
                 {
                     Pos++;
                 }
@@ -1167,7 +1173,7 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
                 }
 
                 PROGRESS_BAR_SET_POS(Pos);
-                if (i % 2 == 0)
+                if ((i % step) == 0)
                 {
                     Pos++;
                 }
@@ -1220,7 +1226,7 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
                 }
                 
                 PROGRESS_BAR_SET_POS(Pos);
-                if (i % 2 == 0)
+                if ((i % step) == 0)
                 {
                     Pos++;
                 }
@@ -1243,7 +1249,7 @@ static int FormatPart2Fat(HANDLE hDrive, UINT64 StartSectorId)
                 }
 
                 PROGRESS_BAR_SET_POS(Pos);
-                if (i % 2 == 0)
+                if ((i % step) == 0)
                 {
                     Pos++;
                 }
@@ -1724,7 +1730,7 @@ int InstallVentoy2FileImage(PHY_DRIVE_INFO *pPhyDrive, int PartStyle)
     int i;
     int rc = 1;
     int Len = 0;
-    int dataLen = 0;
+    long dataLen = 0;
     UINT size = 0;
     UINT segnum = 0;
     UINT32 chksum = 0;

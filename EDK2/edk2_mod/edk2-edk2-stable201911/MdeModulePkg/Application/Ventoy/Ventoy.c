@@ -100,6 +100,11 @@ CONST CHAR16 *gEfiBootFileName[] =
     L"\\EFI\\BOOT\\BOOTaa64.EFI",
     L"\\EFI\\BOOT\\bootaa64.efi",
     L"\\efi\\boot\\bootaa64.efi",
+#elif defined (MDE_CPU_LOONGARCH64)
+    L"\\EFI\\BOOT\\GRUBLOONGARCH64.EFI",
+    L"\\EFI\\BOOT\\BOOTLOONGARCH64.EFI",
+    L"\\EFI\\BOOT\\bootloongarch64.efi",
+    L"\\efi\\boot\\bootloongarch64.efi",
 #endif
 
 };
@@ -584,7 +589,7 @@ STATIC EFI_STATUS EFIAPI ventoy_find_iso_disk(IN EFI_HANDLE ImageHandle)
             if (g_os_param_reserved[6] == 0 && pMBR->PartTbl[0].FsFlag != 0xEE)
             {
                 if (pMBR->PartTbl[0].StartSectorId != 2048 ||
-                    pMBR->PartTbl[1].SectorCount != 65536 ||
+                    pMBR->PartTbl[1].SectorCount != 131072 ||
                     pMBR->PartTbl[1].StartSectorId != pMBR->PartTbl[0].StartSectorId + pMBR->PartTbl[0].SectorCount)
                 {
                     debug("Failed to check disk part table");

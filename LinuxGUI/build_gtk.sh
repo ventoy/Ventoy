@@ -15,6 +15,14 @@ build_func() {
         EXDL2=./EXLIB/mips64el/lib/mips64el-linux-gnuabi64
         GTKFLAG="-pthread -I$EXDI/usr/include/gtk-3.0 -I$EXDI/usr/include/at-spi2-atk/2.0 -I$EXDI/usr/include/at-spi-2.0 -I$EXDI/usr/include/dbus-1.0 -I./EXLIB/mips64el/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I$EXDI/usr/include/gtk-3.0 -I$EXDI/usr/include/gio-unix-2.0 -I$EXDI/usr/include/cairo -I$EXDI/usr/include/pango-1.0 -I$EXDI/usr/include/harfbuzz -I$EXDI/usr/include/pango-1.0 -I$EXDI/usr/include/fribidi -I$EXDI/usr/include/harfbuzz -I$EXDI/usr/include/atk-1.0 -I$EXDI/usr/include/cairo -I$EXDI/usr/include/pixman-1 -I$EXDI/usr/include/uuid -I$EXDI/usr/include/freetype2 -I$EXDI/usr/include/libpng16 -I$EXDI/usr/include/gdk-pixbuf-2.0 -I$EXDI/usr/include/libmount -I$EXDI/usr/include/blkid -I$EXDI/usr/include/glib-2.0 -I$EXDL/glib-2.0/include"
         XXLIB="-Wl,-rpath-link $EXDL -Wl,-rpath-link $EXDL2 -Wno-deprecated-declarations -L$EXDL -L$EXDL2 -lm -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lpcre "
+    elif [ "$libsuffix" = "la64" ]; then
+        # libgtk-3-dev:loong64 extracted from https://loong13.debian.net/
+        LA64_SYSROOT=$(CDPATH= cd -- "$(dirname "$0")/../build/work/loong64-sysroot" && pwd)
+        export PKG_CONFIG_SYSROOT_DIR="$LA64_SYSROOT"
+        export PKG_CONFIG_LIBDIR="$LA64_SYSROOT/usr/lib/loongarch64-linux-gnu/pkgconfig:$LA64_SYSROOT/usr/share/pkgconfig"
+        GTKFLAG=$(pkg-config --cflags --libs gtk+-3.0)
+        GLADE=""
+        XXLIB="-Wl,-rpath-link,$LA64_SYSROOT/usr/lib/loongarch64-linux-gnu -Wl,-rpath-link,$LA64_SYSROOT/lib/loongarch64-linux-gnu"
     else
         if [ "$gtkver" = "gtk3" ]; then
             GTKFLAG=$(pkg-config --cflags --libs gtk+-3.0)
@@ -66,7 +74,7 @@ build_func() {
         $XXLIB \
         -l pthread \
         ./civetweb.o \
-        -o Ventoy2Disk.${gtkver}_$libsuffix $XXFLAG 
+        -o Ventoy2Disk.${gtkver}_$libsuffix $XXFLAG || return 1 
 
     rm -f *.o
     
@@ -74,6 +82,8 @@ build_func() {
         aarch64-linux-gnu-strip Ventoy2Disk.${gtkver}_$libsuffix
     elif [ "$libsuffix" = "m64e" ]; then
         mips-linux-gnu-strip Ventoy2Disk.${gtkver}_$libsuffix
+    elif [ "$libsuffix" = "la64" ]; then
+        loongarch64-linux-gnu-strip Ventoy2Disk.${gtkver}_$libsuffix
     else
         strip Ventoy2Disk.${gtkver}_$libsuffix
     fi
@@ -81,10 +91,24 @@ build_func() {
     rm -f ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}_$libsuffix
     cp -a Ventoy2Disk.${gtkver}_$libsuffix ../INSTALL/tool/$toolDir/Ventoy2Disk.${gtkver}
     
-    $1 -O2 -D_FILE_OFFSET_BITS=64 Ventoy2Disk/ventoy_gui.c Ventoy2Disk/Core/ventoy_json.c -I Ventoy2Disk/Core  -DVTOY_GUI_ARCH="\"$toolDir\"" -o VentoyGUI.$toolDir
+    $1 -O2 -D_FILE_OFFSET_BITS=64 Ventoy2Disk/ventoy_gui.c Ventoy2Disk/Core/ventoy_json.c -I Ventoy2Disk/Core  -DVTOY_GUI_ARCH="\"$toolDir\"" -o VentoyGUI.$toolDir || return 1
+    if [ "$libsuffix" = "la64" ]; then
+        loongarch64-linux-gnu-strip VentoyGUI.$toolDir
+    fi
     cp -a VentoyGUI.$toolDir ../INSTALL/
 }
 
+# CI rebuilds only the host GTK3 UI. The 64 MiB ESP check is compiled into
+# it. The other targets need GTK2 or the prebuilt EXLIB trees.
+if [ "${1:-}" = "x86_64-gtk3" ]; then
+    build_func "gcc" '64' 'x86_64' 'gtk3' || exit 1
+    exit 0
+fi
+
+if [ "${1:-}" = "loongarch64" ]; then
+    build_func "loongarch64-linux-gnu-gcc" 'la64' 'loongarch64' 'gtk3' || exit 1
+    exit 0
+fi
 
 build_func "gcc" '64' 'x86_64' 'gtk3'
 

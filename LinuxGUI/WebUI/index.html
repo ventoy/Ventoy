@@ -865,6 +865,10 @@
         }
         
         var curDev = vtoy_cur_dev_list[index];
+        if ((curDev.vtoy_part2_sectors | 0) < 131072) {
+            ventoy_display_alert('warning', vtoy_cur_language.STR_UPDATE_SMALL_ESP);
+            return;
+        }
         model = curDev.name + '&nbsp;&nbsp;[' + curDev.size + ']&nbsp;&nbsp;' + curDev.model + '<br/>';        
         var msgstrex1 = '<span style="font-size:14px; font-weight:bold;"> ' + model + msgstr1 + '</span>';
         

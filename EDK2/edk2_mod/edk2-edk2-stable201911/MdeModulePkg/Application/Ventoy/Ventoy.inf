@@ -28,6 +28,7 @@
 [BuildOptions]
   # Force standard GNU ld to pack and align ELF segments to 4KB page boundaries
   GCC:*_*_*_DLINK_FLAGS = -Wl,-z,common-page-size=0x1000 -Wl,-z,max-page-size=0x1000
+  GCC:*_*_*_CC_FLAGS = -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Wno-error=unused-function
 
 [Sources]
   Ventoy.h

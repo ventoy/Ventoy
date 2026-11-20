@@ -50,13 +50,21 @@ build_func() {
         aarch64-linux-gnu-strip V2D$libsuffix
     elif [ "$libsuffix" = "m64e" ]; then
         mips-linux-gnu-strip V2D$libsuffix
+    elif [ "$libsuffix" = "la64" ]; then
+        loongarch64-linux-gnu-strip V2D$libsuffix
     else
         strip V2D$libsuffix
     fi
     
+    mkdir -p ../INSTALL/tool/$toolDir
     rm -f ../INSTALL/tool/$toolDir/V2DServer
     cp -a V2D$libsuffix ../INSTALL/tool/$toolDir/V2DServer
 }
+
+if [ "${1:-}" = "loongarch64" ]; then
+    build_func "loongarch64-linux-gnu-gcc -static" 'la64' 'loongarch64'
+    exit 0
+fi
 
 build_func "gcc" '64' 'x86_64'
 build_func "gcc -m32" '32' 'i386'

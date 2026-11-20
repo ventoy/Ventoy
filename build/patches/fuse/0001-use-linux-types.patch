@@ -1,0 +1,19 @@
+--- a/include/fuse_kernel.h
++++ b/include/fuse_kernel.h
+@@ -88,12 +88,10 @@
+ #ifndef _LINUX_FUSE_H
+ #define _LINUX_FUSE_H
+ 
+-#include <sys/types.h>
+-#define __u64 uint64_t
+-#define __s64 int64_t
+-#define __u32 uint32_t
+-#define __s32 int32_t
+-#define __u16 uint16_t
++#include <linux/types.h>
++/* Defining __u64 as uint64_t breaks LP64 targets: a later kernel
++ * header typedefs __u64 to unsigned long long, and the macro rewrites
++ * that typedef into a second, conflicting uint64_t. */
+ 
+ /*
+  * Version negotiation:

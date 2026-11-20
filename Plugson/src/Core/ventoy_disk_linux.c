@@ -515,7 +515,7 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
     }
 
     if (part1_start_sector != VTOYIMG_PART_START_SECTOR ||
-        part2_sector_count != VTOYEFI_PART_SECTORS ||
+        !VTOYEFI_PART_SECTORS_OK(part2_sector_count) ||
         (part1_start_sector + part1_sector_count) != part2_start_sector)
     {
         vdebug("Not valid ventoy partition layout [%llu %llu] [%llu %llu]\n", 

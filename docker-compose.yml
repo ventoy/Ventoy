@@ -1,8 +1,22 @@
-version: '2'
-
 services:
-  ventoy:
-    build: .
-    privileged: true
+  trixie:
+    # GRUB and EDK2 are one tree for every architecture. CentOS 7 also
+    # has no loongarch64 compiler, so those tools are built here.
+    build:
+      context: .
+      dockerfile: build/Dockerfile.trixie
+    working_dir: /ventoy
     volumes:
-     - .:/ventoy
+      - .:/ventoy
+    command: sh build/ci-trixie.sh
+  centos:
+    # Original CentOS 7 image: Linux GUI, Plugson, and the release package.
+    # Run trixie first. This service reads build/out from that step.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    privileged: true
+    working_dir: /ventoy
+    volumes:
+      - .:/ventoy
+    command: sh build/ci-centos.sh

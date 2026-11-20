@@ -62,6 +62,7 @@
         "STR_DONATE":"يتبرع",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
       {
@@ -127,6 +128,7 @@
         "STR_DONATE": "عطیہ کریں",
         "STR_4KN_UNSUPPORTED": "فی الحال وینٹوی 4K نیٹو ڈیوائسز کو سپورٹ نہیں کرتا۔",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX": ""
     },
     {
@@ -192,6 +194,7 @@
         "STR_DONATE":"Ianə",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -257,6 +260,7 @@
         "STR_DONATE":"기부",
         "STR_4KN_UNSUPPORTED":"현재 Ventoy는 네이티브 4K 섹터의 디스크를 지원하지 않습니다.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -322,6 +326,7 @@
         "STR_DONATE":"捐助",
         "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支持原生 4K 扇区的磁盘。",
         
+        "STR_UPDATE_SMALL_ESP":"ESP 小于 64MB，不能原地升级。#@请先备份第一分区的数据，再使用安装来格式化磁盘。",
         "STRXXX":""
     },
     {
@@ -387,6 +392,7 @@
         "STR_DONATE":"Donering",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -452,6 +458,7 @@
         "STR_DONATE":"Donate",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -517,6 +524,7 @@
         "STR_DONATE":"შემოწირულობა",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX": ""
     },
     {
@@ -582,6 +590,7 @@
         "STR_DONATE":"اهداء",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -647,6 +656,7 @@
         "STR_DONATE":"Przekaż darowiznę",
         "STR_4KN_UNSUPPORTED":"Obecnie Ventoy nie obsługuje urządzeń o fizycznym rozmiarze sektora 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -712,6 +722,7 @@
         "STR_DONATE":"Doar",
         "STR_4KN_UNSUPPORTED":"Atualmente o Ventoy não suporta dispositivos 4K nativos.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
 	{
@@ -777,6 +788,7 @@
         "STR_DONATE":"Donirajte",
         "STR_4KN_UNSUPPORTED":"Trenutno Ventoy ne podpira naprav z ločljivostjo 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -842,6 +854,7 @@
         "STR_DONATE":"Ventoy'a Bağış yap",
         "STR_4KN_UNSUPPORTED":"Diskiniz 4K(4096byte) sektör yapısına sahip.Ventoy, 4K sektör yapısına sahip cihazlara şu anda destek vermemektedir.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -907,6 +920,7 @@
         "STR_DONATE":"Spenden",
         "STR_4KN_UNSUPPORTED":"Ventoy unterstützt derzeit keine nativen 4K-Geräte.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -972,6 +986,7 @@
         "STR_DONATE":"Donate",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1037,6 +1052,7 @@
         "STR_DONATE":"Faire un don",
         "STR_4KN_UNSUPPORTED":"Actuellement, Ventoy ne prend pas en charge les appareils natifs 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1102,6 +1118,7 @@
         "STR_DONATE":"Darovat",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1166,6 +1183,7 @@
         "STR_DONATE":"Darovať",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1231,6 +1249,7 @@
         "STR_DONATE":"Donar",
         "STR_4KN_UNSUPPORTED":"Actualmente Ventoy no es compatible con dispositivos nativos 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1296,6 +1315,7 @@
         "STR_DONATE":"Donar",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1361,6 +1381,7 @@
         "STR_DONATE":"Пожертвовать",
         "STR_4KN_UNSUPPORTED":"В настоящее время Ventoy не поддерживает родные устройства 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1426,6 +1447,7 @@
         "STR_DONATE":"দান করুন",
         "STR_4KN_UNSUPPORTED":"বর্তমানে Ventoy 4K নেটিভ ডিভাইস সমর্থন করে না।",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1491,6 +1513,7 @@
         "STR_DONATE":"दान करें",
         "STR_4KN_UNSUPPORTED":"वर्तमान में Ventoy 4K नेटिव डिवाइस को सपोर्ट नहीं करता है।",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1556,6 +1579,7 @@
         "STR_DONATE":"Doneer",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1621,6 +1645,7 @@
         "STR_DONATE":"Donează",
         "STR_4KN_UNSUPPORTED":"Momentan, Ventoy nu suporta dispozitive native 4k.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1686,6 +1711,7 @@
         "STR_DONATE":"寄付",
         "STR_4KN_UNSUPPORTED":"現在、Ventoyは4Kネイティブデバイスをサポートしていません。",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1751,6 +1777,7 @@
         "STR_DONATE":"Dona",
         "STR_4KN_UNSUPPORTED":"Attualmente Ventoy non supporta dispositivi nativi 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1816,6 +1843,7 @@
         "STR_DONATE":"Donirajte",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1881,6 +1909,7 @@
         "STR_DONATE":"Adományoz",
         "STR_4KN_UNSUPPORTED":"Jelenleg a Ventoy nem támogat natív 4K eszközt.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -1946,6 +1975,7 @@
         "STR_DONATE":"贊助",
         "STR_4KN_UNSUPPORTED":"目前 Ventoy 不支援單位磁區格式為4K的硬碟。",
         
+        "STR_UPDATE_SMALL_ESP":"ESP 小於 64MB，不能原地升級。#@請先備份第一分割區的資料，再使用安裝來格式化磁碟。",
         "STRXXX":""
     },
     {
@@ -2011,6 +2041,7 @@
         "STR_DONATE":"Donirajte",
         "STR_4KN_UNSUPPORTED":"Ventoy trenutno ne podržava 4K izvorne uređaje.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2076,6 +2107,7 @@
         "STR_DONATE":"Донирајте",
         "STR_4KN_UNSUPPORTED":"Ventoy тренутно не подржава 4К изворне уређаје.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2141,6 +2173,7 @@
         "STR_DONATE":"บริจาค",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2206,6 +2239,7 @@
         "STR_DONATE":"donere",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2271,6 +2305,7 @@
         "STR_DONATE":"Ủng hộ tác giả",
         "STR_4KN_UNSUPPORTED":"Hiện tại Ventoy không hỗ trợ các thiết bị 4K native.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2336,6 +2371,7 @@
         "STR_DONATE":"paaukoti",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2401,6 +2437,7 @@
         "STR_DONATE":"донира",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2466,6 +2503,7 @@
         "STR_DONATE":"לִתְרוֹם",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2531,6 +2569,7 @@
         "STR_DONATE":"Doar",
         "STR_4KN_UNSUPPORTED":"Atualmente, o Ventoy não é compatível com dispositivos nativos 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2596,6 +2635,7 @@
         "STR_DONATE":"Donasi sukarela",
         "STR_4KN_UNSUPPORTED":"Saat ini Ventoy tidak mendukung perangkat 4K yang asli.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2661,6 +2701,7 @@
         "STR_DONATE":"Donere",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2726,6 +2767,7 @@
         "STR_DONATE":"Пожертвуйте",
         "STR_4KN_UNSUPPORTED":"Наразі Ventoy не підтримує рідні пристрої 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2791,6 +2833,7 @@
         "STR_DONATE":"Δωρεά",
         "STR_4KN_UNSUPPORTED":"Επί του παρόντος, το Ventoy δεν υποστηρίζει εγγενείς συσκευές 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     
@@ -2857,6 +2900,7 @@
         "STR_DONATE":"Donera",
         "STR_4KN_UNSUPPORTED":"För närvarande stöder inte Ventoy 4K-enheter.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },    
     {
@@ -2922,6 +2966,7 @@
         "STR_DONATE":"Дарете",
         "STR_4KN_UNSUPPORTED":"За момента Ventoy не поддържа устройства с клъстери, чиито размери са 4КБ.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -2987,6 +3032,7 @@
         "STR_DONATE":"Նվիրաբերել",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -3052,6 +3098,7 @@
         "STR_DONATE":"Lahjoittaa",
         "STR_4KN_UNSUPPORTED":"Tällä hetkellä Ventoy ei tue 4K laitteita.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -3117,6 +3164,7 @@
         "STR_DONATE":"Doa",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -3182,6 +3230,7 @@
         "STR_DONATE":"Donar",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     
@@ -3248,6 +3297,7 @@
         "STR_DONATE":"შემოწირულობა",
         "STR_4KN_UNSUPPORTED":"Currently Ventoy does not support 4K native devices.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -3313,6 +3363,7 @@
         "STR_DONATE":"தானம் செய்",
         "STR_4KN_UNSUPPORTED":"தற்போது, வெண்டோய் 4K சொந்த சாதனங்களை ஆதரிக்கவில்லை.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -3378,6 +3429,7 @@
         "STR_DONATE":"Ахвяраваць",
         "STR_4KN_UNSUPPORTED":"Зараз Ventoy не падтрымлівае ўласныя прылады 4K.",
         
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     },
     {
@@ -3443,6 +3495,7 @@
         "STR_DONATE":"സംഭാവന ചെയ്യുക",
         "STR_4KN_UNSUPPORTED":"നിലവിൽ വെൻ്റോയ് 4K നേറ്റീവ് ഉപകരണങ്ങളെ പിന്തുണയ്ക്കുന്നില്ല.",
     
+        "STR_UPDATE_SMALL_ESP":"The ESP is smaller than 64MB and cannot be updated in place.#@Please back up the data on the first partition, then use Install to format the disk.",
         "STRXXX":""
     }
 ]

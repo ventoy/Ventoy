@@ -46,6 +46,8 @@
 
 #define VTOYEFI_PART_BYTES    (32 * 1024 * 1024)
 #define VTOYEFI_PART_SECTORS  65536
+/* Install writes 64 MiB. A 32 MiB ESP is not a Ventoy disk. */
+#define VTOYEFI_PART_SECTORS_OK(n)  ((n) == 131072)
 
 
 #pragma pack(1)

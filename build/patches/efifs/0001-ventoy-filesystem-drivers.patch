@@ -1,0 +1,118 @@
+diff --git a/src/file.c b/src/file.c
+index eebe66e..c48451b 100644
+--- a/src/file.c
++++ b/src/file.c
+@@ -336,7 +336,7 @@ FileReadDir(EFI_GRUB_FILE *File, UINTN *Len, VOID *Data)
+ 	INTN len;
+ 
+ 	/* Unless we can fit our maximum size, forget it */
+-	if (*Len < MINIMUM_INFO_LENGTH) {
++	if (*Len < sizeof(EFI_FILE_INFO)) {
+ 		*Len = MINIMUM_INFO_LENGTH;
+ 		return EFI_BUFFER_TOO_SMALL;
+ 	}
+@@ -360,7 +360,11 @@ FileReadDir(EFI_GRUB_FILE *File, UINTN *Len, VOID *Data)
+ 	}
+ 
+ 	if (EFI_ERROR(Status)) {
+-		PrintStatusError(Status, L"Directory listing failed");
++		if (Status == EFI_BUFFER_TOO_SMALL) {
++			*Len = MINIMUM_INFO_LENGTH;
++		} else {
++			PrintStatusError(Status, L"Directory listing failed");
++		}
+ 		return Status;
+ 	}
+ 
+@@ -550,7 +554,7 @@ FileGetInfo(EFI_FILE_HANDLE This, EFI_GUID *Type, UINTN *Len, VOID *Data)
+ 
+ 		/* Fill file information */
+ 		PrintExtra(L"Get regular file information\n");
+-		if (*Len < MINIMUM_INFO_LENGTH) {
++		if (*Len < sizeof(EFI_FILE_INFO)) {
+ 			*Len = MINIMUM_INFO_LENGTH;
+ 			return EFI_BUFFER_TOO_SMALL;
+ 		}
+@@ -573,8 +577,11 @@ FileGetInfo(EFI_FILE_HANDLE This, EFI_GUID *Type, UINTN *Len, VOID *Data)
+ 		tmpLen = (UINTN)(Info->Size - SIZE_OF_EFI_FILE_INFO);
+ 		Status = Utf8ToUtf16NoAllocUpdateLen(File->basename, Info->FileName, &tmpLen);
+ 		if (EFI_ERROR(Status)) {
+-			if (Status != EFI_BUFFER_TOO_SMALL)
++			if (Status != EFI_BUFFER_TOO_SMALL) {
+ 				PrintStatusError(Status, L"Could not convert basename to UTF-16");
++			} else {
++				*Len = MINIMUM_INFO_LENGTH;
++			}
+ 			return Status;
+ 		}
+ 
+@@ -586,7 +593,7 @@ FileGetInfo(EFI_FILE_HANDLE This, EFI_GUID *Type, UINTN *Len, VOID *Data)
+ 
+ 		/* Get file system information */
+ 		PrintExtra(L"Get file system information\n");
+-		if (*Len < MINIMUM_FS_INFO_LENGTH) {
++		if (*Len < sizeof(EFI_FILE_SYSTEM_INFO)) {
+ 			*Len = MINIMUM_FS_INFO_LENGTH;
+ 			return EFI_BUFFER_TOO_SMALL;
+ 		}
+@@ -623,8 +630,11 @@ FileGetInfo(EFI_FILE_HANDLE This, EFI_GUID *Type, UINTN *Len, VOID *Data)
+ 			tmpLen = (INTN)(FSInfo->Size - SIZE_OF_EFI_FILE_SYSTEM_INFO);
+ 			Status = Utf8ToUtf16NoAllocUpdateLen(label, FSInfo->VolumeLabel, &tmpLen);
+ 			if (EFI_ERROR(Status)) {
+-				if (Status != EFI_BUFFER_TOO_SMALL)
++				if (Status != EFI_BUFFER_TOO_SMALL) {
+ 					PrintStatusError(Status, L"Could not convert label to UTF-16");
++				} else {
++					*Len = MINIMUM_FS_INFO_LENGTH;
++				}
+ 				return Status;
+ 			}
+ 			FSInfo->Size = SIZE_OF_EFI_FILE_SYSTEM_INFO + tmpLen;
+diff --git a/src/logging.c b/src/logging.c
+index d208b2a..c4996b2 100644
+--- a/src/logging.c
++++ b/src/logging.c
+@@ -43,6 +43,8 @@ Print_t* PrintTable[] = { &PrintError, &PrintWarning, &PrintInfo,
+ #endif
+ UINTN LogLevel = DEFAULT_LOGLEVEL;
+ 
++int g_fs_name_nocase = 0;
++
+ /**
+  * Print status
+  *
+@@ -72,6 +74,11 @@ SetLogging(VOID)
+ 	CHAR16 LogVar[4];
+ 	UINTN i, LogVarSize = sizeof(LogVar);
+ 
++	i = LogVarSize;
++	Status = RT->GetVariable(L"FS_NAME_NOCASE", &ShellVariable, NULL, &i, LogVar);
++	if (Status == EFI_SUCCESS)
++		g_fs_name_nocase = 1;
++
+ 	Status = RT->GetVariable(L"FS_LOGGING", &ShellVariable, NULL, &LogVarSize, LogVar);
+ 	if (Status == EFI_SUCCESS)
+ 		LogLevel = Atoi(LogVar);
+diff --git a/grub/grub/grub-core/fs/iso9660.c b/grub-core/fs/iso9660.c
+index c73cb9c..c323c85 100644
+--- a/grub/grub/grub-core/fs/iso9660.c
++++ b/grub/grub-core/fs/iso9660.c
+@@ -49,6 +49,8 @@ GRUB_MOD_LICENSE ("GPLv3+");
+ #define GRUB_ISO9660_VOLDESC_PART	3
+ #define GRUB_ISO9660_VOLDESC_END	255
+ 
++extern int g_fs_name_nocase;
++
+ #define GRUB_ISO9660_SUSP_HEADER_SZ	4
+ #define GRUB_ISO9660_MAX_CE_HOPS	100000
+ 
+@@ -845,6 +847,9 @@ grub_iso9660_iterate_dir (grub_fshelp_node_t dir,
+ 	if (!ctx.filename && dirent.namelen == 1 && name[0] == 1)
+ 	  ctx.filename = (char *) "..";
+ 
++	if (g_fs_name_nocase)
++	  ctx.type |= GRUB_FSHELP_CASE_INSENSITIVE;
++
+ 	/* The filename was not stored in a rock ridge entry.  Read it
+ 	   from the iso9660 filesystem.  */
+ 	if (!dir->data->joliet && !ctx.filename)

@@ -96,6 +96,8 @@ typedef enum STR_ID
 
 	STR_4KN_UNSUPPORTED, //55
 
+	STR_UPDATE_SMALL_ESP, //56
+
 	STR_ID_MAX
 }STR_ID;
 

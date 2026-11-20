@@ -1,0 +1,34 @@
+FROM debian:trixie
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# One image for every architecture. Hosted builds need the matching libc
+# packages; the cross gcc packages do not pull them in with --no-install-recommends.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        python3 \
+        pkg-config \
+        gettext \
+        bison \
+        flex \
+        gawk \
+        wget \
+        xz-utils \
+        bzip2 \
+        autoconf \
+        automake \
+        libtool \
+        uuid-dev \
+        nasm \
+        acpica-tools \
+        gcc-aarch64-linux-gnu \
+        libc6-dev-arm64-cross \
+        gcc-loongarch64-linux-gnu \
+        libc6-dev-loong64-cross \
+        gcc-mips64el-linux-gnuabi64 \
+        libc6-dev-mips64el-cross \
+        gcc-i686-linux-gnu \
+        libc6-dev-i386-cross \
+    && rm -rf /var/lib/apt/lists/*

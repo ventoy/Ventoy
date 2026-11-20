@@ -549,7 +549,8 @@ static int vtoy_print_os_param(ventoy_os_param *param, char *diskname)
                 read(fd, sizebuf, sizeof(sizebuf));
                 size = (int)strtoull(sizebuf, NULL, 10);
                 close(fd);
-                if ((size != (64 * 1024)) && (size != (8 * 1024)))
+                /* 8192 and 131072 sectors are 4 and 64 MiB. */
+                if ((size != (8 * 1024)) && (size != (128 * 1024)))
                 {
                     debug("sizebuf=<%s> size=%d\n", sizebuf, size);
                     return 1;

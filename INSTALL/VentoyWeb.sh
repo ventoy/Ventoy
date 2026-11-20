@@ -29,6 +29,8 @@ elif uname -m | grep -E -q 'x86_64|amd64'; then
     TOOLDIR=x86_64
 elif uname -m | grep -E -q 'mips64'; then
     TOOLDIR=mips64el
+elif uname -m | grep -E -q 'loongarch'; then
+    TOOLDIR=loongarch64
 else
     TOOLDIR=i386
 fi

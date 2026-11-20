@@ -1,0 +1,704 @@
+diff -ruN a/squashfs-tools/lz4_wrapper.c b/squashfs-tools/lz4_wrapper.c
+--- a/squashfs-tools/lz4_wrapper.c	2019-08-29 09:58:04.000000000 +0800
++++ b/squashfs-tools/lz4_wrapper.c	2026-11-03 14:50:05.977464486 +0800
+@@ -247,28 +247,7 @@
+ static int lz4_compress(void *strm, void *dest, void *src,  int size,
+ 	int block_size, int *error)
+ {
+-	int res;
+-
+-	if(hc)
+-		res = COMPRESS_HC(src, dest, size, block_size);
+-	else
+-		res = COMPRESS(src, dest, size, block_size);
+-
+-	if(res == 0) {
+-		/*
+-	 	 * Output buffer overflow.  Return out of buffer space
+-	 	 */
+-		return 0;
+-	} else if(res < 0) {
+-		/*
+-	 	 * All other errors return failure, with the compressor
+-	 	 * specific error code in *error
+-	 	 */
+-		*error = res;
+-		return -1;
+-	}
+-
+-	return res;
++	return 0;
+ }
+ 
+ 
+diff -ruN a/squashfs-tools/lzma_wrapper.c b/squashfs-tools/lzma_wrapper.c
+--- a/squashfs-tools/lzma_wrapper.c	2019-08-29 09:58:04.000000000 +0800
++++ b/squashfs-tools/lzma_wrapper.c	2026-11-03 14:50:05.977464486 +0800
+@@ -32,50 +32,7 @@
+ static int lzma_compress(void *strm, void *dest, void *src, int size, int block_size,
+ 		int *error)
+ {
+-	unsigned char *d = dest;
+-	size_t props_size = LZMA_PROPS_SIZE,
+-		outlen = block_size - LZMA_HEADER_SIZE;
+-	int res;
+-
+-	res = LzmaCompress(dest + LZMA_HEADER_SIZE, &outlen, src, size, dest,
+-		&props_size, 5, block_size, 3, 0, 2, 32, 1);
+-	
+-	if(res == SZ_ERROR_OUTPUT_EOF) {
+-		/*
+-		 * Output buffer overflow.  Return out of buffer space error
+-		 */
+-		return 0;
+-	}
+-
+-	if(res != SZ_OK) {
+-		/*
+-		 * All other errors return failure, with the compressor
+-		 * specific error code in *error
+-		 */
+-		*error = res;
+-		return -1;
+-	}
+-
+-	/*
+-	 * Fill in the 8 byte little endian uncompressed size field in the
+-	 * LZMA header.  8 bytes is excessively large for squashfs but
+-	 * this is the standard LZMA header and which is expected by the kernel
+-	 * code
+-	 */
+-	d[LZMA_PROPS_SIZE] = size & 255;
+-	d[LZMA_PROPS_SIZE + 1] = (size >> 8) & 255;
+-	d[LZMA_PROPS_SIZE + 2] = (size >> 16) & 255;
+-	d[LZMA_PROPS_SIZE + 3] = (size >> 24) & 255;
+-	d[LZMA_PROPS_SIZE + 4] = 0;
+-	d[LZMA_PROPS_SIZE + 5] = 0;
+-	d[LZMA_PROPS_SIZE + 6] = 0;
+-	d[LZMA_PROPS_SIZE + 7] = 0;
+-
+-	/*
+-	 * Success, return the compressed size.  Outlen returned by the LZMA
+-	 * compressor does not include the LZMA header space
+-	 */
+-	return outlen + LZMA_HEADER_SIZE;
++	return 0;
+ }
+ 
+ 
+diff -ruN a/squashfs-tools/lzo_wrapper.c b/squashfs-tools/lzo_wrapper.c
+--- a/squashfs-tools/lzo_wrapper.c	2019-08-29 09:58:04.000000000 +0800
++++ b/squashfs-tools/lzo_wrapper.c	2026-11-03 14:50:05.978275261 +0800
+@@ -65,53 +65,9 @@
+  */
+ static int lzo_options(char *argv[], int argc)
+ {
+-	int i;
+-
+-	if(strcmp(argv[0], "-Xalgorithm") == 0) {
+-		if(argc < 2) {
+-			fprintf(stderr, "lzo: -Xalgorithm missing algorithm\n");
+-			fprintf(stderr, "lzo: -Xalgorithm <algorithm>\n");
+-			goto failed2;
+-		}
+-
+-		for(i = 0; lzo[i].name; i++) {
+-			if(strcmp(argv[1], lzo[i].name) == 0) {
+-				algorithm = i;
+-				return 1;
+-			}
+-		}
+-
+-		fprintf(stderr, "lzo: -Xalgorithm unrecognised algorithm\n");
+-		goto failed2;
+-	} else if(strcmp(argv[0], "-Xcompression-level") == 0) {
+-		if(argc < 2) {
+-			fprintf(stderr, "lzo: -Xcompression-level missing "
+-				"compression level\n");
+-			fprintf(stderr, "lzo: -Xcompression-level it "
+-				"should be 1 >= n <= 9\n");
+-			goto failed;
+-		}
+-
+-		user_comp_level = atoi(argv[1]);
+-		if(user_comp_level < 1 || user_comp_level > 9) {
+-			fprintf(stderr, "lzo: -Xcompression-level invalid, it "
+-				"should be 1 >= n <= 9\n");
+-			goto failed;
+-		}
+-
+-		return 1;
+-	}
+-
+-	return -1;
+-
+-failed:
+-	return -2;
+-
+-failed2:
+-	fprintf(stderr, "lzo: compression algorithm should be one of:\n");
+-	for(i = 0; lzo[i].name; i++)
+-		fprintf(stderr, "\t%s\n", lzo[i].name);
+-	return -2;
++    (void)argv;
++    (void)argc;
++	return 1;
+ }
+ 
+ 
+@@ -340,38 +296,8 @@
+ static int lzo_compress(void *strm, void *dest, void *src,  int size,
+ 	int block_size, int *error)
+ {
+-	int res;
+-	lzo_uint compsize, orig_size = size;
+-	struct lzo_stream *stream = strm;
+-
+-	res = lzo[algorithm].compress(src, size, stream->buffer, &compsize,
+-							stream->workspace);
+-	if(res != LZO_E_OK)
+-		goto failed;	
+-
+-	/* Successful compression, however, we need to check that
+-	 * the compressed size is not larger than the available
+-	 * buffer space.  Normally in other compressor APIs they take
+-	 * a destination buffer size, and overflows return an error.
+-	 * With LZO it lacks a destination size and so we must output
+-	 * to a temporary buffer large enough to accomodate any
+-	 * result, and explictly check here for overflow
+-	 */
+-	if(compsize > block_size)
+-		return 0;
+-
+-	res = lzo1x_optimize(stream->buffer, compsize, src, &orig_size, NULL);
+-
+-	if (res != LZO_E_OK || orig_size != size)
+-		goto failed;
+-
+-	memcpy(dest, stream->buffer, compsize);
+-	return compsize;
+-
+-failed:
+-	/* fail, compressor specific error code returned in error */
+-	*error = res;
+-	return -1;
++    
++	return 0;
+ }
+ 
+ 
+diff -ruN a/squashfs-tools/Makefile b/squashfs-tools/Makefile
+--- a/squashfs-tools/Makefile	2019-08-29 09:58:04.000000000 +0800
++++ b/squashfs-tools/Makefile	2026-11-03 14:50:05.977349297 +0800
+@@ -30,7 +30,7 @@
+ # To build install the library and uncomment
+ # the XZ_SUPPORT line below.
+ #
+-#XZ_SUPPORT = 1
++XZ_SUPPORT = 1
+ 
+ 
+ ############ Building LZO support ##############
+@@ -44,7 +44,7 @@
+ # To build install the library and uncomment
+ # the XZ_SUPPORT line below.
+ #
+-#LZO_SUPPORT = 1
++LZO_SUPPORT = 1
+ 
+ 
+ ########### Building LZ4 support #############
+@@ -60,7 +60,7 @@
+ # To build install and uncomment
+ # the LZ4_SUPPORT line below.
+ #
+-#LZ4_SUPPORT = 1
++LZ4_SUPPORT = 1
+ 
+ 
+ ########### Building ZSTD support ############
+@@ -76,7 +76,7 @@
+ # To build install the library and uncomment
+ # the XZ_SUPPORT line below.
+ #
+-#ZSTD_SUPPORT = 1
++ZSTD_SUPPORT = 1
+ 
+ 
+ ######## Specifying default compression ########
+@@ -140,7 +140,7 @@
+ # work) - download and unpack it, uncomment and set LZMA_DIR to unpacked source,
+ # and uncomment the LZMA_SUPPORT line below.
+ #
+-#LZMA_XZ_SUPPORT = 1
++LZMA_XZ_SUPPORT = 1
+ #LZMA_SUPPORT = 1
+ #LZMA_DIR = ../../../../LZMA/lzma465
+ 
+@@ -158,17 +158,17 @@
+ UNSQUASHFS_OBJS = unsquashfs.o unsquash-1.o unsquash-2.o unsquash-3.o \
+ 	unsquash-4.o unsquash-123.o unsquash-34.o swap.o compressor.o unsquashfs_info.o
+ 
+-CFLAGS ?= -O2
++CFLAGS ?= -Os
+ CFLAGS += $(EXTRA_CFLAGS) $(INCLUDEDIR) -D_FILE_OFFSET_BITS=64 \
+ 	-D_LARGEFILE_SOURCE -D_GNU_SOURCE -DCOMP_DEFAULT=\"$(COMP_DEFAULT)\" \
+ 	-Wall
+ 
+-LIBS = -lpthread -lm
++LIBS = -lpthread
+ ifeq ($(GZIP_SUPPORT),1)
+ CFLAGS += -DGZIP_SUPPORT
+ MKSQUASHFS_OBJS += gzip_wrapper.o
+ UNSQUASHFS_OBJS += gzip_wrapper.o
+-LIBS += -lz
++LIBS += $(VTZLIB)
+ COMPRESSORS += gzip
+ endif
+ 
+@@ -186,39 +186,39 @@
+ CFLAGS += -DLZMA_SUPPORT
+ MKSQUASHFS_OBJS += lzma_xz_wrapper.o
+ UNSQUASHFS_OBJS += lzma_xz_wrapper.o
+-LIBS += -llzma
++LIBS += 
+ COMPRESSORS += lzma
+ endif
+ 
+ ifeq ($(XZ_SUPPORT),1)
+-CFLAGS += -DXZ_SUPPORT
++CFLAGS += -DXZ_SUPPORT -I$(LZMA_LIBDIR)/include
+ MKSQUASHFS_OBJS += xz_wrapper.o
+ UNSQUASHFS_OBJS += xz_wrapper.o
+-LIBS += -llzma
++LIBS += $(LZMA_LIBDIR)/lib/liblzma.a
+ COMPRESSORS += xz
+ endif
+ 
+ ifeq ($(LZO_SUPPORT),1)
+-CFLAGS += -DLZO_SUPPORT
++CFLAGS += -DLZO_SUPPORT -I $(LZO_LIBDIR)/include
+ MKSQUASHFS_OBJS += lzo_wrapper.o
+ UNSQUASHFS_OBJS += lzo_wrapper.o
+-LIBS += $(LZO_LIBDIR) -llzo2
++LIBS += $(LZO_LIBDIR)/lib/liblzo2.a
+ COMPRESSORS += lzo
+ endif
+ 
+ ifeq ($(LZ4_SUPPORT),1)
+-CFLAGS += -DLZ4_SUPPORT
++CFLAGS += -DLZ4_SUPPORT -I $(LZ4_LIBDIR)/include
+ MKSQUASHFS_OBJS += lz4_wrapper.o
+ UNSQUASHFS_OBJS += lz4_wrapper.o
+-LIBS += -llz4
++LIBS += $(LZ4_LIBDIR)/lib/liblz4.a
+ COMPRESSORS += lz4
+ endif
+ 
+ ifeq ($(ZSTD_SUPPORT),1)
+-CFLAGS += -DZSTD_SUPPORT
++CFLAGS += -DZSTD_SUPPORT  -I $(ZSTD_LIBDIR)/include
+ MKSQUASHFS_OBJS += zstd_wrapper.o
+ UNSQUASHFS_OBJS += zstd_wrapper.o
+-LIBS += -lzstd
++LIBS += $(ZSTD_LIBDIR)/lib/libzstd.a
+ COMPRESSORS += zstd
+ endif
+ 
+diff -ruN a/squashfs-tools/sort.c b/squashfs-tools/sort.c
+--- a/squashfs-tools/sort.c	2019-08-29 09:58:04.000000000 +0800
++++ b/squashfs-tools/sort.c	2026-11-03 14:50:05.979275294 +0800
+@@ -297,7 +297,7 @@
+ 		} else if((errno == ERANGE) ||
+ 				(priority < -32768 || priority > 32767)) {
+ 			ERROR("Sort file \"%s\", entry \"%s\" has priority "
+-				"outside range of -32767:32768.\n", filename,
++				"outside range of -32768:32767.\n", filename,
+ 				line_buffer);
+ 			goto failed;
+ 		}
+diff -ruN a/squashfs-tools/unsquashfs.c b/squashfs-tools/unsquashfs.c
+--- a/squashfs-tools/unsquashfs.c	2019-08-29 09:58:04.000000000 +0800
++++ b/squashfs-tools/unsquashfs.c	2026-11-03 19:05:58.944268827 +0800
+@@ -40,6 +40,34 @@
+ #include <limits.h>
+ #include <ctype.h>
+ 
++
++typedef unsigned long long uint64_t;
++typedef unsigned int    uint32_t;
++
++static int verbose = 0;
++#define debug(fmt, ...) if(verbose) printf(fmt, ##__VA_ARGS__)
++
++#pragma pack(1)
++
++typedef struct fs_disk_region
++{
++    uint32_t sector;
++    uint32_t count;
++}fs_disk_region;
++
++typedef struct fs_disk_map
++{
++    char diskname[32];
++    uint64_t filesize;
++    
++    //fs_disk_region[N];
++ }fs_disk_map;
++#pragma pack()
++
++int g_fs_region_num = 0;
++fs_disk_region *g_fs_region_list = NULL;
++fs_disk_map g_fs_disk_map;
++
+ struct cache *fragment_cache, *data_cache;
+ struct queue *to_reader, *to_inflate, *to_writer, *from_writer;
+ pthread_t *thread, *inflator_thread;
+@@ -131,7 +159,7 @@
+ }
+ 
+ 
+-void sigwinch_handler()
++void sigwinch_handler(int signo)
+ {
+ 	struct winsize winsize;
+ 
+@@ -145,7 +173,7 @@
+ }
+ 
+ 
+-void sigalrm_handler()
++void sigalrm_handler(int signo)
+ {
+ 	rotate = (rotate + 1) % 4;
+ }
+@@ -625,6 +653,96 @@
+ 	return -1;
+ }
+ 
++int read_fs_sectors(int fd, uint32_t sector, uint32_t count, char *buf)
++{
++    int i;
++    uint32_t total = 0;
++    uint32_t left = 0;
++    uint32_t offset = 0;
++    uint32_t readcnt = 0;
++    fs_disk_region *region;
++
++    for (i = 0; i < g_fs_region_num && count > 0; i++)
++    {
++        region = g_fs_region_list + i;
++
++        if (sector >= total && sector < total + region->count)
++        {
++            offset = sector - total;
++            left = region->count - offset;
++            readcnt = (count <= left) ? count : left;
++            
++            lseek(fd, (uint64_t)(offset + region->sector) * 512ULL, SEEK_SET);
++            read(fd, buf, (uint64_t)readcnt * 512ULL);
++
++            buf += (uint64_t)readcnt * 512ULL;
++            count -= readcnt;
++        }
++        else
++        {
++            total += region->count;
++        }
++    }
++
++    return 0;
++}
++
++#if 1
++int read_fs_bytes(int fd, long long byte, int bytes, void *buff)
++{
++    uint32_t mod = 0;
++    uint32_t align = 0;
++    uint32_t sector = 0;
++    uint32_t number = 0;
++    uint32_t leftsize = 0;
++	uint64_t offset = byte;
++    char *buf = (char *)buff;
++    char secbuf[512];
++
++    if (offset >= g_fs_disk_map.filesize || offset + bytes > g_fs_disk_map.filesize)
++    {
++        return FALSE;
++    }
++
++    leftsize = bytes;
++    sector = offset / 512;
++
++    mod = offset % 512;
++    if (mod > 0)
++    {
++        align = 512 - mod;
++        read_fs_sectors(fd, sector, 1, secbuf);
++
++        if (leftsize > align)
++        {
++            memcpy(buf, secbuf + mod, align);
++            buf += align;
++            offset += align;
++            sector++;
++            leftsize -= align;
++        }
++        else
++        {
++            memcpy(buf, secbuf + mod, leftsize);
++            return TRUE;
++        }
++    }
++
++    number = leftsize / 512;
++    read_fs_sectors(fd, sector, number, buf);
++    buf += number * 512;
++
++    mod = leftsize % 512;
++    if (mod > 0)
++    {
++        read_fs_sectors(fd, sector + number, 1, secbuf);
++        memcpy(buf, secbuf, mod);
++    }
++
++	return TRUE;
++}
++
++#else
+ 
+ int read_fs_bytes(int fd, long long byte, int bytes, void *buff)
+ {
+@@ -657,7 +775,7 @@
+ 
+ 	return TRUE;
+ }
+-
++#endif
+ 
+ int read_block(int fd, long long start, long long *next, int expected,
+ 								void *block)
+@@ -2451,6 +2569,17 @@
+ 
+ 	pthread_mutex_unlock(&screen_mutex);
+ }
++static int get_max_digits(long long max)
++{
++    int digits = 0;
++    
++    while (max > 10) {
++        max /= 10;
++        digits++;
++    }
++
++    return digits;
++}
+ 
+ void progress_bar(long long current, long long max, int columns)
+ {
+@@ -2461,7 +2590,8 @@
+ 	if(max == 0)
+ 		return;
+ 
+-	max_digits = floor(log10(max)) + 1;
++	//max_digits = floor(log10(max)) + 1;
++	max_digits = get_max_digits(max) + 1;
+ 	used = max_digits * 2 + 11;
+ 	hashes = (current * (columns - used)) / max;
+ 	spaces = columns - used - hashes;
+@@ -2609,6 +2739,38 @@
+ }
+ 
+ 
++int ventoy_parse_disk_map(void)
++{
++    int len = 0;
++
++    debug("ventoy_parse_disk_map\n");
++
++    len = (int)lseek(fd, 0, SEEK_END);
++    lseek(fd, 0, SEEK_SET);
++
++    if (len < sizeof(fs_disk_map) + sizeof(fs_disk_region))
++    {
++        return 1;
++    }
++
++    read(fd, &g_fs_disk_map, sizeof(fs_disk_map));
++
++    debug("diskname=<%s> filesize=<%llu> region_num=<%u>\n", 
++          g_fs_disk_map.diskname, g_fs_disk_map.filesize, g_fs_region_num);
++
++    g_fs_region_num = (len - sizeof(fs_disk_map)) / sizeof(fs_disk_region);
++    g_fs_region_list = malloc(g_fs_region_num * sizeof(fs_disk_region));
++    read(fd, g_fs_region_list, g_fs_region_num * sizeof(fs_disk_region));
++
++    close(fd);    
++    
++    fd = open(g_fs_disk_map.diskname, O_RDONLY);
++    debug("ventoy_parse_disk_map end fd=%d\n", fd);
++    
++    return 0;
++}
++
++
+ #define VERSION() \
+ 	printf("unsquashfs version 4.4 (2019/08/29)\n");\
+ 	printf("copyright (C) 2019 Phillip Lougher "\
+@@ -2649,6 +2811,10 @@
+ 			break;
+ 		if(strcmp(argv[i], "-UTC") == 0)
+ 			use_localtime = FALSE;
++        else if (strcmp(argv[i], "-t") == 0)
++            return 0;
++        else if (strcmp(argv[i], "-v") == 0)
++            verbose = 1;
+ 		else if(strcmp(argv[i], "-strict-errors") == 0 ||
+ 				strcmp(argv[i], "-st") == 0)
+ 			strict_errors = TRUE;
+@@ -2874,6 +3040,8 @@
+ 		exit(1);
+ 	}
+ 
++    ventoy_parse_disk_map();
++
+ 	if(read_super(argv[i]) == FALSE)
+ 		exit(1);
+ 
+@@ -2985,5 +3153,7 @@
+ 		printf("created %d fifos\n", fifo_count);
+ 	}
+ 
++    close(fd);    
++
+ 	return exit_code;
+ }
+diff -ruN a/squashfs-tools/zstd_wrapper.c b/squashfs-tools/zstd_wrapper.c
+--- a/squashfs-tools/zstd_wrapper.c	2019-08-29 09:58:04.000000000 +0800
++++ b/squashfs-tools/zstd_wrapper.c	2026-11-03 14:50:05.980275328 +0800
+@@ -46,29 +46,7 @@
+  */
+ static int zstd_options(char *argv[], int argc)
+ {
+-	if (strcmp(argv[0], "-Xcompression-level") == 0) {
+-		if (argc < 2) {
+-			fprintf(stderr, "zstd: -Xcompression-level missing "
+-				"compression level\n");
+-			fprintf(stderr, "zstd: -Xcompression-level it should "
+-				"be 1 <= n <= %d\n", ZSTD_maxCLevel());
+-			goto failed;
+-		}
+-
+-		compression_level = atoi(argv[1]);
+-		if (compression_level < 1 ||
+-		    compression_level > ZSTD_maxCLevel()) {
+-			fprintf(stderr, "zstd: -Xcompression-level invalid, it "
+-				"should be 1 <= n <= %d\n", ZSTD_maxCLevel());
+-			goto failed;
+-		}
+-
+-		return 1;
+-	}
+-
+-	return -1;
+-failed:
+-	return -2;
++	return 1;
+ }
+ 
+ /*
+@@ -83,18 +61,7 @@
+  */
+ static void *zstd_dump_options(int block_size, int *size)
+ {
+-	static struct zstd_comp_opts comp_opts;
+-
+-	/* don't return anything if the options are all default */
+-	if (compression_level == ZSTD_DEFAULT_COMPRESSION_LEVEL)
+-		return NULL;
+-
+-	comp_opts.compression_level = compression_level;
+-
+-	SQUASHFS_INSWAP_COMP_OPTS(&comp_opts);
+-
+-	*size = sizeof(comp_opts);
+-	return &comp_opts;
++	return NULL;
+ }
+ 
+ /*
+@@ -132,8 +99,7 @@
+ 
+ 	SQUASHFS_INSWAP_COMP_OPTS(comp_opts);
+ 
+-	if (comp_opts->compression_level < 1 ||
+-	    comp_opts->compression_level > ZSTD_maxCLevel()) {
++	if (comp_opts->compression_level < 1) {
+ 		fprintf(stderr, "zstd: bad compression level in compression "
+ 			"options structure\n");
+ 		goto failed;
+@@ -160,8 +126,7 @@
+ 
+ 	SQUASHFS_INSWAP_COMP_OPTS(comp_opts);
+ 
+-	if (comp_opts->compression_level < 1 ||
+-	    comp_opts->compression_level > ZSTD_maxCLevel()) {
++	if (comp_opts->compression_level < 1) {
+ 		fprintf(stderr, "zstd: bad compression level in compression "
+ 			"options structure\n");
+ 		goto failed;
+@@ -184,37 +149,19 @@
+  */
+ static int zstd_init(void **strm, int block_size, int datablock)
+ {
+-	ZSTD_CCtx *cctx = ZSTD_createCCtx();
+-
+-	if (!cctx) {
+-		fprintf(stderr, "zstd: failed to allocate compression "
+-			"context!\n");
+-		return -1;
+-	}
+-
+-	*strm = cctx;
+ 	return 0;
+ }
+ 
+ static int zstd_compress(void *strm, void *dest, void *src, int size,
+ 			 int block_size, int *error)
+ {
+-	const size_t res = ZSTD_compressCCtx((ZSTD_CCtx*)strm, dest, block_size,
+-					     src, size, compression_level);
+-
+-	if (ZSTD_isError(res)) {
+-		/* FIXME:
+-		 * zstd does not expose stable error codes. The error enum may
+-		 * change between versions. Until upstream zstd stablizes the
+-		 * error codes, we have no way of knowing why the error occurs.
+-		 * zstd shouldn't fail to compress any input unless there isn't
+-		 * enough output space. We assume that is the cause and return
+-		 * the special error code for not enough output space.
+-		 */
+-		return 0;
+-	}
+-
+-	return (int)res;
++    (void)strm;
++    (void)dest;
++    (void)src;
++    (void)size;
++    (void)block_size;
++    (void)error;
++	return 0;
+ }
+ 
+ static int zstd_uncompress(void *dest, void *src, int size, int outsize,
+@@ -235,8 +182,6 @@
+ static void zstd_usage(void)
+ {
+ 	fprintf(stderr, "\t  -Xcompression-level <compression-level>\n");
+-	fprintf(stderr, "\t\t<compression-level> should be 1 .. %d (default "
+-		"%d)\n", ZSTD_maxCLevel(), ZSTD_DEFAULT_COMPRESSION_LEVEL);
+ }
+ 
+ struct compressor zstd_comp_ops = {
