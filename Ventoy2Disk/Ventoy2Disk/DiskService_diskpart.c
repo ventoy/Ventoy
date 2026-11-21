@@ -140,11 +140,11 @@ BOOL DSPT_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
 
     if (ClusterSize > 0)
     {
-        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy UNIT=%u QUICK OVERRIDE\r\n", DriveLetter, fsname, ClusterSize);
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=%s UNIT=%u QUICK OVERRIDE\r\n", DriveLetter, fsname, g_VolumeLabel, ClusterSize);
     }
     else
     {
-        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=Ventoy QUICK OVERRIDE\r\n", DriveLetter, fsname);
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "select volume %C:\r\nformat FS=%s LABEL=%s QUICK OVERRIDE\r\n", DriveLetter, fsname, g_VolumeLabel);
     }
 
     Log("Diskpart cmd:<%s>", CmdBuf);
@@ -187,11 +187,11 @@ BOOL CMD_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
 
     if (ClusterSize > 0)
     {
-        sprintf_s(CmdBuf, sizeof(CmdBuf), "cmd.exe /c \"echo Y|format %C: /V:Ventoy /fs:%s /q /A:%u /X\"", DriveLetter, fsname, ClusterSize);
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "cmd.exe /c \"echo Y|format %C: /V:%s /fs:%s /q /A:%u /X\"", DriveLetter, g_VolumeLabel, fsname, ClusterSize);
     }
     else
     {
-        sprintf_s(CmdBuf, sizeof(CmdBuf), "cmd.exe /c \"echo Y|format %C: /V:Ventoy /fs:%s /q /X\"", DriveLetter, fsname);
+        sprintf_s(CmdBuf, sizeof(CmdBuf), "cmd.exe /c \"echo Y|format %C: /V:%s /fs:%s /q /X\"", DriveLetter, g_VolumeLabel, fsname);
     }
 
     Log("Cmd.exe <%s>", CmdBuf);
