@@ -98,7 +98,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -118,7 +118,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -142,7 +142,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson32.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -166,7 +166,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <DelayLoadDLLs>gdi32.dll;winspool.dll;comdlg32.dll;advapi32.dll;shell32.dll;ole32.dll;oleaut32.dll;uuid.dll;odbc32.dll;odbccp32.dll</DelayLoadDLLs>
+      <DelayLoadDLLs>shell32.dll;ole32.dll</DelayLoadDLLs>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>$(ProjectDir)\Res\Plugson64.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
