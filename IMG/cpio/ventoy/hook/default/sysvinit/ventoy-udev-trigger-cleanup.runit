@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /etc/ventoy-udev-cleanup.sh

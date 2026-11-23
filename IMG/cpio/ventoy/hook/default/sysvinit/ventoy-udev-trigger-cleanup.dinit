@@ -1,0 +1,4 @@
+type = scripted
+command = /etc/ventoy-udev-cleanup.sh
+after = local.target
+

@@ -6,7 +6,9 @@ ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="DMXXX", \
     ENV{UDISKS_SYSTEM}="0", \
     ENV{UDISKS_REMOVABLE}="1", \
     ENV{UDISKS_AUTO}="1", \
+    ENV{UDISKS_IGNORE}="0", \
     ENV{UDISKS_AUTOMOUNTABLE}="1"
 
 
 KERNEL=="yyy", SUBSYSTEM=="block", ENV{UDISKS_IGNORE}="1"
+

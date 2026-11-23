@@ -1,0 +1,16 @@
+#!/usr/bin/openrc-run
+
+depend() {
+    after local
+}
+
+start() {
+    ebegin ""
+    /bin/sh /etc/ventoy-udev-cleanup.sh
+    eend 0
+}
+
+stop() {
+    ebegin ""
+    eend 0
+}

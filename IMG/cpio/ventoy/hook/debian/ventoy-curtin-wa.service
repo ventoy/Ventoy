@@ -3,6 +3,12 @@ Description=Ventoy subiquity curtin Workaround
 
 [Service]
 Type=oneshot
-ExecStart=/etc/ventoy/ventoy-curtin-wa.sh
+ExecStart=-/bin/sh /etc/ventoy_curtin/ventoy-curtin-wa.sh
+ExecStartPost=-/bin/sh -c '\
+    rm -f /etc/systemd/system/ventoy-curtin-wa.service;\
+    rm -f /etc/systemd/system/snap.ubuntu-desktop-bootstrap.subiquity-server.service.d/10-ventoy-curtin-wa.conf;\
+    rm -rf /etc/ventoy_curtin;\
+'
+
 PrivateMounts=no
 ProtectSystem=no

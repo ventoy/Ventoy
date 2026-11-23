@@ -1026,7 +1026,7 @@ ventoy_new_root_dir() {
     done
     echo ''
 }
-
+    
 ventoy_copy_udev_auto_rules() {
     if ! [ -e $VTOY_PATH/ventoy_raw_dm_done ]; then
         vtlog "ventoy_raw_dm_done not exist, no need for udev auto rule"
@@ -1042,40 +1042,84 @@ ventoy_copy_udev_auto_rules() {
         vtlog "new root is $vroot"
     fi
 
-    
-    cp -a /ventoy/hook/default/90-ventoy-auto.rules /ventoy/udevtmp.rules        
+    # Resolve device mapping info
     vtDM=$($VTOY_PATH/tool/dmsetup info VentoyPart | $GREP Major | $SED "s/.*[^0-9]\([0-9][0-9]*\)$/\1/")
-    $SED "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.rules
-
     vtRAWDISKNAME=$($HEAD -n1 $VTOY_PATH/ventoy_raw_table | $AWK '{print $4}')
-    $SED "s/yyy/${vtRAWDISKNAME#/dev/}/g" -i /ventoy/udevtmp.rules
-
+    vtRAWDISK_SYSNAME="${vtRAWDISKNAME#/dev/}"
     vtlog "VentoyPart is /dev/dm-${vtDM} map to $vtRAWDISKNAME  NewRoot is $vroot"
+    
+    mkdir -p $vroot/etc/udev/rules.d
 
-    ventoy_copy_file /ventoy/udevtmp.rules  $vroot/etc/udev/rules.d/90-ventoy-auto.rules  0644
+    cp -a /ventoy/hook/default/90-ventoy-auto.rules /ventoy/udevtmp.rules
+    $SED "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.rules
+    $SED "s/yyy/${vtRAWDISK_SYSNAME}/g" -i /ventoy/udevtmp.rules
+    ventoy_copy_file /ventoy/udevtmp.rules  $vroot/etc/udev/rules.d/9999-ventoy-auto.rules  0644
     ventoy_copy_file /ventoy/udevtmp.rules  $vroot/etc/udev/rules.d/11-ventoy-auto.rules  0644
+    
+    if $GREP -q 'init=/lib/sysvinit' /proc/cmdline; then
+        SYSVINIT=1
+    else
+        SYSVINIT=0
+    fi
 
-    if $GREP -q 'init=.*sysvinit' /proc/cmdline; then
-        vtlog "copy sysvinit udev trigger script"        
-        cp -a /ventoy/hook/default/ventoy-udev-trigger.rc /ventoy/udevtmp.rc
-        $SED "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.rc
+    if [ -d $vroot/etc/systemd/system -a "$SYSVINIT" = "0" ]; then
+        vtlog "systemd inject hook"
+        ventoy_copy_file /ventoy/hook/default/systemd/ventoy-udev-cleanup.sh $vroot/etc/ventoy-udev-cleanup.sh 0755
+    else
+        vtlog "sysvinit inject hook"
+        ventoy_copy_file /ventoy/hook/default/sysvinit/ventoy-udev-cleanup.sh $vroot/etc/ventoy-udev-cleanup.sh 0755
+    fi
+    
+    $SED "s/DMXXX/dm-${vtDM}/g" -i $vroot/etc/ventoy-udev-cleanup.sh
+    $SED "s/yyy/${vtRAWDISK_SYSNAME}/g" -i $vroot/etc/ventoy-udev-cleanup.sh
 
-        mkdir -p $vroot/etc/boot.d        
-        ventoy_copy_file /ventoy/udevtmp.rc  $vroot/etc/boot.d/S01-ventoy-udev-trigger  0755
+    if [ "$SYSVINIT" = "1" ]; then
+        vtlog "copy sysvinit udev trigger script"
+        echo "/etc/ventoy-udev-cleanup.sh" >> $vroot/etc/rc.local
     elif [ -d $vroot/etc/systemd/system ]; then
         vtlog "copy systemd udev trigger service"
         
-        mkdir -p $vroot/etc/systemd/system/sysinit.target.wants
-        cp -a /ventoy/hook/default/ventoy-udev-trigger.service /ventoy/udevtmp.service
-        $SED "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.service
-        ventoy_copy_file /ventoy/udevtmp.service  $vroot/etc/systemd/system/ventoy-udev-trigger.service  0644
+        if [ -d $vroot/etc/systemd/system/sysinit.target.wants ]; then
+            vtlog "$vroot/etc/systemd/system/sysinit.target.wants exist ok"
+        else
+            mkdir -p $vroot/etc/systemd/system/sysinit.target.wants
+        fi
         
-        mkdir -p $vroot/etc/systemd/system-preset
+        cp -a /ventoy/hook/default/systemd/ventoy-udev-trigger.service /ventoy/udevtmp.service
+        $SED "s/DMXXX/dm-${vtDM}/g" -i /ventoy/udevtmp.service
+        $SED "s/yyy/${vtRAWDISK_SYSNAME}/g" -i /ventoy/udevtmp.service
+        
+        ventoy_copy_file /ventoy/udevtmp.service  $vroot/etc/systemd/system/ventoy-udev-trigger.service  0644
+
+        if [ -d $vroot/etc/systemd/system-preset ]; then
+            vtlog "$vroot/etc/systemd/system-preset exist ok"
+        else
+            mkdir -p $vroot/etc/systemd/system-preset
+        fi
         echo 'enable ventoy-udev-trigger.service' > $vroot/etc/systemd/system-preset/80-ventoy-udev.preset
 
         $BUSYBOX_PATH/ln -sf /etc/systemd/system/ventoy-udev-trigger.service $vroot/etc/systemd/system/sysinit.target.wants/ventoy-udev-trigger.service
+    elif [ -d $vroot/etc/init.d ] && [ -d $vroot/etc/runlevels/default ]; then
+        vtlog "copy sysvinit openrc udev trigger script"
+        ventoy_copy_file /ventoy/hook/default/sysvinit/ventoy-udev-trigger-cleanup.openrc  $vroot/etc/init.d/ventoy-udev-trigger-cleanup  0755
+        $BUSYBOX_PATH/ln -sf /etc/init.d/ventoy-udev-trigger-cleanup $vroot/etc/runlevels/default/ventoy-udev-trigger-cleanup
+    elif [ -d $vroot/etc/dinit.d/boot.d ]; then
+        vtlog "copy sysvinit dinit udev trigger script"
+        ventoy_copy_file /ventoy/hook/default/sysvinit/ventoy-udev-trigger-cleanup.dinit $vroot/etc/dinit.d/ventoy-udev-trigger-cleanup  0644
+        $BUSYBOX_PATH/ln -sf /etc/dinit.d/ventoy-udev-trigger-cleanup $vroot/etc/dinit.d/boot.d/ventoy-udev-trigger-cleanup
+    elif [ -d $vroot/etc/runit/sv ] && [ -d $vroot/etc/runit/runsvdir/default ]; then
+        vtlog "copy sysvinit runit udev trigger script"         
+        mkdir -p $vroot/etc/runit/sv/ventoy-udev-trigger-cleanup
+        ventoy_copy_file /ventoy/hook/default/sysvinit/ventoy-udev-trigger-cleanup.runit  $vroot/etc/runit/sv/ventoy-udev-trigger-cleanup/run  0755        
+        $BUSYBOX_PATH/ln -sf /etc/runit/sv/ventoy-udev-trigger-cleanup $vroot/etc/runit/runsvdir/default/ventoy-udev-trigger-cleanup
+    elif [ -d $vroot/etc/s6/sv ]; then
+        vtlog "copy sysvinit s6 udev trigger script"
+        echo "/etc/ventoy-udev-cleanup.sh" >> $vroot/etc/s6/rc.local
+    elif [ -f $vroot/etc/rc.local ]; then
+        vtlog "copy sysvinit udev trigger script"
+        echo "/etc/ventoy-udev-cleanup.sh" >> $vroot/etc/rc.local
     else
-        vtlog "sysinit wants dir not exist"
+        vtlog "unsupported init system"
     fi
 }
 

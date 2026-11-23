@@ -6,6 +6,10 @@ After=systemd-udevd.service
 Type=oneshot
 ExecStart=mv /dev/VTISOPART /dev/bk_VTISOPART
 ExecStart=cp -a /dev/DMXXX  /dev/VTISOPART
+ExecStartPost=-/bin/sh -c '\
+    rm -f /etc/systemd/system/ventoy-clonezilla-cheat.service;\
+    rm -f /etc/systemd/system-preset/90-ventoy-clonezilla.preset;\
+    rm -f /etc/systemd/system/sysinit.target.wants/ventoy-clonezilla-cheat.service;\
+'
 
-[Install]
 WantedBy=sysinit.target

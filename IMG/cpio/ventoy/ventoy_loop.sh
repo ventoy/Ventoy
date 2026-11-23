@@ -106,12 +106,34 @@ ventoy_get_os_type() {
         echo 'pmagic'; return
     fi
 
+    # PrimeOS :
+    if $GREP -q 'PrimeOS' /proc/version; then
+        echo 'primeos'; return
+
+    # Debian :
+    elif $GREP -q '[Dd]ebian' /proc/version; then
+        echo 'debian'; return
+
+    # Ubuntu : do the same process with debian
+    elif $GREP -q '[Uu]buntu' /proc/version; then
+        echo 'debian'; return
+        
+    # Deepin :
+    elif $GREP -q '[Dd]eepin' /proc/version; then
+        echo 'deepin'; return
+
     # rhel5/CentOS5 and all other distributions based on them
-    if $GREP -q 'el5' /proc/version; then
+    elif $GREP -q 'el5' /proc/version; then
         echo 'rhel5'; return
 
     # rhel6/CentOS6 and all other distributions based on them
     elif $GREP -q 'el6' /proc/version; then
+        if [ -f /sbin/detectcd ]; then
+            if $GREP -q -i 'LENOVO-EasyStartup' /sbin/detectcd; then
+                echo 'easystartup'; return
+            fi
+        fi
+
         echo 'rhel6'; return
 
     # rhel7/CentOS7/rhel8/CentOS8 and all other distributions based on them
@@ -125,18 +147,13 @@ ventoy_get_os_type() {
     # Fedora : do the same process with rhel7
     elif $GREP -q '\.fc[0-9][0-9]\.' /proc/version; then
         echo 'rhel7'; return
-        
-    # Debian :
-    elif $GREP -q '[Dd]ebian' /proc/version; then
-        echo 'debian'; return
-        
-    # Ubuntu : do the same process with debian
-    elif $GREP -q '[Uu]buntu' /proc/version; then
-        echo 'debian'; return
-        
-    # Deepin : do the same process with debian
-    elif $GREP -q '[Dd]eepin' /proc/version; then
-        echo 'debian'; return    
+
+    elif $GREP -q 'euleros' /proc/version; then
+        if [ -d /usr/Euler/project/init ]; then
+            echo 'euleros'; return
+        else
+            echo 'rhel7'; return
+        fi
 
     # SUSE
     elif $GREP -q 'SUSE' /proc/version; then
@@ -210,8 +227,12 @@ ventoy_get_os_type() {
         elif $GREP -q 'fuyu' /etc/os-release; then
             echo 'openEuler'; return
         elif $GREP -q 'deepin' /etc/os-release; then
-            echo 'debian'; return
+            echo 'deepin'; return
         elif $GREP -q 'chinauos' /etc/os-release; then
+            echo 'deepin'; return
+        elif $GREP -qi 'aerynos' /etc/os-release; then
+            echo 'rhel7'; return
+        elif $GREP -qi 'ID_LIKE=debian' /etc/os-release; then
             echo 'debian'; return
         fi
     fi
@@ -269,6 +290,10 @@ ventoy_get_os_type() {
     if $GREP -q 'android.x86' /proc/version; then
         echo 'android'; return
     fi 
+    
+    if $GREP -q 'android.google' /proc/version; then
+        echo 'android'; return
+    fi
     
     if $GREP -q 'adelielinux' /proc/version; then
         echo 'adelie'; return
@@ -382,6 +407,65 @@ ventoy_get_os_type() {
         echo "openEuler"; return
     fi
     
+    
+    #special arch based iso file check
+    if [ -f /init ]; then
+        if $GREP -q 'mount_handler' /init; then
+            if [ -d /hooks ]; then
+                if $BUSYBOX_PATH/ls -1 /hooks/ | $GREP -q '.*iso$'; then
+                    echo "arch"; return
+                fi
+            elif [ -d /hook ]; then
+                if $BUSYBOX_PATH/ls -1 /hook/ | $GREP -q '.*iso$'; then
+                    echo "arch"; return
+                fi
+            fi
+        fi
+    fi
+    
+    
+    #Kylin V10 Server
+    if [ -f /usr/sbin/dhclient ]; then
+        if $BUSYBOX_PATH/strings /usr/sbin/dhclient | $GREP -i -q -m1 openeuler; then
+            echo 'openEuler'; return
+        fi
+    fi
+    if [ -f /etc/kylin-release ]; then
+        if $GREP -i -q -m1 'Kylin.*Server.* V1[1-9] ' /etc/kylin-release; then
+            echo 'openEuler'; return
+        fi
+    fi
+
+
+    
+    if $GREP -q 'chimera' /proc/version; then
+        echo 'chimera'; return
+    fi
+
+    
+    if $GREP -q '4.19.' /proc/version; then
+        if [ -d /lib/dracut/hooks ]; then
+            echo 'openEuler'; return
+        fi
+    fi
+    
+    if [ -f /etc/tinyramfs/config ]; then
+        if $GREP -q 'EWE_ISO' /etc/tinyramfs/config; then
+            echo "ewe"; return
+        fi
+    fi
+    
+    if [ -f /scripts/casper ]; then
+        echo "debian"; return
+    fi
+    
+    
+    if [ -e /etc/os-release ]; then
+        if $GREP -qi 'ID=arch' /etc/os-release; then
+            echo 'arch'; return
+        fi
+    fi
+
     echo "default"
 }
 
@@ -391,6 +475,23 @@ if [ -e "$VTOY_PATH/loop/$VTOS/ventoy-hook.sh" ]; then
     $BUSYBOX_PATH/sh "$VTOY_PATH/loop/$VTOS/ventoy-hook.sh"
 elif [ -e "$VTOY_PATH/hook/$VTOS/ventoy-hook.sh" ]; then
     $BUSYBOX_PATH/sh "$VTOY_PATH/hook/$VTOS/ventoy-hook.sh"
+fi
+if [ -e "$VTOY_PATH/hook/$VTOS/ventoy-uauto-hook.sh" ]; then
+    $BUSYBOX_PATH/sh "$VTOY_PATH/hook/$VTOS/ventoy-uauto-hook.sh"
+fi
+
+
+####################################################################
+#                                                                  #
+# Step 4 : Run LiveInjection Hook                                  #
+#                                                                  #
+####################################################################
+if [ -f "/live_injection_7ed136ec_7a61_4b54_adc3_ae494d5106ea/hook.sh" ]; then
+    echo "==== Begin Call live injection hook.sh $VTOS" >> $VTLOG
+    $BUSYBOX_PATH/sh "/live_injection_7ed136ec_7a61_4b54_adc3_ae494d5106ea/hook.sh" $VTOS  >>$VTLOG 2>&1
+    echo "==== Finish Call live injection hook.sh $VTOS" >> $VTLOG
+else
+    echo "No live injection" >> $VTLOG
 fi
 
 

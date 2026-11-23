@@ -4,8 +4,12 @@ After=systemd-udevd.service
 
 [Service]
 Type=oneshot
+ExecStart=-udevadm trigger --subsystem-match=block --sysname-match=yyy
 ExecStart=-udevadm trigger --subsystem-match=block --sysname-match=DMXXX
-ExecStart=udevadm settle
+ExecStart=-udevadm settle
+ExecStartPost=-/bin/sh /etc/ventoy-udev-cleanup.sh
+
+RemainAfterExit=no
 
 [Install]
 WantedBy=sysinit.target

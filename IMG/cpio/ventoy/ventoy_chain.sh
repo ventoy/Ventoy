@@ -409,6 +409,13 @@ ventoy_get_os_type() {
     if [ -f /scripts/casper ]; then
         echo "debian"; return
     fi
+    
+    
+    if [ -e /etc/os-release ]; then
+        if $GREP -qi 'ID=arch' /etc/os-release; then
+            echo 'arch'; return
+        fi
+    fi
 
     echo "default"
 }
