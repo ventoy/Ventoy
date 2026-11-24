@@ -19,8 +19,44 @@
 
 . /ventoy/hook/ventoy-hook-lib.sh
 
-if is_ventoy_hook_finished || not_ventoy_disk "${1:0:-1}"; then
+ventoy_create_alt_img_mapper() {
+    read -r zero size target parent start <<EOF_RANGE
+    $($SED -n "${2}p" /vtoy_dm_table)
+EOF_RANGE
+
+    map="$VTOY_PATH/ventoy_dm_table"
+    root_table="$VTOY_PATH/alt_img_dm_table"
+    ventoy_check_dm_module || return 1
+    "$VTOY_PATH/tool/vtoydm" -p -f "$VTOY_PATH/ventoy_image_map" -d "$1" > "$map" || return 1
+    $AWK -v start="$start" -v size="$size" '
+        {
+            left = ($1 > start ? $1 : start)
+            right = ($1 + $2 < start + size ? $1 + $2 : start + size)
+            if (left < right) {
+                if ($3 != "linear" || left != start + covered) {
+                    exit 1
+                }
+                printf "%.0f %.0f linear %s %.0f\n", covered, right - left, $4, $5 + left - $1
+                covered += right - left
+            }
+        }
+        END { if (!size || covered != size) exit 1 }
+    ' "$map" > "$root_table" || return 1
+
+    "$VTOY_PATH/tool/dmsetup" --readonly create ventoy "$root_table" >>"$VTLOG" 2>&1
+}
+
+disk=$(ventoy_partname_to_diskname "$1")
+if is_ventoy_hook_finished || not_ventoy_disk "$disk"; then
     exit 0
+fi
+
+part=$($SED -n 's/.* ventoy_alt_img_part=\([1234]\)\( .*\)\?$/\1/p' /proc/cmdline)
+if [ -n "$part" ] && [ -s /vtoy_dm_table ]; then
+    if ventoy_create_alt_img_mapper "/dev/$disk" "$part"; then
+        set_ventoy_hook_finish
+    fi
+    exit
 fi
 
 ventoy_udev_disk_common_hook $* "noreplace"
