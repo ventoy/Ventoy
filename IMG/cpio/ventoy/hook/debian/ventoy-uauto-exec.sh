@@ -7,16 +7,25 @@ PATH=$BUSYBOX_PATH:$VTOY_PATH/tool:$PATH
 vtlog "####### $0 $* ########"
 
 subiquity_curtin_workaround() {
-    mkdir -p /root/etc/ventoy_curtin
-    ventoy_copy_file /ventoy/hook/debian/ventoy-curtin-wa.sh        /root/etc/ventoy_curtin/ventoy-curtin-wa.sh       0755
-    ventoy_copy_file /ventoy/hook/debian/ventoy-curtin-wa.conf      /root/etc/ventoy_curtin/ventoy-curtin-wa.conf     0644
-    ventoy_copy_file /ventoy/hook/debian/ventoy-curtin-wa.service   /root/etc/ventoy_curtin/ventoy-curtin-wa.service  0644
+    local newroot=$1
+    local vtDepName=''
+    local vtDepDir=''
+    
+    mkdir -p $newroot/etc/ventoy_curtin
+    ventoy_copy_file /ventoy/hook/debian/ventoy-curtin-wa.sh         $newroot/etc/ventoy_curtin/ventoy-curtin-wa.sh       0755
+    ventoy_copy_file /ventoy/hook/debian/ventoy-curtin-wa.conf       $newroot/etc/ventoy_curtin/ventoy-curtin-wa.conf     0644
+    ventoy_copy_file /ventoy/hook/debian/ventoy-curtin-wa.service    $newroot/etc/ventoy_curtin/ventoy-curtin-wa.service  0644
 
-    ln -sf /etc/ventoy_curtin/ventoy-curtin-wa.service /root/etc/systemd/system/ventoy-curtin-wa.service
+    ln -sf /etc/ventoy_curtin/ventoy-curtin-wa.service  $newroot/etc/systemd/system/ventoy-curtin-wa.service
 
-    vtDepDir=/root/etc/systemd/system/snap.ubuntu-desktop-bootstrap.subiquity-server.service.d
+    vtDepName=$(ls -1 $newroot/etc/systemd/system/ | grep 'snap.*subiquity-server.service' | head -n 1)
+    vtDepDir=$newroot/etc/systemd/system/${vtDepName}.d
+    vtlog "Depend dir is $vtDepDir"
+    
     mkdir -p $vtDepDir
     ln -sf /etc/ventoy_curtin/ventoy-curtin-wa.conf $vtDepDir/10-ventoy-curtin-wa.conf
+    
+    sed "s#XXXX#/etc/systemd/system/${vtDepName}.d#g" -i $newroot/etc/ventoy_curtin/ventoy-curtin-wa.service
 }
 
 
@@ -25,10 +34,12 @@ if [ -z "$vroot" ]; then
     vtlog "new sysroot not found"
 else
     ventoy_copy_udev_auto_rules
-    if ls $vroot/etc/udev/rules.d | grep -q 'snap.*desktop'; then
-        subiquity_curtin_workaround
+    
+    if ls -l $vroot/etc/systemd/system | grep -q 'snap.*subiquity-server.service'; then
+        vtlog "do snap subiquity workaround"
+        subiquity_curtin_workaround $vroot
     else
-        vtlog "no snap desktop detected"
+        vtlog "no snap subiquity detected"
     fi
 fi
 

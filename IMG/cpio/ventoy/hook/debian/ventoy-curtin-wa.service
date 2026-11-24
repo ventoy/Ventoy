@@ -6,7 +6,7 @@ Type=oneshot
 ExecStart=-/bin/sh /etc/ventoy_curtin/ventoy-curtin-wa.sh
 ExecStartPost=-/bin/sh -c '\
     rm -f /etc/systemd/system/ventoy-curtin-wa.service;\
-    rm -f /etc/systemd/system/snap.ubuntu-desktop-bootstrap.subiquity-server.service.d/10-ventoy-curtin-wa.conf;\
+    rm -f XXXX/10-ventoy-curtin-wa.conf;\
     rm -rf /etc/ventoy_curtin;\
 '
 

@@ -5,14 +5,10 @@ set -x
 
 if [ -e /tmp/ventoy_storage_config.py ]; then
     echo "no need to patch again"
-elif [ -d /snap/ubuntu-desktop-bootstrap/current/lib ]; then
-    PyVer=$(ls -1 /snap/ubuntu-desktop-bootstrap/current/lib | grep -m1 python)
-    echo "Python Path: $PyVer"
-
-    OldFile=/snap/ubuntu-desktop-bootstrap/current/lib/$PyVer/site-packages/curtin/storage_config.py
+else
     NewFile=/tmp/ventoy_storage_config.py
-
-    if [ -e $OldFile ]; then
+    OldFile=$(find /snap -type f -path '*curtin/storage_config.py' -print -quit 2>/dev/null)
+    if [ -n "$OldFile" ]; then
         echo "Patch curtin storage config script"
         cp -a $OldFile $NewFile
 
@@ -22,6 +18,4 @@ elif [ -d /snap/ubuntu-desktop-bootstrap/current/lib ]; then
     else
         echo "curin file not exist"
     fi
-else
-    echo "curin snap dir not exit"
 fi
