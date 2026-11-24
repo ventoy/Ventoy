@@ -40,6 +40,8 @@ if [ -e $BUSYBOX_PATH/busyboxaa64.xz ]; then
     export VTOY_ARCH=aarch64
 elif [ -e $BUSYBOX_PATH/busyboxm64e.xz ]; then
     export VTOY_ARCH=mips64el
+elif [ -e $BUSYBOX_PATH/busyboxla64.xz ]; then
+    export VTOY_ARCH=loongarch64
 else
     if [ -e $BUSYBOX_PATH/32h ]; then
         export VTOY_ARCH=x86_64
@@ -63,6 +65,9 @@ if [ "$VTOY_ARCH" = "aarch64" ]; then
 elif [ "$VTOY_ARCH" = "mips64el" ]; then
     $BUSYBOX_PATH/xzminidecm64e < $BUSYBOX_PATH/busyboxm64e.xz > $BUSYBOX_PATH/busybox
     $BUSYBOX_PATH/vtchmodm64e $BUSYBOX_PATH/busybox
+elif [ "$VTOY_ARCH" = "loongarch64" ]; then
+    $BUSYBOX_PATH/xzminidecla64 < $BUSYBOX_PATH/busyboxla64.xz > $BUSYBOX_PATH/busybox
+    $BUSYBOX_PATH/vtchmodla64 $BUSYBOX_PATH/busybox
 elif [ "$VTOY_ARCH" = "x86_64" ]; then
     $BUSYBOX_PATH/xzminidec64 < $BUSYBOX_PATH/busybox64.xz > $BUSYBOX_PATH/busybox
     if [ -s $BUSYBOX_PATH/busybox ]; then
@@ -150,6 +155,16 @@ elif [ "$VTOY_ARCH" = "mips64el" ]; then
     
     # TBD
     #ln -s $VTOY_PATH/tool/zstdcataa64 $VTOY_PATH/tool/zstdcat
+
+elif [ "$VTOY_ARCH" = "loongarch64" ]; then
+    echo "Use LoongArch64 busybox toolkit ..." >>$VTLOG
+    ln -s $BUSYBOX_PATH/xzminidecla64 $BUSYBOX_PATH/xzminidec
+    ln -s $VTOY_PATH/tool/dmsetupla64 $VTOY_PATH/tool/dmsetup
+    ln -s $VTOY_PATH/tool/lunzipla64 $VTOY_PATH/tool/lunzip
+
+    rm -f $VTOY_PATH/tool/lz4cat $VTOY_PATH/tool/zstdcat
+    ln -s $VTOY_PATH/tool/lz4catla64 $VTOY_PATH/tool/lz4cat
+    ln -s $VTOY_PATH/tool/zstdcatla64 $VTOY_PATH/tool/zstdcat
 
 elif [ "$VTOY_ARCH" = "aarch64" ]; then
     echo "Use ARM64 busybox toolkit ..." >>$VTLOG

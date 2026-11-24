@@ -454,7 +454,7 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
 
     vdebug("ventoy_get_vtoy_data %s\n", info->disk_path);
 
-    if (info->size_in_byte < (2 * VTOYEFI_PART_BYTES))
+    if (info->size_in_byte < (2 * VTOYEFI_PART_BYTES_MIN))
     {
         vdebug("disk %s is too small %llu\n", info->disk_path, (_ull)info->size_in_byte);
         return 1;
@@ -530,7 +530,7 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
     }
 
     if (part1_start_sector != VTOYIMG_PART_START_SECTOR ||
-        part2_sector_count != VTOYEFI_PART_SECTORS ||
+        !VTOYEFI_PART_SECTORS_OK(part2_sector_count) ||
         (part1_start_sector + part1_sector_count) != part2_start_sector)
     {
         vdebug("Not valid ventoy partition layout [%llu %llu] [%llu %llu]\n", 
@@ -586,6 +586,7 @@ int ventoy_get_vtoy_data(ventoy_disk *info, int *ppartstyle)
     vtoy->preserved_space = preserved_space;
     vtoy->partition_style = part_style;
     vtoy->part2_start_sector = part2_start_sector;
+    vtoy->part2_sector_count = part2_sector_count;
 
     rc = 0;
 end:

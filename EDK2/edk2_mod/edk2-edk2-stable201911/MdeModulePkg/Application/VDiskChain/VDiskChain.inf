@@ -25,6 +25,9 @@
   ENTRY_POINT                    = VDiskChainEfiMain
 
 
+[BuildOptions]
+  GCC:*_*_*_CC_FLAGS = -Wno-error=unused-but-set-variable -Wno-error=unused-variable -Wno-error=unused-function
+
 [Sources]
   VDiskChain.h
   VDiskChain.c

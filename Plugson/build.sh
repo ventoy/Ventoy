@@ -62,14 +62,22 @@ build_func() {
         aarch64-linux-gnu-strip Plugson$libsuffix
     elif [ "$libsuffix" = "m64e" ]; then
         mips-linux-gnu-strip Plugson$libsuffix
+    elif [ "$libsuffix" = "la64" ]; then
+        loongarch64-linux-gnu-strip Plugson$libsuffix
     else
         strip Plugson$libsuffix
     fi
     
+    mkdir -p ../INSTALL/tool/$toolDir
     rm -f ../INSTALL/tool/$toolDir/Plugson
     cp -a Plugson$libsuffix ../INSTALL/tool/$toolDir/Plugson
     
 }
+
+if [ "${1:-}" = "loongarch64" ]; then
+    build_func "loongarch64-linux-gnu-gcc -static" 'la64' 'loongarch64'
+    exit 0
+fi
 
 build_func "gcc" '64' 'x86_64'
 build_func "gcc -m32" '32' 'i386'

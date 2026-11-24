@@ -584,7 +584,7 @@ static int ventoy_check_efi_part_data(int fd, uint64_t offset)
     }
     
     lseek(fd, offset, SEEK_SET);
-    for (i = 0; i < 32; i++)
+    for (i = 0; i < VTOYEFI_PART_BYTES / SIZE_1MB; i++)
     {
         len = read(fd, buf, SIZE_1MB);
         if (len != SIZE_1MB || memcmp(buf, g_efi_part_raw_img + i * SIZE_1MB, SIZE_1MB))
@@ -610,7 +610,7 @@ static int ventoy_write_efipart(int fd, uint64_t offset, uint32_t secureboot)
     VentoyProcSecureBoot((int)secureboot);
 
     g_current_progress = PT_WRITE_VENTOY_START;
-    for (i = 0; i < 32; i++)
+    for (i = 0; i < VTOYEFI_PART_BYTES / SIZE_1MB; i++)
     {
         len = write(fd, g_efi_part_raw_img + i * SIZE_1MB, SIZE_1MB);
         vlog("write disk writelen:%lld datalen:%d [ %s ]\n", 
@@ -1288,6 +1288,14 @@ static int ventoy_api_update(struct mg_connection *conn, VTOY_JSON *json)
         return 0;
     }
 
+    if (disk->vtoydata.part2_sector_count < VTOYEFI_PART_SECTORS)
+    {
+        vlog("ESP has %llu sectors, smaller than 64MB. User must back up and reinstall.\n",
+             (_ull)disk->vtoydata.part2_sector_count);
+        ventoy_json_result(conn, VTOY_JSON_FAILED_RET);
+        return 0;
+    }
+
     scnprintf(path, "/sys/block/%s", diskname);
     if (access(path, F_OK) < 0)
     {
@@ -1418,6 +1426,7 @@ static int ventoy_api_get_dev_list(struct mg_connection *conn, VTOY_JSON *json)
         VTOY_JSON_FMT_STRN("vtoy_ver", cur->vtoydata.ventoy_ver);
         VTOY_JSON_FMT_UINT("vtoy_secure_boot", cur->vtoydata.secure_boot_flag);
         VTOY_JSON_FMT_UINT("vtoy_partstyle", cur->vtoydata.partition_style);
+        VTOY_JSON_FMT_UINT64("vtoy_part2_sectors", cur->vtoydata.part2_sector_count);
         VTOY_JSON_FMT_OBJ_ENDEX();
     }
     

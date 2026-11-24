@@ -44,6 +44,8 @@ elif echo $machine | grep -E -q 'x86_64|amd64'; then
     TOOLDIR=x86_64
 elif echo $machine | grep -E -q 'mips64'; then
     TOOLDIR=mips64el
+elif echo $machine | grep -E -q 'loongarch'; then
+    TOOLDIR=loongarch64
 elif echo $machine | grep -E -q 'i[3-6]86'; then
     TOOLDIR=i386
 else

@@ -263,7 +263,7 @@ static int CLI_CheckParam(int argc, char** argv, PHY_DRIVE_INFO* pDrvInfo, CLI_C
         GetHumanReadableGBSize(pDrvInfo->SizeInBytes), pDrvInfo->SizeInBytes,
         pDrvInfo->VendorId, pDrvInfo->ProductId);
 
-    if (IsVentoyPhyDrive(PhyDrive, pDrvInfo->SizeInBytes, &MBR, &Part2StartSector, &Part2GPTAttr))
+    if (IsVentoyPhyDrive(PhyDrive, pDrvInfo->SizeInBytes, &MBR, &Part2StartSector, &Part2GPTAttr, &pDrvInfo->Part2SectorCount))
     {
         memcpy(&(pDrvInfo->MBR), &MBR, sizeof(MBR));
         pDrvInfo->PartStyle = (MBR.PartTbl[0].FsFlag == 0xEE) ? 1 : 0;
@@ -383,6 +383,15 @@ static int Ventoy_CLI_Update(PHY_DRIVE_INFO* pDrvInfo, CLI_CFG* pCfg)
     int TryId = 1;
     
     Log("Ventoy_CLI_Update start ...");
+
+    if (pDrvInfo->Part2SectorCount < VENTOY_EFI_PART_SECTORS)
+    {
+        Log("ESP has %llu sectors, smaller than 64MB. Back up the first partition and reinstall to format the disk.",
+            (ULONGLONG)pDrvInfo->Part2SectorCount);
+        printf("The ESP is smaller than 64MB and cannot be updated in place.\n");
+        printf("Please back up the data on the first partition, then reinstall to format the disk.\n");
+        return 1;
+    }
 
     rc = UpdateVentoy2PhyDrive(pDrvInfo, TryId++);
     if (rc)

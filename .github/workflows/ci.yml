@@ -13,8 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Run docker compose up
-      run: docker compose up
+    - name: Build GRUB, EDK2, and loongarch64
+      run: docker compose run -T --rm --build trixie
+    - name: Build the other installers and pack the release
+      run: docker compose run -T --rm --build centos
     - uses: actions/upload-artifact@v4
       with:
         name: ventoy-windows

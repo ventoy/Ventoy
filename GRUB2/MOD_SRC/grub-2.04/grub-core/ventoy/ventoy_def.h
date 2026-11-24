@@ -65,17 +65,20 @@
 
 #define VTOY_CHKSUM_NUM  4
 
-#define VTOY_PLAT_I386_UEFI     0x49413332
-#define VTOY_PLAT_ARM64_UEFI    0x41413634
-#define VTOY_PLAT_X86_64_UEFI   0x55454649
-#define VTOY_PLAT_X86_LEGACY    0x42494f53
-#define VTOY_PLAT_MIPS_UEFI     0x4D495053
+#define VTOY_PLAT_I386_UEFI       0x49413332
+#define VTOY_PLAT_ARM64_UEFI      0x41413634
+#define VTOY_PLAT_X86_64_UEFI     0x55454649
+#define VTOY_PLAT_X86_LEGACY      0x42494f53
+#define VTOY_PLAT_MIPS_UEFI       0x4D495053
+#define VTOY_PLAT_LOONGARCH_UEFI  0x4C413634
 
 #define VTOY_COMM_CPIO  "ventoy.cpio"
 #if defined(__arm__) || defined(__aarch64__)
 #define VTOY_ARCH_CPIO  "ventoy_arm64.cpio"
 #elif defined(__mips__)
 #define VTOY_ARCH_CPIO  "ventoy_mips64.cpio"
+#elif defined(__loongarch__)
+#define VTOY_ARCH_CPIO  "ventoy_loongarch64.cpio"
 #else
 #define VTOY_ARCH_CPIO  "ventoy_x86.cpio"
 #endif
@@ -1216,7 +1219,11 @@ int ventoy_unregister_all_cmd(void);
 int ventoy_chain_file_size(const char *path);
 int ventoy_chain_file_read(const char *path, int offset, int len, void *buf);
 
-#define VTOY_CMD_CHECK(a) if (33554432 != g_ventoy_disk_part_size[a]) ventoy_syscall0(exit)
+/* Partition 2 is 32 or 64 MiB. New installs write 64 MiB. */
+#define VTOY_CMD_CHECK(a) \
+    if (g_ventoy_disk_part_size[a] != 33554432ULL && \
+        g_ventoy_disk_part_size[a] != 67108864ULL) \
+        ventoy_syscall0(exit)
 
 #define vtoy_theme_random_boot_second  0
 #define vtoy_theme_random_boot_day     1

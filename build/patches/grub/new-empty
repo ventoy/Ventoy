@@ -1,0 +1,2 @@
+include/grub/mips64/efi/boot.h
+include/grub/mips64/efi/time.h

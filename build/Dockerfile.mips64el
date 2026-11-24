@@ -1,0 +1,18 @@
+FROM debian:bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        gcc-mips64el-linux-gnuabi64 \
+        libc6-dev-mips64el-cross \
+        gcc-i686-linux-gnu \
+        python3 \
+        pkg-config \
+        gettext \
+        bison \
+        flex \
+        gawk \
+    && rm -rf /var/lib/apt/lists/*

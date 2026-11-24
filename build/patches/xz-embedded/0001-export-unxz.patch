@@ -1,0 +1,20 @@
+--- a/linux/lib/decompress_unxz.c
++++ b/linux/lib/decompress_unxz.c
+@@ -207,6 +207,6 @@
+ #endif
+ 
+-#ifndef memmove
++#if !defined(memmove) && !defined(_MSC_VER)
+ /* Not static to avoid a conflict with the prototype in the Linux headers. */
+ void *memmove(void *dest, const void *src, size_t size)
+ {
+@@ -255,7 +255,8 @@
+  * both input and output buffers are available as a single chunk, i.e. when
+  * fill() and flush() won't be used.
+  */
+-STATIC int INIT unxz(unsigned char *in, long in_size,
++/* Ventoy calls unxz() from other files, so this entry point stays global. */
++int INIT unxz(unsigned char *in, long in_size,
+ 		     long (*fill)(void *dest, unsigned long size),
+ 		     long (*flush)(void *src, unsigned long size),
+ 		     unsigned char *out, long *in_used,

@@ -1,10 +1,10 @@
 #!/bin/sh
 
-#Ventoy partition 32MB
-VENTOY_PART_SIZE=33554432
-VENTOY_PART_SIZE_MB=32
+#Ventoy ESP is 64MB. A 32MB ESP is not recognized.
+VENTOY_PART_SIZE=67108864
+VENTOY_PART_SIZE_MB=64
 VENTOY_SECTOR_SIZE=512
-VENTOY_SECTOR_NUM=65536
+VENTOY_SECTOR_NUM=131072
 
 ventoy_false() {
     [ "1" = "2" ]
@@ -170,8 +170,8 @@ is_disk_contains_ventoy() {
         return
     fi 
     
-    if [ "$VENTOY_SECTOR_NUM" != "$SIZE" ]; then
-        vtdebug "part2 size is $SIZE not $VENTOY_SECTOR_NUM"
+    if [ "$SIZE" != "131072" ]; then
+        vtdebug "part2 size is $SIZE not 131072"
         ventoy_false
         return
     fi
@@ -306,7 +306,7 @@ format_ventoy_disk_mbr() {
             mklabel msdos \
             unit s \
             mkpart primary ntfs $part1_start_sector $part1_end_sector \
-            mkpart primary fat16 $part2_start_sector $part2_end_sector \
+            mkpart primary fat32 $part2_start_sector $part2_end_sector \
             set 1 boot on \
             quit
 
@@ -379,7 +379,8 @@ EOF
     for i in 0 1 2 3 4 5 6 7 8 9; do
         check_umount_disk "$PART2"
 
-        if mkfs.vfat -F 16 -n VTOYEFI -s 1 $PART2; then
+        # -s 1: 64 MiB with 4 KiB clusters is not a legal FAT32.
+        if mkfs.vfat -F 32 -s 1 -n VTOYEFI $PART2; then
             echo 'success'
             break
         else
@@ -448,7 +449,7 @@ format_ventoy_disk_gpt() {
         mklabel gpt \
         unit s \
         mkpart Ventoy ntfs $part1_start_sector $part1_end_sector \
-        mkpart VTOYEFI fat16 $part2_start_sector $part2_end_sector \
+        mkpart VTOYEFI fat32 $part2_start_sector $part2_end_sector \
         $vt_set_efi_type \
         quit
 
@@ -497,7 +498,8 @@ format_ventoy_disk_gpt() {
     for i in 0 1 2 3 4 5 6 7 8 9; do
         check_umount_disk "$PART2"
         
-        if mkfs.vfat -F 16 -n VTOYEFI -s 1 $PART2; then
+        # -s 1: 64 MiB with 4 KiB clusters is not a legal FAT32.
+        if mkfs.vfat -F 32 -s 1 -n VTOYEFI $PART2; then
             echo 'success'
             break
         else

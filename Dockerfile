@@ -1,3 +1,7 @@
+# CI packaging image. Linux GUI, Plugson, and the release package run here.
+# GRUB 2.14, EDK2 202608, and the loongarch64 tools are built from
+# build/Dockerfile.trixie; CentOS 7 has no loongarch64 compiler, and those
+# two trees are cross-compiled once for every architecture.
 FROM centos:7
 
 RUN sed -i \

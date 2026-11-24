@@ -24,12 +24,9 @@
 #define IS_DIGIT(x) ((x) >= '0' && (x) <= '9')
 
 #ifndef USE_DIET_C
-#ifndef __mips__
-typedef unsigned long long uint64_t;
-#endif
-typedef unsigned int    uint32_t;
-typedef unsigned short  uint16_t;
-typedef unsigned char   uint8_t;
+/* The mips compiler skips a local uint64_t typedef, and its libc does
+ * not provide the name until this header is included. */
+#include <stdint.h>
 #endif
 
 #define VENTOY_GUID { 0x77772020, 0x2e77, 0x6576, { 0x6e, 0x74, 0x6f, 0x79, 0x2e, 0x6e, 0x65, 0x74 }}

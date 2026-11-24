@@ -1,0 +1,1140 @@
+diff -ruN a/aoe.c b/aoe.c
+--- a/aoe.c	2018-08-27 01:46:24.000000000 +0800
++++ b/aoe.c	2026-11-03 14:50:05.995275832 +0800
+@@ -28,6 +28,176 @@
+ char *ifname;
+ int bufcnt = Bufcount;
+ 
++#ifndef O_BINARY
++#define O_BINARY 0
++#endif
++
++typedef unsigned long long u64_t;
++typedef unsigned int    u32_t;
++
++#pragma pack(4)
++typedef struct ventoy_img_chunk
++{
++    u32_t img_start_sector; // sector size: 2KB
++    u32_t img_end_sector;   // included
++
++    u64_t disk_start_sector; // in disk_sector_size
++    u64_t disk_end_sector;   // included
++}ventoy_img_chunk;
++
++typedef struct ventoy_disk_map
++{
++    u64_t img_start_sector;
++    u64_t img_end_sector;
++    u64_t disk_start_sector;
++    u64_t disk_end_sector;
++}ventoy_disk_map;
++#pragma pack()
++
++static int verbose = 0;
++static u64_t g_iso_file_size = 0;
++static int g_img_map_num = 0;
++static ventoy_disk_map *g_img_map = NULL;
++
++static ventoy_disk_map * vtoydm_get_img_map_data(const char *img_map_file, int *plen)
++{
++    int i;
++    int len;
++    int rc = 1;
++    u64_t sector_num;
++    FILE *fp = NULL;
++    ventoy_img_chunk *chunk = NULL;
++    ventoy_disk_map *map = NULL;
++    
++    fp = fopen(img_map_file, "rb");
++    if (NULL == fp)
++    {
++        fprintf(stderr, "Failed to open file %s\n", img_map_file);
++        return NULL;
++    }
++
++    fseek(fp, 0, SEEK_END);
++    len = (int)ftell(fp);
++    fseek(fp, 0, SEEK_SET);
++
++    chunk = (ventoy_img_chunk *)malloc(len);
++    if (NULL == chunk)
++    {
++        fprintf(stderr, "Failed to malloc memory len:%d\n", len);
++        goto end;
++    }
++
++    if (fread(chunk, 1, len, fp) != len)
++    {
++        fprintf(stderr, "Failed to read file\n");
++        goto end;
++    }
++
++    if (len % sizeof(ventoy_img_chunk))
++    {
++        fprintf(stderr, "image map file size %d is not aligned with %d\n", 
++                len, (int)sizeof(ventoy_img_chunk));
++        goto end;
++    }
++
++    map = (ventoy_disk_map *)malloc((len / sizeof(ventoy_img_chunk)) * sizeof(ventoy_disk_map));
++    if (NULL == map)
++    {
++        fprintf(stderr, "Failed to malloc memory\n");
++        goto end;
++    }
++    
++    for (i = 0; i < len / sizeof(ventoy_img_chunk); i++)
++    {
++        sector_num = chunk[i].img_end_sector - chunk[i].img_start_sector + 1;
++        g_iso_file_size += sector_num * 2048;
++        
++        map[i].img_start_sector = chunk[i].img_start_sector << 2;
++        map[i].img_end_sector = (chunk[i].img_end_sector << 2) + 3;
++        map[i].disk_start_sector = chunk[i].disk_start_sector;
++        map[i].disk_end_sector = chunk[i].disk_end_sector;
++    }
++
++    rc = 0;
++end:
++    fclose(fp);
++
++    if (chunk)
++    {
++        free(chunk);
++        chunk = NULL;
++    }
++
++    *plen = len;
++    return map;
++}
++
++static void parse_img_chunk(const char *img_map_file)
++{
++    int len;
++
++    g_img_map = vtoydm_get_img_map_data(img_map_file, &len);
++    if (g_img_map)
++    {
++        g_img_map_num = len / sizeof(ventoy_img_chunk);
++    }
++}
++
++static u64_t get_disk_sector(u64_t lba)
++{
++    int i;
++    ventoy_disk_map *cur = g_img_map;
++    
++    for (i = 0; i < g_img_map_num; i++, cur++)
++    {
++        if (lba >= cur->img_start_sector && lba <= cur->img_end_sector)
++        {
++            return (lba - cur->img_start_sector) + cur->disk_start_sector;
++        }
++    }
++
++    return 0;
++}
++
++int getsec(int fd, uchar *place, vlong lba, int nsec)
++{
++    int i;
++    int count = 0;
++    u64_t last_sector;
++    u64_t sector;
++
++    count = 1;
++    last_sector = get_disk_sector((u64_t)lba);
++    
++    for (i = 1; i < nsec; i++)
++    {
++        sector = get_disk_sector((u64_t)(lba + i));
++        if (sector == (last_sector + count))
++        {
++            count++;
++        }
++        else
++        {
++            lseek(fd, last_sector * 512, SEEK_SET);
++            read(fd, place, count * 512);
++
++            last_sector = sector;
++            count = 1;
++        }
++    }
++
++    lseek(fd, last_sector * 512, SEEK_SET);
++    read(fd, place, count * 512);
++
++	return nsec * 512;
++}
++// read only
++int putsec(int fd, uchar *place, vlong lba, int nsec)
++{
++    return nsec * 512;
++}
++
++
+ void
+ aoead(int fd)	// advertise the virtual blade
+ {
+@@ -462,12 +632,19 @@
+ 	int ch, omode = 0, readonly = 0;
+ 	vlong length = 0;
+ 	char *end;
++    char filepath[300] = {0};
++
++    /* Avoid to be killed by systemd */
++    if (access("/etc/initrd-release", F_OK) >= 0)
++	{		
++		argv[0][0] = '@';
++	}
+ 
+ 	bufcnt = Bufcount;
+ 	offset = 0;
+ 	setbuf(stdin, NULL);
+ 	progname = *argv;
+-	while ((ch = getopt(argc, argv, "b:dsrm:o:l:")) != -1) {
++	while ((ch = getopt(argc, argv, "b:dsrm:f:tv::o:l:")) != -1) {
+ 		switch (ch) {
+ 		case 'b':
+ 			bufcnt = atoi(optarg);
+@@ -486,6 +663,14 @@
+ 		case 'm':
+ 			setmask(optarg);
+ 			break;
++        case 't':
++            return 0;
++        case 'v':
++            verbose = 1;
++            break;
++        case 'f':
++            strncpy(filepath, optarg, sizeof(filepath) - 1);
++            break;
+ 		case 'o':
+ 			offset = strtoll(optarg, &end, 0);
+ 			if (end == optarg || offset < 0)
+@@ -506,6 +691,7 @@
+ 	if (argc != 4 || bufcnt <= 0)
+ 		usage();
+ 	omode |= readonly ? O_RDONLY : O_RDWR;
++    parse_img_chunk(filepath);
+ 	bfd = open(argv[3], omode);
+ 	if (bfd == -1) {
+ 		perror("open");
+@@ -514,7 +700,7 @@
+ 	shelf = atoi(argv[0]);
+ 	slot = atoi(argv[1]);
+ 	setserial(shelf, slot);
+-	size = getsize(bfd);
++	size = g_iso_file_size; //getsize(bfd);
+ 	size /= 512;
+ 	if (size <= offset) {
+                 if (offset)
+@@ -539,9 +725,13 @@
+ 	if (sfd < 0)
+ 		return 1;
+ 	getea(sfd, ifname, mac);
+-	printf("pid %ld: e%d.%d, %lld sectors %s\n",
+-		(long) getpid(), shelf, slot, size,
+-		readonly ? "O_RDONLY" : "O_RDWR");
++
++    if (verbose) {
++        printf("pid %ld: e%d.%d, %lld sectors %s\n",
++		    (long) getpid(), shelf, slot, size,
++		    readonly ? "O_RDONLY" : "O_RDWR");
++    }
++    
+ 	fflush(stdout);
+ 	atainit();
+ 	aoe();
+diff -ruN a/contrib/persistence/vblade-generator b/contrib/persistence/vblade-generator
+--- a/contrib/persistence/vblade-generator	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade-generator	2026-11-03 14:50:05.995730713 +0800
+@@ -0,0 +1,37 @@
++#!/bin/sh
++
++set -eu
++
++SERVICEFILE="/lib/systemd/system/vblade@.service"
++WANTDIR="$1/vblade.service.wants"
++
++CONFIG_DIR=/etc/vblade.conf.d/
++
++if [ -d "$CONFIG_DIR" ] ; then
++    mkdir -p "$WANTDIR"
++    cd "$CONFIG_DIR"
++    for CONFIG in *.conf ; do
++        [ -f "$CONFIG" ] || continue
++        INSTANCE="$(systemd-escape "${CONFIG%%.conf}")"
++        LINK="$WANTDIR/vblade@$INSTANCE.service"
++
++        sh -n "$CONFIG_DIR$CONFIG" 2>/dev/null || continue
++
++        shelf=
++        slot=
++        netif=
++        filename=
++        options=
++
++        . "$CONFIG_DIR$CONFIG"
++
++        [ "$netif" ] || continue
++        [ "$shelf" ] || continue
++        [ "$slot" ] || continue
++        [ "$filename" ] || continue
++
++        ln -s "$SERVICEFILE" "$LINK"
++    done
++fi
++
++exit 0
+diff -ruN a/contrib/persistence/vblade.init.daemon b/contrib/persistence/vblade.init.daemon
+--- a/contrib/persistence/vblade.init.daemon	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade.init.daemon	2026-11-03 14:50:05.995769277 +0800
+@@ -0,0 +1,191 @@
++#!/bin/sh
++
++PATH=/sbin:/usr/sbin:/bin:/usr/bin
++DESC="vblade export"
++NAME=vblade
++VBLADE="/usr/sbin/$NAME"
++DAEMON=/usr/bin/daemon
++IONICE=/usr/bin/ionice
++PIDDIR="/var/run/vblade/"
++
++[ -x "$VBLADE" ] || exit 0
++[ -x "$DAEMON" ] || exit 0
++
++mkdir -p "$PIDDIR"
++
++# Emulation of LSB functions
++VERBOSE=1
++log_daemon_msg () {
++    printf '%s ' "$@"
++}
++log_end_msg () {
++    local CODE="$1"
++    if [ "$CODE" -eq 0 ] ; then
++        echo '.'
++    else
++        echo 'failed!'
++    fi
++}
++
++# Start a vblade instance
++#
++# Return
++#   0 if daemon has been started
++#   1 if daemon was already running
++#   2 if daemon could not be started
++do_start () {
++    local INSTANCE="$1"
++    local CONFIG="$2"
++
++    sh -n "$CONFIG" 2>/dev/null || return 2
++
++    shelf=
++    slot=
++    filename=
++    netif=
++    options=
++    ionice=
++
++    . "$CONFIG"
++
++    [ "$netif" ] || return 2
++    [ "$shelf" ] || return 2
++    [ "$slot" ] || return 2
++    [ "$filename" ] || return 2
++
++    if [ "$ionice" ] ; then
++        if [ -x "$IONICE" ] ; then
++            ionice="$IONICE $ionice"
++        else
++            ionice=
++        fi
++    fi
++
++    "$DAEMON" \
++        --running \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        && return 1
++    $ionice "$DAEMON" \
++        --respawn \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        --output daemon.notice \
++        --stdout daemon.notice \
++        --stderr daemon.err -- \
++        $VBLADE $options $shelf $slot $netif $filename || return 2
++}
++
++# Stop a vblade instance
++#
++# Return
++#   0 if daemon has been stopped
++#   1 if daemon was already stopped
++#   2 if daemon could not be stopped
++#   other if a failure occurred
++do_stop () {
++    local INSTANCE="$1"
++
++    "$DAEMON" \
++        --running \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" || return 1
++    "$DAEMON" \
++        --stop \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        --stop || return 2
++    # Wait until the process is gone
++    for i in $(seq 1 10) ; do
++        "$DAEMON" \
++            --running \
++            --name "$INSTANCE" \
++            --pidfiles "$PIDDIR" || return 0
++    done
++    return 2
++}
++
++EXIT=0
++
++do_action () {
++    local CONFIG="$1"
++
++    INSTANCE="$(basename "${CONFIG%%.conf}")"
++
++    case "$ACTION" in
++        start)
++            [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$INSTANCE"
++            do_start "$INSTANCE" "$CONFIG"
++            case "$?" in
++                0|1)    [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++                2)      [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++            esac
++            ;;
++        stop)
++            [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$INSTANCE"
++            do_stop "$INSTANCE"
++            case "$?" in
++                0|1)    [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++                2)      [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++            esac
++            ;;
++        status)
++            if "$DAEMON" \
++                --running \
++                --name "$INSTANCE" \
++                --pidfiles "$PIDDIR"
++            then
++                echo "$DESC instance $INSTANCE is running"
++            else
++                echo "$DESC instance $INSTANCE is not running"
++                EXIT=1
++            fi
++            ;;
++        restart|force-reload)
++            log_daemon_msg "Restarting $DESC" "$INSTANCE"
++            do_stop "$INSTANCE"
++            case "$?" in
++                0|1)
++                    do_start "$INSTANCE" "$CONFIG"
++                    case "$?" in
++                        0)  log_end_msg 0 ;;
++                        *)
++                            # Old process is still running or
++                            # failed to start
++                            log_end_msg 1 ;;
++                    esac
++                    ;;
++                *)
++                    # Failed to stop
++                    log_end_msg 1
++                    ;;
++                esac
++            ;;
++        *)
++            echo "Usage: /etc/init.d/vblade {start|stop|status|restart|force-reload} [<export> ...]" >&2
++            exit 3
++            ;;
++    esac
++}
++
++
++ACTION="$1"
++shift
++
++if [ "$1" ] ; then
++    while [ "$1" ] ; do
++        CONFIG="/etc/vblade.conf.d/$1.conf"
++        if [ -f "$CONFIG" ] ; then
++            do_action "$CONFIG"
++        fi
++        shift
++    done
++else
++    for CONFIG in /etc/vblade.conf.d/*.conf ; do
++        if [ -f "$CONFIG" ] ; then
++            do_action "$CONFIG"
++        fi
++    done
++fi
++
++exit $EXIT
+diff -ruN a/contrib/persistence/vblade.init.generate b/contrib/persistence/vblade.init.generate
+--- a/contrib/persistence/vblade.init.generate	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade.init.generate	2026-11-03 14:50:05.995769277 +0800
+@@ -0,0 +1,24 @@
++#!/bin/sh
++
++set -e
++
++TEMPDIR="$(mktemp --directory --tmpdir "vblade.init.generate.$$.XXXXX")"
++trap "cd / ; rm -rf \"$TEMPDIR\"" EXIT
++
++run () {
++    local OUTPUT="$1"
++    echo "I: Processing $OUTPUT"
++    TEMP="$TEMPDIR/$OUTPUT"
++    shift
++    tpage "$@" vblade.init.in>"$TEMP"
++    sh -n "$TEMP"
++    if [ -f "$OUTPUT" ] && cmp -s "$TEMP" "$OUTPUT" ; then
++        echo "I: $OUTPUT is fresh"
++    else
++        cp "$TEMP" "$OUTPUT"
++    fi
++}
++
++# run 'vblade.init.debian'        --define lsb=1  --define control=ssd
++run 'vblade.init.lsb-daemon'    --define lsb=1  --define control=daemon
++run 'vblade.init.daemon'        --define lsb=   --define control=daemon
+diff -ruN a/contrib/persistence/vblade.init.in b/contrib/persistence/vblade.init.in
+--- a/contrib/persistence/vblade.init.in	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade.init.in	2026-11-03 14:50:05.995769277 +0800
+@@ -0,0 +1,245 @@
++#!/bin/sh
++
++[% IF lsb -%]
++### BEGIN INIT INFO
++# Provides:          vblade
++# Required-Start:    $remote_fs $syslog $network
++# Required-Stop:     $remote_fs $syslog $network
++# Default-Start:     2 3 4 5
++# Default-Stop:      0 1 6
++# Short-Description: vblade exports
++# Description:       Manage all vlbade exports defined in
++#                    /etc/vblade.conf.d/
++### END INIT INFO
++
++[% END -%]
++PATH=/sbin:/usr/sbin:/bin:/usr/bin
++DESC="vblade export"
++NAME=vblade
++VBLADE="/usr/sbin/$NAME"
++[% IF control == 'ssd' -%]
++[% PERL -%]die ('control=ssd cannot be used as  long as vblade as no pidfile support');[% END -%]
++[% ELSIF control == 'daemon' -%]
++DAEMON=/usr/bin/daemon
++[% END -%]
++IONICE=/usr/bin/ionice
++PIDDIR="/var/run/vblade/"
++
++[ -x "$VBLADE" ] || exit 0
++[% IF control == 'daemon' -%]
++[ -x "$DAEMON" ] || exit 0
++[% END -%]
++
++mkdir -p "$PIDDIR"
++
++[% IF lsb -%]
++# Load the VERBOSE setting and other rcS variables
++. /lib/init/vars.sh
++
++# Define LSB functions
++. /lib/lsb/init-functions
++[% ELSE -%]
++# Emulation of LSB functions
++VERBOSE=1
++log_daemon_msg () {
++    printf '%s ' "$@"
++}
++log_end_msg () {
++    local CODE="$1"
++    if [ "$CODE" -eq 0 ] ; then
++        echo '.'
++    else
++        echo 'failed!'
++    fi
++}
++[% END -%]
++
++# Start a vblade instance
++#
++# Return
++#   0 if daemon has been started
++#   1 if daemon was already running
++#   2 if daemon could not be started
++do_start () {
++    local INSTANCE="$1"
++    local CONFIG="$2"
++
++    sh -n "$CONFIG" 2>/dev/null || return 2
++
++    shelf=
++    slot=
++    filename=
++    netif=
++    options=
++    ionice=
++
++    . "$CONFIG"
++
++    [ "$netif" ] || return 2
++    [ "$shelf" ] || return 2
++    [ "$slot" ] || return 2
++    [ "$filename" ] || return 2
++
++    if [ "$ionice" ] ; then
++        if [ -x "$IONICE" ] ; then
++            ionice="$IONICE $ionice"
++        else
++            ionice=
++        fi
++    fi
++
++[% IF control == 'ssd' -%]
++    local PIDFILE="$PIDDIR/$INSTANCE.pid"
++    start-stop-daemon --start --quiet \
++        --pidfile "$PIDFILE" --exec "$VBLADE" --test > /dev/null \
++        || return 1
++    start-stop-daemon --start --quiet \
++        --pidfile "$PIDFILE" \
++        --exec $ionice "$VBLADE" -- \
++        $shelf $slot $netif $filename $options \
++        || return 2
++[% ELSIF control == 'daemon' -%]
++    "$DAEMON" \
++        --running \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        && return 1
++    $ionice "$DAEMON" \
++        --respawn \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        --output daemon.notice \
++        --stdout daemon.notice \
++        --stderr daemon.err -- \
++        $VBLADE $options $shelf $slot $netif $filename || return 2
++[% END -%]
++}
++
++# Stop a vblade instance
++#
++# Return
++#   0 if daemon has been stopped
++#   1 if daemon was already stopped
++#   2 if daemon could not be stopped
++#   other if a failure occurred
++do_stop () {
++    local INSTANCE="$1"
++
++[% IF control == 'ssd' -%]
++    local PIDFILE="$PIDDIR/$INSTANCE.pid"
++    start-stop-daemon --stop --quiet \
++        --retry=TERM/30/KILL/5 --pidfile "$PIDFILE" --name "$NAME"
++    RETVAL="$?"
++    [ "$RETVAL" = 2 ] && return 2
++    # Many daemons don't delete their pidfiles when they exit.
++    rm -f "$PIDFILE"
++    return "$RETVAL"
++[% ELSIF control == 'daemon' -%]
++    "$DAEMON" \
++        --running \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" || return 1
++    "$DAEMON" \
++        --stop \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        --stop || return 2
++    # Wait until the process is gone
++    for i in $(seq 1 10) ; do
++        "$DAEMON" \
++            --running \
++            --name "$INSTANCE" \
++            --pidfiles "$PIDDIR" || return 0
++    done
++    return 2
++[% END -%]
++}
++
++EXIT=0
++
++do_action () {
++    local CONFIG="$1"
++
++    INSTANCE="$(basename "${CONFIG%%.conf}")"
++
++    case "$ACTION" in
++        start)
++            [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$INSTANCE"
++            do_start "$INSTANCE" "$CONFIG"
++            case "$?" in
++                0|1)    [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++                2)      [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++            esac
++            ;;
++        stop)
++            [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$INSTANCE"
++            do_stop "$INSTANCE"
++            case "$?" in
++                0|1)    [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++                2)      [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++            esac
++            ;;
++        status)
++[% IF lsb -%]
++            status_of_proc -p "$PIDDIR/$INSTANCE.pid" "$VBLADE" "vblade instance $INSTANCE" || EXIT=$?
++[% ELSE -%]
++            if "$DAEMON" \
++                --running \
++                --name "$INSTANCE" \
++                --pidfiles "$PIDDIR"
++            then
++                echo "$DESC instance $INSTANCE is running"
++            else
++                echo "$DESC instance $INSTANCE is not running"
++                EXIT=1
++            fi
++[% END -%]
++            ;;
++        restart|force-reload)
++            log_daemon_msg "Restarting $DESC" "$INSTANCE"
++            do_stop "$INSTANCE"
++            case "$?" in
++                0|1)
++                    do_start "$INSTANCE" "$CONFIG"
++                    case "$?" in
++                        0)  log_end_msg 0 ;;
++                        *)
++                            # Old process is still running or
++                            # failed to start
++                            log_end_msg 1 ;;
++                    esac
++                    ;;
++                *)
++                    # Failed to stop
++                    log_end_msg 1
++                    ;;
++                esac
++            ;;
++        *)
++            echo "Usage: /etc/init.d/vblade {start|stop|status|restart|force-reload} [<export> ...]" >&2
++            exit 3
++            ;;
++    esac
++}
++
++
++ACTION="$1"
++shift
++
++if [ "$1" ] ; then
++    while [ "$1" ] ; do
++        CONFIG="/etc/vblade.conf.d/$1.conf"
++        if [ -f "$CONFIG" ] ; then
++            do_action "$CONFIG"
++        fi
++        shift
++    done
++else
++    for CONFIG in /etc/vblade.conf.d/*.conf ; do
++        if [ -f "$CONFIG" ] ; then
++            do_action "$CONFIG"
++        fi
++    done
++fi
++
++exit $EXIT
+diff -ruN a/contrib/persistence/vblade.init.lsb-daemon b/contrib/persistence/vblade.init.lsb-daemon
+--- a/contrib/persistence/vblade.init.lsb-daemon	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade.init.lsb-daemon	2026-11-03 14:50:05.995769277 +0800
+@@ -0,0 +1,185 @@
++#!/bin/sh
++
++### BEGIN INIT INFO
++# Provides:          vblade
++# Required-Start:    $remote_fs $syslog $network
++# Required-Stop:     $remote_fs $syslog $network
++# Default-Start:     2 3 4 5
++# Default-Stop:      0 1 6
++# Short-Description: vblade exports
++# Description:       Manage all vlbade exports defined in
++#                    /etc/vblade.conf.d/
++### END INIT INFO
++
++PATH=/sbin:/usr/sbin:/bin:/usr/bin
++DESC="vblade export"
++NAME=vblade
++VBLADE="/usr/sbin/$NAME"
++DAEMON=/usr/bin/daemon
++IONICE=/usr/bin/ionice
++PIDDIR="/var/run/vblade/"
++
++[ -x "$VBLADE" ] || exit 0
++[ -x "$DAEMON" ] || exit 0
++
++mkdir -p "$PIDDIR"
++
++# Load the VERBOSE setting and other rcS variables
++. /lib/init/vars.sh
++
++# Define LSB functions
++. /lib/lsb/init-functions
++
++# Start a vblade instance
++#
++# Return
++#   0 if daemon has been started
++#   1 if daemon was already running
++#   2 if daemon could not be started
++do_start () {
++    local INSTANCE="$1"
++    local CONFIG="$2"
++
++    sh -n "$CONFIG" 2>/dev/null || return 2
++
++    shelf=
++    slot=
++    filename=
++    netif=
++    options=
++    ionice=
++
++    . "$CONFIG"
++
++    [ "$netif" ] || return 2
++    [ "$shelf" ] || return 2
++    [ "$slot" ] || return 2
++    [ "$filename" ] || return 2
++
++    if [ "$ionice" ] ; then
++        if [ -x "$IONICE" ] ; then
++            ionice="$IONICE $ionice"
++        else
++            ionice=
++        fi
++    fi
++
++    "$DAEMON" \
++        --running \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        && return 1
++    $ionice "$DAEMON" \
++        --respawn \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        --output daemon.notice \
++        --stdout daemon.notice \
++        --stderr daemon.err -- \
++        $VBLADE $options $shelf $slot $netif $filename || return 2
++}
++
++# Stop a vblade instance
++#
++# Return
++#   0 if daemon has been stopped
++#   1 if daemon was already stopped
++#   2 if daemon could not be stopped
++#   other if a failure occurred
++do_stop () {
++    local INSTANCE="$1"
++
++    "$DAEMON" \
++        --running \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" || return 1
++    "$DAEMON" \
++        --stop \
++        --name "$INSTANCE" \
++        --pidfiles "$PIDDIR" \
++        --stop || return 2
++    # Wait until the process is gone
++    for i in $(seq 1 10) ; do
++        "$DAEMON" \
++            --running \
++            --name "$INSTANCE" \
++            --pidfiles "$PIDDIR" || return 0
++    done
++    return 2
++}
++
++EXIT=0
++
++do_action () {
++    local CONFIG="$1"
++
++    INSTANCE="$(basename "${CONFIG%%.conf}")"
++
++    case "$ACTION" in
++        start)
++            [ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$INSTANCE"
++            do_start "$INSTANCE" "$CONFIG"
++            case "$?" in
++                0|1)    [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++                2)      [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++            esac
++            ;;
++        stop)
++            [ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$INSTANCE"
++            do_stop "$INSTANCE"
++            case "$?" in
++                0|1)    [ "$VERBOSE" != no ] && log_end_msg 0 ;;
++                2)      [ "$VERBOSE" != no ] && log_end_msg 1 ;;
++            esac
++            ;;
++        status)
++            status_of_proc -p "$PIDDIR/$INSTANCE.pid" "$VBLADE" "vblade instance $INSTANCE" || EXIT=$?
++            ;;
++        restart|force-reload)
++            log_daemon_msg "Restarting $DESC" "$INSTANCE"
++            do_stop "$INSTANCE"
++            case "$?" in
++                0|1)
++                    do_start "$INSTANCE" "$CONFIG"
++                    case "$?" in
++                        0)  log_end_msg 0 ;;
++                        *)
++                            # Old process is still running or
++                            # failed to start
++                            log_end_msg 1 ;;
++                    esac
++                    ;;
++                *)
++                    # Failed to stop
++                    log_end_msg 1
++                    ;;
++                esac
++            ;;
++        *)
++            echo "Usage: /etc/init.d/vblade {start|stop|status|restart|force-reload} [<export> ...]" >&2
++            exit 3
++            ;;
++    esac
++}
++
++
++ACTION="$1"
++shift
++
++if [ "$1" ] ; then
++    while [ "$1" ] ; do
++        CONFIG="/etc/vblade.conf.d/$1.conf"
++        if [ -f "$CONFIG" ] ; then
++            do_action "$CONFIG"
++        fi
++        shift
++    done
++else
++    for CONFIG in /etc/vblade.conf.d/*.conf ; do
++        if [ -f "$CONFIG" ] ; then
++            do_action "$CONFIG"
++        fi
++    done
++fi
++
++exit $EXIT
+diff -ruN a/contrib/persistence/vblade-persistence.txt b/contrib/persistence/vblade-persistence.txt
+--- a/contrib/persistence/vblade-persistence.txt	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade-persistence.txt	2026-11-03 14:50:05.995769277 +0800
+@@ -0,0 +1,107 @@
++
++= VBLADE-PERSISTENCE(5)
++
++== NAME
++
++vblade-persistence - description of the vblade persistence
++
++== DESCRIPTION
++
++vblade-persistence uses the files in `/etc/vblade.conf.d/` to manage
++exports. File names must end in `.conf`. The "instance" name is the
++file name without `.conf`.
++
++The file format is a POSIX shell fragment.
++
++The following variables *must* be defined: `netif`, `shelf`, `slot`,
++and `filename`. See vblade(8) for their meaning. Incomplete
++configuration files are ignored, so are files that are not a valid
++shell syntax.
++
++Additionally, the following variables may be defined:
++
++* `options`
++
++Any options as provided by vblade(7).
++
++* `ionice`
++
++Use these to define an I/O scheduling class and level for that export.
++The value must be understood by ionice(1).
++
++
++== EXAMPLE
++
++----
++    shelf=14
++    slot=2
++    netif=ens3
++    filename=/dev/mapper/export
++    options='-r -m 11:22:33:44:55:66,22:33:44:55:66:77 -o 8'
++    ionice='--class best-effort --classdata 7'
++----
++
++
++== USAGE
++
++=== On systems using systemd
++
++Install `vblade-generator` in `/lib/systemd/system-generators/`, and
++both `vblade.service` and `vblade@.service` in `/lib/systemd/system/`.
++Enable the vblade service, reload systemd. Additional units for each
++export should appear, named `vblade@<instance>.service`.
++
++=== On systems using SysV init
++
++Individual instances may be controlled by providing their name as
++a second option, e.g.
++
++----
++    /etc/init.d/vblade status demo
++----
++
++Two different init scripts are available:
++
++==== `vblade.init.lsb-daemon`
++
++Uses LSB functions and daemon(1) program to control the instance.
++
++Pros: daemon(1) is a very fine tool for this, providing also respawning
++and output redirection.
++
++==== `vblade.init.daemon`
++
++As above, but without using LSB functions.
++
++Pros: Should be fairly portable, no thrills.
++
++==== Template
++
++The template for these scripts is `vblade.init.in`, the actual
++templating is done using tpage(1p), see `vblade.init.generate`.
++
++Support for using Debian's start-stop-daemon has been prepared but
++requires pid file supprt in vblade to be usable.
++
++
++== BUGS
++
++On SysV init systems, the configuration files are always sourced as
++shell scripts. On systemd systems, the configuration file is just
++a key/value store without shell expansion.
++
++It's a wise idea to run `sh -n` against a configuration file after any
++modification for basic format validation.
++
++
++== SEE ALSO
++
++daemon: <http://www.libslack.org/daemon/>
++
++tpage(1p)
++
++vblade(8)
++
++== AUTHOR
++
++Christoph Biedl <sourceforge.bnwi@manchmal.in-ulm.de>
+diff -ruN a/contrib/persistence/vblade.service b/contrib/persistence/vblade.service
+--- a/contrib/persistence/vblade.service	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade.service	2026-11-03 14:50:05.995769277 +0800
+@@ -0,0 +1,13 @@
++[Unit]
++Description=vblade exports
++Documentation=man:vblade-persistence(5)
++Documentation=man:vblade(8)
++
++[Service]
++Type=oneshot
++ExecStart=/bin/true
++ExecReload=/bin/true
++RemainAfterExit=on
++
++[Install]
++WantedBy=multi-user.target
+diff -ruN a/contrib/persistence/vblade@.service b/contrib/persistence/vblade@.service
+--- a/contrib/persistence/vblade@.service	1970-01-01 08:00:00.000000000 +0800
++++ b/contrib/persistence/vblade@.service	2026-11-03 14:50:05.995769277 +0800
+@@ -0,0 +1,18 @@
++[Unit]
++Description=vblade instance %I
++SourcePath=/etc/vblade.conf.d/%I.conf
++Documentation=man:vblade(8)
++PartOf=vblade.service
++After=rc-local.service
++
++[Service]
++Type=simple
++Environment="ionice=-c2 -n7"
++EnvironmentFile=/etc/vblade.conf.d/%I.conf
++ExecStart=/usr/bin/ionice $ionice /usr/sbin/vblade $shelf $slot $netif $filename $options
++SyslogIdentifier=vblade
++Restart=always
++RestartSec=10
++
++[Install]
++WantedBy=multi-user.target
+diff -ruN a/freebsd.c b/freebsd.c
+--- a/freebsd.c	2018-08-27 01:46:24.000000000 +0800
++++ b/freebsd.c	2026-11-03 14:50:05.995769277 +0800
+@@ -210,6 +210,7 @@
+ }
+ 
+ 
++#if 0
+ int
+ getsec(int fd, uchar *place, vlong lba, int nsec)
+ {
+@@ -221,6 +222,7 @@
+ {
+ 	return pwrite(fd, place, nsec * 512, lba * 512);
+ }
++#endif
+ 
+ static int pktn = 0;
+ static uchar *pktbp = NULL;
+diff -ruN a/linux.c b/linux.c
+--- a/linux.c	2018-08-27 01:46:24.000000000 +0800
++++ b/linux.c	2026-11-03 14:50:05.995769277 +0800
+@@ -120,6 +120,7 @@
+ 	return xx.ifr_mtu;
+ }
+ 
++#if 0
+ int
+ getsec(int fd, uchar *place, vlong lba, int nsec)
+ {
+@@ -131,6 +132,7 @@
+ {
+ 	return pwrite(fd, place, nsec * 512, lba * 512);
+ }
++#endif
+ 
+ int
+ getpkt(int fd, uchar *buf, int sz)

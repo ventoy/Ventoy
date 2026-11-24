@@ -1,0 +1,13 @@
+FROM debian:trixie
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Bookworm no longer publishes libc6-dev-i386-cross. Trixie still does.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        python3 \
+        gcc-i686-linux-gnu \
+        libc6-dev-i386-cross \
+    && rm -rf /var/lib/apt/lists/*

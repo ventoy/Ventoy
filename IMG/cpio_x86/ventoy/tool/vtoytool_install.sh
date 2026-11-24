@@ -52,6 +52,17 @@ elif $GREP -q mips64el $VTOY_PATH/ventoy_arch; then
     # TBD
     #$BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_aa64  $VTOY_PATH/tool/vtoy_fuse_iso
     #$BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_aa64  $VTOY_PATH/tool/vtoy_unsquashfs    
+elif $GREP -q loongarch $VTOY_PATH/ventoy_arch; then
+    for vtdir in $(ls $VTOY_PATH/tool/vtoytool/); do
+        echo "try $VTOY_PATH/tool/vtoytool/$vtdir/ ..." >> $VTLOG
+        if $VTOY_PATH/tool/vtoytool/$vtdir/vtoytool_la64 --install 2>>$VTLOG; then
+            echo "vtoytool_la64 OK" >> $VTLOG
+            break
+        fi
+    done
+
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/vtoy_fuse_iso_la64  $VTOY_PATH/tool/vtoy_fuse_iso
+    $BUSYBOX_PATH/cp -a $VTOY_PATH/tool/unsquashfs_la64  $VTOY_PATH/tool/vtoy_unsquashfs
 else
     for vtdir in $(ls $VTOY_PATH/tool/vtoytool/); do
         echo "try $VTOY_PATH/tool/vtoytool/$vtdir/ ..." >> $VTLOG

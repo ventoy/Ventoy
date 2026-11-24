@@ -28,8 +28,11 @@
 #define VTOYIMG_PART_START_BYTES    (1024 * 1024)
 #define VTOYIMG_PART_START_SECTOR   2048
 
-#define VTOYEFI_PART_BYTES    (32 * 1024 * 1024)
-#define VTOYEFI_PART_SECTORS  65536
+/* The installer writes a 64 MiB ESP. A 32 MiB ESP is not a Ventoy disk. */
+#define VTOYEFI_PART_BYTES_MIN (32 * 1024 * 1024)
+#define VTOYEFI_PART_BYTES    (64 * 1024 * 1024)
+#define VTOYEFI_PART_SECTORS  (VTOYEFI_PART_BYTES / 512)
+#define VTOYEFI_PART_SECTORS_OK(n)  ((n) == VTOYEFI_PART_SECTORS)
 
 #pragma pack(1)
 
@@ -117,6 +120,7 @@ typedef struct disk_ventoy_data
     uint64_t preserved_space;
 
     uint64_t part2_start_sector;
+    uint64_t part2_sector_count;
 
     int  partition_style; // MBR_PART_STYLE/GPT_PART_STYLE
     VTOY_GPT_INFO gptinfo;

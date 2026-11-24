@@ -266,7 +266,7 @@ dos2unix -q $tmpdir/ExtendPersistentImg.sh
 cp $OPT ../LinuxGUI/WebUI $tmpdir/
 sed 's/.*SCRIPT_DEL_THIS \(.*\)/\1/g' -i $tmpdir/WebUI/index.html
 
-#32MB disk img
+#64MB disk img
 dd status=none if=$LOOP of=$tmpdir/ventoy/ventoy.disk.img bs=512 count=$VENTOY_SECTOR_NUM skip=$part2_start_sector
 
 
@@ -296,7 +296,7 @@ rm -f ventoy-${curver}-linux.tar.gz
 
 CurDir=$PWD
 
-for d in i386 x86_64 aarch64 mips64el; do
+for d in i386 x86_64 aarch64 mips64el loongarch64; do
     cd $tmpdir/tool/$d
     for file in $(ls); do
         if [ "$file" != "xzcat" ]; then
@@ -320,7 +320,7 @@ chmod +x $tmpdir/VentoyVlnk.sh
 chmod +x $tmpdir/VentoyGUI*
 chmod +x $tmpdir/tool/*.sh
 
-for d in i386 x86_64 aarch64 mips64el; do
+for d in i386 x86_64 aarch64 mips64el loongarch64; do
     chmod +x $tmpdir/tool/$d/xzcat
     chmod +x $tmpdir/tool/$d/Ventoy2Disk.*
 done
