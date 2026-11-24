@@ -239,7 +239,8 @@ static int vtoykmod_read_file(char *name, char **buf)
     if (!databuf)
     {
         debug("failed to open malloc %d\n", size);
-        return -1;
+        fclose(fp);
+		return -1;
     }
     
     fread(databuf, 1, size, fp);
