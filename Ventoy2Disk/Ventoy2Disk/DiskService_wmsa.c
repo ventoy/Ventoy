@@ -262,14 +262,14 @@ BOOL PSHELL_FormatVolume(char DriveLetter, int fs, DWORD ClusterSize)
 	if (ClusterSize > 0)
 	{
 		sprintf_s(CmdBuf, sizeof(CmdBuf),
-			"format-volume -DriveLetter %C -FileSystem %s -AllocationUnitSize %u -Force -NewFileSystemLabel Ventoy",
-			DriveLetter, fsname, ClusterSize);
+			"format-volume -DriveLetter %C -FileSystem %s -AllocationUnitSize %u -Force -NewFileSystemLabel %s",
+			DriveLetter, fsname, ClusterSize, g_VolumeLabel);
 	}
 	else
 	{
 		sprintf_s(CmdBuf, sizeof(CmdBuf),
-			"format-volume -DriveLetter %C -FileSystem %s -Force -NewFileSystemLabel Ventoy",
-			DriveLetter, fsname);
+			"format-volume -DriveLetter %C -FileSystem %s -Force -NewFileSystemLabel %s",
+			DriveLetter, fsname, g_VolumeLabel);
 	}
 
 	ret = PSHELL_CommProc(CmdBuf);
