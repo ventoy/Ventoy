@@ -532,7 +532,7 @@ terminal_sanity_check (grub_gfxmenu_view_t view)
   if (scr_width <= (int) min_terminal_width
       || scr_height <= (int) min_terminal_height)
     {
-      /* The screen resulution is too low. Use all space, except a small border
+      /* The screen resolution is too low. Use all space, except a small border
          to show the user, that it is a window. Then center the window. */
       term_width = scr_width - 6 * border_width;
       term_height = scr_height - 6 * border_width;

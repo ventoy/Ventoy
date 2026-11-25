@@ -80,7 +80,7 @@ fi
 
 # 
 # We do a trick for rhel6 series here.
-# Use /dev/$vtCheatLoop and wapper it as a removable cdrom with bind mount.
+# Use /dev/$vtCheatLoop and wrapper it as a removable cdrom with bind mount.
 # Then the anaconda installer will accept /dev/$vtCheatLoop as the install medium.
 #
 ventoy_copy_device_mapper  /dev/$vtCheatLoop

@@ -29,7 +29,7 @@ if [ $uid -ne 0 ]; then
     exit 1
 fi
 
-#check system tools used bellow
+#check system tools used below
 for t in 'mountpoint' 'readlink' 'xzcat'; do
     if ! which "$t" > /dev/null 2>&1; then
         echo "$t command not found in current system!"

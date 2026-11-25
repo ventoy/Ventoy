@@ -97,7 +97,7 @@ long                fl_ftell(void *f);
 int                 fl_feof(void *f);
 int                 fl_remove(const char * filename);
 
-// Equivelant dirent.h
+// Equivalent dirent.h
 typedef struct fs_dir_list_status    FL_DIR;
 typedef struct fs_dir_ent            fl_dirent;
 

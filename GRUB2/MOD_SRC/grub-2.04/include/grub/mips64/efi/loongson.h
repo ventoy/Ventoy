@@ -54,7 +54,7 @@ typedef struct
 {
   grub_uint16_t vers;     /* version */
   grub_uint32_t nr_map;   /* number of memory_maps */
-  grub_uint32_t mem_freq; /* memory frequence */
+  grub_uint32_t mem_freq; /* memory frequency */
   struct mem_map {
     grub_uint32_t node_id;        /* node_id which memory attached to */
     grub_uint32_t mem_type;       /* system memory, pci memory, pci io, etc. */

@@ -400,7 +400,7 @@ read_identifier (struct parsebuf *p)
 {
   /* Index of the first character of the identifier in p->buf.  */
   int start;
-  /* Next index after the last character of the identifer in p->buf.  */
+  /* Next index after the last character of the identifier in p->buf.  */
   int end;
 
   skip_whitespace (p);

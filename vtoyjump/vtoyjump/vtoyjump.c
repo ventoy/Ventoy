@@ -2836,7 +2836,7 @@ int VentoyJump(INT argc, CHAR **argv, CHAR *LunchFile)
         if (CheckOsParam((ventoy_os_param *)(Buffer + PeStart)) &&
             CheckPeHead(Buffer, FileSize, PeStart + sizeof(ventoy_os_param)))
         {
-            Log("Find os pararm at %u", PeStart);
+            Log("Find os param at %u", PeStart);
 
             memcpy(&g_os_param, Buffer + PeStart, sizeof(ventoy_os_param));
             memcpy(&g_windows_data, Buffer + PeStart + sizeof(ventoy_os_param), sizeof(ventoy_windows_data));
