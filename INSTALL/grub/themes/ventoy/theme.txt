@@ -1,5 +1,7 @@
 
 desktop-image: "background.png"
+desktop-image-scale-method: "padding"
+desktop-image-h-align: "center"
 title-text: " "
 title-color: "#ffffff"
 message-color: "#f2f2f2"
