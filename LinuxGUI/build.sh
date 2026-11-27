@@ -30,6 +30,7 @@ build_func() {
         -I ./Ventoy2Disk/Lib/exfat/src/libexfat \
         -I ./Ventoy2Disk/Lib/exfat/src/mkfs \
         -I ./Ventoy2Disk/Lib/fat_io_lib \
+        $(pkg-config --libs -cflags udisks2) \
         \
         -L ./Ventoy2Disk/Lib/fat_io_lib/lib \
         Ventoy2Disk/main_webui.c \
