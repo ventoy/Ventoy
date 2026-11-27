@@ -1,9 +1,9 @@
 
 // 包装ajax请求
 function callVtoy(p1, p2, p3) {
-    var url = '/vtoy/json';
-    var data = {};
-    var func = function(data) {};
+    const url = '/vtoy/json';
+    const data = {};
+    const func = function(data) {};
 
     if (typeof(p1) === 'string') {
         url = p1;
@@ -134,16 +134,16 @@ function callVtoySync(data, func) {
         data: JSON.stringify(data),
         success: function VtoyCallFuncWrapper(data) {            
             if (data.result === 'tokenerror') {
-                var titlestr = '<span class="fa  fa-minus-circle" style="color:#dd4b39; font-weight:bold;"> ' + vtoy_cur_language.STR_ERROR + '</span>';
-                var msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + vtoy_cur_language.STR_WEB_TOKEN_MISMATCH + '</span>';                    
+                const titlestr = '<span class="fa  fa-minus-circle" style="color:#dd4b39; font-weight:bold;"> ' + vtoy_cur_language.STR_ERROR + '</span>';
+                const msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + vtoy_cur_language.STR_WEB_TOKEN_MISMATCH + '</span>';
                 
                 Modal.alert({title:titlestr, msg:msgstr, btnok:vtoy_cur_language.STR_BTN_OK }).on(function(e) {
                     window.location.reload(true);
                 });
             } 
             else if (data.result === 'busy') {
-                var titlestr = '<span class="fa fa-check-circle" style="color:green; font-weight:bold;"> ' + vtoy_cur_language.STR_INFO + '</span>';
-                var msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + vtoy_cur_language.STR_WEB_SERVICE_BUSY + '</span>';
+                const titlestr = '<span class="fa fa-check-circle" style="color:green; font-weight:bold;"> ' + vtoy_cur_language.STR_INFO + '</span>';
+                const msgstr = '<span style="font-size:14px; font-weight:bold;"> ' + vtoy_cur_language.STR_WEB_SERVICE_BUSY + '</span>';
                 Modal.alert({title:titlestr, msg:msgstr, btnok:vtoy_cur_language.STR_BTN_OK });                
             }else {
                 func(data);
@@ -193,7 +193,7 @@ function callVtoySync(data, func) {
     });
 }
 
-var vtoy = {    
+const vtoy = {
     baseurl : '',
     status: '',    
     scan: {
@@ -213,23 +213,23 @@ String.prototype.endsWith = function(str) {
 }
 
 window.Message = function() {
-    var _showMsg = function(type, msg, time) {
-        var o = {type : type, msg : msg };
+    const _showMsg = function(type, msg, time) {
+        const o = {type : type, msg : msg };
         if(time) {
             o.time = time;
         }
         _show(o);
     }
     
-    var _show = function(options) {
-        var ops = {
+    const _show = function(options) {
+        const ops = {
             msg : "提示内容",
             type: 'S',
             time: 3000
         };
         $.extend(ops, options);
 
-        var msg_class = 'alert-success';
+        const msg_class = 'alert-success';
         if('S' === ops.type || 's' === ops.type) {
             msg_class = 'alert-success';
         } else if ('E' === ops.type || 'e' === ops.type) {
@@ -242,29 +242,29 @@ window.Message = function() {
             alert("未知的类型，请使用: w-警告;s-成功;e-失败;i-提示");
             return;
         }
-        var $messageContainer = $("#fcss_message");
+        const $messageContainer = $("#fcss_message");
         if($messageContainer.length === 0) {
             $messageContainer = $('<div id="fcss_message" style="position:fixed; left: 20%; right: 20%; top:0px; z-index:99999999"></div>');
             $messageContainer.appendTo($('body'));
         }
-        var $div = $('<div class="alert ' + msg_class + ' alert-dismissible fade in" role="alert" style="margin-bottom: 0; padding-top:10px; padding-bottom: 10px;"></div>');
-        var $btn = $('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>');
+        const $div = $('<div class="alert ' + msg_class + ' alert-dismissible fade in" role="alert" style="margin-bottom: 0; padding-top:10px; padding-bottom: 10px;"></div>');
+        const $btn = $('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>');
         $div.append($btn).append(ops.msg).appendTo($messageContainer);
         setTimeout(function() {
             $div.remove();
         }, ops.time);
     }
     
-    var _success = function(msg, time) {
+    const _success = function(msg, time) {
         _showMsg('s', msg, time);
     }
-    var _error = function(msg, time) {        
+    const _error = function(msg, time) {
         _showMsg('e', msg, time || 5000);
     }
-    var _warn = function(msg, time) {
+    const _warn = function(msg, time) {
         _showMsg('w', msg, time);
     }
-    var _info = function(msg, time) {
+    const _info = function(msg, time) {
         _showMsg('i', msg, time);
     }
     
